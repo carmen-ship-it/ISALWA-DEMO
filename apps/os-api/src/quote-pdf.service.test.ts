@@ -118,7 +118,7 @@ describe('QuotePdfService render', () => {
     const service = new QuotePdfService(
       {
         getPartyInOrg: async () => null,
-        listContactsForOrgParty: async () => [],
+        listContactsForOrgParty: async () => ({ items: [], hasMore: false, nextCursor: null }),
       } as never,
       new PdfLibPdfProvider(),
     );

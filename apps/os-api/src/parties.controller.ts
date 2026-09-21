@@ -12,6 +12,7 @@ import type { Request } from 'express';
 import {
   canGrantCustomerCoverage,
   canReassignCommercialAccountOwner,
+  CursorPaginationSchema,
   ListPartyTimelineQuerySchema,
   SearchPartiesQuerySchema,
 } from '@isalwa/os-contracts';
@@ -104,12 +105,27 @@ export class PartiesController {
   async listPartyLocations(@Param('partyId') partyId: string, @Req() req: Request) {
     try {
       const session = await resolveSession(req, this.workforceStore);
+      const parsed = CursorPaginationSchema.safeParse(req.query ?? {});
+      if (!parsed.success) {
+        throw new HttpException({ code: 'VALIDATION_FAILED' }, HttpStatus.BAD_REQUEST);
+      }
       const party = await this.partyStore.getPartyInOrg(session.organizationId, partyId);
       if (!party) {
         throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
       }
-      const locations = await this.partyStore.listLocationsForParty(session.organizationId, partyId);
-      return { partyId, locations };
+      const page = await this.partyStore.listLocationsForParty(session.organizationId, partyId, {
+        limit: parsed.data.limit,
+        cursor: parsed.data.cursor,
+      });
+      return {
+        partyId,
+        locations: page.items,
+        meta: {
+          nextCursor: page.nextCursor,
+          limit: parsed.data.limit,
+          hasMore: page.hasMore,
+        },
+      };
     } catch (err) {
       if (err instanceof HttpException) throw err;
       const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';
@@ -120,7 +136,53 @@ export class PartiesController {
               code === 'PERMISSION_DENIED' ||
               code === 'ACCESS_REVOKED'
             ? HttpStatus.FORBIDDEN
-            : HttpStatus.INTERNAL_SERVER_ERROR;
+            : code === 'VALIDATION_FAILED'
+              ? HttpStatus.BAD_REQUEST
+              : HttpStatus.INTERNAL_SERVER_ERROR;
+      throw new HttpException({ code }, status);
+    }
+  }
+
+  @Get(':partyId/contacts')
+  async listPartyContacts(@Param('partyId') partyId: string, @Req() req: Request) {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const parsed = CursorPaginationSchema.safeParse(req.query ?? {});
+      if (!parsed.success) {
+        throw new HttpException({ code: 'VALIDATION_FAILED' }, HttpStatus.BAD_REQUEST);
+      }
+      const party = await this.partyStore.getPartyInOrg(session.organizationId, partyId);
+      if (!party) {
+        throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+      }
+      const page = await this.partyStore.listContactsForOrgParty(session.organizationId, partyId, {
+        limit: parsed.data.limit,
+        cursor: parsed.data.cursor,
+      });
+      return {
+        partyId,
+        contacts: page.items,
+        meta: {
+          nextCursor: page.nextCursor,
+          limit: parsed.data.limit,
+          hasMore: page.hasMore,
+        },
+      };
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';
+      const status =
+        code === 'AUTH_REQUIRED'
+          ? HttpStatus.UNAUTHORIZED
+          : code === 'NOT_FOUND'
+            ? HttpStatus.NOT_FOUND
+          : code === 'TENANT_FORBIDDEN' ||
+              code === 'PERMISSION_DENIED' ||
+              code === 'ACCESS_REVOKED'
+            ? HttpStatus.FORBIDDEN
+            : code === 'VALIDATION_FAILED'
+              ? HttpStatus.BAD_REQUEST
+              : HttpStatus.INTERNAL_SERVER_ERROR;
       throw new HttpException({ code }, status);
     }
   }
@@ -138,7 +200,17 @@ export class PartiesController {
         partyId,
         session.effectiveAt,
       );
-      const contacts = await this.partyStore.listContactsForOrgParty(session.organizationId, partyId);
+      const contactsPage = await this.partyStore.listContactsForOrgParty(
+        session.organizationId,
+        partyId,
+        { limit: 25 },
+      );
+      const contacts = contactsPage.items;
+      const contactsMeta = {
+        limit: 25,
+        hasMore: contactsPage.hasMore,
+        nextCursor: contactsPage.nextCursor,
+      };
       const commercialAccount = await this.partyStore.getCommercialAccountForParty(
         session.organizationId,
         partyId,
@@ -163,6 +235,7 @@ export class PartiesController {
         party,
         roles,
         contacts,
+        contactsMeta,
         commercialAccount,
         activeCoverage,
         commercialAuthority: {

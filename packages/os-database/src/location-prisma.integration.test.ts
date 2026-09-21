@@ -123,10 +123,10 @@ describePrisma('location prisma integration', () => {
       longitude: -68.2,
     });
     assert.notEqual(first.data.locationId, second.data.locationId);
-    const locations = await partyStore.listLocationsForParty(org.id, partyId);
-    assert.equal(locations.length, 2);
-    assert.ok(locations.some((l) => l.label === 'Store A'));
-    assert.ok(locations.some((l) => l.label === 'Store B'));
+    const locationsPage = await partyStore.listLocationsForParty(org.id, partyId);
+    assert.equal(locationsPage.items.length, 2);
+    assert.ok(locationsPage.items.some((l) => l.label === 'Store A'));
+    assert.ok(locationsPage.items.some((l) => l.label === 'Store B'));
   });
 
   it('updates location fields', async () => {
@@ -219,8 +219,8 @@ describePrisma('location prisma integration', () => {
         }),
       (err: Error) => err.message === 'NOT_FOUND',
     );
-    const locations = await partyStore.listLocationsForParty(a.org.id, partyId);
-    assert.equal(locations.length, 0);
+    const locationsPage = await partyStore.listLocationsForParty(a.org.id, partyId);
+    assert.equal(locationsPage.items.length, 0);
   });
 
   it('rejects cross-tenant read without existence leak', async () => {

@@ -56,7 +56,7 @@ function mockClient(overrides: {
     listOrders: async () => overrides.orders ?? emptyList(null),
     listPartyTimeline: async () => overrides.timeline ?? emptyList(null),
     listWorkItems: async () => overrides.work ?? emptyList(null),
-    listPartyLocations: async () => ({ partyId: 'party-1', locations: [] }),
+    listPartyLocations: async () => ({ partyId: 'party-1', locations: [], meta: { nextCursor: null, limit: 25, hasMore: false } }),
     listMembers: async () => ({ items: [], meta: emptyMeta }),
   } as unknown as OsApiClient;
 }
@@ -184,6 +184,11 @@ describe('loadCliente360 null freshness', () => {
 });
 
 describe('loadCliente360 Pedido graph (RC3)', () => {
+  it('requests party locations with the default bound of 25', () => {
+    const source = readFileSync(new URL('./load-cliente-360.ts', import.meta.url), 'utf8');
+    assert.match(source, /listPartyLocations\(partyId, \{ limit: 25 \}\)/);
+  });
+
   it('requests party orders with visibility=org before own-lens fallback', () => {
     const source = readFileSync(new URL('./load-cliente-360.ts', import.meta.url), 'utf8');
     assert.match(source, /listPartyScoped/);

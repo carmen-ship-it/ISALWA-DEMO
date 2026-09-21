@@ -153,4 +153,103 @@ describe('PF-4 document links — normal product PDF routes', () => {
     assert.match(ui, /DOCUMENTOS_COPY\.download/);
     assert.doesNotMatch(ui, /\/demo\/.*\.pdf|static.*pdf|public\/.*\.pdf/);
   });
+
+  it('caps merged links at 25 and reports truthful partial without fake totals', async () => {
+    const quotes = Array.from({ length: 10 }, (_, i) => ({
+      quoteId: `q-${i + 1}`,
+      quoteNumber: `Q-${String(i + 1).padStart(6, '0')}`,
+      partyId: MADERAS_PARTY,
+      opportunityId: i < 12 ? `opp-${i + 1}` : null,
+      status: 'submitted' as const,
+      createdAt: `2026-09-17T00:00:${String(i).padStart(2, '0')}.000Z`,
+      submittedAt: `2026-09-17T00:01:${String(i).padStart(2, '0')}.000Z`,
+      ownerMemberId: 'member-1',
+      currency: 'BOB',
+      totalCentavos: 100,
+    }));
+    let opportunityFetches = 0;
+    const outcome = await loadDocumentLinks(
+      mockClient({
+        listQuotes: async (query?: { limit?: number }) => {
+          assert.equal(query?.limit, 10);
+          return {
+            items: quotes,
+            nextCursor: null,
+            meta: { nextCursor: 'more', limit: 10, hasMore: true },
+            freshness: null,
+          };
+        },
+        getOpportunity: async () => {
+          opportunityFetches += 1;
+          return {
+            opportunity: {
+              opportunityId: 'opp',
+              title: 'Título',
+              partyId: MADERAS_PARTY,
+              stage: 'propuesta',
+              ownerMemberId: 'member-1',
+              createdAt: '2026-09-17T00:00:00.000Z',
+            },
+          };
+        },
+        listOrders: async (query?: { limit?: number }) => {
+          assert.equal(query?.limit, 10);
+          return {
+            items: Array.from({ length: 10 }, (_, i) => ({
+              orderId: `o-${i + 1}`,
+              orderNumber: `O-${i + 1}`,
+              partyId: MADERAS_PARTY,
+              quoteId: `q-${i + 1}`,
+              status: 'open',
+              createdAt: `2026-09-17T01:00:${String(i).padStart(2, '0')}.000Z`,
+              ownerMemberId: 'member-1',
+            })),
+            nextCursor: null,
+            meta: { nextCursor: null, limit: 10, hasMore: false },
+            freshness: null,
+          };
+        },
+        get: async (_path: string, query?: { orderId?: string; limit?: number }) => {
+          assert.equal(query?.limit, 25);
+          const orderId = String(query?.orderId ?? 'o-1');
+          const n = Number(orderId.replace('o-', '')) || 1;
+          return {
+            notes: [
+              {
+                id: `dn-${orderId}-a`,
+                internalDocumentRef: `NE-${n}-A`,
+                status: 'issued',
+                bornAt: `2026-09-17T02:00:${String(n).padStart(2, '0')}.000Z`,
+              },
+              {
+                id: `dn-${orderId}-b`,
+                internalDocumentRef: `NE-${n}-B`,
+                status: 'issued',
+                bornAt: `2026-09-17T02:10:${String(n).padStart(2, '0')}.000Z`,
+              },
+            ],
+          };
+        },
+      } as unknown as Partial<OsApiClient>),
+      MADERAS_PARTY,
+    );
+    assert.equal(outcome.status, 'ok');
+    if (outcome.status !== 'ok') return;
+    assert.equal(outcome.links.length, 25);
+    assert.equal(outcome.partial, true);
+    assert.equal(outcome.hasMore, true);
+    assert.equal('total' in outcome, false);
+    assert.ok(opportunityFetches <= 10);
+    assert.equal(opportunityFetches, 10);
+  });
+
+  it('does not claim an exact found count from capped assembly in the UI', () => {
+    const ui = readFileSync(
+      join(process.cwd(), 'components/cliente/cliente-360-documentos.tsx'),
+      'utf8',
+    );
+    assert.match(ui, /DOCUMENTOS_COPY\.partial/);
+    assert.doesNotMatch(ui, /encontrados/);
+    assert.doesNotMatch(ui, /de \{outcome\.links\.length\}/);
+  });
 });

@@ -183,18 +183,30 @@ describe('local HTTP auth path', { concurrency: false }, () => {
         async listActivePartyRoles() {
           return [];
         },
-        async listContactsForOrgParty(organizationId: string, partyId: string) {
-          if (organizationId !== ORG || partyId !== 'party-a') return [];
-          return [{ id: 'contact-a', organizationId: ORG, note: 'own-note' }];
+        async listContactsForOrgParty(
+          organizationId: string,
+          partyId: string,
+          options?: { limit: number; cursor?: string },
+        ) {
+          const items =
+            organizationId === ORG && partyId === 'party-a'
+              ? [{ id: 'contact-a', organizationId: ORG, note: 'own-note' }]
+              : [];
+          return { items, hasMore: false, nextCursor: null };
         },
         async getCommercialAccountForParty() {
           return null;
         },
-        async listLocationsForParty(organizationId: string, partyId: string) {
-          if (organizationId === ORG && partyId === 'party-a') {
-            return [{ id: 'loc-a', organizationId: ORG }];
-          }
-          return [];
+        async listLocationsForParty(
+          organizationId: string,
+          partyId: string,
+          options?: { limit: number; cursor?: string },
+        ) {
+          const items =
+            organizationId === ORG && partyId === 'party-a'
+              ? [{ id: 'loc-a', organizationId: ORG }]
+              : [];
+          return { items, hasMore: false, nextCursor: null };
         },
         async getLocationInOrg(organizationId: string, locationId: string) {
           if (organizationId === ORG && locationId === 'loc-a') {
@@ -282,6 +294,10 @@ describe('local HTTP auth path', { concurrency: false }, () => {
           value = await parties.listPartyLocations('party-a', request);
         } else if (url === '/v1/parties/party-foreign/locations') {
           value = await parties.listPartyLocations('party-foreign', request);
+        } else if (url === '/v1/parties/party-a/contacts') {
+          value = await parties.listPartyContacts('party-a', request);
+        } else if (url === '/v1/parties/party-foreign/contacts') {
+          value = await parties.listPartyContacts('party-foreign', request);
         } else if (url === '/v1/locations/loc-a') value = await locations.getLocation('loc-a', request);
         else if (url === '/v1/locations/loc-foreign') value = await locations.getLocation('loc-foreign', request);
         else if (url === '/v1/operations/outbox') value = await operations.outboxHealth(request);
@@ -349,6 +365,15 @@ describe('local HTTP auth path', { concurrency: false }, () => {
           headers: headers({ 'x-os-organization-id': ORG }),
         });
         assert.equal(foreignLocations.status, 404);
+
+        const ownContacts = await fetch(`${http.base}/v1/parties/party-a/contacts`, {
+          headers: headers({ 'x-os-organization-id': ORG }),
+        });
+        assert.equal(ownContacts.status, 200);
+        const foreignContacts = await fetch(`${http.base}/v1/parties/party-foreign/contacts`, {
+          headers: headers({ 'x-os-organization-id': ORG }),
+        });
+        assert.equal(foreignContacts.status, 404);
 
         const ownLocation = await fetch(`${http.base}/v1/locations/loc-a`, {
           headers: headers({ 'x-os-organization-id': ORG }),

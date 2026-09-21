@@ -15,6 +15,7 @@ import type {
   PartyRoleAssignmentRecord,
   RoleAssignmentRecord,
 } from './store-types';
+import type { PartyBoundListOptions, PartyBoundListPage } from './bound-list';
 
 export interface OsPartyStore {
   runInTransaction<T>(fn: (store: OsPartyStore) => Promise<T>): Promise<T>;
@@ -38,7 +39,11 @@ export interface OsPartyStore {
   ): Promise<void>;
 
   getLocationInOrg(organizationId: string, locationId: string): Promise<LocationRecord | null>;
-  listLocationsForParty(organizationId: string, partyId: string): Promise<LocationRecord[]>;
+  listLocationsForParty(
+    organizationId: string,
+    partyId: string,
+    options?: PartyBoundListOptions,
+  ): Promise<PartyBoundListPage<LocationRecord>>;
   insertLocation(location: LocationRecord): Promise<void>;
   updateLocation(
     organizationId: string,
@@ -83,7 +88,11 @@ export interface OsPartyStore {
     expectedVersion: number,
   ): Promise<void>;
   getContactInOrg(organizationId: string, contactId: string): Promise<ContactRecord | null>;
-  listContactsForOrgParty(organizationId: string, organizationPartyId: string): Promise<ContactRecord[]>;
+  listContactsForOrgParty(
+    organizationId: string,
+    organizationPartyId: string,
+    options?: PartyBoundListOptions,
+  ): Promise<PartyBoundListPage<ContactRecord>>;
   reassignContactsOrgParty(
     organizationId: string,
     fromPartyId: string,

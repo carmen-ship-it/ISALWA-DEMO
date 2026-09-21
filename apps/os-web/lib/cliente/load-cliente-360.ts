@@ -147,7 +147,7 @@ export async function loadCliente360(
           return partyWork;
         }
       }),
-      fetchCommercialSection(() => client.listPartyLocations(partyId)),
+      fetchCommercialSection(() => client.listPartyLocations(partyId, { limit: 25 })),
       loadDocumentLinks(client, partyId, { commercialQuery, suppressNegotiation }),
       loadClienteFinanceSummary(client, partyId, { commercialQuery, suppressNegotiation }),
     ]);

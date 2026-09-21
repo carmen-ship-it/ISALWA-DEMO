@@ -90,7 +90,7 @@ export class QuotePdfService {
   }> {
     const [party, contacts, organizationLegalName] = await Promise.all([
       this.partyStore.getPartyInOrg(quote.organizationId, quote.partyId),
-      this.partyStore.listContactsForOrgParty(quote.organizationId, quote.partyId),
+      this.partyStore.listContactsForOrgParty(quote.organizationId, quote.partyId).then((page) => page.items),
       loadOrganizationLegalName(quote.organizationId),
     ]);
 

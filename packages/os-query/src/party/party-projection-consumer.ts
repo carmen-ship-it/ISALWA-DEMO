@@ -31,7 +31,7 @@ async function hydratePartyReadModel(
   }
   const roles = await deps.partyStore.listActivePartyRoles(organizationId, partyId, asOf);
   const commercial = await deps.partyStore.getCommercialAccountForParty(organizationId, partyId);
-  const contacts = await deps.partyStore.listContactsForOrgParty(organizationId, partyId);
+  const contacts = (await deps.partyStore.listContactsForOrgParty(organizationId, partyId)).items;
   const fiscalRows = await deps.partyStore.listFiscalIdentitiesForParty(organizationId, partyId);
   const fiscal =
     fiscalRows.find(

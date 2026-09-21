@@ -22,14 +22,20 @@ type CustomerLocationPanelProps = {
   partyId: string;
   locations: LocationView[];
   canMutate: boolean;
+  hasMore?: boolean;
 };
 
 const LOCATION_PREVIEW_LIMIT = 10;
 
-export function CustomerLocationPanel({ partyId, locations, canMutate }: CustomerLocationPanelProps) {
+export function CustomerLocationPanel({
+  partyId,
+  locations,
+  canMutate,
+  hasMore = false,
+}: CustomerLocationPanelProps) {
   const ordered = sortLocationsForDisplay(locations);
   const visible = ordered.slice(0, LOCATION_PREVIEW_LIMIT);
-  const hiddenCount = Math.max(0, ordered.length - visible.length);
+  const pageHasMore = ordered.length > visible.length;
 
   return (
     <div className="space-y-4" data-tour={TOUR_TARGET.locationState}>
@@ -49,10 +55,9 @@ export function CustomerLocationPanel({ partyId, locations, canMutate }: Custome
               <LocationRow key={location.id} partyId={partyId} location={location} canMutate={canMutate} />
             ))}
           </ul>
-          {hiddenCount > 0 ? (
+          {hasMore || pageHasMore ? (
             <p className="text-sm text-[var(--isalwa-slate)]" role="status">
-              Mostrando {visible.length} ubicaciones. Hay {hiddenCount} más en el registro (límite de
-              página pendiente en el API).
+              Mostrando ubicaciones recientes. Hay más en el registro.
             </p>
           ) : null}
         </>

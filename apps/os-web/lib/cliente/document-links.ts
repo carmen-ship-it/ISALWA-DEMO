@@ -33,9 +33,14 @@ export type DocumentLink = {
 };
 
 export type DocumentLinksOutcome =
-  | { status: 'ok'; links: DocumentLink[] }
+  | { status: 'ok'; links: DocumentLink[]; partial: boolean; hasMore: boolean }
   | { status: 'unavailable'; message: string }
   | { status: 'forbidden'; message: string };
+
+export const DOCUMENT_LINKS_CAP = 25;
+const DOCUMENT_SOURCE_FANOUT = 10;
+const OPPORTUNITY_TITLE_FETCH_MAX = 10;
+const DELIVERY_NOTES_LIST_LIMIT = 25;
 
 function quoteDocumentLink(
   partyId: string,
@@ -100,6 +105,16 @@ export type LoadDocumentLinksOptions = {
   suppressNegotiation?: boolean;
 };
 
+
+function sourcePageTruncated(
+  list: { items: unknown[]; meta?: { hasMore?: boolean } },
+  fanout: number,
+): boolean {
+  if (list.meta?.hasMore) return true;
+  if (list.meta && list.meta.hasMore === false) return false;
+  return list.items.length >= fanout;
+}
+
 export async function loadDocumentLinks(
   client: OsApiClient,
   partyId: string,
@@ -110,6 +125,7 @@ export async function loadDocumentLinks(
   try {
     const links: DocumentLink[] = [];
     const sentQuoteIds = new Set<string>();
+    let truncated = false;
 
     try {
       const timeline = await client.listPartyTimeline(partyId, { limit: 50 });
@@ -131,12 +147,19 @@ export async function loadDocumentLinks(
         try {
           quotes = await client.listQuotes({
             partyId,
-            limit: 20,
+            limit: DOCUMENT_SOURCE_FANOUT,
             visibility: 'org',
             ...commercialQuery,
           });
         } catch {
-          quotes = await client.listQuotes({ partyId, limit: 20, ...commercialQuery });
+          quotes = await client.listQuotes({
+            partyId,
+            limit: DOCUMENT_SOURCE_FANOUT,
+            ...commercialQuery,
+          });
+        }
+        if (sourcePageTruncated(quotes, DOCUMENT_SOURCE_FANOUT)) {
+          truncated = true;
         }
         const opportunityIds = [
           ...new Set(
@@ -144,9 +167,10 @@ export async function loadDocumentLinks(
               .map((quote) => quote.opportunityId)
               .filter((id): id is string => Boolean(id)),
           ),
-        ];
+        ].slice(0, DOCUMENT_SOURCE_FANOUT);
+        const titleIds = opportunityIds.slice(0, OPPORTUNITY_TITLE_FETCH_MAX);
         await Promise.all(
-          opportunityIds.map(async (opportunityId) => {
+          titleIds.map(async (opportunityId) => {
             try {
               const { opportunity } = await client.getOpportunity(opportunityId);
               opportunityTitles.set(opportunityId, opportunity.title);
@@ -182,12 +206,19 @@ export async function loadDocumentLinks(
       try {
         orders = await client.listOrders({
           partyId,
-          limit: 20,
+          limit: DOCUMENT_SOURCE_FANOUT,
           visibility: 'org',
           ...commercialQuery,
         });
       } catch {
-        orders = await client.listOrders({ partyId, limit: 20, ...commercialQuery });
+        orders = await client.listOrders({
+          partyId,
+          limit: DOCUMENT_SOURCE_FANOUT,
+          ...commercialQuery,
+        });
+      }
+      if (sourcePageTruncated(orders, DOCUMENT_SOURCE_FANOUT)) {
+        truncated = true;
       }
       for (const order of orders.items) {
         try {
@@ -198,8 +229,10 @@ export async function loadDocumentLinks(
               status: 'issued' | 'reversed';
               bornAt: string;
             }>;
-          }>('/delivery-notes', { orderId: order.orderId });
-          for (const note of docs.notes ?? []) {
+          }>('/delivery-notes', { orderId: order.orderId, limit: DELIVERY_NOTES_LIST_LIMIT });
+          const notes = docs.notes ?? [];
+          if (notes.length >= DELIVERY_NOTES_LIST_LIMIT) truncated = true;
+          for (const note of notes) {
             if (note.status === 'issued') {
               links.push(
                 deliveryNoteDocumentLink(
@@ -222,8 +255,11 @@ export async function loadDocumentLinks(
     }
 
     links.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const capped = links.length > DOCUMENT_LINKS_CAP;
+    if (capped) truncated = true;
+    const page = capped ? links.slice(0, DOCUMENT_LINKS_CAP) : links;
 
-    return { status: 'ok', links };
+    return { status: 'ok', links: page, partial: truncated, hasMore: truncated };
   } catch {
     return { status: 'unavailable', message: 'No se pudieron cargar los documentos.' };
   }
@@ -247,4 +283,6 @@ export const DOCUMENTOS_COPY = {
   colEstado: 'Estado',
   colRelacionado: 'Relacionado con',
   colAcciones: 'Acciones',
+  partial:
+    'Mostrando documentos recientes. Puede haber más; esta vista no es un inventario completo.',
 } as const;

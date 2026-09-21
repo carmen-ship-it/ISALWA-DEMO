@@ -645,7 +645,7 @@ export class PartyCommandService {
       targetParty: target,
       sourceRoles: await store.listActivePartyRoles(ctx.organizationId, source.id, ctx.effectiveAt),
       targetRoles: await store.listActivePartyRoles(ctx.organizationId, target.id, ctx.effectiveAt),
-      sourceContacts: await store.listContactsForOrgParty(ctx.organizationId, source.id),
+      sourceContacts: (await store.listContactsForOrgParty(ctx.organizationId, source.id)).items,
       sourceFiscal: await store.listFiscalIdentitiesForParty(ctx.organizationId, source.id),
       sourceCommercialAccountId: sourceCommercial?.id ?? null,
     };

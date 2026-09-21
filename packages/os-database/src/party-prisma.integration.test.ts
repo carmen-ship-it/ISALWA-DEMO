@@ -149,8 +149,8 @@ describePrisma('partygraph prisma integration', () => {
       email: 'juan@example.bo',
       whatsapp: '+59170000000',
     });
-    const contacts = await partyStore.listContactsForOrgParty(org.id, partyId);
-    assert.equal(contacts.length, 1);
+    const contactsPage = await partyStore.listContactsForOrgParty(org.id, partyId);
+    assert.equal(contactsPage.items.length, 1);
     assert.equal(contacts[0]?.email, 'juan@example.bo');
   });
 
@@ -255,8 +255,8 @@ describePrisma('partygraph prisma integration', () => {
     assert.equal(mergedSource?.status, 'merged');
     assert.equal(mergedSource?.mergedIntoPartyId, targetId);
 
-    const contacts = await partyStore.listContactsForOrgParty(org.id, targetId);
-    assert.equal(contacts.length, 1);
+    const contactsPage = await partyStore.listContactsForOrgParty(org.id, targetId);
+    assert.equal(contactsPage.items.length, 1);
 
     const mergeRow = await partyStore.getMergeRequest(org.id, mergeRequestId);
     assert.equal(mergeRow?.status, 'approved');

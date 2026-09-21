@@ -79,9 +79,9 @@ export function Cliente360Documentos({ outcome }: Cliente360DocumentosProps) {
         />
       ) : (
         <div className="mt-4 min-w-0" data-cliente360-documentos-layout="scan">
-          {outcome.links.length > 10 ? (
+          {outcome.hasMore || outcome.partial || outcome.links.length > 10 ? (
             <p className="mb-3 text-sm text-[var(--isalwa-slate)]" role="status">
-              Mostrando 10 documentos recientes de {outcome.links.length} encontrados en esta vista.
+              {DOCUMENTOS_COPY.partial}
             </p>
           ) : null}
           <ul className="m-0 list-none divide-y divide-[var(--isalwa-mist)] p-0">
@@ -123,10 +123,8 @@ export function Cliente360Documentos({ outcome }: Cliente360DocumentosProps) {
         </div>
       )}
 
-      {outcome.status === 'ok' && outcome.links.length > 10 ? (
-        <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
-          Mostrando los 10 más recientes de {outcome.links.length} documentos.
-        </p>
+      {outcome.status === 'ok' && (outcome.hasMore || outcome.partial) ? (
+        <p className="mt-4 text-sm text-[var(--isalwa-slate)]">{DOCUMENTOS_COPY.partial}</p>
       ) : null}
     </div>
   );

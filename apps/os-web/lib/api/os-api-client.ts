@@ -9,7 +9,7 @@ import type {
   WorkDetailResponse,
   WorkListResponse,
 } from '@/lib/work/types';
-import type { PartyDetailResponse, PartyLocationsResponse, PartySearchResponse } from '@/lib/party/types';
+import type { PartyContactsResponse, PartyDetailResponse, PartyLocationsResponse, PartySearchResponse } from '@/lib/party/types';
 import type {
   CapabilityStateResponse,
   MemberDetailResponse,
@@ -305,8 +305,16 @@ export function createOsApiClient(auth: OsAuthContext) {
       request<PartySearchResponse>('/parties', { method: 'GET', query }),
     getParty: (partyId: string) =>
       request<PartyDetailResponse>(`/parties/${encodeURIComponent(partyId)}`),
-    listPartyLocations: (partyId: string) =>
-      request<PartyLocationsResponse>(`/parties/${encodeURIComponent(partyId)}/locations`),
+    listPartyLocations: (partyId: string, query?: { cursor?: string; limit?: number }) =>
+      request<PartyLocationsResponse>(`/parties/${encodeURIComponent(partyId)}/locations`, {
+        method: 'GET',
+        query,
+      }),
+    listPartyContacts: (partyId: string, query?: { cursor?: string; limit?: number }) =>
+      request<PartyContactsResponse>(`/parties/${encodeURIComponent(partyId)}/contacts`, {
+        method: 'GET',
+        query,
+      }),
     executePartyCommand: (
       commandName: PartyCommandName,
       payload: Record<string, unknown>,

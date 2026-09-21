@@ -1,6 +1,14 @@
 import { createId } from '@isalwa/ts-utils';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type { OsPartyStore } from '@isalwa/os-party';
+import {
+  createdAtDescCursorWhere,
+  decodeBoundListCursor,
+  encodeBoundListCursor,
+  locationCursorWhere,
+  type PartyBoundListOptions,
+  type PartyBoundListPage,
+} from '@isalwa/os-party';
 import type {
   CommercialAccountRecord,
   ContactRecord,
@@ -115,12 +123,45 @@ export class PrismaOsPartyStore implements OsPartyStore {
     return row ? mapLocation(row) : null;
   }
 
-  async listLocationsForParty(organizationId: string, partyId: string): Promise<LocationRecord[]> {
+  async listLocationsForParty(
+    organizationId: string,
+    partyId: string,
+    options?: PartyBoundListOptions,
+  ): Promise<PartyBoundListPage<LocationRecord>> {
+    const orderBy = [
+      { status: 'asc' as const },
+      { createdAt: 'desc' as const },
+      { id: 'desc' as const },
+    ];
+    if (!options) {
+      const rows = await this.db().osLocation.findMany({
+        where: { organizationId, partyId },
+        orderBy,
+      });
+      return { items: rows.map(mapLocation), hasMore: false, nextCursor: null };
+    }
+    const limit = options.limit;
+    const cursor = decodeBoundListCursor(options.cursor);
     const rows = await this.db().osLocation.findMany({
-      where: { organizationId, partyId },
-      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      where: { organizationId, partyId, ...(locationCursorWhere(cursor) as object) },
+      orderBy,
+      take: limit + 1,
     });
-    return rows.map(mapLocation);
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const last = page[page.length - 1];
+    return {
+      items: page.map(mapLocation),
+      hasMore,
+      nextCursor:
+        hasMore && last
+          ? encodeBoundListCursor({
+              createdAt: last.createdAt.toISOString(),
+              id: last.id,
+              status: last.status,
+            })
+          : null,
+    };
   }
 
   async insertLocation(location: LocationRecord): Promise<void> {
@@ -288,11 +329,44 @@ export class PrismaOsPartyStore implements OsPartyStore {
     return row ? mapContact(row) : null;
   }
 
-  async listContactsForOrgParty(organizationId: string, organizationPartyId: string): Promise<ContactRecord[]> {
+  async listContactsForOrgParty(
+    organizationId: string,
+    organizationPartyId: string,
+    options?: PartyBoundListOptions,
+  ): Promise<PartyBoundListPage<ContactRecord>> {
+    const orderBy = [{ createdAt: 'desc' as const }, { id: 'desc' as const }];
+    if (!options) {
+      const rows = await this.db().osContact.findMany({
+        where: { organizationId, organizationPartyId },
+        orderBy,
+      });
+      return { items: rows.map(mapContact), hasMore: false, nextCursor: null };
+    }
+    const limit = options.limit;
+    const cursor = decodeBoundListCursor(options.cursor);
     const rows = await this.db().osContact.findMany({
-      where: { organizationId, organizationPartyId },
+      where: {
+        organizationId,
+        organizationPartyId,
+        ...(createdAtDescCursorWhere(cursor) as object),
+      },
+      orderBy,
+      take: limit + 1,
     });
-    return rows.map(mapContact);
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const last = page[page.length - 1];
+    return {
+      items: page.map(mapContact),
+      hasMore,
+      nextCursor:
+        hasMore && last
+          ? encodeBoundListCursor({
+              createdAt: last.createdAt.toISOString(),
+              id: last.id,
+            })
+          : null,
+    };
   }
 
   async reassignContactsOrgParty(

@@ -54,6 +54,7 @@ import {
   multiRoleHint,
 } from '@/lib/party/labels';
 import { partyHref, trabajoForPartyHref } from '@/lib/party/navigation';
+import { explicitDataMode, withExplicitDataMode } from '@/lib/demo/preserve-data-mode';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import { reportIssueContextFromParty } from '@/lib/issue/report-context';
@@ -105,7 +106,10 @@ function CustomerNotFound() {
 
 export default async function PartyDetailPage({ params, searchParams }: PartyDetailPageProps) {
   const { partyId } = await params;
-  const tab = parseCliente360Tab((await searchParams).tab);
+  const rawParams = await searchParams;
+  const tab = parseCliente360Tab(rawParams.tab);
+  const contactosCursor = typeof rawParams.contactosCursor === 'string' ? rawParams.contactosCursor : null;
+  const datosMode = explicitDataMode(typeof rawParams.datos === 'string' ? rawParams.datos : undefined);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
@@ -135,7 +139,21 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
     } = data;
     const roleKeys = activeRoleKeys(detail);
     const roleHint = multiRoleHint(roleKeys);
-    const { party, contacts, commercialAccount } = detail;
+    const { party, commercialAccount } = detail;
+    let contacts = detail.contacts;
+    let contactsHasMore = detail.contactsMeta?.hasMore ?? false;
+    let contactsNextCursor = detail.contactsMeta?.nextCursor ?? null;
+    if (contactosCursor) {
+      try {
+        const page = await client.listPartyContacts(partyId, { cursor: contactosCursor, limit: 25 });
+        const seen = new Set(contacts.map((item) => item.id));
+        contacts = [...contacts, ...page.contacts.filter((item) => !seen.has(item.id))];
+        contactsHasMore = page.meta.hasMore;
+        contactsNextCursor = page.meta.nextCursor;
+      } catch {
+        contactsHasMore = detail.contactsMeta?.hasMore ?? false;
+      }
+    }
     const linkedQuotes =
       quotes.status === 'ok'
         ? quotes.data.items.map((item) => ({
@@ -356,41 +374,34 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 {contacts.length === 0 ? (
                   <p className="mt-2 text-sm text-[var(--isalwa-slate)]">No hay contactos registrados.</p>
                 ) : (
-                  <ScaledListReveal
-                    total={contacts.length}
-                    allowExpand={false}
-                    empty={<p className="mt-2 text-sm text-[var(--isalwa-slate)]">No hay contactos registrados.</p>}
-                    preview={
-                      <ul className="mt-3 min-w-0 divide-y divide-[var(--isalwa-mist)]">
-                        {contacts.slice(0, LIST_SCALE_PREVIEW_DEFAULT).map((item) => (
-                          <ListRow key={item.id} as="li" className="min-w-0 px-1 py-2">
-                            <p className="break-words font-medium text-[var(--isalwa-kiln)]">
-                              {contactDisplayName(item.givenName, item.familyName)}
-                            </p>
-                            {item.phone ? (
-                              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{item.phone}</p>
-                            ) : null}
-                          </ListRow>
-                        ))}
-                      </ul>
-                    }
-                    full={
-                      <ul className="mt-3 min-w-0 divide-y divide-[var(--isalwa-mist)]">
-                        {contacts.slice(0, LIST_SCALE_PREVIEW_DEFAULT).map((item) => (
-                          <ListRow key={item.id} as="li" className="min-w-0 px-1 py-2">
-                            <p className="break-words font-medium text-[var(--isalwa-kiln)]">
-                              {contactDisplayName(item.givenName, item.familyName)}
-                            </p>
-                            {item.phone ? (
-                              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{item.phone}</p>
-                            ) : null}
-                          </ListRow>
-                        ))}
-                      </ul>
-                    }
-                  />
+                  <ul className="mt-3 min-w-0 divide-y divide-[var(--isalwa-mist)]">
+                    {contacts.map((item) => (
+                      <ListRow key={item.id} as="li" className="min-w-0 px-1 py-2">
+                        <p className="break-words font-medium text-[var(--isalwa-kiln)]">
+                          {contactDisplayName(item.givenName, item.familyName)}
+                        </p>
+                        {item.phone ? (
+                          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{item.phone}</p>
+                        ) : null}
+                      </ListRow>
+                    ))}
+                  </ul>
                 )}
               </div>
+              {contactsHasMore && contactsNextCursor ? (
+                <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
+                  Hay más contactos.{' '}
+                  <Link
+                    href={withExplicitDataMode(
+                      `${partyHref(partyId)}?tab=resumen&contactosCursor=${encodeURIComponent(contactsNextCursor)}`,
+                      datosMode,
+                    )}
+                    className={linkClass}
+                  >
+                    Ver más contactos
+                  </Link>
+                </p>
+              ) : null}
               <div>
                 <p className="isalwa-section-label">Relaciones</p>
                 <div className="mt-2">
@@ -577,6 +588,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                     partyId={partyId}
                     locations={locations.data.locations}
                     canMutate={false}
+                    hasMore={locations.data.meta?.hasMore === true}
                   />
                 ) : locations.status === 'unavailable' ? (
                   <ServiceUnavailableState />

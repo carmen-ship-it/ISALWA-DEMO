@@ -44,6 +44,11 @@ export type PartyDetailResponse = {
     status: string;
     version: number;
   }>;
+  contactsMeta?: {
+    limit: number;
+    hasMore: boolean;
+    nextCursor: string | null;
+  };
   commercialAccount: {
     id: string;
     organizationId: string;
@@ -83,6 +88,13 @@ export type LocationView = {
 export type PartyLocationsResponse = {
   partyId: string;
   locations: LocationView[];
+  meta: PaginatedMeta;
+};
+
+export type PartyContactsResponse = {
+  partyId: string;
+  contacts: PartyDetailResponse['contacts'];
+  meta: PaginatedMeta;
 };
 
 export type PartySearchParams = {
