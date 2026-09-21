@@ -42,9 +42,9 @@ type BucketProps = {
   emptyDescription: string;
 };
 
-function CommitmentBucket({ kicker, title, items, memberLabels, emptyTitle, emptyDescription }: BucketProps) {
+function CommitmentBucket({ kicker, title, items, memberLabels, emptyTitle, emptyDescription, accent }: BucketProps & { accent?: string }) {
   return (
-    <section className={`mb-4 ${deskPanelClass} p-4 md:p-5`}>
+    <section className={`mb-4 ${deskPanelClass} border-l-4 p-4 md:p-5 ${accent ?? 'border-l-[var(--isalwa-mist)]'}`}>
       <SectionHeader
         kicker={kicker}
         title={
@@ -102,6 +102,7 @@ export function CompromisosDeskPanel({ items, memberLabels, partyLabels }: Compr
       <CommitmentBucket
         kicker="Próximos"
         title="Vence pronto"
+        accent="border-l-[var(--isalwa-status-amber-2)]"
         items={buckets.dueSoon}
         memberLabels={memberLabels}
         emptyTitle="Sin compromisos próximos"
@@ -110,6 +111,7 @@ export function CompromisosDeskPanel({ items, memberLabels, partyLabels }: Compr
       <CommitmentBucket
         kicker="Equipo"
         title="Compromisos de equipo"
+        accent="border-l-[var(--isalwa-sky)]"
         items={buckets.team}
         memberLabels={memberLabels}
         emptyTitle="Sin compromisos internos"
@@ -118,6 +120,7 @@ export function CompromisosDeskPanel({ items, memberLabels, partyLabels }: Compr
       <CommitmentBucket
         kicker="Historial"
         title="Cumplidos"
+        accent="border-l-[var(--isalwa-success)]"
         items={buckets.completed}
         memberLabels={memberLabels}
         emptyTitle="Sin compromisos cumplidos"

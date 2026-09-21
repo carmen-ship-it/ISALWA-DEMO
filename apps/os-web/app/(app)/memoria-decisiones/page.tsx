@@ -89,9 +89,14 @@ export default async function MemoriaDecisionesPage({ searchParams }: MemoriaPag
                   return (
                     <li key={item.approvalRequestId} className="py-4 first:pt-0">
                       <div className="flex flex-wrap items-baseline justify-between gap-2">
-                        <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
-                          {approvalDecisionLabel(item)}
-                        </p>
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
+                          <StatusPill tone={item.status === 'approved' ? 'approved' : 'rejected'}>
+                            {item.status === 'approved' ? 'Aprobada' : 'Rechazada'}
+                          </StatusPill>
+                          <p className="text-sm font-semibold text-[var(--isalwa-kiln)]">
+                            {approvalDecisionLabel(item)}
+                          </p>
+                        </div>
                         {item.decidedAt ? (
                           <time className="text-xs text-[var(--isalwa-slate)]" dateTime={item.decidedAt}>
                             {new Date(item.decidedAt).toLocaleString('es-BO', {

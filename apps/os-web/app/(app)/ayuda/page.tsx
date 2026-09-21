@@ -40,7 +40,7 @@ export default function AyudaPage() {
         {access ? (
           <PageSection
             card
-            className="bg-[color-mix(in_srgb,var(--isalwa-porcelain)_40%,white)] p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6"
+            className="border-l-4 border-l-[var(--isalwa-sky)] bg-white p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6"
             data-tour={TOUR_TARGET.helpAccess}
             aria-labelledby="guidance-access-explanation"
           >
@@ -56,7 +56,7 @@ export default function AyudaPage() {
         {glossary ? (
           <PageSection
             card
-            className="bg-[color-mix(in_srgb,var(--isalwa-porcelain)_40%,white)] p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6"
+            className="border-l-4 border-l-[var(--isalwa-sky)] bg-white p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6"
             data-tour={TOUR_TARGET.helpGlossary}
             aria-labelledby="guidance-glossary-short"
           >
@@ -74,7 +74,7 @@ export default function AyudaPage() {
             <PageSection
               key={section.id}
               card
-              className="bg-[color-mix(in_srgb,var(--isalwa-porcelain)_40%,white)] p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6"
+              className="border-l-4 border-l-[var(--isalwa-mist)] bg-white p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6"
               aria-labelledby={`guidance-${section.id}`}
             >
               <h2 id={`guidance-${section.id}`} className="isalwa-section-label">
@@ -89,7 +89,7 @@ export default function AyudaPage() {
 
         <PageSection
           card
-          className="bg-[color-mix(in_srgb,var(--isalwa-porcelain)_40%,white)] p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6"
+          className="border-l-4 border-l-[var(--isalwa-mist)] bg-white p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6"
           aria-labelledby="guidance-employee-admin-help"
         >
           <h2 id="guidance-employee-admin-help" className="isalwa-section-label">

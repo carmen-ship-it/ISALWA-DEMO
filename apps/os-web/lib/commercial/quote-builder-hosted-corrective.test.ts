@@ -40,11 +40,13 @@ describe('Task 8 quote builder hosted corrective', () => {
     assert.match(editor, />\s*Editar\s*</);
   });
 
-  it('draft primary action presents; presented primary downloads PDF', () => {
+  it('draft primary action presents; presented primary records send; PDF is secondary until sent', () => {
     assert.match(editor, /Presente la cotización para generar el documento/);
     assert.match(editor, /label="Presentar cotización"/);
     assert.equal(QUOTE_PDF_COPY.notReady, 'Presente la cotización para generar el documento.');
-    assert.match(docActions, /downloadVariant="primary"/);
+    assert.match(docActions, /allowRegister \? 'secondary' : 'primary'/);
+    assert.match(docActions, /data-quote-register-send="cta"/);
+    assert.match(docActions, /variant="primary"/);
     assert.match(docActions, /QUOTE_PDF_COPY\.download|downloadOnly/);
     assert.match(docActions, /QUOTE_MANUAL_SEND_COPY\.action/);
     assert.equal(QUOTE_MANUAL_SEND_COPY.action, 'Registrar como enviada');

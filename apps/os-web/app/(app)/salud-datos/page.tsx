@@ -37,7 +37,7 @@ export default async function SaludDatosPage() {
         }
       />
 
-      <p className="mb-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+      <p className="mb-4 max-w-2xl rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-sky)] bg-[color-mix(in_srgb,var(--isalwa-sky)_45%,white)] px-3 py-2 text-sm leading-relaxed text-[var(--isalwa-kiln)]">
         {DATA_HEALTH_BOUNDARY}
         {' La lectura examina como máximo 25 clientes activos visibles — no implica cobertura de toda la cartera.'}
       </p>

@@ -26,7 +26,7 @@ export function InicioLensTabs({ active, available, periodo }: InicioLensTabsPro
                 className={cx(
                   'inline-flex rounded-[var(--isalwa-radius-control)] border px-3 py-1.5 text-sm font-medium transition-colors',
                   isActive
-                    ? 'border-[var(--isalwa-glaze)] bg-[color-mix(in_srgb,var(--isalwa-glaze)_12%,white)] text-[var(--isalwa-kiln)]'
+                    ? 'border-[var(--isalwa-glaze)] bg-[var(--isalwa-teal-100)] text-[var(--isalwa-kiln)]'
                     : 'border-[var(--isalwa-mist)] bg-white text-[var(--isalwa-slate)] hover:border-[var(--isalwa-glaze)]',
                 )}
                 aria-current={isActive ? 'page' : undefined}

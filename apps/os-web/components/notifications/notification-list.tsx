@@ -14,9 +14,9 @@ export function NotificationList({ rows, onMarkRead }: NotificationListProps) {
       {rows.map((row) => (
         <ListRow key={row.id} as="li">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{row.title}</p>
-            {row.body ? <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.body}</p> : null}
-            <p className="mt-1 text-xs uppercase tracking-[0.08em] text-[var(--isalwa-slate)]">{row.kindLabel}</p>
+            <p className="isalwa-section-label">{row.kindLabel}</p>
+            <p className="mt-1 text-sm font-semibold text-[var(--isalwa-kiln)]">{row.title}</p>
+            {row.body ? <p className="mt-1 line-clamp-2 text-sm text-[var(--isalwa-slate)]">{row.body}</p> : null}
             <a
               href={row.href}
               className="mt-2 inline-block text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"

@@ -411,8 +411,8 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 </Link>
               }
             />
-            <div className="space-y-10">
-              <div>
+            <div className="space-y-8">
+              <div className="border-l-4 border-l-[var(--isalwa-glaze)] pl-4">
                 <SectionHeader title="Oportunidades" />
                 <CommercialSectionState
                   outcome={opportunities}
@@ -460,7 +460,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                   )}
                 </CommercialSectionState>
               </div>
-              <div>
+              <div className="border-l-4 border-l-[var(--isalwa-sky)] pl-4">
                 <SectionHeader title="Cotizaciones" />
                 <CommercialSectionState
                   outcome={quotes}
@@ -508,7 +508,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                   )}
                 </CommercialSectionState>
               </div>
-              <div>
+              <div className="border-l-4 border-l-[var(--isalwa-kiln)] pl-4">
                 <SectionHeader title="Pedidos" />
                 <CommercialSectionState
                   outcome={orders}
@@ -557,8 +557,8 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
           <PageSection id="operacion" card className={sectionClass}>
             <SectionHeader title="Operación" />
             <p className="mb-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">{CLIENTE360_UX_COPY.operacionHint}</p>
-            <div className="space-y-10">
-              <div>
+            <div className="space-y-8">
+              <div className="border-l-4 border-l-[var(--isalwa-sky)] pl-4">
                 <SectionHeader title="Ubicaciones" />
                 {locations.status === 'ok' ? (
                   <CustomerLocationPanel

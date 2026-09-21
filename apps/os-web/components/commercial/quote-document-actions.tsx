@@ -61,26 +61,21 @@ export function QuoteDocumentActions({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0 space-y-2">
           {sendRecorded ? (
-            <StatusPill tone="success">Enviada</StatusPill>
+            <StatusPill tone="in_progress">Enviada</StatusPill>
           ) : (
+            <p className="isalwa-section-label">Próxima acción</p>
+          )}
+          {!sendRecorded ? (
             <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
               Descargue la cotización y envíela por su canal habitual.
             </p>
-          )}
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-          <QuotePdfDownloadButton
-            quoteId={quoteId}
-            quoteNumber={quoteNumber}
-            quoteStatus={status}
-            downloadOnly
-            downloadVariant="primary"
-            showManualSendHint={false}
-          />
           {allowRegister ? (
             <Button
               type="button"
-              variant="secondary"
+              variant="primary"
               data-quote-register-send="cta"
               onClick={() => {
                 document.getElementById('envio')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -89,6 +84,14 @@ export function QuoteDocumentActions({
               {QUOTE_MANUAL_SEND_COPY.action}
             </Button>
           ) : null}
+          <QuotePdfDownloadButton
+            quoteId={quoteId}
+            quoteNumber={quoteNumber}
+            quoteStatus={status}
+            downloadOnly
+            downloadVariant={allowRegister ? 'secondary' : 'primary'}
+            showManualSendHint={false}
+          />
         </div>
       </div>
     </PageSection>

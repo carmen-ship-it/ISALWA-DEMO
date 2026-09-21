@@ -55,7 +55,9 @@ function contextLabel(item: IssueListItem, memberLabels: MemberLabelMap): string
     const typeLabel = formatReferenceType(ref.referenceType);
     parts.push(ref.label ? `${typeLabel}: ${ref.label}` : typeLabel);
   }
+  const owner = item.ownerMemberId ? memberLabel(memberLabels, item.ownerMemberId) : null;
   parts.push(`Reportó: ${memberLabel(memberLabels, item.reporterMemberId)}`);
+  if (owner) parts.push(`Responsable: ${owner}`);
   parts.push(formatTimestamp(item.createdAt));
   return parts.join(' · ');
 }

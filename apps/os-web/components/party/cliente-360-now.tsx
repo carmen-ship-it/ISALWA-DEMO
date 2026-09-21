@@ -30,12 +30,18 @@ export function Cliente360Now({ composition, compact = false }: Cliente360NowPro
       className={compact ? 'space-y-4' : 'space-y-5'}
       data-tour={CLIENTE360_IDENTITY_TARGET}
     >
-      <div>
+      <div
+        className={
+          composition.blockers.length > 0
+            ? 'rounded-[var(--isalwa-radius-control)] border border-[color-mix(in_srgb,var(--isalwa-danger)_22%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-status-red-bg)_40%,white)] px-3 py-2'
+            : undefined
+        }
+      >
         <p className="isalwa-section-label">Bloqueos</p>
         {composition.blockers.length === 0 ? (
           <p className="mt-1.5 text-sm text-[var(--isalwa-slate)]">{composition.blockersSummary}</p>
         ) : (
-          <ul className="mt-1.5 space-y-1 text-sm text-[var(--isalwa-danger)]">
+          <ul className="mt-1.5 space-y-1 text-sm font-medium text-[var(--isalwa-danger)]">
             {composition.blockers.map((blocker) => (
               <li key={blocker.code}>{blocker.label}</li>
             ))}

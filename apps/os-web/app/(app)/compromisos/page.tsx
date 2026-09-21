@@ -118,9 +118,17 @@ export default async function CompromisosPage({
         <StatGroup
           className="mb-4"
           items={[
-            { label: 'Vence pronto', value: String(buckets.dueSoon.length) },
-            { label: 'Equipo', value: String(buckets.team.length) },
-            { label: 'Cumplidos', value: String(buckets.completed.length) },
+            {
+              label: 'Vence pronto',
+              value: String(buckets.dueSoon.length),
+              tone: buckets.dueSoon.length > 0 ? 'var(--isalwa-warning)' : 'var(--isalwa-slate)',
+            },
+            { label: 'Equipo', value: String(buckets.team.length), tone: 'var(--isalwa-info)' },
+            {
+              label: 'Cumplidos',
+              value: String(buckets.completed.length),
+              tone: buckets.completed.length > 0 ? 'var(--isalwa-success)' : 'var(--isalwa-slate)',
+            },
           ]}
         />
 

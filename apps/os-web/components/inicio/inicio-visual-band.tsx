@@ -12,17 +12,17 @@ export type InicioVisualBandTone =
 
 const BAND_CLASS: Record<InicioVisualBandTone, string> = {
   attention:
-    'border-[var(--isalwa-tint-amber-border)] bg-[var(--isalwa-tint-amber)] shadow-[var(--isalwa-shadow-soft)]',
+    'border-[var(--isalwa-mist)] border-l-4 border-l-[var(--isalwa-status-amber-2)] bg-white shadow-[var(--isalwa-shadow-soft)]',
   'mi-dia':
-    'border-[color-mix(in_srgb,var(--isalwa-kiln)_18%,var(--isalwa-mist))] bg-white shadow-[var(--isalwa-shadow-resting)]',
+    'border-[var(--isalwa-mist)] border-l-4 border-l-[var(--isalwa-kiln)] bg-white shadow-[var(--isalwa-shadow-resting)]',
   commercial:
-    'border-[var(--isalwa-tint-teal-border)] bg-[color-mix(in_srgb,var(--isalwa-teal-100)_75%,white)] shadow-[var(--isalwa-shadow-soft)]',
+    'border-[var(--isalwa-mist)] border-l-4 border-l-[var(--isalwa-glaze)] bg-white shadow-[var(--isalwa-shadow-soft)]',
   operations:
-    'border-[color-mix(in_srgb,var(--isalwa-sky-200)_80%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-sky-100)_85%,white)] shadow-[var(--isalwa-shadow-soft)]',
+    'border-[var(--isalwa-mist)] border-l-4 border-l-[var(--isalwa-sky)] bg-white shadow-[var(--isalwa-shadow-soft)]',
   issues:
-    'border-[var(--isalwa-tint-red-border)] bg-[var(--isalwa-tint-red)] shadow-[var(--isalwa-shadow-soft)]',
+    'border-[var(--isalwa-mist)] border-l-4 border-l-[var(--isalwa-danger)] bg-white shadow-[var(--isalwa-shadow-soft)]',
   recent:
-    'border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_55%,white)] shadow-[var(--isalwa-shadow-soft)]',
+    'border-[var(--isalwa-mist)] bg-white shadow-[var(--isalwa-shadow-soft)]',
   neutral:
     'border-[var(--isalwa-mist)] bg-white shadow-[var(--isalwa-shadow-resting)]',
 };

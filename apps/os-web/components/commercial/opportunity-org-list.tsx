@@ -39,8 +39,61 @@ export function OpportunityOrgList({
   memberLabels,
   partyLabels,
   linkedQuotes,
+  compact = false,
   density = 'compact',
 }: OpportunityOrgListProps) {
+  const visible = items.filter(
+    (item) =>
+      !isEngineeringFixtureCopy(item.title) &&
+      !isEngineeringFixtureCopy(partyLabel(partyLabels, item.partyId)),
+  );
+
+  if (compact) {
+    return (
+      <ul
+        className="m-0 min-w-0 list-none p-0"
+        aria-label="Oportunidades"
+        data-tour={TOUR_TARGET.opportunityList}
+        data-opportunity-list-layout="summary"
+      >
+        {visible.map((item) => {
+          const customer = partyLabel(partyLabels, item.partyId);
+          const owner = memberLabel(memberLabels, item.ownerMemberId);
+          const href = opportunityHref(item.partyId, item.opportunityId);
+          return (
+            <li
+              key={item.opportunityId}
+              className="min-w-0 border-b border-[color-mix(in_srgb,var(--isalwa-mist)_80%,white)] py-3 last:border-b-0"
+            >
+              <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                <div className="min-w-0 flex-1">
+                  <p className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--isalwa-kiln)]">
+                    {presentHumanCopy(item.title)}
+                  </p>
+                  <p className="mt-1 break-words text-sm text-[var(--isalwa-slate)]">{customer}</p>
+                  {owner ? (
+                    <p className="mt-1 text-xs text-[var(--isalwa-slate)]">Responsable · {owner}</p>
+                  ) : null}
+                </div>
+                <div className="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-end">
+                  <StatusPill tone={statusTone(item.status)} icon="none">
+                    {formatOpportunityStatus(item.status)}
+                  </StatusPill>
+                  <a
+                    href={href}
+                    className="isalwa-t-fast inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)]"
+                  >
+                    Ver oportunidad
+                  </a>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
+
   return (
     <div className="commercial-operating-list min-w-0" data-tour={TOUR_TARGET.opportunityList}>
       <OperatingScanListHeader columns={HEADER_COLUMNS} className={DESKTOP_GRID} />

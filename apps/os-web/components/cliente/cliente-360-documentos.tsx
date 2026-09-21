@@ -78,68 +78,48 @@ export function Cliente360Documentos({ outcome }: Cliente360DocumentosProps) {
           description={DOCUMENTOS_COPY.emptyDescription}
         />
       ) : (
-        <div className="mt-4 overflow-x-auto">
+        <div className="mt-4 min-w-0" data-cliente360-documentos-layout="scan">
           {outcome.links.length > 10 ? (
             <p className="mb-3 text-sm text-[var(--isalwa-slate)]" role="status">
               Mostrando 10 documentos recientes de {outcome.links.length} encontrados en esta vista.
             </p>
           ) : null}
-          <table className="min-w-full border-collapse text-left text-sm">
-            <thead>
-              <tr className="border-b border-[var(--isalwa-mist)] text-[var(--isalwa-slate)]">
-                <th className="px-2 py-3 font-medium">{DOCUMENTOS_COPY.colTipo}</th>
-                <th className="px-2 py-3 font-medium">{DOCUMENTOS_COPY.colReferencia}</th>
-                <th className="px-2 py-3 font-medium">{DOCUMENTOS_COPY.colFecha}</th>
-                <th className="px-2 py-3 font-medium">{DOCUMENTOS_COPY.colEstado}</th>
-                <th className="px-2 py-3 font-medium">{DOCUMENTOS_COPY.colRelacionado}</th>
-                <th className="px-2 py-3 font-medium">{DOCUMENTOS_COPY.colAcciones}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {outcome.links.slice(0, 10).map((doc) => (
-                <tr key={doc.id} className="border-b border-[var(--isalwa-mist)] align-top">
-                  <td className="px-2 py-3">
+          <ul className="m-0 list-none divide-y divide-[var(--isalwa-mist)] p-0">
+            {outcome.links.slice(0, 10).map((doc) => (
+              <li key={doc.id} className="flex min-w-0 flex-col gap-3 py-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
                     <StatusPill tone={typeTone(doc.type)}>{typeLabel(doc.type)}</StatusPill>
-                  </td>
-                  <td className="px-2 py-3 font-medium text-[var(--isalwa-kiln)]">
-                    {doc.reference}
-                  </td>
-                  <td className="px-2 py-3 text-[var(--isalwa-slate)]">
-                    {formatTimestamp(doc.createdAt)}
-                  </td>
-                  <td className="px-2 py-3">
                     <StatusPill tone={statusTone(doc.status)}>{doc.statusLabel}</StatusPill>
-                  </td>
-                  <td className="px-2 py-3">
-                    <Link href={doc.relatedEntityHref} className={linkClass}>
-                      {doc.relatedLabel}
-                    </Link>
-                  </td>
-                  <td className="px-2 py-3">
-                    <div className="flex flex-wrap gap-3">
-                      <a
-                        href={doc.viewHref}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={linkClass}
-                      >
-                        {DOCUMENTOS_COPY.viewPdf}
-                      </a>
-                      <a
-                        href={doc.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={linkClass}
-                        download
-                      >
-                        {DOCUMENTOS_COPY.download}
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                  <p className="mt-1.5 text-sm font-semibold text-[var(--isalwa-kiln)]">{doc.reference}</p>
+                  <p className="mt-1 text-xs text-[var(--isalwa-slate)]">{formatTimestamp(doc.createdAt)}</p>
+                  <Link href={doc.relatedEntityHref} className={`${linkClass} mt-1 inline-block`}>
+                    {doc.relatedLabel}
+                  </Link>
+                </div>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  <a
+                    href={doc.viewHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 text-xs font-medium text-[var(--isalwa-kiln)]"
+                  >
+                    {DOCUMENTOS_COPY.viewPdf}
+                  </a>
+                  <a
+                    href={doc.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 text-xs font-medium text-[var(--isalwa-kiln)]"
+                    download
+                  >
+                    {DOCUMENTOS_COPY.download}
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

@@ -584,7 +584,7 @@ export function CommandPalette({
                         role="option"
                         aria-selected={selected}
                         className={`flex w-full min-w-0 flex-col rounded-[var(--isalwa-radius-control)] px-3 py-2.5 text-left outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] ${
-                          selected ? 'bg-[var(--isalwa-mist)]' : 'hover:bg-[var(--isalwa-porcelain)]'
+                          selected ? 'bg-[var(--isalwa-teal-100)]' : 'hover:bg-[var(--isalwa-porcelain)]'
                         }`}
                         onMouseEnter={() => setActive(index)}
                         onClick={() => activate(item)}
