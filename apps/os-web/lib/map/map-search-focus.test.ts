@@ -35,6 +35,7 @@ describe('map search keyboard focus indicator', () => {
     assert.match(tokens, /--isalwa-shadow-focus:\s*0 0 0 3px rgba\(40, 122, 120, 0\.28\)/);
     assert.match(globals, /input\.isalwa-field:focus/);
     assert.match(chrome, /\[data-tour='map-search'\]:focus-within \.isalwa-field/);
+    assert.match(globals, /\[data-surface='map-search'\]:focus-within \.isalwa-field/);
     assert.match(experience, /data-tour="map-search"/);
     assert.match(globals, /outline:\s*2px\s+solid\s+var\(--isalwa-glaze-deep\)/);
   });
