@@ -407,18 +407,21 @@ describe('delivery persistence and panel stay inside the boundary', () => {
 
   it('mounts delivery documents on pedido and keeps /entregas warehouse ≠ delivery honesty', () => {
     const panel = readFileSync(join(repo, 'apps/os-web/components/delivery/entrega-panel.tsx'), 'utf8');
-    for (const key of [
-      'beforeDelivery',
-      'warehouseDistinct',
-      'numberingUnknown',
-      'notInvoice',
-      'internalRecord',
-      'provisionalDisclaimer',
-    ] as const) {
-      assert.match(panel, new RegExp(`ENTREGA_PANEL_COPY\\.${key}`));
+    // Accepted visual pass: empty entrega uses noDeliveryYet; honesty copy lives once in page disclaimer.
+    for (const key of ['noDeliveryYet', 'exceptionNotPayment'] as const) {
+      assert.match(panel, new RegExp(`ENTREGA_PANEL_COPY\.${key}`));
       assert.ok(typeof ENTREGA_PANEL_COPY[key] === 'string' && ENTREGA_PANEL_COPY[key].length > 0);
     }
+    assert.match(panel, /Distinto de la nota de entrega/);
+    assert.match(panel, /No es entrega/);
     assert.doesNotMatch(panel, /signatureMethod/);
+    const disclaimer = readFileSync(
+      join(repo, 'apps/os-web/components/delivery/entrega-page-disclaimer.tsx'),
+      'utf8',
+    );
+    assert.match(disclaimer, /no es factura/i);
+    assert.match(disclaimer, /salida registra/i);
+    assert.match(disclaimer, /Recibido por/);
     const docs = readFileSync(
       join(repo, 'apps/os-web/components/delivery/delivery-documents-panel.tsx'),
       'utf8',
@@ -433,5 +436,6 @@ describe('delivery persistence and panel stay inside the boundary', () => {
     assert.match(page, /DeliveryDocumentsPanel|delivery-documents-panel/);
     const entregas = readFileSync(join(repo, 'apps/os-web/app/(app)/entregas/page.tsx'), 'utf8');
     assert.match(entregas, /EntregaPanel/);
+    assert.match(entregas, /EntregaPageDisclaimer/);
   });
 });
