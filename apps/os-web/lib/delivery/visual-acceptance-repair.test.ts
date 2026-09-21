@@ -76,6 +76,11 @@ describe("visual acceptance repair", () => {
     assert.match(lens, /no representan ingresos contables/i);
     assert.match(lists, /Sin ubicación confirmada/);
     assert.doesNotMatch(lists, /No se inventan|geocodific|solo un enlace/i);
+    const canvas = read("components/map/map-live-canvas.tsx");
+    const fallback = read("components/map/map-canvas-fallback.tsx");
+    const mapPage = read("app/(app)/mapa/page.tsx");
+    assert.match(canvas, /mapLocationCountLabel/);
+    assert.doesNotMatch(`${canvas}\n${fallback}\n${mapPage}`, /con coordenadas confirmadas|DATA_HEALTH_BOUNDARY|geocodifica/i);
     assert.doesNotMatch(controls, /Cobranza|Despacho|Stock|Equipo|manual|próx/);
     assert.match(controls, /availableMapLayers/);
     assert.match(layers, /id: 'clientes'/);

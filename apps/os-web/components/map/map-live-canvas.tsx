@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import type { MapViewConfig } from '@isalwa/providers';
 import { StatusPill } from '@isalwa/ui';
+import { mapLocationCountLabel } from '@/lib/map/build-view-model';
 import { MapMarkerTooltip } from '@/components/map/map-marker-tooltip';
 import type { MapHoverSnapshot } from '@/lib/map/hover-model';
 
@@ -80,7 +81,6 @@ export function MapLiveCanvas({
   view,
   markers,
   plottableCount,
-  total,
   selectedPartyId,
   onSelectPartyId,
   hoverByPartyId,
@@ -218,7 +218,7 @@ export function MapLiveCanvas({
     }
   }, [bundle, markers]);
 
-  const coverageLine = `${plottableCount} de ${total} clientes con coordenadas confirmadas`;
+  const coverageLine = mapLocationCountLabel(plottableCount);
 
   if (!bundle) {
     return (

@@ -1,3 +1,4 @@
+import { mapLocationCountLabel } from '@/lib/map/build-view-model';
 import { StatusPill } from '@isalwa/ui';
 import type { MapProviderStatus } from '@/lib/map/provider-status';
 
@@ -13,9 +14,7 @@ type MapCanvasFallbackProps = {
  */
 export function MapCanvasFallback({ provider, plottableCount, total }: MapCanvasFallbackProps) {
   const coverageLine =
-    plottableCount > 0 || total > 0
-      ? `${plottableCount} de ${total} clientes con coordenadas confirmadas`
-      : null;
+    plottableCount > 0 || total > 0 ? mapLocationCountLabel(plottableCount) : null;
 
   return (
     <div
