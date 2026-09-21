@@ -59,10 +59,11 @@ export default async function EntregasPage({
     evaluationActive: evaluation.active,
     presentationScopes: evaluation.presentationScopes,
   });
+  const canOperateDesk = canOperateEntregaDesk(deliveryScopes);
   const panelStatus = resolveEntregaHistoryPanel({
     surfaceStatus: view.status,
     fulfillmentReadDenied: view.fulfillmentReadDenied,
-    canOperateDesk: canOperateEntregaDesk(deliveryScopes),
+    canOperateDesk,
   });
   const firstDelivery = view.deliveries[0];
   const deliveryOffer = offerAfterDeliveryFollowUp({
@@ -111,7 +112,7 @@ export default async function EntregasPage({
         datos={datos}
         listState={listState}
       />
-      {view.commercialReadDenied ? null : (
+      {view.commercialReadDenied || (canOperateDesk && view.linkedOrders.length === 0) ? null : (
       <LinkedOrdersSection
         orders={view.linkedOrders}
         noteOrderIds={noteOrderIds}

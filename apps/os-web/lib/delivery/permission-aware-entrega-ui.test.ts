@@ -126,7 +126,7 @@ describe('permission-aware entrega UI', () => {
     assert.match(panel, /El historial de salidas y entregas no está en esta lectura\./);
     assert.equal(panel.split('No tiene permiso para ver este registro de entrega.').length, 2);
     assert.match(page, /resolveEntregaHistoryPanel/);
-    assert.match(page, /view\.commercialReadDenied \? null/);
+    assert.match(page, /view\.commercialReadDenied \|\| \(canOperateDesk && view\.linkedOrders\.length === 0\) \? null/);
     const api = readFileSync(join(root, '../../apps/os-api/src/delivery.controller.ts'), 'utf8');
     assert.match(api, /@Get\(':id\/pdf'\)/);
     assert.doesNotMatch(api, /canDownloadNotePdf/);
