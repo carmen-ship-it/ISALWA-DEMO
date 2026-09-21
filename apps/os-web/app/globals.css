@@ -160,6 +160,7 @@ textarea:focus-visible {
   box-shadow: var(--isalwa-shadow-focus);
 }
 /* Text fields use .isalwa-field:focus-visible in @isalwa/ui chrome — keep one contract. */
+input.isalwa-field:focus,
 input.isalwa-field:focus-visible {
   outline: 2px solid var(--isalwa-glaze-deep);
   outline-offset: 2px;

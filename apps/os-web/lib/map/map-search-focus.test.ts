@@ -20,9 +20,13 @@ describe('map search keyboard focus indicator', () => {
     assert.match(data, /function SearchField/);
     assert.match(data, /cx\('isalwa-field'/);
 
-    const start = chrome.indexOf('.isalwa-field:focus-visible');
-    assert.ok(start >= 0, 'missing .isalwa-field:focus-visible');
-    const focusBlock = chrome.slice(start, start + 320);
+    const start = Math.max(
+      chrome.indexOf('.isalwa-field:focus,'),
+      chrome.indexOf('.isalwa-field:focus-visible'),
+    );
+    assert.ok(chrome.includes('.isalwa-field:focus'), 'missing .isalwa-field:focus');
+    assert.ok(chrome.includes('.isalwa-field:focus-visible'), 'missing .isalwa-field:focus-visible');
+    const focusBlock = chrome.slice(chrome.indexOf('.isalwa-field:focus'), chrome.indexOf('.isalwa-field:focus') + 420);
     assert.match(focusBlock, /outline:\s*2px\s+solid\s+var\(--isalwa-glaze-deep\)/);
     assert.match(focusBlock, /outline-offset:\s*2px/);
     assert.match(focusBlock, /box-shadow:\s*var\(--isalwa-shadow-focus\)/);

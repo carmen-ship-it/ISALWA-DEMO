@@ -221,15 +221,13 @@
 .isalwa-field:hover {
   border-color: color-mix(in srgb, var(--isalwa-glaze) 28%, var(--isalwa-mist));
 }
+.isalwa-field:focus,
 .isalwa-field:focus-visible {
   /* Shape + offset — not color alone. outline stays; box-shadow reinforces. */
   outline: 2px solid var(--isalwa-glaze-deep);
   outline-offset: 2px;
   border-color: var(--isalwa-glaze);
   box-shadow: var(--isalwa-shadow-focus);
-}
-.isalwa-field:focus:not(:focus-visible) {
-  border-color: var(--isalwa-glaze);
 }
 .isalwa-field:disabled,
 .isalwa-field[readonly] {
