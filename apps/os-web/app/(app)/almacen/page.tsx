@@ -244,7 +244,7 @@ function PedidoWarehouseContextSection({
               const reviewAction = row.warehouseReviewWorkId ? (
                 <Link
                   href={workItemHref(row.warehouseReviewWorkId)}
-                  className={`${actionPrimaryClass} h-8 px-3 text-xs`}
+                  className={`${actionPrimaryClass} h-11 px-3 text-xs sm:h-8`}
                 >
                   Ver revisión
                 </Link>

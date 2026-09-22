@@ -8,15 +8,16 @@ type CommercialStickyBarProps = {
 };
 
 /**
- * Sticky strip under the shell header. Prefer this over ActionBar sticky top-0
- * so identity/actions stay visible below the global chrome.
+ * Sticky strip at the top of the shell scrollport.
+ * Prefer this over ActionBar sticky top-0 so identity/actions stay visible
+ * without inventing a second header offset (see `.isalwa-sticky-under-shell`).
  */
 export function CommercialStickyBar({ children, className, id }: CommercialStickyBarProps) {
   return (
     <div
       id={id}
       className={[
-        'sticky top-14 z-20 flex flex-wrap items-center justify-between gap-3 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_92%,white)] px-4 py-3 backdrop-blur-md',
+        'isalwa-sticky-under-shell flex flex-wrap items-center justify-between gap-3 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_92%,white)] px-4 py-3 backdrop-blur-md',
         className,
       ]
         .filter(Boolean)

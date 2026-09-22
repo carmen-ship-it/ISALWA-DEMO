@@ -112,7 +112,7 @@ export function QuoteEnvioSection({
     : quoteSendStatusLabel(null);
 
   return (
-    <section id="envio" className="scroll-mt-32" data-quote-envio="section">
+    <section id="envio" className="scroll-mt-[calc(5rem+env(safe-area-inset-top,0px))] sm:scroll-mt-32" data-quote-envio="section">
       <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
         {QUOTE_MANUAL_SEND_COPY.section}
       </h2>

@@ -125,7 +125,7 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty =
             />
           </div>
         ) : (
-          <div className="commercial-operating-list mt-4 overflow-x-auto rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white" data-production-ops-table="">
+          <div className="commercial-operating-list mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white md:overflow-x-auto" data-production-ops-table="">
             <OperatingScanListHeader columns={HEADER_COLUMNS} className={DESKTOP_GRID} />
             <ul className="m-0 list-none p-0">
               {rows.map((row) => {
@@ -150,7 +150,7 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty =
                     <Link
                       href={workItemHref(row.openProductionReviewWorkId)}
                       data-production-action="ver-revision"
-                      className="isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+                      className="isalwa-t-fast inline-flex h-11 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)] sm:h-8"
                     >
                       Ver revisión
                     </Link>
@@ -158,7 +158,7 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty =
                     <Link
                       href={workItemHref(row.openUpdate.workItemId)}
                       data-production-action="ver-solicitud"
-                      className="isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+                      className="isalwa-t-fast inline-flex h-11 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)] sm:h-8"
                     >
                       Ver solicitud
                     </Link>
@@ -194,6 +194,7 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty =
                           id: 'revision',
                           label: 'Revisión',
                           value: row.requestedAction || '—',
+                          hideOnMobile: true,
                         },
                         {
                           id: 'updated',
@@ -209,7 +210,7 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty =
                         },
                       ]}
                       status={
-                        <div className="flex min-h-8 min-w-[7.5rem] flex-wrap items-center justify-end gap-1.5">
+                        <div className="flex min-h-8 min-w-0 flex-wrap items-center gap-1.5 md:min-w-[7.5rem] md:justify-end">
                           {statusPills}
                         </div>
                       }

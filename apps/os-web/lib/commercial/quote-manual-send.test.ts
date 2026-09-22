@@ -80,9 +80,14 @@ describe('quote manual send record', () => {
       resolve(root, 'app/(app)/clientes/[partyId]/cotizaciones/[quoteId]/page.tsx'),
       'utf8',
     );
-    assert.match(page, /Cotización presentada/);
-    assert.match(page, /Registre el seguimiento o convierta a pedido cuando corresponda/);
-    assert.match(page, /quote\.status === 'accepted'/);
+    const sticky = readFileSync(
+      resolve(root, 'components/commercial/quote-progress-sticky-bar.tsx'),
+      'utf8',
+    );
+    assert.match(page, /QuoteProgressStickyBar/);
+    assert.match(sticky, /Cotización presentada/);
+    assert.match(sticky, /Registre el seguimiento o convierta a pedido cuando corresponda/);
+    assert.match(sticky, /effectiveStatus === 'accepted'/);
     assert.doesNotMatch(page, /estado sigue presentada hasta convertir/);
     assert.match(page, /createOrderAction|ConvertQuoteForm/);
   });

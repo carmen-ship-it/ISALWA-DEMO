@@ -54,7 +54,7 @@ export function Cliente360Nav({ partyId, activeTab, embedded = false }: Cliente3
       className={
         embedded
           ? 'max-w-full border-t border-[var(--isalwa-mist)] pt-1'
-          : 'sticky top-14 z-10 mt-6 max-w-full border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-surface-ops)_92%,transparent)] shadow-[var(--isalwa-glass-light-edge)] backdrop-blur-md'
+          : 'isalwa-sticky-under-shell mt-6 max-w-full border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-surface-ops)_92%,transparent)] shadow-[var(--isalwa-glass-light-edge)] backdrop-blur-md'
       }
     >
       <div className="sm:hidden">

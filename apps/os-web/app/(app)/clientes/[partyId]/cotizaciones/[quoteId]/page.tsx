@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { Button, PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
+import { PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
 import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
 import { CommercialPath } from '@/components/commercial/commercial-path';
 import { CommercialProgressStrip } from '@/components/commercial/commercial-progress-strip';
-import { CommercialStickyBar } from '@/components/commercial/commercial-sticky-bar';
+import { QuoteProgressStickyBar } from '@/components/commercial/quote-progress-sticky-bar';
 import { ConvertQuoteForm } from '@/components/commercial/convert-quote-form';
 import { QuoteDetailActions } from '@/components/commercial/quote-detail-actions';
 import { QuoteDocumentoCard } from '@/components/commercial/quote-documento-card';
@@ -331,23 +331,13 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
           />
         ) : null}
 
-        {authority?.canConvertToOrder ? (
-          <CommercialStickyBar className="mb-6">
-            {quote.status === 'accepted' ? (
-              <p className="text-sm text-[var(--isalwa-slate)]">
-                Cliente aceptó · listo para pedido
-              </p>
-            ) : (
-              <div className="text-sm text-[var(--isalwa-slate)]">
-                <p>Cotización presentada</p>
-                <p>Registre el seguimiento o convierta a pedido cuando corresponda.</p>
-              </div>
-            )}
-            <a href="#convertir-pedido">
-              <Button type="button">Convertir a Pedido</Button>
-            </a>
-          </CommercialStickyBar>
-        ) : null}
+        <QuoteProgressStickyBar
+          status={quote.status}
+          lineCount={lines.length}
+          sendRecorded={Boolean(sendRecord)}
+          canRecordSend={manualSendAllowed}
+          canConvertToOrder={authority?.canConvertToOrder === true}
+        />
 
         <PageSection card className="bg-white p-8 md:p-10" data-section-tone="active">
           <QuoteLiveStatus />

@@ -47,7 +47,7 @@ export function QuantityStepper({
         type="button"
         variant="secondary"
         size="sm"
-        className="h-8 w-8 shrink-0 px-0"
+        className="h-11 w-11 shrink-0 px-0 sm:h-8 sm:w-8"
         aria-label="Disminuir cantidad"
         onClick={() => setQuantity(current - 1)}
         disabled={current <= min}
@@ -73,13 +73,13 @@ export function QuantityStepper({
           if (!value.trim()) onChange(String(min));
           else onChange(String(parseQuantity(value, min)));
         }}
-        className="h-8 w-12 border-0 bg-transparent text-center text-sm font-medium text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+        className="h-11 w-14 border-0 bg-transparent text-center text-sm font-medium text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] sm:h-8 sm:w-12"
       />
       <Button
         type="button"
         variant="secondary"
         size="sm"
-        className="h-8 w-8 shrink-0 px-0"
+        className="h-11 w-11 shrink-0 px-0 sm:h-8 sm:w-8"
         aria-label="Aumentar cantidad"
         onClick={() => setQuantity(current + 1)}
       >

@@ -29,7 +29,7 @@ export type OperatingScanRowProps = {
 };
 
 const actionLinkClass =
-  'isalwa-scan-row-action isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]';
+  'isalwa-scan-row-action isalwa-t-fast inline-flex h-11 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)] sm:h-8';
 
 /**
  * Operating list row with labeled scan zones — stacked card on phone, column grid on md+.
@@ -98,12 +98,12 @@ export function OperatingScanRow({
         ))}
 
         {status !== undefined && status !== null ? (
-          <div className="isalwa-scan-row-status flex min-h-8 min-w-[7rem] shrink-0 items-center md:justify-end">
+          <div className="isalwa-scan-row-status flex min-h-8 min-w-0 shrink-0 items-center md:min-w-[7rem] md:justify-end">
             {status}
           </div>
         ) : null}
 
-        <div className="isalwa-scan-row-actions flex min-w-[10rem] shrink-0 flex-wrap items-center gap-2 md:flex-nowrap md:justify-end md:border-l md:border-[var(--isalwa-mist)] md:pl-3">
+        <div className="isalwa-scan-row-actions flex min-w-0 shrink-0 flex-wrap items-center gap-2 md:min-w-[10rem] md:flex-nowrap md:justify-end md:border-l md:border-[var(--isalwa-mist)] md:pl-3">
           {primaryAction}
           {secondaryActions}
           <Link href={href} className={actionLinkClass} data-scan-row-open="">

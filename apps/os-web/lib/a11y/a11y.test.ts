@@ -36,6 +36,14 @@ const surfaceStateSource = readFileSync(
 );
 const appStatesSource = readFileSync(resolve(here, '../../components/states/app-states.tsx'), 'utf8');
 const appToastSource = readFileSync(resolve(here, '../../components/states/app-toast.tsx'), 'utf8');
+const cliente360StickySource = readFileSync(
+  resolve(here, '../../components/cliente/cliente-360-sticky.tsx'),
+  'utf8',
+);
+const commercialStickyBarSource = readFileSync(
+  resolve(here, '../../components/commercial/commercial-sticky-bar.tsx'),
+  'utf8',
+);
 
 const ENGINEERING_JARGON =
   /\b(Party|AuthIdentity|OrganizationMember|outbox|tenant|schema|payload|endpoint|null|undefined|stack|trace|capability registry|work item id)\b/i;
@@ -132,6 +140,13 @@ describe('a11y helpers', () => {
     assert.equal(shellHeaderOffsetPx(390), 65);
     assert.equal(shellHeaderOffsetPx(1024), 77);
     assert.match(appToastSource, /isalwa-toast-region-safe/);
+  });
+
+  it('Cliente360 and commercial sticky bars use isalwa-sticky-under-shell', () => {
+    assert.match(cliente360StickySource, /isalwa-sticky-under-shell/);
+    assert.doesNotMatch(cliente360StickySource, /sticky top-14/);
+    assert.match(commercialStickyBarSource, /isalwa-sticky-under-shell/);
+    assert.doesNotMatch(commercialStickyBarSource, /sticky top-14/);
   });
 
   it('collapses JS motion when reduced motion is preferred', () => {

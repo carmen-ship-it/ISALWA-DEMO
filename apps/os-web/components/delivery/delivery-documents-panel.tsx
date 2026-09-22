@@ -274,17 +274,24 @@ export function DeliveryDocumentsPanel({
               return (
               <li
                 key={line.orderLineId}
-                className="grid gap-3 py-3 md:grid-cols-[minmax(0,1.6fr)_8rem_9rem_6rem] md:items-end"
+                className="grid grid-cols-1 gap-3 py-3 md:grid-cols-[minmax(0,1.6fr)_8rem_9rem_6rem] md:items-end"
+                data-entrega-quantity-row=""
               >
-                <div className="min-w-0">
+                <div className="min-w-0 md:col-auto">
                   <p className="text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">Producto</p>
                   <p className="mt-1 break-words text-sm font-medium text-[var(--isalwa-kiln)]">{line.description}</p>
                 </div>
-                <div>
-                  <p className="text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">Cantidad del pedido</p>
-                  <p className="mt-1 text-right text-sm tabular-nums text-[var(--isalwa-kiln)]">{quoted}</p>
+                <div className="grid grid-cols-2 gap-3 md:contents">
+                  <div>
+                    <p className="text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">Cantidad del pedido</p>
+                    <p className="mt-1 text-sm tabular-nums text-[var(--isalwa-kiln)] md:text-right">{quoted}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">Unidad</p>
+                    <p className="mt-1 text-sm text-[var(--isalwa-kiln)]">{unit ?? '—'}</p>
+                  </div>
                 </div>
-                <div>
+                <div className="md:col-auto">
                   <label htmlFor={inputId} className="text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">
                     Cantidad a registrar
                   </label>
@@ -300,13 +307,9 @@ export function DeliveryDocumentsPanel({
                         [line.orderLineId]: Number(event.target.value),
                       }))
                     }
-                    className="isalwa-field mt-1 w-full text-right tabular-nums"
+                    className="isalwa-field mt-1 min-h-11 w-full text-right tabular-nums sm:min-h-10"
                     disabled={!allowAnyWrite || pending}
                   />
-                </div>
-                <div>
-                  <p className="text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">Unidad</p>
-                  <p className="mt-1 text-sm text-[var(--isalwa-kiln)]">{unit ?? '—'}</p>
                 </div>
               </li>
               );
@@ -373,44 +376,29 @@ export function DeliveryDocumentsPanel({
           {gate === 'needs-salida' ? 'Registrar salida' : canSubmitEntrega ? 'Registrar entrega' : 'Pendientes'}
         </h3>
         <p className="text-sm text-[var(--isalwa-slate)]">Qué puede hacer ahora con este pedido.</p>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap" data-entrega-primary-actions="">
           {allowEntrega && gate === 'needs-salida' ? (
-            <p className="w-full text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            <p className="w-full text-sm leading-relaxed text-[var(--isalwa-slate)]" data-entrega-gate="needs-salida">
               {ENTREGA_GATE_COPY.needsSalida}
             </p>
           ) : null}
           {allowEntrega && gate === 'needs-received-by' ? (
-            <p className="w-full text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            <p className="w-full text-sm leading-relaxed text-[var(--isalwa-slate)]" data-entrega-gate="needs-received-by">
               {ENTREGA_GATE_COPY.needsReceivedBy}
             </p>
-          ) : null}
-          {allowNote ? (
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={!allowNote || pending || !actorMemberId}
-              onClick={() =>
-                run('nota', () =>
-                  createNotaDeEntregaAction({
-                    partyId,
-                    orderId,
-                    recipient,
-                    deliveredBy,
-                    observations: observations || null,
-                    quantities: quantityPayload,
-                    idempotencyKey: attemptKey('nota'),
-                  }),
-                )
-              }
-            >
-              {ENTREGA_PANEL_COPY.createNota}
-            </Button>
           ) : null}
           {allowSalida ? (
             <Button
               type="button"
-              variant={gate === 'needs-salida' ? 'primary' : 'secondary'}
-              disabled={!allowSalida || pending || !actorMemberId}
+              variant={gate === 'needs-salida' && !hasSalida ? 'primary' : 'secondary'}
+              className={
+                gate === 'needs-salida' && !hasSalida
+                  ? 'min-h-11 w-full sm:min-h-10 sm:w-auto'
+                  : 'min-h-11 sm:min-h-10'
+              }
+              disabled={!allowSalida || pending || !actorMemberId || hasSalida}
+              data-entrega-cta="salida"
+              data-entrega-cta-primary={gate === 'needs-salida' && !hasSalida ? 'true' : undefined}
               onClick={() =>
                 run('salida', () =>
                   recordSalidaAction({
@@ -431,7 +419,12 @@ export function DeliveryDocumentsPanel({
             <Button
               type="button"
               variant={canSubmitEntrega ? 'contextual' : 'secondary'}
+              className={
+                canSubmitEntrega ? 'min-h-11 w-full sm:min-h-10 sm:w-auto' : 'min-h-11 sm:min-h-10'
+              }
               disabled={!canSubmitEntrega || pending}
+              data-entrega-cta="entrega"
+              data-entrega-cta-primary={canSubmitEntrega ? 'true' : undefined}
               onClick={() =>
                 run('entrega', () =>
                   recordEntregaAction({
@@ -447,6 +440,30 @@ export function DeliveryDocumentsPanel({
               }
             >
               {ENTREGA_PANEL_COPY.recordEntrega}
+            </Button>
+          ) : null}
+          {allowNote ? (
+            <Button
+              type="button"
+              variant="secondary"
+              className="min-h-11 sm:min-h-10"
+              disabled={!allowNote || pending || !actorMemberId || issuedNotes.length > 0}
+              data-entrega-cta="nota"
+              onClick={() =>
+                run('nota', () =>
+                  createNotaDeEntregaAction({
+                    partyId,
+                    orderId,
+                    recipient,
+                    deliveredBy,
+                    observations: observations || null,
+                    quantities: quantityPayload,
+                    idempotencyKey: attemptKey('nota'),
+                  }),
+                )
+              }
+            >
+              {ENTREGA_PANEL_COPY.createNota}
             </Button>
           ) : null}
         </div>

@@ -5,6 +5,7 @@ import { QuotePdfDownloadButton } from '@/components/commercial/quote-pdf-downlo
 import { useQuoteSendUi } from '@/components/commercial/quote-send-ui';
 import { useQuoteLive } from '@/components/commercial/quote-live-frame';
 import { QUOTE_MANUAL_SEND_COPY } from '@/lib/commercial/quote-manual-send';
+import { focusQuoteEnvioRegister } from '@/lib/commercial/quote-envio-focus';
 import { isQuotePdfReady } from '@/lib/commercial/quote-pdf-ready';
 
 type QuoteDocumentActionsProps = {
@@ -78,7 +79,7 @@ export function QuoteDocumentActions({
               variant="primary"
               data-quote-register-send="cta"
               onClick={() => {
-                document.getElementById('envio')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                focusQuoteEnvioRegister({ openDialog: true });
               }}
             >
               {QUOTE_MANUAL_SEND_COPY.action}
