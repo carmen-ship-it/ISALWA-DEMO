@@ -70,4 +70,12 @@ describe('Wave 2 operational polish', () => {
     assert.match(model, /Registrar decisión/);
     assert.doesNotMatch(model, /REGISTRAR DECISIÓN/);
   });
+
+  it('falls back to delivery-ops when commercial listOrders is unavailable for Compras', () => {
+    const linked = read('lib/purchasing/load-linked-orders.ts');
+    assert.match(linked, /listDeliveryOperationalOrders/);
+    assert.match(linked, /fromCommercial\.length > 0/);
+  });
+
+
 });

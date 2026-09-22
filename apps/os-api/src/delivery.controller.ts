@@ -13,6 +13,7 @@ import type { Request } from 'express';
 import {
   canRecordDelivery,
   canRecordProduction,
+  canRecordPurchasing,
   canRecordWarehouseOutbound,
 } from '@isalwa/os-contracts';
 import { getOsPrisma } from '@isalwa/os-database';
@@ -48,7 +49,8 @@ function canReadOperationalOrders(scopes: readonly string[]): boolean {
   return (
     canRecordDelivery(scopes) ||
     canRecordWarehouseOutbound(scopes) ||
-    canRecordProduction(scopes)
+    canRecordProduction(scopes) ||
+    canRecordPurchasing(scopes)
   );
 }
 

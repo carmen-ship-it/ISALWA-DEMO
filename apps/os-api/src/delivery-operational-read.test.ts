@@ -3,11 +3,13 @@ import { describe, it } from 'node:test';
 import {
   DELIVERY_RECORD_SCOPE,
   PRODUCTION_OPERATIONAL_RECORD_SCOPE,
+  PURCHASING_OPERATIONAL_RECORD_SCOPE,
   WAREHOUSE_OUTBOUND_RECORD_SCOPE,
 } from '@isalwa/os-contracts';
 import {
   canRecordDelivery,
   canRecordProduction,
+  canRecordPurchasing,
   canRecordWarehouseOutbound,
 } from '@isalwa/os-contracts';
 
@@ -15,13 +17,18 @@ function canReadOperationalOrders(scopes: readonly string[]): boolean {
   return (
     canRecordDelivery(scopes) ||
     canRecordWarehouseOutbound(scopes) ||
-    canRecordProduction(scopes)
+    canRecordProduction(scopes) ||
+    canRecordPurchasing(scopes)
   );
 }
 
 describe('delivery operational order read gate', () => {
   it('allows production operational record to read pedido context', () => {
     assert.equal(canReadOperationalOrders([PRODUCTION_OPERATIONAL_RECORD_SCOPE]), true);
+  });
+
+  it('allows purchasing operational record to read pedido context', () => {
+    assert.equal(canReadOperationalOrders([PURCHASING_OPERATIONAL_RECORD_SCOPE]), true);
   });
 
   it('keeps delivery and warehouse outbound readers', () => {
