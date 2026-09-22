@@ -10,7 +10,11 @@ import {
   StreamableFile,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { canRecordDelivery, canRecordWarehouseOutbound } from '@isalwa/os-contracts';
+import {
+  canRecordDelivery,
+  canRecordProduction,
+  canRecordWarehouseOutbound,
+} from '@isalwa/os-contracts';
 import { getOsPrisma } from '@isalwa/os-database';
 import type { DeliveryCommandService } from '@isalwa/os-delivery';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
@@ -41,7 +45,11 @@ function toHttp(err: unknown): HttpException {
 }
 
 function canReadOperationalOrders(scopes: readonly string[]): boolean {
-  return canRecordDelivery(scopes) || canRecordWarehouseOutbound(scopes);
+  return (
+    canRecordDelivery(scopes) ||
+    canRecordWarehouseOutbound(scopes) ||
+    canRecordProduction(scopes)
+  );
 }
 
 type OperationalOrderLine = {
