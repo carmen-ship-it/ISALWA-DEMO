@@ -1,3 +1,4 @@
+import { canRecordPurchasing } from '@isalwa/os-contracts';
 import { memberHasScope, type MemberAccessSnapshot } from '@isalwa/os-domain';
 import type { QueryContext } from '../query-context';
 import type { StoredApprovalReadModel, StoredWorkReadModel } from '../projection-store-port';
@@ -6,11 +7,26 @@ export function isOrgAdmin(auth: MemberAccessSnapshot): boolean {
   return memberHasScope(auth, 'people.admin');
 }
 
+function authGrantedScopes(auth: MemberAccessSnapshot): string[] {
+  return [...auth.roleKeys, ...auth.delegatedScopes];
+}
+
+/** Open Pedido prep reviews owned by the requester must still reach Compras. */
+export function isOpenPurchasingPrepReview(work: Pick<StoredWorkReadModel, 'status' | 'title' | 'description'>): boolean {
+  if (work.status !== 'open') return false;
+  const text = `${work.title ?? ''}
+${work.description ?? ''}`;
+  return /\[\[order-prep:purchasing:[^\]]+\]\]/.test(text);
+}
+
 export function canViewWork(ctx: QueryContext, work: StoredWorkReadModel): boolean {
   if (work.organizationId !== ctx.organizationId) return false;
   if (isOrgAdmin(ctx.auth)) return true;
   if (work.ownerMemberId === ctx.auth.memberId) return true;
   if (work.createdByMemberId === ctx.auth.memberId) return true;
+  if (canRecordPurchasing(authGrantedScopes(ctx.auth)) && isOpenPurchasingPrepReview(work)) {
+    return true;
+  }
   return false;
 }
 

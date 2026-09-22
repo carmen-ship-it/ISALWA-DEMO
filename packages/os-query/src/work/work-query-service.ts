@@ -4,7 +4,8 @@ import type { QueryContext } from '../query-context';
 import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
 import type { OsProjectionStorePort, StoredWorkReadModel } from '../projection-store-port';
-import { assertWorkListScope, canViewWork } from './work-auth';
+import { assertWorkListScope, canViewWork, isOpenPurchasingPrepReview } from './work-auth';
+import { canRecordPurchasing } from '@isalwa/os-contracts';
 import type { DirectReportLookup } from '../leadership/direct-reports';
 import {
   FOLLOW_UP_WORK_SUBJECT_TYPES,
@@ -108,7 +109,35 @@ export class WorkQueryService {
       },
     );
 
-    const visible = items.filter((item) => {
+    // Compras must see requester-owned open abastecimiento reviews to resolve them.
+    let purchasingPrepExtras: typeof items = [];
+    if (
+      !scope &&
+      !query.overdue &&
+      (query.status ?? 'open') === 'open' &&
+      canRecordPurchasing([...ctx.auth.roleKeys, ...ctx.auth.delegatedScopes])
+    ) {
+      const orgOpen = await this.deps.projectionStore.listWorkReadModels(ctx.organizationId, {
+        limit: 100,
+        status: 'open',
+        subjectType: subjectTypes ? undefined : query.subjectType,
+        subjectTypes,
+        subjectId: query.subjectId,
+      });
+      purchasingPrepExtras = (orgOpen.items ?? []).filter(
+        (item) => isOpenPurchasingPrepReview(item) && canViewWork(ctx, item),
+      );
+    }
+
+    const merged = [...items];
+    const seen = new Set(merged.map((item) => item.workItemId));
+    for (const extra of purchasingPrepExtras) {
+      if (seen.has(extra.workItemId)) continue;
+      seen.add(extra.workItemId);
+      merged.push(extra);
+    }
+
+    const visible = merged.filter((item) => {
       if (item.organizationId !== ctx.organizationId) return false;
       if (scope) return ownerInReadScope(item.ownerMemberId, scope);
       return canViewWork(ctx, item);
