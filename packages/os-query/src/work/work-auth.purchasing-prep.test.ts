@@ -18,7 +18,7 @@ function ctx(scopes: string[], memberId = 'm-compras'): QueryContext {
       delegatedScopes: [],
       delegatedApproverFor: [],
     },
-  } as QueryContext;
+  } as unknown as QueryContext;
 }
 
 function work(partial: Partial<StoredWorkReadModel>): StoredWorkReadModel {
@@ -40,7 +40,7 @@ function work(partial: Partial<StoredWorkReadModel>): StoredWorkReadModel {
     lastEventId: 'e1',
     lastOccurredAt: '2026-01-01T00:00:00.000Z',
     ...partial,
-  } as StoredWorkReadModel;
+  } as unknown as StoredWorkReadModel;
 }
 
 describe('purchasing prep work visibility', () => {
