@@ -2,6 +2,7 @@ import type { WorkCommandName, RequestContext } from '@isalwa/os-contracts';
 import {
   ApprovalRequestContextSchema,
   COMMAND_REQUIRED_SCOPES,
+  canRecordPurchasing,
   canRequestCommercialSubjectApproval,
 } from '@isalwa/os-contracts';
 import {
@@ -88,6 +89,16 @@ export class WorkCommandService {
 
   private memberHasAdminScope(snap: MemberAccessSnapshot): boolean {
     return memberHasScope(snap, 'people.admin');
+  }
+
+  /** Compras resolves requester-owned abastecimiento prep reviews. */
+  private canCompletePurchasingPrepReview(
+    snap: MemberAccessSnapshot,
+    work: { description: string | null },
+  ): boolean {
+    if (!canRecordPurchasing([...snap.roleKeys, ...snap.delegatedScopes])) return false;
+    const key = orderPrepOpenClaimKey(work.description);
+    return Boolean(key?.startsWith('order-prep-open:purchasing:'));
   }
 
   private async releaseOpenClaim(
@@ -352,7 +363,11 @@ export class WorkCommandService {
     const snap = await this.authorize(ctx, 'CompleteWork', ctx.organizationId);
     const workItemId = String(payload.workItemId);
     const work = await this.requireOpenWork(store, ctx.organizationId, workItemId);
-    if (work.ownerMemberId !== ctx.actorMemberId && !this.memberHasAdminScope(snap)) {
+    if (
+      work.ownerMemberId !== ctx.actorMemberId &&
+      !this.memberHasAdminScope(snap) &&
+      !this.canCompletePurchasingPrepReview(snap, work)
+    ) {
       throw new Error('PERMISSION_DENIED');
     }
 
