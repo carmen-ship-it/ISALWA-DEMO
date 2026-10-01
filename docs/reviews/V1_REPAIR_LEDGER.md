@@ -41,6 +41,8 @@ staging data, or reset fixtures. Protected and untouched: `main` (`ca3821f`),
 | S2 delegation / role escalation | fixed in source, tested | `a45199f` | `workforce-delegation-escalation.test.ts` — 12 cases; 7 reproduced the defect |
 | E2 test discovery | fixed in source, tested | `0eebd1e` | `os-api` 5 files → 119 tests; `os-database` 3/30, `os-query` 8/9 corrected |
 | D1 outbox lost updates | fixed in source, tested | `1de4cda` | failing-delivery retry test (was red) + P2002 classifier test, no database needed |
+| D2 re-request after resolve → 500 | fixed in source, tested | `2affa01` | `open-request-rerequest.test.ts` — re-request reproduced the real P2002 before the fix |
+| D4 shared idempotency-key instance state | fixed in source, tested | `5efed5a` | concurrency test in the same file: red with the old field, green with the async scope |
 
 Notes on choices that departed from the review's suggested fix:
 
@@ -55,6 +57,15 @@ Notes on choices that departed from the review's suggested fix:
   only cross-company mutation by another org's admin is refused. Terminate and
   suspend still revoke membership access in the acting org and simply leave the
   shared login alone.
+- **D2** — the review suggested giving business events a freshly generated key.
+  Instead the event now carries only the caller's key and no key at all when the
+  caller sent none, which keeps event-level dedup meaningful for retried HTTP
+  requests. Claim keys stay in `os_idempotency_keys`, which is where they are
+  released on resolve.
+- **D4** — rather than adding a tenth positional argument to every `emit` call
+  across eight services, the key lives in an `AsyncLocalStorage` scope entered by
+  `execute`. Each service's command body is unchanged and moved verbatim into a
+  private `runCommand`.
 - **D1** — consumers are pure upserts, so a duplicate delivery is safe while a
   lost update is not. A failed attempt releases its own dedup claims, and only a
   unique-constraint violation counts as an existing claim.
@@ -65,11 +76,9 @@ Confirmed in source, not yet repaired:
 
 | Finding | Severity | Owner | Note |
 |---|---|---|---|
-| D2 re-request after resolve → 500 | High | Cursor | claim key reused as business-event idempotency key |
 | D3 delivery writes not transactional, no event/audit | High | Agent A | Documentos and Pedido timeline **do** work — preserve them; Historial is the gap |
 | D5 cumulative over-delivery | Medium | Agent A | policy now set by ADR 0003; enforce atomically at dispatch |
 | D6 Compras work-list pagination + free-text authority | Medium | Cursor | introduced by the live commit `52a9f9e` |
-| D4 shared `activeIdempotencyKey` instance state | Medium | Cursor | spans 7 services incl. files already changed here |
 | S3 approval self-dealing | Medium | unassigned | ADR 0003 now defines the approval rules |
 | S4 party timeline bypasses commercial policy | Medium | Agent B | |
 | S5 mass assignment / actor spoofing | Medium | Agent B | |
