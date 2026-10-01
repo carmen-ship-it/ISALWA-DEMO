@@ -1,0 +1,637 @@
+# ISALWA OS Handoff Manifest — machine-readable companion
+# Increment 6 — architecture only; no runtime implementation
+# Human narrative: ISALWA_OS_HANDOFF_MANIFEST.md
+
+version: "6.0"
+status: architecture_handoff
+updated: "2026-08-23"
+
+classification_tags:
+  APPROVED: Binding architecture decision
+  PROPOSED: Planning direction
+  REQUIRES_CLIENT_CONFIRMATION: Needs ISALWA input
+  DEFERRED: Later phase
+  LOCKED: Not active
+  IMPLEMENTATION_FOLLOW-UP: Resolved at implementation step
+
+implementation_order:
+  - step: 6
+    name: handoff_manifest
+    status: complete
+  - step: 7
+    name: client_discovery
+    status: pending
+  - step: 8
+    name: adr_sign_off
+    status: pending
+  - step: 9
+    name: shared_contracts_spec
+    status: pending
+  - step: 10
+    name: tenant_auth_member_person
+    status: pending
+  - step: 11
+    name: events_audit_outbox
+    status: pending
+  - step: 12
+    name: partygraph
+    status: pending
+  - step: 13
+    name: role_dept_delegation_projections
+    status: pending
+  - step: 14
+    name: work_approval_reassignment
+    status: pending
+  - step: 15
+    name: query_projection_framework
+    status: pending
+  - step: 16
+    name: commercial_v1
+    status: pending
+    note: First activated capability lane
+  - step: 17
+    name: whatsapp_ingest
+    status: pending
+  - step: 18
+    name: command_center
+    status: pending
+  - step: 19
+    name: finance_adapter
+    status: pending
+    note: LOCKED until client validation
+
+first_capability_lane: commercial
+finance_status: LOCKED
+
+tenant:
+  status: APPROVED
+  isolation:
+    field: organizationId
+    rule: every_operational_row
+    ai_retrieval: same_as_user_session
+  lifecycle_states: [provisioning, active, suspended, archived]
+  demo_isolation: APPROVED
+
+entities:
+  Person:
+    lane: B
+    authoritative_store: person
+    status: APPROVED
+    delete_policy: never_hard_delete
+    notes: Workforce canonical human; distinct from Party partyKind person
+
+  OrganizationMember:
+    lane: B
+    authoritative_store: organization_member
+    status: APPROVED
+    employment_status: [pending_start, active, on_leave, terminated]
+    access_status: [invited, active, suspended, revoked]
+
+  AuthIdentity:
+    lane: A
+    authoritative_store: auth_identity
+    status: APPROVED
+
+  RoleAssignment:
+    lane: B
+    authoritative_store: role_assignment
+    status: APPROVED
+    effective_dated: true
+
+  DepartmentAssignment:
+    lane: B
+    authoritative_store: department_assignment
+    status: APPROVED
+    effective_dated: true
+
+  ManagerAssignment:
+    lane: B
+    authoritative_store: manager_assignment
+    status: APPROVED
+    effective_dated: true
+
+  Delegation:
+    lane: B
+    authoritative_store: delegation
+    status: APPROVED
+    expires_required: true
+
+  Party:
+    lane: C
+    authoritative_store: party
+    status: APPROVED
+    party_kind: [organization, person]
+
+  PartyRoleAssignment:
+    lane: C
+    authoritative_store: party_role_assignment
+    status: APPROVED
+    roles:
+      - customer
+      - supplier
+      - vendor
+      - distributor
+      - partner
+      - contractor
+      - logistics_provider
+      - financial_counterparty
+
+  Contact:
+    lane: C
+    authoritative_store: contact
+    status: APPROVED
+
+  CommercialAccount:
+    lane: G
+    authoritative_store: commercial_account
+    status: APPROVED
+    alias: Account  # Foundation L1 legacy name — use CommercialAccount
+
+  Lead:
+    lane: C
+    authoritative_store: lead_draft
+    status: APPROVED
+    staging: true
+
+  WorkItem:
+    lane: E
+    authoritative_store: work_item
+    status: APPROVED
+
+  ApprovalRequest:
+    lane: E
+    authoritative_store: approval_request
+    status: APPROVED
+    outcome: immutable_terminal
+
+  BusinessEvent:
+    lane: D
+    authoritative_store: business_event
+    status: APPROVED
+    append_only: true
+
+  AuditLog:
+    lane: D
+    authoritative_store: audit_log
+    status: APPROVED
+    append_only: true
+
+  FinanceProjection:
+    lane: I
+    authoritative_store: finance_projection
+    status: LOCKED
+    second_ledger: prohibited
+
+  CapabilityState:
+    lane: A
+    authoritative_store: capability_state
+    status: APPROVED
+    states: [LOCKED, APPROVED, CONNECTING, ACTIVE, DEGRADED, DEPRECATED]
+
+  IntegrationConnection:
+    lane: H
+    authoritative_store: integration_connection
+    status: APPROVED
+
+  AttentionItem:
+    lane: E
+    authoritative_store: derived
+    status: APPROVED
+
+  Notification:
+    lane: E
+    authoritative_store: notification_delivery
+    status: APPROVED
+
+  IdempotencyKey:
+    lane: D
+    authoritative_store: ingest_idempotency
+    status: APPROVED
+
+  Document:
+    lane: H
+    authoritative_store: document
+    status: APPROVED
+
+commands:
+  workforce:
+    - name: InviteMember
+      class: A
+      auth: people.admin
+      events: [member.invited]
+      status: APPROVED
+    - name: ActivateMember
+      class: A
+      events: [member.activated]
+      status: APPROVED
+    - name: ChangeDepartment
+      class: A
+      events: [member.department.changed]
+      status: APPROVED
+    - name: ChangeRole
+      class: A
+      class_if_finance: B
+      events: [member.role.changed]
+      status: APPROVED
+    - name: ChangeManager
+      class: A
+      events: [member.manager.changed]
+      status: APPROVED
+    - name: SuspendMember
+      class: A
+      events: [member.suspended]
+      status: APPROVED
+    - name: TerminateMember
+      class: A
+      events: [member.terminated]
+      requires: open_work_reassignment
+      status: APPROVED
+    - name: RehireMember
+      class: A
+      events: [employment.restarted]
+      status: APPROVED
+    - name: GrantDelegation
+      class: A
+      class_if_approval_scope: B
+      events: [delegation.granted]
+      requires_expiry: true
+      status: APPROVED
+    - name: RevokeDelegation
+      class: A
+      events: [delegation.revoked]
+      status: APPROVED
+
+  party:
+    - name: CreateParty
+      class: A
+      events: [party.created]
+      status: APPROVED
+    - name: UpdateParty
+      class: A
+      events: [party.updated]
+      status: APPROVED
+    - name: DeactivateParty
+      class: A
+      events: [party.deactivated]
+      status: APPROVED
+    - name: ReactivateParty
+      class: A
+      events: [party.reactivated]
+      status: APPROVED
+    - name: AssignPartyRole
+      class: A
+      events: [party.role.assigned]
+      status: APPROVED
+    - name: EndPartyRole
+      class: A
+      events: [party.role.ended]
+      status: APPROVED
+    - name: UpdateContact
+      class: A
+      events: [contact.updated]
+      status: APPROVED
+    - name: RequestPartyMerge
+      class: B
+      events: [party.merge.requested]
+      status: APPROVED
+    - name: ApprovePartyMerge
+      class: B
+      events: [party.merged]
+      status: APPROVED
+    - name: RejectPartyMerge
+      class: B
+      events: [party.merge.rejected]
+      status: APPROVED
+
+  location:
+    - name: CreateLocation
+      class: A
+      events: [location.created]
+      status: APPROVED
+    - name: UpdateLocation
+      class: A
+      events: [location.updated]
+      status: APPROVED
+    - name: DeactivateLocation
+      class: A
+      events: [location.deactivated]
+      status: APPROVED
+
+  work:
+    - name: CreateWorkItem
+      class: A
+      lane: E
+      status: APPROVED
+    - name: ReassignWork
+      class: A
+      lane: E
+      events: [task.reassigned]
+      status: APPROVED
+    - name: CompleteWork
+      class: A
+      lane: E
+      status: APPROVED
+    - name: RequestApproval
+      class: A
+      lane: E
+      status: APPROVED
+    - name: Approve
+      class: A
+      lane: E
+      status: APPROVED
+    - name: Reject
+      class: A
+      lane: E
+      status: APPROVED
+
+queries:
+  - name: GetMember
+    lane: F
+    status: APPROVED
+  - name: ListMembers
+    lane: F
+    status: APPROVED
+  - name: GetMemberEffectiveAuth
+    lane: F
+    supports_as_of: true
+    status: APPROVED
+  - name: GetParty
+    lane: F
+    status: APPROVED
+  - name: SearchParties
+    lane: F
+    status: APPROVED
+  - name: GetPartyRoles
+    lane: F
+    status: APPROVED
+  - name: ListPartyLocations
+    lane: C
+    status: APPROVED
+  - name: GetLocation
+    lane: C
+    status: APPROVED
+  - name: ListOpenWork
+    lane: F
+    status: APPROVED
+  - name: GetApproval
+    lane: F
+    status: APPROVED
+  - name: GetFinanceProjection
+    lane: F
+    includes_stale_metadata: true
+    status: LOCKED
+  - name: GetCapabilityState
+    lane: F
+    status: APPROVED
+  - name: GetIntegrationHealth
+    lane: F
+    status: APPROVED
+
+admin_self_service:
+  description: Operations ISALWA admins perform without engineering
+  never_bypass:
+    - tenant_isolation
+    - rbac
+    - approvals
+    - audit
+    - financial_controls
+    - integration_boundaries
+  operations:
+    - action: add_employee
+      class: A
+    - action: invite_employee
+      class: A
+    - action: deactivate_employee
+      class: A
+    - action: reactivate_employee
+      class: A
+    - action: change_department
+      class: A
+    - action: change_manager
+      class: A
+    - action: change_role
+      class: A
+      note: B if finance-sensitive permissions
+    - action: delegate_temporarily
+      class: A
+      note: B if approval delegation
+    - action: reassign_work
+      class: A
+    - action: add_customer
+      class: A
+      mechanism: Party + customer role
+    - action: add_supplier
+      class: A
+      mechanism: Party + supplier role
+    - action: add_vendor
+      class: A
+      mechanism: Party + supplier/vendor role
+    - action: add_distributor
+      class: A
+    - action: add_partner
+      class: A
+    - action: add_contact
+      class: A
+    - action: correct_master_data
+      class: A
+    - action: change_legal_name
+      class: B
+    - action: change_nit
+      class: B
+    - action: request_party_merge
+      class: B
+    - action: approve_party_merge
+      class: B
+    - action: change_account_owner
+      class: A
+      note: B policy-dependent
+    - action: change_payment_terms
+      class: B
+    - action: change_credit_limit
+      class: B
+    - action: change_approval_authority
+      class: B
+    - action: activate_capability
+      class: B
+      note: engineering connect C/D
+    - action: create_department
+      class: A
+      note: B if new capability scope
+    - action: create_role_template
+      class: B
+      note: C if new system capabilities
+    - action: connect_accounting
+      class: C
+      integration_class: D
+    - action: connect_whatsapp
+      class: C
+      integration_class: D
+    - action: change_fiscal_integration
+      class: C
+      integration_class: D
+
+configuration_vs_code:
+  configurable_by_isalwa:
+    - departments
+    - employees
+    - normal_roles_within_catalog
+    - party_master_data_non_fiscal
+    - work_reassignment_authorized
+  governed_configuration:
+    - approval_thresholds
+    - capability_activation
+    - party_merge
+    - nit_change
+    - credit_limit
+    - payment_terms
+  engineering:
+    - new_schema_entity
+    - new_shared_event_contract
+    - new_integration_adapter_type
+    - security_model_change
+    - infrastructure
+  external_integration:
+    - accounting_connection
+    - whatsapp_waba
+    - fiscal_provider
+    - banking_feeds
+    - manual_accountant_import
+
+multi_agent_lanes:
+  A:
+    name: foundation_tenant_auth
+    entities: [Organization, CapabilityState, AuthIdentity]
+    future_packages: [packages/os-foundation]
+    forbidden: [duplicate_tenant_model, browser_db_writes]
+  B:
+    name: workforce_authorization
+    entities: [Person, OrganizationMember, RoleAssignment, DepartmentAssignment, ManagerAssignment, Delegation]
+    future_packages: [packages/os-workforce]
+    depends_on: [A, D]
+  C:
+    name: partygraph_identity
+    entities: [Party, PartyRoleAssignment, Contact, Lead]
+    future_packages: [packages/os-party]
+    depends_on: [A, D]
+    forbidden: [customer_master_silo, supplier_master_silo, vendor_master_silo]
+  D:
+    name: event_audit_outbox
+    entities: [BusinessEvent, AuditLog, Outbox, IdempotencyKey]
+    future_packages: [packages/os-events]
+    forbidden: [second_event_log]
+  E:
+    name: work_approval_attention
+    entities: [WorkItem, ApprovalRequest, AttentionItem, Notification]
+    future_packages: [packages/os-work]
+    depends_on: [B, C, D]
+  F:
+    name: query_projections
+    entities: [read_models, search_indexes]
+    future_packages: [packages/os-query]
+    depends_on: [all_authoritative, D]
+  G:
+    name: commercial
+    entities: [CommercialAccount, Opportunity, Quote, Order]
+    future_packages: [packages/os-commercial]
+    depends_on: [B, C, D, E, F]
+    note: First activated lane at step 16+
+    forbidden: [fork_partygraph, fork_events, fork_work]
+  H:
+    name: integrations
+    entities: [IntegrationConnection, Document]
+    future_packages: [packages/os-integrations]
+    depends_on: [A, D, C]
+  I:
+    name: finance
+    entities: [FinanceProjection]
+    future_packages: [packages/os-finance]
+    status: LOCKED
+    depends_on: [D, H, C]
+    forbidden: [second_ledger]
+  J:
+    name: qa_security_architecture
+    entities: [contract_tests, security_gates]
+    future_packages: [packages/os-contracts]
+    depends_on: [all]
+
+parallelization:
+  allowed_when:
+    - shared_contracts_locked
+    - ownership_boundaries_explicit
+    - dependencies_known
+    - integration_test_boundary_defined
+    - no_two_agents_same_mutable_contract
+    - cross_lane_changes_reviewed
+    - boundary_tests_exist
+  on_cross_lane_issue:
+    - FOUNDATION_GAP
+    - CROSS_LANE_CHANGE_REQUEST
+    - stop_at_gate
+
+integrations:
+  accounting:
+    status: LOCKED
+    vendor: REQUIRES_CLIENT_CONFIRMATION
+    quickbooks_note: scaffold_only_not_bolivia_claim
+    external_authority: [gl, official_invoice, ar_ap]
+  fiscal_sin:
+    status: DEFERRED
+  banking:
+    status: DEFERRED
+  whatsapp:
+    status: DEFERRED
+  email:
+    status: DEFERRED
+  document_storage:
+    status: DEFERRED
+  auth_provider:
+    status: IMPLEMENTATION_FOLLOW-UP
+    step: 10
+  logistics:
+    status: DEFERRED
+  external_accountant:
+    status: DEFERRED
+    fallback: excel_csv_manual
+
+ai:
+  status: APPROVED
+  authorization: inherits_user_effective_auth
+  capability_gating: required
+  suggestion_vs_decision: human_commands_authoritative
+  audit_on_action: required
+  prohibited_silent:
+    - identity_merge
+    - price_change
+    - credit_extension
+    - fiscal_issuance
+    - permission_elevation
+    - external_message_outside_policy
+
+finance:
+  status: LOCKED
+  os_authoritative: [commercial_objects, communications, promise_to_pay_commercial]
+  external_authoritative: [official_invoice, gl, official_ar_ap]
+  projection: FinanceProjection
+  second_ledger: prohibited
+
+requires_decision:
+  - id: RD-01
+    topic: admin_role_names
+    status: REQUIRES_CLIENT_CONFIRMATION
+  - id: RD-02
+    topic: approval_thresholds
+    status: REQUIRES_CLIENT_CONFIRMATION
+  - id: RD-03
+    topic: accounting_provider
+    status: REQUIRES_CLIENT_CONFIRMATION
+
+documentation_gaps:
+  - id: DG-01
+    topic: Account_vs_CommercialAccount
+    resolution: use CommercialAccount
+  - id: DG-02
+    topic: workforce_person_vs_party_person_kind
+    resolution: documented_in_manifest
+  - id: DG-03
+    topic: Blocker_entity
+    resolution: IMPLEMENTATION_FOLLOW-UP lane E step 14

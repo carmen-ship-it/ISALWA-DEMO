@@ -84,6 +84,8 @@ Architect is configured so **normal reload / next visit** picks up a new deploy:
 
 After a production deploy finishes, clients fetch fresh HTML, which points at the new hashed bundles. They should **not** need a hard refresh. A brief cutover window can still exist while Vercel aliases the new deployment; a normal refresh a few seconds later is enough.
 
+Full troubleshooting guidance (code vs application state): [`docs/architecture/CLIENT_UPDATE_BEHAVIOR.md`](../../docs/architecture/CLIENT_UPDATE_BEHAVIOR.md).
+
 ---
 
 ## Required environment variables

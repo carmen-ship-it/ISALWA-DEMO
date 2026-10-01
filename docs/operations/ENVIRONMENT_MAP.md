@@ -143,6 +143,8 @@ Invite emails are sent by Supabase Auth (default project sender), not by ISALWA.
 | `OS_PROJECTION_WORKER` | enabled | Alias for disable |
 | `OS_OUTBOX_POLL_MS` | `5000` | Poll interval |
 | `OS_OUTBOX_BATCH_SIZE` | `25` | Claim batch size |
+| `OS_ATTENTION_CLOCK` | enabled | Set `0` to disable wall-clock overdue refresh |
+| `OS_ATTENTION_CLOCK_MS` | `60000` | Overdue refresh interval (minimum 1000) |
 
 ---
 
@@ -157,7 +159,8 @@ See `apps/os-web/.env.example`. Copy to `apps/os-web/.env.local`.
 | Variable | Context |
 |----------|---------|
 | `NODE_ENV=production` | Required for production store enforcement |
-| `OS_OUTBOX_WORKER=0` | API-only mode (outbox accumulates) |
+| `OS_OUTBOX_WORKER=0` | API-only mode (outbox accumulates). Does not stop the overdue attention clock |
+| `OS_ATTENTION_CLOCK=0` | Stop wall-clock overdue refresh. Restart os-api after changing |
 | Legacy root `.env` | `ALLOW_MOCK_PROVIDERS`, Redis, etc. — legacy demo only |
 
 ---

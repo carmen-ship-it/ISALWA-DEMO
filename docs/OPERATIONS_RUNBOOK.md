@@ -3,6 +3,7 @@
 **Status:** Permanent operational reference for `apps/architect`.
 **Related:** [`docs/SECURITY_POSTURE.md`](./SECURITY_POSTURE.md) ·
 [`docs/RELEASE_CHECKLIST.md`](./RELEASE_CHECKLIST.md) ·
+[`docs/architecture/CLIENT_UPDATE_BEHAVIOR.md`](./architecture/CLIENT_UPDATE_BEHAVIOR.md) ·
 [`apps/architect/DEPLOYMENT.md`](../apps/architect/DEPLOYMENT.md) ·
 [`apps/architect/supabase/OPERATOR_GUIDE.md`](../apps/architect/supabase/OPERATOR_GUIDE.md)
 
@@ -169,7 +170,7 @@ real values — names and purpose only.
 
 | Symptom | Likely cause | What to check |
 | --- | --- | --- |
-| Data looks stale after a normal reload | **Not a caching bug** — HTML is already `private, no-store`. Do not advise a hard refresh. | The actual data/logic path: is the workspace load reading the row you expect? Is a heal step in `lib/repositories/migrate.ts` firing unexpectedly? |
+| Data looks stale after a normal reload | **Not a caching bug** — HTML is already `private, no-store`. Do not advise a hard refresh. See [`docs/architecture/CLIENT_UPDATE_BEHAVIOR.md`](./architecture/CLIENT_UPDATE_BEHAVIOR.md). | The actual data/logic path: is the workspace load reading the row you expect? Is a heal step in `lib/repositories/migrate.ts` firing unexpectedly? |
 | Client sees an unexpected tab | `CLIENT_VISIBLE_TAB_IDS` / `CONSULTANT_ONLY_PATHS` misconfigured, or `session.role` resolved incorrectly | `components/workspace/workspace-tabs.tsx`, `lib/auth/constants.ts`, confirm `getServerSession()` output for that user |
 | Dashboard shows a score that seems too high/low for the evidence given | Check whether a heal step should exist for a newly-discovered fabrication pattern (see ADR-A2) | `lib/repositories/migrate.ts`, `NO_FABRICATED_CONTENT.md` |
 | English text leaking into client-visible copy | A new enum/value added without an entry in `coverageAreaLabel()` / `phaseLabel()` / `moduleLabel()` or the i18n dictionaries | `lib/presentation/executive-language.ts`, `lib/i18n/messages/{es,en}.ts`, `I18N_100.md` |

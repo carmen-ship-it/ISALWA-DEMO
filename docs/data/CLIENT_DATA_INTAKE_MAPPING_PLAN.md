@@ -36,7 +36,7 @@ Identity rule: **do not** treat section B people as OrganizationMembers. **do no
 | B Customer | Nombre + Apellido | Contact | givenName, familyName | Trim | Prefer non-empty | Same party + same phone/name | **No** | — | Contact of org party; not employee |
 | B Customer | Celular | Contact | phone / whatsapp | Normalize BO (`+591…`); Excel number → string | Digits length | Phone among possible match keys | **No** | Normalization rules | Excel number storage loses formatting |
 | B Customer | Teléfono | Contact | phone | Same | Optional | Same | **No** | — | Empty in current file |
-| B Customer | Ubicación GPS | **NO CANONICAL HOME YET** | — | Parse Maps URL → lat/lng **later**; store URL as provenance only if model allows | Must not call geocoders in intake without approval | Location proximity scoring later | **No** | **YES** — Location model | **REAL_DATA_MODEL_GAP** |
+| B Customer | Ubicación GPS | Location (`os_locations`) | label, provenanceUrl, latitude?, longitude? | Store Maps URL as `provenanceUrl`; coords optional (short links may lack coords). No geocode in intake. | Must not call geocoders without approval | Location proximity scoring later | **No** (importer not built) | Offline parse of full Maps URLs later | **IMPLEMENTED** (model); import still closed |
 | B Customer | (implied role) | PartyRoleAssignment | roleKey=`customer` | Assign on create | Effective-dated | — | **No** | — | Fits PartyGraph |
 | B Customer | (optional) | CommercialAccount | partyId, ownerMemberId? | 1:1 with Party today | — | — | **No** | Salesperson assignment | No salesperson column in sheet |
 | — | NIT / razón social | FiscalIdentity | nit, razonSocial | — | — | Strong match key | N/A | — | **Absent from workbook** |
@@ -89,7 +89,7 @@ Reuse existing Party duplicate-candidate / merge **after** intake for review —
 
 ## REAL_DATA_MODEL_GAPS
 
-1. **Location / Address / GPS** — OS schema has no Address/Location/lat-lng/PostGIS entity. Legacy Account locations are **not** the OS destination. Maps URLs cannot become canonical coordinates without a governed model (+ optional offline parse; **no geocoding API in this stage**). **Reinforced 2026-09-13:** commercial paper also expects an address block on documents — same gap.
+1. **Location / Address / GPS** — **IMPLEMENTED (canonical model)** via `OsLocation` / `os_locations` (2026-09-13). Legacy Account locations remain **not** the OS destination. Short Maps URLs may store `provenanceUrl` with null coordinates; **no geocoding API** in this stage. Map UI and real XLS import remain deferred. Commercial paper address blocks may still need product rules for document rendering.
 2. **ContactMethod** — channels are flat columns on `Contact`; acceptable for this sheet.
 3. **Multi-store under one owner** — not indicated by this file (7 unique commercial names). Revisit if a larger extract shows shared owners. **Business question open** (Isa/Álvaro Q6).
 4. **Bill-to / “Factura a” vs trade customer** — not in XLS; appears on paper. Party + `FiscalIdentity` can hold NIT/razón social for **one** party; distinct bill-to party on a Quote is **not** modeled. Do not invent NIT from the sheet (absent).
@@ -116,7 +116,7 @@ Do **not** import until all of:
 4. Managed DB exists  
 5. Backup exists + restore proof **or** explicit bounded staging exception approved  
 6. Importer has dry-run / validation / receipt  
-7. Location/GPS treatment is explicit (model **or** defer GPS and import parties/contacts without it)
+7. Location/GPS treatment is explicit — **canonical Location model IMPLEMENTED**; importer may create Locations with `provenanceUrl` ± coords, or still defer GPS rows until importer exists
 
 ---
 
@@ -136,7 +136,7 @@ Every mutation: BusinessEvent + AuditLog + Outbox.
 
 ## First real-data gate (before any load)
 
-1. Location/GPS decision (model slice **or** explicit deferral: import parties/contacts **without** GPS).  
+1. Location/GPS — **canonical model IMPLEMENTED** (`OsLocation`); importer still required before load.  
 2. Cargo → roleKey decision table (for staff section, if in scope).  
 3. Implemented dry-run importer with receipts + duplicate review.  
 4. ISALWA written approval.  

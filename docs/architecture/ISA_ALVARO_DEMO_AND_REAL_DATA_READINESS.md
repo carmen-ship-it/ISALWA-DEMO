@@ -104,7 +104,7 @@ Previously: project did not exist. **Resolved 2026-09-13** by CLI create under p
 | Party + contact + customer role | **Supported** |
 | Staff Person | **Supported** (invite separate; no AuthIdentity from sheet) |
 | NIT in workbook | **Absent** |
-| Location / Address / GPS | **REAL_DATA_MODEL_GAP** |
+| Location / Address / GPS | **IMPLEMENTED** (canonical `OsLocation`; Map UI + XLS import deferred) |
 | Paper-added gaps | Bill-to / Factura a; delivery acknowledgment; DN vs Quote; numbering **policy** |
 
 Detail: `docs/data/CLIENT_DATA_INTAKE_MAPPING_PLAN.md`  
@@ -183,7 +183,7 @@ Guide: `docs/uat/FIRST_HUMAN_INTERNAL_UAT_GUIDE.md`
 2. P0/P1 blocking commercial journey for Isa/Álvaro  
 3. Quote/document realism without unresolved policy  
 4. Controlled real-data import readiness  
-5. Location/GPS canonical slice  
+5. Location/GPS canonical slice — **done** (see `LOCATION_CANONICAL_SLICE_IMPLEMENTATION_EVIDENCE.md`); next: importer and/or map reads
 6. Orders/approvals only after decisions  
 
 ---

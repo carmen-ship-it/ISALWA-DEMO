@@ -254,6 +254,39 @@ orchestration-only contract.
 
 ---
 
+## ISALWA OS foundation ADRs (monorepo — implementation deferred)
+
+These live in [`docs/adr/`](./adr/) and are indexed here so Architect and OS work share one decision log. **No runtime code is required for these to be binding architecture.**
+
+| ADR | Decision | Doc |
+| --- | --- | --- |
+| 0003 | Tenant isolation + AI retrieval = user authorization | [`0003-os-tenant-isolation.md`](./adr/0003-os-tenant-isolation.md) |
+| 0004 | Party graph + merge governance | [`0004-os-party-identity.md`](./adr/0004-os-party-identity.md) |
+| 0005 | Event spine vs work vs attention | [`0005-os-event-work-attention.md`](./adr/0005-os-event-work-attention.md) |
+| 0006 | Capability activation registry | [`0006-os-capability-registry.md`](./adr/0006-os-capability-registry.md) |
+| 0007 | Finance authority boundary + projections | [`0007-os-finance-boundary.md`](./adr/0007-os-finance-boundary.md) |
+| 0008 | Ingest idempotency + transactional outbox | [`0008-os-ingest-outbox.md`](./adr/0008-os-ingest-outbox.md) |
+| 0009 | AI authority + demo/production isolation | [`0009-os-ai-audit-demo-isolation.md`](./adr/0009-os-ai-audit-demo-isolation.md) |
+| 0010 | Workforce identity lifecycle (Person/Member/Auth) | [`0010-workforce-identity-lifecycle.md`](./adr/0010-workforce-identity-lifecycle.md) |
+| 0011 | Admin self-service vs engineering boundary | [`0011-admin-self-service-boundary.md`](./adr/0011-admin-self-service-boundary.md) |
+| 0012 | Foundation reconciliation (legacy vs os-* spine) | [`0012-foundation-reconciliation.md`](./adr/0012-foundation-reconciliation.md) |
+
+**Increment 5.1 docs:** [`WORKFORCE_ORGANIZATION_LIFECYCLE.md`](./architecture/WORKFORCE_ORGANIZATION_LIFECYCLE.md) · [`PARTYGRAPH_LIFECYCLE.md`](./architecture/PARTYGRAPH_LIFECYCLE.md) · [`ADMIN_SELF_SERVICE_BOUNDARY.md`](./architecture/ADMIN_SELF_SERVICE_BOUNDARY.md) · [`STORAGE_CONTRACT.md`](./architecture/STORAGE_CONTRACT.md) · [`API_SERVICE_CONTRACT.md`](./architecture/API_SERVICE_CONTRACT.md) · [`INTEGRATION_CONTRACT.md`](./architecture/INTEGRATION_CONTRACT.md)
+
+**Planificación derive (5.1):** `workforce-lifecycle.ts`, `party-lifecycle.ts`, `admin-governance.ts`
+
+**ADR amendments (5.1):** 0003 effective-dated auth · 0004 unified PartyGraph · 0007 workforce fiscal permissions
+
+**Increment 6 (handoff manifest):** [`ISALWA_OS_HANDOFF_MANIFEST.md`](./architecture/ISALWA_OS_HANDOFF_MANIFEST.md) · [`handoff-manifest.yaml`](./architecture/handoff-manifest.yaml) · [`HANDOFF_ARCHITECTURE_AUDIT.md`](./architecture/HANDOFF_ARCHITECTURE_AUDIT.md)
+
+**Increment 7 (discovery + challenge):** [`ARCHITECTURE_EVIDENCE_REGISTER.md`](./architecture/ARCHITECTURE_EVIDENCE_REGISTER.md) · [`INCREMENT_7_DISCOVERY_MATRIX.md`](./architecture/INCREMENT_7_DISCOVERY_MATRIX.md) · [`INCREMENT_7_ARCHITECTURE_CHALLENGE.md`](./architecture/INCREMENT_7_ARCHITECTURE_CHALLENGE.md) · [`UPDATED_CLIENT_DECISIONS.md`](./architecture/UPDATED_CLIENT_DECISIONS.md)
+
+**Step 9 (shared contracts):** [`STEP_9_SHARED_CONTRACTS_SPEC.md`](./architecture/STEP_9_SHARED_CONTRACTS_SPEC.md) · [`shared-contracts.yaml`](./architecture/shared-contracts.yaml) · ADR-0012
+
+**Step 9.5 (legacy salvage + UI rebuild):** [`LEGACY_PRODUCT_SALVAGE_REGISTER.md`](./architecture/LEGACY_PRODUCT_SALVAGE_REGISTER.md) · [`UI_REBUILD_PRINCIPLES.md`](./architecture/UI_REBUILD_PRINCIPLES.md)
+
+---
+
 ## How to add a new ADR
 
 When a future mission makes a decision that a later contributor might otherwise reverse or

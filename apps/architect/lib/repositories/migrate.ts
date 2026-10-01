@@ -37,6 +37,7 @@ import {
   normalizeSolutionArchitecture,
 } from "@/lib/consulting";
 import { ensureCompanyEvolution } from "@/lib/history";
+import { ensurePlanificacion } from "@/lib/planificacion";
 import { createId } from "@/lib/utils";
 import {
   PILOT_COMPANY_NAME,
@@ -532,6 +533,7 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
       }
 
       next = ensureCompanyEvolution(next);
+      next = ensurePlanificacion(next);
 
       return next;
     }),

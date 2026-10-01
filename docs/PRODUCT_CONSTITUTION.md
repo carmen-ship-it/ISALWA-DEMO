@@ -184,5 +184,6 @@ This document outranks convenience. It outranks novelty. It outranks "we could a
 - [`docs/ENGINEERING_GUIDELINES.md`](./ENGINEERING_GUIDELINES.md) — how missions are built
 - [`docs/ARCHITECTURE_DECISIONS.md`](./ARCHITECTURE_DECISIONS.md) — why the engines are shaped this way
 - [`docs/OPERATIONS_RUNBOOK.md`](./OPERATIONS_RUNBOOK.md) — running and operating the app
+- [`docs/architecture/CLIENT_UPDATE_BEHAVIOR.md`](./architecture/CLIENT_UPDATE_BEHAVIOR.md) — code updates vs application state freshness
 - [`docs/RELEASE_CHECKLIST.md`](./RELEASE_CHECKLIST.md) — what to verify before every release
 - [`apps/architect/MISSION25.md`](../apps/architect/MISSION25.md) — the mission that established this governance layer

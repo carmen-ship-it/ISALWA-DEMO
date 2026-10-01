@@ -21,6 +21,7 @@ import {
   createSeedWorkspaces,
   type WorkspaceBundle,
 } from "@/lib/workspace/seed";
+import { planificacionPersistShapeChanged } from "@/lib/planificacion";
 import { createBrowserSupabaseClient } from "@/lib/auth/supabase/browser";
 import {
   PILOT_COMPANY_NAME,
@@ -480,7 +481,19 @@ export class SupabaseCompanyMemoryStore implements CompanyMemoryStore {
     }
 
     const conversations = conversationRows.map((row) => row.data).filter(Boolean);
+    const planBefore = new Map(
+      workspaces.map((workspace) => [workspace.id, workspace.planificacion]),
+    );
     this.bundle = migrateBundle({ workspaces, conversations });
+    const planificacionHealed = this.bundle.workspaces.some((workspace) =>
+      planificacionPersistShapeChanged(
+        planBefore.get(workspace.id),
+        workspace.planificacion,
+      ),
+    );
+    if (planificacionHealed) {
+      void this.persistBundle();
+    }
   }
 
   private async fetchRemote(): Promise<void> {

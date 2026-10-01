@@ -1,0 +1,168 @@
+# ISALWA OS Shared Contracts — machine-readable index
+# Step 9 gate — authoritative for Steps 10+
+# Narrative: STEP_9_SHARED_CONTRACTS_SPEC.md
+
+version: "9.0"
+status: authoritative_spec
+updated: "2026-08-23"
+gate_result: PASS
+
+fg_01:
+  decision: strategy_B_progressive_foundation
+  rejected:
+    - in_place_schema_transform
+    - parallel_production_databases
+  legacy_lane:
+    packages: [packages/database]
+    apps: [apps/api, apps/web]
+    may: [bugfixes, demo_stability, read_paths]
+    must_not:
+      - add_os_foundation_entities_to_legacy_schema
+      - extend_user_as_os_identity
+      - extend_account_as_party_master
+      - add_commercial_event_types_without_d_lane_review
+      - authoritative_invoice_writes_for_new_os_features
+    retirement_gate: step_16_commercial_v1_on_new_spine
+  foundation_lane:
+    planned_packages:
+      - packages/os-contracts
+      - packages/os-domain
+      - packages/os-database
+      - packages/os-foundation
+      - packages/os-workforce
+      - packages/os-party
+      - packages/os-events
+      - packages/os-work
+      - packages/os-query
+    forbidden_for_foundation_agents: [packages/database, apps/api, apps/web]
+
+fg_03:
+  canonical: BusinessEvent
+  legacy: ActivityEvent
+  legacy_status: LEGACY_RETIREMENT
+  new_commands_emit: BusinessEvent_only
+  compatibility: demo_may_use_activity_event_until_step_16
+  retirement: emitCommercialEvent_removed_when_timeline_reads_business_event
+  event_registry: packages/os-contracts/src/events/registry.ts
+
+fg_02:
+  classification: organizational_scope_not_identity
+  owner_lane: A_with_B_auth_and_G_commercial_consumption
+  planned_entities: [Territory, TerritoryAssignment]
+  commercial_account: territoryId_optional_fk
+  required_before_commercial_v1: true
+  client_policy: UNKNOWN_RD_04
+
+identity_auth:
+  os_owned: [Person, OrganizationMember, employment_lifecycle, AuthIdentity_link]
+  provider_owned: [credentials, sessions, mfa_secrets, password_reset]
+  legacy_user_password_hash: demo_only_not_target_model
+  commands:
+    - InviteMember
+    - ActivateMember
+    - ChangeMemberEmail
+    - SuspendMember
+    - TerminateMember
+    - RehireMember
+  provider_handles: [password_create, password_change, password_reset, email_verify]
+
+api:
+  commands: "POST /v1/commands/{commandName}"
+  queries: "GET /v1/{resource}"
+  ids: ULID
+  money: bigint_centavos
+  tenant_scope: organizationId_from_session_first
+  idempotency_header: Idempotency-Key
+  concurrency: If-Match_version
+  pagination: cursor_limit
+  effective_auth: asOf_query_param
+  errors: ApiErrorSchema_extended
+  outbox: same_transaction_as_authoritative_write
+
+integration:
+  canonical_record: IntegrationConnection
+  legacy_messaging_channel: demo_only
+  webhook:
+    verify_signature: required
+    idempotency: provider_event_id
+    ordering: per_aggregate_occurredAt
+    retries: exponential_backoff_to_dlq
+    circuit_breaker: degraded_on_storm
+  credential_rotation: RotateIntegrationCredential
+
+ai:
+  inheritance: [tenant, effective_role, delegation, capability_state, resource_acl, territory_scope]
+  department_packs: capability_gated
+  never: [silent_authoritative_write, bypass_authorization, locked_dept_fabrication]
+  planned_package: packages/os-ai
+
+ux_constraint:
+  binding: true
+  lanes: [especially_G_commercial]
+  principles: [few_clicks, es_BO, attention_driven, unified_party_path, actionable_errors, no_mini_app_fragmentation]
+
+admin_self_service:
+  engineering_not_required_for:
+    - workforce_lifecycle
+    - party_master_data
+    - party_location
+    - work_reassignment
+    - merge_with_approval
+  engineering_required_for:
+    - initial_auth_provider_connect
+    - new_integration_adapter_types
+    - schema_capability_extensions
+
+multi_agent:
+  cross_lane_change_required_for:
+    - Person
+    - OrganizationMember
+    - AuthIdentity
+    - Party
+    - PartyRoleAssignment
+    - Location
+    - BusinessEvent
+    - AuditLog
+    - WorkItem
+    - CapabilityState
+    - IntegrationConnection
+    - FinanceProjection
+  forbidden_edits_without_review: [packages/database for foundation agents]
+  boundary_tests_required:
+    - tenant_isolation
+    - effective_dated_auth_asOf
+    - idempotency_replay
+    - outbox_atomicity
+    - party_multi_role
+    - locked_capability_deny
+
+contract_completeness:
+  COMPLETE: [fg_01, fg_03, fg_02_architecture, identity_spec, api_conventions, integration_rules, ai_inheritance, ux_constraint, admin_self_service, multi_agent]
+  DEFERRED: [prisma_os_ddl, openapi_file]
+  CLIENT_DECISION: [RD_02_thresholds, RD_03_accounting, RD_04_territory_policy]
+
+parallel_lanes:
+  safe_to_begin: false
+  reason: Step_10_not_started — spec only until Carmen approves Step_9 gate
+  after_step_10_approval:
+    lane_A: tenant_capability_auth_link
+    lane_D: can_parallel_after_A_session_context_exists
+    forbidden_until_gate: [G_commercial_on_legacy, H_integrations_production, I_finance]
+
+step_9_5:
+  status: complete
+  salvage_register: LEGACY_PRODUCT_SALVAGE_REGISTER.md
+  ui_principles: UI_REBUILD_PRINCIPLES.md
+  future_production_app: apps/os-web_planned
+  legacy_demo_retirement: step_16_commercial_parity
+
+implementation_order:
+  - step_9: shared_contracts
+  - step_10: tenant_auth_member_person
+  - step_11: events_audit_outbox
+  - step_12: partygraph
+  - step_location: canonical_os_location
+  - step_13: role_dept_delegation
+  - step_14: work_approval
+  - step_15: query_projections
+  - step_16: commercial_v1

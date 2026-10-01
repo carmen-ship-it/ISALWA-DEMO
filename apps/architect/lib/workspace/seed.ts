@@ -71,6 +71,7 @@ export function createEmptyWorkspace(
     conversationMemory: null,
     activeInterviewId: null,
     lastMeetingId: null,
+    planificacion: null,
   };
 }
 

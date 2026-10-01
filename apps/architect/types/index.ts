@@ -806,7 +806,39 @@ export type {
 } from "./living-deliverables";
 
 export type {
-  CompanyModelEvidenceSource,
+  IsalwaPlanificacionState,
+  IsalwaPlanificacionStateV1,
+  IsalwaPlanificacionStateV2,
+  PlanificacionApproval,
+  PlanificacionChangeEntry,
+  PlanificacionClientAction,
+  PlanificacionClientQuestion,
+  PlanificacionClientResponse,
+  PlanificacionDataRequirement,
+  PlanificacionDataReqStatus,
+  PlanificacionDecision,
+  PlanificacionDecisionStatus,
+  PlanificacionDerivedPhase,
+  PlanificacionEffortBand,
+  PlanificacionEvidenceRef,
+  PlanificacionGovernanceStatus,
+  PlanificacionItemKind,
+  PlanificacionItemPriority,
+  PlanificacionItemStatus,
+  PlanificacionPlanItem,
+  PlanificacionPreservedProcedure,
+  PlanificacionQuestionStatus,
+  PlanificacionSourceEngine,
+  PlanificacionViewModel,
+  PlanificacionViewModelItem,
+} from "./planificacion";
+
+export {
+  isPlanificacionStateV1,
+  isPlanificacionStateV2,
+} from "./planificacion";
+
+export type {
   CompanyRelationshipKind,
   CompanyOwnershipKind,
   CompanyPartyKind,

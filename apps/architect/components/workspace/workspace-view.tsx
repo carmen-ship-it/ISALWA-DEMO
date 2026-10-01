@@ -61,6 +61,7 @@ import { ModuleInsightCards } from "@/components/workspace/executive/module-insi
 import { ReadinessGateCard } from "@/components/workspace/executive/readiness-panel";
 import { ReasoningCards } from "@/components/workspace/executive/reasoning-cards";
 import { KnowledgeCenter } from "@/components/workspace/knowledge-center";
+import { PlanificacionPanel } from "@/components/workspace/planificacion-panel";
 import { NextStepCta } from "@/components/workspace/next-step-cta";
 import { OvernightDigestCard } from "@/components/workspace/overnight-digest-card";
 import {
@@ -840,6 +841,13 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         </div>
         </ExecutiveDetail>
       </div>
+    ),
+
+    planificacion: (
+      <PlanificacionPanel
+        workspace={workspace}
+        onUpdated={(next) => setWorkspace(next)}
+      />
     ),
 
     companyBrain: (

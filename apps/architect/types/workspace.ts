@@ -178,6 +178,12 @@ export interface CompanyWorkspace {
    * state just means nothing has been generated yet.
    */
   livingDeliverables?: import("./living-deliverables").LivingDeliverablesState | null;
+  /**
+   * Planificación ISALWA — client-facing implementation plan state (v1 legacy UI
+   * or v2 derive-first). Mutable client responses and approvals. Business scope
+   * is derived via `lib/planificacion/derive` — not static demo lists.
+   */
+  planificacion?: import("./planificacion").IsalwaPlanificacionState | null;
 }
 
 /**

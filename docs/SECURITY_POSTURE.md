@@ -186,7 +186,8 @@ Production data for Architect (`ws_isalwa` and any future workspace) may only be
 - HTML/app documents are served `private, no-store` (middleware + `next.config.ts` headers); static
   assets under `/_next/static/*` are long-cache immutable (content-hashed filenames). **Do not
   advise a hard refresh to see fresh data or a fresh deploy** — if something looks stale after a
-  normal reload, the bug is in data/logic, not caching; start troubleshooting there instead.
+  normal reload, the bug is in data/logic, not caching; start troubleshooting there instead. See
+  [`docs/architecture/CLIENT_UPDATE_BEHAVIOR.md`](./architecture/CLIENT_UPDATE_BEHAVIOR.md).
 
 ## 9. Rollback process
 

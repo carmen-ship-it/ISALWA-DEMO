@@ -19,7 +19,8 @@ export type WorkspaceTabId =
   | "recommendations"
   | "simulator"
   | "roadmap"
-  | "deliverables";
+  | "deliverables"
+  | "planificacion";
 
 export const WORKSPACE_TAB_LABEL_KEYS: Record<WorkspaceTabId, string> = {
   executive: "workspaceTabs.executive",
@@ -36,10 +37,12 @@ export const WORKSPACE_TAB_LABEL_KEYS: Record<WorkspaceTabId, string> = {
   simulator: "workspaceTabs.simulator",
   roadmap: "workspaceTabs.roadmap",
   deliverables: "workspaceTabs.deliverables",
+  planificacion: "workspaceTabs.planificacion",
 };
 
 const WORKSPACE_TAB_ORDER: WorkspaceTabId[] = [
   "executive",
+  "planificacion",
   "companyBrain",
   "operatingSystem",
   "assessment",
@@ -65,6 +68,7 @@ const WORKSPACE_TAB_ORDER: WorkspaceTabId[] = [
  */
 export const CLIENT_VISIBLE_TAB_IDS: WorkspaceTabId[] = [
   "executive",
+  "planificacion",
   "companyBrain",
   "operatingSystem",
   "blueprint",
