@@ -47,6 +47,14 @@ staging data, or reset fixtures. Protected and untouched: `main` (`ca3821f`),
 | E3 `os-purchasing` 1 red | fixed in source, tested | `a8c8405` | 18/18; guard follows the shared-copy binding |
 | E3 `os-database` 2 red | fixed in source, tested | `19e4ba1` | 70/70; pinned count checked against the migrations on disk |
 | E2/E3 `os-web` 1 red + 20 undiscovered | fixed in source, tested | `491f221` | 1287/1287, up from 1267 |
+| D3 delivery writes not transactional (.2–.4) | fixed in source, tested | `9fff05a`, `7e8f3ef` | agent A: 27 of 35 new tests red first; `os-delivery` 36 → 98 |
+| D5 cumulative over-delivery | fixed in source, tested | `36e7890`, `7e8f3ef` | agent A: enforced under an order lock inside the transaction |
+| S4 timeline bypasses commercial policy | fixed in source, tested | `f79b134`, `6b9b0d7` | agent B: 14 of 15 red first, then 16/16 |
+| S14 member detail readable by any member | fixed in source, tested | `b773dbf`, `ffb9610` | agent B: 4 red first, then 7/7 |
+| S5 conversation actor/id spoofing | fixed in source, tested | `96c7bbd` | agent B reproduced the spoof: client `id`, `enteredByMemberId` and label all won |
+| S19 ten unclassified reads | classified, **not** verified | `42874be` | labels claim no proof; backlog count pinned |
+| Suspended owner on create | fixed in source, tested | `bf1f4ed` | red without the check; `AssignOpportunityOwner` already had it |
+| Timeline direct-report wiring | fixed in source | `bf1f4ed` | prevented a fail-closed regression for team leads |
 
 Notes on choices that departed from the review's suggested fix:
 
@@ -80,19 +88,20 @@ Confirmed in source, not yet repaired:
 
 | Finding | Severity | Owner | Note |
 |---|---|---|---|
-| D3 delivery writes not transactional, no event/audit | High | Agent A | Documentos and Pedido timeline **do** work — preserve them; Historial is the gap |
-| D5 cumulative over-delivery | Medium | Agent A | policy now set by ADR 0003; enforce atomically at dispatch |
 | D6 Compras work-list pagination + free-text authority | Medium | Cursor | introduced by the live commit `52a9f9e` |
 | S3 approval self-dealing | Medium | unassigned | ADR 0003 now defines the approval rules |
-| S4 party timeline bypasses commercial policy | Medium | Agent B | |
-| S5 mass assignment / actor spoofing | Medium | Agent B | |
-| S14 member detail readable by any member | Medium | Agent B | |
+| S19 read-authorization review for 10 reads | Medium | unassigned | classified as unreviewed in source; the review itself is still owed |
+| S20 every conversation readable tenant-wide | Medium | unassigned | found by agent B while fixing S5: `GET /customer-conversations` returns all conversations, including `pastedEvidence`, to any active member |
+| S21 conversation links unvalidated | Low | unassigned | `opportunityId`, `quoteId`, `orderId` on a new conversation are client-supplied and unchecked |
+| D3.1 hosted delivery events still not emitted | High | unassigned | **decision required**, see below |
+| D5.1 receipt not capped at dispatched quantity | Medium | unassigned | ADR 0003 bounds dispatch, not receipt |
+| D5.2 order revision command | Medium | unassigned | ADR 0003 requires a revision before extra quantity; no command exists |
+| A1 unlinked salida can double-dispatch | Medium | unassigned | the two ledgers are capped separately, so a note for 10 plus an *unlinked* warehouse exit for 10 both pass on a line of 10 |
 | S7 QA "Ver como" drops operator attribution | Medium | unassigned | staging only |
 | S11 idempotent replay before authorization | Low | unassigned | |
 | S12 issue journal/outcome lack ownership check | Medium | unassigned | |
 | S13 any role can quote any customer | Medium | unassigned | |
 | S15 delivery-ops documents broader than delivery-notes | Low–Med | unassigned | the `os-api` read inventory independently flags `GET /delivery-ops/orders/:orderId/documents` as unclassified |
-| S19 ten GET routes have no read-authorization classification | Medium | Cursor | `inspection-reads.adversarial` found `/ai/capability`, `/customer-conversations`, `/delivery-notes`, `/delivery-notes/:id/pdf`, 3 `/delivery-ops/*`, `/fulfillment/deliveries`, `/fulfillment/warehouse-exits`. Classify truthfully; do **not** label them verified to make the suite green |
 | P1 Compras boundary copy | Low | product | the full `PURCHASE_REQUEST_BOUNDARY` sentence now renders only in the permission-denied state; the authorized queue shows a shorter hand-written line. Copy decision for Carmen, not a security repair |
 | S16 payload validated before authentication | Low | unassigned | no write possible |
 | S17 open redirect via encoded control characters | Medium | unassigned | needs an end-to-end router test, not just URL parsing |
@@ -105,7 +114,6 @@ Confirmed in source, not yet repaired:
 | D11 unbounded/capped reads | Low | unassigned | |
 | D12 delivery FK drift between migrations and Prisma models | Low | unassigned | do not generate a migration that drops constraints |
 | E1 CI runs no tests or lint | High | Cursor | |
-| E3 `os-api` read inventory | Medium | Cursor | only remaining red suite; deferred to integration because it scrapes controllers both agents are editing |
 | E4 os-web lint non-functional; os-api lint is `echo` | Low | unassigned | |
 | E5 generated Prisma client embeds an absolute path | Low | unassigned | rewritten by every local build |
 | H1 no security headers; `X-Powered-By` present | Low | unassigned | |
@@ -113,13 +121,35 @@ Confirmed in source, not yet repaired:
 | R1 Render tracks `main`, which lacks V1 | High | Cursor | deployment-process change, not code |
 | DEP next ≥ 15.5.24 | Low | unassigned | image-optimizer advisory |
 
+### Agent decisions worth owner attention
+
+- **Two ledgers, not one sum (agent A).** Delivery notes and warehouse exits are
+  each capped at the current order-line quantity rather than added together,
+  because a nota and its linked salida describe the same goods and summing them
+  would reject the normal flow. This matches Carmen's rule that recording receipt
+  must not count the quantity again. The residual hole is A1 above: an *unlinked*
+  salida is counted only in its own ledger.
+- **D3.1 left unwired deliberately (agent A).** `listTimelineForOrder` returns
+  recorded events whenever any exist, so writing one event would silently hide an
+  older order's row-derived history. Doing it properly needs outbox and audit
+  append through `os-events`, which `os-delivery` does not depend on. Carmen's V1
+  scope asks for delivery audit/history, so this needs a decision rather than a
+  quiet omission.
+- **Peer member view (agent B).** `commercial.team.read` and `commercial.org.read`
+  deliberately do not widen the peer view. Cargo labels are separated from
+  authority scopes by a heuristic that was not checked against real data.
+- **`customerLabel` now comes from the Party (agent B).** A small intentional
+  behaviour change: the stored label can differ from what the panel shows until
+  reload.
+
 ### Gate state after the E2/E3 batch
 
 Every package suite is green: os-contracts 166, os-domain 232, os-workforce 85,
 os-work 19, os-events 5, os-commercial 59, os-commitment 10, os-party 6,
 os-issue 72, os-import 19, os-purchasing 18, os-database 70, os-web 1287.
-`os-api` is 116/119 — the read-inventory guard above, plus `tenant-isolation`,
-which needs Postgres and cannot run in this environment.
+After integrating both agents: os-delivery 98, os-query 63, os-commercial 60,
+os-api 125 pass / 0 fail / 2 cancelled. The only suite that cannot run here is
+`tenant-isolation`, which requires Postgres. Full `pnpm -r build` is clean.
 
 Disproven / not defects: pre-hydration credential leak, dev header-identity in
 staging, CORS reflecting arbitrary origins, XSS sinks in the inspected web
