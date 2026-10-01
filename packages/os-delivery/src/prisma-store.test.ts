@@ -46,6 +46,16 @@ type MemberRow = {
   accessStatus: string;
 };
 
+/** Equality plus Prisma's `{ in: [...] }`, which the cumulative dispatch ledger read uses. */
+function matchesWhere(row: Record<string, unknown>, where: Record<string, unknown>): boolean {
+  return Object.entries(where).every(([key, expected]) => {
+    if (expected && typeof expected === 'object' && Array.isArray((expected as { in?: unknown[] }).in)) {
+      return (expected as { in: unknown[] }).in.includes(row[key]);
+    }
+    return row[key] === expected;
+  });
+}
+
 function fakePrisma(seed?: {
   orders?: OrderRow[];
   members?: MemberRow[];
@@ -164,6 +174,14 @@ function fakePrisma(seed?: {
     get exitCreates() {
       return exitCreates;
     },
+    // Pass-through transaction double: these tests prove tenant/scope/shape behaviour, not
+    // atomicity. Rollback and lock semantics are covered in delivery-prisma-transaction.test.ts.
+    async $transaction(fn) {
+      return fn(this as unknown as DeliveryPrismaPort);
+    },
+    async $queryRaw() {
+      return [];
+    },
     osOrder: {
       async findFirst(args) {
         const where = args.where as { organizationId: string; id: string };
@@ -193,7 +211,7 @@ function fakePrisma(seed?: {
       async findFirst(args) {
         const where = args.where as Record<string, string>;
         const row = deliveries.find((item) =>
-          Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+          matchesWhere(item as Record<string, unknown>, where),
         );
         return row
           ? {
@@ -207,7 +225,7 @@ function fakePrisma(seed?: {
         const where = args.where as Record<string, string>;
         return deliveries
           .filter((item) =>
-            Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+            matchesWhere(item as Record<string, unknown>, where),
           )
           .map((row) => ({
             ...row,
@@ -241,7 +259,7 @@ function fakePrisma(seed?: {
       async findFirst(args) {
         const where = args.where as Record<string, string>;
         const row = notes.find((item) =>
-          Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+          matchesWhere(item as Record<string, unknown>, where),
         );
         return row
           ? {
@@ -256,7 +274,7 @@ function fakePrisma(seed?: {
         const where = args.where as Record<string, string>;
         return notes
           .filter((item) =>
-            Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+            matchesWhere(item as Record<string, unknown>, where),
           )
           .map((row) => ({
             ...row,
@@ -315,9 +333,10 @@ function fakePrisma(seed?: {
     },
     osDeliveryNoteLine: {
       async findMany(args) {
-        const where = args.where as { organizationId: string; deliveryNoteId: string };
+        const where = args.where as { organizationId: string; deliveryNoteId: string | { in: string[] } };
+        const noteIds = typeof where.deliveryNoteId === 'string' ? [where.deliveryNoteId] : where.deliveryNoteId.in;
         return lines
-          .filter((row) => row.organizationId === where.organizationId && row.noteId === where.deliveryNoteId)
+          .filter((row) => row.organizationId === where.organizationId && noteIds.includes(row.noteId))
           .map((row) => ({
             id: row.id,
             organizationId: row.organizationId,
@@ -349,7 +368,7 @@ function fakePrisma(seed?: {
         const where = args.where as Record<string, string>;
         return evidence
           .filter((item) =>
-            Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+            matchesWhere(item as Record<string, unknown>, where),
           )
           .map((row) => ({
             ...row,
@@ -386,14 +405,14 @@ function fakePrisma(seed?: {
         const where = args.where as Record<string, string>;
         return (
           exits.find((item) =>
-            Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+            matchesWhere(item as Record<string, unknown>, where),
           ) ?? null
         );
       },
       async findMany(args) {
         const where = args.where as Record<string, string>;
         return exits.filter((item) =>
-          Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+          matchesWhere(item as Record<string, unknown>, where),
         );
       },
       async create(args) {
@@ -419,14 +438,14 @@ function fakePrisma(seed?: {
         const where = args.where as Record<string, string>;
         return (
           outboundNotes.find((item) =>
-            Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+            matchesWhere(item as Record<string, unknown>, where),
           ) ?? null
         );
       },
       async findMany(args) {
         const where = args.where as Record<string, string>;
         return outboundNotes.filter((item) =>
-          Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+          matchesWhere(item as Record<string, unknown>, where),
         );
       },
       async create(args) {
@@ -452,7 +471,7 @@ function fakePrisma(seed?: {
       async findMany(args) {
         const where = args.where as Record<string, string>;
         return outboundLines.filter((item) =>
-          Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+          matchesWhere(item as Record<string, unknown>, where),
         );
       },
       async createMany(args) {

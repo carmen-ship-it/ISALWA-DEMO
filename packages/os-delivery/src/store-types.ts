@@ -1,5 +1,6 @@
 import type {
   CopiedDeliveryLine,
+  DispatchLedgerRows,
   DeliveryEvidenceRole,
   DeliveryNoteStatus,
   DeliverySubjectType,
@@ -145,6 +146,26 @@ export type DeliveryIdempotencyRecord = {
 };
 
 export interface DeliveryStore {
+  /**
+   * Run `fn` as one all-or-nothing unit. Every write made through the `tx` store passed to
+   * `fn` commits together or is rolled back if `fn` throws. Calling it on an already
+   * transactional store joins the enclosing unit instead of opening another.
+   * A store that cannot provide this must throw TRANSACTION_UNAVAILABLE, never run unguarded.
+   */
+  runInTransaction<T>(fn: (tx: DeliveryStore) => Promise<T>): Promise<T>;
+  /**
+   * Serialize order-scoped writers (dispatch, receipt, correction) on one order.
+   * Must be called inside runInTransaction and BEFORE reading the order or the ledger,
+   * so the reads that follow see every committed concurrent write.
+   */
+  lockOrderForUpdate(organizationId: string, orderId: string): Promise<void>;
+  /** Unbounded (no list limit) rows needed to compute committed dispatch for one order. */
+  listDispatchLedgerRows(organizationId: string, orderId: string): Promise<DispatchLedgerRows>;
+  /**
+   * Flip an `issued` note to `reversed`. Returns false when the note was not `issued`
+   * (already reversed by a concurrent correction, or missing). Never overwrites a reversal.
+   */
+  reverseIssuedDeliveryNote(organizationId: string, noteId: string, reason: string): Promise<boolean>;
   getOrderInOrg(organizationId: string, orderId: string): Promise<OrderSnapshot | null>;
   getMemberInOrg(organizationId: string, memberId: string): Promise<MemberSnapshot | null>;
   insertWarehouseExit(row: WarehouseExitRecord): Promise<void>;

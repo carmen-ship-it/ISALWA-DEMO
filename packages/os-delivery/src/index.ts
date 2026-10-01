@@ -4,7 +4,9 @@ export type {
   CustomerDeliveryResult,
   DeliveryCommandResult,
   DeliveryContext,
+  DispatchBalanceResult,
   NotaDeEntregaResult,
+  OverDeliveredOrderReport,
   WarehouseExitResult,
 } from './delivery-command-service';
 export { MemoryDeliveryStore, MEMORY_DELIVERY_STORE_IS_TENANT_PROOF } from './memory-store';

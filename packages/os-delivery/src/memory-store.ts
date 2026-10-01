@@ -1,4 +1,4 @@
-import type { DeliverySubjectType } from '@isalwa/os-contracts';
+import type { DeliverySubjectType, DispatchLedgerRows } from '@isalwa/os-contracts';
 import { DELIVERY_NOTES_LIST_LIMIT } from './list-limits';
 import type {
   DeliveryDomainEventRecord,
@@ -35,6 +35,98 @@ export class MemoryDeliveryStore implements DeliveryStore {
   private readonly evidence: EvidenceRecord[] = [];
   private readonly events: DeliveryDomainEventRecord[] = [];
   private readonly idempotency = new Map<string, DeliveryIdempotencyRecord>();
+
+  /** Serializes transactions. Coarser than Postgres' per-order lock, which is fine in memory. */
+  private txTail: Promise<void> = Promise.resolve();
+
+  /**
+   * All-or-nothing in memory: transactions run one at a time and restore the row arrays on
+   * throw. This proves service logic only; it is not a database transaction.
+   * The `tx` view shares the same rows but joins (does not re-queue) a nested call.
+   */
+  async runInTransaction<T>(fn: (tx: DeliveryStore) => Promise<T>): Promise<T> {
+    const previous = this.txTail;
+    let release!: () => void;
+    this.txTail = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await previous;
+    const snapshot = this.snapshotRows();
+    const view = Object.create(this) as MemoryDeliveryStore;
+    view.runInTransaction = async (inner) => inner(view);
+    try {
+      return await fn(view);
+    } catch (err) {
+      this.restoreRows(snapshot);
+      throw err;
+    } finally {
+      release();
+    }
+  }
+
+  private snapshotRows() {
+    return {
+      exits: this.exits.slice(),
+      outboundNotes: this.outboundNotes.slice(),
+      outboundLines: this.outboundLines.slice(),
+      deliveries: this.deliveries.slice(),
+      deliveryNotes: this.deliveryNotes.slice(),
+      deliveryLines: this.deliveryLines.slice(),
+      evidence: this.evidence.slice(),
+      events: this.events.slice(),
+    };
+  }
+
+  private restoreRows(snapshot: ReturnType<MemoryDeliveryStore['snapshotRows']>): void {
+    this.exits.splice(0, this.exits.length, ...snapshot.exits);
+    this.outboundNotes.splice(0, this.outboundNotes.length, ...snapshot.outboundNotes);
+    this.outboundLines.splice(0, this.outboundLines.length, ...snapshot.outboundLines);
+    this.deliveries.splice(0, this.deliveries.length, ...snapshot.deliveries);
+    this.deliveryNotes.splice(0, this.deliveryNotes.length, ...snapshot.deliveryNotes);
+    this.deliveryLines.splice(0, this.deliveryLines.length, ...snapshot.deliveryLines);
+    this.evidence.splice(0, this.evidence.length, ...snapshot.evidence);
+    this.events.splice(0, this.events.length, ...snapshot.events);
+  }
+
+  /** No-op: runInTransaction already serializes every transaction. */
+  async lockOrderForUpdate(_organizationId: string, _orderId: string): Promise<void> {}
+
+  async listDispatchLedgerRows(organizationId: string, orderId: string): Promise<DispatchLedgerRows> {
+    const notes = this.deliveryNotes.filter(
+      (row) => row.organizationId === organizationId && row.orderId === orderId,
+    );
+    const noteIds = new Set(notes.map((row) => row.id));
+    const exits = this.exits.filter((row) => row.organizationId === organizationId && row.orderId === orderId);
+    const exitByOutboundNote = new Map(
+      this.outboundNotes
+        .filter((row) => row.organizationId === organizationId && row.orderId === orderId)
+        .map((row) => [row.id, row.warehouseExitId] as const),
+    );
+    return {
+      notes: notes.map((row) => ({ id: row.id, status: row.status })),
+      noteLines: this.deliveryLines
+        .filter((row) => row.organizationId === organizationId && noteIds.has(row.noteId))
+        .map((row) => ({ noteId: row.noteId, orderLineId: row.orderLineId, quantity: row.quantity })),
+      exits: exits.map((row) => ({ id: row.id, deliveryNoteId: row.deliveryNoteId })),
+      outboundLines: this.outboundLines
+        .filter((row) => row.organizationId === organizationId && exitByOutboundNote.has(row.noteId))
+        .map((row) => ({
+          warehouseExitId: exitByOutboundNote.get(row.noteId) as string,
+          orderLineId: row.orderLineId,
+          quantity: row.quantity,
+        })),
+    };
+  }
+
+  async reverseIssuedDeliveryNote(organizationId: string, noteId: string, reason: string): Promise<boolean> {
+    const index = this.deliveryNotes.findIndex(
+      (note) => note.organizationId === organizationId && note.id === noteId,
+    );
+    const current = this.deliveryNotes[index];
+    if (!current || current.status !== 'issued') return false;
+    this.deliveryNotes[index] = { ...current, status: 'reversed', correctionReason: reason };
+    return true;
+  }
 
   putOrder(order: OrderSnapshot): void {
     this.orders.set(key(order.organizationId, order.id), order);
