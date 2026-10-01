@@ -1,6 +1,6 @@
 'use client';
 
-import { Chip, StatusPill } from '@isalwa/ui';
+import { Chip } from '@isalwa/ui';
 import { MAP_LAYER_REGISTRY, type MapLayerId } from '@/lib/map/layers';
 
 type MapLayerControlsProps = {
@@ -29,33 +29,24 @@ export function MapLayerControls({ activeLayer, onChange }: MapLayerControlsProp
             </Chip>
           );
         })}
-        <div className="hidden sm:contents">
-          {futureLayers.map((layer) => (
-            <Chip
-              key={layer.id}
-              active={false}
-              disabled
-              aria-pressed={false}
-              title={layer.note}
-            >
-              {layer.label}
-              <span className="ml-1 text-[10px] font-normal opacity-70">
-                {layer.truthClass === 'manual' ? 'manual' : 'próx.'}
-              </span>
-            </Chip>
-          ))}
-        </div>
       </div>
-      <p className="text-xs text-[var(--isalwa-slate)] sm:hidden">
-        +{futureLayers.length} capas futuras (próximamente)
-      </p>
-      <div className="hidden flex-wrap gap-2 sm:flex">
-        <StatusPill tone="info">Clientes · disponible</StatusPill>
-        <StatusPill tone="info">Oportunidades / cotizaciones / pedidos · por registro</StatusPill>
-        <StatusPill tone="info">Atención · disponible</StatusPill>
-      </div>
-      <p className="hidden text-xs leading-relaxed text-[var(--isalwa-slate)] sm:block">
-        Las capas filtran clientes con registros canónicos. No inventan pines ni geografía.
+      {futureLayers.length > 0 ? (
+        <details className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_70%,white)] px-3 py-2">
+          <summary className="cursor-pointer list-none text-xs font-medium text-[var(--isalwa-slate)] [&::-webkit-details-marker]:hidden">
+            Próximamente · {futureLayers.length} capa{futureLayers.length === 1 ? '' : 's'}
+          </summary>
+          <ul className="mt-2 space-y-1 text-xs text-[var(--isalwa-slate)]">
+            {futureLayers.map((layer) => (
+              <li key={layer.id}>
+                <span className="font-medium text-[var(--isalwa-kiln)]">{layer.label}</span>
+                {layer.note ? ` — ${layer.note}` : null}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
+      <p className="text-xs leading-relaxed text-[var(--isalwa-slate)]">
+        Las capas activas filtran clientes con registros canónicos. No inventan pines ni geografía.
       </p>
     </div>
   );

@@ -15,7 +15,7 @@ describe('auditoria page query fail-closed', () => {
     assert.match(page, /err instanceof OsApiError/);
     assert.match(page, /err\.kind === 'forbidden'/);
     assert.match(page, /err\.kind === 'unauthorized'/);
-    assert.match(page, /AccessDeniedState/);
+    assert.match(page, /PermissionDeniedSurface/);
   });
 
   it('uses QuerySurfaceState for non-auth API failures instead of throwing', () => {
@@ -28,6 +28,6 @@ describe('auditoria page query fail-closed', () => {
     assert.match(page, /viewerHasManagementOrgRead/);
     assert.match(page, /COMMERCIAL_ORG_READ_SCOPE/);
     assert.match(page, /ownerEvalRead/);
-    assert.match(page, /AccessDeniedState/);
+    assert.match(page, /PermissionDeniedSurface/);
   });
 });

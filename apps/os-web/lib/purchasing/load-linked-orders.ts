@@ -2,9 +2,11 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
+import { presentPilotFacingLabel } from '@/lib/delivery/display-labels';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 export type ComprasLinkedOrder = {
   orderId: string;
@@ -33,9 +35,11 @@ export async function loadComprasLinkedOrders(listCaps?: ListCap[]): Promise<Com
     );
     return filterByDemoDataMode(items, dataMode, (item) =>
       isDemoDisplayName(partyLabel(partyLabels, item.partyId)),
-    ).map((item) => ({
+    )
+      .filter((item) => !isEngineeringFixtureCopy(item.orderNumber))
+      .map((item) => ({
       orderId: item.orderId,
-      orderNumber: item.orderNumber,
+      orderNumber: presentPilotFacingLabel(item.orderNumber, 'Pedido'),
       partyId: item.partyId,
       status: item.status,
       customerLabel: partyLabel(partyLabels, item.partyId),

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { AdminSectionCards, AdminSubNav } from '@/components/admin/admin-sub-nav';
 import { PageHeader } from '@/components/shell/page-header';
-import { AccessDeniedState } from '@/components/states/app-states';
+import { PermissionDeniedSurface } from '@/components/states/permission-denied-surface';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { t } from '@/lib/i18n/es';
@@ -17,8 +17,12 @@ export default async function AdministracionPage() {
 
   if (!allowed) {
     return (
-      <PageContainer label={t('pages.administracion.title')} className="flex min-h-[50vh] items-center justify-center">
-        <AccessDeniedState />
+      <PageContainer label={t('pages.administracion.title')}>
+        <PermissionDeniedSurface
+          title={t('pages.administracion.title')}
+          kicker={t('pages.administracion.kicker')}
+          backHref="/inicio"
+        />
       </PageContainer>
     );
   }

@@ -7,7 +7,7 @@ main[aria-label='Oportunidades'] h1 {
   padding-left: 0.75rem;
 }
 main[aria-label='Almacén'] h1,
-main[aria-label='Asignación a pedido'] h1,
+main[aria-label='Ingreso PT · pedido'] h1,
 main[aria-label='Mi trabajo'] h1 {
   box-shadow: inset 4px 0 0 #18324b;
   padding-left: 0.75rem;

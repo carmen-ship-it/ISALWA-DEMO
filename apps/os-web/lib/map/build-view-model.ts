@@ -1,4 +1,5 @@
 import type { PartySummaryReadModel } from '@isalwa/os-contracts';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { mapCoverage as partyMapCoverage } from '@/lib/party/data-health';
 
 export type MapCustomerBucket = 'plottable' | 'provenance_only' | 'no_location';
@@ -46,7 +47,7 @@ function bucketFor(item: PartySummaryReadModel): MapCustomerBucket {
 function toRow(item: PartySummaryReadModel): MapCustomerRow {
   return {
     partyId: item.partyId,
-    displayName: item.displayName.trim() || 'Sin nombre',
+    displayName: presentHumanCopy(item.displayName) || item.displayName.trim() || 'Sin nombre',
     primaryPhone: item.primaryPhone ?? null,
     commercialOwnerMemberId: item.commercialOwnerMemberId ?? null,
     hasCoordinates: item.hasCoordinates === true,

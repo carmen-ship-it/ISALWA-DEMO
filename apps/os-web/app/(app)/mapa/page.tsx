@@ -25,6 +25,7 @@ import type { IssueListItem } from '@/lib/issue/types';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
 import {
@@ -146,6 +147,10 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   );
   let parties = filterByDemoDataMode(result.items, dataMode, (item) =>
     isDemoDisplayName(item.displayName || item.legalName),
+  ).filter(
+    (item) =>
+      !isEngineeringFixtureCopy(item.displayName) &&
+      !isEngineeringFixtureCopy(item.legalName),
   );
   parties = filterByCommercialOwner(
     evaluation,

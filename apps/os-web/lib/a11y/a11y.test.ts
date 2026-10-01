@@ -124,6 +124,7 @@ describe('a11y helpers', () => {
   it('keeps mobile sticky/drawer utilities out of globals (Agent 1 owns canvas)', () => {
     assert.match(layoutSource, /styles\/visual-mobile\.css/);
     assert.match(visualMobileCss, /--isalwa-shell-header-offset/);
+    assert.match(visualMobileCss, /\.isalwa-shell-main/);
     assert.match(visualMobileCss, /\.isalwa-sticky-under-shell/);
     assert.match(visualMobileCss, /#mobile-nav/);
     assert.match(visualMobileCss, /isalwa-toast-region-safe/);

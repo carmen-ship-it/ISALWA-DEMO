@@ -2,7 +2,9 @@ import type { WarehousePedidoFact } from '@isalwa/os-contracts';
 import type { OsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import type { OrderDetailResponse, OrderListResponse } from '@/lib/commercial/types';
+import { presentLineDescription, presentPilotFacingLabel } from '@/lib/delivery/display-labels';
 import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 const OPEN_ORDER_PAGE_LIMIT = 50;
 const MAX_ORDER_DETAIL_FETCHES = 25;
@@ -23,7 +25,11 @@ export function mapOrderDetailToWarehousePedidos(
   const lines = detail.lines;
   if (!lines || lines.length === 0) return [];
 
-  const orderLabel = detail.orderNumber?.trim() || null;
+  const orderLabelRaw = detail.orderNumber?.trim() || null;
+  if (orderLabelRaw && isEngineeringFixtureCopy(orderLabelRaw)) return [];
+  const orderLabel = orderLabelRaw
+    ? presentPilotFacingLabel(orderLabelRaw, 'Pedido')
+    : null;
   const customerId = detail.partyId?.trim() || null;
 
   return lines
@@ -39,7 +45,9 @@ export function mapOrderDetailToWarehousePedidos(
         customerLabel: null,
         orderLineId,
         productId: productRef || orderLineId,
-        productLabel: line.description?.trim() || null,
+        productLabel: line.description?.trim()
+          ? presentLineDescription(line.description)
+          : null,
         orderedQuantity:
           typeof line.quantity === 'number' && Number.isFinite(line.quantity)
             ? String(line.quantity)
@@ -124,9 +132,19 @@ async function loadWarehouseFromDeliveryOps(
     if (order.status === 'cancelled') continue;
     const orderId = order.orderId?.trim() ?? '';
     if (!orderId) continue;
-    const orderLabel = order.orderNumber?.trim() || null;
+    const orderLabelRaw = order.orderNumber?.trim() || null;
+    if (orderLabelRaw && isEngineeringFixtureCopy(orderLabelRaw)) continue;
+    const orderLabel = orderLabelRaw
+      ? presentPilotFacingLabel(orderLabelRaw, 'Pedido')
+      : null;
     const customerId = order.partyId?.trim() || null;
-    const customerLabel = order.customerName?.trim() || null;
+    const customerLabelRaw = order.customerName?.trim() || null;
+    const customerLabel =
+      customerLabelRaw && !isEngineeringFixtureCopy(customerLabelRaw)
+        ? presentPilotFacingLabel(customerLabelRaw, 'Cliente')
+        : customerLabelRaw
+          ? 'Cliente'
+          : null;
     for (const line of order.lines ?? []) {
       const orderLineId = line.orderLineId?.trim() ?? '';
       if (!orderLineId) continue;
@@ -139,7 +157,9 @@ async function loadWarehouseFromDeliveryOps(
         customerLabel,
         orderLineId,
         productId: productRef || orderLineId,
-        productLabel: line.description?.trim() || null,
+        productLabel: line.description?.trim()
+          ? presentLineDescription(line.description)
+          : null,
         orderedQuantity:
           typeof line.quantity === 'number' && Number.isFinite(line.quantity)
             ? String(line.quantity)

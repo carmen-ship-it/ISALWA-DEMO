@@ -4,7 +4,7 @@ import { AuditDetailDrawer } from '@/components/audit/audit-detail-drawer';
 import { AuditFiltersForm } from '@/components/audit/audit-filters-form';
 import { AuditList } from '@/components/audit/audit-list';
 import { PageHeader } from '@/components/shell/page-header';
-import { AccessDeniedState } from '@/components/states/app-states';
+import { PermissionDeniedSurface } from '@/components/states/permission-denied-surface';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
@@ -56,8 +56,8 @@ export default async function AuditoriaPage({ searchParams }: AuditoriaPageProps
   // View As never elevates; filters below narrow the projection.
   if (!peopleAdmin && !systemAdmin && !ownerEvalRead) {
     return (
-      <PageContainer label="Auditoría" className="flex min-h-[50vh] items-center justify-center">
-        <AccessDeniedState />
+      <PageContainer label="Auditoría">
+        <PermissionDeniedSurface title="Auditoría" kicker="Registro" backHref="/inicio" />
       </PageContainer>
     );
   }
@@ -239,8 +239,8 @@ export default async function AuditoriaPage({ searchParams }: AuditoriaPageProps
     // Product-safe denial/error — never raw Next application error. Root auth remains API scopes.
     if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {
       return (
-        <PageContainer label="Auditoría" className="flex min-h-[50vh] items-center justify-center">
-          <AccessDeniedState />
+        <PageContainer label="Auditoría">
+          <PermissionDeniedSurface title="Auditoría" kicker="Registro" backHref="/inicio" />
         </PageContainer>
       );
     }
