@@ -4,7 +4,7 @@
  * Migration apply remains separate (DELIVERY_MIGRATION_APPLIED = false).
  */
 
-import type { DeliverySubjectType } from '@isalwa/os-contracts';
+import type { DeliverySubjectType, DispatchLedgerRows } from '@isalwa/os-contracts';
 import { createId } from '@isalwa/ts-utils';
 import type {
   DeliveryIdempotencyRecord,
@@ -230,6 +230,17 @@ export type DeliveryPrismaPort = {
     createMany?: CreateMany;
     create?: Create<LineRow>;
   };
+  /**
+   * Interactive transaction. The real PrismaClient provides it and passes a client with the
+   * same delegates (plus $queryRaw) to the callback. Optional only so structural test
+   * doubles still type-check; the store fails closed (TRANSACTION_UNAVAILABLE) without it.
+   */
+  $transaction?: <T>(
+    fn: (tx: DeliveryPrismaPort) => Promise<T>,
+    options?: { maxWait?: number; timeout?: number },
+  ) => Promise<T>;
+  /** Tagged-template raw query, used only for the order row lock inside a transaction. */
+  $queryRaw?: (strings: TemplateStringsArray, ...values: unknown[]) => Promise<unknown>;
   osIdempotencyKey?: {
     findFirst(args: { where: Record<string, unknown> }): Promise<{
       organizationId: string;
@@ -401,15 +412,107 @@ async function insertLines(
  * Prisma-backed DeliveryStore. Customer delivery and warehouse exit paths are
  * prisma_port. Factory delivery note remains BUSINESS_ROLE_REQUIRES_MAPPING.
  */
-export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryStore & {
+export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): PrismaDeliveryStoreShape {
+  return buildPrismaDeliveryStore(prisma, false);
+}
+
+type PrismaDeliveryStoreShape = DeliveryStore & {
   liveWrite: {
     customerDelivery: typeof CUSTOMER_DELIVERY_PRISMA_LIVE_WRITE;
     warehouseExit: typeof WAREHOUSE_EXIT_LIVE_WRITE;
   };
   warehouseExitWriteAuthority: typeof WAREHOUSE_EXIT_WRITE_AUTHORITY;
   migrationApplied: false;
-} {
-  return {
+};
+
+/**
+ * Same bounds as the other OS command stores (packages/os-database prisma-interactive-tx.ts).
+ * Duplicated here because os-delivery does not depend on os-database. Bounded, not unlimited.
+ */
+const DELIVERY_INTERACTIVE_TX = { maxWait: 10_000, timeout: 20_000 } as const;
+
+/** `scoped` is true when `prisma` is the client handed to a $transaction callback. */
+function buildPrismaDeliveryStore(prisma: DeliveryPrismaPort, scoped: boolean): PrismaDeliveryStoreShape {
+  const store: PrismaDeliveryStoreShape = {
+    async runInTransaction(fn) {
+      if (scoped) return fn(store);
+      if (!prisma.$transaction) throw new Error('TRANSACTION_UNAVAILABLE');
+      return prisma.$transaction(
+        (tx) => fn(buildPrismaDeliveryStore(tx, true)),
+        DELIVERY_INTERACTIVE_TX,
+      );
+    },
+
+    async lockOrderForUpdate(organizationId, orderId) {
+      if (!scoped) throw new Error('TRANSACTION_REQUIRED');
+      if (!prisma.$queryRaw) throw new Error('TRANSACTION_UNAVAILABLE');
+      await prisma.$queryRaw`
+        SELECT id FROM os_orders
+        WHERE id = ${orderId} AND organization_id = ${organizationId}
+        FOR UPDATE
+      `;
+    },
+
+    async reverseIssuedDeliveryNote(organizationId, noteId, reason) {
+      if (!prisma.osDeliveryNote.update) throw new Error('NOT_FOUND');
+      try {
+        await prisma.osDeliveryNote.update({
+          where: { id: noteId, organizationId, status: 'issued' },
+          data: { status: 'reversed', correctionReason: reason },
+        });
+        return true;
+      } catch (err) {
+        // P2025: no row matched id + organization + status 'issued'.
+        if ((err as { code?: string } | null)?.code === 'P2025') return false;
+        throw err;
+      }
+    },
+
+    async listDispatchLedgerRows(organizationId, orderId): Promise<DispatchLedgerRows> {
+      // Deliberately no `take`: the ledger must see every note, not a display-bounded page.
+      const noteRows = await prisma.osDeliveryNote.findMany({ where: { organizationId, orderId } });
+      const noteIds = noteRows.map((row) => row.id);
+      const noteLines =
+        noteIds.length === 0
+          ? []
+          : await prisma.osDeliveryNoteLine.findMany({
+              where: { organizationId, deliveryNoteId: { in: noteIds } },
+            });
+      const exitRows = prisma.osWarehouseExit
+        ? await prisma.osWarehouseExit.findMany({ where: { organizationId, orderId } })
+        : [];
+      const outboundNotes = prisma.osWarehouseOutboundNote
+        ? await prisma.osWarehouseOutboundNote.findMany({ where: { organizationId, orderId } })
+        : [];
+      const outboundIds = outboundNotes.map((row) => row.id);
+      const outboundLines =
+        outboundIds.length === 0 || !prisma.osWarehouseOutboundNoteLine
+          ? []
+          : await prisma.osWarehouseOutboundNoteLine.findMany({
+              where: { organizationId, outboundNoteId: { in: outboundIds } },
+            });
+      const exitByOutboundNote = new Map(outboundNotes.map((row) => [row.id, row.warehouseExitId] as const));
+      return {
+        notes: noteRows.map((row) => ({
+          id: row.id,
+          status: row.status === 'reversed' ? ('reversed' as const) : ('issued' as const),
+        })),
+        noteLines: noteLines.map((row) => ({
+          noteId: row.deliveryNoteId as string,
+          orderLineId: row.orderLineId,
+          quantity: row.quantity,
+        })),
+        exits: exitRows.map((row) => ({ id: row.id, deliveryNoteId: row.deliveryNoteId ?? null })),
+        outboundLines: outboundLines
+          .filter((row) => row.outboundNoteId && exitByOutboundNote.has(row.outboundNoteId))
+          .map((row) => ({
+            warehouseExitId: exitByOutboundNote.get(row.outboundNoteId as string) as string,
+            orderLineId: row.orderLineId,
+            quantity: row.quantity,
+          })),
+      };
+    },
+
     liveWrite: {
       customerDelivery: CUSTOMER_DELIVERY_PRISMA_LIVE_WRITE,
       warehouseExit: WAREHOUSE_EXIT_LIVE_WRITE,
@@ -805,6 +908,7 @@ export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryS
       await prisma.osIdempotencyKey.deleteMany({ where: { organizationId, key } });
     },
   };
+  return store;
 }
 
 export type PrismaDeliveryStore = ReturnType<typeof createPrismaDeliveryStore>;
