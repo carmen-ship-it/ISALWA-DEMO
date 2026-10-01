@@ -116,8 +116,8 @@ describe('ADR 0003 assertCumulativeDispatchWithinOrder', () => {
         err.reason === 'DELIVERY_QUANTITY_EXCEEDS_ORDER' &&
         err.ledger === 'delivery_note' &&
         err.lines.length === 1 &&
-        err.lines[0].orderLineId === 'a' &&
-        err.lines[0].committed === 6,
+        err.lines[0]?.orderLineId === 'a' &&
+        err.lines[0]?.committed === 6,
     );
   });
 

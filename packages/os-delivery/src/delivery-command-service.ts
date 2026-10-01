@@ -8,9 +8,12 @@ import {
   DELIVERY_NUMBERING_POLICY,
   PAYMENT_REQUIRED_BEFORE_DELIVERY,
   WAREHOUSE_OUTBOUND_KIND,
+  assertCumulativeDispatchWithinOrder,
   assertDeliveryResourceRole,
   assertEventHasOccurred,
+  computeDispatchBalance,
   denyForeignRows,
+  findOverDispatchedLines,
   parseCorrectDeliveryDocument,
   parseCreateNotaDeEntrega,
   parseRecordCustomerDelivery,
@@ -21,10 +24,14 @@ import {
   requireSessionOrganization,
   storeDeliveredQuantities,
   suggestRecipientsInTenant,
+  summarizeCommittedDispatch,
   visibleInSession,
   type CopiedDeliveryLine,
   type DeliveryCommandName,
   type DeliveryResource,
+  type DispatchLedgerName,
+  type OrderLineDispatchBalance,
+  type OverDispatchedLine,
 } from '@isalwa/os-contracts';
 import { createId } from '@isalwa/ts-utils';
 import type {
@@ -34,6 +41,7 @@ import type {
   DeliveryStore,
   EvidenceRecord,
   NoteLineRecord,
+  OrderSnapshot,
   OutboundNoteRecord,
   WarehouseExitRecord,
 } from './store-types';
@@ -107,6 +115,17 @@ export type CustomerDeliveryResult = {
   lineCount: number;
 };
 
+export type DispatchBalanceResult = {
+  orderId: string;
+  lines: OrderLineDispatchBalance[];
+};
+
+export type OverDeliveredOrderReport = {
+  orderId: string;
+  orderNumber: string | null;
+  lines: OverDispatchedLine[];
+};
+
 export type CorrectDeliveryDocumentResult = {
   originalNoteId: string;
   reversalNoteId: string;
@@ -145,7 +164,24 @@ function isDeliveryIdempotencyConflict(err: unknown): boolean {
 }
 
 export class DeliveryCommandService {
-  constructor(private readonly store: DeliveryStore) {}
+  /**
+   * `inTransaction` is internal: true only for the instance bound to a transaction store
+   * (see atomically). Callers construct the service with the store alone.
+   */
+  constructor(
+    private readonly store: DeliveryStore,
+    private readonly inTransaction: boolean = false,
+  ) {}
+
+  /**
+   * Run a command body as one all-or-nothing unit on the store. Inside an existing unit it
+   * simply joins it, so execute() can wrap dispatch + idempotency completion together
+   * while each public command stays atomic when called directly.
+   */
+  private async atomically<T>(fn: (service: DeliveryCommandService) => Promise<T>): Promise<T> {
+    if (this.inTransaction) return fn(this);
+    return this.store.runInTransaction((tx) => fn(new DeliveryCommandService(tx, true)));
+  }
 
   async execute(
     command: DeliveryCommandName,
@@ -175,20 +211,26 @@ export class DeliveryCommandService {
       }
     }
 
-    let wrote = false;
+    // True once the transactional unit has returned and is committing. An error after that
+    // point has an unknown outcome, so the claim is kept (a retry gets CONFLICT, never a
+    // duplicate write). An error before it means the unit rolled back, so the claim is
+    // released and the same key can be retried safely.
+    let committing = false;
     try {
-      const result = await this.dispatch(command, ctx, payload);
-      wrote = true;
-      if (key) {
-        await this.store.completeIdempotency(
-          organizationId,
-          key,
-          result as unknown as Record<string, unknown>,
-        );
-      }
-      return result;
+      return await this.atomically(async (service) => {
+        const result = await service.dispatch(command, ctx, payload);
+        if (key) {
+          await service.store.completeIdempotency(
+            organizationId,
+            key,
+            result as unknown as Record<string, unknown>,
+          );
+        }
+        committing = true;
+        return result;
+      });
     } catch (err) {
-      if (key && !wrote && organizationId) {
+      if (key && !committing && organizationId) {
         await this.store.deleteIdempotency(organizationId, key).catch(() => undefined);
       }
       throw err;
@@ -244,12 +286,20 @@ export class DeliveryCommandService {
   }
 
   async createNotaDeEntrega(ctx: DeliveryContext, payload: unknown): Promise<NotaDeEntregaResult> {
+    return this.atomically((service) => service.createNotaDeEntregaUnit(ctx, payload));
+  }
+
+  private async createNotaDeEntregaUnit(ctx: DeliveryContext, payload: unknown): Promise<NotaDeEntregaResult> {
     try {
       const parsed = parseCreateNotaDeEntrega(payload);
       await this.authorize(ctx, parsed.recordedBy, 'delivery_note');
       const organizationId = requireSessionOrganization(ctx.organizationId);
+      // Lock first, then read: the order and the ledger below must reflect every committed
+      // concurrent dispatch (ADR 0003: enforced atomically, including concurrent requests).
+      await this.store.lockOrderForUpdate(organizationId, parsed.orderId);
       const order = await this.requireOpenOrder(organizationId, parsed.orderId);
       const lines = storeDeliveredQuantities(order.lines, parsed.quantities);
+      await this.assertWithinCumulativeDispatch(organizationId, order, 'delivery_note', lines);
       const now = ctx.effectiveAt.toISOString();
       const noteId = createId();
       const internalDocumentRef = provisionalInternalDocumentRef(noteId);
@@ -319,11 +369,16 @@ export class DeliveryCommandService {
   }
 
   async recordSalida(ctx: DeliveryContext, payload: unknown): Promise<WarehouseExitResult> {
+    return this.atomically((service) => service.recordSalidaUnit(ctx, payload));
+  }
+
+  private async recordSalidaUnit(ctx: DeliveryContext, payload: unknown): Promise<WarehouseExitResult> {
     try {
       const parsed = parseRecordSalida(payload);
       await this.authorize(ctx, parsed.recordedBy, 'warehouse_exit');
       if (Date.parse(parsed.exitedAt) > ctx.effectiveAt.getTime()) throw new Error('VALIDATION_FAILED');
       const organizationId = requireSessionOrganization(ctx.organizationId);
+      await this.store.lockOrderForUpdate(organizationId, parsed.orderId);
       const order = await this.requireOpenOrder(organizationId, parsed.orderId);
       const lines = storeDeliveredQuantities(order.lines, parsed.quantities);
       if (parsed.deliveryNoteId) {
@@ -335,6 +390,7 @@ export class DeliveryCommandService {
           throw new Error('NOT_FOUND');
         }
       }
+      await this.assertWithinCumulativeDispatch(organizationId, order, 'warehouse_exit', lines);
       const now = ctx.effectiveAt.toISOString();
       const exit: WarehouseExitRecord = {
         id: createId(),
@@ -398,11 +454,21 @@ export class DeliveryCommandService {
   }
 
   async recordEntrega(ctx: DeliveryContext, payload: unknown): Promise<CustomerDeliveryResult> {
+    return this.atomically((service) => service.recordEntregaUnit(ctx, payload));
+  }
+
+  /**
+   * Receipt stores no quantity lines and is not checked against the dispatch ledger, so it
+   * never counts a dispatch again (ADR 0003). It still takes the order lock because it
+   * rewrites the linked note row and must not interleave with a correction of that note.
+   */
+  private async recordEntregaUnit(ctx: DeliveryContext, payload: unknown): Promise<CustomerDeliveryResult> {
     try {
       const parsed = parseRecordEntrega(payload);
       await this.authorize(ctx, parsed.recordedBy, 'delivery');
       assertEventHasOccurred(parsed.deliveredAt, ctx.effectiveAt);
       const organizationId = requireSessionOrganization(ctx.organizationId);
+      await this.store.lockOrderForUpdate(organizationId, parsed.orderId);
       const order = await this.requireOpenOrder(organizationId, parsed.orderId);
       const exits = denyForeignRows(
         organizationId,
@@ -529,22 +595,35 @@ export class DeliveryCommandService {
     ctx: DeliveryContext,
     payload: unknown,
   ): Promise<CorrectDeliveryDocumentResult> {
+    return this.atomically((service) => service.correctDeliveryDocumentUnit(ctx, payload));
+  }
+
+  private async correctDeliveryDocumentUnit(
+    ctx: DeliveryContext,
+    payload: unknown,
+  ): Promise<CorrectDeliveryDocumentResult> {
     try {
       const parsed = parseCorrectDeliveryDocument(payload);
       await this.authorize(ctx, parsed.recordedBy, 'delivery_note');
       const organizationId = requireSessionOrganization(ctx.organizationId);
+      const found = visibleInSession(
+        organizationId,
+        await this.store.getDeliveryNoteById(organizationId, parsed.deliveryNoteId),
+      );
+      if (!found || found.status !== 'issued') throw new Error('NOT_FOUND');
+      // Serialize with every other writer on this order, then re-read: a concurrent
+      // correction may have reversed the note while this one waited for the lock.
+      await this.store.lockOrderForUpdate(organizationId, found.orderId);
       const original = visibleInSession(
         organizationId,
         await this.store.getDeliveryNoteById(organizationId, parsed.deliveryNoteId),
       );
       if (!original || original.status !== 'issued') throw new Error('NOT_FOUND');
       const now = ctx.effectiveAt.toISOString();
-      const reversed: DeliveryNoteRecord = {
-        ...original,
-        status: 'reversed',
-        correctionReason: parsed.reason,
-      };
-      await this.store.updateDeliveryNote(reversed);
+      // Guarded flip (only while still `issued`). A false return means another writer won.
+      if (!(await this.store.reverseIssuedDeliveryNote(organizationId, original.id, parsed.reason))) {
+        throw new Error('NOT_FOUND');
+      }
       const reversalId = createId();
       const reversal: DeliveryNoteRecord = {
         ...original,
@@ -816,6 +895,54 @@ export class DeliveryCommandService {
       });
     }
     return derived.sort((a, b) => a.occurredAt.localeCompare(b.occurredAt));
+  }
+
+  /**
+   * ADR 0003: cumulative committed dispatch must not exceed the current confirmed
+   * order-line quantity. Must run inside the locked transaction, after the fresh order read.
+   */
+  private async assertWithinCumulativeDispatch(
+    organizationId: string,
+    order: OrderSnapshot,
+    ledger: DispatchLedgerName,
+    lines: readonly CopiedDeliveryLine[],
+  ): Promise<void> {
+    if (lines.length === 0) return;
+    const committed = summarizeCommittedDispatch(await this.store.listDispatchLedgerRows(organizationId, order.id));
+    assertCumulativeDispatchWithinOrder(order.lines, ledger, committed, lines);
+  }
+
+  /** Read path: per-line ordered / committed / remaining for one order (ADR 0003). */
+  async getDispatchBalanceForOrder(ctx: DeliveryContext, orderId: string): Promise<DispatchBalanceResult> {
+    const organizationId = await this.authorizeResource(ctx, 'delivery_note');
+    const order = await this.store.getOrderInOrg(organizationId, orderId);
+    if (!order) throw new Error('NOT_FOUND');
+    const committed = summarizeCommittedDispatch(await this.store.listDispatchLedgerRows(organizationId, orderId));
+    return { orderId, lines: computeDispatchBalance(order.lines, committed) };
+  }
+
+  /**
+   * Read/report path for ADR 0003: orders whose committed dispatch already exceeds the
+   * current order quantity (for example rows written before the cumulative check existed).
+   * Reports only. It never edits, reverses, or deletes a historical delivery; further excess
+   * dispatch on these orders is blocked by the ordinary cumulative check.
+   */
+  async reportOverDeliveredOrders(ctx: DeliveryContext): Promise<OverDeliveredOrderReport[]> {
+    const organizationId = await this.authorizeResource(ctx, 'delivery_note');
+    const [notes, exits] = await Promise.all([
+      this.store.listAllDeliveryNotes(organizationId),
+      this.store.listAllWarehouseExits(organizationId),
+    ]);
+    const orderIds = [...new Set([...notes.map((row) => row.orderId), ...exits.map((row) => row.orderId)])].sort();
+    const report: OverDeliveredOrderReport[] = [];
+    for (const orderId of orderIds) {
+      const order = await this.store.getOrderInOrg(organizationId, orderId);
+      if (!order) continue;
+      const committed = summarizeCommittedDispatch(await this.store.listDispatchLedgerRows(organizationId, orderId));
+      const lines = findOverDispatchedLines(order.lines, committed);
+      if (lines.length > 0) report.push({ orderId, orderNumber: order.orderNumber, lines });
+    }
+    return report;
   }
 
   private async emit(
