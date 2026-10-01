@@ -45,8 +45,6 @@ import {
   OWNER_DEMO_CONVERSATIONS,
   ownerDemoCatalogMeta,
   type OwnerDemoClientKey,
-  type OwnerDemoClientSpec,
-  type OwnerDemoConversationSpec,
 } from './catalog';
 import {
   admitOwnerDemoConversation,
@@ -110,6 +108,7 @@ type ClientIds = {
   followUpWorkId: string | null;
   orderPrepWorkId: string | null;
   commitmentId: string | null;
+  conversationId: string | null;
   conversation: (typeof OWNER_DEMO_CONVERSATIONS)[number] | null;
 };
 
@@ -533,53 +532,6 @@ async function ensureCommitment(
     });
   }
   return row.id;
-}
-
-/**
- * Durable OsCustomerConversation rows for owner-demo (idempotent natural key).
- * Does not mutate Opportunity/Quote/Order — links are opaque evidence only.
- */
-async function ensureOwnerDemoConversation(
-  prisma: NonNullable<ReturnType<typeof getOsPrisma>>,
-  args: {
-    organizationId: string;
-    client: OwnerDemoClientSpec;
-    conversation: OwnerDemoConversationSpec;
-    partyId: string;
-    enteredByMemberId: string;
-    links: { opportunityId: string | null; quoteId: string | null; orderId: string | null };
-  },
-): Promise<string | null> {
-  const naturalId = ownerDemoConversationNaturalKey(args.client.key);
-  const existing = await prisma.osCustomerConversation.findUnique({
-    where: { id: naturalId },
-  });
-  if (existing) {
-    await prisma.osCustomerConversation.update({
-      where: { id: naturalId },
-      data: {
-        opportunityId: args.links.opportunityId,
-        quoteId: args.links.quoteId,
-        orderId: args.links.orderId,
-      },
-    });
-    return existing.id;
-  }
-
-  const admitted = admitOwnerDemoConversation({
-    organizationId: args.organizationId,
-    client: args.client,
-    conversation: args.conversation,
-    partyId: args.partyId,
-    enteredByMemberId: args.enteredByMemberId,
-    links: args.links,
-  });
-  if (!admitted.ok) {
-    return null;
-  }
-  const data = ownerDemoConversationCreateData(admitted.record, new Date().toISOString());
-  const created = await prisma.osCustomerConversation.create({ data });
-  return created.id;
 }
 
 /** Fixture-tooling persistence for delivery/FG — command-equivalent rows, SYNTH only. */
@@ -1124,6 +1076,83 @@ async function ensureCommercialDensityExtras(
   log('OWNER_DEMO_COMMERCIAL_DENSITY ok');
 }
 
+/**
+ * Persist one company-entered OsCustomerConversation per DEMO client.
+ * Idempotent by natural key. Channel is always manual — no WhatsApp provider.
+ */
+async function ensureOwnerDemoConversations(
+  session: RequestContext,
+  prisma: NonNullable<ReturnType<typeof getOsPrisma>>,
+  clients: ClientIds[],
+): Promise<void> {
+  assertOwnerDemoSynthOrg(session.organizationId);
+  const createdAt = new Date().toISOString();
+
+  for (const client of clients) {
+    const spec = OWNER_DEMO_CLIENTS.find((c) => c.key === client.key);
+    const conversation = client.conversation;
+    if (!spec || !conversation) {
+      client.conversationId = null;
+      continue;
+    }
+
+    const admitted = admitOwnerDemoConversation({
+      organizationId: session.organizationId,
+      client: spec,
+      conversation,
+      partyId: client.partyId,
+      enteredByMemberId: session.actorMemberId,
+      links: {
+        opportunityId: client.opportunityId,
+        quoteId: client.quoteId,
+        orderId: client.orderId,
+      },
+    });
+    if (!admitted.ok) {
+      throw new Error(`OWNER_DEMO_CONVERSATION_REFUSED:${client.key}:${admitted.reason}`);
+    }
+
+    const id = ownerDemoConversationNaturalKey(client.key);
+    const data = ownerDemoConversationCreateData(admitted.record, createdAt);
+    const existing = await prisma.osCustomerConversation.findFirst({
+      where: { organizationId: session.organizationId, id },
+    });
+    if (!existing) {
+      await prisma.osCustomerConversation.create({ data });
+      log(`CONVERSATION CREATED key=${client.key} id=${id}`);
+    } else {
+      await prisma.osCustomerConversation.update({
+        where: { id: existing.id },
+        data: {
+          customerId: data.customerId,
+          customerLabel: data.customerLabel,
+          contactLabel: data.contactLabel,
+          channel: data.channel,
+          occurredAt: data.occurredAt,
+          enteredByMemberId: data.enteredByMemberId,
+          enteredByLabel: data.enteredByLabel,
+          summary: data.summary,
+          pastedEvidence: data.pastedEvidence,
+          opportunityId: data.opportunityId,
+          quoteId: data.quoteId,
+          orderId: data.orderId,
+          customerQuestion: data.customerQuestion,
+          commitmentCandidate: data.commitmentCandidate,
+          possibleRequestedDate: data.possibleRequestedDate,
+          nextAction: data.nextAction,
+          source: data.source,
+          provenance: data.provenance,
+          advisorNumberStatus: data.advisorNumberStatus,
+        },
+      });
+      log(`CONVERSATION REUSED key=${client.key} id=${id}`);
+    }
+    client.conversationId = id;
+  }
+
+  log('OWNER_DEMO_CONVERSATIONS ok');
+}
+
 async function main(): Promise<void> {
   assertOwnerDemoConfirm(process.env.STAGING_FIXTURE_CONFIRM);
   if (!process.env.OS_DATABASE_URL?.trim()) {
@@ -1219,6 +1248,7 @@ async function main(): Promise<void> {
       followUpWorkId: null,
       orderPrepWorkId: null,
       commitmentId: null,
+      conversationId: null,
       conversation,
     };
 
@@ -1356,26 +1386,12 @@ async function main(): Promise<void> {
       ids.orderNumber = loop.orderNumber;
     }
 
-    if (ids.conversation) {
-      await ensureOwnerDemoConversation(prisma, {
-        organizationId: session.organizationId,
-        client: spec,
-        conversation: ids.conversation,
-        partyId: party.partyId,
-        enteredByMemberId: session.actorMemberId,
-        links: {
-          opportunityId: ids.opportunityId,
-          quoteId: ids.quoteId,
-          orderId: ids.orderId,
-        },
-      });
-    }
-
     clients.push(ids);
   }
 
   await ensureDemoDeskDensity(workSvc, session, prisma, clients);
   await ensureCommercialDensityExtras(commercialSvc, session, prisma, clients);
+  await ensureOwnerDemoConversations(session, prisma, clients);
 
   const maderas = clients.find((c) => c.key === 'maderas_oriente');
   const proof = realSevenMutationProof();
@@ -1438,6 +1454,7 @@ async function main(): Promise<void> {
         followUpWorkId: c.followUpWorkId,
         orderPrepWorkId: c.orderPrepWorkId,
         commitmentId: c.commitmentId,
+        conversationId: c.conversationId,
       })),
       storyModePrimaryPartyId: maderas?.partyId ?? null,
       hrefHints: receipt.hrefHints,

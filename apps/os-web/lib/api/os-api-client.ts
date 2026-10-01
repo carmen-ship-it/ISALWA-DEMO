@@ -47,7 +47,7 @@ import type {
   IssueDetailResponse,
   IssueCommandResult,
 } from '@/lib/issue/types';
-import type { CommitmentState } from '@isalwa/os-contracts';
+import type { CommitmentState, ManualCustomerConversation } from '@isalwa/os-contracts';
 import type { AiAssistResponse } from '@/lib/ai/types';
 import type { AuditListResponse, MemoryChangesResponse } from '@/lib/audit/types';
 
@@ -362,14 +362,6 @@ export function createOsApiClient(auth: OsAuthContext) {
       request<OrderListResponse>('/orders', { method: 'GET', query }),
     getOrder: (orderId: string) =>
       request<OrderDetailResponse>(`/orders/${encodeURIComponent(orderId)}`),
-    listCustomerConversations: (query?: { partyId?: string }) =>
-      request<{ items: import('@isalwa/os-contracts').ManualCustomerConversation[] }>(
-        '/customer-conversations',
-        {
-          method: 'GET',
-          query: query?.partyId ? { partyId: query.partyId } : undefined,
-        },
-      ),
     listWarehouseExits: (query?: Record<string, string | number | boolean>) =>
       request<{
         sourceState: string;
@@ -511,6 +503,11 @@ export function createOsApiClient(auth: OsAuthContext) {
       request<{ items: CommitmentSummary[] }>('/commitments', { method: 'GET', query }),
     getCommitment: (commitmentId: string) =>
       request<CommitmentSummary>(`/commitments/${encodeURIComponent(commitmentId)}`),
+    listCustomerConversations: (query?: { partyId?: string }) =>
+      request<{ items: ManualCustomerConversation[] }>('/customer-conversations', {
+        method: 'GET',
+        query: query?.partyId ? { partyId: query.partyId } : undefined,
+      }),
     executeCommitmentCommand: <T extends CommitmentCommandName>(
       commandName: T,
       payload: Record<string, unknown>,

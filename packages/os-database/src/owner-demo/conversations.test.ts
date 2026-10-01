@@ -2,7 +2,10 @@
  * Owner-demo durable conversation admission (no DB).
  */
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { OWNER_DEMO_CLIENTS, OWNER_DEMO_CONVERSATIONS } from './catalog';
 import { OWNER_DEMO_SYNTH_ORG } from './guards';
 import {
@@ -12,6 +15,8 @@ import {
   ownerDemoConversationNaturalKey,
   OWNER_DEMO_CONVERSATION_OCCURRED_AT,
 } from './conversations';
+
+const here = dirname(fileURLToPath(import.meta.url));
 
 describe('owner-demo durable conversations', () => {
   it('defines a natural key per DEMO client', () => {
@@ -70,5 +75,16 @@ describe('owner-demo durable conversations', () => {
       links: { opportunityId: 'o', quoteId: 'q', orderId: 'ord' },
     });
     assert.equal(input.channel, 'manual');
+  });
+
+  it('seed script persists OsCustomerConversation for all DEMO clients', () => {
+    const seed = readFileSync(join(here, 'seed.ts'), 'utf8');
+    assert.match(seed, /ensureOwnerDemoConversations/);
+    assert.match(seed, /osCustomerConversation\.create/);
+    assert.match(seed, /ownerDemoConversationNaturalKey/);
+    assert.match(seed, /admitOwnerDemoConversation/);
+    const ensureBlock = seed.slice(seed.indexOf('async function ensureOwnerDemoConversations'));
+    assert.doesNotMatch(ensureBlock, /Meta|Twilio|providerConnected:\s*true/);
+    assert.match(ensureBlock, /channel: data\.channel/);
   });
 });

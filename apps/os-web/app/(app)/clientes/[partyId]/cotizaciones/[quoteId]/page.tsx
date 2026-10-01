@@ -30,15 +30,12 @@ import { findLatestQuoteSendRecord } from '@/lib/commercial/quote-send-status';
 import { formatCentavos } from '@/lib/commercial/money';
 import { lineProvenanceView } from '@/lib/commercial/product-picker';
 import { clienteSectionHref, opportunityHref, orderHref } from '@/lib/commercial/navigation';
-import { latestQuoteApprovalDecision, quoteNextStep } from '@/lib/commercial/next-step';
+import { quoteNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { partyHref } from '@/lib/party/navigation';
 import { offerAfterQuoteSent } from '@/lib/work/event-work-offer';
-import { memberLabel, resolveMemberLabels, resolveMemberResponsibilityLabels, memberWithCargoLine } from '@/lib/work/member-resolver';
-import { commercialOwnerLine } from '@/lib/work/staff-display';
-import { approvalResponsibilityView } from '@/lib/work/approval-responsibility';
-import { whoHasTheBallView } from '@/lib/work/who-has-the-ball';
+import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
 type QuoteDetailPageProps = {
@@ -65,15 +62,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
     const { quote, freshness, authority } = await client.getQuote(quoteId);
     const partyLabels = await resolvePartyLabels(client, [quote.partyId]);
     const customerName = partyLabel(partyLabels, quote.partyId);
-    const ownerResponsibility = await resolveMemberResponsibilityLabels(client, [quote.ownerMemberId]);
-    const memberLabels = new Map(
-      [...ownerResponsibility.entries()].map(([id, row]) => [id, row.displayName]),
-    );
-    const ownerRow = ownerResponsibility.get(quote.ownerMemberId);
-    const commercialOwnerDisplay = commercialOwnerLine({
-      displayName: ownerRow?.displayName ?? null,
-      cargoLabel: ownerRow?.businessRoleLabel ?? null,
-    });
+    const memberLabels = await resolveMemberLabels(client, [quote.ownerMemberId]);
     let opportunityTitle: string | null = null;
     if (quote.opportunityId) {
       try {
@@ -87,29 +76,17 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
       quote.status === 'accepted' ? await client.listOrders({ quoteId: quote.quoteId, partyId, limit: 5 }) : null;
     const relatedOrder = relatedOrders?.items[0] ?? null;
     let approvalMemberLabels = new Map<string, string>();
-    let approvalResponsibility = new Map<
-      string,
-      { displayName: string; businessRoleLabel: string | null }
-    >();
     let approvals: SubjectApprovalItem[] = [];
     if (quote.status === 'submitted' || quote.status === 'accepted') {
       try {
         const history = await client.listSubjectApprovals('quote', quote.quoteId);
         approvals = history.items as SubjectApprovalItem[];
         const ids = [
-          ...new Set(
-            approvals.flatMap((row) =>
-              [row.approverMemberId, row.requestedByMemberId, row.decisionByMemberId ?? ''].filter(Boolean),
-            ),
-          ),
+          ...new Set(approvals.flatMap((row) => [row.approverMemberId, row.requestedByMemberId].filter(Boolean))),
         ] as string[];
-        approvalResponsibility = await resolveMemberResponsibilityLabels(client, ids);
-        approvalMemberLabels = new Map(
-          [...approvalResponsibility.entries()].map(([id, row]) => [id, row.displayName]),
-        );
+        approvalMemberLabels = await resolveMemberLabels(client, ids);
       } catch {
         approvalMemberLabels = new Map();
-        approvalResponsibility = new Map();
         approvals = [];
       }
     }
@@ -130,25 +107,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
     }
 
     const lines = [...quote.lines].sort((a, b) => a.lineNumber - b.lineNumber);
-    const pendingApproval = approvals.find((row) => row.status === 'pending') ?? null;
-    const hasPendingApproval = Boolean(pendingApproval);
-    const latestApprovalDecision = latestQuoteApprovalDecision(approvals);
-    const pendingResponsibility = pendingApproval
-      ? approvalResponsibilityView({
-          status: 'pending',
-          approvalRequestId: pendingApproval.approvalRequestId,
-          approver: {
-            memberId: pendingApproval.approverMemberId,
-            displayName:
-              approvalResponsibility.get(pendingApproval.approverMemberId)?.displayName ?? null,
-            businessRoleLabel:
-              approvalResponsibility.get(pendingApproval.approverMemberId)?.businessRoleLabel ??
-              null,
-          },
-          requesterDisplayName:
-            approvalResponsibility.get(pendingApproval.requestedByMemberId)?.displayName ?? null,
-        })
-      : null;
+    const hasPendingApproval = approvals.some((row) => row.status === 'pending');
     const followUpAllowed = canRegisterQuoteFollowUp(quote.status);
     const manualSendAllowed = canRecordQuoteManualSend(quote.status) && !sendRecord;
     const quoteWorkOffer = offerAfterQuoteSent({
@@ -166,37 +125,6 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
       hasPendingApproval,
       canRegisterFollowUp: followUpAllowed,
       followUpHref: followUpAllowed ? clienteSectionHref(partyId, 'trabajo') : null,
-      latestApprovalDecision,
-      pendingApprovalHeadline: pendingResponsibility?.headline ?? null,
-      pendingApprovalHref: pendingResponsibility?.requestHref ?? null,
-    });
-    const ball = whoHasTheBallView({
-      commercialOwner: ownerRow
-        ? {
-            memberId: quote.ownerMemberId,
-            displayName: ownerRow.displayName,
-            businessRoleLabel: ownerRow.businessRoleLabel,
-          }
-        : null,
-      temporarySupport: null,
-      pendingApproval: pendingApproval
-        ? {
-            approvalRequestId: pendingApproval.approvalRequestId,
-            status: pendingApproval.status,
-            approver: {
-              memberId: pendingApproval.approverMemberId,
-              displayName:
-                approvalResponsibility.get(pendingApproval.approverMemberId)?.displayName ?? null,
-              businessRoleLabel:
-                approvalResponsibility.get(pendingApproval.approverMemberId)?.businessRoleLabel ??
-                null,
-            },
-            requesterDisplayName:
-              approvalResponsibility.get(pendingApproval.requestedByMemberId)?.displayName ?? null,
-          }
-        : null,
-      nextStepStatement: nextStep?.statement ?? null,
-      nextStepHrefLabel: nextStep?.hrefLabel ?? null,
     });
     const pathCrumbs = [
       { label: customerName, href: partyHref(partyId) },
@@ -242,40 +170,6 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
 
         <StaleProjectionBanner freshness={freshness} />
         <RecordNextStep step={nextStep} />
-        <PageSection card className="mb-6 p-6 md:p-8" data-tour="who-has-the-ball">
-          <p className="isalwa-section-label">Quién tiene la pelota</p>
-          <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div>
-              <dt className="text-sm text-[var(--isalwa-slate)]">Responsable</dt>
-              <dd className="mt-1 text-sm text-[var(--isalwa-kiln)]">{ball.principalLine}</dd>
-            </div>
-            {ball.temporarySupportLine ? (
-              <div>
-                <dt className="text-sm text-[var(--isalwa-slate)]">Apoyo</dt>
-                <dd className="mt-1 text-sm text-[var(--isalwa-kiln)]">{ball.temporarySupportLine}</dd>
-              </div>
-            ) : null}
-            {ball.waitingLine ? (
-              <div>
-                <dt className="text-sm text-[var(--isalwa-slate)]">Esperando</dt>
-                <dd className="mt-1 text-sm text-[var(--isalwa-kiln)]">{ball.waitingLine}</dd>
-              </div>
-            ) : null}
-            {ball.nextSafeLine ? (
-              <div>
-                <dt className="text-sm text-[var(--isalwa-slate)]">Siguiente paso</dt>
-                <dd className="mt-1 text-sm text-[var(--isalwa-kiln)]">{ball.nextSafeLine}</dd>
-              </div>
-            ) : null}
-          </dl>
-          {ball.requestHref && ball.requestLabel ? (
-            <p className="mt-4">
-              <Link href={ball.requestHref} className={documentLinkClass}>
-                {ball.requestLabel}
-              </Link>
-            </p>
-          ) : null}
-        </PageSection>
 
         {authority?.canConvertToOrder ? (
           <CommercialStickyBar className="mb-6">
@@ -303,11 +197,9 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
               </dd>
             </div>
             <div>
-              <dt className="isalwa-section-label">Responsable comercial</dt>
+              <dt className="isalwa-section-label">Responsable</dt>
               <dd className="mt-2 text-[var(--isalwa-kiln)]">
-                {ownerRow
-                  ? memberWithCargoLine(ownerResponsibility, quote.ownerMemberId)
-                  : commercialOwnerDisplay}
+                {memberLabel(memberLabels, quote.ownerMemberId)}
               </dd>
             </div>
             {quote.opportunityId ? (
@@ -519,14 +411,6 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                 subjectId={quote.quoteId}
                 canRequest={authority?.canRequestApproval === true}
                 memberLabels={approvalMemberLabels}
-                memberRoleLabels={
-                  new Map(
-                    [...approvalResponsibility.entries()].map(([id, row]) => [
-                      id,
-                      row.businessRoleLabel,
-                    ]),
-                  )
-                }
                 approvals={approvals}
               />
             </div>

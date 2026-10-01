@@ -25,7 +25,7 @@ export default async function ConversacionesPage({
 
   let actor: ManualConversationActor | null = null;
   let organizationId = '';
-  let durableRows: Conversation[] = [];
+  let durableConversations: Conversation[] = [];
 
   try {
     const client = createOsApiClient(auth);
@@ -37,12 +37,9 @@ export default async function ConversacionesPage({
     if (organizationId && memberId && session.accessStatus === 'active') {
       actor = { organizationId, memberId, enteredByLabel };
     }
-    try {
-      const listed = await client.listCustomerConversations();
-      durableRows = (listed.items ?? []).map(projectManualConversation);
-    } catch {
-      // API may be unavailable; fall back below.
-    }
+    // Prefer durable os_customer_conversations over JSON-only fixtures.
+    const listed = await client.listCustomerConversations();
+    durableConversations = (listed.items ?? []).map(projectManualConversation);
   } catch {
     // Session-bound page still renders; register form needs an active actor.
   }
@@ -65,16 +62,18 @@ export default async function ConversacionesPage({
     })
     .filter((row): row is NonNullable<typeof row> => row != null);
 
-  // Prefer durable domain rows. JSON fixtures only fill gaps when Demo and no durable rows yet.
+  // JSON fixtures only when durable rows are absent (pre-seed fallback).
   const demoFixtures =
-    dataMode === 'demo' && organizationId && durableRows.length === 0
+    dataMode === 'demo' && organizationId && durableConversations.length === 0
       ? ownerDemoConversationFixtures(organizationId, seededClients)
       : [];
 
   const initialConversations = organizationId
     ? [
-        ...durableRows,
-        ...(dataMode === 'demo' ? [] : listRegisteredConversationFixtures(organizationId)),
+        ...durableConversations,
+        ...(durableConversations.length === 0 && dataMode !== 'demo'
+          ? listRegisteredConversationFixtures(organizationId)
+          : []),
         ...demoFixtures,
       ]
     : [];

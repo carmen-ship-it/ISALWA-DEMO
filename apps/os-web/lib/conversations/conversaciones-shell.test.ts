@@ -40,6 +40,8 @@ describe('conversaciones route shell', () => {
     );
     assert.match(page, /ConversationsWorkspace/);
     assert.match(page, /getServerOsAuthContext/);
+    assert.match(page, /listCustomerConversations/);
+    assert.match(page, /projectManualConversation/);
     assert.doesNotMatch(page, /WhatsApp Business|Meta|Twilio/i);
     assert.match(workspace, /28%/);
     assert.match(workspace, /44%/);

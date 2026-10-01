@@ -18,7 +18,6 @@ import {
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { probeWorkOrgLens, probeWorkTeamLens } from '@/lib/work/trabajo-lens';
-import { trabajoLensClarity } from '@/lib/work/trabajo-lens-clarity';
 import { summarizeTrabajoOpen } from '@/lib/work/trabajo-summary';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
@@ -123,7 +122,6 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
           canTeamLens={canTeamLens}
           canOrgLens={canOrgLens}
         />
-        <p className="mb-4 text-sm text-[var(--isalwa-slate)]">{trabajoLensClarity(view)}</p>
 
         <TrabajoListToolbar state={listState} controls={controls} />
 

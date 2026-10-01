@@ -10,10 +10,6 @@ import {
   type ReactNode,
 } from 'react';
 import {
-  companyForDemoDataMode,
-  saveOwnerEffectiveCompanyCookie,
-} from '@/lib/demo/owner-company-context';
-import {
   DEMO_DATA_MODE_STORAGE_KEY,
   loadDemoDataMode,
   saveDemoDataMode,
@@ -54,14 +50,12 @@ export function OwnerDemoProvider({
     setDataModeState(mode);
     // Keep cookie + localStorage aligned so SSR desks honor the same mode across nav.
     saveDemoDataMode(window.localStorage, mode);
-    saveOwnerEffectiveCompanyCookie(companyForDemoDataMode(mode));
     setReady(true);
   }, [canUseOwnerDemo]);
 
   const setDataMode = useCallback((mode: DemoDataMode) => {
     setDataModeState(mode);
     saveDemoDataMode(window.localStorage, mode);
-    saveOwnerEffectiveCompanyCookie(companyForDemoDataMode(mode));
   }, []);
 
   const openStory = useCallback(() => {
