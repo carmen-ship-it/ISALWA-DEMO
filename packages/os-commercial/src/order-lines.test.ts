@@ -209,8 +209,17 @@ function conversionStore(input: {
       if (organizationId !== ORG) return null;
       return { id: memberId, organizationId, accessStatus: 'active' };
     },
-    async listRoleAssignmentsForMember() {
-      return [];
+    async listRoleAssignmentsForMember(memberId: string) {
+      // The owner converting their own quote holds the scope the real Asesor
+      // Comercial role carries; coverage alone never authorizes convert.
+      if (memberId !== OWNER) return [];
+      return [
+        {
+          roleKey: 'commercial.quote.convert.own',
+          effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
+          endedAt: null,
+        },
+      ];
     },
     async listDelegationsForDelegate() {
       return [];

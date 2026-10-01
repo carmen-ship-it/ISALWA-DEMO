@@ -148,6 +148,7 @@ function opportunity(overrides: Partial<OpportunityRecord> = {}): OpportunityRec
 function harness(input: {
   session?: boolean;
   scopes?: string[];
+  ownerScopes?: string[];
   globalLoad?: boolean;
   quote?: QuoteRecord | null;
   line?: QuoteLineRecord | null;
@@ -165,6 +166,7 @@ function harness(input: {
   const opportunityRow = input.opportunity === undefined ? opportunity() : input.opportunity;
   const partyRow = input.party === undefined ? party() : input.party;
   const scopes = input.scopes ?? [];
+  const ownerScopes = input.ownerScopes ?? [];
 
   function visible<T extends { id: string; organizationId: string }>(
     row: T | null,
@@ -192,8 +194,8 @@ function harness(input: {
       return { id: memberId, organizationId, accessStatus: 'active' };
     },
     async listRoleAssignmentsForMember(memberId: string) {
-      if (memberId !== ADVISOR) return [];
-      return scopes.map((roleKey) => ({
+      const held = memberId === ADVISOR ? scopes : memberId === OWNER ? ownerScopes : [];
+      return held.map((roleKey) => ({
         roleKey,
         effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
         endedAt: null,
@@ -619,7 +621,11 @@ describe('commercial tenant writes', () => {
     });
     const sessionLine = line({ id: 'line-a', organizationId: ORG_A, quoteId: 'quote-a' });
 
-    const owner = harness({ quote: submitted, line: sessionLine });
+    const owner = harness({
+      quote: submitted,
+      line: sessionLine,
+      ownerScopes: ['commercial.quote.convert.own'],
+    });
     const converted = await new CommercialCommandService(owner.store).execute(
       'CreateOrder',
       ctx(OWNER),
