@@ -35,9 +35,9 @@ function ctx(actorMemberId: string, correlationId: string): RequestContext {
   };
 }
 
-function subject(): CommercialApprovalSubjectRecord {
+function subject(id = 'subject-1'): CommercialApprovalSubjectRecord {
   return {
-    id: 'subject-1',
+    id,
     organizationId: ORG,
     ownerMemberId: OWNER,
     status: 'submitted',
@@ -61,7 +61,24 @@ function rerequestStore() {
     events,
     idempotency,
     async runInTransaction(fn: (store: OsWorkStore) => Promise<unknown>) {
-      return fn(store as unknown as OsWorkStore);
+      const snapshot = {
+        approvals: approvals.map((row) => ({ ...row })),
+        events: [...events],
+        idempotency: new Map(idempotency),
+        usedEventKeys: new Set(usedEventKeys),
+      };
+      try {
+        return await fn(store as unknown as OsWorkStore);
+      } catch (err) {
+        // A failed transaction commits nothing.
+        approvals.splice(0, approvals.length, ...snapshot.approvals);
+        events.splice(0, events.length, ...snapshot.events);
+        idempotency.clear();
+        for (const [key, value] of snapshot.idempotency) idempotency.set(key, value);
+        usedEventKeys.clear();
+        for (const key of snapshot.usedEventKeys) usedEventKeys.add(key);
+        throw err;
+      }
     },
     async getMemberInOrg(organizationId: string, memberId: string) {
       if (organizationId !== ORG) return null;
@@ -77,9 +94,8 @@ function rerequestStore() {
       return false;
     },
     async getQuoteApprovalSubject(organizationId: string, quoteId: string) {
-      const row = subject();
-      if (organizationId !== row.organizationId || quoteId !== row.id) return null;
-      return row;
+      if (organizationId !== ORG || !['subject-1', 'subject-2'].includes(quoteId)) return null;
+      return subject(quoteId);
     },
     async getOrderApprovalSubject() {
       return null;
@@ -129,7 +145,14 @@ function rerequestStore() {
       return row ? { resultJson: row } : null;
     },
     async saveIdempotency(input: { organizationId: string; key: string; resultJson: Record<string, unknown> }) {
-      idempotency.set(`${input.organizationId}:${input.key}`, input.resultJson);
+      // os_idempotency_keys: @@unique([organizationId, key])
+      const slot = `${input.organizationId}:${input.key}`;
+      if (idempotency.has(slot)) {
+        const err = new Error('Unique constraint failed on the fields: (`key`)');
+        (err as Error & { code?: string }).code = 'P2002';
+        throw err;
+      }
+      idempotency.set(slot, input.resultJson);
     },
     async deleteIdempotency(organizationId: string, key: string) {
       idempotency.delete(`${organizationId}:${key}`);
@@ -186,6 +209,54 @@ describe('re-requesting a review after it is resolved', () => {
     assert.equal(requests.length, 2, 'the second request must record its own event');
     assert.equal(store.approvals.length, 2);
     assert.equal(store.approvals[1]?.status, 'pending');
+  });
+
+  /**
+   * D4 — the key used to live in an instance field on a singleton service, so a
+   * second request overwrote it while the first was still inside its
+   * transaction and the first event was stamped with the wrong key.
+   */
+  it('keeps each concurrent command on its own idempotency key', async () => {
+    const store = rerequestStore();
+    let release: (() => void) | undefined;
+    const firstIsInsideItsTransaction = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const insert = store.insertApprovalRequest.bind(store);
+    let held = false;
+    store.insertApprovalRequest = async (request: ApprovalRequestRecord) => {
+      await insert(request);
+      if (held) return;
+      held = true;
+      // Hand control to the second command before the first one emits its event.
+      release?.();
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    };
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+
+    const first = service.execute(
+      'RequestApproval',
+      ctx(OWNER, 'corr-1'),
+      { approverMemberId: APPROVER, subjectType: 'quote', subjectId: 'subject-1' },
+      'caller-key-first',
+    );
+    await firstIsInsideItsTransaction;
+    const second = service.execute(
+      'RequestApproval',
+      ctx(OWNER, 'corr-2'),
+      { approverMemberId: APPROVER, subjectType: 'quote', subjectId: 'subject-2' },
+      'caller-key-second',
+    );
+    await Promise.all([first, second]);
+
+    const keys = store.events
+      .filter((e) => e.eventType === 'approval.requested')
+      .map((e) => e.idempotencyKey);
+    assert.deepEqual(
+      [...keys].sort(),
+      ['caller-key-first', 'caller-key-second'],
+      'neither command may inherit the other command\'s key',
+    );
   });
 
   it('still replays an identical in-flight request instead of opening a second one', async () => {

@@ -17,6 +17,8 @@ import {
   buildAuditEntry,
   buildBusinessEvent,
   buildOutboxForEvent,
+  currentIdempotencyKey,
+  withIdempotencyKey,
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
 import type { OsCommitmentStore } from './os-commitment-store';
@@ -42,8 +44,6 @@ export type CommandResult = {
  *   No people.admin fallback. Future: commitment.manage scope.
  */
 export class CommitmentCommandService {
-  private activeIdempotencyKey?: string;
-
   constructor(private readonly store: OsCommitmentStore) {}
 
   private async snapshotInOrg(
@@ -93,6 +93,17 @@ export class CommitmentCommandService {
     payload: Record<string, unknown>,
     idempotencyKey?: string,
   ): Promise<CommandResult> {
+    return withIdempotencyKey(idempotencyKey, () =>
+      this.runCommand(command, ctx, payload, idempotencyKey),
+    );
+  }
+
+  private async runCommand(
+    command: CommitmentCommandName,
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    idempotencyKey?: string,
+  ): Promise<CommandResult> {
     const actor = await this.store.getMemberInOrg(ctx.organizationId, ctx.actorMemberId);
     if (!actor || actor.organizationId !== ctx.organizationId) {
       throw new Error('TENANT_FORBIDDEN');
@@ -106,7 +117,6 @@ export class CommitmentCommandService {
     }
 
     return this.store.runInTransaction(async (store) => {
-      this.activeIdempotencyKey = idempotencyKey;
       let result: CommandResult;
       switch (command) {
         case 'CreateEmployeeCommitment':
@@ -163,7 +173,7 @@ export class CommitmentCommandService {
       primaryEntityId: primaryId,
       payload,
       correlationId: ctx.correlationId,
-      idempotencyKey: this.activeIdempotencyKey,
+      idempotencyKey: currentIdempotencyKey(),
       capabilityKey: 'commitment',
     });
     const outbox = buildOutboxForEvent(event);

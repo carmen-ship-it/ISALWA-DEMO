@@ -16,6 +16,8 @@ import {
   buildAuditEntry,
   buildBusinessEvent,
   buildOutboxForEvent,
+  currentIdempotencyKey,
+  withIdempotencyKey,
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
 import {
@@ -39,8 +41,6 @@ export type CommandResult = {
 };
 
 export class WorkCommandService {
-  private activeIdempotencyKey?: string;
-
   constructor(private readonly store: OsWorkStore) {}
 
   private async snapshotInOrg(
@@ -116,11 +116,26 @@ export class WorkCommandService {
     payload: Record<string, unknown>,
     idempotencyKey?: string,
   ): Promise<CommandResult> {
+    return withIdempotencyKey(idempotencyKey, () =>
+      this.runCommand(command, ctx, payload, idempotencyKey),
+    );
+  }
+
+  private async runCommand(
+    command: WorkCommandName,
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    idempotencyKey?: string,
+  ): Promise<CommandResult> {
     const actor = await this.store.getMemberInOrg(ctx.organizationId, ctx.actorMemberId);
     if (!actor || actor.organizationId !== ctx.organizationId) {
       throw new Error('TENANT_FORBIDDEN');
     }
 
+    // A claim key may be replayed and is released when the request is resolved,
+    // so it stays in the idempotency table. It must never reach the business
+    // event, whose unique (organization, idempotency key) row lives forever and
+    // would block the next request for the same subject.
     const claimKey = openRequestClaimKey(command, payload);
     const replayKey = claimKey ?? idempotencyKey;
 
@@ -133,12 +148,6 @@ export class WorkCommandService {
 
     try {
       return await this.store.runInTransaction(async (store) => {
-        // Only the caller's key may reach the business event. An open-request
-        // claim key lives in the idempotency table and is released when the
-        // request is resolved, but os_business_events keeps its row forever
-        // under a unique (organization, idempotency key) index — reusing the
-        // claim key there would burn it and break the next request.
-        this.activeIdempotencyKey = idempotencyKey;
         if (replayKey) {
           const existing = await store.findIdempotency(ctx.organizationId, replayKey);
           if (existing && isStoredCommandResult(existing.resultJson)) {
@@ -220,7 +229,7 @@ export class WorkCommandService {
       primaryEntityId: primaryId,
       payload,
       correlationId: ctx.correlationId,
-      idempotencyKey: this.activeIdempotencyKey,
+      idempotencyKey: currentIdempotencyKey(),
       capabilityKey: 'work',
     });
     const outbox = buildOutboxForEvent(event);

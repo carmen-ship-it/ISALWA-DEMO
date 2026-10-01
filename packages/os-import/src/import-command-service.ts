@@ -15,6 +15,8 @@ import {
   buildAuditEntry,
   buildBusinessEvent,
   buildOutboxForEvent,
+  currentIdempotencyKey,
+  withIdempotencyKey,
 } from '@isalwa/os-events';
 import type { LocationCommandService, PartyCommandService, OsPartyStore } from '@isalwa/os-party';
 import { createId } from '@isalwa/ts-utils';
@@ -48,8 +50,6 @@ type PartyAccessStore = Pick<
 >;
 
 export class ImportCommandService {
-  private activeIdempotencyKey?: string;
-
   constructor(
     private readonly importStore: OsImportStore,
     private readonly partyAccess: PartyAccessStore,
@@ -110,6 +110,17 @@ export class ImportCommandService {
     payload: Record<string, unknown>,
     idempotencyKey?: string,
   ): Promise<ImportCommandResult> {
+    return withIdempotencyKey(idempotencyKey, () =>
+      this.runCommand(command, ctx, payload, idempotencyKey),
+    );
+  }
+
+  private async runCommand(
+    command: ImportCommandName,
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    idempotencyKey?: string,
+  ): Promise<ImportCommandResult> {
     const actor = await this.partyAccess.getMemberInOrg(ctx.organizationId, ctx.actorMemberId);
     if (!actor || actor.organizationId !== ctx.organizationId) {
       throw new Error('TENANT_FORBIDDEN');
@@ -122,7 +133,6 @@ export class ImportCommandService {
       }
     }
 
-    this.activeIdempotencyKey = idempotencyKey;
     let result: ImportCommandResult;
     switch (command) {
       case 'DryRunClientImport':
@@ -180,7 +190,7 @@ export class ImportCommandService {
     const receipt = buildReceipt({ importBatchId, mode, analyzed });
 
     const idempotencyKey =
-      this.activeIdempotencyKey ??
+      currentIdempotencyKey() ??
       `import:${status}:${sourceKind}:${sourceFingerprint}:${ctx.organizationId}`;
 
     const batch: ImportBatchRecord = {
@@ -541,7 +551,7 @@ export class ImportCommandService {
       primaryEntityId: primaryId,
       payload,
       correlationId: ctx.correlationId,
-      idempotencyKey: this.activeIdempotencyKey,
+      idempotencyKey: currentIdempotencyKey(),
       capabilityKey: 'partygraph',
     });
     const outbox = buildOutboxForEvent(event);

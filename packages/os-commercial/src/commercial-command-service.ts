@@ -19,6 +19,8 @@ import {
   buildAuditEntry,
   buildBusinessEvent,
   buildOutboxForEvent,
+  currentIdempotencyKey,
+  withIdempotencyKey,
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
 import {
@@ -38,8 +40,6 @@ export type CommandResult = {
 };
 
 export class CommercialCommandService {
-  private activeIdempotencyKey?: string;
-
   constructor(private readonly store: OsCommercialStore) {}
 
   private async snapshotInOrg(
@@ -96,6 +96,17 @@ export class CommercialCommandService {
     payload: Record<string, unknown>,
     idempotencyKey?: string,
   ): Promise<CommandResult> {
+    return withIdempotencyKey(idempotencyKey, () =>
+      this.runCommand(command, ctx, payload, idempotencyKey),
+    );
+  }
+
+  private async runCommand(
+    command: CommercialCommandName,
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    idempotencyKey?: string,
+  ): Promise<CommandResult> {
     const actor = await this.store.getMemberInOrg(ctx.organizationId, ctx.actorMemberId);
     if (!actor || actor.organizationId !== ctx.organizationId) {
       throw new Error('TENANT_FORBIDDEN');
@@ -109,7 +120,6 @@ export class CommercialCommandService {
     }
 
     return this.store.runInTransaction(async (store) => {
-      this.activeIdempotencyKey = idempotencyKey;
       let result: CommandResult;
       switch (command) {
       case 'CreateOpportunity':
@@ -205,7 +215,7 @@ export class CommercialCommandService {
       primaryEntityId: primaryId,
       payload,
       correlationId: ctx.correlationId,
-      idempotencyKey: this.activeIdempotencyKey,
+      idempotencyKey: currentIdempotencyKey(),
       capabilityKey: 'commercial',
     });
     const outbox = buildOutboxForEvent(event);

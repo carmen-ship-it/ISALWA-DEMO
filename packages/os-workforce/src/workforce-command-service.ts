@@ -18,6 +18,8 @@ import {
   buildAuditEntry,
   buildBusinessEvent,
   buildOutboxForEvent,
+  currentIdempotencyKey,
+  withIdempotencyKey,
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
 import type { AuthProviderPort } from './auth-provider';
@@ -40,8 +42,6 @@ type ScheduledProviderEffect = {
 };
 
 export class WorkforceCommandService {
-  private activeIdempotencyKey?: string;
-
   constructor(
     private readonly store: OsWorkforceStore,
     private readonly authProvider: AuthProviderPort,
@@ -168,6 +168,17 @@ export class WorkforceCommandService {
     payload: Record<string, unknown>,
     idempotencyKey?: string,
   ): Promise<CommandResult> {
+    return withIdempotencyKey(idempotencyKey, () =>
+      this.runCommand(command, ctx, payload, idempotencyKey),
+    );
+  }
+
+  private async runCommand(
+    command: WorkforceCommandName,
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    idempotencyKey?: string,
+  ): Promise<CommandResult> {
     const actor = await this.store.getMemberInOrg(ctx.organizationId, ctx.actorMemberId);
     if (!actor) {
       throw new Error('TENANT_FORBIDDEN');
@@ -187,7 +198,6 @@ export class WorkforceCommandService {
     const postCommit: ScheduledProviderEffect[] = [];
 
     const result = await this.store.runInTransaction(async (store) => {
-      this.activeIdempotencyKey = idempotencyKey;
       let commandResult: CommandResult;
       switch (command) {
       case 'InviteMember':
@@ -381,7 +391,7 @@ export class WorkforceCommandService {
       primaryEntityId: primaryId,
       payload,
       correlationId: ctx.correlationId,
-      idempotencyKey: this.activeIdempotencyKey,
+      idempotencyKey: currentIdempotencyKey(),
       capabilityKey: 'workforce',
     });
     const outbox = buildOutboxForEvent(event);
