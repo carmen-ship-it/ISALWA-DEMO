@@ -302,9 +302,14 @@ describe('purchase request files stay outside stock and ERP', () => {
     const fragmentCode = fragment.replace(/\/\/.*$/gm, '');
     assert.doesNotMatch(fragmentCode, /reorderPoint|supplierPartyId|shortage/);
     assert.match(fragment, /stockAuthority/);
-    assert.match(panel, new RegExp(PURCHASE_REQUEST_BOUNDARY.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-    for (const label of Object.values(PURCHASE_REQUEST_STATUS_LABELS)) {
-      assert.match(panel, new RegExp(label));
+    // The panel renders the boundary from shared copy rather than repeating the
+    // sentence, so follow the binding instead of grepping the component for it.
+    assert.match(panel, /COMPRAS_COPY\.boundary/);
+    const comprasCopy = readFileSync(join(root, 'apps/os-web/lib/purchasing/queue.ts'), 'utf8');
+    assert.match(comprasCopy, /boundary: PURCHASE_REQUEST_BOUNDARY/);
+    assert.match(comprasCopy, /PURCHASE_REQUEST_BOUNDARY,/);
+    for (const status of Object.keys(PURCHASE_REQUEST_STATUS_LABELS)) {
+      assert.match(panel, new RegExp(`PURCHASE_REQUEST_STATUS_LABELS\\.${status}`));
     }
     assert.doesNotMatch(panel, /Unmounted/);
     assert.match(page, /PurchaseRequestPanel/);
