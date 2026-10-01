@@ -1,16 +1,19 @@
 import type { WorkforceCommandName, RequestContext } from '@isalwa/os-contracts';
 import {
   COMMAND_REQUIRED_SCOPES,
+  classifyRoleKey,
   hasSuspendActionableWork,
   isAdditionalAssignableScope,
-  isAdminScopeKey,
   isCommandReservedScope,
   isDelegableScope,
+  isRecognizedPermissionScope,
+  roleKeysThatConferAuthority,
 } from '@isalwa/os-contracts';
 import {
   assertMemberActive,
   assertTenantMatch,
   computeEffectiveScopes,
+  memberHasGrantedScope,
   memberHasScope,
   type MemberAccessSnapshot,
 } from '@isalwa/os-domain';
@@ -47,15 +50,26 @@ export class WorkforceCommandService {
     private readonly authProvider: AuthProviderPort,
   ) {}
 
+  /**
+   * Role keys and delegated scopes both arrive in computeEffectiveScopes as
+   * plain strings, so a job title (sales_rep) sits in the same set as a real
+   * scope. Only recognized permission definitions leave this method: a title or
+   * an unknown string can never satisfy memberHasScope. `delegations: false`
+   * answers "what does this member hold in their own right", which is what
+   * grant authority is checked against.
+   */
   private async snapshot(
     organizationId: string,
     memberId: string,
     asOf: Date,
+    options: { delegations: boolean } = { delegations: true },
   ): Promise<MemberAccessSnapshot | null> {
     const member = await this.store.getMemberInOrg(organizationId, memberId);
     if (!member) return null;
     const roles = await this.store.listRoleAssignmentsForMember(memberId, organizationId);
-    const delegations = await this.store.listDelegationsForDelegate(memberId, organizationId);
+    const delegations = options.delegations
+      ? await this.store.listDelegationsForDelegate(memberId, organizationId)
+      : [];
     const effectiveScopes = computeEffectiveScopes(
       roles.map((r) => ({
         roleKey: r.roleKey,
@@ -75,7 +89,7 @@ export class WorkforceCommandService {
       memberId: member.id,
       organizationId: member.organizationId,
       accessStatus: member.accessStatus,
-      roleKeys: effectiveScopes,
+      roleKeys: roleKeysThatConferAuthority(effectiveScopes),
       delegatedScopes: [],
     };
   }
@@ -122,32 +136,50 @@ export class WorkforceCommandService {
   }
 
   /**
-   * A delegated scope is a real grant, so delegation may pass on the approval
-   * capability or an admin scope the delegator actually holds — never a
-   * reserved scope and never an unrecognized string.
+   * A delegated scope is a real grant, so delegation is closed by default.
+   * A scope may be delegated only when all of these hold:
+   *   1. it is a recognized permission definition (an unknown string is never a grant);
+   *   2. it is not a reserved technical or QA scope;
+   *   3. it is on the explicit DELEGABLE_SCOPE_KEYS allowlist (a scope that is
+   *      merely absent from a denylist is not delegable);
+   *   4. the delegator holds it in their own right, through their own role
+   *      assignment. A scope received by delegation is not held, so a delegate
+   *      cannot pass it on.
    */
   private async assertScopesDelegable(
     ctx: RequestContext,
-    scopes: string[],
+    scopes: unknown,
     store: OsWorkforceStore,
-  ): Promise<void> {
-    let snap: MemberAccessSnapshot | null | undefined;
+  ): Promise<string[]> {
+    if (!Array.isArray(scopes) || scopes.length === 0) throw new Error('VALIDATION_FAILED');
+    if (!scopes.every((scope): scope is string => typeof scope === 'string')) {
+      throw new Error('VALIDATION_FAILED');
+    }
     for (const scope of scopes) {
       if (isCommandReservedScope(scope)) throw new Error('PERMISSION_DENIED');
-      if (isDelegableScope(scope)) continue;
-      if (!isAdminScopeKey(scope)) throw new Error('VALIDATION_FAILED');
-      if (snap === undefined) {
-        snap = await this.snapshot(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt);
-      }
-      if (!snap || !memberHasScope(snap, scope)) throw new Error('PERMISSION_DENIED');
+      if (!isRecognizedPermissionScope(scope)) throw new Error('VALIDATION_FAILED');
+      if (!isDelegableScope(scope)) throw new Error('PERMISSION_DENIED');
+    }
+    const held = await this.snapshot(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt, {
+      delegations: false,
+    });
+    if (!held) throw new Error('PERMISSION_DENIED');
+    for (const scope of scopes) {
+      if (!memberHasGrantedScope(held, scope)) throw new Error('PERMISSION_DENIED');
     }
     void store;
+    return scopes;
   }
 
   /**
-   * A role key is usually a job key (sales_rep) and stays free text. Technical
-   * and QA scopes are provisioned out of band, and a member may not raise their
-   * own admin authority beyond what they already hold.
+   * A role key is either a job title or a recognized permission definition.
+   * - Job titles (sales_rep) are stored as labels and confer nothing: the
+   *   authorization snapshot drops every key that is not a recognized scope.
+   * - Technical and QA scopes are provisioned out of band, never here.
+   * - Any other string (for example an unknown dotted string that looks like a
+   *   permission but is not one) is rejected, so a future privileged scope
+   *   cannot be stored as a "title" and become a grant later.
+   * - A member may not raise their own authority beyond what they hold.
    */
   private async assertRoleKeyAssignable(
     ctx: RequestContext,
@@ -155,10 +187,14 @@ export class WorkforceCommandService {
     targetMemberId: string | null,
     store: OsWorkforceStore,
   ): Promise<void> {
-    if (isCommandReservedScope(roleKey)) throw new Error('PERMISSION_DENIED');
-    if (targetMemberId !== ctx.actorMemberId || !isAdminScopeKey(roleKey)) return;
-    const snap = await this.snapshot(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt);
-    if (!snap || !memberHasScope(snap, roleKey)) throw new Error('PERMISSION_DENIED');
+    const kind = classifyRoleKey(roleKey);
+    if (kind === 'reserved') throw new Error('PERMISSION_DENIED');
+    if (kind === 'invalid') throw new Error('VALIDATION_FAILED');
+    if (kind === 'job_title' || targetMemberId !== ctx.actorMemberId) return;
+    const snap = await this.snapshot(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt, {
+      delegations: false,
+    });
+    if (!snap || !memberHasGrantedScope(snap, roleKey)) throw new Error('PERMISSION_DENIED');
     void store;
   }
 
@@ -815,11 +851,10 @@ export class WorkforceCommandService {
   ): Promise<CommandResult> {
     await this.authorize(ctx, 'GrantDelegation', ctx.organizationId, store);
     const delegateMemberId = String(payload.delegateMemberId);
-    const scopes = payload.scopes as string[];
     // A delegation covers the delegator's own approvals, so delegating to
     // yourself only ever adds authority.
     if (delegateMemberId === ctx.actorMemberId) throw new Error('PERMISSION_DENIED');
-    await this.assertScopesDelegable(ctx, scopes, store);
+    const scopes = await this.assertScopesDelegable(ctx, payload.scopes, store);
     const expiresAt = new Date(String(payload.expiresAt));
     if (expiresAt <= ctx.effectiveAt) throw new Error('VALIDATION_FAILED');
     const startsAt = payload.startsAt ? new Date(String(payload.startsAt)) : ctx.effectiveAt;

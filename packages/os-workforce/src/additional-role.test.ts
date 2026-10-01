@@ -2,7 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { createId } from '@isalwa/ts-utils';
 import { GrantAdditionalRolePayloadSchema, type RequestContext } from '@isalwa/os-contracts';
-import { computeEffectiveScopes, memberHasScope } from '@isalwa/os-domain';
+import { memberHasScope } from '@isalwa/os-domain';
 import { LocalAuthProviderPort } from './auth-provider';
 import { MemoryOsStore } from './memory-store';
 import { WorkforceCommandService } from './workforce-command-service';
@@ -48,15 +48,9 @@ async function harness() {
 
 async function activeKeys(store: MemoryOsStore, memberId: string, asOf: Date): Promise<string[]> {
   const roles = await store.listRoleAssignmentsForMember(memberId);
-  return computeEffectiveScopes(
-    roles.map((role) => ({
-      roleKey: role.roleKey,
-      effectiveAt: role.effectiveAt,
-      endedAt: role.endedAt,
-    })),
-    [],
-    asOf,
-  );
+  return roles
+    .filter((role) => role.endedAt === null && role.effectiveAt <= asOf)
+    .map((role) => role.roleKey);
 }
 
 describe('GrantAdditionalRole / EndAdditionalRole', () => {

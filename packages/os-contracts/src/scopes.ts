@@ -62,21 +62,38 @@ export function isAdminScopeKey(value: string): value is AdminScopeKey {
   return (ADMIN_SCOPE_KEYS as readonly string[]).includes(value.trim());
 }
 
+/** Acts on the delegator's own approvals (os-work matches delegatorMemberId to the approver). */
+export const APPROVAL_ACT_SCOPE = 'approval.act' as const;
+
 /**
- * Scopes GrantDelegation may hand out to any delegate. A delegation covers the
- * delegator's own approvals (os-work matches delegatorMemberId to the
- * approver); this mirrors DELEGATION_SCOPE_OPTIONS in the people UI. An admin
- * scope is delegable only when the delegator holds it, so coverage while
- * someone is away stays possible but never creates authority that nobody held.
+ * The complete, explicit list of scopes GrantDelegation may hand out. This is
+ * an allowlist: a scope that is not written here is not delegable, however it
+ * is classified elsewhere. Adding a new scope to ADMIN_SCOPE_KEYS or to the
+ * operations catalog does NOT make it delegable. Keys are written out on
+ * purpose instead of being derived from ADMIN_SCOPE_KEYS.
+ *
+ * Membership is necessary and not sufficient: the delegator must also hold the
+ * scope independently (through their own role assignment, never through a
+ * delegation they received), so a delegation never creates authority that
+ * nobody held and cannot be passed on down a chain.
+ *
+ * Technical and QA scopes (COMMAND_RESERVED_SCOPE_KEYS) must never appear here.
  * A delegated scope is a real grant: computeEffectiveScopes merges it with role
  * keys.
  */
-export const DELEGABLE_SCOPE_KEYS = ['approval.act'] as const;
+export const DELEGABLE_SCOPE_KEYS = [
+  APPROVAL_ACT_SCOPE,
+  'people.admin',
+  'master_data.admin',
+  'fiscal.admin',
+  'org.admin',
+] as const;
 
 export type DelegableScopeKey = (typeof DELEGABLE_SCOPE_KEYS)[number];
 
+/** Exact match only. A padded or re-cased string is a different string and is not delegable. */
 export function isDelegableScope(value: string): value is DelegableScopeKey {
-  return (DELEGABLE_SCOPE_KEYS as readonly string[]).includes(value.trim());
+  return (DELEGABLE_SCOPE_KEYS as readonly string[]).includes(value);
 }
 
 /** Command → required scope (minimum). */

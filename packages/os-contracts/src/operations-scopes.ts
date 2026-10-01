@@ -1,9 +1,14 @@
 import { hasExplicitScope } from './commercial-authority';
 import {
+  ADMIN_SCOPE_KEYS,
+  APPROVAL_ACT_SCOPE,
+  COMMERCIAL_AUTHORITY_SCOPE_KEYS,
   COMMERCIAL_ORDER_CONVERT_SCOPE,
   COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
+  COMMERCIAL_READ_SCOPE_KEYS,
   COMMERCIAL_TEAM_READ_SCOPE,
 } from './scopes';
+import { WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE } from './warehouse-task';
 
 /**
  * Operational access scopes. Explicit assignment only.
@@ -130,6 +135,69 @@ export const COMMAND_RESERVED_SCOPE_KEYS = [
 
 export function isCommandReservedScope(value: string): boolean {
   return (COMMAND_RESERVED_SCOPE_KEYS as readonly string[]).includes(value.trim());
+}
+
+/**
+ * Every permission definition the command layers check. A string that is not in
+ * this list is not a permission and must never be stored as a grant, however
+ * it is spelled. The list is closed: a new scope is recognized only when it is
+ * added here (or to one of the catalogs spread into it) in the same change that
+ * introduces its check. Recognized does not mean assignable or delegable: see
+ * COMMAND_RESERVED_SCOPE_KEYS and DELEGABLE_SCOPE_KEYS.
+ */
+export const RECOGNIZED_PERMISSION_SCOPE_KEYS = [
+  ...ADMIN_SCOPE_KEYS,
+  APPROVAL_ACT_SCOPE,
+  ...COMMERCIAL_READ_SCOPE_KEYS,
+  ...COMMERCIAL_AUTHORITY_SCOPE_KEYS,
+  ...OPERATIONS_ACCESS_SCOPE_KEYS,
+  ...TECHNICAL_ADMIN_SCOPE_KEYS,
+  WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE,
+  'coordination.decision.record',
+] as const;
+
+export type RecognizedPermissionScopeKey = (typeof RECOGNIZED_PERMISSION_SCOPE_KEYS)[number];
+
+/** Exact match. No trimming and no case folding: a near miss is not a permission. */
+export function isRecognizedPermissionScope(value: string): value is RecognizedPermissionScopeKey {
+  return (RECOGNIZED_PERMISSION_SCOPE_KEYS as readonly string[]).includes(value);
+}
+
+/**
+ * A job title (sales_rep, Gerente, "Jefe Comercial") is a label. It starts with
+ * a letter and holds only letters, digits, space, underscore, or hyphen. It has
+ * no dot, so it can never spell a permission: every permission definition is
+ * dotted (domain.action). This is a shape rule only, so it is never used on its
+ * own to confer authority: see roleKeysThatConferAuthority.
+ */
+const JOB_TITLE_ROLE_KEY = /^\p{L}[\p{L}\p{N} _-]{0,63}$/u;
+
+export type RoleKeyClass =
+  /** Technical or QA scope. Provisioned out of band, never through a command. */
+  | 'reserved'
+  /** A recognized, non-reserved permission definition. It confers authority. */
+  | 'scope'
+  /** A job title. Stored as a label. It confers no authority. */
+  | 'job_title'
+  /** Neither a permission nor a title (for example an unknown dotted string). Rejected. */
+  | 'invalid';
+
+export function classifyRoleKey(value: string): RoleKeyClass {
+  if (isCommandReservedScope(value)) return 'reserved';
+  if (isRecognizedPermissionScope(value)) return 'scope';
+  if (JOB_TITLE_ROLE_KEY.test(value)) return 'job_title';
+  return 'invalid';
+}
+
+/**
+ * A role key reaches computeEffectiveScopes as a plain string, next to real
+ * scopes. This is the gate in front of every authorization check: only keys
+ * that are recognized permission definitions can authorize anything. A job
+ * title, an unknown string, or a stale grant of a scope that no longer exists
+ * is dropped here, so it can never satisfy memberHasScope or a command check.
+ */
+export function roleKeysThatConferAuthority(roleKeys: readonly string[]): string[] {
+  return roleKeys.filter(isRecognizedPermissionScope);
 }
 
 export function isOperationsAccessScope(value: string): value is OperationsAccessScopeKey {

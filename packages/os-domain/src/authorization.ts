@@ -1,4 +1,4 @@
-import type { AdminScopeKey } from '@isalwa/os-contracts';
+import { isDelegableScope, isRecognizedPermissionScope, type AdminScopeKey } from '@isalwa/os-contracts';
 
 export type EffectiveRoleAssignment = {
   roleKey: string;
@@ -37,14 +37,17 @@ export function computeEffectiveScopes(
 ): string[] {
   const scopes = new Set<string>();
   for (const r of roles) {
-    if (isAssignmentActive(r.effectiveAt, r.endedAt, asOf)) {
+    // A job title or an unknown string is stored as a label. It is not a grant.
+    if (isAssignmentActive(r.effectiveAt, r.endedAt, asOf) && isRecognizedPermissionScope(r.roleKey)) {
       scopes.add(r.roleKey);
     }
   }
   for (const d of delegations) {
     if (d.revokedAt) continue;
     if (d.startsAt > asOf || d.expiresAt <= asOf) continue;
-    for (const s of d.scopes) scopes.add(s);
+    for (const s of d.scopes) {
+      if (isDelegableScope(s)) scopes.add(s);
+    }
   }
   return [...scopes];
 }

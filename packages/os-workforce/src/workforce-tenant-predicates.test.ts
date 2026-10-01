@@ -66,6 +66,18 @@ async function harness() {
   return { store, auth, svc, org, foreign, admin, otherAdmin, department, foreignDepartment };
 }
 
+/** Delegating approval.act requires holding it: give the delegator their own assignment. */
+async function holdApprovalAct(store: MemoryOsStore, orgId: string, memberId: string) {
+  await store.insertRoleAssignment({
+    id: createId(),
+    organizationId: orgId,
+    memberId,
+    roleKey: 'approval.act',
+    effectiveAt: new Date('2026-01-01'),
+    endedAt: null,
+  });
+}
+
 async function invite(
   svc: WorkforceCommandService,
   orgId: string,
@@ -171,6 +183,7 @@ describe('workforce tenant predicates', () => {
 
   it('grant delegation proves the delegate member in the session organization before the event', async () => {
     const { store, svc, org, admin } = await harness();
+    await holdApprovalAct(store, org.id, admin.member.id);
     const invited = await invite(svc, org.id, admin.member.id, 'delegate@isalwa.bo');
     const delegateMemberId = invited.data.memberId as string;
     const result = await svc.execute('GrantDelegation', ctx(org.id, admin.member.id), {
@@ -190,6 +203,7 @@ describe('workforce tenant predicates', () => {
 
   it('grant delegation treats a missing delegate and a foreign delegate the same and emits no success', async () => {
     const { store, svc, org, admin, otherAdmin } = await harness();
+    await holdApprovalAct(store, org.id, admin.member.id);
     const beforeEvents = store.businessEvents.length;
     const beforeDelegations = store.delegations.length;
 
