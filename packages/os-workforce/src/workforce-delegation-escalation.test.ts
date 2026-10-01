@@ -270,7 +270,7 @@ describe('S2 delegation and role escalation', () => {
     assert.equal(scopes.includes('org.admin'), false);
   });
 
-  it('still allows a people.admin to assign ordinary and admin roles to other members', async () => {
+  it('lets a people.admin store a job title on another member, and denies an admin scope they do not hold', async () => {
     const f = await fixture();
 
     await f.svc.execute('ChangeRole', ctx(f.org, f.admin), {
@@ -279,11 +279,14 @@ describe('S2 delegation and role escalation', () => {
     });
     assert.deepEqual(await storedRoleKeys(f.store, f.org, f.worker), ['sales_manager']);
 
-    await f.svc.execute('ChangeRole', ctx(f.org, f.admin), {
-      memberId: f.worker,
-      roleKey: 'master_data.admin',
-    });
-    assert.deepEqual(await effectiveScopesOf(f.store, f.org, f.worker), ['master_data.admin']);
+    await assert.rejects(
+      f.svc.execute('ChangeRole', ctx(f.org, f.admin), {
+        memberId: f.worker,
+        roleKey: 'master_data.admin',
+      }),
+      /PERMISSION_DENIED/,
+    );
+    assert.deepEqual(await storedRoleKeys(f.store, f.org, f.worker), ['sales_manager']);
   });
 
   it('still allows a member to keep their own role unchanged', async () => {
@@ -708,5 +711,190 @@ describe('S2 delegation and role escalation', () => {
         ['sales_manager'],
       );
     });
+  });
+});
+
+class CountingAuth extends LocalAuthProviderPort {
+  readonly sent: string[] = [];
+  override async createInvite(email: string): Promise<{ inviteRef: string }> {
+    this.sent.push(email);
+    return super.createInvite(email);
+  }
+}
+
+function assignmentState(store: MemoryOsStore, auth: CountingAuth): string {
+  return JSON.stringify({
+    members: store.members.map((member) => [member.id, member.accessStatus, member.employmentStatus]),
+    roles: store.roleAssignments.map((role) => [role.memberId, role.roleKey, role.endedAt?.toISOString() ?? null]),
+    persons: store.persons.map((person) => person.id),
+    identities: store.authIdentities.map((identity) => identity.id),
+    events: store.businessEvents.map((event) => event.id),
+    invites: auth.sent,
+  });
+}
+
+describe('cross-member role assignment requires independent possession', () => {
+  async function counted() {
+    const store = new MemoryOsStore();
+    const auth = new CountingAuth();
+    const svc = new WorkforceCommandService(store, auth);
+    const org = await store.seedOrganization('SYNTH DEMO', 'synth-cross');
+    const admin = await seedMember(store, org.id, ['people.admin']);
+    const worker = await seedMember(store, org.id, ['sales_rep']);
+    return { store, auth, svc, org: org.id, admin, worker };
+  }
+
+  async function terminatedPersonId(
+    svc: WorkforceCommandService,
+    org: string,
+    admin: string,
+  ): Promise<string> {
+    const invited = await svc.execute('InviteMember', ctx(org, admin), {
+      email: `leave-${createId()}@synth.example`,
+      givenName: 'Lea',
+      familyName: 'Ver',
+      roleKey: 'sales_rep',
+    });
+    const memberId = invited.data.memberId as string;
+    await svc.execute('ActivateMember', ctx(org, memberId), {
+      memberId,
+      providerSubject: `subject:${memberId}`,
+    });
+    await svc.execute('TerminateMember', ctx(org, admin), { memberId });
+    return invited.data.personId as string;
+  }
+
+  async function denyLeavesNothing(
+    run: () => Promise<unknown>,
+    store: MemoryOsStore,
+    auth: CountingAuth,
+  ): Promise<void> {
+    const before = assignmentState(store, auth);
+    await assert.rejects(run, /PERMISSION_DENIED/);
+    assert.equal(assignmentState(store, auth), before);
+  }
+
+  it('a people.admin-only actor cannot assign org.admin or integration.admin through ChangeRole, InviteMember, or RehireMember', async () => {
+    const f = await counted();
+    const personId = await terminatedPersonId(f.svc, f.org, f.admin);
+    for (const roleKey of ['org.admin', 'integration.admin'] as const) {
+      await denyLeavesNothing(
+        () => f.svc.execute('ChangeRole', ctx(f.org, f.admin), { memberId: f.worker, roleKey }),
+        f.store,
+        f.auth,
+      );
+      await denyLeavesNothing(
+        () =>
+          f.svc.execute('InviteMember', ctx(f.org, f.admin), {
+            email: `${roleKey}-${createId()}@synth.example`,
+            givenName: 'N',
+            familyName: 'N',
+            roleKey,
+          }),
+        f.store,
+        f.auth,
+      );
+      await denyLeavesNothing(
+        () =>
+          f.svc.execute('RehireMember', ctx(f.org, f.admin), {
+            personId,
+            email: `re-${roleKey}-${createId()}@synth.example`,
+            roleKey,
+          }),
+        f.store,
+        f.auth,
+      );
+    }
+    assert.deepEqual(await storedRoleKeys(f.store, f.org, f.worker), ['sales_rep']);
+    assert.deepEqual(await effectiveScopesOf(f.store, f.org, f.admin), ['people.admin']);
+  });
+
+  it('a scope held only by delegation cannot be assigned as a permanent role', async () => {
+    const f = await counted();
+    const holder = await seedMember(f.store, f.org, ['people.admin', 'org.admin']);
+    const delegate = await seedMember(f.store, f.org, ['people.admin']);
+    await f.svc.execute('GrantDelegation', ctx(f.org, holder), {
+      delegateMemberId: delegate,
+      scopes: ['org.admin'],
+      expiresAt: EXPIRES,
+    });
+    const personId = await terminatedPersonId(f.svc, f.org, f.admin);
+    await denyLeavesNothing(
+      () => f.svc.execute('ChangeRole', ctx(f.org, delegate), { memberId: f.worker, roleKey: 'org.admin' }),
+      f.store,
+      f.auth,
+    );
+    await denyLeavesNothing(
+      () =>
+        f.svc.execute('InviteMember', ctx(f.org, delegate), {
+          email: `del-${createId()}@synth.example`,
+          givenName: 'D',
+          familyName: 'D',
+          roleKey: 'org.admin',
+        }),
+      f.store,
+      f.auth,
+    );
+    await denyLeavesNothing(
+      () =>
+        f.svc.execute('RehireMember', ctx(f.org, delegate), {
+          personId,
+          email: `del-re-${createId()}@synth.example`,
+          roleKey: 'org.admin',
+        }),
+      f.store,
+      f.auth,
+    );
+    assert.deepEqual(await storedRoleKeys(f.store, f.org, f.worker), ['sales_rep']);
+  });
+
+  it('an actor who holds the scope independently may assign it', async () => {
+    const f = await counted();
+    const holder = await seedMember(f.store, f.org, ['people.admin', 'org.admin']);
+    const personId = await terminatedPersonId(f.svc, f.org, holder);
+
+    await f.svc.execute('ChangeRole', ctx(f.org, holder), { memberId: f.worker, roleKey: 'org.admin' });
+    assert.deepEqual(await effectiveScopesOf(f.store, f.org, f.worker), ['org.admin']);
+
+    const invited = await f.svc.execute('InviteMember', ctx(f.org, holder), {
+      email: `entitled-${createId()}@synth.example`,
+      givenName: 'E',
+      familyName: 'E',
+      roleKey: 'org.admin',
+    });
+    assert.deepEqual(await storedRoleKeys(f.store, f.org, invited.data.memberId as string), ['org.admin']);
+
+    const rehired = await f.svc.execute('RehireMember', ctx(f.org, holder), {
+      personId,
+      email: `entitled-re-${createId()}@synth.example`,
+      roleKey: 'org.admin',
+    });
+    assert.deepEqual(await storedRoleKeys(f.store, f.org, rehired.data.memberId as string), ['org.admin']);
+  });
+
+  it('a people.admin-only actor may still assign an ordinary job title, which grants no authority', async () => {
+    const f = await counted();
+    const personId = await terminatedPersonId(f.svc, f.org, f.admin);
+
+    await f.svc.execute('ChangeRole', ctx(f.org, f.admin), { memberId: f.worker, roleKey: 'sales_manager' });
+    assert.deepEqual(await storedRoleKeys(f.store, f.org, f.worker), ['sales_manager']);
+    assert.deepEqual(await effectiveScopesOf(f.store, f.org, f.worker), []);
+
+    const invited = await f.svc.execute('InviteMember', ctx(f.org, f.admin), {
+      email: `title-${createId()}@synth.example`,
+      givenName: 'T',
+      familyName: 'T',
+      roleKey: 'sales_rep',
+    });
+    assert.deepEqual(await storedRoleKeys(f.store, f.org, invited.data.memberId as string), ['sales_rep']);
+    assert.deepEqual(await effectiveScopesOf(f.store, f.org, invited.data.memberId as string), []);
+
+    const rehired = await f.svc.execute('RehireMember', ctx(f.org, f.admin), {
+      personId,
+      email: `title-re-${createId()}@synth.example`,
+      roleKey: 'Ventas Región',
+    });
+    assert.deepEqual(await storedRoleKeys(f.store, f.org, rehired.data.memberId as string), ['Ventas Región']);
+    assert.deepEqual(await effectiveScopesOf(f.store, f.org, rehired.data.memberId as string), []);
   });
 });

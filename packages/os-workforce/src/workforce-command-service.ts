@@ -179,18 +179,21 @@ export class WorkforceCommandService {
    * - Any other string (for example an unknown dotted string that looks like a
    *   permission but is not one) is rejected, so a future privileged scope
    *   cannot be stored as a "title" and become a grant later.
-   * - A member may not raise their own authority beyond what they hold.
+   * - A recognized authority scope may be assigned only when the actor holds
+   *   that scope through their own role assignment (`delegations: false`).
+   *   A scope received only by delegation does not count. The rule is the
+   *   same when the target is the actor, another member, or a new invite.
    */
   private async assertRoleKeyAssignable(
     ctx: RequestContext,
     roleKey: string,
-    targetMemberId: string | null,
+    _targetMemberId: string | null,
     store: OsWorkforceStore,
   ): Promise<void> {
     const kind = classifyRoleKey(roleKey);
     if (kind === 'reserved') throw new Error('PERMISSION_DENIED');
     if (kind === 'invalid') throw new Error('VALIDATION_FAILED');
-    if (kind === 'job_title' || targetMemberId !== ctx.actorMemberId) return;
+    if (kind === 'job_title') return;
     const snap = await this.snapshot(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt, {
       delegations: false,
     });
