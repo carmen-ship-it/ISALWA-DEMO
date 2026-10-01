@@ -20,6 +20,7 @@ import {
   CUSTOMER_CONVERSATION_SOURCE,
   WHATSAPP_NUMBER_PENDING,
   recordManualCustomerConversation,
+  type CustomerConversationAdmission,
   type ManualCustomerConversation,
   type CustomerConversationChannel,
   type RecordCustomerConversationInput,
@@ -27,6 +28,7 @@ import {
 import { getOsPrisma } from '@isalwa/os-database';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { resolveSession } from './os-session';
+import { createId } from '@isalwa/ts-utils';
 import { OS_STORE } from './os-store.module';
 
 function toManual(row: {
@@ -107,6 +109,39 @@ function prismaCreateFromManual(record: ManualCustomerConversation, createdAtIso
   };
 }
 
+/**
+ * Admits a conversation using only what the server knows. The client chooses the
+ * customer, channel, time and content. The record id, tenant, the member who
+ * entered it and that member's label come from the session / server and are never
+ * read from the request body.
+ */
+export function admitSessionConversation(input: {
+  body: unknown;
+  session: { organizationId: string; actorMemberId?: string | null };
+  /** Display label of the authenticated member, resolved server-side. */
+  enteredByLabel: string;
+  /** Canonical customer label from the Party record in this tenant. */
+  customerLabel: string;
+  id: string;
+}): CustomerConversationAdmission {
+  const actorMemberId = input.session.actorMemberId?.trim();
+  if (!actorMemberId) return { ok: false, reason: 'missing_entered_by' };
+
+  const draft =
+    input.body && typeof input.body === 'object' && !Array.isArray(input.body)
+      ? (input.body as RecordCustomerConversationInput)
+      : ({} as RecordCustomerConversationInput);
+
+  return recordManualCustomerConversation({
+    ...draft,
+    id: input.id,
+    organizationId: input.session.organizationId,
+    customerLabel: input.customerLabel,
+    enteredByMemberId: actorMemberId,
+    enteredByLabel: input.enteredByLabel,
+  });
+}
+
 @Controller('customer-conversations')
 export class CustomerConversationsController {
   constructor(@Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore) {}
@@ -157,15 +192,37 @@ export class CustomerConversationsController {
         throw new HttpException('Database unavailable', HttpStatus.SERVICE_UNAVAILABLE);
       }
 
-      const draft =
+      const customerId =
         body && typeof body === 'object' && !Array.isArray(body)
-          ? (body as RecordCustomerConversationInput)
-          : ({} as RecordCustomerConversationInput);
+          ? (body as { customerId?: unknown }).customerId
+          : undefined;
+      const requestedCustomerId = typeof customerId === 'string' ? customerId.trim() : '';
+      if (!requestedCustomerId) {
+        throw new HttpException('Invalid conversation: missing_customer', HttpStatus.BAD_REQUEST);
+      }
+      // The customer must be a Party of the session tenant. Label comes from that record.
+      const party = await prisma.osParty.findFirst({
+        where: { id: requestedCustomerId, organizationId: session.organizationId },
+        select: { displayName: true },
+      });
+      if (!party) {
+        throw new HttpException('Invalid conversation: unknown_customer', HttpStatus.BAD_REQUEST);
+      }
 
-      const admitted = recordManualCustomerConversation({
-        ...draft,
-        organizationId: session.organizationId,
-        enteredByMemberId: draft.enteredByMemberId ?? session.actorMemberId ?? null,
+      const person = await prisma.osPerson.findUnique({
+        where: { id: session.personId },
+        select: { givenName: true, familyName: true },
+      });
+      const enteredByLabel =
+        [person?.givenName, person?.familyName].filter(Boolean).join(' ').trim() ||
+        'Miembro del equipo';
+
+      const admitted = admitSessionConversation({
+        body,
+        session,
+        enteredByLabel,
+        customerLabel: party.displayName,
+        id: createId(),
       });
       if (!admitted.ok) {
         throw new HttpException(`Invalid conversation: ${admitted.reason}`, HttpStatus.BAD_REQUEST);
