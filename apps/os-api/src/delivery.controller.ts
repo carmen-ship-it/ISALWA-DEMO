@@ -15,6 +15,7 @@ import {
   canRecordProduction,
   canRecordPurchasing,
   canRecordWarehouseOutbound,
+  DeliveryQuantityExceedsOrderError,
 } from '@isalwa/os-contracts';
 import { getOsPrisma } from '@isalwa/os-database';
 import type { DeliveryCommandService } from '@isalwa/os-delivery';
@@ -27,8 +28,16 @@ import {
 } from './os-store.module';
 import type { DeliveryNotePdfService } from './delivery-note-pdf.service';
 
-function toHttp(err: unknown): HttpException {
+export function toHttp(err: unknown): HttpException {
   if (err instanceof HttpException) return err;
+  if (err instanceof DeliveryQuantityExceedsOrderError) {
+    // Status stays 400 as before; the body now says which ledger and lines were
+    // over the order quantity so the operator sees why the dispatch stopped.
+    return new HttpException(
+      { code: err.message, reason: err.reason, ledger: err.ledger, lines: err.lines },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
   const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';
   const status =
     code === 'AUTH_REQUIRED'

@@ -309,6 +309,19 @@ const NEWLY_VERIFIED = [
 const UNPROVEN_AUTH_PATH = [] as const;
 
 const HTTP_CLASSIFICATION: Record<string, string> = {
+  // Reads that shipped without a read-authorization pass. These labels claim no
+  // proof: do not promote one to VERIFIED without an actual review and test.
+  // Tracked as S19 in docs/reviews/V1_REPAIR_LEDGER.md.
+  'GET /ai/capability': 'TENANT-SCOPED|READ_AUTHORIZATION_UNREVIEWED',
+  'GET /customer-conversations': 'TENANT-SCOPED|READ_AUTHORIZATION_UNREVIEWED',
+  'GET /parties/:partyId/contacts': 'TENANT-SCOPED|READ_AUTHORIZATION_UNREVIEWED',
+  'GET /delivery-notes': 'TENANT-SCOPED|READ_AUTHORIZATION_UNREVIEWED',
+  'GET /delivery-notes/:id/pdf': 'TENANT-SCOPED|READ_AUTHORIZATION_UNREVIEWED',
+  'GET /delivery-ops/orders': 'SCOPE-CHECKED|LOCAL_PROOF_MISSING',
+  'GET /delivery-ops/orders/:orderId': 'SCOPE-CHECKED|LOCAL_PROOF_MISSING',
+  'GET /delivery-ops/orders/:orderId/documents': 'SCOPE-CHECKED|LOCAL_PROOF_MISSING',
+  'GET /fulfillment/deliveries': 'SCOPE-CHECKED|LOCAL_PROOF_MISSING',
+  'GET /fulfillment/warehouse-exits': 'SCOPE-CHECKED|LOCAL_PROOF_MISSING',
   'GET /parties': 'LOCAL_FUNCTION_VERIFIED',
   'GET /parties/:partyId/timeline': 'LOCAL_FUNCTION_VERIFIED',
   'GET /members': 'LOCAL_FUNCTION_VERIFIED',
@@ -379,6 +392,10 @@ describe('os-api inspection read inventory', () => {
     const classified = Object.keys(HTTP_CLASSIFICATION).sort();
     assert.deepEqual(found, classified);
     assert.equal(NEWLY_VERIFIED.length, 18);
+    const unreviewed = Object.entries(HTTP_CLASSIFICATION).filter(
+      ([, state]) => state.includes('UNREVIEWED') || state.includes('LOCAL_PROOF_MISSING'),
+    );
+    assert.equal(unreviewed.length, 10, 'a newly added read must be reviewed, not just listed');
     assert.equal(UNPROVEN_AUTH_PATH.length, 0);
     assert.equal(
       HTTP_CLASSIFICATION['GET /locations/:locationId'],
