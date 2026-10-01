@@ -58,6 +58,27 @@ export function isAdditionalAssignableScope(value: string): value is AdditionalA
 
 export type AdminScopeKey = (typeof ADMIN_SCOPE_KEYS)[number];
 
+export function isAdminScopeKey(value: string): value is AdminScopeKey {
+  return (ADMIN_SCOPE_KEYS as readonly string[]).includes(value.trim());
+}
+
+/**
+ * Scopes GrantDelegation may hand out to any delegate. A delegation covers the
+ * delegator's own approvals (os-work matches delegatorMemberId to the
+ * approver); this mirrors DELEGATION_SCOPE_OPTIONS in the people UI. An admin
+ * scope is delegable only when the delegator holds it, so coverage while
+ * someone is away stays possible but never creates authority that nobody held.
+ * A delegated scope is a real grant: computeEffectiveScopes merges it with role
+ * keys.
+ */
+export const DELEGABLE_SCOPE_KEYS = ['approval.act'] as const;
+
+export type DelegableScopeKey = (typeof DELEGABLE_SCOPE_KEYS)[number];
+
+export function isDelegableScope(value: string): value is DelegableScopeKey {
+  return (DELEGABLE_SCOPE_KEYS as readonly string[]).includes(value.trim());
+}
+
 /** Command → required scope (minimum). */
 export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_active'> = {
   InviteMember: 'people.admin',

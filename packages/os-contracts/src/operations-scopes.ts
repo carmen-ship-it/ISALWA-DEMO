@@ -118,6 +118,20 @@ export type OperationsAccessScopeKey = (typeof OPERATIONS_ACCESS_SCOPE_KEYS)[num
 
 export const TECHNICAL_ADMIN_SCOPE_KEYS = [SYSTEM_ADMIN_SCOPE, INTEGRATION_ADMIN_SCOPE] as const;
 
+/**
+ * Never granted through a workforce command. These are provisioned out of band
+ * (platform setup, staging grant scripts) so that no org-level people admin can
+ * hand themselves or anyone else technical or QA authority.
+ */
+export const COMMAND_RESERVED_SCOPE_KEYS = [
+  ...TECHNICAL_ADMIN_SCOPE_KEYS,
+  QA_ACCESS_SCOPE,
+] as const;
+
+export function isCommandReservedScope(value: string): boolean {
+  return (COMMAND_RESERVED_SCOPE_KEYS as readonly string[]).includes(value.trim());
+}
+
 export function isOperationsAccessScope(value: string): value is OperationsAccessScopeKey {
   return (OPERATIONS_ACCESS_SCOPE_KEYS as readonly string[]).includes(value);
 }

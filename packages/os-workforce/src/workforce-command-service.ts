@@ -3,6 +3,9 @@ import {
   COMMAND_REQUIRED_SCOPES,
   hasSuspendActionableWork,
   isAdditionalAssignableScope,
+  isAdminScopeKey,
+  isCommandReservedScope,
+  isDelegableScope,
 } from '@isalwa/os-contracts';
 import {
   assertMemberActive,
@@ -90,6 +93,72 @@ export class WorkforceCommandService {
     const required = COMMAND_REQUIRED_SCOPES[command];
     if (required === 'member_active') return;
     if (!required || !memberHasScope(snap, required)) throw new Error('PERMISSION_DENIED');
+    void store;
+  }
+
+  /**
+   * OsPerson has no organization column and os_auth_identities is keyed by
+   * person, so one login can serve memberships in several organizations. An
+   * org-scoped admin must not reach a login that another organization also
+   * depends on.
+   */
+  private async personBelongsToAnotherOrg(
+    personId: string,
+    organizationId: string,
+    store: OsWorkforceStore,
+  ): Promise<boolean> {
+    const memberships = await store.listMembersForPerson(personId);
+    return memberships.some((member) => member.organizationId !== organizationId);
+  }
+
+  private async assertPersonOnlyBelongsToOrg(
+    personId: string,
+    organizationId: string,
+    store: OsWorkforceStore,
+  ): Promise<void> {
+    if (await this.personBelongsToAnotherOrg(personId, organizationId, store)) {
+      throw new Error('PERMISSION_DENIED');
+    }
+  }
+
+  /**
+   * A delegated scope is a real grant, so delegation may pass on the approval
+   * capability or an admin scope the delegator actually holds — never a
+   * reserved scope and never an unrecognized string.
+   */
+  private async assertScopesDelegable(
+    ctx: RequestContext,
+    scopes: string[],
+    store: OsWorkforceStore,
+  ): Promise<void> {
+    let snap: MemberAccessSnapshot | null | undefined;
+    for (const scope of scopes) {
+      if (isCommandReservedScope(scope)) throw new Error('PERMISSION_DENIED');
+      if (isDelegableScope(scope)) continue;
+      if (!isAdminScopeKey(scope)) throw new Error('VALIDATION_FAILED');
+      if (snap === undefined) {
+        snap = await this.snapshot(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt);
+      }
+      if (!snap || !memberHasScope(snap, scope)) throw new Error('PERMISSION_DENIED');
+    }
+    void store;
+  }
+
+  /**
+   * A role key is usually a job key (sales_rep) and stays free text. Technical
+   * and QA scopes are provisioned out of band, and a member may not raise their
+   * own admin authority beyond what they already hold.
+   */
+  private async assertRoleKeyAssignable(
+    ctx: RequestContext,
+    roleKey: string,
+    targetMemberId: string | null,
+    store: OsWorkforceStore,
+  ): Promise<void> {
+    if (isCommandReservedScope(roleKey)) throw new Error('PERMISSION_DENIED');
+    if (targetMemberId !== ctx.actorMemberId || !isAdminScopeKey(roleKey)) return;
+    const snap = await this.snapshot(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt);
+    if (!snap || !memberHasScope(snap, roleKey)) throw new Error('PERMISSION_DENIED');
     void store;
   }
 
@@ -344,6 +413,7 @@ export class WorkforceCommandService {
     const givenName = String(payload.givenName);
     const familyName = String(payload.familyName);
     const roleKey = String(payload.roleKey);
+    await this.assertRoleKeyAssignable(ctx, roleKey, null, store);
     const departmentId = payload.departmentId ? String(payload.departmentId) : undefined;
     if (departmentId) {
       const department = await store.getDepartmentInOrg(ctx.organizationId, departmentId);
@@ -512,6 +582,8 @@ export class WorkforceCommandService {
 
     if (ctx.actorMemberId !== memberId) {
       await this.authorize(ctx, 'ChangeRole', ctx.organizationId, store);
+      // The person may sign in to another organization with this identity.
+      await this.assertPersonOnlyBelongsToOrg(member.personId, ctx.organizationId, store);
     } else {
       assertTenantMatch(ctx.organizationId, member.organizationId);
       assertMemberActive((await this.snapshot(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt))!);
@@ -590,6 +662,7 @@ export class WorkforceCommandService {
     const effectiveAt = payload.effectiveAt ? new Date(String(payload.effectiveAt)) : ctx.effectiveAt;
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
+    await this.assertRoleKeyAssignable(ctx, roleKey, memberId, store);
 
     // Primary-role replacement: ends every active assignment, including
     // additional permissions. Additive grants use GrantAdditionalRole.
@@ -733,6 +806,10 @@ export class WorkforceCommandService {
     await this.authorize(ctx, 'GrantDelegation', ctx.organizationId, store);
     const delegateMemberId = String(payload.delegateMemberId);
     const scopes = payload.scopes as string[];
+    // A delegation covers the delegator's own approvals, so delegating to
+    // yourself only ever adds authority.
+    if (delegateMemberId === ctx.actorMemberId) throw new Error('PERMISSION_DENIED');
+    await this.assertScopesDelegable(ctx, scopes, store);
     const expiresAt = new Date(String(payload.expiresAt));
     if (expiresAt <= ctx.effectiveAt) throw new Error('VALIDATION_FAILED');
     const startsAt = payload.startsAt ? new Date(String(payload.startsAt)) : ctx.effectiveAt;
@@ -798,8 +875,15 @@ export class WorkforceCommandService {
       version: member.version + 1,
     });
 
+    // Sessions are person-wide; suspending here must not sign the person out of
+    // another organization. Suspended access is enforced on every request.
+    const sharedLogin = await this.personBelongsToAnotherOrg(
+      member.personId,
+      ctx.organizationId,
+      store,
+    );
     const auth = await store.findAuthIdentityByPersonAndStatus(member.personId, 'active');
-    if (auth?.providerSubject) {
+    if (auth?.providerSubject && !sharedLogin) {
       this.scheduleProviderRevokeSessions(postCommit, memberId, auth.providerSubject);
     }
 
@@ -835,8 +919,16 @@ export class WorkforceCommandService {
       version: member.version + 1,
     });
 
+    // Membership access above is revoked and enforced on every request. The
+    // login itself is person-wide, so leave it alone when another organization
+    // still depends on it.
+    const sharedLogin = await this.personBelongsToAnotherOrg(
+      member.personId,
+      ctx.organizationId,
+      store,
+    );
     const auth = await store.findAuthIdentityByPersonAndStatus(member.personId, 'active');
-    if (auth?.providerSubject) {
+    if (auth?.providerSubject && !sharedLogin) {
       await store.updateAuthIdentity(auth.id, {
         status: 'revoked',
         revokedAt: ctx.effectiveAt,
@@ -876,6 +968,10 @@ export class WorkforceCommandService {
     // have zero memberships here, so both are NOT_FOUND. Do not call getPerson.
     const priorMembers = await store.listMembersForPerson(personId, ctx.organizationId);
     if (priorMembers.length === 0) throw new Error('NOT_FOUND');
+    // A new identity on this person would also unlock the organizations it
+    // already belongs to, so rehire stays limited to persons only known here.
+    await this.assertPersonOnlyBelongsToOrg(personId, ctx.organizationId, store);
+    await this.assertRoleKeyAssignable(ctx, roleKey, null, store);
 
     const invite = await this.authProvider.createInvite(email);
 
