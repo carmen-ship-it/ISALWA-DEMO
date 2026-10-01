@@ -8,7 +8,12 @@ import type {
   QuestionCandidate,
 } from "@/types";
 
-const CATALOG: QuestionCandidate[] = [
+/**
+ * Exported (read-only) so orchestration/UI layers — e.g. the Guided
+ * Assessment stage mapping — can look up the canonical prompt/kind for a
+ * question key without duplicating copy. Selection logic is unchanged.
+ */
+export const CATALOG: QuestionCandidate[] = [
   {
     key: "sales_motion",
     prompt: "¿Cómo funcionan hoy las ventas, del primer contacto al pedido cerrado?",
@@ -233,6 +238,11 @@ function candidateToQuestion(candidate: QuestionCandidate): Question {
     placeholder: candidate.placeholder ?? "Cuéntenos cómo es en la práctica…",
     helpText: helpParts.join(" · "),
   };
+}
+
+/** Look up a base catalog entry by key — display-only convenience. */
+export function catalogByKey(key: string): QuestionCandidate | null {
+  return CATALOG.find((item) => item.key === key) ?? null;
 }
 
 export function markQuestionAsked(

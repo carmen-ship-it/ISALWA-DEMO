@@ -31,6 +31,7 @@ export function SectionShell({
   icon: Icon,
   children,
   className,
+  id,
 }: {
   tone?: SectionTone;
   kicker?: string;
@@ -39,9 +40,11 @@ export function SectionShell({
   icon?: LucideIcon;
   children: ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
     <section
+      id={id}
       className={cn(
         "rounded-3xl border px-5 py-6 sm:px-7 sm:py-8",
         TONE_CLASS[tone],

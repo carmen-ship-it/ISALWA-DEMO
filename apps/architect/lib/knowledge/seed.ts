@@ -137,7 +137,7 @@ export function knowledgeTimelineEvents(
     }));
 }
 
-function timelineTitleForAsset(asset: KnowledgeAsset): string {
+export function timelineTitleForAsset(asset: KnowledgeAsset): string {
   switch (asset.type) {
     case "customer_list":
       return "Customer Database Imported";

@@ -105,6 +105,12 @@ export interface CompanyWorkspace {
    */
   brandExperience: import("./brand").BrandExperienceModel | null;
   /**
+   * White Label Company Experience — consultant-configured overrides layered
+   * on top of `brandExperience`. Independent of blueprint regeneration; only
+   * changes when the consultant edits brand settings.
+   */
+  brandOverrides: import("./brand").BrandOverrides | null;
+  /**
    * Mission 12 — Company Digital Twin.
    */
   companyModel: import("./company-model").CompanyModel | null;

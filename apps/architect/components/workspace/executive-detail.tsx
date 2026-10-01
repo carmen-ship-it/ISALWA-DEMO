@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils";
 export function ExecutiveDetail({
   summary,
   children,
-  labelExpand = "View supporting detail",
-  labelCollapse = "Hide detail",
+  labelExpand = "Ver detalle de soporte",
+  labelCollapse = "Ocultar detalle",
   defaultOpen = false,
   className,
 }: {

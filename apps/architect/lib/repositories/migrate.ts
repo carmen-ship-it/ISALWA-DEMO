@@ -78,6 +78,7 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
         businessProcesses: workspace.businessProcesses ?? null,
         deliverables: workspace.deliverables ?? null,
         brandExperience: workspace.brandExperience ?? null,
+        brandOverrides: workspace.brandOverrides ?? null,
         companyModel: workspace.companyModel ?? null,
         implementationPackage: workspace.implementationPackage ?? null,
         evolutionHistory: workspace.evolutionHistory,

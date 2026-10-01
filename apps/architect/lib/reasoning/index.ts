@@ -6,7 +6,12 @@ export {
   computeDiscoveryScore,
   CONCLUSION_THRESHOLD,
 } from "./confidence/score";
-export { planNextQuestion, formatThinkingPreamble } from "./planner/next-question";
+export {
+  planNextQuestion,
+  formatThinkingPreamble,
+  markQuestionAsked,
+  catalogByKey,
+} from "./planner/next-question";
 export { generateInsights } from "./observations/insights";
 export { generateOpportunities, impactLabel } from "./recommendations/opportunities";
 export { detectIndustry, industryLabel } from "./industry/detect";

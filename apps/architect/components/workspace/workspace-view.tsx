@@ -14,6 +14,7 @@ import {
   Map,
   Network,
   Route,
+  Sparkles,
 } from "lucide-react";
 import { ArchitectNav } from "@/components/nav/architect-nav";
 import { BackLink } from "@/components/nav/back-link";
@@ -24,13 +25,20 @@ import { BusinessBlueprintPanel } from "@/components/workspace/business-blueprin
 import { SolutionArchitecturePanel } from "@/components/workspace/solution-architecture-panel";
 import { BusinessProcessesPanel } from "@/components/workspace/business-processes-panel";
 import { DeliverablesPanel } from "@/components/workspace/deliverables-panel";
+import { ExecutiveSimulatorPanel } from "@/components/workspace/executive-simulator-panel";
 import { BrandExperiencePanel } from "@/components/workspace/brand-experience-panel";
 import { CompanyEvolutionPanel } from "@/components/workspace/company-evolution-panel";
 import { CompanyModelPanel } from "@/components/workspace/company-model-panel";
 import { AnimatedBlueprint } from "@/components/workspace/executive/animated-blueprint";
 import { ConfidenceMeter } from "@/components/workspace/executive/confidence-meter";
+import { ContextBar } from "@/components/workspace/executive/context-bar";
+import { DiscoveryCelebration } from "@/components/workspace/executive/discovery-celebration";
 import { DiscoveryJourney } from "@/components/workspace/executive/discovery-journey";
 import { ExecutiveDashboard } from "@/components/workspace/executive/executive-dashboard";
+import {
+  GuidedJourney,
+  type GuidedJourneyStage,
+} from "@/components/workspace/executive/guided-journey";
 import { ModuleInsightCards } from "@/components/workspace/executive/module-insight-cards";
 import { ReasoningCards } from "@/components/workspace/executive/reasoning-cards";
 import { KnowledgeCenter } from "@/components/workspace/knowledge-center";
@@ -42,6 +50,7 @@ import {
 import { SectionShell } from "@/components/workspace/section-shell";
 import { WelcomeBanner } from "@/components/workspace/welcome-banner";
 import {
+  workspaceTabsForRole,
   WorkspaceTabs,
   type WorkspaceTabId,
 } from "@/components/workspace/workspace-tabs";
@@ -120,6 +129,16 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace],
   );
 
+  const visibleTabs = useMemo(
+    () => workspaceTabsForRole(session?.role),
+    [session?.role],
+  );
+
+  useEffect(() => {
+    if (visibleTabs.some((t) => t.id === tab)) return;
+    setTab(visibleTabs[0]?.id ?? "executive");
+  }, [visibleTabs, tab]);
+
   const explainedRecommendations = useMemo(
     () => (workspace ? explainWorkspaceRecommendations(workspace) : []),
     [workspace],
@@ -188,9 +207,84 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           summary: "Paso sugerido a partir de lo que ya sabemos.",
         }));
 
+  // Guided Journey — the five consulting stages, in order. Completion comes
+  // from data already derived by lib/executive; the roadmap step reuses the
+  // same roadmapItems list built above. Presentation only — no new engine.
+  const hasBlueprint = workspace.blueprints.length > 0;
+  const hasSolution = workspace.solutionArchitecture != null;
+  const journeyStages: GuidedJourneyStage[] = [
+    {
+      id: "understand",
+      label: "Entender la empresa",
+      detail: executive.journey[1]?.detail ?? "Comprendiendo cómo opera el negocio.",
+      complete: workspace.businessUnderstanding >= 40,
+      tab: session?.role === "consultant" ? "assessment" : "executive",
+    },
+    {
+      id: "opportunities",
+      label: "Identificar oportunidades",
+      detail:
+        workspace.painPoints.length > 0
+          ? `${workspace.painPoints.length} oportunidad${workspace.painPoints.length === 1 ? "" : "es"} con evidencia`
+          : "Las oportunidades emergen con más discovery.",
+      complete: workspace.painPoints.length > 0,
+      tab: "recommendations",
+    },
+    {
+      id: "future_model",
+      label: "Diseñar el modelo futuro",
+      detail: hasBlueprint
+        ? "Modelo de negocio futuro disponible"
+        : "Pendiente de un plan de negocio",
+      complete: hasBlueprint,
+      tab: "blueprint",
+    },
+    {
+      id: "software",
+      label: "Recomendar el sistema",
+      detail: hasSolution
+        ? `${workspace.solutionArchitecture!.modules.length} capacidades recomendadas`
+        : "Pendiente de sistema recomendado",
+      complete: hasSolution,
+      tab: "architecture",
+    },
+    {
+      id: "roadmap",
+      label: "Plan de implementación",
+      detail:
+        roadmapPhases.length > 0
+          ? `${roadmapPhases.length} fase${roadmapPhases.length === 1 ? "" : "s"} definidas`
+          : "El plan aparece cuando el sistema recomendado toma forma.",
+      complete: roadmapPhases.length > 0,
+      tab: "roadmap",
+    },
+  ];
+
+  const currentStage =
+    journeyStages.find((s) => s.tab === tab) ??
+    journeyStages.find((s) => !s.complete) ??
+    journeyStages[journeyStages.length - 1]!;
+
+  const nextGoalLabel =
+    executive.dashboard.executiveRecommendation ??
+    executive.dashboard.priorities[0] ??
+    workspace.suggestedNextMeeting ??
+    "Continuar el diagnóstico";
+
+  const todayProgressItems = journeyStages.map((s) => ({
+    label: s.label,
+    complete: s.complete,
+  }));
+
   const panels: Record<WorkspaceTabId, ReactNode> = {
     executive: (
       <div className="space-y-8">
+        <DiscoveryCelebration
+          workspaceId={workspace.id}
+          companyName={workspace.companyName}
+          understanding={workspace.businessUnderstanding}
+        />
+
         <WelcomeBanner
           displayName={displayName}
           understanding={workspace.businessUnderstanding}
@@ -198,8 +292,27 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           estimatedMinutes={briefing.estimatedMinutesRemaining}
           continueHref={interviewHref}
           continueLabel="Continuar evaluación"
-          onExplore={() => setTab("recommendations")}
+          progressItems={todayProgressItems}
+          onExplore={() => {
+            document
+              .getElementById("resumen-ejecutivo")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
         />
+
+        <SectionShell
+          tone="blueprint"
+          icon={Route}
+          kicker="Su recorrido"
+          title="El camino de consultoría"
+          description="Cinco etapas, en orden. Toque cualquiera para saltar a esa sección."
+        >
+          <GuidedJourney
+            stages={journeyStages}
+            activeTab={tab}
+            onSelectStage={setTab}
+          />
+        </SectionShell>
 
         <SectionShell
           tone="health"
@@ -216,7 +329,12 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           </Card>
         </SectionShell>
 
-        <SectionShell tone="executive" icon={ClipboardList}>
+        <SectionShell
+          tone="executive"
+          icon={ClipboardList}
+          id="resumen-ejecutivo"
+          className="scroll-mt-28"
+        >
           <ExecutiveDashboard
             model={executive.dashboard}
             cockpit={executive.cockpit}
@@ -503,6 +621,25 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       </div>
     ),
 
+    simulator: (
+      <div className="space-y-8">
+        <SectionShell
+          tone="executive"
+          icon={Sparkles}
+          kicker="Simulador ejecutivo"
+          title="¿Qué pasa si…?"
+          description="Explore decisiones antes de tomarlas — sin tocar la información real de su empresa."
+        >
+          <ExecutiveSimulatorPanel workspace={workspace} />
+        </SectionShell>
+        <NextStepCta
+          description="Use esto para preparar la conversación de decisión — no reemplaza el diagnóstico."
+          primaryHref={interviewHref}
+          primaryLabel="Continuar evaluación"
+        />
+      </div>
+    ),
+
     roadmap: (
       <div className="space-y-8">
         <SectionShell
@@ -632,6 +769,15 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         />
       </header>
 
+      <div className="mt-8 -mx-6 sm:-mx-10">
+        <ContextBar
+          companyName={workspace.companyName}
+          stageLabel={currentStage.label}
+          understanding={workspace.businessUnderstanding}
+          nextGoal={nextGoalLabel}
+        />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -641,6 +787,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           active={tab}
           onChange={setTab}
           panels={panelsWithTabLinks}
+          tabs={visibleTabs}
         />
       </motion.div>
 

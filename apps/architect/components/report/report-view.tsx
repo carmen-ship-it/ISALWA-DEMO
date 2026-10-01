@@ -15,10 +15,13 @@ import type { DiscoveryReport } from "@/types";
 
 function Section({
   title,
+  intro,
   children,
   delay = 0,
 }: {
   title: string;
+  /** One-sentence connective lead-in — frames why this section is here. Presentation only. */
+  intro?: string;
   children: ReactNode;
   delay?: number;
 }) {
@@ -29,9 +32,14 @@ function Section({
       transition={{ duration: 0.45, delay }}
       className="space-y-4"
     >
-      <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-500">
-        {title}
-      </h2>
+      <div>
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-500">
+          {title}
+        </h2>
+        {intro ? (
+          <p className="mt-1.5 text-sm italic text-neutral-400">{intro}</p>
+        ) : null}
+      </div>
       <div className="text-base leading-relaxed text-neutral-800">{children}</div>
     </motion.section>
   );

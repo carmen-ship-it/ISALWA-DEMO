@@ -40,6 +40,18 @@ export const KNOWLEDGE_EXTRACTION_PROVIDERS: readonly KnowledgeExtractionProvide
       "designed",
     ),
     provider(
+      "word_reader",
+      "Word Reader",
+      "Parse Word documents, meeting notes, and policies into evidence.",
+      "designed",
+    ),
+    provider(
+      "presentation_reader",
+      "Presentation Reader",
+      "Parse PowerPoint decks into evidence.",
+      "designed",
+    ),
+    provider(
       "excel_reader",
       "Excel Reader",
       "Read customer lists, sales history, and operational spreadsheets.",

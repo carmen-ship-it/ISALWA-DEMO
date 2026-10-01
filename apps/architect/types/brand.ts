@@ -197,6 +197,48 @@ export interface ExperienceProfile {
   notificationPreferences: NotificationChannelPreference[];
 }
 
+/**
+ * White Label Company Experience — manual brand configuration captured by the
+ * consultant and layered on top of the derived `BrandExperienceModel`.
+ *
+ * This is deliberately separate from `FutureWhiteLabelConfig` (multi-tenant
+ * SaaS readiness, still `enabled: false`). `BrandOverrides` is single-tenant,
+ * per-workspace cosmetic configuration — no new tenancy model, no parallel
+ * branding system. It never regenerates automatically; it persists across
+ * blueprint-driven `brandExperience` recalculation and is merged at
+ * presentation time via `applyBrandOverrides()` (`lib/brand/overrides.ts`).
+ */
+export interface BrandReportBrandingOverrides {
+  showLogoOnReports: boolean;
+  footerText: string | null;
+}
+
+export interface BrandOverrides {
+  logoUrl: string | null;
+  primaryColor: string | null;
+  accentColor: string | null;
+  /** Free-text override for `brandProfile.industryPositioning`. */
+  industryPositioning: string | null;
+  /** Custom welcome message shown on the workspace home/executive view. */
+  homepageMessage: string | null;
+  /**
+   * Descriptive preference only (e.g. "line", "flat", "photographic").
+   * No illustration rendering system exists yet — captured for a future
+   * mission, never wired to visuals. See WHITE_LABEL_EXPERIENCE.md gaps.
+   */
+  illustrationStyle: string | null;
+  /**
+   * Keyed by `${TerminologyEntry.term}::${TerminologyEntry.preferredLabel}` —
+   * a stable content key, since entry ids are regenerated on every
+   * blueprint-driven derivation. Covers both business terminology (Customer,
+   * Order, Employee…) and department display names (`term === "Department"`).
+   */
+  terminologyOverrides: Record<string, string>;
+  reportBranding: BrandReportBrandingOverrides;
+  updatedAt: string;
+  updatedBy: string | null;
+}
+
 /** Multi-tenant white-label readiness — contracts only. */
 export interface FutureWhiteLabelConfig {
   enabled: boolean;

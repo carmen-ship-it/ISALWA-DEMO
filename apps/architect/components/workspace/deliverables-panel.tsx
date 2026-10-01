@@ -33,18 +33,18 @@ type TabId =
   | "exports";
 
 const TABS: Array<{ id: TabId; label: string }> = [
-  { id: "executive", label: "Executive Summary" },
-  { id: "assessment", label: "Business Assessment" },
-  { id: "blueprint", label: "Blueprint" },
-  { id: "solution", label: "Architecture" },
-  { id: "processes", label: "Processes" },
-  { id: "prd", label: "Requirements" },
-  { id: "roadmap", label: "Roadmap" },
-  { id: "cursor", label: "Build Brief" },
-  { id: "implementation", label: "Implementation Plan" },
-  { id: "backlog", label: "Work Backlog" },
-  { id: "proposal", label: "Proposal" },
-  { id: "exports", label: "Export Options" },
+  { id: "executive", label: "Resumen ejecutivo" },
+  { id: "assessment", label: "Diagnóstico del negocio" },
+  { id: "blueprint", label: "Plan de negocio" },
+  { id: "solution", label: "Arquitectura" },
+  { id: "processes", label: "Procesos" },
+  { id: "prd", label: "Requisitos" },
+  { id: "roadmap", label: "Hoja de ruta" },
+  { id: "cursor", label: "Brief técnico" },
+  { id: "implementation", label: "Plan de implementación" },
+  { id: "backlog", label: "Backlog de trabajo" },
+  { id: "proposal", label: "Propuesta" },
+  { id: "exports", label: "Opciones de exportación" },
 ];
 
 export function DeliverablesPanel({
@@ -89,19 +89,20 @@ export function DeliverablesPanel({
         />
         <Card className="px-5 py-6">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-            Deliverables
+            Documentos
           </p>
           <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
-            Consulting package
+            Paquete de consultoría
           </h3>
           <p className="mt-3 text-neutral-600">
-            Generate a complete consulting package from discovery evidence,
-            blueprint, architecture, and processes — documentation for decisions,
-            not production software.
+            Genere un paquete de consultoría completo a partir de la evidencia
+            del diagnóstico, el plan de negocio, la arquitectura y los
+            procesos — documentación para decidir, no software listo para
+            producción.
           </p>
           <div className="mt-6">
             <Button onClick={() => void generate()} disabled={busy}>
-              {busy ? "Generating…" : "Generate package"}
+              {busy ? "Generando…" : "Generar paquete"}
             </Button>
           </div>
         </Card>
@@ -119,7 +120,7 @@ export function DeliverablesPanel({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-              Deliverables
+              Documentos
             </p>
             <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
               {pack.companyName}
@@ -127,7 +128,8 @@ export function DeliverablesPanel({
             <p className="mt-3 max-w-2xl text-neutral-600">{pack.summary}</p>
             <p className="mt-4 text-sm text-neutral-400">
               {recommendationStrength(pack.overallConfidence)} ·{" "}
-              {formatRelativeActivity(pack.generatedAt)} · read-only previews
+              {formatRelativeActivity(pack.generatedAt)} · vistas de solo
+              lectura
             </p>
           </div>
           <Button
@@ -135,7 +137,7 @@ export function DeliverablesPanel({
             onClick={() => void generate()}
             disabled={busy}
           >
-            {busy ? "Generating…" : "Regenerate"}
+            {busy ? "Generando…" : "Regenerar"}
           </Button>
         </div>
       </Card>
@@ -185,83 +187,84 @@ function DeliverablePreview({
     case "executive": {
       const d = pack.executiveSummary;
       return (
-        <Article title="Executive Summary">
-          <Section title="Vision" body={d.vision} />
-          <Section title="Current State" body={d.currentState} />
-          <List title="Problems" items={d.problems} />
-          <List title="Biggest Risks" items={d.biggestRisks} />
-          <List title="Immediate Opportunities" items={d.immediateOpportunities} />
-          <List title="Strategic Opportunities" items={d.strategicOpportunities} />
-          <List title="Recommended Roadmap" items={d.recommendedRoadmap} />
-          <List title="Investment Areas" items={d.investmentAreas} />
-          <Section title="Executive Recommendation" body={d.executiveRecommendation} />
+        <Article title="Resumen ejecutivo">
+          <Section title="Visión" body={d.vision} />
+          <Section title="Situación actual" body={d.currentState} />
+          <List title="Problemas" items={d.problems} />
+          <List title="Principales riesgos" items={d.biggestRisks} />
+          <List title="Oportunidades inmediatas" items={d.immediateOpportunities} />
+          <List title="Oportunidades estratégicas" items={d.strategicOpportunities} />
+          <List title="Hoja de ruta recomendada" items={d.recommendedRoadmap} />
+          <List title="Áreas de inversión" items={d.investmentAreas} />
+          <Section title="Recomendación ejecutiva" body={d.executiveRecommendation} />
         </Article>
       );
     }
     case "assessment": {
       const d = pack.businessAssessment;
       return (
-        <Article title="Business Assessment">
-          <List title="Current Processes" items={d.currentProcesses} />
-          <List title="Departments" items={d.departments} />
+        <Article title="Diagnóstico del negocio">
+          <List title="Procesos actuales" items={d.currentProcesses} />
+          <List title="Departamentos" items={d.departments} />
           <Meta
-            label="Operating maturity"
+            label="Madurez operativa"
             value={maturityLabel(d.overallMaturity)}
           />
           <Meta
-            label="Business health"
+            label="Salud del negocio"
             value={healthLabel(d.overallHealth)}
           />
-          <List title="Pain Points" items={d.painPoints} />
+          <List title="Puntos de dolor" items={d.painPoints} />
           <List
-            title="Risks"
+            title="Riesgos"
             items={d.risks.map((r) => `${r.title} · ${r.severity}`)}
           />
-          <List title="Automation Opportunities" items={d.automationOpportunities} />
+          <List title="Oportunidades de automatización" items={d.automationOpportunities} />
         </Article>
       );
     }
     case "blueprint": {
       const d = pack.businessBlueprint;
-      if (!d) return <Empty label="Blueprint deliverable unavailable" />;
+      if (!d) return <Empty label="El plan de negocio aún no está disponible" />;
       return (
-        <Article title="Business Blueprint">
-          <Section title="Summary" body={d.summary} />
-          <List title="Capabilities" items={d.capabilities} />
-          <List title="Departments" items={d.departments} />
-          <List title="Workflows" items={d.workflows} />
-          <List title="Core information" items={d.entities} />
-          <List title="Systems" items={d.systems} />
-          <List title="Operating rules" items={d.operatingRules} />
-          <List title="Recommended capabilities" items={d.modules} />
+        <Article title="Plan de negocio">
+          <Section title="Resumen" body={d.summary} />
+          <List title="Capacidades" items={d.capabilities} />
+          <List title="Departamentos" items={d.departments} />
+          <List title="Flujos de trabajo" items={d.workflows} />
+          <List title="Información clave" items={d.entities} />
+          <List title="Sistemas" items={d.systems} />
+          <List title="Reglas de operación" items={d.operatingRules} />
+          <List title="Capacidades recomendadas" items={d.modules} />
         </Article>
       );
     }
     case "solution": {
       const d = pack.solutionArchitecture;
-      if (!d) return <Empty label="Solution deliverable unavailable" />;
+      if (!d) return <Empty label="La arquitectura de la solución aún no está disponible" />;
       return (
-        <Article title="Recommended Architecture">
-          <Section title="Summary" body={d.summary} />
-          <List title="Capabilities" items={d.modules} />
-          <List title="Core information" items={d.entities} />
-          <List title="Relationships" items={d.relationships} />
+        <Article title="Arquitectura recomendada">
+          <Section title="Resumen" body={d.summary} />
+          <List title="Capacidades" items={d.modules} />
+          <List title="Información clave" items={d.entities} />
+          <List title="Relaciones" items={d.relationships} />
           <List title="Roles" items={d.roles} />
-          <List title="Access principles" items={d.permissions} />
-          <List title="Navigation" items={d.navigation} />
-          <List title="Integrations" items={d.integrations} />
-          <List title="Roadmap" items={d.roadmap} />
+          <List title="Principios de acceso" items={d.permissions} />
+          <List title="Navegación" items={d.navigation} />
+          <List title="Integraciones" items={d.integrations} />
+          <List title="Hoja de ruta" items={d.roadmap} />
         </Article>
       );
     }
     case "processes": {
       const d = pack.processBook;
-      if (!d) return <Empty label="Process book unavailable" />;
+      if (!d) return <Empty label="El libro de procesos aún no está disponible" />;
       return (
-        <Article title="Process Book">
-          <Section title="Summary" body={d.summary} />
+        <Article title="Libro de procesos">
+          <Section title="Resumen" body={d.summary} />
           <p className="mt-2 text-xs text-neutral-400">
-            For interactive diagrams, open the Processes tab in this workspace.
+            Para ver diagramas interactivos, abra la pestaña “Cómo opera” en
+            este espacio de trabajo.
           </p>
           {d.workflows.map((wf) => (
             <div key={wf.id} className="mt-6 border-t border-neutral-100 pt-5">
@@ -276,9 +279,9 @@ function DeliverablePreview({
                   </li>
                 ))}
               </ol>
-              <List title="Approvals" items={wf.approvals} />
-              <List title="Actors" items={wf.actors} />
-              <List title="Automation" items={wf.automationOpportunities} />
+              <List title="Aprobaciones" items={wf.approvals} />
+              <List title="Actores" items={wf.actors} />
+              <List title="Automatización" items={wf.automationOpportunities} />
             </div>
           ))}
         </Article>
@@ -494,6 +497,61 @@ function List({ title, items }: { title: string; items: string[] }) {
       </ul>
     </section>
   );
+}
+
+/**
+ * Executive Storytelling — numbered story beat used only by the Executive
+ * Summary deliverable preview. Presentation only: renders existing
+ * `ExecutiveSummaryDeliverable` fields in McKinsey narrative order, never
+ * invents copy.
+ */
+function Beat({
+  step,
+  title,
+  lead,
+  children,
+}: {
+  step: number;
+  title: string;
+  lead?: string;
+  children: ReactNode;
+}) {
+  return (
+    <li className="flex gap-3">
+      <span
+        aria-hidden
+        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-neutral-300 text-[11px] font-medium text-neutral-500"
+      >
+        {step}
+      </span>
+      <div className="min-w-0 flex-1 border-b border-neutral-100 pb-5 last:border-b-0 last:pb-0">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+          {title}
+        </p>
+        {lead ? (
+          <p className="mt-1.5 text-xs italic text-neutral-400">{lead}</p>
+        ) : null}
+        <div className="mt-2 text-sm leading-relaxed text-neutral-700">
+          {children}
+        </div>
+      </div>
+    </li>
+  );
+}
+
+function BeatList({ items, className }: { items: string[]; className?: string }) {
+  if (items.length === 0) return <BeatEmpty text="Not yet available." />;
+  return (
+    <ul className={className ?? "space-y-1.5"}>
+      {items.map((item) => (
+        <li key={item}>• {item}</li>
+      ))}
+    </ul>
+  );
+}
+
+function BeatEmpty({ text }: { text: string }) {
+  return <p className="text-neutral-500">{text}</p>;
 }
 
 function Meta({ label, value }: { label: string; value: string }) {
