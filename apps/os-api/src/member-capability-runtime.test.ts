@@ -133,10 +133,6 @@ describeHttp('os-api member + capability runtime (Step 15.2)', () => {
       where: { id: terminated.member.id },
       data: { accessStatus: 'revoked', employmentStatus: 'terminated' },
     });
-    await prisma.osAuthIdentity.update({
-      where: { id: terminated.auth.id },
-      data: { status: 'revoked' },
-    });
     const headers = sessionHeaders(
       org.id,
       terminated.member,

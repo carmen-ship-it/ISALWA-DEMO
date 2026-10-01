@@ -121,6 +121,15 @@ describeHttp('os-api commercial runtime (Step 16.1A)', () => {
         effectiveAt: new Date('2020-01-01'),
       },
     });
+    await prisma.osRoleAssignment.create({
+      data: {
+        id: createId(),
+        organizationId: orgId,
+        memberId,
+        roleKey: 'commercial.quote.convert.own',
+        effectiveAt: new Date('2020-01-01'),
+      },
+    });
     return {
       member: { id: memberId },
       person: { id: personId },

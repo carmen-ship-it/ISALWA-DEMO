@@ -157,7 +157,7 @@ describeHttp('os-api quote PDF (Cotización)', () => {
       headers,
       body: JSON.stringify({ partyId }),
     });
-    assert.equal(quoteRes.status, 200);
+    assert.equal(quoteRes.status, 201);
     const quoteId = String(((await quoteRes.json()) as { data: { quoteId: string } }).data.quoteId);
 
     if (opts?.withLines !== false) {
