@@ -133,7 +133,12 @@ export class WorkCommandService {
 
     try {
       return await this.store.runInTransaction(async (store) => {
-        this.activeIdempotencyKey = replayKey;
+        // Only the caller's key may reach the business event. An open-request
+        // claim key lives in the idempotency table and is released when the
+        // request is resolved, but os_business_events keeps its row forever
+        // under a unique (organization, idempotency key) index — reusing the
+        // claim key there would burn it and break the next request.
+        this.activeIdempotencyKey = idempotencyKey;
         if (replayKey) {
           const existing = await store.findIdempotency(ctx.organizationId, replayKey);
           if (existing && isStoredCommandResult(existing.resultJson)) {
