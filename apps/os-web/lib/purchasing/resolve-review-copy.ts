@@ -6,9 +6,12 @@ export const PURCHASING_CONCLUSIONS = [
 
 export type PurchasingConclusion = (typeof PURCHASING_CONCLUSIONS)[number];
 
+/** Recorded with the external-Compras outcome. Already approved; not a new decision. */
+export const PURCHASING_NO_PURCHASE_ORDER = 'No se creó una orden de compra.';
+
 export function purchasingResultCopy(conclusion: string): string {
   if (conclusion === 'Requiere gestión de compra externa') {
-    return 'Requiere gestión de compra fuera de ISALWA.';
+    return `Requiere gestión de compra fuera de ISALWA. ${PURCHASING_NO_PURCHASE_ORDER}`;
   }
   return conclusion;
 }
