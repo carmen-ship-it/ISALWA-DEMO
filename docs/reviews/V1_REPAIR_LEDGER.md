@@ -43,6 +43,10 @@ staging data, or reset fixtures. Protected and untouched: `main` (`ca3821f`),
 | D1 outbox lost updates | fixed in source, tested | `1de4cda` | failing-delivery retry test (was red) + P2002 classifier test, no database needed |
 | D2 re-request after resolve → 500 | fixed in source, tested | `2affa01` | `open-request-rerequest.test.ts` — re-request reproduced the real P2002 before the fix |
 | D4 shared idempotency-key instance state | fixed in source, tested | `5efed5a` | concurrency test in the same file: red with the old field, green with the async scope |
+| E3 `os-commercial` 3 red | fixed in source, tested | `7773dc8` | 59/59; the duplicate-conversion CONFLICT it exists to prove now actually runs |
+| E3 `os-purchasing` 1 red | fixed in source, tested | `a8c8405` | 18/18; guard follows the shared-copy binding |
+| E3 `os-database` 2 red | fixed in source, tested | `19e4ba1` | 70/70; pinned count checked against the migrations on disk |
+| E2/E3 `os-web` 1 red + 20 undiscovered | fixed in source, tested | `491f221` | 1287/1287, up from 1267 |
 
 Notes on choices that departed from the review's suggested fix:
 
@@ -87,7 +91,9 @@ Confirmed in source, not yet repaired:
 | S11 idempotent replay before authorization | Low | unassigned | |
 | S12 issue journal/outcome lack ownership check | Medium | unassigned | |
 | S13 any role can quote any customer | Medium | unassigned | |
-| S15 delivery-ops documents broader than delivery-notes | Low–Med | unassigned | |
+| S15 delivery-ops documents broader than delivery-notes | Low–Med | unassigned | the `os-api` read inventory independently flags `GET /delivery-ops/orders/:orderId/documents` as unclassified |
+| S19 ten GET routes have no read-authorization classification | Medium | Cursor | `inspection-reads.adversarial` found `/ai/capability`, `/customer-conversations`, `/delivery-notes`, `/delivery-notes/:id/pdf`, 3 `/delivery-ops/*`, `/fulfillment/deliveries`, `/fulfillment/warehouse-exits`. Classify truthfully; do **not** label them verified to make the suite green |
+| P1 Compras boundary copy | Low | product | the full `PURCHASE_REQUEST_BOUNDARY` sentence now renders only in the permission-denied state; the authorized queue shows a shorter hand-written line. Copy decision for Carmen, not a security repair |
 | S16 payload validated before authentication | Low | unassigned | no write possible |
 | S17 open redirect via encoded control characters | Medium | unassigned | needs an end-to-end router test, not just URL parsing |
 | S18 collapsed sign-in errors; fixtures reset shared passwords | Low | unassigned | do **not** rerun fixtures to unblock review |
@@ -99,13 +105,21 @@ Confirmed in source, not yet repaired:
 | D11 unbounded/capped reads | Low | unassigned | |
 | D12 delivery FK drift between migrations and Prisma models | Low | unassigned | do not generate a migration that drops constraints |
 | E1 CI runs no tests or lint | High | Cursor | |
-| E3 failing suites at the V1 SHA | Medium | Cursor | includes `os-api inspection-reads.adversarial` revealed by E2 |
+| E3 `os-api` read inventory | Medium | Cursor | only remaining red suite; deferred to integration because it scrapes controllers both agents are editing |
 | E4 os-web lint non-functional; os-api lint is `echo` | Low | unassigned | |
 | E5 generated Prisma client embeds an absolute path | Low | unassigned | rewritten by every local build |
 | H1 no security headers; `X-Powered-By` present | Low | unassigned | |
 | H2 login label contrast 2.73:1 | Low | unassigned | |
 | R1 Render tracks `main`, which lacks V1 | High | Cursor | deployment-process change, not code |
 | DEP next ≥ 15.5.24 | Low | unassigned | image-optimizer advisory |
+
+### Gate state after the E2/E3 batch
+
+Every package suite is green: os-contracts 166, os-domain 232, os-workforce 85,
+os-work 19, os-events 5, os-commercial 59, os-commitment 10, os-party 6,
+os-issue 72, os-import 19, os-purchasing 18, os-database 70, os-web 1287.
+`os-api` is 116/119 — the read-inventory guard above, plus `tenant-isolation`,
+which needs Postgres and cannot run in this environment.
 
 Disproven / not defects: pre-hydration credential leak, dev header-identity in
 staging, CORS reflecting arbitrary origins, XSS sinks in the inspected web
