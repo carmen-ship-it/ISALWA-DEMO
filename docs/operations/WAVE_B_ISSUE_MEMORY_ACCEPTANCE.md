@@ -60,9 +60,9 @@ Canonical structured source:
 | Command | Required scope / rule |
 |---------|------------------------|
 | `ReportIssue` | `member_active` |
-| `AddIssueJournalEntry` | `member_active` |
-| `LinkIssueWork` | `member_active` |
-| `RecordIssueOutcome` | `member_active` |
+| `AddIssueJournalEntry` | `member_active` **and** reporter, owner, or `issue.manage` on that issue (S12) |
+| `LinkIssueWork` | `member_active` **and** reporter, owner, or `issue.manage` on that issue (S12) |
+| `RecordIssueOutcome` | `member_active` **and** reporter, owner, or `issue.manage` on that issue (S12) |
 | `StartIssueProgress` | owner **or** `issue.manage` |
 | `ResolveIssue` | owner **or** `issue.manage` |
 | `TriageIssue` | `issue.manage` |
