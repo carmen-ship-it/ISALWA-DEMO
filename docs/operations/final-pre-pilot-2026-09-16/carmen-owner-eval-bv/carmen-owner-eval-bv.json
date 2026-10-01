@@ -1,0 +1,71 @@
+{
+  "email": "carmen.staging@isalwa.demo",
+  "base": "https://os-web-staging.onrender.com",
+  "at": "2026-09-16T18:41:19.626Z",
+  "routes": {
+    "finanzas": {
+      "path": "/finanzas",
+      "finalUrl": "https://os-web-staging.onrender.com/finanzas",
+      "statusHint": "REACHED",
+      "denyPhrasePresent": false,
+      "permissionDenyLikely": false,
+      "deskOpenSignals": {
+        "hasRegistroOperativo": true,
+        "hasFinanzasOperativas": true,
+        "hasAnoteEvidencia": true,
+        "emptyHonest": true
+      },
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión REGISTRO OPERATIVO Finanzas operativas Anote evidencia de pago reportada. No es contabilidad oficial y no confirma cobranza. Dato ma",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/carmen-owner-eval-bv/finanzas-1440.png"
+    },
+    "almacen": {
+      "path": "/almacen",
+      "finalUrl": "https://os-web-staging.onrender.com/almacen",
+      "statusHint": "REACHED",
+      "denyPhrasePresent": false,
+      "permissionDenyLikely": false,
+      "deskOpenSignals": {
+        "hasRegistroOperativo": false,
+        "hasFinanzasOperativas": false,
+        "hasAnoteEvidencia": false,
+        "emptyHonest": true
+      },
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión ALMACÉN Asignación a pedido El encargado de almacén asigna producto terminado a un pedido después de que está en Almacén de Producto",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/carmen-owner-eval-bv/almacen-1440.png"
+    },
+    "compras": {
+      "path": "/compras",
+      "finalUrl": "https://os-web-staging.onrender.com/compras",
+      "statusHint": "REACHED",
+      "denyPhrasePresent": false,
+      "permissionDenyLikely": false,
+      "deskOpenSignals": {
+        "hasRegistroOperativo": false,
+        "hasFinanzasOperativas": false,
+        "hasAnoteEvidencia": false,
+        "emptyHonest": true
+      },
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión COMPRAS Cola de compras El área responsable pide. La encargada de compras compra. Esta cola no es inventario. No es inventario PEDID",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/carmen-owner-eval-bv/compras-1440.png"
+    },
+    "produccion": {
+      "path": "/produccion",
+      "finalUrl": "https://os-web-staging.onrender.com/produccion",
+      "statusHint": "REACHED",
+      "denyPhrasePresent": false,
+      "permissionDenyLikely": false,
+      "deskOpenSignals": {
+        "hasRegistroOperativo": false,
+        "hasFinanzasOperativas": false,
+        "hasAnoteEvidencia": false,
+        "emptyHonest": true
+      },
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión PLANTA Producción Anotación de planta por producto. No es una tabla de base de datos. No es pedido Anotación de planta Una quema no ",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/carmen-owner-eval-bv/produccion-1440.png"
+    }
+  },
+  "loginUrl": "https://os-web-staging.onrender.com/inicio",
+  "loginOk": true,
+  "FINANCE_OPERATIONAL_ACCESS": "PASS",
+  "ok": true
+}

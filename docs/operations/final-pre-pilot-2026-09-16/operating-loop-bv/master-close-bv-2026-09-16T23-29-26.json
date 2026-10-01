@@ -1,0 +1,111 @@
+{
+  "at": "2026-09-16T23:29:26.772Z",
+  "expectedSha": "23c25755ec339786c01852637a084e227a042ff7",
+  "synthOrg": "01M2JKF77TXMJNDTKNCYNHH9G5",
+  "realOrg": "01M2DV9F0V5DXS4G89AKF4D5SR",
+  "orderId": "01M2P3CAP2QCTXXRRB4A0G74XJ",
+  "partyId": "01M2JSDQJNYZ03N8808PBEDVS8",
+  "REAL_SEVEN_MUTATED": "NO",
+  "shaProof": {
+    "expected": "23c25755ec339786c01852637a084e227a042ff7",
+    "web": {
+      "dep": "dep-dali642d0e5s73fg8gig",
+      "status": "live",
+      "sha": "23c25755ec339786c01852637a084e227a042ff7"
+    },
+    "api": {
+      "dep": "dep-dali64ad0e5s73fg8hi0",
+      "status": "live",
+      "sha": "23c25755ec339786c01852637a084e227a042ff7"
+    },
+    "sameSha": true
+  },
+  "walk": {
+    "fgDesk": true,
+    "fgEmptyPedidosState": true,
+    "fgPedidoSelectMounted": false,
+    "fgPedidoSelected": false,
+    "fgPedidoOptionLabel": null,
+    "fgResidual": "ALMACEN_POSTSALE_EMPTY: #postsale-pedido not mounted (Sin pedidos abiertos). Almacén holds warehouse.outbound.record and sees O-000001 on /entregas via delivery-ops, but LIVE loadPostSalePedidos uses commercial listOrders which warehouse cannot read. Selection-only script cannot invent options.",
+    "fgButtonEnabled": true,
+    "fgSuccess": false,
+    "fgPersisted": false,
+    "fgCommercialDenied": true,
+    "fgAlmacenSeesOrderOnEntregas": true,
+    "contabFgDenied": true,
+    "entregasDesk": true,
+    "entregasHasNota": true,
+    "entregasPdf": true,
+    "cliente360Accessible": true,
+    "cliente360Documentos": true,
+    "cliente360Finanzas": true,
+    "cliente360Historial": true,
+    "inicioAttention": true,
+    "asesorCliente360": {
+      "accessible": true,
+      "documentos": true,
+      "finanzas": true,
+      "historial": true,
+      "comercial": true,
+      "pdfLinks": true
+    },
+    "pedidoDossier": {
+      "accessible": true,
+      "sourceQuote": true,
+      "documents": true,
+      "timeline": true,
+      "issues": true
+    },
+    "search": {
+      "opened": false,
+      "kindsFound": []
+    },
+    "map": {
+      "loaded": true,
+      "noOfficialRevenueClaim": true,
+      "hasCommercialValues": true
+    },
+    "finance": {
+      "operational": true,
+      "noLedgerClaim": false
+    },
+    "mobileUsable": true
+  },
+  "shots": {
+    "fgDesk": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-fg-desk.png",
+    "fgAfter": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-fg-after.png",
+    "fgAlmacenEntregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-fg-almacen-entregas.png",
+    "contabAlmacen": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-contab-almacen.png",
+    "entregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-entregas.png",
+    "cliente360": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-cliente360.png",
+    "inicio": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-inicio.png",
+    "asesorCliente360": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-asesor-c360.png",
+    "pedido": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-pedido.png",
+    "map": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-mapa.png",
+    "finance": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-finanzas.png",
+    "entregas390": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-entregas-390.png",
+    "almacen390": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-29-26-almacen-390.png"
+  },
+  "score": {
+    "SAME_SHA": "PASS",
+    "FINISHED_GOODS_RECEIVE": "UNPROVEN",
+    "ENTREGAS_OPS_DESK": "BROWSER_VERIFIED",
+    "CLIENTE360_DOCUMENTOS": "BROWSER_VERIFIED",
+    "PEDIDO_DOSSIER": "BROWSER_VERIFIED",
+    "INICIO_ATTENTION": "BROWSER_VERIFIED",
+    "SEARCH": "UNPROVEN",
+    "SEARCH_KINDS_FOUND": [],
+    "MAP": "BROWSER_VERIFIED",
+    "FINANCE": "UNPROVEN",
+    "CONTAB_FG_DENIED": "PASS",
+    "REAL_SEVEN_MUTATED": "NO"
+  },
+  "residuals": [
+    {
+      "lane": "FINISHED_GOODS_RECEIVE",
+      "blockerType": "HOSTED_PROOF_BLOCKED",
+      "evidence": "ALMACEN_POSTSALE_EMPTY: #postsale-pedido not mounted (Sin pedidos abiertos). Almacén holds warehouse.outbound.record and sees O-000001 on /entregas via delivery-ops, but LIVE loadPostSalePedidos uses commercial listOrders which warehouse cannot read. Selection-only script cannot invent options.",
+      "unblock": "Wire /almacen postsale pedido load to delivery-ops (warehouse.outbound.record already lists O-000001 on /entregas) or otherwise surface human Pedido options without commercial-read; then re-run master-close BV. No REAL_SEVEN mutation."
+    }
+  ]
+}

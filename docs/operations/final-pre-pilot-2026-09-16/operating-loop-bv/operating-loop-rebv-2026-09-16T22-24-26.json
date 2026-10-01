@@ -1,0 +1,392 @@
+{
+  "at": "2026-09-16T22:24:26.621Z",
+  "role": "VERIFIER",
+  "expectedSha": "5ca147207508c93f083e6cf141547f54c45e6eb0",
+  "synthOrg": "01M2JKF77TXMJNDTKNCYNHH9G5",
+  "fixtureOrg": "01M2JKF77TXMJNDTKNCYNHH9G5",
+  "orgMatch": true,
+  "partyId": "01M2JSDQJNYZ03N8808PBEDVS8",
+  "quoteId": "01M2JSDZYR37MCHVXVHPR586G7",
+  "orderId": "01M2P3CAP2QCTXXRRB4A0G74XJ",
+  "REAL_SEVEN_MUTATED": "NO",
+  "fixtureCaps": {
+    "w2.asesor@isalwa.demo": [
+      "commercial.customer.create",
+      "commercial.quote.convert.own"
+    ],
+    "w2.jefe@isalwa.demo": [
+      "commercial.team.read"
+    ],
+    "w2.gerente@isalwa.demo": [
+      "management.org.read"
+    ],
+    "w2.produccion@isalwa.demo": [
+      "production.operational.record",
+      "production.entry.member"
+    ],
+    "w2.almacen@isalwa.demo": [
+      "warehouse.finished_goods.receive",
+      "warehouse.finished_goods.allocate",
+      "warehouse.outbound.record"
+    ],
+    "w2.compras@isalwa.demo": [
+      "purchasing.operational.record"
+    ],
+    "w2.contabilidad@isalwa.demo": [
+      "finance.operational.record"
+    ],
+    "w2.coordinacion@isalwa.demo": [
+      "operations.coordinator.record",
+      "coordination.decision.record"
+    ],
+    "w2.owner@isalwa.demo": [
+      "management.org.read",
+      "system.admin"
+    ]
+  },
+  "explicitlyUnassigned": [
+    "delivery.record",
+    "commercial.order.convert",
+    "commercial.exception.authorize",
+    "production.review.member",
+    "people.admin"
+  ],
+  "shaProof": {
+    "health": {
+      "status": "ok",
+      "service": "os-api",
+      "check": "liveness"
+    },
+    "ready": {
+      "status": "ready",
+      "profile": "staging",
+      "authMode": "supabase"
+    },
+    "web": {
+      "dep": "dep-dalhacjm8hqs739j9b40",
+      "sha": "5ca147207508c93f083e6cf141547f54c45e6eb0",
+      "expectedDep": "dep-dalhacjm8hqs739j9b40",
+      "match": true
+    },
+    "api": {
+      "dep": "dep-dalhacrl550s73b96ms0",
+      "sha": "5ca147207508c93f083e6cf141547f54c45e6eb0",
+      "expectedDep": "dep-dalhacrl550s73b96ms0",
+      "match": true
+    },
+    "sameSha": true
+  },
+  "walk": {
+    "asesorLogin": true,
+    "asesorOrg": {
+      "synthHint": true,
+      "connected": "CONECTADO COMO Synth Cerrar sesi\u00f3n HOY Inicio \u00bfQu\u00e9 necesita su atenci\u00f3n ah"
+    },
+    "quoteOpen": {
+      "ok": true
+    },
+    "manualSend": {
+      "skipped": true,
+      "reason": "NO_BUTTON",
+      "alreadyPedidoHint": false
+    },
+    "convert": {
+      "reusedExisting": true,
+      "orderId": "01M2P3CAP2QCTXXRRB4A0G74XJ"
+    },
+    "asesorPedido": {
+      "panelPresent": true,
+      "createNotaCount": 1,
+      "createNotaDisabled": true,
+      "salidaCount": 1,
+      "entregaCount": 1,
+      "destinatarioFields": false,
+      "entregadoPorFields": false,
+      "provisional": true,
+      "permissionDenied": false,
+      "actorIdentifyError": false,
+      "orgHint": "CONECTADO COMO Synth Cerrar sesi\u00f3n Volver al cliente Clientes / Cliente / Pedido SYNTH Wave2 C",
+      "snippet": "ISALWA Sistema operativo de su empresa SU TRABAJO DIARIO Su trabajo COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Contraer Buscar \u2318K CONECTADO COMO Synth Cerrar sesi\u00f3n Volver al cliente Clientes / Cliente / Pedido SYNTH Wave2 Cliente / Q-000001 / O-000001 PEDIDO O-000001 SYNTH Wave2 Cliente Volver al cliente PR\u00d3XIMO PASO Pedido registrado. El seguimiento operativo contin\u00faa en el caso del pedido. Ver cliente PEDIDO Pedido O-000001 Registrado QU\u00c9 ES Pedido O-000001 QUI\u00c9N LO POSEE Synth Asesor FECHA CON EL CLIENTE Sin fecha con el cliente FECHA INTERNA DE PRODUCCI\u00d3N Sin fecha interna de producci\u00f3n CLASIFICACI\u00d3N Sin clasificaci\u00f3n registrada CLIENTE INFORMADO Sin aviso registrado SIGUIENTE ACCI\u00d3N Seguir el pedido FUNCI\u00d3N RESPONSA"
+    },
+    "carmenPasswordPresent": true,
+    "carmenLogin": true,
+    "carmenSession": {
+      "onSynth": false,
+      "connected": "CONECTADO COMO Carmen Cerrar sesi\u00f3n HOY Inicio \u00bfQu\u00e9 necesita su atenci\u00f3n ahora? Vencido signif",
+      "snippet": "ISALWA Sistema operativo de su empresa PRODUCCI\u00d3N Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Auditor\u00eda Administraci\u00f3n Contraer Buscar \u2318K CONECTADO COMO Car"
+    },
+    "carmenEntregas": {
+      "ok": true,
+      "hasCreate": false,
+      "snippet": "ISALWA Sistema operativo de su empresa PRODUCCI\u00d3N Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Auditor\u00eda Administraci\u00f3n Contraer Buscar \u2318K CONECTADO COMO Carmen Cerrar sesi\u00f3n ENTREGA Entregas Registro interno de salida y entrega. No reclama un n\u00famero oficial. Sin n\u00famero oficial Registro interno Versi\u00f3n 1 \u00b7"
+    },
+    "ownerLogin": true,
+    "almacenLogin": true,
+    "almacenEntregas": {
+      "ok": true,
+      "linkedOrders": true,
+      "createNotaOnPage": false,
+      "snippet": "ISALWA Sistema operativo de su empresa ALMAC\u00c9N Inicio COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Contraer Buscar \u2318K CONECTADO COMO Synth Cerrar sesi\u00f3n ENTREGA Entregas Registro interno de salida y entrega. No reclama un n\u00famero oficial. Sin n\u00famero oficial Registro interno Versi\u00f3n 1 \u00b7 por validar Versi\u00f3n 1 \u00b7 por validar PEDIDO Pedidos de esta empresa Abra el pedido ya registrado de la lista. No se inventa una entrega desde el ped"
+    },
+    "contabLogin": true,
+    "mobileLogin": true,
+    "mobilePedido": {
+      "panelPresent": true,
+      "createNotaCount": 1,
+      "createNotaDisabled": true,
+      "salidaCount": 1,
+      "entregaCount": 1,
+      "destinatarioFields": false,
+      "entregadoPorFields": false,
+      "provisional": true,
+      "permissionDenied": false,
+      "actorIdentifyError": false,
+      "orgHint": null,
+      "snippet": "Abrir men\u00fa ISALWA Cuenta Volver al cliente Volver Clientes / Cliente / Pedido SYNTH Wave2 Cliente / Q-000001 / O-000001 PEDIDO O-000001 SYNTH Wave2 Cliente Volver al cliente PR\u00d3XIMO PASO Pedido registrado. El seguimiento operativo contin\u00faa en el caso del pedido. Ver cliente PEDIDO Pedido O-000001 Registrado QU\u00c9 ES Pedido O-000001 QUI\u00c9N LO POSEE Synth Asesor FECHA CON EL CLIENTE Sin fecha con el cliente FECHA INTERNA DE PRODUCCI\u00d3N Sin fecha interna de producci\u00f3n CLASIFICACI\u00d3N Sin clasificaci\u00f3n registrada CLIENTE INFORMADO Sin aviso registrado SIGUIENTE ACCI\u00d3N Seguir el pedido FUNCI\u00d3N RESPONSABLE Comercial \u00daLTIMO CAMBIO Pedido creado \u00b7 16 sept de 2026, 9:53 p. m. Hay un responsable principal. La cobertura no comparte la propiedad. No hay registro de asignaci\u00f3n. M\u00e1s sobre este pedido PEDIDO Sobre este pedido Lo que alguien inform\u00f3 y si se puede seguir. El pago no es siempre requisito. Esto "
+    }
+  },
+  "deliveryByPersona": {
+    "asesor": {
+      "tag": "rebv-2026-09-16T22-24-26-asesor",
+      "steps": {
+        "gate": "NO_DESTINATARIO_FIELDS",
+        "createDisabled": true
+      },
+      "shots": {
+        "panel": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-asesor-delivery-panel-1440.png"
+      }
+    },
+    "carmen": {
+      "probe": {
+        "panelPresent": false,
+        "createNotaCount": 0,
+        "createNotaDisabled": null,
+        "salidaCount": 0,
+        "entregaCount": 0,
+        "destinatarioFields": false,
+        "entregadoPorFields": false,
+        "provisional": false,
+        "permissionDenied": false,
+        "actorIdentifyError": false,
+        "orgHint": "CONECTADO COMO Carmen Cerrar sesi\u00f3n Volver al cliente Clientes / Cliente / Pedido No se encont",
+        "snippet": "ISALWA Sistema operativo de su empresa PRODUCCI\u00d3N Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Auditor\u00eda Administraci\u00f3n Contraer Buscar \u2318K CONECTADO COMO Carmen Cerrar sesi\u00f3n Volver al cliente Clientes / Cliente / Pedido No se encontr\u00f3 este pedido. Mostrar recorrido"
+      },
+      "opened": true,
+      "mutationSkipped": {
+        "reason": "NOT_SYNTH_SESSION_NO_REAL_MUTATION"
+      }
+    },
+    "owner": {
+      "probe": {
+        "panelPresent": false,
+        "createNotaCount": 0,
+        "createNotaDisabled": null,
+        "salidaCount": 0,
+        "entregaCount": 0,
+        "destinatarioFields": false,
+        "entregadoPorFields": false,
+        "provisional": false,
+        "permissionDenied": true,
+        "actorIdentifyError": false,
+        "orgHint": "CONECTADO COMO Synth Cerrar sesi\u00f3n Volver al cliente Clientes / Cliente / Pedido Sin permiso p",
+        "snippet": "ISALWA Sistema operativo de su empresa VISTA DE LA EMPRESA Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Contraer Buscar \u2318K CONECTADO COMO Synth Cerrar sesi\u00f3n Volver al cliente Clientes / Cliente / Pedido Sin permiso para esta secci\u00f3n Esta vista est\u00e1 bloqueada para su cuenta. Puede volver a Inicio o pedir acceso a quien administra el sistema. Sin permiso Inicio Mostrar recorrido"
+      },
+      "opened": true
+    }
+  },
+  "receive": {
+    "almacen": {
+      "open": true,
+      "allocationDesk": true,
+      "receiveDesk": true,
+      "notAllocate": true,
+      "snippet": "ISALWA Sistema operativo de su empresa ALMAC\u00c9N Inicio COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Contraer Buscar \u2318K CONECTADO COMO Synth Cerrar sesi\u00f3n ALMAC\u00c9N Asignaci\u00f3n a pedido El encargado de almac\u00e9n asigna producto terminado a un pedido despu\u00e9s de que est\u00e1 en Almac\u00e9n de Productos Terminados. Esto no es stock y no es una entrega. No es stock oficial. Ingreso \u2260 asignaci\u00f3n PEDIDO CONTEXTO POSTVENTA Cliente, cotizaci\u00f3n y l\u00edneas se heredan del pedido. No se vuelven a teclear. No escriba identificadores internos. Elija el pedido de la lista. El v\u00ednculo al pedido es una selecci\u00f3n humana expl\u00edcita: aporta contexto, no convierte la producci\u00f3n en propiedad del pedido. Sin pedidos abiertos Cuando exista un pedido en esta empresa"
+    },
+    "receiveButtonCount": 1,
+    "mutation": {
+      "attempted": true,
+      "ok": false,
+      "snippet": "ISALWA Sistema operativo de su empresa ALMAC\u00c9N Inicio COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Contraer Buscar \u2318K CONECTADO COMO Synth Cerrar sesi\u00f3n ALMAC\u00c9N Asignaci\u00f3n a pedido El encargado de almac\u00e9n asigna producto terminado a un pedido despu\u00e9s de que est\u00e1 en Almac\u00e9n de Productos Terminados. Esto no es stock y no es una entrega. No es stock oficial. Ingreso \u2260 asignaci\u00f3n PEDIDO CONTEXTO POSTVENTA Cliente, cotizaci\u00f3n y l\u00edneas",
+      "honest": "Click reached Ingreso f\u00edsico form; browser validation blocked (Nota required). No durable FG receipt proven."
+    }
+  },
+  "negatives": {
+    "contabAlmacen": {
+      "hasReceiveWrite": false,
+      "denyOrNoDesk": true,
+      "snippet": "ISALWA Sistema operativo de su empresa CONTABILIDAD Inicio COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Contraer Buscar \u2318K CONECTADO COMO Synth Cerrar sesi\u00f3n ALMAC\u00c9N Asignaci\u00f3n a pedido El encargado de almac\u00e9n asigna producto terminado a un pedido despu\u00e9s de que est\u00e1 en Almac\u00e9n de Productos Terminados. Esto no es stock y no es una entrega. No es stock oficial. Ingreso \u2260 asignaci\u00f3n PEDIDO CONTEXTO POSTVENTA Cliente, cotizaci\u00f3n y l"
+    },
+    "contabPedido": {
+      "panelPresent": false,
+      "createNotaCount": 0,
+      "createNotaDisabled": null,
+      "salidaCount": 0,
+      "entregaCount": 0,
+      "destinatarioFields": false,
+      "entregadoPorFields": false,
+      "provisional": false,
+      "permissionDenied": true,
+      "actorIdentifyError": false,
+      "orgHint": "CONECTADO COMO Synth Cerrar sesi\u00f3n Volver al cliente Clientes / Cliente / Pedido Sin permiso p",
+      "snippet": "ISALWA Sistema operativo de su empresa CONTABILIDAD Inicio COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Contraer Buscar \u2318K CONECTADO COMO Synth Cerrar sesi\u00f3n Volver al cliente Clientes / Cliente / Pedido Sin permiso para esta secci\u00f3n Esta vista est\u00e1 bloqueada para su cuenta. Puede volver a Inicio o pedir acceso a quien administra el sistema. Sin permiso Inicio Mostrar recorrido"
+    },
+    "REAL_SEVEN_MUTATED": "NO",
+    "orgWasSynthOnly": true
+  },
+  "permissionGaps": {
+    "almacenPedido": {
+      "panelPresent": false,
+      "createNotaCount": 0,
+      "createNotaDisabled": null,
+      "salidaCount": 0,
+      "entregaCount": 0,
+      "destinatarioFields": false,
+      "entregadoPorFields": false,
+      "provisional": false,
+      "permissionDenied": true,
+      "actorIdentifyError": false,
+      "orgHint": "CONECTADO COMO Synth Cerrar sesi\u00f3n Volver al cliente Clientes / Cliente / Pedido Sin permiso p",
+      "snippet": "ISALWA Sistema operativo de su empresa ALMAC\u00c9N Inicio COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Contraer Buscar \u2318K CONECTADO COMO Synth Cerrar sesi\u00f3n Volver al cliente Clientes / Cliente / Pedido Sin permiso para esta secci\u00f3n Esta vista est\u00e1 bloqueada para su cuenta. Puede volver a Inicio o pedir acceso a quien administra el sistema. Sin permiso Inicio Mostrar recorrido"
+    },
+    "deliveryMutationGate": "scope \u2014 asesor lacks delivery.record and warehouse.outbound.record (fixture explicitlyUnassigned includes delivery.record); actorMemberId fix may be live but canMutate still false",
+    "almacenHasOutboundScope": true,
+    "asesorHasDeliveryScope": false,
+    "deliveryRecordUnassignedOnSynth": true,
+    "deliveryMutationGateDetail": {
+      "asesor": "scope \u2014 no delivery.record / warehouse.outbound.record; Destinatario absent; Crear nota disabled",
+      "almacen": "commercial-read \u2014 Sin permiso on /clientes/\u2026/pedidos/\u2026; holds warehouse.outbound.record which would unlock canMutate if panel reachable",
+      "carmen": "REAL org session \u2014 SYNTH pedido not found; no REAL mutation attempted",
+      "owner": "commercial-read/permission denied on SYNTH pedido; no delivery scopes",
+      "actorMemberIdFix": "cannot disprove from UI alone (Destinatario gated by canMutate&&actorMemberId); prior defect was actorMemberId=dev-only; scope remains blocking for asesor"
+    }
+  },
+  "subfeatures": {
+    "SAME_SHA_WEB_API_CONFIRM": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS",
+      "note": "WEB dep-dalhacjm8hqs739j9b40@5ca147207508c93f083e6cf141547f54c45e6eb0 \u00b7 API dep-dalhacrl550s73b96ms0@5ca147207508c93f083e6cf141547f54c45e6eb0"
+    },
+    "QUOTE_MANUAL_SEND_UI": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "QUOTE_MANUAL_SEND_DURABLE_EVENT": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS",
+      "note": "button absent/disabled \u2014 prior durable send assumed from existing pedido"
+    },
+    "OWN_QUOTE_TO_ORDER_CONVERT": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS",
+      "note": "01M2P3CAP2QCTXXRRB4A0G74XJ"
+    },
+    "FINISHED_GOODS_RECEIVE_UI": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS",
+      "note": "Ingreso f\u00edsico confirmado \u00b7 No es asignaci\u00f3n"
+    },
+    "FINISHED_GOODS_RECEIVE_MUTATION": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "UNPROVEN",
+      "note": "UI open; submit blocked by required Nota; no durable success/reload proven"
+    },
+    "FINISHED_GOODS_PEDIDO_CONTEXT_NOT_ALLOCATE": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "DELIVERY_DOCUMENTS_PANEL": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "NOTA_DE_ENTREGA_CREATE": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "UNPROVEN",
+      "note": "scope \u2014 asesor lacks delivery.record and warehouse.outbound.record (fixture explicitlyUnassigned includes delivery.record); actorMemberId fix may be live but canMutate still false"
+    },
+    "SALIDA": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "PARTIAL",
+      "BROWSER_VERIFIED": "UNPROVEN",
+      "note": "scope \u2014 asesor lacks delivery.record and warehouse.outbound.record (fixture explicitlyUnassigned includes delivery.record); actorMemberId fix may be live but canMutate still false"
+    },
+    "ENTREGA": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "PARTIAL",
+      "BROWSER_VERIFIED": "UNPROVEN",
+      "note": "scope \u2014 asesor lacks delivery.record and warehouse.outbound.record (fixture explicitlyUnassigned includes delivery.record); actorMemberId fix may be live but canMutate still false"
+    },
+    "DELIVERY_NOTE_PDF": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "PARTIAL",
+      "BROWSER_VERIFIED": "UNPROVEN"
+    },
+    "ACTOR_ATTRIBUTION": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "UNPROVEN"
+    },
+    "NO_LOCALSTORAGE_TRUTH": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS",
+      "note": "Server-rendered panel; mutations unproven so localStorage SoR N/A for delivery writes"
+    },
+    "NUMBERING_NE_PILOT_ONLY": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "CONTABILIDAD_DENIED_WAREHOUSE_DELIVERY": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "NO_ADMIN_BYPASS": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "REAL_SEVEN_UNMUTATED": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "DESKTOP_1440": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "MOBILE_390": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    }
+  },
+  "shots": {
+    "asesorHome": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-01-asesor-home-1440.png",
+    "quote": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-02-quote-1440.png",
+    "asesorPedido": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-05-asesor-pedido-1440.png",
+    "carmenHome": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-10-carmen-home-1440.png",
+    "carmenPedido": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-11-carmen-pedido-1440.png",
+    "carmenEntregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-12-carmen-entregas-1440.png",
+    "ownerPedido": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-15-owner-pedido-1440.png",
+    "almacen": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-20-almacen-1440.png",
+    "almacenAfterRecv": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-21-almacen-recv-1440.png",
+    "almacenEntregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-22-almacen-entregas-1440.png",
+    "almacenPedido": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-23-almacen-pedido-1440.png",
+    "contabAlmacen": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-30-contab-almacen-1440.png",
+    "contabPedido": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-31-contab-pedido-1440.png",
+    "mobileQuote": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-40-quote-390.png",
+    "mobilePedido": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-41-pedido-390.png",
+    "mobileEntregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/rebv-2026-09-16T22-24-26-42-entregas-390.png"
+  }
+}

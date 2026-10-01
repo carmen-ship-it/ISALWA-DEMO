@@ -1,0 +1,145 @@
+{
+  "at": "2026-09-16T23:57:24.074Z",
+  "expectedSha": "f3aaf6426b49b2bf40910b9029b7d00e88a182c6",
+  "synthOrg": "01M2JKF77TXMJNDTKNCYNHH9G5",
+  "realOrg": "01M2DV9F0V5DXS4G89AKF4D5SR",
+  "orderId": "01M2P3CAP2QCTXXRRB4A0G74XJ",
+  "partyId": "01M2JSDQJNYZ03N8808PBEDVS8",
+  "REAL_SEVEN_MUTATED": "NO",
+  "shaProof": {
+    "expected": "f3aaf6426b49b2bf40910b9029b7d00e88a182c6",
+    "web": {
+      "dep": "dep-daliiamk1f9s738chasg",
+      "status": "live",
+      "sha": "f3aaf6426b49b2bf40910b9029b7d00e88a182c6"
+    },
+    "api": {
+      "dep": "dep-daliiah42hec73ck8ijg",
+      "status": "live",
+      "sha": "f3aaf6426b49b2bf40910b9029b7d00e88a182c6"
+    },
+    "sameSha": true
+  },
+  "walk": {
+    "fgDesk": true,
+    "fgEmptyPedidosState": false,
+    "fgPedidoSelectMounted": true,
+    "fgPedidoSelected": true,
+    "fgPedidoOptionLabel": "SYNTH Wave2 Cliente · O-000001",
+    "fgLineSelected": true,
+    "fgLineOptionLabel": "SYNTH pieza cerámica · 4",
+    "fgPedidoContext": true,
+    "fgButtonEnabled": true,
+    "fgSuccess": false,
+    "fgNoDuplicateOnDoubleClick": false,
+    "fgPersisted": false,
+    "fgActorOrTime": false,
+    "fgPedidoContextAfterReload": true,
+    "fgCommercialDenied": true,
+    "fgAlmacenSeesOrderOnEntregas": true,
+    "contabFgDenied": true,
+    "searchAuthNegative": {
+      "role": "contab",
+      "opened": true,
+      "notaAbsentOrDenied": true,
+      "sample": "Buscar clientes, cotizaciones o trabajo Busque sin recorrer menús. Vencido, en Inicio, significa que la fecha ya pasó. No hay coincidencias. Pruebe el nombre comercial, un teléfono o el número de cotización."
+    },
+    "entregasDesk": true,
+    "entregasHasNota": true,
+    "entregasPdf": true,
+    "cliente360Accessible": true,
+    "cliente360Documentos": true,
+    "cliente360Finanzas": true,
+    "cliente360Historial": true,
+    "inicioAttention": true,
+    "asesorCliente360": {
+      "accessible": true,
+      "documentos": true,
+      "finanzas": true,
+      "historial": true,
+      "comercial": true,
+      "pdfLinks": true
+    },
+    "pedidoDossier": {
+      "accessible": true,
+      "sourceQuote": true,
+      "documents": true,
+      "timeline": true,
+      "issues": true
+    },
+    "search": {
+      "opened": true,
+      "kindsFound": [
+        "client",
+        "order",
+        "quote"
+      ],
+      "client": true,
+      "order": true,
+      "quote": true,
+      "nota": false,
+      "notaIndexingResidual": true,
+      "notaResidual": "NE-PILOT query did not surface Nota hit in palette"
+    },
+    "map": {
+      "loaded": true,
+      "noOfficialRevenueClaim": true,
+      "hasCommercialValues": true
+    },
+    "finance": {
+      "operational": true,
+      "noLedgerClaim": true,
+      "honestyPresent": true
+    },
+    "mobileUsable": true
+  },
+  "shots": {
+    "fgDesk": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-fg-desk.png",
+    "fgAfter": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-fg-after.png",
+    "fgReload": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-fg-reload.png",
+    "fgAlmacenEntregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-fg-almacen-entregas.png",
+    "contabAlmacen": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-contab-almacen.png",
+    "entregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-entregas.png",
+    "cliente360": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-cliente360.png",
+    "inicio": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-inicio.png",
+    "asesorCliente360": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-asesor-c360.png",
+    "pedido": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-pedido.png",
+    "search": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-search.png",
+    "map": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-mapa.png",
+    "finance": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-finanzas.png",
+    "entregas390": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-entregas-390.png",
+    "almacen390": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-16T23-57-24-almacen-390.png"
+  },
+  "score": {
+    "SAME_SHA": "PASS",
+    "FINISHED_GOODS_RECEIVE": "UNPROVEN",
+    "ENTREGAS_OPS_DESK": "BROWSER_VERIFIED",
+    "CLIENTE360_DOCUMENTOS": "BROWSER_VERIFIED",
+    "PEDIDO_DOSSIER": "BROWSER_VERIFIED",
+    "INICIO_ATTENTION": "BROWSER_VERIFIED",
+    "SEARCH": "PARTIAL",
+    "SEARCH_KINDS_FOUND": [
+      "client",
+      "order",
+      "quote"
+    ],
+    "MAP": "BROWSER_VERIFIED",
+    "FINANCE": "BROWSER_VERIFIED",
+    "CONTAB_FG_DENIED": "PASS",
+    "REAL_SEVEN_MUTATED": "NO"
+  },
+  "residuals": [
+    {
+      "lane": "FINISHED_GOODS_RECEIVE",
+      "blockerType": "HOSTED_PROOF_BLOCKED",
+      "evidence": "fgSuccess/fgPersisted false",
+      "unblock": "Diagnose Almacén postsale pedido load (delivery-ops scopes/orgId/403). Fix ordinary engineering if empty after this SHA; no business-policy invention; no REAL_SEVEN mutation."
+    },
+    {
+      "lane": "SEARCH_NOTA",
+      "blockerType": "HOSTED_PROOF_BLOCKED",
+      "evidence": "NE-PILOT query did not surface Nota hit in palette",
+      "unblock": "Index issued delivery-note refs (NE-*) into shell search if product intends Nota findability."
+    }
+  ]
+}

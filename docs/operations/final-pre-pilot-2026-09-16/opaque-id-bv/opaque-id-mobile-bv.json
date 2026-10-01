@@ -1,0 +1,124 @@
+{
+  "email": "carmen.staging@isalwa.demo",
+  "base": "https://os-web-staging.onrender.com",
+  "expectedSha": "e9a7a02b5a2e2105e7f4c756e0bfd20b17fe7fed",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "readSafe": true,
+  "realSevenMutated": "NO",
+  "at": "2026-09-16T19:16:11.766Z",
+  "surfaces": {
+    "finanzas": {
+      "path": "/finanzas",
+      "finalUrl": "https://os-web-staging.onrender.com/finanzas",
+      "verdict": "PASS",
+      "welcomeDismissed": true,
+      "noFreeTextIdentificador": true,
+      "noFreeTextEtiqueta": true,
+      "hasSubjectTypeSelect": true,
+      "hasOrderSearchableSelect": false,
+      "hasHonestEmptyOrders": true,
+      "orderSubjectOk": true,
+      "partyTypeaheadVisible": true,
+      "partyPlaceholder": "Buscar cliente (mín. 2 letras)",
+      "layout": {
+        "viewportW": 390,
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "docOverflowPx": 0,
+        "mainScrollWidth": 390,
+        "mainClientWidth": 390,
+        "mainOverflowX": false,
+        "mainLeft": 0,
+        "mainRight": 390,
+        "noHorizontalOverflowBlocking": true,
+        "tokens": {
+          "kiln": "#18324b",
+          "glaze": "#287a78",
+          "porcelain": "#f6f1e8"
+        },
+        "bodyBg": "rgb(246, 241, 232)",
+        "navy": true,
+        "teal": true
+      },
+      "bodySnippet": "Abrir menú ISALWA Cuenta REGISTRO OPERATIVO Finanzas operativas Anote evidencia de pago reportada. No es contabilidad oficial y no confirma cobranza. Dato manual Registro manual No es contabilidad oficial Un reclamo de pago no confirma la cobranza. Todo queda pendiente de confirmar. Fuente: registro manual. Procedencia visible. Sin libro mayor. Dato manual No es libro contable Fuente: registro manual. Procedencia visible. Sin libro mayor. Queda pendiente de confirmar en la empresa; no abre Ingresos ni contabilidad oficial. REGISTRO Elija el pedido, cliente o cotización al que corresponde el re",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/opaque-id-bv/finanzas-390.png"
+    },
+    "produccion": {
+      "path": "/produccion",
+      "finalUrl": "https://os-web-staging.onrender.com/produccion",
+      "verdict": "PASS",
+      "welcomeDismissed": true,
+      "noIdentificadorDeProducto": true,
+      "catalogSearchPresent": true,
+      "enterDoesNotCommitRaw": true,
+      "beforeEnUso": 0,
+      "afterEnUso": 0,
+      "layout": {
+        "viewportW": 390,
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "docOverflowPx": 0,
+        "mainScrollWidth": 390,
+        "mainClientWidth": 390,
+        "mainOverflowX": false,
+        "mainLeft": 0,
+        "mainRight": 390,
+        "noHorizontalOverflowBlocking": true,
+        "tokens": {
+          "kiln": "#18324b",
+          "glaze": "#287a78",
+          "porcelain": "#f6f1e8"
+        },
+        "bodyBg": "rgb(246, 241, 232)",
+        "navy": true,
+        "teal": true
+      },
+      "bodySnippet": "Abrir menú ISALWA Cuenta PLANTA Producción Anotación de planta por producto. No es una tabla de base de datos. No es pedido Anotación de planta Una quema no es un pedido y no pertenece a un pedido. Puede reunir varios productos del catálogo. Un ingreso al Almacén de Productos Terminados no asigna un pedido. 1. Laboratorio (preparación de materia prima y esmalte) 2. Molienda 3. Colaje 4. Secado 5. Pulido 6. Esmaltado 7. Carga y Limpieza 8. Horno 9. Resane 10. Clasificación 11. Almacén de Productos Terminados PRODUCTO Seleccione un producto del catálogo. Paso Laboratorio (preparación de materia ",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/opaque-id-bv/produccion-390.png"
+    },
+    "mensajes": {
+      "path": "/mensajes",
+      "finalUrl": "https://os-web-staging.onrender.com/mensajes",
+      "verdict": "PASS",
+      "welcomeDismissed": true,
+      "partyTypeaheadPresent": true,
+      "partyPlaceholder": "Buscar cliente (mín. 2 letras)",
+      "hasPartyTypeaheadCopy": true,
+      "noFreeTextPartyId": true,
+      "layout": {
+        "viewportW": 390,
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "docOverflowPx": 0,
+        "mainScrollWidth": 390,
+        "mainClientWidth": 390,
+        "mainOverflowX": false,
+        "mainLeft": 0,
+        "mainRight": 390,
+        "noHorizontalOverflowBlocking": true,
+        "tokens": {
+          "kiln": "#18324b",
+          "glaze": "#287a78",
+          "porcelain": "#f6f1e8"
+        },
+        "bodyBg": "rgb(246, 241, 232)",
+        "navy": true,
+        "teal": true
+      },
+      "bodySnippet": "Abrir menú ISALWA Cuenta MENSAJES Mensajes todavía no está conectado El canal automático de WhatsApp no está habilitado todavía. Puede dejar un registro manual de lo hablado. Canal no conectado Próximamente Mensajería integrada — no configurada todavía. Pendiente Inicio Registrar conversación con cliente Canal no conectado Número corporativo pendiente WhatsApp no está conectado. El número corporativo del asesor de ventas todavía no está. Esto es un registro que dejó la empresa. Un mensaje es evidencia. No confirma un pago ni una entrega. Lo anotó: carmen.staging@isalwa.demo CLIENTE Seleccione ",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/opaque-id-bv/mensajes-390.png"
+    }
+  },
+  "loginUrl": "https://os-web-staging.onrender.com/inicio",
+  "loginOk": true,
+  "welcomeDismissedAfterLogin": true,
+  "map": {
+    "finanzas": "PASS",
+    "produccion": "PASS",
+    "mensajes": "PASS"
+  },
+  "ok": true
+}

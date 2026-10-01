@@ -15,7 +15,8 @@ const { chromium } = require('playwright-core');
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BASE = 'https://os-web-staging.onrender.com';
 const API = 'https://os-api-staging.onrender.com';
-const EXPECTED_SHA = process.env.EXPECTED_SHA || 'f3aaf6426b49b2bf40910b9029b7d00e88a182c6';
+const EXPECTED_SHA =
+  process.env.EXPECTED_SHA || '1244d84ef75142d973c8f7aa44caeadd66361768';
 const WEB_SRV = 'srv-dajddb67bikc73bl42q0';
 const API_SRV = 'srv-dajd64gae00c739gpk20';
 const SYNTH_ORG = '01M2JKF77TXMJNDTKNCYNHH9G5';
@@ -206,6 +207,27 @@ async function main() {
   {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await ctx.newPage();
+    const fgApiHits = [];
+    page.on('response', async (res) => {
+      try {
+        const url = res.url();
+        if (!/ReceiveFinishedGoods|finished.?goods|commands\/Receive/i.test(url)) return;
+        const status = res.status();
+        let bodySnippet = '';
+        try {
+          bodySnippet = (await res.text()).slice(0, 800);
+        } catch {
+          bodySnippet = '';
+        }
+        const reqId =
+          res.headers()['x-request-id'] ||
+          res.headers()['x-correlation-id'] ||
+          (bodySnippet.match(/[0-9a-f]{8}-[0-9a-f]{4}/i) || [null])[0];
+        fgApiHits.push({ path: url.replace(/^https?:\/\/[^/]+/, ''), status, requestId: reqId, bodySnippet });
+      } catch {
+        /* ignore listener errors */
+      }
+    });
     await login(page, 'w2.almacen@isalwa.demo');
     await page.goto(`${BASE}/almacen`, { waitUntil: 'domcontentloaded', timeout: 90000 });
     await page.waitForTimeout(1500);
@@ -258,6 +280,14 @@ async function main() {
             ])[0];
         report.walk.fgNoDuplicateOnDoubleClick =
           report.walk.fgSuccess && !/duplicad|ya existe|conflicto/i.test(after);
+        if (fgApiHits.length > 0) {
+          report.walk.fgApiEvidence = {
+            path: fgApiHits[0].path,
+            statuses: fgApiHits.map((h) => h.status),
+            requestIds: fgApiHits.map((h) => h.requestId).filter(Boolean),
+            bodies: fgApiHits.map((h) => h.bodySnippet),
+          };
+        }
         report.shots.fgAfter = await shot(page, `master-close-${TS}-fg-after`);
 
         await page.reload({ waitUntil: 'domcontentloaded', timeout: 90000 });

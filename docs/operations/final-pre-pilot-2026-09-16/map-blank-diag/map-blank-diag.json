@@ -1,0 +1,100 @@
+{
+  "at": "2026-09-16T18:31:12.827Z",
+  "page": "https://os-web-staging.onrender.com/mapa",
+  "mapbox": [
+    {
+      "status": 200,
+      "host": "api.mapbox.com",
+      "path": "/styles/v1/mapbox/light-v11"
+    },
+    {
+      "status": 200,
+      "host": "api.mapbox.com",
+      "path": "/styles/v1/mapbox/light-v11/iconset.pbf"
+    },
+    {
+      "status": 200,
+      "host": "api.mapbox.com",
+      "path": "/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/664/1126.vector.pbf"
+    },
+    {
+      "status": 200,
+      "host": "api.mapbox.com",
+      "path": "/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/665/1126.vector.pbf"
+    },
+    {
+      "status": 200,
+      "host": "api.mapbox.com",
+      "path": "/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/664/1127.vector.pbf"
+    },
+    {
+      "status": 200,
+      "host": "api.mapbox.com",
+      "path": "/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/665/1127.vector.pbf"
+    },
+    {
+      "status": 200,
+      "host": "api.mapbox.com",
+      "path": "/fonts/v1/mapbox/DIN%20Pro%20Italic/0-255.pbf"
+    },
+    {
+      "status": 200,
+      "host": "api.mapbox.com",
+      "path": "/fonts/v1/mapbox/Arial%20Unicode%20MS%20Regular/0-255.pbf"
+    },
+    {
+      "status": 200,
+      "host": "api.mapbox.com",
+      "path": "/fonts/v1/mapbox/DIN%20Pro%20Medium/0-255.pbf"
+    },
+    {
+      "status": 200,
+      "host": "api.mapbox.com",
+      "path": "/fonts/v1/mapbox/DIN%20Pro%20Regular/0-255.pbf"
+    },
+    {
+      "status": 204,
+      "host": "events.mapbox.com",
+      "path": "/events/v2"
+    },
+    {
+      "status": 204,
+      "host": "events.mapbox.com",
+      "path": "/events/v2"
+    },
+    {
+      "status": 200,
+      "host": "api.mapbox.com",
+      "path": "/map-sessions/v1"
+    },
+    {
+      "status": 204,
+      "host": "events.mapbox.com",
+      "path": "/events/v2"
+    },
+    {
+      "status": 204,
+      "host": "events.mapbox.com",
+      "path": "/events/v2"
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 ()"
+  ],
+  "canvas": {
+    "canvases": [
+      {
+        "w": 640,
+        "h": 300,
+        "cw": 640,
+        "ch": 300
+      }
+    ],
+    "hasMapRoot": true,
+    "pill": true,
+    "coverage": "ISALWA OS\n          :root {\n            --isalwa-font-sans: var(--font-isalwa-sa",
+    "bodyHasMapbox": true
+  },
+  "verdict": "PASS",
+  "tileOkCount": 6
+}

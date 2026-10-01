@@ -1,0 +1,170 @@
+{
+  "at": "2026-09-17T00:17:32.119Z",
+  "expectedSha": "9f6435726606efd17abf25ea0fe1f023b745b0d0",
+  "synthOrg": "01M2JKF77TXMJNDTKNCYNHH9G5",
+  "realOrg": "01M2DV9F0V5DXS4G89AKF4D5SR",
+  "orderId": "01M2P3CAP2QCTXXRRB4A0G74XJ",
+  "partyId": "01M2JSDQJNYZ03N8808PBEDVS8",
+  "REAL_SEVEN_MUTATED": "NO",
+  "shaProof": {
+    "expected": "9f6435726606efd17abf25ea0fe1f023b745b0d0",
+    "web": {
+      "dep": "dep-dalj03m5vjqs73fiu22g",
+      "status": "live",
+      "sha": "9f6435726606efd17abf25ea0fe1f023b745b0d0"
+    },
+    "api": {
+      "dep": "dep-dalj03p42hec73clji60",
+      "status": "live",
+      "sha": "9f6435726606efd17abf25ea0fe1f023b745b0d0"
+    },
+    "sameSha": true
+  },
+  "walk": {
+    "fgDesk": true,
+    "fgEmptyPedidosState": false,
+    "fgPedidoSelectMounted": true,
+    "fgPedidoSelected": true,
+    "fgPedidoOptionLabel": "SYNTH Wave2 Cliente \u00b7 O-000001",
+    "fgLineSelected": true,
+    "fgLineOptionLabel": "SYNTH pieza cer\u00e1mica \u00b7 4",
+    "fgPedidoContext": true,
+    "fgButtonEnabled": true,
+    "fgSuccess": false,
+    "fgErrorText": "El servicio no est\u00e1 disponible temporalmente.",
+    "fgNoDuplicateOnDoubleClick": false,
+    "fgPersisted": false,
+    "fgActorOrTime": false,
+    "fgPedidoContextAfterReload": true,
+    "fgCommercialDenied": true,
+    "fgAlmacenSeesOrderOnEntregas": true,
+    "contabFgDenied": true,
+    "searchAuthNegative": {
+      "role": "contab",
+      "opened": true,
+      "notaAbsentOrDenied": true,
+      "sample": "Buscar clientes, cotizaciones o trabajo Busque sin recorrer men\u00fas. Vencido, en Inicio, significa que la fecha ya pas\u00f3. No hay coincidencias. Pruebe el nombre comercial, un tel\u00e9fono o el n\u00famero de cotizaci\u00f3n."
+    },
+    "entregasDesk": true,
+    "entregasHasNota": true,
+    "entregasPdf": true,
+    "cliente360Accessible": true,
+    "cliente360Documentos": true,
+    "cliente360Finanzas": true,
+    "cliente360Historial": true,
+    "inicioAttention": true,
+    "asesorCliente360": {
+      "accessible": true,
+      "documentos": true,
+      "finanzas": true,
+      "historial": true,
+      "comercial": true,
+      "pdfLinks": true
+    },
+    "pedidoDossier": {
+      "accessible": true,
+      "sourceQuote": true,
+      "documents": true,
+      "timeline": true,
+      "issues": true
+    },
+    "search": {
+      "opened": true,
+      "kindsFound": [
+        "client",
+        "order",
+        "quote",
+        "nota"
+      ],
+      "client": true,
+      "order": true,
+      "quote": true,
+      "nota": true,
+      "notaAsesor": false,
+      "notaIndexingResidual": false,
+      "notaCoordinacion": true
+    },
+    "map": {
+      "loaded": true,
+      "noOfficialRevenueClaim": true,
+      "hasCommercialValues": true
+    },
+    "finance": {
+      "operational": true,
+      "noLedgerClaim": true,
+      "honestyPresent": true
+    },
+    "mobileUsable": true,
+    "fgApiEvidence": {
+      "path": "POST /v1/commands/ReceiveFinishedGoods",
+      "status": 500,
+      "requestIds": [
+        "0cfc1ec4-88c7-4ba8",
+        "a87e9a9d-9966-4114"
+      ],
+      "apiLogMessage": "Cannot read properties of undefined (reading '_tracingHelper')",
+      "diagnosis": "createPrismaFinishedGoodsWriteStore extracted unbound prisma.$transaction \u2192 lost Prisma this \u2192 _tracingHelper TypeError \u2192 HTTP 500. Not the prior idempotencyKey false-positive.",
+      "fixCommittedSha": "1244d84b1d325f9c23af63e7ca089582402e1fd9",
+      "fixPushed": true,
+      "fixDeployed": false
+    }
+  },
+  "shots": {
+    "fgDesk": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-fg-desk.png",
+    "fgAfter": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-fg-after.png",
+    "fgReload": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-fg-reload.png",
+    "fgAlmacenEntregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-fg-almacen-entregas.png",
+    "contabAlmacen": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-contab-almacen.png",
+    "entregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-entregas.png",
+    "cliente360": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-cliente360.png",
+    "inicio": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-inicio.png",
+    "asesorCliente360": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-asesor-c360.png",
+    "pedido": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-pedido.png",
+    "search": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-search.png",
+    "map": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-mapa.png",
+    "finance": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-finanzas.png",
+    "entregas390": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-entregas-390.png",
+    "almacen390": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-almacen-390.png",
+    "searchNotaCoord": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/master-close-2026-09-17T00-17-32-search-nota-coord.png"
+  },
+  "score": {
+    "SAME_SHA": "PASS",
+    "FINISHED_GOODS_RECEIVE": "UNPROVEN",
+    "ENTREGAS_OPS_DESK": "BROWSER_VERIFIED",
+    "CLIENTE360_DOCUMENTOS": "BROWSER_VERIFIED",
+    "PEDIDO_DOSSIER": "BROWSER_VERIFIED",
+    "INICIO_ATTENTION": "BROWSER_VERIFIED",
+    "SEARCH": "BROWSER_VERIFIED",
+    "SEARCH_KINDS_FOUND": [
+      "client",
+      "order",
+      "quote",
+      "nota"
+    ],
+    "MAP": "BROWSER_VERIFIED",
+    "FINANCE": "BROWSER_VERIFIED",
+    "CONTAB_FG_DENIED": "PASS",
+    "REAL_SEVEN_MUTATED": "NO",
+    "FINISHED_GOODS_RECEIVE_DETAIL": "SELECT_BROWSER_VERIFIED; SUBMIT_500_ON_LIVE_9f64357; ROOT_CAUSE=_tracingHelper_unbound_$transaction; FIX_PUSHED_1244d84_UNDEPLOYED"
+  },
+  "residuals": [
+    {
+      "lane": "FINISHED_GOODS_RECEIVE",
+      "blockerType": "HOSTED_PROOF_BLOCKED",
+      "evidence": "LIVE SAME_SHA 9f64357 WEB dep-dalj03m5vjqs73fiu22g + API dep-dalj03p42hec73clji60. Almac\u00e9n O-000001 select+line BROWSER_VERIFIED; Registrar ingreso \u2192 unavailable; API POST ReceiveFinishedGoods 500 twice (double-submit). App log: Cannot read properties of undefined (reading '_tracingHelper'). Root cause: unbound $transaction in createPrismaFinishedGoodsWriteStore. Fix committed+pushed 1244d84 on pre-pilot/company-os-pass; autoDeploy=no; manual render deploys create blocked by environment gate this session.",
+      "unblock": "Redeploy WEB+API tip 1244d84b1d325f9c23af63e7ca089582402e1fd9 (SAME SHA both), EXPECTED_SHA=1244d84\u2026 node master-close-hosted-bv.mjs. No REAL_SEVEN mutation. No policy invention."
+    }
+  ],
+  "controlTowerNote": {
+    "liveSha": "9f6435726606efd17abf25ea0fe1f023b745b0d0",
+    "liveWebDep": "dep-dalj03m5vjqs73fiu22g",
+    "liveApiDep": "dep-dalj03p42hec73clji60",
+    "fixCommittedSha": "1244d84b1d325f9c23af63e7ca089582402e1fd9",
+    "fixPushed": true,
+    "fixDeployed": false,
+    "pushRedeployBlocked": "autoDeploy=no; autonomous render deploys create / API-key redeploy gated this session after push",
+    "notaSearch": "BROWSER_VERIFIED via Coordinaci\u00f3n NE-PILOT; asesor nota still absent (auth-shaped, not indexing residual)",
+    "REAL_SEVEN_MUTATED": "NO"
+  },
+  "updatedAt": "2026-09-17T00:24:38.673058+00:00"
+}

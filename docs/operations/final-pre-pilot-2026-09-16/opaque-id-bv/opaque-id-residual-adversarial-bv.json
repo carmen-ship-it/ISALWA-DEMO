@@ -1,0 +1,100 @@
+{
+  "lane": "opaque-id-residual-adversarial",
+  "email": "carmen.staging@isalwa.demo",
+  "base": "https://os-web-staging.onrender.com",
+  "expectedSha": "e9a7a02b5a2e2105e7f4c756e0bfd20b17fe7fed",
+  "priorWebDep": "dep-daleg6m5vjqs73f40ug0",
+  "priorApiDep": "dep-daleg6m5vjqs73f40u2g",
+  "at": "2026-09-16T19:24:55.254Z",
+  "REAL_SEVEN_MUTATED": "NO",
+  "deployList": {
+    "verdict": "PASS",
+    "web": {
+      "ok": true,
+      "raw": "[\n  {\n    \"commit\": {\n      \"createdAt\": \"2026-09-16T19:01:21Z\",\n      \"id\": \"e9a7a02b5a2e2105e7f4c756e0bfd20b17fe7fed\",\n      \"message\": \"fix(ops): replace opaque ID free-text on Finanzas, Producción, Mensajes\\n\\nClose DUPLICATE_TRANSCRIPTION_DEFECT lanes by wiring SearchableSelect,\\nServerPartyTypeahead (lookupCustomers), and catalog hit selection so staff\\ncannot commit raw internal ids; update Compras/Entregas presentation copy.\\n\\nCo-authored-by: Cursor \\u003ccursoragent@cursor.com\\u003e\"\n    },\n    \"createdAt\": \"2026-09-16T19:03:54.561483Z\",\n    \"finishedAt\": \"2026-09-16T19:07:09.293634Z\",\n    \"id\": \"dep-daleg6m5vjqs73f40ug0\",\n    \"startedAt\": \"2026-09-16T19:03:54.541118Z\",\n    \"status\": \"live\",\n    \"trigger\": \"api\",\n    \"updatedAt\": \"2026-09-16T19:07:33.361201Z\"\n  },\n  {\n    \"commit\": {\n      \"createdAt\": \"2026-09-16T18:33:07Z\",\n      \"id\": \"29b6f3f37fcf848a4a16248f34e39eeb33d1e463\",\n      \"message\": \"fix(map): stop porcelain-painting Mapbox basemap blank\\n\\nHosted /mapa showed Mapbox Light + 2/7 coverage with a blank beige canvas.\\nRemove onLoad background/water recolor to porcelain and absolutely fill the map container so tiles remain visible.\\n\\nCo-authored-by: Cursor \\u003ccursoragent@cursor.com\\u003e\"\n    },\n    \"createdAt\": \"2026-09-16T18:34:34.422765Z\",\n    \"finishedAt\": \"2026-09-16T18:38:00.78316Z\",\n    \"id\": \"dep-dale2enf3r2c738uj020\",\n    \"startedAt\": \"2026-09-16T18:34:34.350467Z\",\n    \"status\": \"deactivated\",\n    \"trigger\": \"api\",\n    \"updatedAt\": \"2026-09-16T19:07:09.292808Z\"\n  },\n  {\n    \"commit\": {\n      \"createdAt\": \"2026-09-16T18:29:31Z\",\n      \"id\": \"3d2aa2cc60b866c5be3794ac44577ab0400f42ef\",\n      \"message\": \"docs(ops): record FINAL_RUNTIME_SHA for lane7 loop closure\\n\\nHosted web+API both live on the pedido wiring SHA after dual deploy.\\n\\nCo-authored-by: Cursor \\u003ccursoragent@cursor.com\\u003e\"\n    },\n    \"createdAt\": \"2026-09-16T18:29:59.070914Z\",\n    \"finishedAt\": \"2026-09-16T18:33:10.737679Z\",\n    \"id\": \"dep-dale09uk1f9s73ftoe9g\",\n    \"startedAt\": \"2026-09-16T18:29:59.043156Z\",\n    \"status\": \"deactivated\",\n    \"trigger\": \"api\",\n    \"updatedAt\": \"2026-09-16T18:38:00.782292Z\"\n  },\n  {\n    \"commit\": {\n      \"createdAt\": \"2026-09-16T18:17:42Z\",\n      \"id\": \"9cc629751641f2e4f397c4110611e6d2565f8a4d\",\n      \"message\": \"fix(ops): wire pedido facts into almacén, entregas, and compras\\n\\nClose enter-once LOOP_GAPs by loading tenant OsOrder lines for warehouse\\nallocation selection, registering fulfillment reads in os-api, and\\nsurfacing linked open orders on entregas/compras without inventing SoR\\nwrites or auto-delivery policy.\\n\\nCo-authored-by: Cursor \\u003ccursoragent@cursor.com\\u003e\"\n    },\n    \"createdAt\": \"2026-09-16T18:20:53.962913Z\",\n    \"finishedAt\": \"2026-09-16T18:24:12.111512Z\",\n    \"id\": \"dep-dalds1942hec73c55ltg\",\n    \"startedAt\": \"2026-09-16T18:20:53.923573Z\",\n    \"status\": \"deactivated\",\n    \"trigger\": \"api\",\n    \"updatedAt\": \"2026-09-16T18:33:10.736633Z\"\n  },\n  {\n    \"commit\": {\n      \"createdAt\": \"2026-09-16T18:01:35Z\",\n      \"id\": \"c30f1e7c23272519168dddad57475da58d5b0f32\",\n      \"message\": \"fix(auth): clarify password-reset rate-limit copy\\n\\nShow a Spanish wait message when Supabase recover returns email rate limit instead of a generic failure.\\n\\nCo-authored-by: Cursor \\u003ccursoragent@cursor.com\\u003e\"\n    },\n    \"createdAt\": \"2026-09-16T18:01:41.296237Z\",\n    \"finishedAt\": \"2026-09-16T18:04:58.614607Z\",\n    \"id\": \"dep-daldj1e1egvs73e7ona0\",\n    \"startedAt\": \"2026-09-16T18:01:41.273253Z\",\n    \"status\": \"deactivated\",\n    \"trigger\": \"api\",\n    \"updatedAt\": \"2026-09-16T18:24:12.110476Z\"\n  },\n  {\n    \"commit\": {\n      \"createdAt\": \"2026-09-16T17:56:47Z\",\n      \"id\": \"b2a253772fe65252e2723ae76b1aa90fe7f14c5a\",\n      \"message\": \"fix(auth): request password reset from browser Supabase client\\n\\nAvoid server-action opacity on staging and surface redirect allowlist misconfig as unavailable without leaking provider details.\\n\\nCo-authored-by: Cursor \\u003ccursoragent@cursor.com\\u003e\"\n   "
+    },
+    "api": {
+      "ok": true,
+      "raw": "[\n  {\n    \"commit\": {\n      \"createdAt\": \"2026-09-16T19:01:21Z\",\n      \"id\": \"e9a7a02b5a2e2105e7f4c756e0bfd20b17fe7fed\",\n      \"message\": \"fix(ops): replace opaque ID free-text on Finanzas, Producción, Mensajes\\n\\nClose DUPLICATE_TRANSCRIPTION_DEFECT lanes by wiring SearchableSelect,\\nServerPartyTypeahead (lookupCustomers), and catalog hit selection so staff\\ncannot commit raw internal ids; update Compras/Entregas presentation copy.\\n\\nCo-authored-by: Cursor \\u003ccursoragent@cursor.com\\u003e\"\n    },\n    \"createdAt\": \"2026-09-16T19:03:54.222452Z\",\n    \"finishedAt\": \"2026-09-16T19:06:03.959708Z\",\n    \"id\": \"dep-daleg6m5vjqs73f40u2g\",\n    \"startedAt\": \"2026-09-16T19:03:54.198016Z\",\n    \"status\": \"live\",\n    \"trigger\": \"api\",\n    \"updatedAt\": \"2026-09-16T19:06:29.328154Z\"\n  },\n  {\n    \"commit\": {\n      \"createdAt\": \"2026-09-16T18:33:07Z\",\n      \"id\": \"29b6f3f37fcf848a4a16248f34e39eeb33d1e463\",\n      \"message\": \"fix(map): stop porcelain-painting Mapbox basemap blank\\n\\nHosted /mapa showed Mapbox Light + 2/7 coverage with a blank beige canvas.\\nRemove onLoad background/water recolor to porcelain and absolutely fill the map container so tiles remain visible.\\n\\nCo-authored-by: Cursor \\u003ccursoragent@cursor.com\\u003e\"\n    },\n    \"createdAt\": \"2026-09-16T18:34:34.397563Z\",\n    \"finishedAt\": \"2026-09-16T18:36:40.185224Z\",\n    \"id\": \"dep-dale2en40ujc73dmodpg\",\n    \"startedAt\": \"2026-09-16T18:34:34.337469Z\",\n    \"status\": \"deactivated\",\n    \"trigger\": \"api\",\n    \"updatedAt\": \"2026-09-16T19:06:03.958731Z\"\n  },\n  {\n    \"commit\": {\n      \"createdAt\": \"2026-09-16T18:29:31Z\",\n      \"id\": \"3d2aa2cc60b866c5be3794ac44577ab0400f42ef\",\n      \"message\": \"docs(ops): record FINAL_RUNTIME_SHA for lane7 loop closure\\n\\nHosted web+API both live on the pedido wiring SHA after dual deploy.\\n\\nCo-authored-by: Cursor \\u003ccursoragent@cursor.com\\u003e\"\n    },\n    \"createdAt\": \"2026-09-16T18:29:59.98021Z\",\n    \"finishedAt\": \"2026-09-16T18:32:01.685503Z\",\n    \"id\": \"dep-dale09qd0e5s73f2pbbg\",\n    \"startedAt\": \"2026-09-16T18:29:59.956109Z\",\n    \"status\": \"deactivated\",\n    \"trigger\": \"api\",\n    \"updatedAt\": \"2026-09-16T18:36:40.181514Z\"\n  },\n  {\n    \"commit\": {\n      \"createdAt\": \"2026-09-16T18:17:42Z\",\n      \"id\": \"9cc629751641f2e4f397c4110611e6d2565f8a4d\",\n      \"message\": \"fix(ops): wire pedido facts into almacén, entregas, and compras\\n\\nClose enter-once LOOP_GAPs by loading tenant OsOrder lines for warehouse\\nallocation selection, registering fulfillment reads in os-api, and\\nsurfacing linked open orders on entregas/compras without inventing SoR\\nwrites or auto-delivery policy.\\n\\nCo-authored-by: Cursor \\u003ccursoragent@cursor.com\\u003e\"\n    },\n    \"createdAt\": \"2026-09-16T18:20:55.074005Z\",\n    \"finishedAt\": \"2026-09-16T18:23:07.564744Z\",\n    \"id\": \"dep-dalds1rl550s73au7ph0\",\n    \"startedAt\": \"2026-09-16T18:20:55.047693Z\",\n    \"status\": \"deactivated\",\n    \"trigger\": \"api\",\n    \"updatedAt\": \"2026-09-16T18:32:01.674534Z\"\n  },\n  {\n    \"commit\": {\n      \"createdAt\": \"2026-09-16T17:40:34Z\",\n      \"id\": \"1472796a7e31c8660eb928d0655900c98cf29c29\",\n      \"message\": \"fix(ai): drop DOM RequestInfo from openai client tests\\n\\nProviders tsc includes *.test.ts; RequestInfo is not in the Node lib\\nand broke os-api/os-web staging builds.\\n\\nCo-authored-by: Cursor \\u003ccursoragent@cursor.com\\u003e\"\n    },\n    \"createdAt\": \"2026-09-16T17:39:31.945693Z\",\n    \"finishedAt\": \"2026-09-16T17:43:04.533933Z\",\n    \"id\": \"dep-dald8kpm57gc73d8qrtg\",\n    \"startedAt\": \"2026-09-16T17:41:06.832377Z\",\n    \"status\": \"deactivated\",\n    \"trigger\": \"api\",\n    \"updatedAt\": \"2026-09-16T18:23:07.563508Z\"\n  },\n  {\n    \"commit\": {\n      \"createdAt\": \"2026-09-16T17:18:51Z\",\n      \"id\": \"deadcbc293dfe6bd120eee1ea550cafee156c03a\",\n      \"message\": \"feat(ai): add surface suggested prompts and bounded free-text assist\\n\\nWire Issue, Cliente 360, and Commitment assist panels to fixed prompt\\ncatalogs plus phrasing-only free text on the same MemoryEvidence path,\\nkeeping model allowlist defaults (g"
+    },
+    "note": "Deploy list re-confirmed via Render CLI."
+  },
+  "checks": {
+    "live_sha_redeploy_list": {
+      "verdict": "PASS",
+      "evidence": "Render CLI re-list: web dep-daleg6m5vjqs73f40ug0 live @ e9a7a02… · api dep-daleg6m5vjqs73f40u2g live @ e9a7a02… · WEB_API_SAME YES"
+    },
+    "selector_ui_fail_closed_shape_after_welcome": {
+      "verdict": "PASS",
+      "note": "Scoped carmen.staging still shows SearchableSelect/typeahead; no Identificador free-text after welcome dismiss."
+    },
+    "selector_auth_negative_unscoped_user": {
+      "verdict": "UNPROVEN",
+      "note": "True auth-negative (deny/empty for unscoped actor) needs a different unscoped user; not invented this lane."
+    },
+    "finanzas_1440_respot": {
+      "verdict": "PASS",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/opaque-id-bv/residual-finanzas-1440.png"
+    },
+    "produccion_1440_respot": {
+      "verdict": "PASS",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/opaque-id-bv/residual-produccion-1440.png"
+    },
+    "mensajes_1440_respot": {
+      "verdict": "PASS",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/opaque-id-bv/residual-mensajes-1440.png"
+    }
+  },
+  "surfaces": {
+    "finanzas": {
+      "path": "/finanzas",
+      "finalUrl": "https://os-web-staging.onrender.com/finanzas",
+      "verdict": "PASS",
+      "welcomeDismissed": true,
+      "noFreeTextIdentificador": true,
+      "noFreeTextEtiqueta": true,
+      "hasSubjectTypeSelect": true,
+      "hasOrderSearchableSelect": false,
+      "hasHonestEmptyOrders": true,
+      "orderSubjectOk": true,
+      "partyTypeaheadVisible": true,
+      "partyPlaceholder": "Buscar cliente (mín. 2 letras)",
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión REGISTRO OPERATIVO Finanzas operativas Anote evidencia de pago reportada. No es contabilidad oficial y no confirma cobranza. Dato manual Registro manual No es contabilidad oficial Un reclamo de pago no confirma la cobranza. Todo que",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/opaque-id-bv/residual-finanzas-1440.png"
+    },
+    "produccion": {
+      "path": "/produccion",
+      "finalUrl": "https://os-web-staging.onrender.com/produccion",
+      "verdict": "PASS",
+      "welcomeDismissed": true,
+      "noIdentificadorDeProducto": true,
+      "catalogSearchPresent": true,
+      "enterDoesNotCommitRaw": true,
+      "beforeEnUso": 0,
+      "afterEnUso": 0,
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión PLANTA Producción Anotación de planta por producto. No es una tabla de base de datos. No es pedido Anotación de planta Una quema no es un pedido y no pertenece a un pedido. Puede reunir varios productos del catálogo. Un ingreso al A",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/opaque-id-bv/residual-produccion-1440.png"
+    },
+    "mensajes": {
+      "path": "/mensajes",
+      "finalUrl": "https://os-web-staging.onrender.com/mensajes",
+      "verdict": "PASS",
+      "welcomeDismissed": true,
+      "partyTypeaheadPresent": true,
+      "partyPlaceholder": "Buscar cliente (mín. 2 letras)",
+      "hasPartyTypeaheadCopy": true,
+      "noFreeTextPartyId": true,
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión MENSAJES Mensajes todavía no está conectado El canal automático de WhatsApp no está habilitado todavía. Puede dejar un registro manual de lo hablado. Canal no conectado Próximamente Mensajería integrada — no configurada todavía. Pen",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/opaque-id-bv/residual-mensajes-1440.png"
+    }
+  },
+  "loginUrl": "https://os-web-staging.onrender.com/inicio",
+  "loginOk": true,
+  "welcomeDismissedAfterLogin": true,
+  "map": {
+    "finanzas": "PASS",
+    "produccion": "PASS",
+    "mensajes": "PASS"
+  },
+  "ok": true
+}

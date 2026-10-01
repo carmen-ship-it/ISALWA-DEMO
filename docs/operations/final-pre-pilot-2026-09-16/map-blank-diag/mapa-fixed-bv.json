@@ -1,0 +1,163 @@
+{
+  "at": "2026-09-16T18:39:23.083Z",
+  "sha": "29b6f3f37fcf848a4a16248f34e39eeb33d1e463",
+  "email": "carmen.staging@isalwa.demo",
+  "page": "https://os-web-staging.onrender.com/mapa",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "login": "OK",
+  "welcomeDismissed": true,
+  "screenshot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/map-blank-diag/mapa-fixed-1440.png",
+  "screenshotBytes": 208964,
+  "dom": {
+    "url": "https://os-web-staging.onrender.com/mapa",
+    "welcomeStill": false,
+    "mapboxLight": true,
+    "coverageText": "2/7",
+    "coverageParts": [
+      2,
+      7
+    ],
+    "markers": 0,
+    "mapCanvasAttr": "live",
+    "engine": "mapbox",
+    "canvasCount": 1,
+    "canvasSize": {
+      "w": 640,
+      "h": 394
+    }
+  },
+  "pixelAnalysis": {
+    "ok": false,
+    "reason": "NO_2D_CONTEXT"
+  },
+  "mapbox": {
+    "total": 15,
+    "ok200": 11,
+    "style200": 2,
+    "tile200": 4,
+    "authFail": 0,
+    "samples": [
+      {
+        "status": 200,
+        "host": "api.mapbox.com",
+        "path": "/styles/v1/mapbox/light-v11",
+        "url": "https://api.mapbox.com/styles/v1/mapbox/light-v11?sdk=js-3.27.0&access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "host": "api.mapbox.com",
+        "path": "/styles/v1/mapbox/light-v11/iconset.pbf",
+        "url": "https://api.mapbox.com/styles/v1/mapbox/light-v11/iconset.pbf?access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "host": "api.mapbox.com",
+        "path": "/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/664/1127.vector.pbf",
+        "url": "https://api.mapbox.com/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/664/1127.vector.pbf?sku=101fz8KzMPRYH&access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "host": "api.mapbox.com",
+        "path": "/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/665/1126.vector.pbf",
+        "url": "https://api.mapbox.com/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/665/1126.vector.pbf?sku=101fz8KzMPRYH&access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "host": "api.mapbox.com",
+        "path": "/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/665/1127.vector.pbf",
+        "url": "https://api.mapbox.com/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/665/1127.vector.pbf?sku=101fz8KzMPRYH&access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "host": "api.mapbox.com",
+        "path": "/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/664/1126.vector.pbf",
+        "url": "https://api.mapbox.com/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/664/1126.vector.pbf?sku=101fz8KzMPRYH&access_token=REDACTED"
+      },
+      {
+        "status": 204,
+        "host": "events.mapbox.com",
+        "path": "/events/v2",
+        "url": "https://events.mapbox.com/events/v2?access_token=REDACTED"
+      },
+      {
+        "status": 204,
+        "host": "events.mapbox.com",
+        "path": "/events/v2",
+        "url": "https://events.mapbox.com/events/v2?access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "host": "api.mapbox.com",
+        "path": "/fonts/v1/mapbox/DIN%20Pro%20Italic/0-255.pbf",
+        "url": "https://api.mapbox.com/fonts/v1/mapbox/DIN%20Pro%20Italic/0-255.pbf?access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "host": "api.mapbox.com",
+        "path": "/fonts/v1/mapbox/DIN%20Pro%20Medium/0-255.pbf",
+        "url": "https://api.mapbox.com/fonts/v1/mapbox/DIN%20Pro%20Medium/0-255.pbf?access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "host": "api.mapbox.com",
+        "path": "/fonts/v1/mapbox/Arial%20Unicode%20MS%20Regular/0-255.pbf",
+        "url": "https://api.mapbox.com/fonts/v1/mapbox/Arial%20Unicode%20MS%20Regular/0-255.pbf?access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "host": "api.mapbox.com",
+        "path": "/fonts/v1/mapbox/DIN%20Pro%20Regular/0-255.pbf",
+        "url": "https://api.mapbox.com/fonts/v1/mapbox/DIN%20Pro%20Regular/0-255.pbf?access_token=REDACTED"
+      },
+      {
+        "status": 204,
+        "host": "events.mapbox.com",
+        "path": "/events/v2",
+        "url": "https://events.mapbox.com/events/v2?access_token=REDACTED"
+      },
+      {
+        "status": 204,
+        "host": "events.mapbox.com",
+        "path": "/events/v2",
+        "url": "https://events.mapbox.com/events/v2?access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "host": "api.mapbox.com",
+        "path": "/map-sessions/v1",
+        "url": "https://api.mapbox.com/map-sessions/v1?sku=101fz8KzMPRYH&access_token=REDACTED"
+      }
+    ]
+  },
+  "coverageHonesty": true,
+  "MAP_LIVE": true,
+  "criteria": {
+    "loginOk": true,
+    "welcomeGone": true,
+    "style200": 2,
+    "tile200": 4,
+    "authFail": 0,
+    "basemapVisible": true,
+    "coverageHonesty": true,
+    "markers": 0,
+    "mapboxLight": true,
+    "markersVisual": true
+  },
+  "MAP_LIVE_METHOD": "hosted_screenshot_visual + mapbox_network_200",
+  "visual": {
+    "basemapVisible": true,
+    "roadsLandLabels": true,
+    "markerVisible": true,
+    "coverage": "2/7",
+    "notPorcelainBlank": true,
+    "welcomeDismissed": true
+  },
+  "deploys": {
+    "web": "dep-dale2enf3r2c738uj020",
+    "api": "dep-dale2en40ujc73dmodpg",
+    "sha": "29b6f3f37fcf848a4a16248f34e39eeb33d1e463"
+  }
+}

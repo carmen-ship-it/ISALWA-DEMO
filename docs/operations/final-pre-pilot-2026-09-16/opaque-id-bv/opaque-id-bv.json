@@ -1,0 +1,58 @@
+{
+  "email": "carmen.staging@isalwa.demo",
+  "base": "https://os-web-staging.onrender.com",
+  "expectedSha": "e9a7a02b5a2e2105e7f4c756e0bfd20b17fe7fed",
+  "at": "2026-09-16T19:14:23.964Z",
+  "surfaces": {
+    "finanzas": {
+      "path": "/finanzas",
+      "finalUrl": "https://os-web-staging.onrender.com/finanzas",
+      "verdict": "PASS",
+      "welcomeDismissed": true,
+      "noFreeTextIdentificador": true,
+      "noFreeTextEtiqueta": true,
+      "hasSubjectTypeSelect": true,
+      "hasOrderSearchableSelect": false,
+      "hasHonestEmptyOrders": true,
+      "orderSubjectOk": true,
+      "partyTypeaheadVisible": true,
+      "partyPlaceholder": "Buscar cliente (mín. 2 letras)",
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión REGISTRO OPERATIVO Finanzas operativas Anote evidencia de pago reportada. No es contabilidad oficial y no confirma cobranza. Dato manual Registro manual No es contabilidad oficial Un reclamo de pago no confirma la cobranza. Todo que",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/opaque-id-bv/finanzas-1440.png"
+    },
+    "produccion": {
+      "path": "/produccion",
+      "finalUrl": "https://os-web-staging.onrender.com/produccion",
+      "verdict": "PASS",
+      "welcomeDismissed": true,
+      "noIdentificadorDeProducto": true,
+      "catalogSearchPresent": true,
+      "enterDoesNotCommitRaw": true,
+      "beforeEnUso": 0,
+      "afterEnUso": 0,
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión PLANTA Producción Anotación de planta por producto. No es una tabla de base de datos. No es pedido Anotación de planta Una quema no es un pedido y no pertenece a un pedido. Puede reunir varios productos del catálogo. Un ingreso al A",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/opaque-id-bv/produccion-1440.png"
+    },
+    "mensajes": {
+      "path": "/mensajes",
+      "finalUrl": "https://os-web-staging.onrender.com/mensajes",
+      "verdict": "PASS",
+      "welcomeDismissed": true,
+      "partyTypeaheadPresent": true,
+      "partyPlaceholder": "Buscar cliente (mín. 2 letras)",
+      "hasPartyTypeaheadCopy": true,
+      "noFreeTextPartyId": true,
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión MENSAJES Mensajes todavía no está conectado El canal automático de WhatsApp no está habilitado todavía. Puede dejar un registro manual de lo hablado. Canal no conectado Próximamente Mensajería integrada — no configurada todavía. Pen",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/opaque-id-bv/mensajes-1440.png"
+    }
+  },
+  "loginUrl": "https://os-web-staging.onrender.com/inicio",
+  "loginOk": true,
+  "welcomeDismissedAfterLogin": true,
+  "map": {
+    "finanzas": "PASS",
+    "produccion": "PASS",
+    "mensajes": "PASS"
+  },
+  "ok": true
+}

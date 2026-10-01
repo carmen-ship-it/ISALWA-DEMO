@@ -1,0 +1,167 @@
+{
+  "shaExpected": "03745ab522bb6f4e83b27fbc3353efd598ab07ac",
+  "page": "https://os-web-staging.onrender.com/mapa",
+  "loginOk": true,
+  "basemapVisible": true,
+  "markerCount": 0,
+  "coverageText": "coordenadas confirmadas. Un enlace de mapas no genera un pin.",
+  "portfolioPresent": true,
+  "safeLabels": [
+    "Valor cotizado",
+    "Oportunidades",
+    "Cotizaciones",
+    "Pedidos"
+  ],
+  "forbiddenRevenueLabels": [],
+  "disclaimerPresent": true,
+  "attentionFilterDisabled": true,
+  "commercialFiltersAvailable": [
+    "Clientes",
+    "Oportunidades",
+    "Cotizaciones",
+    "Pedidos"
+  ],
+  "pinContextOpened": true,
+  "cliente360Href": "/clientes/01M2EAG2EQ14RKAATF94930TFY",
+  "cliente360NavOk": true,
+  "inventedCoords": "ZERO",
+  "fakeRevenueMetrics": "ZERO",
+  "mapbox": {
+    "total": 35,
+    "ok200": 25,
+    "style200": 6,
+    "tile200": 4,
+    "authFail": 0,
+    "samples": [
+      {
+        "status": 200,
+        "url": "https://api.mapbox.com/styles/v1/mapbox/light-v11?sdk=js-3.27.0&access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "url": "https://api.mapbox.com/styles/v1/mapbox/light-v11/iconset.pbf?access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "url": "https://api.mapbox.com/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/664/1127.vector.pbf?sku=101Kg8TltE1rG&access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "url": "https://api.mapbox.com/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/664/1126.vector.pbf?sku=101Kg8TltE1rG&access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "url": "https://api.mapbox.com/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/665/1127.vector.pbf?sku=101Kg8TltE1rG&access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "url": "https://api.mapbox.com/v4/mapbox.mapbox-streets-v8,mapbox.mapbox-terrain-v2,mapbox.mapbox-bathymetry-v2/11/665/1126.vector.pbf?sku=101Kg8TltE1rG&access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "url": "https://api.mapbox.com/fonts/v1/mapbox/Arial%20Unicode%20MS%20Regular/0-255.pbf?access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "url": "https://api.mapbox.com/fonts/v1/mapbox/DIN%20Pro%20Medium/0-255.pbf?access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "url": "https://api.mapbox.com/fonts/v1/mapbox/DIN%20Pro%20Italic/0-255.pbf?access_token=REDACTED"
+      },
+      {
+        "status": 200,
+        "url": "https://api.mapbox.com/fonts/v1/mapbox/DIN%20Pro%20Regular/0-255.pbf?access_token=REDACTED"
+      },
+      {
+        "status": 204,
+        "url": "https://events.mapbox.com/events/v2?access_token=REDACTED"
+      },
+      {
+        "status": 204,
+        "url": "https://events.mapbox.com/events/v2?access_token=REDACTED"
+      }
+    ]
+  },
+  "verdicts": {
+    "MAP_GEOGRAPHIC_VIEW": "PASS",
+    "MAP_CLIENT_CONTEXT": "PASS",
+    "MAP_COMMERCIAL_INTELLIGENCE": "PASS",
+    "MAP_AUTHORITATIVE_REVENUE": "NO",
+    "MAP_SAFE_COMMERCIAL_VALUE_METRICS": [
+      "Oportunidades (count)",
+      "Valor de oportunidades",
+      "Cotizaciones (count)",
+      "Valor cotizado",
+      "Pedidos (count)",
+      "Valor de pedidos"
+    ],
+    "MAP_ATTENTION_FILTER": "GAP",
+    "MAP_CLIENTE360_LINK": "PASS",
+    "INVENTED_COORDINATES": "ZERO",
+    "FAKE_REVENUE_METRICS": "ZERO"
+  },
+  "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/map-commercial-bv/mapa-commercial-1440.png",
+  "chips": [
+    {
+      "label": "Clientes",
+      "disabled": false,
+      "pressed": "true"
+    },
+    {
+      "label": "Oportunidades",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "label": "Cotizaciones",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "label": "Pedidos",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "label": "Atenciónpróx.",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "label": "Equipopróx.",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "label": "Cobranzamanual",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "label": "Despachomanual",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "label": "Stockmanual",
+      "disabled": true,
+      "pressed": "false"
+    }
+  ],
+  "partyLinks": [
+    "/mapa?panel=party%3A01M2EAG2EQ14RKAATF94930TFY",
+    "/mapa?panel=party%3A01M2EAG2N21FF7B7C0Z9QKB8Q1",
+    "/mapa?panel=party%3A01M2EAG28AGG7PKB99CAFYAZFK",
+    "/mapa?panel=party%3A01M2EAG1JC5ZR3MXVABBDXK30R",
+    "/mapa?panel=party%3A01M2EAG0ZC786YEQ7VC55T364A"
+  ],
+  "partyCommercial": {
+    "quickView": true,
+    "commercialSnapshot": true,
+    "commercialText": "Oportunidades abiertas0Cotizaciones0Pedidos0Montos comerciales de registros canónicos. No es ingreso, facturación ni cobranza confirmada.",
+    "cliente360Href": "/clientes/01M2EAG2EQ14RKAATF94930TFY",
+    "name": "COMERCIAL ASTRIX",
+    "forbidden": []
+  }
+}

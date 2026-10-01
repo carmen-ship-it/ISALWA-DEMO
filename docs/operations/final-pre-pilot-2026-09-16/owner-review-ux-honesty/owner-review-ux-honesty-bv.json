@@ -1,0 +1,97 @@
+{
+  "email": "carmen.staging@isalwa.demo",
+  "base": "https://os-web-staging.onrender.com",
+  "expectedSha": "2c931b48fc2ef7370972c75872de066c8bf5c34b",
+  "at": "2026-09-16T20:11:17.371Z",
+  "realSevenMutated": false,
+  "loginOk": true,
+  "loginUrl": "https://os-web-staging.onrender.com/inicio",
+  "surfaces": {
+    "almacen": {
+      "path": "/almacen",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/owner-review-ux-honesty/owner-review-almacen-1440.png",
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión ALMACÉN Asignación a pedido El encargado de almacén asigna producto terminado a un pedido después de que está en Almacén de Productos Terminados. Esto no es stock y no es una entrega. No es stock oficial. No es entrega No es stock oficial. No es entrega No es un estado de cumplimiento. Un ingreso al Almacén de Productos Terminados no asigna el producto a un pedido. Puede asignar una parte. Varias asignaciones pueden cubrir una línea. Un pedido puede salir en partes más adelante. Eso no es un estado de cumplimiento. Versión 1 · por validar Asignación a pedido · estructura visible En esta Versión 1 puedes ver cómo se relacionará el producto terminado con los pedidos. El registro definitivo de esta asignación todavía se validará con ustedes antes de formalizarlo. Todavía no hay producto para asignar Cuando haya ingreso a Almacén de Productos Terminados y pedidos de esta empresa, aparecerán aquí. Un vacío no es cero de stock ni un error de pantalla. Ejemplo · Espere un Listo de planta o un pedido real. No se inventan can",
+      "tokens": {
+        "bodyBg": "rgb(246, 241, 232)",
+        "kiln": "#18324b",
+        "glaze": "#287a78",
+        "porcelain": "#f6f1e8",
+        "sidebarPresent": true
+      },
+      "checks": {
+        "v1Validate": true,
+        "noFakeAssignCta": true,
+        "notAuthConfusion": true,
+        "noDataVisible": true
+      }
+    },
+    "compras": {
+      "path": "/compras",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/owner-review-ux-honesty/owner-review-compras-1440.png",
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión COMPRAS Cola de compras El área responsable pide. La encargada de compras compra. Esta cola no es inventario. No es inventario PEDIDO Pedidos para vincular Si la solicitud corresponde a un pedido, ábralo o selecciónelo de la lista. No reescriba las líneas del pedido aquí. La cola de compras no inventa inventario. Sin pedidos abiertos para vincular Cuando exista un pedido en esta empresa, aparecerá aquí. La cola vacía no es un fallo de stock ni falta de permiso. Ejemplo · Abra el pedido desde el cliente. No se duplican líneas comerciales en compras. No es inventario No prueba falta de stock Versión 1 · por validar Un pedido de compra no prueba que no haya stock. No genera una recompra automática. CAMINO HABITUAL (PROPUESTO) Solicitado Cotizándose Pedido y Preparándose Entregado Cancelado no es un paso. Solo detiene un pedido equivocado. Los estados se formalizarán después de validar el proceso real. BUSCAR ESTADO Todos Solicitado Cotizándose Pedido y Preparándose Entregado Cancelado Filtrar En la cola · 0 Cola de comp",
+      "tokens": {
+        "bodyBg": "rgb(246, 241, 232)",
+        "kiln": "#18324b",
+        "glaze": "#287a78",
+        "porcelain": "#f6f1e8",
+        "sidebarPresent": true
+      },
+      "checks": {
+        "v1Validate": true,
+        "noFakePersistCreate": true,
+        "notAuthConfusion": true,
+        "emptyIsV1": true
+      }
+    },
+    "entregas": {
+      "path": "/entregas",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/owner-review-ux-honesty/owner-review-entregas-1440.png",
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión ENTREGA Entregas Registro interno de salida y entrega. No reclama un número oficial. Sin número oficial Registro interno Versión 1 · por validar Versión 1 · por validar PEDIDO Pedidos de esta empresa Abra el pedido ya registrado de la lista. No se inventa una entrega desde el pedido. Todavía no hay pedidos abiertos Cuando exista un pedido en esta empresa, aparecerá aquí para vincular salidas y entregas sin volver a escribir las líneas. Ejemplo · Convierta una cotización aceptada a pedido desde el cliente. Aquí no se crean pedidos. Sin número oficial No es factura No confirma pago en el libro Todavía no hay entregas registradas La empresa aún no tiene salidas de almacén ni notas de entrega internas guardadas. Un vacío de datos no es falta de permiso. Ejemplo · Cuando exista un registro formalizado de salida o llegada, aparecerá en la cronología. Cronología Un pedido puede entregarse en partes. La cantidad guardada no declara el pedido como cumplido. Sin movimientos todavía Aquí aparecerán salidas de almacén y entregas",
+      "tokens": {
+        "bodyBg": "rgb(246, 241, 232)",
+        "kiln": "#18324b",
+        "glaze": "#287a78",
+        "porcelain": "#f6f1e8",
+        "sidebarPresent": true
+      },
+      "checks": {
+        "v1Validate": true,
+        "noFakeWriteCta": true,
+        "notAuthConfusion": true,
+        "noDataVisible": true
+      }
+    },
+    "finanzas": {
+      "path": "/finanzas",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/owner-review-ux-honesty/owner-review-finanzas-1440.png",
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión REGISTRO OPERATIVO Finanzas operativas Anote evidencia de pago reportada. No es contabilidad oficial y no confirma cobranza. Dato manual Registro manual No es contabilidad oficial Un reclamo de pago no confirma la cobranza. Todo queda pendiente de confirmar. Fuente: registro manual. Procedencia visible. Sin libro mayor. Dato manual No es libro contable Fuente: registro manual. Procedencia visible. Sin libro mayor. Queda pendiente de confirmar en la empresa; no abre Ingresos ni contabilidad oficial. REGISTRO Elija el pedido, cliente o cotización al que corresponde el reporte. El dato no confirma el pago. TIPO DE SUJETO Pedido Cliente Cotización No hay pedidos abiertos disponibles para vincular en este momento. No se guardó en el sistema. Sigue pendiente de confirmar y no modifica cobranza, despacho ni inventario. LÍMITES ISALWA no reemplaza la contabilidad oficial. Este escritorio no publica asientos ni declara ingresos fiscales. Un reclamo de pago no confirma la cobranza. Todo queda pendiente de confirmar. No hay pan",
+      "tokens": {
+        "bodyBg": "rgb(246, 241, 232)",
+        "kiln": "#18324b",
+        "glaze": "#287a78",
+        "porcelain": "#f6f1e8",
+        "sidebarPresent": true
+      },
+      "checks": {
+        "availableCopy": true,
+        "noAutorizadosCopy": true,
+        "notPermissionTitle": true,
+        "hasSubjectUi": true
+      }
+    }
+  },
+  "ALMACEN_OWNER_REVIEW_STATE": "PASS",
+  "COMPRAS_OWNER_REVIEW_STATE": "PASS",
+  "ENTREGAS_OWNER_REVIEW_STATE": "PASS",
+  "FINANZAS_COPY_STATE": "PASS",
+  "NO_FAKE_WRITE_CTA": "YES",
+  "VISUAL_NO_REGRESSION": "PASS",
+  "visualDetail": {
+    "bodyBg": "rgb(246, 241, 232)",
+    "kiln": "#18324b",
+    "glaze": "#287a78",
+    "porcelain": "#f6f1e8",
+    "sidebarPresent": true
+  },
+  "ok": true
+}
