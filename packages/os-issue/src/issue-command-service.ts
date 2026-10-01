@@ -39,6 +39,7 @@ import {
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
 import type { OsIssueStore } from './os-issue-store';
+import { canReadIssue } from './issue-read-policy';
 import type { IssueRecord } from './store-types';
 
 export type CommandResult = {
@@ -96,6 +97,29 @@ export class IssueCommandService {
 
   private hasIssueManageScope(snap: MemberAccessSnapshot): boolean {
     return memberHasGrantedScope(snap, ISSUE_MANAGE_SCOPE);
+  }
+
+  /**
+   * Company membership alone never authorises a write on an existing issue.
+   * Contributor commands (journal, outcome, work link) require the actor to be a
+   * party to the issue: reporter, current owner, or holder of issue.manage. This is
+   * the same rule as the read policy so a member can never write what they cannot see.
+   */
+  private assertIssueParticipant(
+    snap: MemberAccessSnapshot,
+    ctx: RequestContext,
+    issue: IssueRecord,
+  ): void {
+    const allowed = canReadIssue(
+      {
+        memberId: ctx.actorMemberId,
+        organizationId: ctx.organizationId,
+        grantedScopes: [],
+      },
+      issue,
+      this.hasIssueManageScope(snap),
+    );
+    if (!allowed) throw new Error('PERMISSION_DENIED');
   }
 
   async execute(
@@ -425,10 +449,11 @@ export class IssueCommandService {
     payload: Record<string, unknown>,
     store: OsIssueStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'AddIssueJournalEntry', ctx.organizationId);
+    const snap = await this.authorize(ctx, 'AddIssueJournalEntry', ctx.organizationId);
 
     const parsed = AddIssueJournalEntryPayloadSchema.parse(payload);
     const issue = await this.requireIssue(store, ctx.organizationId, parsed.issueId);
+    this.assertIssueParticipant(snap, ctx, issue);
     this.assertVersion(parsed.expectedVersion, issue.version);
 
     const entryId = createId();
@@ -491,10 +516,11 @@ export class IssueCommandService {
     payload: Record<string, unknown>,
     store: OsIssueStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'LinkIssueWork', ctx.organizationId);
+    const snap = await this.authorize(ctx, 'LinkIssueWork', ctx.organizationId);
 
     const parsed = LinkIssueWorkPayloadSchema.parse(payload);
     const issue = await this.requireIssue(store, ctx.organizationId, parsed.issueId);
+    this.assertIssueParticipant(snap, ctx, issue);
     this.assertVersion(parsed.expectedVersion, issue.version);
 
     // Verify work item exists
@@ -575,10 +601,11 @@ export class IssueCommandService {
     payload: Record<string, unknown>,
     store: OsIssueStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'RecordIssueOutcome', ctx.organizationId);
+    const snap = await this.authorize(ctx, 'RecordIssueOutcome', ctx.organizationId);
 
     const parsed = RecordIssueOutcomePayloadSchema.parse(payload);
     const issue = await this.requireIssue(store, ctx.organizationId, parsed.issueId);
+    this.assertIssueParticipant(snap, ctx, issue);
     this.assertVersion(parsed.expectedVersion, issue.version);
 
     const before = { outcome: issue.outcome };
