@@ -19,6 +19,7 @@ import {
   assertQueryScope,
   assertQueryTenantResource,
   buildQueryContext,
+  isMemberPeerSummary,
   type MemberQueryService,
 } from '@isalwa/os-query';
 import { resolveSession } from './os-session';
@@ -141,6 +142,15 @@ export class MembersController {
       const session = await resolveSession(req, this.workforceStore);
       const ctx = await buildQueryContext(session, this.workforceStore);
       const summary = await this.memberQuery.getMember(ctx, memberId);
+      if (isMemberPeerSummary(summary)) {
+        // Another member's record, read without people.admin: display fields only.
+        // No personId, email, manager, employment dates/status or scope keys.
+        return {
+          member: { id: summary.memberId, organizationId: summary.organizationId },
+          person: { givenName: summary.givenName, familyName: summary.familyName },
+          summary,
+        };
+      }
       return {
         member: {
           id: summary.memberId,
