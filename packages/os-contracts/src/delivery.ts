@@ -510,7 +510,11 @@ export function copyKnownOrderQuantities(
 /**
  * Stores the quantity this document recorded.
  * When order lines are known: reject qty < 1 or qty > that line's order quantity.
- * Does not invent cumulative remaining/allocation math across partial deliveries.
+ *
+ * This is the PER-DOCUMENT bound only. It reads no prior delivery. The cumulative bound
+ * required by ADR 0003 (docs/adr/0003-v1-delivery-quantities-and-commercial-approvals.md)
+ * is a separate step that needs the committed rows read under the order lock:
+ * summarizeCommittedDispatch + assertCumulativeDispatchWithinOrder below.
  */
 export function storeDeliveredQuantities(
   lines: readonly unknown[] | null | undefined,
@@ -531,6 +535,175 @@ export function storeDeliveredQuantities(
     }
     return { ...line, quantity: item.quantity };
   });
+}
+
+/**
+ * ADR 0003 — cumulative dispatch quantity.
+ *
+ * Rows are read inside the dispatch transaction after the order row is locked, so the
+ * result cannot be stale relative to a concurrent dispatch.
+ *
+ * Two independent ledgers, each bounded by the CURRENT confirmed order-line quantity:
+ *  - deliveryNotes: lines of customer delivery notes with status `issued`. There is no
+ *    draft state (DELIVERY_NOTE_STATUSES), so `issued` is "committed" and `reversed`
+ *    is excluded. Reversing a note therefore restores its quantity (and the reversal
+ *    row, which is itself `reversed`, adds nothing).
+ *  - warehouseExits: lines of warehouse outbound notes. An exit linked to a note that is
+ *    not `issued` is excluded (it described the same goods as the reversed note).
+ *
+ * The ledgers are never summed together: a salida linked to a nota is the same physical
+ * goods, so adding them would reject the normal nota-then-salida flow. Receipt
+ * (RecordEntrega) stores no quantity lines and is not part of either ledger, so
+ * recording receipt can never count again. Nothing but a reversal ever lowers a ledger,
+ * so a customer return alone cannot authorize a replacement dispatch.
+ */
+export type DispatchLedgerRows = {
+  /** Every note of the order, any status, unbounded. */
+  notes: ReadonlyArray<{ id: string; status: DeliveryNoteStatus }>;
+  noteLines: ReadonlyArray<{ noteId: string; orderLineId: string; quantity: number }>;
+  exits: ReadonlyArray<{ id: string; deliveryNoteId: string | null }>;
+  outboundLines: ReadonlyArray<{ warehouseExitId: string; orderLineId: string; quantity: number }>;
+};
+
+export type CommittedDispatch = {
+  deliveryNotes: Record<string, number>;
+  warehouseExits: Record<string, number>;
+};
+
+export function summarizeCommittedDispatch(rows: DispatchLedgerRows): CommittedDispatch {
+  const issuedNotes = new Set(rows.notes.filter((note) => note.status === 'issued').map((note) => note.id));
+  const knownNotes = new Set(rows.notes.map((note) => note.id));
+  const deliveryNotes: Record<string, number> = {};
+  for (const line of rows.noteLines) {
+    if (!issuedNotes.has(line.noteId)) continue;
+    deliveryNotes[line.orderLineId] = (deliveryNotes[line.orderLineId] ?? 0) + line.quantity;
+  }
+  const countedExits = new Set(
+    rows.exits
+      .filter((exit) => {
+        if (!exit.deliveryNoteId) return true;
+        // Unknown link target: keep counting. Blocking is the safe direction.
+        if (!knownNotes.has(exit.deliveryNoteId)) return true;
+        return issuedNotes.has(exit.deliveryNoteId);
+      })
+      .map((exit) => exit.id),
+  );
+  const warehouseExits: Record<string, number> = {};
+  for (const line of rows.outboundLines) {
+    if (!countedExits.has(line.warehouseExitId)) continue;
+    warehouseExits[line.orderLineId] = (warehouseExits[line.orderLineId] ?? 0) + line.quantity;
+  }
+  return { deliveryNotes, warehouseExits };
+}
+
+export type DispatchLedgerName = 'delivery_note' | 'warehouse_exit';
+
+export type ExceededDispatchLine = {
+  orderLineId: string;
+  ordered: number;
+  committed: number;
+  requested: number;
+};
+
+/**
+ * Message stays VALIDATION_FAILED so existing HTTP mapping (400) is unchanged.
+ * `reason` lets a caller tell this apart from a malformed payload.
+ */
+export class DeliveryQuantityExceedsOrderError extends Error {
+  readonly reason = 'DELIVERY_QUANTITY_EXCEEDS_ORDER' as const;
+
+  constructor(
+    readonly ledger: DispatchLedgerName,
+    readonly lines: readonly ExceededDispatchLine[],
+  ) {
+    super('VALIDATION_FAILED');
+    this.name = 'DeliveryQuantityExceedsOrderError';
+  }
+}
+
+export function assertCumulativeDispatchWithinOrder(
+  orderLines: readonly unknown[] | null | undefined,
+  ledger: DispatchLedgerName,
+  committed: CommittedDispatch,
+  requested: readonly CopiedDeliveryLine[],
+): void {
+  const known = new Map(copyKnownOrderQuantities(orderLines).map((line) => [line.orderLineId, line]));
+  const already = ledger === 'delivery_note' ? committed.deliveryNotes : committed.warehouseExits;
+  const exceeded: ExceededDispatchLine[] = [];
+  for (const item of requested) {
+    const line = known.get(item.orderLineId);
+    if (!line) throw new Error('VALIDATION_FAILED');
+    const committedQty = already[item.orderLineId] ?? 0;
+    if (committedQty + item.quantity > line.quantity) {
+      exceeded.push({
+        orderLineId: item.orderLineId,
+        ordered: line.quantity,
+        committed: committedQty,
+        requested: item.quantity,
+      });
+    }
+  }
+  if (exceeded.length > 0) throw new DeliveryQuantityExceedsOrderError(ledger, exceeded);
+}
+
+export type OrderLineDispatchBalance = {
+  orderLineId: string;
+  ordered: number;
+  committedDeliveryNotes: number;
+  committedWarehouseExits: number;
+  remainingDeliveryNotes: number;
+  remainingWarehouseExits: number;
+};
+
+export function computeDispatchBalance(
+  orderLines: readonly unknown[] | null | undefined,
+  committed: CommittedDispatch,
+): OrderLineDispatchBalance[] {
+  return copyKnownOrderQuantities(orderLines).map((line) => {
+    const notes = committed.deliveryNotes[line.orderLineId] ?? 0;
+    const exits = committed.warehouseExits[line.orderLineId] ?? 0;
+    return {
+      orderLineId: line.orderLineId,
+      ordered: line.quantity,
+      committedDeliveryNotes: notes,
+      committedWarehouseExits: exits,
+      remainingDeliveryNotes: Math.max(0, line.quantity - notes),
+      remainingWarehouseExits: Math.max(0, line.quantity - exits),
+    };
+  });
+}
+
+export type OverDispatchedLine = {
+  orderLineId: string;
+  ordered: number;
+  committedDeliveryNotes: number;
+  committedWarehouseExits: number;
+  excessDeliveryNotes: number;
+  excessWarehouseExits: number;
+};
+
+/** Read-only. Identifies lines already past the order quantity; never rewrites history. */
+export function findOverDispatchedLines(
+  orderLines: readonly unknown[] | null | undefined,
+  committed: CommittedDispatch,
+): OverDispatchedLine[] {
+  const over: OverDispatchedLine[] = [];
+  for (const line of copyKnownOrderQuantities(orderLines)) {
+    const notes = committed.deliveryNotes[line.orderLineId] ?? 0;
+    const exits = committed.warehouseExits[line.orderLineId] ?? 0;
+    const excessNotes = Math.max(0, notes - line.quantity);
+    const excessExits = Math.max(0, exits - line.quantity);
+    if (excessNotes === 0 && excessExits === 0) continue;
+    over.push({
+      orderLineId: line.orderLineId,
+      ordered: line.quantity,
+      committedDeliveryNotes: notes,
+      committedWarehouseExits: exits,
+      excessDeliveryNotes: excessNotes,
+      excessWarehouseExits: excessExits,
+    });
+  }
+  return over;
 }
 
 export function requireSessionOrganization(organizationId: string | null | undefined): string {
