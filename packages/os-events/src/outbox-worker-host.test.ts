@@ -15,7 +15,9 @@ class StubStore implements OsOutboxStorePort {
   async tryRecordConsumerDelivery(): Promise<boolean> {
     return true;
   }
-  async removeConsumerDelivery(): Promise<void> {}
+  async hasConsumerDelivery(): Promise<boolean> {
+    return false;
+  }
   async getStats(): Promise<OutboxStats> {
     return { pending: this.pending, published: 0, deadLetter: 0 };
   }

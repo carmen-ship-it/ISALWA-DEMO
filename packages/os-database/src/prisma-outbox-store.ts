@@ -25,15 +25,37 @@ type OutboxRow = {
   published_at: Date | null;
 };
 
-/** P2002 is Prisma's unique-constraint violation. */
-export function isUniqueViolation(err: unknown): boolean {
-  if (err instanceof Prisma.PrismaClientKnownRequestError) return err.code === 'P2002';
-  return (
-    typeof err === 'object' &&
-    err !== null &&
-    'code' in err &&
-    (err as { code?: unknown }).code === 'P2002'
+const CONSUMER_DEDUP_MODEL = 'OsOutboxConsumerDedup';
+const CONSUMER_DEDUP_TABLE = 'os_outbox_consumer_dedup';
+/** Dedup primary key, as Prisma reports it in meta.target (column or field names). */
+const CONSUMER_DEDUP_KEY_FIELDS: ReadonlyArray<readonly [string, string]> = [
+  ['organization_id', 'organizationId'],
+  ['consumer_key', 'consumerKey'],
+  ['event_id', 'eventId'],
+];
+
+function targetCoversDedupKey(target: unknown): boolean {
+  if (typeof target === 'string') return target.includes(CONSUMER_DEDUP_TABLE);
+  if (!Array.isArray(target) || target.length !== CONSUMER_DEDUP_KEY_FIELDS.length) return false;
+  return CONSUMER_DEDUP_KEY_FIELDS.every(([column, field]) =>
+    target.some((t) => t === column || t === field),
   );
+}
+
+/**
+ * True ONLY for the unique violation on os_outbox_consumer_dedup
+ * (organizationId, consumerKey, eventId): that row is the completion marker, so
+ * its presence means "this consumer already delivered". Any other P2002 (another
+ * model, another unique index, or one Prisma does not identify) is NOT a
+ * duplicate delivery and must throw so the message is retried.
+ */
+export function isConsumerDedupViolation(err: unknown): boolean {
+  if (typeof err !== 'object' || err === null) return false;
+  const e = err as { code?: unknown; meta?: unknown };
+  if (e.code !== 'P2002') return false;
+  const meta = (e.meta ?? {}) as { modelName?: unknown; target?: unknown };
+  if (meta.modelName !== undefined && meta.modelName !== CONSUMER_DEDUP_MODEL) return false;
+  return targetCoversDedupKey(meta.target);
 }
 
 function mapOutbox(row: OutboxRow): StoredOutboxMessage {
@@ -111,6 +133,18 @@ export class PrismaOsOutboxStore implements OsOutboxStorePort {
     });
   }
 
+  async hasConsumerDelivery(
+    organizationId: string,
+    consumerKey: string,
+    eventId: string,
+  ): Promise<boolean> {
+    const row = await this.prisma.osOutboxConsumerDedup.findUnique({
+      where: { organizationId_consumerKey_eventId: { organizationId, consumerKey, eventId } },
+      select: { eventId: true },
+    });
+    return row !== null;
+  }
+
   async tryRecordConsumerDelivery(
     organizationId: string,
     consumerKey: string,
@@ -122,21 +156,11 @@ export class PrismaOsOutboxStore implements OsOutboxStorePort {
       });
       return true;
     } catch (err) {
-      // Only an existing claim means "already delivered". Swallowing anything
-      // else would skip the consumer and publish an unprojected message.
-      if (isUniqueViolation(err)) return false;
+      // Only an existing completion marker means "already delivered". Any other
+      // failure must surface so the message retries instead of being skipped.
+      if (isConsumerDedupViolation(err)) return false;
       throw err;
     }
-  }
-
-  async removeConsumerDelivery(
-    organizationId: string,
-    consumerKey: string,
-    eventId: string,
-  ): Promise<void> {
-    await this.prisma.osOutboxConsumerDedup.deleteMany({
-      where: { organizationId, consumerKey, eventId },
-    });
   }
 
   async getStats(organizationId?: string): Promise<OutboxStats> {

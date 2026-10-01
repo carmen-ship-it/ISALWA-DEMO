@@ -118,11 +118,13 @@ export class WorkProjectionConsumer implements OsOutboxConsumerPort {
     envelope: BusinessEventEnvelope,
   ): boolean {
     if (!existing?.lastOccurredAt) return true;
+    // The same event must be applied again. A crash after the first upsert and
+    // before attention, quote lines, or the checkpoint leaves lastEventId set,
+    // and the worker will re-deliver because the completion marker was not written.
+    if (existing.lastEventId === envelope.id) return true;
     const incoming = new Date(envelope.occurredAt);
     if (incoming > existing.lastOccurredAt) return true;
-    if (incoming.getTime() === existing.lastOccurredAt.getTime()) {
-      return existing.lastEventId !== envelope.id;
-    }
+    if (incoming.getTime() === existing.lastOccurredAt.getTime()) return true;
     return false;
   }
 

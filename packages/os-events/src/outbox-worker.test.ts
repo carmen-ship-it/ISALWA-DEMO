@@ -70,12 +70,12 @@ class MemoryOutboxStore implements OsOutboxStorePort {
     return true;
   }
 
-  async removeConsumerDelivery(
+  async hasConsumerDelivery(
     organizationId: string,
     consumerKey: string,
     eventId: string,
-  ): Promise<void> {
-    this.dedup.delete(`${organizationId}:${consumerKey}:${eventId}`);
+  ): Promise<boolean> {
+    return this.dedup.has(`${organizationId}:${consumerKey}:${eventId}`);
   }
 
   async getStats(organizationId?: string): Promise<OutboxStats> {
@@ -211,9 +211,10 @@ describe('OsOutboxWorker', () => {
   });
 
   /**
-   * The dedup row is recorded before delivery, so a failed delivery must not
-   * leave a row behind that makes the retry look like a duplicate. Otherwise the
-   * projection update is lost permanently while the outbox reports success.
+   * The dedup row is a completion marker recorded only after delivery succeeded,
+   * so a failed delivery leaves no row behind that makes the retry look like a
+   * duplicate. Otherwise the projection update is lost permanently while the
+   * outbox reports success.
    */
   it('redelivers to a consumer that failed, instead of publishing the message unprojected', async () => {
     const store = new MemoryOutboxStore();

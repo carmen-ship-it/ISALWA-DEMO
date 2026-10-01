@@ -30,38 +30,36 @@ export class OsOutboxWorker {
     result.claimed = batch.length;
 
     for (const message of batch) {
-      // Dedup rows claimed during this attempt. A failed attempt must release
-      // them, or the retry mistakes its own claim for an earlier delivery and
-      // the projection update is lost while the outbox reports success.
-      const claimed: string[] = [];
       try {
         const envelope = parseOutboxEnvelope(message.payloadJson);
-        let delivered = 0;
-        let alreadyDone = 0;
 
+        // The dedup row is a completion marker written AFTER a consumer has
+        // durably applied the event. Nothing is claimed up front, so a worker
+        // that dies mid-delivery leaves no row behind and no cleanup code has to
+        // run: the lease on the outbox message expires, the message is claimed
+        // again, and the consumer applies it. A message is published only after
+        // every consumer has either completed now or was recorded complete.
         for (const consumer of this.consumers) {
-          const firstTime = await this.store.tryRecordConsumerDelivery(
+          const alreadyDone = await this.store.hasConsumerDelivery(
             message.organizationId,
             consumer.consumerKey,
             envelope.id,
           );
-          if (!firstTime) {
-            alreadyDone += 1;
+          if (alreadyDone) {
             result.duplicates += 1;
             continue;
           }
-          claimed.push(consumer.consumerKey);
           await consumer.deliver(envelope);
-          delivered += 1;
+          await this.store.tryRecordConsumerDelivery(
+            message.organizationId,
+            consumer.consumerKey,
+            envelope.id,
+          );
         }
 
-        // Publish once every consumer for this message is accounted for.
-        if (delivered > 0 || alreadyDone === this.consumers.length) {
-          await this.store.markPublished(message.id);
-          result.published += 1;
-        }
+        await this.store.markPublished(message.id);
+        result.published += 1;
       } catch (err) {
-        await this.releaseClaims(message.organizationId, message.eventId, claimed);
         const errorMessage = err instanceof Error ? err.message : 'OUTBOX_DELIVERY_FAILED';
         const nextAttempt = message.attemptCount + 1;
         if (nextAttempt >= this.config.maxAttempts) {
@@ -84,23 +82,5 @@ export class OsOutboxWorker {
     }
 
     return result;
-  }
-
-  /**
-   * Best effort: a release failure must not hide the delivery failure, so the
-   * message is still retried or dead-lettered by the caller.
-   */
-  private async releaseClaims(
-    organizationId: string,
-    eventId: string,
-    consumerKeys: string[],
-  ): Promise<void> {
-    for (const consumerKey of consumerKeys) {
-      try {
-        await this.store.removeConsumerDelivery(organizationId, consumerKey, eventId);
-      } catch {
-        // Leave the row; the dead-letter recovery path can clear it.
-      }
-    }
   }
 }

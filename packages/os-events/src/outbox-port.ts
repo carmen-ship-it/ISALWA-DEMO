@@ -75,21 +75,29 @@ export interface OsOutboxStorePort {
   ): Promise<void>;
   markDeadLetter(outboxId: string, lastError: string): Promise<void>;
   /**
-   * Claim this (consumer, event) pair. False means an earlier delivery already
-   * claimed it. Any other failure must throw so the message is retried rather
-   * than silently treated as delivered.
+   * True only when a delivery of this (consumer, event) pair was recorded as
+   * COMPLETE. The row is written after the consumer succeeded, never before,
+   * so its presence can never be a leftover from a worker that died mid-delivery.
+   */
+  hasConsumerDelivery(
+    organizationId: string,
+    consumerKey: string,
+    eventId: string,
+  ): Promise<boolean>;
+  /**
+   * Record that the consumer durably completed this event. Call it only after
+   * `deliver` resolved. False means a completion was already recorded (a
+   * concurrent worker finished first). Only the unique violation on the dedup
+   * key counts as that; any other failure must throw so the message is retried.
+   *
+   * A crash between `deliver` and this call re-delivers the event on retry, so
+   * consumers must be retry-safe (at-least-once, never at-most-once).
    */
   tryRecordConsumerDelivery(
     organizationId: string,
     consumerKey: string,
     eventId: string,
   ): Promise<boolean>;
-  /** Release a claim whose delivery failed, so a retry can deliver again. */
-  removeConsumerDelivery(
-    organizationId: string,
-    consumerKey: string,
-    eventId: string,
-  ): Promise<void>;
   getStats(organizationId?: string): Promise<OutboxStats>;
   getOperationalHealth(organizationId?: string): Promise<OutboxOperationalBacklog>;
   getOutboxMessage(outboxId: string): Promise<StoredOutboxMessage | null>;

@@ -82,11 +82,10 @@ export class PartyProjectionConsumer implements OsOutboxConsumerPort {
     envelope: BusinessEventEnvelope,
   ): boolean {
     if (!existing?.lastOccurredAt) return true;
+    if (existing.lastEventId === envelope.id) return true;
     const incoming = new Date(envelope.occurredAt);
     if (incoming > existing.lastOccurredAt) return true;
-    if (incoming.getTime() === existing.lastOccurredAt.getTime()) {
-      return existing.lastEventId !== envelope.id;
-    }
+    if (incoming.getTime() === existing.lastOccurredAt.getTime()) return true;
     return false;
   }
 
