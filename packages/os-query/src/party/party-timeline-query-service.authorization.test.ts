@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { PARTY_TIMELINE_EVENT_TYPES } from '@isalwa/os-contracts';
 import type { DirectReportLookup } from '../leadership/direct-reports';
 import type { OsProjectionStorePort, StoredPartyTimelineEntry } from '../projection-store-port';
 import type { QueryContext } from '../query-context';
 import {
+  classifyTimelineEventType,
   encodePartyTimelineCursor,
   PartyTimelineQueryService,
 } from './party-timeline-query-service';
@@ -93,8 +95,11 @@ const ENTRIES = {
   deliveryNote: entry('delivery_note.created', 'delivery_note', 'dn-1', { orderId: 'order-1' }),
   orphanQuote: entry('quote.submitted', 'quote', 'quote-missing', { totalCentavos: '42' }),
   foreignOrgQuote: entry('quote.submitted', 'quote', 'quote-foreign', { totalCentavos: '77' }),
-  unclassified: entry('future.unknown_event', 'thing', 'thing-1', { note: 'surprise' }),
 };
+
+const NON_TIMELINE_TYPE_ENTRY = entry('future.unknown_event', 'thing', 'thing-1', {
+  note: 'surprise',
+});
 
 const ALL_ENTRIES = Object.values(ENTRIES);
 const OPEN_ENTRY_IDS = [ENTRIES.partyCreated.entryId, ENTRIES.deliveryNote.entryId];
@@ -265,9 +270,21 @@ describe('party timeline read authorization (S4)', () => {
     assert.equal(got.includes(ENTRIES.foreignOrgQuote.entryId), false);
   });
 
-  it('omits unclassified event types for everyone', async () => {
-    const got = await visibleIds(service(), ctx(ADMIN, ['people.admin']));
-    assert.equal(got.includes(ENTRIES.unclassified.entryId), false);
+  it('classifies every projectable timeline event type (new types must be classified)', () => {
+    for (const eventType of PARTY_TIMELINE_EVENT_TYPES) {
+      assert.notEqual(
+        classifyTimelineEventType(eventType),
+        'unclassified',
+        `${eventType} has no timeline read-policy class`,
+      );
+    }
+  });
+
+  it('returns a non-projectable event type without any facts, never with stored values', async () => {
+    const svc = service({ items: [NON_TIMELINE_TYPE_ENTRY] });
+    const result = await svc.listPartyTimeline(ctx(OUTSIDER), PARTY, { limit: 50 });
+    assert.equal(result.items.length, 1);
+    assert.deepEqual(result.items[0]?.facts, {});
   });
 
   it('shows approval entries to the requester and approver but not to an unrelated member', async () => {

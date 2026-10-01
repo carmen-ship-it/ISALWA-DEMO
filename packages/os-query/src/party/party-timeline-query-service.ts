@@ -1,5 +1,5 @@
 import type { ListPartyTimelineQuery, PartyTimelineEntryReadModel } from '@isalwa/os-contracts';
-import { OS_PROJECTION_CONSUMER_KEYS } from '@isalwa/os-contracts';
+import { isPartyTimelineEventType, OS_PROJECTION_CONSUMER_KEYS } from '@isalwa/os-contracts';
 import type { DirectReportLookup } from '../leadership/direct-reports';
 import { canReadOwnedRecord } from '../leadership/leadership-visibility';
 import type { QueryContext } from '../query-context';
@@ -27,7 +27,7 @@ function toTimelineEntry(model: StoredPartyTimelineEntry): PartyTimelineEntryRea
     correlationId: model.correlationId,
     primaryEntityType: model.primaryEntityType,
     primaryEntityId: model.primaryEntityId,
-    facts: { ...model.factsJson },
+    facts: isPartyTimelineEventType(model.eventType) ? { ...model.factsJson } : {},
   };
 }
 
@@ -38,15 +38,21 @@ function toTimelineEntry(model: StoredPartyTimelineEntry): PartyTimelineEntryRea
  * (`canReadOwnedRecord`) as GET /quotes/:id, /orders/:id, /opportunities/:id and
  * /work-items/:id.
  *
- * Party-level and fulfilment events carry no commercial values and no ownership
+ * Party-level (party./contact./lead.) and fulfilment events carry no commercial values and no ownership
  * facts, so they stay readable by any active member (unchanged behavior).
  * Everything else is shown only when the reader may read the owning record.
  * An entry whose owner cannot be determined (record missing, other tenant,
- * unexpected entity type, unclassified event type) is omitted: fail closed.
+ * unexpected entity type, timeline event type with no classification) is
+ * omitted: fail closed.
+ *
+ * An event type outside PARTY_TIMELINE_EVENT_TYPES cannot come from the projector
+ * (it skips them, and extractTimelineFacts has no allowlist for them, so they never
+ * carry facts). Such a row is returned as before but with its facts emptied.
  */
 const OPEN_EVENT_PREFIXES = [
   'party.',
   'contact.',
+  'lead.',
   'delivery_note.',
   'warehouse_exit.',
   'customer_delivery.',
@@ -54,8 +60,31 @@ const OPEN_EVENT_PREFIXES = [
   'customer_coverage.',
 ] as const;
 
-function isOpenEvent(eventType: string): boolean {
-  return OPEN_EVENT_PREFIXES.some((prefix) => eventType.startsWith(prefix));
+const OWNED_ENTITY_BY_PREFIX = [
+  ['opportunity.', 'opportunity'],
+  ['quote.', 'quote'],
+  ['order.', 'order'],
+] as const;
+
+export type TimelineEventClass =
+  | 'open'
+  | 'opportunity'
+  | 'quote'
+  | 'order'
+  | 'commercial_account'
+  | 'work'
+  | 'approval'
+  | 'unclassified';
+
+export function classifyTimelineEventType(eventType: string): TimelineEventClass {
+  if (OPEN_EVENT_PREFIXES.some((prefix) => eventType.startsWith(prefix))) return 'open';
+  for (const [prefix, entityType] of OWNED_ENTITY_BY_PREFIX) {
+    if (eventType.startsWith(prefix)) return entityType;
+  }
+  if (eventType.startsWith('commercial_account.')) return 'commercial_account';
+  if (eventType.startsWith('work.') || eventType.startsWith('task.')) return 'work';
+  if (eventType.startsWith('approval.')) return 'approval';
+  return 'unclassified';
 }
 
 class TimelineVisibility {
@@ -126,37 +155,33 @@ class TimelineVisibility {
   async canSee(entry: StoredPartyTimelineEntry): Promise<boolean> {
     if (entry.organizationId !== this.ctx.organizationId) return false;
     const { eventType, primaryEntityType, primaryEntityId } = entry;
+    const kind = classifyTimelineEventType(eventType);
 
-    if (isOpenEvent(eventType)) return true;
+    if (kind === 'open') return true;
 
-    for (const [prefix, entityType] of [
-      ['opportunity.', 'opportunity'],
-      ['quote.', 'quote'],
-      ['order.', 'order'],
-    ] as const) {
-      if (eventType.startsWith(prefix)) {
-        if (primaryEntityType !== entityType) return false;
-        return this.commercialRecordReadable(entityType, primaryEntityId);
-      }
+    if (kind === 'opportunity' || kind === 'quote' || kind === 'order') {
+      if (primaryEntityType !== kind) return false;
+      return this.commercialRecordReadable(kind, primaryEntityId);
     }
 
-    if (eventType.startsWith('commercial_account.')) {
+    if (kind === 'commercial_account') {
       const owner = entry.factsJson.ownerMemberId;
       if (typeof owner !== 'string' || !owner) return false;
       return this.canReadOwner(entry.organizationId, owner);
     }
 
-    if (eventType.startsWith('work.') || eventType.startsWith('task.')) {
+    if (kind === 'work') {
       if (primaryEntityType !== 'work_item') return false;
       return this.workReadable(primaryEntityId);
     }
 
-    if (eventType.startsWith('approval.')) {
+    if (kind === 'approval') {
       if (primaryEntityType !== 'approval_request') return false;
       return this.approvalReadable(primaryEntityId);
     }
 
-    return false;
+    // Not a projectable timeline type: no facts are ever stored for it (see above).
+    return !isPartyTimelineEventType(eventType);
   }
 
   private async workReadable(workItemId: string): Promise<boolean> {
