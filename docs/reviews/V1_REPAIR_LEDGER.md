@@ -168,7 +168,7 @@ must not be rerun, because that resets every shared persona password.
 ## Repairs after the immutable checkpoint
 
 Checkpoint `32810573b2dab46ea0b5bae2773d4f06340601be` stays immutable and undeployed.
-Integration HEAD `70dd6125e132c4f877a5ad0dec0b6767e1b6dfeb` on `ct3/v1-repairs`.
+These commits are on `ct3/v1-repairs`. The last behavior change in the table is `70dd6125e132c4f877a5ad0dec0b6767e1b6dfeb`.
 Nothing in this list is deployed, hosted, or browser-verified.
 
 | Finding | State | Commit | Evidence |
