@@ -5,6 +5,7 @@ import type { RequestContext } from '@isalwa/os-contracts';
 import { PartyCommandService } from '@isalwa/os-party';
 import { CommercialCommandService } from '@isalwa/os-commercial';
 import {
+  CommercialProjectionConsumer,
   PartyTimelineProjectionConsumer,
   PartyTimelineQueryService,
   encodePartyTimelineCursor,
@@ -33,6 +34,7 @@ describePrisma('party timeline prisma integration', () => {
   let partySvc: PartyCommandService;
   let commercialSvc: CommercialCommandService;
   let consumer: PartyTimelineProjectionConsumer;
+  let commercialProjection: CommercialProjectionConsumer;
   let querySvc: PartyTimelineQueryService;
 
   before(async () => {
@@ -45,6 +47,7 @@ describePrisma('party timeline prisma integration', () => {
     partySvc = new PartyCommandService(partyStore);
     commercialSvc = new CommercialCommandService(commercialStore);
     consumer = new PartyTimelineProjectionConsumer({ projectionStore, commercialStore, workStore });
+    commercialProjection = new CommercialProjectionConsumer({ projectionStore, commercialStore });
     querySvc = new PartyTimelineQueryService({
       projectionStore,
       encodeCursor: encodePartyTimelineCursor,
@@ -103,6 +106,17 @@ describePrisma('party timeline prisma integration', () => {
         effectiveAt: new Date('2020-01-01'),
       },
     });
+    // The quote owner converting their own quote holds the Asesor Comercial
+    // convert scope. Coverage is not convert authority.
+    await prisma.osRoleAssignment.create({
+      data: {
+        id: createId(),
+        organizationId: orgId,
+        memberId,
+        roleKey: 'commercial.quote.convert.own',
+        effectiveAt: new Date('2020-01-01'),
+      },
+    });
     return { memberId, personId, authId };
   }
 
@@ -129,6 +143,7 @@ describePrisma('party timeline prisma integration', () => {
         dataOrigin: 'production' as const,
         payload: (event.payloadJson as Record<string, unknown> | undefined) ?? undefined,
       };
+      await commercialProjection.deliver(envelope);
       await consumer.deliver(envelope);
       await prisma.osOutboxMessage.update({
         where: { id: msg.id },

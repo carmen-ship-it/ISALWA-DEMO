@@ -7,6 +7,7 @@ import { WorkCommandService } from '@isalwa/os-work';
 import {
   PartyTimelineProjectionConsumer,
   PartyTimelineQueryService,
+  WorkProjectionConsumer,
   buildQueryContext,
   encodePartyTimelineCursor,
   replayPartyTimelineForOrg,
@@ -32,6 +33,7 @@ describePrisma('party timeline work + approval prisma integration (Step 16.1B)',
   let partySvc: PartyCommandService;
   let workSvc: WorkCommandService;
   let consumer: PartyTimelineProjectionConsumer;
+  let workProjection: WorkProjectionConsumer;
   let querySvc: PartyTimelineQueryService;
 
   before(async () => {
@@ -44,6 +46,7 @@ describePrisma('party timeline work + approval prisma integration (Step 16.1B)',
     partySvc = new PartyCommandService(partyStore);
     workSvc = new WorkCommandService(workStore);
     consumer = new PartyTimelineProjectionConsumer({ projectionStore, commercialStore, workStore });
+    workProjection = new WorkProjectionConsumer({ projectionStore, workStore });
     querySvc = new PartyTimelineQueryService({
       projectionStore,
       encodeCursor: encodePartyTimelineCursor,
@@ -74,7 +77,7 @@ describePrisma('party timeline work + approval prisma integration (Step 16.1B)',
     for (const msg of pending) {
       const event = await prisma.osBusinessEvent.findUnique({ where: { id: msg.eventId } });
       if (!event) continue;
-      await consumer.deliver({
+      const envelope = {
         id: event.id,
         organizationId: event.organizationId,
         eventType: event.eventType,
@@ -88,7 +91,11 @@ describePrisma('party timeline work + approval prisma integration (Step 16.1B)',
         provenance: 'command',
         dataOrigin: 'production',
         payload: (event.payloadJson as Record<string, unknown> | undefined) ?? undefined,
-      });
+      };
+      // Visibility reads the work and approval projections. Production drains
+      // those consumers too; a timeline row with no read model is hidden.
+      await workProjection.deliver(envelope);
+      await consumer.deliver(envelope);
       await prisma.osOutboxMessage.update({
         where: { id: msg.id },
         data: { status: 'published', publishedAt: new Date() },

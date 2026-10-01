@@ -151,7 +151,7 @@ describePrisma('partygraph prisma integration', () => {
     });
     const contactsPage = await partyStore.listContactsForOrgParty(org.id, partyId);
     assert.equal(contactsPage.items.length, 1);
-    assert.equal(contacts[0]?.email, 'juan@example.bo');
+    assert.equal(contactsPage.items[0]?.email, 'juan@example.bo');
   });
 
   it('deactivates and reactivates party', async () => {

@@ -100,6 +100,17 @@ describePrisma('commercial projection prisma integration', () => {
         effectiveAt: new Date('2020-01-01'),
       },
     });
+    // The quote owner converting their own quote holds the Asesor Comercial
+    // convert scope. Coverage is not convert authority.
+    await prisma.osRoleAssignment.create({
+      data: {
+        id: createId(),
+        organizationId: orgId,
+        memberId,
+        roleKey: 'commercial.quote.convert.own',
+        effectiveAt: new Date('2020-01-01'),
+      },
+    });
     return { memberId, personId, authId };
   }
 
