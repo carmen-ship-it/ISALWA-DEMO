@@ -1,4 +1,5 @@
 import type { ListMembersQuery, MemberSummaryReadModel } from '@isalwa/os-contracts';
+import { memberHasScope } from '@isalwa/os-domain';
 import type { QueryContext } from '../query-context';
 import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
@@ -19,6 +20,51 @@ export type SearchActiveMembersQuery = {
   limit?: number;
   excludeMemberId?: string;
 };
+
+/**
+ * What any active member may read about another member: name and the display
+ * context (department, Cargo label) that Cliente 360, approvals and coverage
+ * screens render. No email, person id, manager, employment dates or status,
+ * delegation count, or scope keys. Same boundary as listActiveMemberOptions.
+ */
+export type MemberPeerSummary = Pick<
+  MemberSummaryReadModel,
+  | 'memberId'
+  | 'organizationId'
+  | 'givenName'
+  | 'familyName'
+  | 'displayName'
+  | 'departmentName'
+  | 'roleKeys'
+> & { redacted: true };
+
+export type MemberDetail = MemberSummaryReadModel | MemberPeerSummary;
+
+export function isMemberPeerSummary(detail: MemberDetail): detail is MemberPeerSummary {
+  return 'redacted' in detail && detail.redacted === true;
+}
+
+/**
+ * roleKeys mixes authority scopes (people.admin, commercial.team.read, ...) with
+ * evidenced Cargo labels ("ASESOR DE VENTA"). Scope-like keys are identifiers
+ * (dots / lowercase slugs); only label-like keys are display context.
+ */
+function isCargoLabelKey(key: string): boolean {
+  return !key.includes('.') && !/^[a-z0-9_.-]+$/.test(key);
+}
+
+function toPeerSummary(row: MemberSummaryReadModel): MemberPeerSummary {
+  return {
+    memberId: row.memberId,
+    organizationId: row.organizationId,
+    givenName: row.givenName,
+    familyName: row.familyName,
+    displayName: row.displayName,
+    departmentName: row.departmentName,
+    roleKeys: row.roleKeys.filter(isCargoLabelKey),
+    redacted: true,
+  };
+}
 
 export class MemberQueryService {
   constructor(private readonly deps: MemberQueryServiceDeps) {}
@@ -83,7 +129,11 @@ export class MemberQueryService {
     };
   }
 
-  async getMember(ctx: QueryContext, memberId: string): Promise<MemberSummaryReadModel> {
+  /**
+   * Full row for the member's own record and for people.admin (the same policy as
+   * listMembers). Any other active member gets the display-only peer summary.
+   */
+  async getMember(ctx: QueryContext, memberId: string): Promise<MemberDetail> {
     assertQueryScope(ctx, 'member_active');
     assertQueryTenantResource(ctx, ctx.organizationId);
 
@@ -96,7 +146,10 @@ export class MemberQueryService {
       throw new Error('NOT_FOUND');
     }
 
-    return row;
+    if (row.memberId === ctx.auth.memberId || memberHasScope(ctx.auth, 'people.admin')) {
+      return row;
+    }
+    return toPeerSummary(row);
   }
 }
 
