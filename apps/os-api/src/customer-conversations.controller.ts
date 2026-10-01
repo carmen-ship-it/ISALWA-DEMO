@@ -142,6 +142,59 @@ export function admitSessionConversation(input: {
   });
 }
 
+/**
+ * Who may see a stored conversation. Company membership is not enough.
+ * An organization reader sees the tenant. Otherwise the member who entered it,
+ * the customer-account owner, or a team lead of that owner.
+ */
+export function memberCanSeeConversation(input: {
+  actorMemberId: string;
+  grantedScopes: readonly string[];
+  enteredByMemberId: string | null;
+  accountOwnerMemberId: string | null;
+  directReportMemberIds: readonly string[];
+}): boolean {
+  if (
+    input.grantedScopes.includes('people.admin') ||
+    input.grantedScopes.includes('commercial.org.read')
+  ) {
+    return true;
+  }
+  if (input.enteredByMemberId && input.enteredByMemberId === input.actorMemberId) return true;
+  if (input.accountOwnerMemberId && input.accountOwnerMemberId === input.actorMemberId) return true;
+  return (
+    input.grantedScopes.includes('commercial.team.read') &&
+    !!input.accountOwnerMemberId &&
+    input.directReportMemberIds.includes(input.accountOwnerMemberId)
+  );
+}
+
+/**
+ * A supplied opportunity, quote, or order must exist in this company, belong to
+ * the same customer, and be readable by this actor. A missing record and a
+ * record in another company are the same denial, so the response does not
+ * reveal which one it was.
+ */
+export function commercialLinkDenial(input: {
+  record: { organizationId: string; partyId: string; ownerMemberId: string | null } | null;
+  sessionOrganizationId: string;
+  customerId: string;
+  actorMemberId: string;
+  grantedScopes: readonly string[];
+  directReportMemberIds: readonly string[];
+}): 'not_found' | 'wrong_customer' | 'not_allowed' | null {
+  if (!input.record || input.record.organizationId !== input.sessionOrganizationId) return 'not_found';
+  if (input.record.partyId !== input.customerId) return 'wrong_customer';
+  const allowed = memberCanSeeConversation({
+    actorMemberId: input.actorMemberId,
+    grantedScopes: input.grantedScopes,
+    enteredByMemberId: null,
+    accountOwnerMemberId: input.record.ownerMemberId,
+    directReportMemberIds: input.directReportMemberIds,
+  });
+  return allowed ? null : 'not_allowed';
+}
+
 @Controller('customer-conversations')
 export class CustomerConversationsController {
   constructor(@Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore) {}
@@ -167,8 +220,36 @@ export class CustomerConversationsController {
         orderBy: { occurredAt: 'desc' },
       });
 
+      const customerIds = [...new Set(rows.map((row) => row.customerId))];
+      const accounts = customerIds.length
+        ? await prisma.osCommercialAccount.findMany({
+            where: { organizationId: session.organizationId, partyId: { in: customerIds } },
+            select: { partyId: true, ownerMemberId: true },
+          })
+        : [];
+      const ownerByCustomer = new Map(accounts.map((account) => [account.partyId, account.ownerMemberId]));
+      const reports = session.grantedScopes.includes('commercial.team.read')
+        ? await this.workforceStore.listActiveDirectReportAssignments(
+            session.organizationId,
+            session.actorMemberId,
+            new Date(),
+          )
+        : [];
+      const directReportMemberIds = reports.map((report) => report.memberId);
+
       const items: ManualCustomerConversation[] = [];
       for (const row of rows) {
+        if (
+          !memberCanSeeConversation({
+            actorMemberId: session.actorMemberId,
+            grantedScopes: session.grantedScopes,
+            enteredByMemberId: row.enteredByMemberId,
+            accountOwnerMemberId: ownerByCustomer.get(row.customerId) ?? null,
+            directReportMemberIds,
+          })
+        ) {
+          continue;
+        }
         const record = toManual(row);
         if (record) items.push(record);
       }
@@ -209,6 +290,63 @@ export class CustomerConversationsController {
         throw new HttpException('Invalid conversation: unknown_customer', HttpStatus.BAD_REQUEST);
       }
 
+      const reports = session.grantedScopes.includes('commercial.team.read')
+        ? await this.workforceStore.listActiveDirectReportAssignments(
+            session.organizationId,
+            session.actorMemberId,
+            new Date(),
+          )
+        : [];
+      const directReportMemberIds = reports.map((report) => report.memberId);
+      const draft =
+        body && typeof body === 'object' && !Array.isArray(body)
+          ? (body as Record<string, unknown>)
+          : {};
+      const linkLookups: Array<['opportunityId' | 'quoteId' | 'orderId', Promise<{ organizationId: string; partyId: string; ownerMemberId: string | null } | null>]> = [];
+      const opportunityId = typeof draft.opportunityId === 'string' ? draft.opportunityId.trim() : '';
+      const quoteId = typeof draft.quoteId === 'string' ? draft.quoteId.trim() : '';
+      const orderId = typeof draft.orderId === 'string' ? draft.orderId.trim() : '';
+      if (opportunityId) {
+        linkLookups.push(['opportunityId', prisma.osOpportunity.findFirst({ where: { id: opportunityId }, select: { organizationId: true, partyId: true, ownerMemberId: true } })]);
+      }
+      if (quoteId) {
+        linkLookups.push(['quoteId', prisma.osQuote.findFirst({ where: { id: quoteId }, select: { organizationId: true, partyId: true, ownerMemberId: true } })]);
+      }
+      if (orderId) {
+        linkLookups.push(['orderId', prisma.osOrder.findFirst({ where: { id: orderId }, select: { organizationId: true, partyId: true, ownerMemberId: true } })]);
+      }
+      for (const [, lookup] of linkLookups) {
+        const denial = commercialLinkDenial({
+          record: await lookup,
+          sessionOrganizationId: session.organizationId,
+          customerId: requestedCustomerId,
+          actorMemberId: session.actorMemberId,
+          grantedScopes: session.grantedScopes,
+          directReportMemberIds,
+        });
+        if (denial) {
+          throw new HttpException(`Invalid conversation: ${denial}`, HttpStatus.BAD_REQUEST);
+        }
+      }
+
+      const idempotencyKey = req.header('idempotency-key')?.trim();
+      if (idempotencyKey) {
+        const prior = await prisma.osIdempotencyKey.findUnique({
+          where: { organizationId_key: { organizationId: session.organizationId, key: idempotencyKey } },
+        });
+        const stored = prior?.resultJson as { actorMemberId?: string; conversationId?: string } | null;
+        if (stored?.conversationId) {
+          if (stored.actorMemberId !== session.actorMemberId) {
+            throw new HttpException('CONFLICT', HttpStatus.CONFLICT);
+          }
+          const existing = await prisma.osCustomerConversation.findFirst({
+            where: { id: stored.conversationId, organizationId: session.organizationId },
+          });
+          const replay = existing ? toManual(existing) : null;
+          if (replay) return { item: replay };
+        }
+      }
+
       const person = await prisma.osPerson.findUnique({
         where: { id: session.personId },
         select: { givenName: true, familyName: true },
@@ -233,6 +371,18 @@ export class CustomerConversationsController {
 
       const data = prismaCreateFromManual(admitted.record, new Date().toISOString());
       await prisma.osCustomerConversation.create({ data });
+      if (idempotencyKey) {
+        await prisma.osIdempotencyKey.create({
+          data: {
+            id: createId(),
+            organizationId: session.organizationId,
+            key: idempotencyKey,
+            commandName: 'RecordCustomerConversation',
+            resultJson: { actorMemberId: session.actorMemberId, conversationId: admitted.record.id },
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          },
+        });
+      }
       return { item: admitted.record };
     } catch (err) {
       if (err instanceof HttpException) throw err;
