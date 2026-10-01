@@ -389,16 +389,24 @@ function createMemberQueryStore(): MemberQueryStorePort {
     },
     {
       provide: OS_PARTY_TIMELINE_QUERY_SERVICE,
-      useFactory: (projectionStore: OsProjectionStorePort, partyStore: OsPartyStore) =>
+      useFactory: (
+        projectionStore: OsProjectionStorePort,
+        partyStore: OsPartyStore,
+        memberQueryStore: MemberQueryStorePort,
+      ) =>
         new PartyTimelineQueryService({
           projectionStore,
           encodeCursor: encodePartyTimelineCursor,
+          // Without this lookup a team lead falls back to fail-closed and loses
+          // their reports' entries, which they can read today. Same wiring the
+          // commercial factory above uses.
+          directReports: memberQueryStore,
           partyExists: async (organizationId, partyId) => {
             const party = await partyStore.getPartyInOrg(organizationId, partyId);
             return party != null;
           },
         }),
-      inject: [OS_PROJECTION_STORE, OS_PARTY_STORE],
+      inject: [OS_PROJECTION_STORE, OS_PARTY_STORE, OS_MEMBER_QUERY_STORE],
     },
     { provide: OS_MEMBER_QUERY_STORE, useFactory: createMemberQueryStore },
     {

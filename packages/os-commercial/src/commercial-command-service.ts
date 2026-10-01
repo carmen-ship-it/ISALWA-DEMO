@@ -360,7 +360,13 @@ export class CommercialCommandService {
       : ctx.actorMemberId;
     if (payload.ownerMemberId) {
       const owner = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
-      if (!owner || owner.organizationId !== ctx.organizationId) throw new Error('VALIDATION_FAILED');
+      if (
+        !owner ||
+        owner.organizationId !== ctx.organizationId ||
+        owner.accessStatus !== 'active'
+      ) {
+        throw new Error('VALIDATION_FAILED');
+      }
     }
 
     const commercialAccountId = await this.resolveCommercialAccountId(
@@ -580,7 +586,13 @@ export class CommercialCommandService {
       : ctx.actorMemberId;
     if (payload.ownerMemberId) {
       const owner = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
-      if (!owner || owner.organizationId !== ctx.organizationId) throw new Error('VALIDATION_FAILED');
+      if (
+        !owner ||
+        owner.organizationId !== ctx.organizationId ||
+        owner.accessStatus !== 'active'
+      ) {
+        throw new Error('VALIDATION_FAILED');
+      }
     }
 
     let opportunityId: string | null = null;

@@ -17,6 +17,7 @@ const ORG_A = 'org-a';
 const ORG_B = 'org-b';
 const OWNER = 'mem-owner';
 const ADVISOR = 'mem-advisor';
+const SUSPENDED = 'mem-suspended';
 const QUOTE_ID = 'quote-b';
 const LINE_ID = 'line-b';
 const ORDER_ID = 'order-b';
@@ -191,7 +192,8 @@ function harness(input: {
     async getMemberInOrg(organizationId: string, memberId: string) {
       lookups.push(`member:${organizationId}`);
       if (!session || organizationId !== ORG_A) return null;
-      return { id: memberId, organizationId, accessStatus: 'active' };
+      const accessStatus = memberId === SUSPENDED ? 'suspended' : 'active';
+      return { id: memberId, organizationId, accessStatus };
     },
     async listRoleAssignmentsForMember(memberId: string) {
       const held = memberId === ADVISOR ? scopes : memberId === OWNER ? ownerScopes : [];
@@ -700,5 +702,28 @@ describe('commercial tenant writes', () => {
     assert.match(prisma, /nextQuoteLineNumber\(organizationId: string, quoteId: string\)/);
     assert.match(prisma, /where: \{ id: quoteId, organizationId \}/);
     assert.match(prisma, /where: \{ id: line\.id, organizationId, quoteId: line\.quoteId \}/);
+  });
+
+  it('refuses to open commercial work owned by a suspended member', async () => {
+    for (const command of ['CreateOpportunity', 'CreateQuote'] as const) {
+      const denied = harness({ ownerScopes: ['commercial.quote.convert.own'] });
+      const result = await settle(() =>
+        new CommercialCommandService(denied.store).execute(command, ctx(OWNER), {
+          partyId: 'party-a',
+          ownerMemberId: SUSPENDED,
+        }),
+      );
+      assert.equal(result, 'VALIDATION_FAILED', command);
+      assert.deepEqual(denied.writes, [], command);
+    }
+
+    // The same commands still work for an active owner.
+    const allowed = harness({});
+    const created = await new CommercialCommandService(allowed.store).execute(
+      'CreateOpportunity',
+      ctx(OWNER),
+      { partyId: 'party-a', ownerMemberId: OWNER },
+    );
+    assert.equal(typeof created.data.opportunityId, 'string');
   });
 });
