@@ -70,6 +70,14 @@ class MemoryOutboxStore implements OsOutboxStorePort {
     return true;
   }
 
+  async removeConsumerDelivery(
+    organizationId: string,
+    consumerKey: string,
+    eventId: string,
+  ): Promise<void> {
+    this.dedup.delete(`${organizationId}:${consumerKey}:${eventId}`);
+  }
+
   async getStats(organizationId?: string): Promise<OutboxStats> {
     const list = organizationId
       ? this.messages.filter((m) => m.organizationId === organizationId)
@@ -200,5 +208,89 @@ describe('OsOutboxWorker', () => {
     const published = store.messages[0];
     assert.ok(published);
     assert.equal(published.status, 'published');
+  });
+
+  /**
+   * The dedup row is recorded before delivery, so a failed delivery must not
+   * leave a row behind that makes the retry look like a duplicate. Otherwise the
+   * projection update is lost permanently while the outbox reports success.
+   */
+  it('redelivers to a consumer that failed, instead of publishing the message unprojected', async () => {
+    const store = new MemoryOutboxStore();
+    const event = buildBusinessEvent({
+      organizationId: 'org-1',
+      eventType: 'order.created',
+      occurredAt: new Date(),
+      actorMemberId: 'mem-1',
+      primaryEntityType: 'order',
+      primaryEntityId: 'o-1',
+      correlationId: 'corr-1',
+    });
+    store.messages.push(buildOutboxForEvent(event));
+
+    let attempts = 0;
+    let projected = 0;
+    const consumer: OsOutboxConsumerPort = {
+      consumerKey: 'lane.f.test',
+      async deliver() {
+        attempts += 1;
+        if (attempts === 1) throw new Error('TRANSIENT_PROJECTION_FAILURE');
+        projected += 1;
+      },
+    };
+
+    const worker = new OsOutboxWorker(store, [consumer]);
+
+    const first = await worker.runOnce();
+    assert.equal(first.retried, 1);
+    assert.equal(first.published, 0);
+    assert.equal(store.messages[0]?.status, 'pending');
+
+    store.messages[0]!.nextAttemptAt = null;
+    const second = await worker.runOnce();
+
+    assert.equal(projected, 1, 'the consumer must actually project on the retry');
+    assert.equal(second.published, 1);
+    assert.equal(second.duplicates, 0);
+    assert.equal(store.messages[0]?.status, 'published');
+  });
+
+  it('does not let one message duplicate publish another message that never delivered', async () => {
+    const store = new MemoryOutboxStore();
+    const base = {
+      organizationId: 'org-1',
+      occurredAt: new Date(),
+      actorMemberId: 'mem-1',
+      correlationId: 'corr-1',
+    };
+    const alreadyDone = buildBusinessEvent({
+      ...base,
+      eventType: 'quote.submitted',
+      primaryEntityType: 'quote',
+      primaryEntityId: 'q-1',
+    });
+    const pending = buildBusinessEvent({
+      ...base,
+      eventType: 'order.created',
+      primaryEntityType: 'order',
+      primaryEntityId: 'o-1',
+    });
+    store.messages.push(buildOutboxForEvent(alreadyDone), buildOutboxForEvent(pending));
+    store.dedup.add(`org-1:lane.f.test:${alreadyDone.id}`);
+
+    const consumer: OsOutboxConsumerPort = {
+      consumerKey: 'lane.f.test',
+      async deliver(envelope) {
+        if (envelope.id === pending.id) throw new Error('TRANSIENT_PROJECTION_FAILURE');
+      },
+    };
+
+    const worker = new OsOutboxWorker(store, [consumer]);
+    await worker.runOnce();
+
+    const first = store.messages.find((m) => m.eventId === alreadyDone.id);
+    const second = store.messages.find((m) => m.eventId === pending.id);
+    assert.equal(first?.status, 'published');
+    assert.equal(second?.status, 'pending', 'a failed message must not ride on another duplicate');
   });
 });

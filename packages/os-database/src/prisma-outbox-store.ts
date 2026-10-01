@@ -25,6 +25,17 @@ type OutboxRow = {
   published_at: Date | null;
 };
 
+/** P2002 is Prisma's unique-constraint violation. */
+export function isUniqueViolation(err: unknown): boolean {
+  if (err instanceof Prisma.PrismaClientKnownRequestError) return err.code === 'P2002';
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'code' in err &&
+    (err as { code?: unknown }).code === 'P2002'
+  );
+}
+
 function mapOutbox(row: OutboxRow): StoredOutboxMessage {
   return {
     id: row.id,
@@ -110,9 +121,22 @@ export class PrismaOsOutboxStore implements OsOutboxStorePort {
         data: { organizationId, consumerKey, eventId },
       });
       return true;
-    } catch {
-      return false;
+    } catch (err) {
+      // Only an existing claim means "already delivered". Swallowing anything
+      // else would skip the consumer and publish an unprojected message.
+      if (isUniqueViolation(err)) return false;
+      throw err;
     }
+  }
+
+  async removeConsumerDelivery(
+    organizationId: string,
+    consumerKey: string,
+    eventId: string,
+  ): Promise<void> {
+    await this.prisma.osOutboxConsumerDedup.deleteMany({
+      where: { organizationId, consumerKey, eventId },
+    });
   }
 
   async getStats(organizationId?: string): Promise<OutboxStats> {

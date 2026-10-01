@@ -74,11 +74,22 @@ export interface OsOutboxStorePort {
     lastError: string,
   ): Promise<void>;
   markDeadLetter(outboxId: string, lastError: string): Promise<void>;
+  /**
+   * Claim this (consumer, event) pair. False means an earlier delivery already
+   * claimed it. Any other failure must throw so the message is retried rather
+   * than silently treated as delivered.
+   */
   tryRecordConsumerDelivery(
     organizationId: string,
     consumerKey: string,
     eventId: string,
   ): Promise<boolean>;
+  /** Release a claim whose delivery failed, so a retry can deliver again. */
+  removeConsumerDelivery(
+    organizationId: string,
+    consumerKey: string,
+    eventId: string,
+  ): Promise<void>;
   getStats(organizationId?: string): Promise<OutboxStats>;
   getOperationalHealth(organizationId?: string): Promise<OutboxOperationalBacklog>;
   getOutboxMessage(outboxId: string): Promise<StoredOutboxMessage | null>;
