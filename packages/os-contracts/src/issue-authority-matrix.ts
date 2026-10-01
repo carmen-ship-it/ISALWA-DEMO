@@ -28,9 +28,9 @@ export type IssueAuthorityMatrixRow = {
  * Authority matrix for Issue commands.
  *
  * - ReportIssue: member_active (any active member may report)
- * - AddIssueJournalEntry: member_active (contributors may add notes)
- * - LinkIssueWork: member_active (contributors may link work)
- * - RecordIssueOutcome: member_active (contributors may record outcome)
+ * - AddIssueJournalEntry: reporter, current owner, or issue.manage
+ * - LinkIssueWork: reporter, current owner, or issue.manage
+ * - RecordIssueOutcome: reporter, current owner, or issue.manage
  * - TriageIssue: issue.manage (requires authority)
  * - AssignIssueOwner: issue.manage (requires authority)
  * - StartIssueProgress: owner or issue.manage
@@ -68,7 +68,7 @@ export const ISSUE_AUTHORITY_MATRIX: readonly IssueAuthorityMatrixRow[] = [
   {
     command: 'AddIssueJournalEntry',
     requiredScope: 'member_active',
-    description: 'Any active member may add journal entries',
+    description: 'Reporter, current owner, or issue.manage may add journal entries',
     ownershipRequired: false,
   },
   {
@@ -80,7 +80,7 @@ export const ISSUE_AUTHORITY_MATRIX: readonly IssueAuthorityMatrixRow[] = [
   {
     command: 'LinkIssueWork',
     requiredScope: 'member_active',
-    description: 'Any active member may link work items',
+    description: 'Reporter, current owner, or issue.manage may link work items',
     ownershipRequired: false,
   },
   {
@@ -92,7 +92,7 @@ export const ISSUE_AUTHORITY_MATRIX: readonly IssueAuthorityMatrixRow[] = [
   {
     command: 'RecordIssueOutcome',
     requiredScope: 'member_active',
-    description: 'Any active member may record outcome',
+    description: 'Reporter, current owner, or issue.manage may record an outcome',
     ownershipRequired: false,
   },
   {

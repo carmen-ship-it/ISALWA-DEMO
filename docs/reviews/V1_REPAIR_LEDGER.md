@@ -161,6 +161,24 @@ Staging sign-in fails for the stored demo passwords, so every authenticated
 hosted check is blocked and must not be reported as verified: the four fixture
 checks (DEMO TALLER SAN LORENZO / `Q-000022` / `O-000008`), all desks, global
 search timing, role lenses, 25/26+/100+ row behaviour, 390 px mobile, PDFs,
-cross-role and cross-company negative tests, and owner acceptance. Only Carmen
-can resolve the credentials; fixtures must not be rerun to work around it,
-because that resets every shared persona password.
+cross-role and cross-company negative tests, and owner acceptance. The failure
+is not yet diagnosed from provider project identity and a safe error. Fixtures
+must not be rerun, because that resets every shared persona password.
+
+## Repairs after the immutable checkpoint
+
+Checkpoint `32810573b2dab46ea0b5bae2773d4f06340601be` stays immutable and undeployed.
+Integration HEAD `70dd6125e132c4f877a5ad0dec0b6767e1b6dfeb` on `ct3/v1-repairs`.
+Nothing in this list is deployed, hosted, or browser-verified.
+
+| Finding | State | Commit | Evidence |
+|---|---|---|---|
+| Disposable Postgres for the gated suites | TESTED on a cluster that was later recreated | `884296d`, `8090463` | os-database 258/258 and the two tenant-isolation tests passed when `OS_DATABASE_URL` pointed at local Postgres 16 on port 54329. Without that variable those files do not register, so a missing database is not a release pass. |
+| D1 completion after delivery | TESTED, including SIGKILL | `9667915` | 4/4 crash tests on `isalwa_v1_d1`. Completion is written after `deliver` returns. Consumers re-apply the same event. |
+| S2 closed grant allowlist | TESTED in unit suites | `6b29ab3` | `grant-scopes.test.ts` 13/13. `os-workforce` 106/106. Job titles stay stored and confer no command. |
+| S11 replay authorization | TESTED for os-work only | `6746a58` | Other command services still replay before the current actor is checked. |
+| S12 issue writes | TESTED in `os-issue` | `0612108` | 85/85. Unrelated members cannot journal, record an outcome, or link work. |
+| S20 / S21 conversations | IMPLEMENTED, unit-tested, HTTP UNPROVEN | `70dd612` | Visibility and link rules are pure functions with passing tests. No local HTTP request was sent. |
+| External Compras sentence | TESTED in the web copy helper | `af3fb82` | Stored result includes “No se creó una orden de compra.” |
+
+Still open after that HEAD: A1, D5.1, D5.2, D3.1, the other nine unreviewed GET routes, S11 outside os-work, approval-rule enforcement, staging sign-in diagnosis, and rollback of old code against the new idempotency and outbox rows.
