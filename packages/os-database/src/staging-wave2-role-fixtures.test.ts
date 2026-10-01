@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { COMMAND_REQUIRED_SCOPES, V1_PLANNED_ASSIGNMENTS } from '@isalwa/os-contracts';
@@ -189,7 +189,12 @@ describe('staging-wave2-role-fixtures guards', () => {
     assert.equal(ALLOWED_SYNTHETIC_EMAILS.length, 9);
     assert.doesNotThrow(() => assertRoleEmailMapBounded());
     assert.equal(HOSTED_APP_SHA, 'ef7eeabdea5f8f4449ba706caa1a323435d96fcc');
-    assert.equal(EXPECTED_MIGRATION_COUNT, 31);
+    assert.equal(EXPECTED_MIGRATION_COUNT, 33);
+    // Keep the pinned count and the migrations on disk from drifting apart.
+    const migrationDirs = readdirSync(join(__dirname, '../prisma/migrations'), {
+      withFileTypes: true,
+    }).filter((entry) => entry.isDirectory());
+    assert.equal(migrationDirs.length, EXPECTED_MIGRATION_COUNT);
 
     for (const planned of V1_PLANNED_ASSIGNMENTS) {
       assertCapabilitiesMatchPlanned(planned.functionId, planned.intendedCapabilities);
@@ -221,7 +226,7 @@ describe('staging-wave2-role-fixtures guards', () => {
 
   it('I: migration count guard + confirm latch for idempotent entry', () => {
     assert.throws(() => assertMigrationCount(30), /UNEXPECTED_MIGRATION_COUNT:30/);
-    assert.doesNotThrow(() => assertMigrationCount(31));
+    assert.doesNotThrow(() => assertMigrationCount(EXPECTED_MIGRATION_COUNT));
     assert.doesNotThrow(() => assertStagingFixtureConfirm(validEnv));
     assertPreConnectGuards(validEnv);
     assertPreConnectGuards(validEnv);
