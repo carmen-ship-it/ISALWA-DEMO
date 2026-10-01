@@ -39,7 +39,10 @@ describe('visual hierarchy contract', () => {
     assert.match(delivery, /Próxima acción/);
     assert.match(delivery, /variant="secondary"/);
     assert.match(delivery, /canSubmitEntrega \? 'contextual' : 'secondary'/);
-    assert.match(delivery, /gate === 'needs-salida' \? 'primary' : 'secondary'/);
+    // Salida is the primary action only on the needs-salida gate. The condition
+    // has since been narrowed further (not once a salida exists), so match the
+    // invariant rather than one exact spelling of it.
+    assert.match(delivery, /gate === 'needs-salida'[^?]*\? 'primary' : 'secondary'/);
   });
 
   it('trabajo counters, scan wrap, and pagination chrome stay', () => {
