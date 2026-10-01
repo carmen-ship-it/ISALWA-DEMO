@@ -80,9 +80,14 @@ function rerequestStore() {
         throw err;
       }
     },
+    access: new Map<string, string>(),
     async getMemberInOrg(organizationId: string, memberId: string) {
       if (organizationId !== ORG) return null;
-      return { id: memberId, organizationId, accessStatus: 'active' };
+      return {
+        id: memberId,
+        organizationId,
+        accessStatus: store.access.get(memberId) ?? 'active',
+      };
     },
     async listRoleAssignmentsForMember() {
       return [];
@@ -276,5 +281,41 @@ describe('re-requesting a review after it is resolved', () => {
 
     assert.equal(replay.data.approvalRequestId, first.data.approvalRequestId);
     assert.equal(store.approvals.length, 1, 'the open claim must still prevent a duplicate review');
+    assert.equal('actorMemberId' in replay, false, 'the bound actor is not part of the returned result');
+  });
+
+  it('does not replay a stored result to a different member', async () => {
+    const store = rerequestStore();
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    const payload = {
+      approverMemberId: APPROVER,
+      subjectType: 'quote',
+      subjectId: 'subject-1',
+    };
+
+    const first = await service.execute('RequestApproval', ctx(OWNER, 'corr-1'), payload);
+    await assert.rejects(
+      () => service.execute('RequestApproval', ctx('mem-other', 'corr-2'), payload),
+      (err: Error) => err.message === 'CONFLICT',
+    );
+    assert.equal(store.approvals.length, 1);
+    assert.equal(store.approvals[0]?.id, first.data.approvalRequestId);
+  });
+
+  it('does not replay a stored result after the original member is suspended', async () => {
+    const store = rerequestStore();
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    const payload = {
+      approverMemberId: APPROVER,
+      subjectType: 'quote',
+      subjectId: 'subject-1',
+    };
+
+    await service.execute('RequestApproval', ctx(OWNER, 'corr-1'), payload);
+    store.access.set(OWNER, 'suspended');
+    await assert.rejects(
+      () => service.execute('RequestApproval', ctx(OWNER, 'corr-2'), payload),
+      (err: Error) => err.message === 'ACCESS_REVOKED',
+    );
   });
 });

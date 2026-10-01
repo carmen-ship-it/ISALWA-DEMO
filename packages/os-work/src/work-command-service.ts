@@ -87,6 +87,25 @@ export class WorkCommandService {
     return snap;
   }
 
+  /**
+   * A stored result is returned only to the member who produced it, and only
+   * while that member is still authorized. Another caller, including one who
+   * guesses the key or hits the same open-request claim, gets CONFLICT and
+   * never sees the stored body. A row with no bound actor is not replayed.
+   */
+  private async acceptedReplay(
+    ctx: RequestContext,
+    command: WorkCommandName,
+    stored: Record<string, unknown>,
+  ): Promise<CommandResult> {
+    await this.authorize(ctx, command, ctx.organizationId);
+    if (stored.actorMemberId !== ctx.actorMemberId) {
+      throw new Error('CONFLICT');
+    }
+    const { actorMemberId: _actor, ...result } = stored;
+    return result as unknown as CommandResult;
+  }
+
   private memberHasAdminScope(snap: MemberAccessSnapshot): boolean {
     return memberHasScope(snap, 'people.admin');
   }
@@ -142,7 +161,7 @@ export class WorkCommandService {
     if (replayKey) {
       const existing = await this.store.findIdempotency(ctx.organizationId, replayKey);
       if (existing && isStoredCommandResult(existing.resultJson)) {
-        return existing.resultJson as unknown as CommandResult;
+        return this.acceptedReplay(ctx, command, existing.resultJson);
       }
     }
 
@@ -151,7 +170,7 @@ export class WorkCommandService {
         if (replayKey) {
           const existing = await store.findIdempotency(ctx.organizationId, replayKey);
           if (existing && isStoredCommandResult(existing.resultJson)) {
-            return existing.resultJson as unknown as CommandResult;
+            return this.acceptedReplay(ctx, command, existing.resultJson);
           }
         }
 
@@ -190,7 +209,10 @@ export class WorkCommandService {
             organizationId: ctx.organizationId,
             key: replayKey,
             commandName: command,
-            resultJson: result as unknown as Record<string, unknown>,
+            resultJson: {
+              ...(result as unknown as Record<string, unknown>),
+              actorMemberId: ctx.actorMemberId,
+            },
             expiresAt: new Date(Date.now() + 86400_000),
           });
         }
@@ -201,7 +223,7 @@ export class WorkCommandService {
       if (replayKey && isIdempotencyConflict(err)) {
         const existing = await this.store.findIdempotency(ctx.organizationId, replayKey);
         if (existing && isStoredCommandResult(existing.resultJson)) {
-          return existing.resultJson as unknown as CommandResult;
+          return this.acceptedReplay(ctx, command, existing.resultJson);
         }
       }
       throw err;
