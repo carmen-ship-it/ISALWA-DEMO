@@ -1,0 +1,35 @@
+# root=/Users/carmen/projects/isalwa-wt-v1-repairs suite=packages/os-pedido-case date=2026-10-16T22:49:06Z TZ=system head=1139172b02c17dd25e318dfebf258aa7873c0bab
+▶ getPedidoOperatingCase
+  ✔ does not leak a foreign order id (0.968334ms)
+  ✔ leaves uninjected sections UNPROVEN with the Spanish copy (0.552875ms)
+  ✔ keeps an injected NO_FACT and does not treat a missing date as false (0.306541ms)
+  ✔ passes an injected AVAILABLE fact through (0.243417ms)
+  ✔ does not let cargo replace commercial.team.read (0.095291ms)
+  ✔ denies the wrong role and does not unlock people.admin (0.196584ms)
+  ✔ does not attach production by order id (0.181875ms)
+  ✔ passes a product-linked production fact and still does not own it from the order (0.185333ms)
+  ✔ refuses a numeric threshold as a special-order classification (0.151209ms)
+  ✔ records that the parked page was not merged (0.081375ms)
+✔ getPedidoOperatingCase (3.552584ms)
+▶ createPrismaPedidoIdentityStore
+  ✔ scopes order, party, and account reads and has no production query (0.193791ms)
+✔ createPrismaPedidoIdentityStore (0.232833ms)
+▶ pedido reader adapter
+  ✔ keeps dates AVAILABLE while delay and risk stay NO_FACT (2.937333ms)
+  ✔ does not query production by order id or show an empty run (0.870541ms)
+  ✔ keeps finished goods UNPROVEN when the receipt model is missing (0.471917ms)
+  ✔ does not turn commercial.team.read into a zero purchase (0.297292ms)
+  ✔ lets management.org.read see a purchase without attaching another order (0.255959ms)
+  ✔ does not unlock warehouse or delivery with write scopes, and does not invent coordination (1.149709ms)
+  ✔ does not show NO_FACT as no next action when commercial coverage is incomplete (0.208541ms)
+  ✔ keeps a foreign order missing when live readers are passed (0.096834ms)
+  ✔ does not merge the parked page and does not add mutation actions (0.213166ms)
+✔ pedido reader adapter (7.102959ms)
+ℹ tests 20
+ℹ suites 3
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 436.594625

@@ -7,6 +7,19 @@ import { WorkforceCommandService, LocalAuthProviderPort } from '@isalwa/os-workf
 import type { RequestContext } from '@isalwa/os-contracts';
 import { createId } from '@isalwa/ts-utils';
 
+/** Rule 6b29ab3: a delegator may delegate only a recognized scope they hold themselves. */
+async function holdApprovalAct(organizationId: string, memberId: string) {
+  await getOsPrisma()!.osRoleAssignment.create({
+    data: {
+      id: createId(),
+      organizationId,
+      memberId,
+      roleKey: 'approval.act',
+      effectiveAt: new Date('2020-01-01T00:00:00.000Z'),
+    },
+  });
+}
+
 const describePrisma = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
 describePrisma('work prisma integration', () => {
@@ -182,6 +195,7 @@ describePrisma('work prisma integration', () => {
     );
 
     const cApprover = ctx(org.id, approver.member.id, approver.person.id, approver.auth.id);
+    await holdApprovalAct(org.id, approver.member.id);
     await workforceSvc.execute('GrantDelegation', cApprover, {
       delegateMemberId: delegate.member.id,
       scopes: ['approval.act'],

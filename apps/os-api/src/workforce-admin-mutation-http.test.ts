@@ -8,6 +8,19 @@ import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { getOsPrisma } from '@isalwa/os-database';
 import { createId } from '@isalwa/ts-utils';
 
+/** Rule 6b29ab3: a delegator may delegate only a recognized scope they hold themselves. */
+async function holdApprovalAct(organizationId: string, memberId: string) {
+  await getOsPrisma()!.osRoleAssignment.create({
+    data: {
+      id: createId(),
+      organizationId,
+      memberId,
+      roleKey: 'approval.act',
+      effectiveAt: new Date('2020-01-01T00:00:00.000Z'),
+    },
+  });
+}
+
 const describeHttp = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
 function sessionHeaders(
@@ -217,6 +230,7 @@ describeHttp('os-api workforce admin mutation HTTP (Step 14.7)', () => {
 
   it('POST GrantDelegation and RevokeDelegation succeed', async () => {
     const adminH = sessionHeaders(org.id, admin.member, admin.person, admin.auth);
+    await holdApprovalAct(org.id, admin.member.id);
     const grant = await postCommand(baseUrl, adminH, 'GrantDelegation', {
       delegateMemberId: rep.member.id,
       scopes: ['approval.act'],

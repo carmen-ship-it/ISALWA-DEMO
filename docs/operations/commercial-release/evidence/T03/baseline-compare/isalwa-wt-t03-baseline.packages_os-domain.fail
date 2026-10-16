@@ -1,0 +1,8 @@
+  ✖ effective roles respect asOf
+  ✖ expired delegation excluded
+  ✖ keeps an active additional grant and drops ended or wrong-tenant grants
+✖ authorization
+✖ effective roles respect asOf
+✖ expired delegation excluded
+✖ keeps an active additional grant and drops ended or wrong-tenant grants
+✖ resolveTrustedMemberContext

@@ -10,6 +10,19 @@ import {
 import { WorkCommandService } from '@isalwa/os-work';
 import { LocalAuthProviderPort, WorkforceCommandService } from '@isalwa/os-workforce';
 
+/** Rule 6b29ab3: a delegator may delegate only a recognized scope they hold themselves. */
+async function holdApprovalAct(organizationId: string, memberId: string) {
+  await getOsPrisma()!.osRoleAssignment.create({
+    data: {
+      id: createId(),
+      organizationId,
+      memberId,
+      roleKey: 'approval.act',
+      effectiveAt: new Date('2020-01-01T00:00:00.000Z'),
+    },
+  });
+}
+
 const describePrisma = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
 class TrackingAuthProvider extends LocalAuthProviderPort {
@@ -327,6 +340,7 @@ describePrisma('workforce admin mutation API readiness (Step 14.7)', () => {
   it('GrantDelegation and RevokeDelegation are atomic with audit/outbox', async () => {
     const { org, admin, worker } = await seedAdminOrg();
     const session = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    await holdApprovalAct(org.id, admin.member.id);
     const granted = await svc.execute('GrantDelegation', session, {
       delegateMemberId: worker.member.id,
       scopes: ['approval.act'],

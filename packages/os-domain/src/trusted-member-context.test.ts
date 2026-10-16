@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  APPROVAL_ACT_SCOPE,
   COMMERCIAL_TEAM_READ_SCOPE,
   COORDINATION_DECISION_CAPABILITY,
   FINANCE_OPERATIONAL_RECORD_SCOPE,
@@ -238,6 +239,15 @@ describe('resolveTrustedMemberContext', () => {
           {
             delegateMemberId: 'mem-a',
             organizationId: ORG,
+            scopes: [APPROVAL_ACT_SCOPE],
+            startsAt: PAST,
+            expiresAt: FUTURE,
+            revokedAt: null,
+            delegatorMemberId: 'mem-mgr',
+          },
+          {
+            delegateMemberId: 'mem-a',
+            organizationId: ORG,
             scopes: [COORDINATION_DECISION_CAPABILITY],
             startsAt: PAST,
             expiresAt: FUTURE,
@@ -259,11 +269,13 @@ describe('resolveTrustedMemberContext', () => {
     );
     assert.equal(result.ok, true);
     if (!result.ok) return;
-    assert.deepEqual(result.context.grantedScopes, [
+    // Rule 6b29ab3: the sales_rep title is a label and coordination.decision.record is not delegable.
+    assert.deepEqual([...result.context.grantedScopes].sort(), [
+      APPROVAL_ACT_SCOPE,
       COMMERCIAL_TEAM_READ_SCOPE,
-      COORDINATION_DECISION_CAPABILITY,
-      'sales_rep',
     ]);
+    assert.equal(result.context.grantedScopes.includes('sales_rep'), false);
+    assert.equal(result.context.grantedScopes.includes(COORDINATION_DECISION_CAPABILITY), false);
   });
 
   it('each planned role session contains exact intended scopes', async () => {

@@ -10,6 +10,20 @@ import { PartyCommandService } from '@isalwa/os-party';
 import { WorkCommandService } from '@isalwa/os-work';
 import { WorkforceCommandService, LocalAuthProviderPort } from '@isalwa/os-workforce';
 import type { RequestContext } from '@isalwa/os-contracts';
+import { createId } from '@isalwa/ts-utils';
+
+/** Rule 6b29ab3: a delegator may delegate only a recognized scope they hold themselves. */
+async function holdApprovalAct(organizationId: string, memberId: string) {
+  await getOsPrisma()!.osRoleAssignment.create({
+    data: {
+      id: createId(),
+      organizationId,
+      memberId,
+      roleKey: 'approval.act',
+      effectiveAt: new Date('2020-01-01T00:00:00.000Z'),
+    },
+  });
+}
 
 const describePrisma = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
@@ -221,6 +235,7 @@ describePrisma('suspend member / open work lifecycle (Step 14.5)', () => {
     const cAdmin = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
     const cWorker = ctx(org.id, worker.member.id, worker.person.id, worker.auth.id);
     const effectiveAt = new Date('2026-08-24T12:00:00Z');
+    await holdApprovalAct(org.id, approver.member.id);
     await workforceSvc.execute(
       'GrantDelegation',
       ctx(org.id, approver.member.id, approver.person.id, approver.auth.id, effectiveAt),

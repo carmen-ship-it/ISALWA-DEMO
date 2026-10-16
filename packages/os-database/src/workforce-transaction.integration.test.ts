@@ -6,6 +6,19 @@ import { LocalAuthProviderPort, WorkforceCommandService } from '@isalwa/os-workf
 import { getOsPrisma } from './client';
 import { PrismaOsWorkforceStore } from './prisma-workforce-store';
 
+/** Rule 6b29ab3: a delegator may delegate only a recognized scope they hold themselves. */
+async function holdApprovalAct(organizationId: string, memberId: string) {
+  await getOsPrisma()!.osRoleAssignment.create({
+    data: {
+      id: createId(),
+      organizationId,
+      memberId,
+      roleKey: 'approval.act',
+      effectiveAt: new Date('2020-01-01T00:00:00.000Z'),
+    },
+  });
+}
+
 const describePrisma = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
 function ctx(
@@ -142,6 +155,22 @@ describePrisma('workforce transactional completion', () => {
     const { org, admin } = await seedAdminOrg();
     const memberId = await inviteAndActivate(org.id, admin);
     const session = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    const grantPayload = {
+      delegateMemberId: memberId,
+      scopes: ['approval.act'],
+      expiresAt: new Date('2027-01-01T12:00:00Z').toISOString(),
+    };
+    const eventsBeforeDenied = await store.countBusinessEvents(org.id);
+    await assert.rejects(
+      () => svc.execute('GrantDelegation', session, grantPayload),
+      (err: Error) => err.message === 'PERMISSION_DENIED',
+    );
+    assert.equal(
+      await getOsPrisma()!.osDelegation.count({ where: { organizationId: org.id, delegateMemberId: memberId } }),
+      0,
+    );
+    assert.equal(await store.countBusinessEvents(org.id), eventsBeforeDenied);
+    await holdApprovalAct(org.id, admin.member.id);
     const granted = await svc.execute('GrantDelegation', session, {
       delegateMemberId: memberId,
       scopes: ['approval.act'],

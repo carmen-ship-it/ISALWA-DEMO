@@ -1,0 +1,15 @@
+  ✖ GrantDelegation and RevokeDelegation are atomic with audit/outbox
+  ✖ RevokeDelegation is atomic with event and audit
+  ✖ approval flow with delegation authority
+  ✖ blocks suspended delegate from exercising delegation authority
+  ✖ rejects expired delegation for approve
+✖ GrantDelegation and RevokeDelegation are atomic with audit/outbox
+✖ RevokeDelegation is atomic with event and audit
+✖ approval flow with delegation authority
+✖ approval security + integrity (Step 14.4)
+✖ blocks suspended delegate from exercising delegation authority
+✖ rejects expired delegation for approve
+✖ suspend member / open work lifecycle (Step 14.5)
+✖ work prisma integration
+✖ workforce admin mutation API readiness (Step 14.7)
+✖ workforce transactional completion

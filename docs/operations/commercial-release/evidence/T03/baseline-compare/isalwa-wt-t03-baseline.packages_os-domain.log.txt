@@ -1,0 +1,334 @@
+# root=/Users/carmen/projects/isalwa-wt-t03-baseline suite=packages/os-domain date=2026-10-16T22:47:43Z TZ=system head=4934a09cce64d5b26584c7152696f1954002dab6
+▶ authorization
+  ✖ effective roles respect asOf (2.229541ms)
+  ✖ expired delegation excluded (0.309625ms)
+  ✔ active delegation grants scope (0.124ms)
+  ✔ memberHasScope checks delegation (0.082209ms)
+  ✔ isAssignmentActive boundary (0.056583ms)
+  ✔ AI inherits member scopes without elevation (0.155708ms)
+  ✔ granted read scope is not an admin scope (0.071292ms)
+✖ authorization (3.564667ms)
+▶ capability separation
+  ✔ does not let commercial.team.read authorize visit mutation, quote mutation, or a payment exception (0.844ms)
+  ✔ does not let management.org.read authorize operational mutation (0.081917ms)
+  ✔ does not let warehouse.finished_goods.receive imply warehouse.finished_goods.allocate (0.090792ms)
+  ✔ does not let operations.coordinator.record imply coordination.decision.record (0.086708ms)
+  ✔ does not let production.review.member imply production.entry.member (0.062709ms)
+  ✔ does not let people.admin authorize a payment exception, allocation, or production entry (0.059416ms)
+  ✔ grants Encargado, Jefe, and Auxiliar cargo and title zero scopes (0.130583ms)
+✔ capability separation (1.855792ms)
+▶ operational scopes through the existing authorization engine
+  ✔ does not let advisor customer create imply master_data.admin (0.475ms)
+  ✔ does not let team read imply system admin (0.105167ms)
+  ✔ does not let finance record production (0.070167ms)
+  ✔ does not let a coordinator confirm finance or impersonate production (0.07725ms)
+  ✔ does not let production act as system admin (0.065959ms)
+  ✔ keeps super admin tenant-bound and unable to rewrite history (0.260375ms)
+  ✔ does not let a coverage grant type cover every customer or change the owner (0.188458ms)
+  ✔ requires an assigned production-entry member scope and a separate review scope (0.10325ms)
+  ✔ does not grant payment-exception authorization from cargo, title, or a sibling scope (0.135083ms)
+  ✔ does not require payment confirmation before production entry (0.100709ms)
+✔ operational scopes through the existing authorization engine (2.16975ms)
+▶ tenant authorization matrix
+  ✔ assertTenantMatch throws TENANT_FORBIDDEN for a different organization (1.268083ms)
+  ✔ tenant surface catalog names every read surface (0.361792ms)
+  ✔ customer: same-tenant with required scope returns only that tenant's rows (0.228ms)
+  ✔ customer: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.097958ms)
+  ✔ customer: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.078416ms)
+  ✔ customer: missing session organization returns AUTH_REQUIRED and zero rows (0.059292ms)
+  ✔ customer: search suggestions and autocomplete exclude the other tenant including a prefix match (0.119542ms)
+  ✔ customer: count for the session tenant excludes the other tenant and a zero stays zero (0.096667ms)
+  ✔ customer: recent-item list and quick-view option follow the same tenant filter (0.0845ms)
+  ✔ contact: same-tenant with required scope returns only that tenant's rows (0.083ms)
+  ✔ contact: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.051625ms)
+  ✔ contact: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.046416ms)
+  ✔ contact: missing session organization returns AUTH_REQUIRED and zero rows (0.032792ms)
+  ✔ contact: search suggestions and autocomplete exclude the other tenant including a prefix match (0.057875ms)
+  ✔ contact: count for the session tenant excludes the other tenant and a zero stays zero (0.035291ms)
+  ✔ contact: recent-item list and quick-view option follow the same tenant filter (0.036208ms)
+  ✔ opportunity: same-tenant with required scope returns only that tenant's rows (0.032333ms)
+  ✔ opportunity: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.044542ms)
+  ✔ opportunity: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.046542ms)
+  ✔ opportunity: missing session organization returns AUTH_REQUIRED and zero rows (0.032ms)
+  ✔ opportunity: search suggestions and autocomplete exclude the other tenant including a prefix match (0.051542ms)
+  ✔ opportunity: count for the session tenant excludes the other tenant and a zero stays zero (0.031958ms)
+  ✔ opportunity: recent-item list and quick-view option follow the same tenant filter (0.029416ms)
+  ✔ quote: same-tenant with required scope returns only that tenant's rows (0.036708ms)
+  ✔ quote: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.033667ms)
+  ✔ quote: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.039459ms)
+  ✔ quote: missing session organization returns AUTH_REQUIRED and zero rows (0.028542ms)
+  ✔ quote: search suggestions and autocomplete exclude the other tenant including a prefix match (0.03525ms)
+  ✔ quote: count for the session tenant excludes the other tenant and a zero stays zero (0.028334ms)
+  ✔ quote: recent-item list and quick-view option follow the same tenant filter (0.028875ms)
+  ✔ quote_line: same-tenant with required scope returns only that tenant's rows (0.029084ms)
+  ✔ quote_line: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.025334ms)
+  ✔ quote_line: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.032667ms)
+  ✔ quote_line: missing session organization returns AUTH_REQUIRED and zero rows (0.030458ms)
+  ✔ quote_line: search suggestions and autocomplete exclude the other tenant including a prefix match (0.0435ms)
+  ✔ quote_line: count for the session tenant excludes the other tenant and a zero stays zero (0.03ms)
+  ✔ quote_line: recent-item list and quick-view option follow the same tenant filter (0.03125ms)
+  ✔ order: same-tenant with required scope returns only that tenant's rows (0.029833ms)
+  ✔ order: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.030833ms)
+  ✔ order: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.039792ms)
+  ✔ order: missing session organization returns AUTH_REQUIRED and zero rows (0.025875ms)
+  ✔ order: search suggestions and autocomplete exclude the other tenant including a prefix match (0.036583ms)
+  ✔ order: count for the session tenant excludes the other tenant and a zero stays zero (0.026833ms)
+  ✔ order: recent-item list and quick-view option follow the same tenant filter (0.028583ms)
+  ✔ order_line: same-tenant with required scope returns only that tenant's rows (0.029542ms)
+  ✔ order_line: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.025625ms)
+  ✔ order_line: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.031458ms)
+  ✔ order_line: missing session organization returns AUTH_REQUIRED and zero rows (0.027375ms)
+  ✔ order_line: search suggestions and autocomplete exclude the other tenant including a prefix match (0.039875ms)
+  ✔ order_line: count for the session tenant excludes the other tenant and a zero stays zero (0.035167ms)
+  ✔ order_line: recent-item list and quick-view option follow the same tenant filter (0.029458ms)
+  ✔ product: same-tenant with required scope returns only that tenant's rows (0.029125ms)
+  ✔ product: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.034458ms)
+  ✔ product: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.031291ms)
+  ✔ product: missing session organization returns AUTH_REQUIRED and zero rows (0.025ms)
+  ✔ product: search suggestions and autocomplete exclude the other tenant including a prefix match (0.0315ms)
+  ✔ product: count for the session tenant excludes the other tenant and a zero stays zero (0.031125ms)
+  ✔ product: recent-item list and quick-view option follow the same tenant filter (0.028375ms)
+  ✔ price_list: same-tenant with required scope returns only that tenant's rows (0.027583ms)
+  ✔ price_list: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.025417ms)
+  ✔ price_list: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.042292ms)
+  ✔ price_list: missing session organization returns AUTH_REQUIRED and zero rows (0.026458ms)
+  ✔ price_list: search suggestions and autocomplete exclude the other tenant including a prefix match (0.033083ms)
+  ✔ price_list: count for the session tenant excludes the other tenant and a zero stays zero (0.026125ms)
+  ✔ price_list: recent-item list and quick-view option follow the same tenant filter (0.02625ms)
+  ✔ price_entry: same-tenant with required scope returns only that tenant's rows (0.032125ms)
+  ✔ price_entry: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.030208ms)
+  ✔ price_entry: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.031625ms)
+  ✔ price_entry: missing session organization returns AUTH_REQUIRED and zero rows (0.02575ms)
+  ✔ price_entry: search suggestions and autocomplete exclude the other tenant including a prefix match (0.036042ms)
+  ✔ price_entry: count for the session tenant excludes the other tenant and a zero stays zero (0.0265ms)
+  ✔ price_entry: recent-item list and quick-view option follow the same tenant filter (0.028583ms)
+  ✔ production_record: same-tenant with required scope returns only that tenant's rows (0.025292ms)
+  ✔ production_record: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.021042ms)
+  ✔ production_record: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.028333ms)
+  ✔ production_record: missing session organization returns AUTH_REQUIRED and zero rows (0.021166ms)
+  ✔ production_record: search suggestions and autocomplete exclude the other tenant including a prefix match (0.02925ms)
+  ✔ production_record: count for the session tenant excludes the other tenant and a zero stays zero (0.023084ms)
+  ✔ production_record: recent-item list and quick-view option follow the same tenant filter (0.024ms)
+  ✔ quema: same-tenant with required scope returns only that tenant's rows (0.025833ms)
+  ✔ quema: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.021959ms)
+  ✔ quema: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.02925ms)
+  ✔ quema: missing session organization returns AUTH_REQUIRED and zero rows (0.032166ms)
+  ✔ quema: search suggestions and autocomplete exclude the other tenant including a prefix match (0.029333ms)
+  ✔ quema: count for the session tenant excludes the other tenant and a zero stays zero (0.02225ms)
+  ✔ quema: recent-item list and quick-view option follow the same tenant filter (0.031334ms)
+  ✔ loss: same-tenant with required scope returns only that tenant's rows (0.028625ms)
+  ✔ loss: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.030333ms)
+  ✔ loss: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.029625ms)
+  ✔ loss: missing session organization returns AUTH_REQUIRED and zero rows (0.027625ms)
+  ✔ loss: search suggestions and autocomplete exclude the other tenant including a prefix match (0.030833ms)
+  ✔ loss: count for the session tenant excludes the other tenant and a zero stays zero (0.021333ms)
+  ✔ loss: recent-item list and quick-view option follow the same tenant filter (0.022792ms)
+  ✔ consumption: same-tenant with required scope returns only that tenant's rows (0.023083ms)
+  ✔ consumption: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.020416ms)
+  ✔ consumption: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.026791ms)
+  ✔ consumption: missing session organization returns AUTH_REQUIRED and zero rows (0.020125ms)
+  ✔ consumption: search suggestions and autocomplete exclude the other tenant including a prefix match (0.026333ms)
+  ✔ consumption: count for the session tenant excludes the other tenant and a zero stays zero (0.020917ms)
+  ✔ consumption: recent-item list and quick-view option follow the same tenant filter (0.021875ms)
+  ✔ finished_goods_receipt: same-tenant with required scope returns only that tenant's rows (0.022708ms)
+  ✔ finished_goods_receipt: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.02075ms)
+  ✔ finished_goods_receipt: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.027625ms)
+  ✔ finished_goods_receipt: missing session organization returns AUTH_REQUIRED and zero rows (0.020583ms)
+  ✔ finished_goods_receipt: search suggestions and autocomplete exclude the other tenant including a prefix match (0.026375ms)
+  ✔ finished_goods_receipt: count for the session tenant excludes the other tenant and a zero stays zero (0.046875ms)
+  ✔ finished_goods_receipt: recent-item list and quick-view option follow the same tenant filter (0.022625ms)
+  ✔ order_allocation: same-tenant with required scope returns only that tenant's rows (0.023417ms)
+  ✔ order_allocation: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.027709ms)
+  ✔ order_allocation: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.028833ms)
+  ✔ order_allocation: missing session organization returns AUTH_REQUIRED and zero rows (0.026291ms)
+  ✔ order_allocation: search suggestions and autocomplete exclude the other tenant including a prefix match (0.031042ms)
+  ✔ order_allocation: count for the session tenant excludes the other tenant and a zero stays zero (0.025333ms)
+  ✔ order_allocation: recent-item list and quick-view option follow the same tenant filter (0.023ms)
+  ✔ purchase_request: same-tenant with required scope returns only that tenant's rows (0.026917ms)
+  ✔ purchase_request: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.02125ms)
+  ✔ purchase_request: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.031166ms)
+  ✔ purchase_request: missing session organization returns AUTH_REQUIRED and zero rows (0.021792ms)
+  ✔ purchase_request: search suggestions and autocomplete exclude the other tenant including a prefix match (0.030625ms)
+  ✔ purchase_request: count for the session tenant excludes the other tenant and a zero stays zero (0.021666ms)
+  ✔ purchase_request: recent-item list and quick-view option follow the same tenant filter (0.021792ms)
+  ✔ operational_case: same-tenant with required scope returns only that tenant's rows (0.022334ms)
+  ✔ operational_case: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.021333ms)
+  ✔ operational_case: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.026625ms)
+  ✔ operational_case: missing session organization returns AUTH_REQUIRED and zero rows (0.019542ms)
+  ✔ operational_case: search suggestions and autocomplete exclude the other tenant including a prefix match (0.026375ms)
+  ✔ operational_case: count for the session tenant excludes the other tenant and a zero stays zero (0.020416ms)
+  ✔ operational_case: recent-item list and quick-view option follow the same tenant filter (0.036666ms)
+  ✔ customer_communication: same-tenant with required scope returns only that tenant's rows (0.048833ms)
+  ✔ customer_communication: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.022958ms)
+  ✔ customer_communication: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.041167ms)
+  ✔ customer_communication: missing session organization returns AUTH_REQUIRED and zero rows (0.020458ms)
+  ✔ customer_communication: search suggestions and autocomplete exclude the other tenant including a prefix match (0.029125ms)
+  ✔ customer_communication: count for the session tenant excludes the other tenant and a zero stays zero (0.030042ms)
+  ✔ customer_communication: recent-item list and quick-view option follow the same tenant filter (0.02325ms)
+  ✔ warehouse_exit: same-tenant with required scope returns only that tenant's rows (0.023083ms)
+  ✔ warehouse_exit: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.019375ms)
+  ✔ warehouse_exit: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.034917ms)
+  ✔ warehouse_exit: missing session organization returns AUTH_REQUIRED and zero rows (0.021291ms)
+  ✔ warehouse_exit: search suggestions and autocomplete exclude the other tenant including a prefix match (0.02975ms)
+  ✔ warehouse_exit: count for the session tenant excludes the other tenant and a zero stays zero (0.02225ms)
+  ✔ warehouse_exit: recent-item list and quick-view option follow the same tenant filter (0.128583ms)
+  ✔ delivery: same-tenant with required scope returns only that tenant's rows (0.050417ms)
+  ✔ delivery: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.029584ms)
+  ✔ delivery: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.044083ms)
+  ✔ delivery: missing session organization returns AUTH_REQUIRED and zero rows (0.034541ms)
+  ✔ delivery: search suggestions and autocomplete exclude the other tenant including a prefix match (0.034875ms)
+  ✔ delivery: count for the session tenant excludes the other tenant and a zero stays zero (0.033417ms)
+  ✔ delivery: recent-item list and quick-view option follow the same tenant filter (0.024208ms)
+  ✔ delivery_note: same-tenant with required scope returns only that tenant's rows (0.024291ms)
+  ✔ delivery_note: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.027542ms)
+  ✔ delivery_note: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.032792ms)
+  ✔ delivery_note: missing session organization returns AUTH_REQUIRED and zero rows (0.023ms)
+  ✔ delivery_note: search suggestions and autocomplete exclude the other tenant including a prefix match (0.027917ms)
+  ✔ delivery_note: count for the session tenant excludes the other tenant and a zero stays zero (0.021583ms)
+  ✔ delivery_note: recent-item list and quick-view option follow the same tenant filter (0.021ms)
+  ✔ coordination_decision: same-tenant with required scope returns only that tenant's rows (0.021667ms)
+  ✔ coordination_decision: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.021292ms)
+  ✔ coordination_decision: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.02725ms)
+  ✔ coordination_decision: missing session organization returns AUTH_REQUIRED and zero rows (0.022208ms)
+  ✔ coordination_decision: search suggestions and autocomplete exclude the other tenant including a prefix match (0.02825ms)
+  ✔ coordination_decision: count for the session tenant excludes the other tenant and a zero stays zero (0.020709ms)
+  ✔ coordination_decision: recent-item list and quick-view option follow the same tenant filter (0.027084ms)
+  ✔ work_item: same-tenant with required scope returns only that tenant's rows (0.023583ms)
+  ✔ work_item: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.023167ms)
+  ✔ work_item: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.027459ms)
+  ✔ work_item: missing session organization returns AUTH_REQUIRED and zero rows (0.024958ms)
+  ✔ work_item: search suggestions and autocomplete exclude the other tenant including a prefix match (0.031625ms)
+  ✔ work_item: count for the session tenant excludes the other tenant and a zero stays zero (0.0945ms)
+  ✔ work_item: recent-item list and quick-view option follow the same tenant filter (0.053084ms)
+  ✔ attention: same-tenant with required scope returns only that tenant's rows (0.030833ms)
+  ✔ attention: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.034625ms)
+  ✔ attention: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.030083ms)
+  ✔ attention: missing session organization returns AUTH_REQUIRED and zero rows (0.019875ms)
+  ✔ attention: search suggestions and autocomplete exclude the other tenant including a prefix match (0.027375ms)
+  ✔ attention: count for the session tenant excludes the other tenant and a zero stays zero (0.023375ms)
+  ✔ attention: recent-item list and quick-view option follow the same tenant filter (0.021125ms)
+  ✔ global_search: same-tenant with required scope returns only that tenant's rows (0.022ms)
+  ✔ global_search: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.018875ms)
+  ✔ global_search: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.026333ms)
+  ✔ global_search: missing session organization returns AUTH_REQUIRED and zero rows (0.023667ms)
+  ✔ global_search: search suggestions and autocomplete exclude the other tenant including a prefix match (0.029666ms)
+  ✔ global_search: count for the session tenant excludes the other tenant and a zero stays zero (0.020125ms)
+  ✔ global_search: recent-item list and quick-view option follow the same tenant filter (0.023083ms)
+  ✔ management_command_center: same-tenant with required scope returns only that tenant's rows (0.027875ms)
+  ✔ management_command_center: same-tenant without required scope returns ROLE_FORBIDDEN and zero rows (0.019084ms)
+  ✔ management_command_center: cross-tenant session returns TENANT_FORBIDDEN and zero rows (0.02775ms)
+  ✔ management_command_center: missing session organization returns AUTH_REQUIRED and zero rows (0.020166ms)
+  ✔ management_command_center: search suggestions and autocomplete exclude the other tenant including a prefix match (0.026417ms)
+  ✔ management_command_center: count for the session tenant excludes the other tenant and a zero stays zero (0.01975ms)
+  ✔ management_command_center: recent-item list and quick-view option follow the same tenant filter (0.021167ms)
+  ✔ unscoped list functions would leak another tenant; readTenantSurface denies those rows for every surface (0.559875ms)
+✔ tenant authorization matrix (11.320375ms)
+▶ resolveTrustedMemberContext
+  ✔ ignores a client organizationId and uses the stored membership (1.072417ms)
+  ✔ ignores a client scope array and reads stored assignments only (0.490208ms)
+  ✔ denies suspended, inactive, and terminated members without returning grants (0.17575ms)
+  ✔ does not select a foreign-tenant member when the client names that tenant (0.133541ms)
+  ✔ fails closed when the person has eligible members in more than one tenant (0.114959ms)
+  ✔ drops a role assignment that belongs to another organization (0.098875ms)
+  ✖ keeps an active additional grant and drops ended or wrong-tenant grants (2.478875ms)
+  ✔ each planned role session contains exact intended scopes (6.828417ms)
+  ✔ does not keep an ended assignment (0.11575ms)
+  ✔ grants empty scopes for cargo and title when no assignment is stored (0.179167ms)
+  ✔ does not let people.admin imply operating or leadership scopes (0.117167ms)
+  ✔ does not let a held scope imply another stored scope (0.067333ms)
+  ✔ denies a revoked auth identity before selecting a member (0.058208ms)
+✖ resolveTrustedMemberContext (12.669208ms)
+▶ trusted tenant projection
+  ✔ exposes only organization and stored scopes, not a second session type (0.082583ms)
+✔ trusted tenant projection (0.117875ms)
+▶ acceptTrustedMemberContext
+  ✔ ignores cargo, title, role keys, and a second scope or organization field (0.100916ms)
+  ✔ rejects a payload that is only organization and scopes, and rejects closed lifecycle (0.051833ms)
+✔ acceptTrustedMemberContext (0.186167ms)
+ℹ tests 232
+ℹ suites 7
+ℹ pass 229
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 878.128459
+
+✖ failing tests:
+
+test at src/authorization.test.ts:2:974
+✖ effective roles respect asOf (2.229541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   'sales_manager'
+  - ]
+  
+      at TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-t03-baseline/packages/os-domain/src/authorization.test.ts:30:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at node:internal/test_runner/test:1617:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'sales_manager' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src/authorization.test.ts:2:1362
+✖ expired delegation excluded (0.309625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   'sales_rep'
+  - ]
+  
+      at TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-t03-baseline/packages/os-domain/src/authorization.test.ts:48:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1619:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'sales_rep' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src/trusted-member-context.test.ts:2:6785
+✖ keeps an active additional grant and drops ended or wrong-tenant grants (2.478875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'commercial.team.read',
+  -   'coordination.decision.record',
+  -   'sales_rep'
+    ]
+  
+      at TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-t03-baseline/packages/os-domain/src/trusted-member-context.test.ts:262:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'commercial.team.read' ],
+    expected: [ 'commercial.team.read', 'coordination.decision.record', 'sales_rep' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,3 @@
+  ✖ omits a role row for the same member in another organization when the session org is passed
+✖ omits a role row for the same member in another organization when the session org is passed
+✖ query context session organization

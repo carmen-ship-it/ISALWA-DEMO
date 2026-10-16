@@ -1,0 +1,130 @@
+# root=/Users/carmen/projects/isalwa-wt-t03-baseline suite=packages/os-query date=2026-10-16T22:47:44Z TZ=system head=4934a09cce64d5b26584c7152696f1954002dab6
+▶ quote read model after CreateOrder
+  ✔ starts submitted and becomes accepted after order.created (2.237292ms)
+  ✔ does not create a second order or revert the quote on replay (0.342416ms)
+  ✔ does not project a cross-tenant order into this quote (0.331333ms)
+✔ quote read model after CreateOrder (3.47175ms)
+▶ order line query
+  ✔ returns copied snapshots and does not invent a line for a legacy order (3.627708ms)
+  ✔ does not return another tenant line on this order (0.161458ms)
+✔ order line query (4.332416ms)
+▶ RC3 order owner-evaluation reads
+  ✔ A: commercial.org.read owner-eval may read seeded Maderas Pedido (not owner, not people.admin) (1.362042ms)
+  ✔ B/C: team visibility lists only direct-report owners; org lists tenant (0.66675ms)
+  ✔ D: advisor without org/team read cannot open another advisor Pedido (0.249833ms)
+  ✔ E: cross-company Pedido id is not found in actor org (no foreign leak) (0.098291ms)
+  ✔ F: REAL-org actor cannot see SYNTH Pedido via org id mismatch (0.085417ms)
+  ✔ G: Cliente360 party list with visibility=org returns seeded Pedido count (0.140667ms)
+✔ RC3 order owner-evaluation reads (3.1285ms)
+▶ pilot leadership visibility
+  ✔ does not add the read scopes to admin or command authority (2.051125ms)
+  ✔ keeps direct reports to one active hop (0.447083ms)
+  ✔ denies a salesperson team and org reads (0.786584ms)
+  ✔ lets a jefe read direct reports only (1.185083ms)
+  ✔ does not treat people.admin as the team shortcut (0.218041ms)
+  ✔ lets org read see tenant commercial records without people.admin (0.567584ms)
+  ✔ does not let org read open Administración (0.175334ms)
+  ✔ reads direct-report work, overdue, and follow-ups without approval authority (0.595542ms)
+  ✔ keeps personal attention on the signed-in member (0.206875ms)
+  ✔ fails closed when the team lookup is missing (0.962125ms)
+✔ pilot leadership visibility (7.909083ms)
+▶ MemberQueryService.getMember field policy (S14)
+  ✔ gives a plain member only display fields for another member (0.662ms)
+  ✔ keeps the cargo label for display but never exposes scope or role keys to a peer (0.381917ms)
+  ✔ does not widen a peer view for commercial.team.read over a direct report (0.074833ms)
+  ✔ does not widen a peer view for commercial.org.read (0.070083ms)
+  ✔ still returns the full row for the member reading their own record (0.086583ms)
+  ✔ still returns the full row to people.admin for any member of the tenant (0.073584ms)
+  ✔ keeps NOT_FOUND identical for a missing id and a foreign-tenant id (0.104333ms)
+✔ MemberQueryService.getMember field policy (S14) (2.001042ms)
+▶ searchActiveMembers
+  ✔ searches only inside the session organization before limit (0.527333ms)
+  ✔ returns empty for short queries and does not call the store (0.325875ms)
+  ✔ denies suspended members and returns no foreign-org evidence (0.295292ms)
+  ✔ keeps people.admin directory search capability-gated (0.151334ms)
+  ✔ denies revoked access before any search and does not call the store (0.116125ms)
+  ✔ returns empty for blank query without store evidence (0.119458ms)
+  ✔ caps limit to 50 and always scopes search to the session organization (0.082458ms)
+✔ searchActiveMembers (2.1285ms)
+▶ customer visibility (T02 decision)
+  ✔ classifies customer, account holder and role-less parties as customer-bound (0.37175ms)
+  ✔ owner reads; membership alone, people.admin alone and master_data.admin do not (0.339ms)
+  ✔ team lead reads only accounts owned by an active direct report (0.150458ms)
+  ✔ coverage applies only while active and while the grant owner is still the account owner (0.264959ms)
+  ✔ suspended actor reads nothing, and a foreign or missing id is the same false (0.088167ms)
+  ✔ a role-less party is readable only by commercial.org.read; a supplier-only party keeps its existing rule (0.086541ms)
+  ✔ read scope lists owned, team and applicable coverage parties; org read is the tenant (0.551792ms)
+✔ customer visibility (T02 decision) (2.365958ms)
+▶ party search operating facts
+  ✔ attaches owner, phone, and coordinates in one batch (1.185583ms)
+  ✔ T02: passes the server-resolved scope to the store and drops rows the read model misclassified (0.24125ms)
+  ✔ T02: commercial.org.read searches the tenant without a party filter (0.162334ms)
+✔ party search operating facts (2.0415ms)
+▶ party timeline read authorization (S4)
+  ✔ shows a plain member only party-level and fulfilment entries, no commercial values (4.564333ms)
+  ✔ lets the record owner see their own commercial, work, approval and account entries (0.6765ms)
+  ✔ lets another rep see exactly their own quote and nothing of the owner (0.223125ms)
+  ✔ never exposes another rep's quote to the owner of different records (0.211125ms)
+  ✔ lets a team lead see direct reports' records but not other reps' records (0.296917ms)
+  ✔ fails closed for a team lead when no direct-report lookup is wired (0.497333ms)
+  ✔ does not treat commercial.team.read alone as org-wide (0.297709ms)
+  ✔ lets commercial.org.read and people.admin see every attributable entry (0.319417ms)
+  ✔ omits entries whose owning record cannot be found, even for admins (fail closed) (0.165458ms)
+  ✔ omits entries whose owning record belongs to another tenant (0.16975ms)
+  ✔ classifies every projectable timeline event type (new types must be classified) (0.1105ms)
+  ✔ returns a non-projectable event type without any facts, never with stored values (0.096375ms)
+  ✔ shows approval entries to the requester and approver but not to an unrelated member (0.293875ms)
+  ✔ shows work entries to the work creator/owner but not to an unrelated member (0.216708ms)
+  ✔ derives the next cursor from the raw page so filtered rows do not stall paging (0.113375ms)
+  ✔ still returns NOT_FOUND for an unknown party (0.227875ms)
+✔ party timeline read authorization (S4) (9.267292ms)
+▶ party timeline customer boundary (T02)
+  ✔ a customer timeline is NOT_FOUND for membership-only, people.admin-only and previous owners (0.342916ms)
+  ✔ a duplicate suggestion keeps a generic entry without the restricted counterpart id (0.199ms)
+✔ party timeline customer boundary (T02) (0.588833ms)
+▶ query context session organization
+  ✖ omits a role row for the same member in another organization when the session org is passed (1.988625ms)
+✖ query context session organization (2.395375ms)
+▶ attention clock
+  ✔ does not mark future work overdue (1.572916ms)
+  ✔ marks open work overdue when the clock crosses dueAt without a business event (0.392625ms)
+  ✔ does not re-add overdue attention for completed work (0.171458ms)
+  ✔ clears a stale overdue row for completed work on the next tick (0.128458ms)
+  ✔ refreshes only the tenant whose work crossed dueAt (0.149ms)
+  ✔ is idempotent across a restart and does not duplicate attention (0.311084ms)
+  ✔ keeps open-work and approval attention when adding overdue (0.172584ms)
+✔ attention clock (3.440333ms)
+▶ purchasing prep work visibility
+  ✔ detects open purchasing prep markers (0.429875ms)
+  ✔ lets purchasing operators view requester-owned open prep reviews (0.15375ms)
+  ✔ denies unrelated operators (0.066167ms)
+✔ purchasing prep work visibility (1.105042ms)
+ℹ tests 74
+ℹ suites 13
+ℹ pass 73
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1880.991125
+
+✖ failing tests:
+
+test at src/query-context.tenant.test.ts:2:3192
+✖ omits a role row for the same member in another organization when the session org is passed (1.988625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-t03-baseline/packages/os-query/src/query-context.tenant.test.ts:115:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1619:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

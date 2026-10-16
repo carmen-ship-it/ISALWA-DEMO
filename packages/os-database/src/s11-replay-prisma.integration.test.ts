@@ -200,9 +200,25 @@ describePrisma('S11 replay binding (prisma)', () => {
     console.log(`[evidence] import race: fulfilled=${ok.length} rejected=${bad.map((r) => r.reason.message).join(',') || 'none'}`);
     assert.equal(await batches(org.id), 1);
     for (const r of bad) assert.equal(r.reason.message, 'CONFLICT');
-    assert.equal((results[3] as PromiseSettledResult<unknown>).status, 'rejected');
-    const retry = await importSvc.execute('DryRunClientImport', ca, dry('fp-race'), 'imp-race');
+    // Whichever actor claims the key first owns it; the other actor only ever gets CONFLICT.
+    const sameActor = results.slice(0, 3);
+    const otherActor = results[3]!;
+    const winnerIsOther = otherActor.status === 'fulfilled';
+    if (winnerIsOther) {
+      for (const r of sameActor) assert.equal(r.status, 'rejected');
+    } else {
+      assert.equal(otherActor.status, 'rejected');
+      assert.ok(sameActor.some((r) => r.status === 'fulfilled'));
+    }
+    const batchIds = new Set(ok.map((r) => r.value.data.importBatchId));
+    assert.equal(batchIds.size, 1);
+    const [winner, loser] = winnerIsOther ? [cb, ca] : [ca, cb];
+    const retry = await importSvc.execute('DryRunClientImport', winner, dry('fp-race'), 'imp-race');
     assert.equal(retry.data.importBatchId, ok[0]!.value.data.importBatchId);
+    await assert.rejects(
+      importSvc.execute('DryRunClientImport', loser, dry('fp-race'), 'imp-race'),
+      (err: Error) => err.message === 'CONFLICT',
+    );
     assert.equal(await batches(org.id), 1);
   });
 

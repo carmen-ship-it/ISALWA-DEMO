@@ -1,0 +1,16 @@
+# root=/Users/carmen/projects/isalwa-wt-v1-repairs suite=packages/database date=2026-10-16T22:49:07Z TZ=system head=1139172b02c17dd25e318dfebf258aa7873c0bab
+▶ listAccountTimeline tenant scope
+  ✔ listAccountTimeline same-tenant events are allowed (1.471458ms)
+  ✔ listAccountTimeline same-tenant wrong role is denied (0.44425ms)
+  ✔ listAccountTimeline cross-tenant account id reveals zero events and zero existence metadata (0.098208ms)
+  ✔ listAccountTimeline missing session is denied (0.075666ms)
+  ✔ listAccountTimeline pagination take is scoped to the session tenant (0.103875ms)
+✔ listAccountTimeline tenant scope (2.755042ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 148.5145

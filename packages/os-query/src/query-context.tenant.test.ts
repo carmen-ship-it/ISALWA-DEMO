@@ -46,13 +46,19 @@ function reader() {
       return [
         {
           organizationId: SESSION_ORG,
+          roleKey: 'commercial.team.read',
+          effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
+          endedAt: null,
+        },
+        {
+          organizationId: SESSION_ORG,
           roleKey: 'sales_rep',
           effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
           endedAt: null,
         },
         {
           organizationId: FOREIGN_ORG,
-          roleKey: 'foreign_admin',
+          roleKey: 'commercial.org.read',
           effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
           endedAt: null,
         },
@@ -112,8 +118,10 @@ describe('query context session organization', () => {
       false,
     );
     assert.equal(ctx.auth.organizationId, SESSION_ORG);
-    assert.equal(ctx.auth.roleKeys.includes('sales_rep'), true);
-    assert.equal(ctx.auth.roleKeys.includes('foreign_admin'), false);
+    // Recognized scopes only (rule 6b29ab3); the foreign row is a real scope so its omission is meaningful.
+    assert.equal(ctx.auth.roleKeys.includes('commercial.team.read'), true);
+    assert.equal(ctx.auth.roleKeys.includes('commercial.org.read'), false);
+    assert.equal(ctx.auth.roleKeys.includes('sales_rep'), false);
     assert.deepEqual(ctx.auth.delegatedApproverFor, ['delegator-session']);
   });
 });

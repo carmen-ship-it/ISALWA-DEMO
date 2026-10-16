@@ -9,14 +9,25 @@ import {
 } from './authorization';
 
 describe('authorization', () => {
+  // Rule 6b29ab3 / V2 §scopes: a job title (sales_rep, sales_manager) is a label, never a grant.
   it('effective roles respect asOf', () => {
     const asOf = new Date('2026-06-01');
     const scopes = computeEffectiveScopes(
       [
         {
-          roleKey: 'sales_rep',
+          roleKey: 'commercial.team.read',
           effectiveAt: new Date('2026-01-01'),
           endedAt: new Date('2026-05-01'),
+        },
+        {
+          roleKey: 'commercial.org.read',
+          effectiveAt: new Date('2026-05-01'),
+          endedAt: null,
+        },
+        {
+          roleKey: 'commercial.customer.create',
+          effectiveAt: new Date('2026-07-01'),
+          endedAt: null,
         },
         {
           roleKey: 'sales_manager',
@@ -27,13 +38,13 @@ describe('authorization', () => {
       [],
       asOf,
     );
-    assert.deepEqual(scopes, ['sales_manager']);
+    assert.deepEqual(scopes, ['commercial.org.read']);
   });
 
   it('expired delegation excluded', () => {
     const asOf = new Date('2026-08-01');
     const scopes = computeEffectiveScopes(
-      [{ roleKey: 'sales_rep', effectiveAt: new Date('2026-01-01'), endedAt: null }],
+      [{ roleKey: 'commercial.team.read', effectiveAt: new Date('2026-01-01'), endedAt: null }],
       [
         {
           scopes: ['people.admin'],
@@ -45,7 +56,7 @@ describe('authorization', () => {
       ],
       asOf,
     );
-    assert.deepEqual(scopes, ['sales_rep']);
+    assert.deepEqual(scopes, ['commercial.team.read']);
   });
 
   it('active delegation grants scope', () => {
