@@ -17,6 +17,10 @@ T02 committed: shared customer-visibility predicate (search/detail/contacts/loca
 
 T03 with A1 (`REUSE_MAP.md` §9.5) and A2 (§10.4) deltas, plus T02 dependencies recorded in `receipts/T02.md` §8 (customer authority on CreateOpportunity/CreateQuote, resource checks on party edit commands, quote/order people.admin bypass). Before DB tests: `pnpm --filter "@isalwa/os-api^..." run build` (packages export `dist`; rebuild after every package source change). Restore the 3 generated Prisma client files with `git checkout --` unless the schema changed. Disposable cluster `~/.isalwa-disposable-pg/commercial-v2` (port 54329, DB `isalwa_t01_disposable`, server TZ America/New_York; start with `LC_ALL=C pg_ctl -D ~/.isalwa-disposable-pg/commercial-v2 -o "-p 54329 -k /tmp" -l ~/.isalwa-disposable-pg/commercial-v2/server.log start`). Never port 5432, never staging. New migrations: bump `EXPECTED_MIGRATION_COUNT` in `staging-wave2-role-fixtures-guards.ts`.
 
+## Owner decision 2026-10-16 17:58 (demo artifacts)
+
+Recorded in `commercial-release/REUSE_MAP.md` §11. Remove the sample-data demo view (A: `os-web` `?datos=demo` SYNTH data mode) in T10/T11 after separating shared code; preserve the guided presentation (B: Story Mode "Recorrido completo de ISALWA" + `lib/walkthrough` + `lib/guidance`) and update it in T20. Nothing removed yet. Owner confirmation that Story Mode is the presentation is requested before T10.
+
 ## Open blockers
 
 None for local work. External dependencies (§14) recorded per task when reached.

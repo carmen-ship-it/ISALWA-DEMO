@@ -243,3 +243,45 @@ Cliente360 header: "Editar datos", menu "Más acciones" (Actualizar teléfono, G
 | T16 | historical seller vs current owner metrics | pending |
 | T17 | operations config versioning, recovery tools, retention without purge; A2-J09 | pending |
 | T18–T20 | A2-J11 staff self-service journey (clicks/errors/help, no SQL/terminal), A2-J12 forbidden/tenant sweep; independent review + human acceptance kept separate | pending |
+
+## 11. Owner decision 2026-10-16 17:58 — two demo artifacts (remove A, keep and update B)
+
+Decision (summary of the owner's instruction): remove the separate sample-data demo view completely (T10/T11); preserve the guided presentation/walkthrough during the build and update it at T20 against the verified final interface and journeys. Not a rebuild; no data deletion; no deployment. Identification is read-only (2026-10-16, HEAD `b0cf756`); nothing was removed in this step.
+
+### 11.1 Artifact A — sample-data demo view (`apps/os-web`), REMOVE in T10/T11
+
+It is a data mode, not a separate route tree: `?datos=demo` switches the active organization to the seeded SYNTH tenant (`01M2JKF77TXMJNDTKNCYNHH9G5`) and filters to `DEMO `-prefixed records; some screens also fabricate in-memory data.
+
+- Entry points: `middleware.ts:45-50,70-80` (`datos=demo|real`, cookies `isalwa-demo-data-mode`, `isalwa-owner-effective-company`); `lib/demo/resolve-demo-data-mode.ts`; `lib/auth/actions.ts:384-405` (`getServerOsAuthContext` picks SYNTH/REAL ids hardcoded in `lib/qa/constants.ts`); `components/demo/preserve-explicit-data-mode.tsx` (mounted `app/(app)/layout.tsx:57`); `lib/demo/redirect-data-mode.ts`; `datos` propagation in `components/shell/app-shell.tsx:37-39`, `components/shell/app-nav.tsx:64-69,170-171,222`.
+- UI entries: toggle `components/demo/demo-data-filter-toggle.tsx` (`app-shell.tsx:294`); banner `components/demo/demo-fictitious-banner.tsx` (`app-shell.tsx:303`); orphan `components/demo/inicio-owner-demo-card.tsx`; orphan `components/commercial/demo-preview-cards.tsx`.
+- Exclusive libs/data: `lib/demo/owner-demo-identity.ts`, `owner-company-context.ts`, `owner-demo-registry.ts`, `seeded-ids.json`, `conversations.json`; `lib/commercial/demo-starter-prices.ts`; `lib/warehouse/demo-fg-citations.ts`; `lib/management/demo-lens.ts`; `lib/conversations/demo-fixtures.ts`; `components/conversations/conversation-demo-badge.tsx`; `lib/audit/demo-coherence.ts`.
+- Substitution / fabrication to remove: `app/(app)/finanzas/page.tsx:60-110` (in-memory 4.500,00 BOB "reported payment"); `app/(app)/conversaciones/page.tsx:89-122` (fixture merge); quote pages `demoPrices` (`clientes/[partyId]/cotizaciones/[quoteId]/page.tsx:597`, `quote-product-picker.tsx:153,350-355`); `almacen/page.tsx:316-334` demo order list; `inicio/page.tsx:583` team-table hiding.
+- DEMO-name filters on real lists (`filterByDemoDataMode`): clientes, cotizaciones, oportunidades(+nueva), pedidos, trabajo, compromisos, incidencias, mapa, inicio, almacen, produccion, `lib/postsale/load-pedidos.ts`, `lib/delivery/load-entregas.ts`, `lib/purchasing/load-linked-orders.ts`, `lib/finance/load-subject-options.ts`. In real mode these hide `DEMO ` rows; removal must not start showing SYNTH demo rows in a real tenant (they live only in SYNTH, so the tenant boundary already excludes them; verify before deleting the filter).
+- Tenant risk to close: `OwnerDemoProvider` writes the mode cookie for every user, so `getServerOsAuthContext` sends the hardcoded REAL org id; login (`lib/auth/actions.ts:85-130,174-186`) auto-tries no-org → REAL → SYNTH. Removal must replace this with the authenticated member's own organization, with no hardcoded tenant and no silent fallback. API side has no bypass (`apps/os-api/src/trusted-member-context.ts:13`, `os-session.ts:132-145`).
+- Stored records (not deleted; provenance only): `packages/os-database/src/owner-demo/seed.ts` (`fixture:owner-demo`, staging-only, `STAGING_FIXTURE_CONFIRM=1`) creates 5 DEMO customers and their opportunity/quote/order/delivery/FG/work/commitment/conversation rows in SYNTH and writes `seeded-ids.json`; `owner-demo/seed-journey-customer.ts` ("DEMO TALLER SAN LORENZO"); staging grants `staging-carmen-synth-demo-*.ts`, `staging-carmen-owner-evaluation-grant.ts`. Any data deletion requires a separate owner decision.
+- Not part of A (keep): `apps/os-api` QA "Ver como" (`qa.controller.ts`, `qa-synth-roster.ts`), `staging-wave2-role-fixtures*`, legacy `apps/web` `?demo=1` (only replays intro/tour, no populated data), `packages/database seed:demo` (legacy universe).
+
+### 11.2 Artifact B — guided presentation / walkthrough, PRESERVE now, UPDATE in T20
+
+- B1 Story Mode "Recorrido completo de ISALWA" (20 steps, `lib/demo/story-mode-steps.ts:56-309`): `components/demo/owner-story-mode.tsx`, `openStory` in `components/demo/owner-demo-provider.tsx:92-101`, launcher `components/demo/ver-ejemplo-completo-button.tsx` (`app-shell.tsx:295`), Ayuda button `components/walkthrough/walkthrough-help-panel.tsx:46`, `?story=1`. Engineering classification: this is the presentation; it currently forces demo mode and deep-links seeded SYNTH records. Owner confirmation of this identification requested before T10.
+- B2 First-use onboarding: `lib/walkthrough/*` (`copy.ts`, `progress.ts`, `persistence.ts`, `targets.ts`, `focus.ts`, `journeys.ts`, `chapters/global.ts`), `components/walkthrough/*`, `WalkthroughShell` (`app-shell.tsx:393`), Ayuda "Repetir introducción" / "Modo aprendizaje". `TOUR_TARGET` hooks are on ~25 real components.
+- B3 Inline guidance `lib/guidance/*` (Ayuda sections, `GuidanceNote`) — real help copy; updated with B in T20 where claims change.
+- Related evidence docs (kept): `docs/operations/onboarding-pass-2026-09-15/index.html` + `shots/`, `docs/experience/ONBOARDING_SYSTEM.md`, `docs/operations/ct3-owner-demo-completeness-2026-09-17/STORY_MODE_20_STEP_RECONCILIATION.md`.
+- Legacy `apps/web` guided tour (`apps/web/src/components/guided-tour.tsx`, 9 steps with unproven AI/WhatsApp claims) is a separate app, not B; left untouched unless the owner says otherwise.
+
+### 11.3 Shared code — separate before removing (T10/T11, first step)
+
+- Split `OwnerDemoProvider`: presentation state (story open/close) stays with B; data mode/cookies/company switch go with A.
+- Story steps become data-agnostic (route + target over real screens); seeded-id deep links and forced `datos=demo` are removed with A.
+- Move generic helpers out of `lib/demo` before deleting it: `human-facing-copy.ts` (`presentHumanCopy`, ~25 real importers), `preserve-data-mode.ts` (`samePathQueryNavigation`, `isNavigableAppHref`); rename `lib/conversations/demo-suggestion-rules.ts` / `demoRecommendedReplyFor` (run on every conversation).
+- `walkthrough-help-panel.tsx` imports `useOwnerDemo`: rewire to the presentation context.
+
+### 11.4 Schedule and evidence
+
+| Task | Work | Evidence |
+|---|---|---|
+| T10/T11 | 11.3 separation, then remove A (routes/params/cookies/switches/components/exclusive fixtures/substitutions); tenant from authenticated membership only | list of removed files/entry points; HTTP/browser: old `?datos=demo`, `?datos=demo&story=1`, demo cookies → no sample data, no auth bypass, no silent tenant; normal login opens the member's authorized workspace; shared real workflows (clientes, cotización/PDF, pedidos, finanzas, conversaciones) still pass |
+| T10–T19 | B preserved; tests for Story/onboarding kept green | — |
+| T20 | Update B steps/screens/navigation/button names/Spanish copy to the verified journeys (WhatsApp, human-reviewed AI suggestions, quotes/PDF, orders, payment reporting + Accounting verification, promises, follow-up); remove obsolete/unsupported claims; label unavailable integrations; screenshots from clearly identified synthetic data | walkthrough location + step → verified journey mapping |
+
+Isolated test fixtures (`setDemoSeedIdMapForTests`, owner-demo guard tests in `packages/os-database`, `GUIDE_STORAGE_KEY` test) are preserved.
