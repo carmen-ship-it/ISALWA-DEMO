@@ -124,3 +124,66 @@ ISALWA only. No CCA project, no "Rose" authority applied. Grants come from expli
 | Map | out of scope | basic map in scope (§1) |
 | AI auto-reply | none | only approved deterministic templates A01–A20 (§7) |
 | Prices | none approved | still none; "Precio por confirmar" / "Pendiente de precio aprobado" |
+
+## 9. Addendum A1 delta (incorporated 2026-10-16T21:0xZ)
+
+Contract: `docs/product/COMMERCIAL_INTERACTIONS_A1.md` (SHA256 `f24cab99c909196ec417594c056753bf3b68800108062abccedec7e1f0261871`). A1 prevails for interactions it details; it relaxes no V2 gate. Completed work (T00 commit `30077c6`) is not redone; only the deltas below are added.
+
+### 9.1 Events (A1 §9) — map existing first
+
+| A1 contract | Existing event (`packages/os-commercial/src/commercial-command-service.ts`) | Decision | Owner |
+|---|---|---|---|
+| quote.request.detected | none | Not a business event: AI proposal row (derived). No event claiming a customer decision | T14 |
+| quote.draft.created | `quote.created` (status `draft`) | REUSE `quote.created` | T04 |
+| quote.issued | `quote.submitted` (sets `submittedAt`) | Map candidate; T04 must prove `submitted` means "issued with snapshot", else add versioned issue artefact without changing historical status values | T04 |
+| quote.send.queued | `quote.send_recorded` (manual send record) | EXTEND: queued intent separate from recorded manual send | T15 |
+| quote.customer_acceptance.recorded | none | NEW | T15 |
+| order.created | `order.created` | REUSE | T15 |
+| payment.reported/confirmed/rejected/reversed | reported-operational-fact `payment` (confirmation column) | EXTEND | T07 |
+| payment_instructions.published/retired | none | NEW | T05 |
+| contact.followup_preference.changed | `contact.updated` exists (different meaning) | NEW, not overloaded on contact.updated | T03 |
+
+### 9.2 Models (A1 §§4–7)
+
+| Need | Existing | Status | Owner |
+|---|---|---|---|
+| Issued quote snapshot/version/hash/validity | `OsQuote.revisionNumber`, `version`, `quote-pdf.service.ts` | EXTEND (snapshot + pdf hash + validUntil explicit, no default) | T04 |
+| Customer acceptance record | none | NEW (quote, revision, channel [WhatsApp, Llamada, Visita, Presencial, Otro], evidence, actor) | T15 |
+| Payment instructions (versioned, approver ≠ publisher) | none | NEW, inside public knowledge model | T05 |
+| Payment allocations to orders, unassigned advance | none (`OsReportedOperationalFact` has no allocation) | NEW minimal | T07 |
+| Cash receiver / Receptor por confirmar | none | EXTEND payment report | T07 |
+| Attachment hash for duplicate warning | none | EXTEND attachments | T07/T11 |
+| Follow-up / contact preference per contact+channel+tenant | none | NEW | T03/T13 |
+| Three responsibilities (cuenta / conversación / compromiso) | account owner (`OsCommercialAccount`), commitment owner (`OsCommitment.ownerMemberId`); conversation handler NEW (T06) | EXTEND | T06/T10 |
+| Proposal types quote_request, quote_change, quote_acceptance_candidate, payment_report_candidate | proposal model NEW in T14 (V2 types) | add to same enum, no second table | T14 |
+
+### 9.3 Scopes
+
+| A1 proposed | Existing | Decision |
+|---|---|---|
+| commercial.payment_instructions.publish | none | NEW, explicit only, distinct from payments.confirm; publisher cannot self-assign; change of destination needs a different approver with the scope (T05) |
+| share payment instructions | commercial advisor scope | maps to existing commercial access; does not grant publish |
+
+### 9.4 Copy / templates added by A1
+
+A21, A22 (T13); H07, H08, H09 (T14/T15); UI strings in A1 §§2,4,5,6 (T04/T05/T07/T10/T11/T15). Exact text kept in the contract file; receipts quote the effective text.
+
+### 9.5 Task deltas (A1 §10)
+
+| Task | Delta | State |
+|---|---|---|
+| T00 | This section + copy + SHA | done in A1 docs commit |
+| T01 | A1 §9 idempotency org+actor+command+payload — already the T01 design | in progress (no extra delta) |
+| T02 | A1 §1: counts/existence/PDF/realtime/deep links never cross tenant; same phone/product/key in two orgs | add tests |
+| T03 | identity link, multi-line relation, follow-up preference | pending |
+| T04 | issue vs send vs draft, review modal, validity explicit, immutable PDF + hash, download event | pending |
+| T05 | payment instructions knowledge + scope | pending |
+| T06 | proposals with manual context; three responsibilities; relay queue for revoked member | pending |
+| T07 | tenders, cash receiver, allocations, duplicate hash warning, no refund button | pending |
+| T09 | A1 §8 notification matrix | pending |
+| T10–T11 | Acciones comerciales block, Acciones menu, proposal card | pending |
+| T12 | attachments states (No analizado automáticamente) | pending |
+| T13 | A21/A22, mixed intent | pending |
+| T14 | structured intent extraction, candidates, summary watermark | pending |
+| T15 | send / acceptance / order, H07 | pending |
+| T16–T20 | metrics, races A1-J05, journeys A1-J01..J12 | pending |
