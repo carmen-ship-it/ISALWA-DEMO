@@ -19,7 +19,7 @@ T03 with A1 (`REUSE_MAP.md` §9.5) and A2 (§10.4) deltas, plus T02 dependencies
 
 ## Owner decision 2026-10-16 17:58 (demo artifacts)
 
-Recorded in `commercial-release/REUSE_MAP.md` §11. Remove the sample-data demo view (A: `os-web` `?datos=demo` SYNTH data mode) in T10/T11 after separating shared code; preserve the guided presentation (B: Story Mode "Recorrido completo de ISALWA" + `lib/walkthrough` + `lib/guidance`) and update it in T20. Nothing removed yet. Owner confirmation that Story Mode is the presentation is requested before T10.
+Recorded in `commercial-release/REUSE_MAP.md` §11. Remove the sample-data demo view (A: `os-web` `?datos=demo` SYNTH data mode) in T10/T11 after separating shared code; preserve the guided presentation (B: Story Mode "Recorrido completo de ISALWA" + `lib/walkthrough` + `lib/guidance`) and update it in T20. Nothing removed yet. Owner clarification 18:04 recorded in §11.0: keep the top "Recorrido" Journey tab (update in T20); remove the full-app teacher/demo data mode (switch, banner, state, routing, SYNTH switch, substitutions) in T10/T11; keep real pages and records.
 
 ## Open blockers
 
