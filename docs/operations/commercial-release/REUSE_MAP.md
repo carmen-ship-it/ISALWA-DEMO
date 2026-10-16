@@ -187,3 +187,59 @@ A21, A22 (T13); H07, H08, H09 (T14/T15); UI strings in A1 §§2,4,5,6 (T04/T05/T
 | T14 | structured intent extraction, candidates, summary watermark | pending |
 | T15 | send / acceptance / order, H07 | pending |
 | T16–T20 | metrics, races A1-J05, journeys A1-J01..J12 | pending |
+
+## 10. Addendum A2 delta (incorporated 2026-10-16T21:27Z)
+
+Contract: `docs/product/COMMERCIAL_SELF_SERVICE_A2.md` (SHA256 `1b16dd90ce709cb09b615eb33c9235ffc219a57f8cdc074f587e25c7e9d67869`, byte-identical to the received file). A2 adds lifecycle contracts on top of V2 + A1. It relaxes no V2/A1 gate and grants nothing to real people. Completed work (T00 `30077c6`, A1 docs `2df764e`, T01 `1d69341`/`00660be`) is not redone.
+
+### 10.1 Authority (A2 §2) — existing equivalents first
+
+| A2 action | Existing today | Gap | Owner |
+|---|---|---|---|
+| Edit name/contact/phone/city/address | `UpdateParty`, `UpdateContact`, `UpdateLocation` require org-wide `master_data.admin`, tenant check only, no resource check (`packages/os-contracts/src/scopes.ts` `COMMAND_REQUIRED_SCOPES`) | Resource authority (owner, or active coverage with explicit edit delegation) + proposed `commercial.customer.edit`; `master_data.admin` keeps its existing data-steward meaning, not widened | T03 |
+| Archive / reactivate | `DeactivateParty` / `ReactivateParty` (`master_data.admin`) | Reuse the commands (no new record on reactivation); add obligations preview/block, motive list, proposed `commercial.customer.archive` / `.reactivate` | T03 |
+| Change owner / coverage | `ReassignCommercialAccountOwner`, `GrantCustomerCoverage`, `RevokeCustomerCoverage` with `commercial.account.reassign` | Map `commercial.account.assign` (A2) onto existing `commercial.account.reassign`; no second scope. Add "Solicitar reasignación" request for advisors | T03/T10 |
+| Correction review | none | proposed `commercial.data_correction.review` | T03/T17 |
+| Operations configuration | none | proposed `commercial.operations.configure`; never covers bank/QR (A1 double approval) or discounts/credit | T17 |
+| Payments confirm/revert/assign | A1/V2 payment scopes (T07) | unchanged; never `customer.edit` | T07 |
+| Members / scopes / invitations | workforce `people.admin` | unchanged, independent of commercial | — |
+
+Proposed scopes are added to contracts only with an explicit matrix in the owning task, granted only to synthetic fixtures. No role, title or `people.admin` bypass.
+
+### 10.2 Models (A2 §§1,4,5,6,7)
+
+| Need | Existing | Decision | Owner |
+|---|---|---|---|
+| Customer Active/Archived independent of stage | `OsParty.status` (`active`/`inactive`/`merged`) | REUSE `inactive` as Archivado in UI; prove semantics in T03 (no deletion, no debt meaning) | T03 |
+| Contact ↔ company relation with validity | `OsContact` (party-bound) | EXTEND with relation end date/motive; never delete person | T03 |
+| Phone/channel identity with epoch/validity, retired state | `OsContact` value rows | EXTEND (retired-at, verification method, version); cancel unsent intents to retired endpoint | T03/T06/T09 |
+| Field-level change history (old/new/actor/motive/source/version) | business events + audit log | REUSE events/audit with old/new facts; redact per reader | T03/T10 |
+| Correction / reassignment / duplicate / send-problem requests | `os-issue` (`ReportIssue`, `TriageIssue`, `AssignIssueOwner`, states) | REUSE issues with request types; map Pendiente/En revisión/Resuelta/Rechazada onto existing states; no second ticketing | T03/T10/T17 |
+| Duplicate candidates | `OsPartyDuplicateCandidate` (`fiscal_nit_exact`), merge request/approve | REUSE; generic hidden result; no new merge. Existing merge stays gated until preview/reversibility is proven | T03 |
+| Versioned operations config (queues, substitutes, hours, reminders) | none (public knowledge in T05) | NEW minimal, draft/publish, America/La_Paz | T17 |
+| Document snapshots / revisions | quote revision + PDF (T04) | REUSE "Crear revisión del documento"; edits never rewrite issued PDFs | T04/T15 |
+
+### 10.3 UI (A2 §3) — inside existing navigation
+
+Cliente360 header: "Editar datos", menu "Más acciones" (Actualizar teléfono, Gestionar contactos, Solicitar reasignación / Reasignar cliente, Archivar cliente / Reactivar cliente); Historial filter "Cambios de datos"; routes `/administracion/comercial/operacion` and `/administracion/comercial/solicitudes` (no canonical equivalent exists today: `administracion/` has only `accesos`, `capacidades`, `equipo`); Hoy "Abrir solicitud". Conflict copy "Este registro cambió mientras lo editabas. Revisa la versión actual antes de guardar." Tokens per V2 (navy #18324B, AI #EDF5F8, error #A63D36/#FBE9E7, warning #FFF5DB). Owner T10 (UI), T03 (commands).
+
+### 10.4 Task deltas (A2 §11)
+
+| Task | A2 delta | State |
+|---|---|---|
+| T00 | This section + byte copy + SHA | done in A2 docs commit |
+| T01 | none (version/idempotency already the T01 design) | LOCAL_COMPLETE, not reopened |
+| T02 | Contact visibility / revocation stays as decided 2026-10-16 17:18; A2 §2 "authorship no permanent access", §6 hidden duplicate = generic review, A2-J12 read side (search/count/history/export) | in progress |
+| T03 | customer/contact edit with version + motive + history, phone update/retire, relation end, archive/reactivate with obligations, requests (issues), resource authority for party commands, proposed scopes; A2-J01, J04, J05, J07, J10 | pending |
+| T04/T15 | issued documents unchanged by data edits; "Crear revisión del documento"; A2-J01 PDF identical | pending |
+| T06 | channel identity epoch, provisional link, coverage delegation limits; A2-J02, J03, J06 | pending |
+| T07 | payment correction via reversal workflow; A2-J08 | pending |
+| T08 | commitment date change keeps prior date; reassignment queue on suspension | pending |
+| T09 | change notifications matrix (A2 §9), cancel stale sends | pending |
+| T10 | Cliente360 actions, Historial "Cambios de datos", admin comercial operación/solicitudes, Hoy requests; A2-J11 UI | pending |
+| T11 | provisional conversation from new/recycled number | pending |
+| T12 | recipient/version check before send (provider-blocked part stays UNPROVEN) | pending |
+| T13–T14 | AI proposes only; never identity or definitive change | pending |
+| T16 | historical seller vs current owner metrics | pending |
+| T17 | operations config versioning, recovery tools, retention without purge; A2-J09 | pending |
+| T18–T20 | A2-J11 staff self-service journey (clicks/errors/help, no SQL/terminal), A2-J12 forbidden/tenant sweep; independent review + human acceptance kept separate | pending |
