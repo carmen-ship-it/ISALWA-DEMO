@@ -1,0 +1,26 @@
+# source: HEAD a62e7b05bdfee3e562a186a306dbbbae6fa80fee + T02 working tree; cwd apps/os-api; disposable PG 54329; 2026-10-16T21:49:02Z
+# cmd: node --import tsx --test --test-concurrency=1 src/customer-visibility.http.test.ts
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":17,"published":17,"retried":0,"deadLetter":0,"duplicates":0}
+▶ T02 customer visibility over HTTP (disposable Postgres)
+  ✔ allows the current owner, the owner team lead, and commercial.org.read (205.702125ms)
+  ✔ denies membership alone, people.admin alone, master_data.admin, an unrelated team lead, and the conversation author (167.014417ms)
+  ✔ a supplier-only party keeps its existing member read (outside the customer boundary) (3.87625ms)
+  ✔ coverage: active grants read; expired, revoked and future grants do not (166.728125ms)
+  ✔ reassignment: previous owner and stale coverage lose access, new owner gains it, author stays denied (219.804417ms)
+  ✔ a suspended owner gets ACCESS_REVOKED with no customer data on every read (9.666375ms)
+  ✔ cross-tenant: a foreign id is the same NOT_FOUND, and the same phone in two orgs never crosses (23.268834ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ recording a conversation on an unreadable customer writes nothing and looks like an unknown customer (31.55775ms)
+✔ T02 customer visibility over HTTP (disposable Postgres) (1074.390875ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1791.039042
+# exit: 0

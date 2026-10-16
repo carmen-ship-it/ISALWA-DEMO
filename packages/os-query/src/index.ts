@@ -5,6 +5,7 @@ export * from './projection-store-port';
 export * from './projection-runner';
 export * from './party/party-projection-consumer';
 export * from './party/party-query-service';
+export * from './party/customer-visibility';
 export * from './party/party-timeline-projection-consumer';
 export * from './party/party-timeline-query-service';
 export * from './party/party-timeline-association';

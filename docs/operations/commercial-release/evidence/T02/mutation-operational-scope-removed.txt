@@ -1,0 +1,38 @@
+# MUTATION: apps/os-api/src/delivery.controller.ts canReadOperationalOrders -> 'return true || (...)' (temporary, reverted after this run)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ T02 operational reads over HTTP (disposable Postgres)
+  ✖ roles without an operational scope get PERMISSION_DENIED and no data on every operational read (28.87325ms)
+  ✔ the authorized operator reads its tenant with the minimum customer field and never contact details (97.641417ms)
+  ✔ foreign ids are the same NOT_FOUND as missing ids and expose nothing from the other tenant (30.396459ms)
+  ✔ an operator presenting another organization header is refused without data (21.67975ms)
+  ✔ a suspended operator gets ACCESS_REVOKED on every operational read and the AI capability read (14.474833ms)
+[evidence] /ai/capability plain member body keys=available,blocked,citationsLive,providerMode
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ AI capability is member-level and carries no customer data (4.486ms)
+✖ T02 operational reads over HTTP (disposable Postgres) (393.599875ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1155.533083
+
+✖ failing tests:
+
+test at src/operational-reads.http.test.ts:2:6848
+✖ roles without an operational scope get PERMISSION_DENIED and no data on every operational read (28.87325ms)
+  AssertionError [ERR_ASSERTION]: plain /delivery-ops/orders
+  
+  200 !== 403
+  
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 403,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

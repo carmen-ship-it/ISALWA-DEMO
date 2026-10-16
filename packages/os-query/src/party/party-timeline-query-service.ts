@@ -7,6 +7,7 @@ import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
 import type { OsProjectionStorePort, StoredPartyTimelineEntry } from '../projection-store-port';
 import { canViewApproval, canViewWork } from '../work/work-auth';
+import { canReadCustomer, type CustomerVisibilityLookup } from './customer-visibility';
 
 export type PartyTimelineQueryServiceDeps = {
   projectionStore: OsProjectionStorePort;
@@ -14,7 +15,11 @@ export type PartyTimelineQueryServiceDeps = {
   partyExists: (organizationId: string, partyId: string) => Promise<boolean>;
   /** Required for team-lead visibility. Missing lookup fails closed, as in the commercial reads. */
   directReports?: DirectReportLookup | null;
+  /** Customer boundary for the party itself and for duplicate counterparts. */
+  customerVisibility: CustomerVisibilityLookup;
 };
+
+const DUPLICATE_SUGGESTED = 'party.duplicate.suggested';
 
 function toTimelineEntry(model: StoredPartyTimelineEntry): PartyTimelineEntryReadModel {
   return {
@@ -215,6 +220,30 @@ class TimelineVisibility {
 export class PartyTimelineQueryService {
   constructor(private readonly deps: PartyTimelineQueryServiceDeps) {}
 
+  /**
+   * A duplicate suggestion names the other party. When the reader may not read that
+   * customer, the entry stays (generic "review required") without the other id.
+   */
+  private async withoutRestrictedCounterpart(
+    ctx: QueryContext,
+    partyId: string,
+    entry: PartyTimelineEntryReadModel,
+  ): Promise<PartyTimelineEntryReadModel> {
+    if (entry.eventType !== DUPLICATE_SUGGESTED) return entry;
+    const { partyIdA, partyIdB } = entry.facts as { partyIdA?: unknown; partyIdB?: unknown };
+    const counterpart = partyIdA === partyId ? partyIdB : partyIdA;
+    const readable =
+      typeof counterpart === 'string' &&
+      counterpart !== partyId &&
+      (await canReadCustomer({
+        ctx,
+        partyId: counterpart,
+        lookup: this.deps.customerVisibility,
+        directReports: this.deps.directReports ?? null,
+      }));
+    return readable ? entry : { ...entry, facts: {} };
+  }
+
   async listPartyTimeline(
     ctx: QueryContext,
     partyId: string,
@@ -227,6 +256,13 @@ export class PartyTimelineQueryService {
     if (!exists) {
       throw new Error('NOT_FOUND');
     }
+    const readable = await canReadCustomer({
+      ctx,
+      partyId,
+      lookup: this.deps.customerVisibility,
+      directReports: this.deps.directReports ?? null,
+    });
+    if (!readable) throw new Error('NOT_FOUND');
 
     const { items, hasMore } = await this.deps.projectionStore.listPartyTimelineEntries(
       ctx.organizationId,
@@ -265,8 +301,12 @@ export class PartyTimelineQueryService {
         rebuiltAt: null,
       };
 
+    const entries = await Promise.all(
+      visible.map((item) => this.withoutRestrictedCounterpart(ctx, partyId, toTimelineEntry(item))),
+    );
+
     return {
-      items: visible.map(toTimelineEntry),
+      items: entries,
       meta: { nextCursor, limit, hasMore },
       freshness,
     };

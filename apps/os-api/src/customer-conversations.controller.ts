@@ -36,9 +36,16 @@ import {
   type ReplayBinding,
 } from '@isalwa/os-events';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
+import {
+  buildQueryContext,
+  canReadCustomer,
+  resolveCustomerReadScope,
+  type CustomerVisibilityLookup,
+  type DirectReportLookup,
+} from '@isalwa/os-query';
 import { resolveSession } from './os-session';
 import { createId } from '@isalwa/ts-utils';
-import { OS_STORE } from './os-store.module';
+import { OS_CUSTOMER_VISIBILITY, OS_MEMBER_QUERY_STORE, OS_STORE } from './os-store.module';
 
 const RECORD_CONVERSATION_COMMAND = 'RecordCustomerConversation';
 
@@ -174,30 +181,35 @@ export function admitSessionConversation(input: {
 }
 
 /**
- * Who may see a stored conversation. Company membership is not enough.
- * An organization reader sees the tenant. Otherwise the member who entered it,
- * the customer-account owner, or a team lead of that owner.
+ * Whether a linked commercial record (opportunity, quote, order) is readable through
+ * its owner: an organization reader, the owner, or a team lead of that owner.
+ * Having entered a conversation is not authority (T02 decision).
  */
 export function memberCanSeeConversation(input: {
   actorMemberId: string;
   grantedScopes: readonly string[];
-  enteredByMemberId: string | null;
   accountOwnerMemberId: string | null;
   directReportMemberIds: readonly string[];
 }): boolean {
-  if (
-    input.grantedScopes.includes('people.admin') ||
-    input.grantedScopes.includes('commercial.org.read')
-  ) {
-    return true;
-  }
-  if (input.enteredByMemberId && input.enteredByMemberId === input.actorMemberId) return true;
+  // people.admin administers assignments; it is not commercial read (V2 §6).
+  if (input.grantedScopes.includes('commercial.org.read')) return true;
   if (input.accountOwnerMemberId && input.accountOwnerMemberId === input.actorMemberId) return true;
   return (
     input.grantedScopes.includes('commercial.team.read') &&
     !!input.accountOwnerMemberId &&
     input.directReportMemberIds.includes(input.accountOwnerMemberId)
   );
+}
+
+/** Stable codes only. Never echo an internal message. */
+function conversationHttpError(err: unknown): HttpException {
+  if (err instanceof HttpException) return err;
+  const code = err instanceof Error ? err.message : '';
+  if (code === 'AUTH_REQUIRED') return new HttpException({ code }, HttpStatus.UNAUTHORIZED);
+  if (code === 'ACCESS_REVOKED' || code === 'TENANT_FORBIDDEN' || code === 'PERMISSION_DENIED') {
+    return new HttpException({ code }, HttpStatus.FORBIDDEN);
+  }
+  return new HttpException({ code: 'INTERNAL_ERROR' }, HttpStatus.INTERNAL_SERVER_ERROR);
 }
 
 /**
@@ -219,7 +231,6 @@ export function commercialLinkDenial(input: {
   const allowed = memberCanSeeConversation({
     actorMemberId: input.actorMemberId,
     grantedScopes: input.grantedScopes,
-    enteredByMemberId: null,
     accountOwnerMemberId: input.record.ownerMemberId,
     directReportMemberIds: input.directReportMemberIds,
   });
@@ -228,7 +239,11 @@ export function commercialLinkDenial(input: {
 
 @Controller('customer-conversations')
 export class CustomerConversationsController {
-  constructor(@Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore) {}
+  constructor(
+    @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
+    @Inject(OS_CUSTOMER_VISIBILITY) private readonly customerVisibility: CustomerVisibilityLookup,
+    @Inject(OS_MEMBER_QUERY_STORE) private readonly directReports: DirectReportLookup,
+  ) {}
 
   @Get()
   async listCustomerConversations(
@@ -243,52 +258,38 @@ export class CustomerConversationsController {
       }
 
       const customerId = partyId?.trim() || undefined;
+      // Current customer authority only. The author stays in the record, not in the filter.
+      const ctx = await buildQueryContext(session, this.workforceStore);
+      const scope = await resolveCustomerReadScope({
+        ctx,
+        lookup: this.customerVisibility,
+        directReports: this.directReports,
+      });
+      const allowedCustomerIds =
+        scope.kind === 'org'
+          ? null
+          : scope.partyIds.filter((id) => !customerId || id === customerId);
+      if (allowedCustomerIds && allowedCustomerIds.length === 0) return { items: [] };
       const rows = await prisma.osCustomerConversation.findMany({
         where: {
           organizationId: session.organizationId,
-          ...(customerId ? { customerId } : {}),
+          ...(allowedCustomerIds
+            ? { customerId: { in: allowedCustomerIds } }
+            : customerId
+              ? { customerId }
+              : {}),
         },
         orderBy: { occurredAt: 'desc' },
       });
 
-      const customerIds = [...new Set(rows.map((row) => row.customerId))];
-      const accounts = customerIds.length
-        ? await prisma.osCommercialAccount.findMany({
-            where: { organizationId: session.organizationId, partyId: { in: customerIds } },
-            select: { partyId: true, ownerMemberId: true },
-          })
-        : [];
-      const ownerByCustomer = new Map(accounts.map((account) => [account.partyId, account.ownerMemberId]));
-      const reports = session.grantedScopes.includes('commercial.team.read')
-        ? await this.workforceStore.listActiveDirectReportAssignments(
-            session.organizationId,
-            session.actorMemberId,
-            new Date(),
-          )
-        : [];
-      const directReportMemberIds = reports.map((report) => report.memberId);
-
       const items: ManualCustomerConversation[] = [];
       for (const row of rows) {
-        if (
-          !memberCanSeeConversation({
-            actorMemberId: session.actorMemberId,
-            grantedScopes: session.grantedScopes,
-            enteredByMemberId: row.enteredByMemberId,
-            accountOwnerMemberId: ownerByCustomer.get(row.customerId) ?? null,
-            directReportMemberIds,
-          })
-        ) {
-          continue;
-        }
         const record = toManual(row);
         if (record) items.push(record);
       }
       return { items };
     } catch (err) {
-      if (err instanceof HttpException) throw err;
-      const message = err instanceof Error ? err.message : 'Unable to list conversations';
-      throw new HttpException(message, HttpStatus.FORBIDDEN);
+      throw conversationHttpError(err);
     }
   }
 
@@ -317,7 +318,17 @@ export class CustomerConversationsController {
         where: { id: requestedCustomerId, organizationId: session.organizationId },
         select: { displayName: true },
       });
-      if (!party) {
+      // An unreadable customer is the same answer as a missing one: nothing is written.
+      const ctx = await buildQueryContext(session, this.workforceStore);
+      const readable =
+        !!party &&
+        (await canReadCustomer({
+          ctx,
+          partyId: requestedCustomerId,
+          lookup: this.customerVisibility,
+          directReports: this.directReports,
+        }));
+      if (!party || !readable) {
         throw new HttpException('Invalid conversation: unknown_customer', HttpStatus.BAD_REQUEST);
       }
 
@@ -432,9 +443,7 @@ export class CustomerConversationsController {
       }
       return { item: admitted.record };
     } catch (err) {
-      if (err instanceof HttpException) throw err;
-      const message = err instanceof Error ? err.message : 'Unable to create conversation';
-      throw new HttpException(message, HttpStatus.FORBIDDEN);
+      throw conversationHttpError(err);
     }
   }
 }

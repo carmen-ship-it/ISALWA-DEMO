@@ -142,6 +142,11 @@ describeHttp('os-api party timeline work + approval runtime (Step 16.1B)', () =>
     const salesHeaders = sessionHeaders(org.id, sales.member, sales.person, sales.auth);
     const approverHeaders = sessionHeaders(org.id, approver.member, approver.person, approver.auth);
     const partyId = await createParty(org.id);
+    // T02: the timeline reader holds current customer authority as the account owner.
+    await getOsPrisma()!.osCommercialAccount.updateMany({
+      where: { organizationId: org.id, partyId },
+      data: { ownerMemberId: sales.member.id },
+    });
     await drainProjections();
 
     const workRes = await fetch(`${baseUrl}/v1/commands/CreateWorkItem`, {

@@ -1,0 +1,24 @@
+Writer identity check — 2026-10-16T21:17Z (requested by Carmen before further edits)
+
+Cursor UI workspace label: /Users/carmen/projects/isalwa/.worktrees/ct3-journey-reproof
+  -> path does not exist (ls: No such file or directory); it is the chat workspace name, not a checkout used by T01/T02.
+
+Authorized writer:
+  pwd -P / git rev-parse --show-toplevel: /Users/carmen/projects/isalwa-wt-v1-repairs
+  branch: ct3/v1-repairs
+  HEAD: 00660be22e6e7b1c60dbbe0e926c15ff639727bb (docs: record T01 commit identity)
+  HEAD^: 1d69341 (T01), tree 8147e1a664f65426c62668f9e41017ed42213dd3
+  dirty: apps/os-api/src/customer-conversations.controller.ts (T02 in progress)
+
+Where T01 landed:
+  git branch -a --contains 1d69341 -> only ct3/v1-repairs
+  ct3/final-core-v1-hosted-journey -> 52a9f9e; 1d69341 is NOT an ancestor
+  ct3/final-core-v1-hosted-journey is not checked out in any registered worktree (git worktree list)
+
+Last T02 command (pid 32264): cwd /Users/carmen/projects/isalwa-wt-v1-repairs, status succeeded.
+
+Transcript scan: every T00/T01/T02 command started with `cd /Users/carmen/projects/isalwa-wt-v1-repairs`
+(or a relative `cd packages/...`/`apps/...` from that persisted cwd). Paths outside the writer appear only in
+the earlier read-only takeover/inventory phase, before V2 authorization.
+
+Nothing was reset, moved, or discarded.

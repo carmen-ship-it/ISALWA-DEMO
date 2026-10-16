@@ -1,8 +1,11 @@
+import type { RateLimitCounter } from './request-rate-limit';
 import { Global, Inject, Module, type OnModuleDestroy, type OnModuleInit } from '@nestjs/common';
 import {
   getOsPrisma,
   PrismaOsOutboxStore,
   PrismaOsPartyStore,
+  PrismaCustomerVisibilityLookup,
+  PrismaRateLimitStore,
   PrismaOsProjectionStore,
   PrismaOsWorkforceStore,
   PrismaOsWorkStore,
@@ -36,6 +39,7 @@ import { OutboxWorkerHost, OutboxRecoveryService } from '@isalwa/os-events';
 import {
   PartyProjectionConsumer,
   PartyQueryService,
+  type CustomerVisibilityLookup,
   ProjectionRunner,
   WorkProjectionConsumer,
   WorkQueryService,
@@ -87,6 +91,8 @@ export const OS_ISSUE_STORE = Symbol('OS_ISSUE_STORE');
 export const OS_ISSUE_COMMAND_SERVICE = Symbol('OS_ISSUE_COMMAND_SERVICE');
 export const OS_PRODUCT_FEEDBACK_STORE = Symbol('OS_PRODUCT_FEEDBACK_STORE');
 export const OS_PARTY_QUERY_SERVICE = Symbol('OS_PARTY_QUERY_SERVICE');
+export const OS_CUSTOMER_VISIBILITY = Symbol('OS_CUSTOMER_VISIBILITY');
+export const OS_RATE_LIMIT_COUNTER = Symbol('OS_RATE_LIMIT_COUNTER');
 export const OS_WORK_QUERY_SERVICE = Symbol('OS_WORK_QUERY_SERVICE');
 export const OS_APPROVAL_QUERY_SERVICE = Symbol('OS_APPROVAL_QUERY_SERVICE');
 export const OS_ATTENTION_QUERY_SERVICE = Symbol('OS_ATTENTION_QUERY_SERVICE');
@@ -238,6 +244,28 @@ function createProductFeedbackStore() {
   throw new Error('Product feedback requires Postgres store');
 }
 
+function createCustomerVisibilityLookup(): CustomerVisibilityLookup {
+  const prisma = getOsPrisma();
+  if (prisma) {
+    return new PrismaCustomerVisibilityLookup(prisma);
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('OS_DATABASE_URL required in production');
+  }
+  throw new Error('Customer visibility requires Postgres store');
+}
+
+function createRateLimitCounter(): RateLimitCounter {
+  const prisma = getOsPrisma();
+  if (prisma) {
+    return new PrismaRateLimitStore(prisma);
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('OS_DATABASE_URL required in production');
+  }
+  throw new Error('Request rate limits require Postgres store');
+}
+
 function createMemberQueryStore(): MemberQueryStorePort {
   const prisma = getOsPrisma();
   if (prisma) {
@@ -330,16 +358,25 @@ function createMemberQueryStore(): MemberQueryStorePort {
       },
       inject: [OS_ISSUE_STORE, OS_STORE],
     },
+    { provide: OS_CUSTOMER_VISIBILITY, useFactory: createCustomerVisibilityLookup },
+    { provide: OS_RATE_LIMIT_COUNTER, useFactory: createRateLimitCounter },
     {
       provide: OS_PARTY_QUERY_SERVICE,
-      useFactory: (projectionStore: OsProjectionStorePort, partyStore: OsPartyStore) =>
+      useFactory: (
+        projectionStore: OsProjectionStorePort,
+        partyStore: OsPartyStore,
+        customerVisibility: CustomerVisibilityLookup,
+        memberQueryStore: MemberQueryStorePort,
+      ) =>
         new PartyQueryService({
           projectionStore,
           encodeCursor: encodePartySearchCursor,
           listOperatingSources: (organizationId, partyIds) =>
             partyStore.listPartyOperatingSources(organizationId, partyIds),
+          customerVisibility,
+          directReports: memberQueryStore,
         }),
-      inject: [OS_PROJECTION_STORE, OS_PARTY_STORE],
+      inject: [OS_PROJECTION_STORE, OS_PARTY_STORE, OS_CUSTOMER_VISIBILITY, OS_MEMBER_QUERY_STORE],
     },
     {
       provide: OS_WORK_QUERY_SERVICE,
@@ -394,8 +431,10 @@ function createMemberQueryStore(): MemberQueryStorePort {
         projectionStore: OsProjectionStorePort,
         partyStore: OsPartyStore,
         memberQueryStore: MemberQueryStorePort,
+        customerVisibility: CustomerVisibilityLookup,
       ) =>
         new PartyTimelineQueryService({
+          customerVisibility,
           projectionStore,
           encodeCursor: encodePartyTimelineCursor,
           // Without this lookup a team lead falls back to fail-closed and loses
@@ -407,7 +446,7 @@ function createMemberQueryStore(): MemberQueryStorePort {
             return party != null;
           },
         }),
-      inject: [OS_PROJECTION_STORE, OS_PARTY_STORE, OS_MEMBER_QUERY_STORE],
+      inject: [OS_PROJECTION_STORE, OS_PARTY_STORE, OS_MEMBER_QUERY_STORE, OS_CUSTOMER_VISIBILITY],
     },
     { provide: OS_MEMBER_QUERY_STORE, useFactory: createMemberQueryStore },
     {
@@ -532,6 +571,9 @@ function createMemberQueryStore(): MemberQueryStorePort {
     OS_ISSUE_COMMAND_SERVICE,
     OS_PRODUCT_FEEDBACK_STORE,
     OS_PARTY_QUERY_SERVICE,
+    OS_CUSTOMER_VISIBILITY,
+    OS_RATE_LIMIT_COUNTER,
+    OS_MEMBER_QUERY_STORE,
     OS_WORK_QUERY_SERVICE,
     OS_APPROVAL_QUERY_SERVICE,
     OS_ATTENTION_QUERY_SERVICE,

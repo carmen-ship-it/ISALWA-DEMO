@@ -1,0 +1,81 @@
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ T02 customer visibility over HTTP (disposable Postgres)
+  ✔ allows the current owner, the owner team lead, and commercial.org.read (175.417458ms)
+  ✖ denies membership alone, people.admin alone, master_data.admin, an unrelated team lead, and the conversation author (8.171292ms)
+  ✔ a supplier-only party keeps its existing member read (outside the customer boundary) (4.609625ms)
+  ✖ coverage: active grants read; expired, revoked and future grants do not (8.111416ms)
+  ✖ reassignment: previous owner and stale coverage lose access, new owner gains it, author stays denied (58.02375ms)
+  ✔ a suspended owner gets ACCESS_REVOKED with no customer data on every read (9.901959ms)
+  ✔ cross-tenant: a foreign id is the same NOT_FOUND, and the same phone in two orgs never crosses (25.873709ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ recording a conversation on an unreadable customer writes nothing and looks like an unknown customer (30.211875ms)
+✖ T02 customer visibility over HTTP (disposable Postgres) (724.7595ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 5
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1542.077834
+
+✖ failing tests:
+
+test at src/customer-visibility.http.test.ts:2:9555
+✖ denies membership alone, people.admin alone, master_data.admin, an unrelated team lead, and the conversation author (8.171292ms)
+  AssertionError [ERR_ASSERTION]: plain /parties/01M53A1TWJ0Q2AAECPMHCXR05X
+  
+  200 !== 404
+  
+      at assertDenied (/Users/carmen/projects/isalwa-wt-v1-repairs/apps/os-api/src/customer-visibility.http.test.ts:208:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/apps/os-api/src/customer-visibility.http.test.ts:251:7)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 404,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src/customer-visibility.http.test.ts:2:10112
+✖ coverage: active grants read; expired, revoked and future grants do not (8.111416ms)
+  AssertionError [ERR_ASSERTION]: advisor /parties/01M53A1TWJ0Q2AAECPMHCXR05X
+  
+  200 !== 404
+  
+      at assertDenied (/Users/carmen/projects/isalwa-wt-v1-repairs/apps/os-api/src/customer-visibility.http.test.ts:208:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/apps/os-api/src/customer-visibility.http.test.ts:276:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 404,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src/customer-visibility.http.test.ts:2:11016
+✖ reassignment: previous owner and stale coverage lose access, new owner gains it, author stays denied (58.02375ms)
+  AssertionError [ERR_ASSERTION]: owner /parties/01M53A1TWJ0Q2AAECPMHCXR05X
+  
+  200 !== 404
+  
+      at assertDenied (/Users/carmen/projects/isalwa-wt-v1-repairs/apps/os-api/src/customer-visibility.http.test.ts:208:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/apps/os-api/src/customer-visibility.http.test.ts:304:7)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 404,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

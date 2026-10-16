@@ -1,0 +1,623 @@
+# prisma migrate diff --from-url <disposable 54329> --to-schema-datamodel prisma/schema.prisma --exit-code ; exit=2
+# os_rate_limit_buckets lines in diff: 0
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+[*] Changed the `os_approval_read_models` table
+  [*] Renamed index `os_approval_read_models_organization_id_status_approver_member_` to `os_approval_read_models_organization_id_status_approver_mem_idx`
+
+[*] Changed the `os_approval_requests` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (work_item_id)
+  [*] Altered column `decided_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (work_item_id)
+  [*] Renamed index `os_approval_requests_approver_status_idx` to `os_approval_requests_approver_member_id_status_idx`
+  [*] Renamed index `os_approval_requests_org_status_idx` to `os_approval_requests_organization_id_status_idx`
+
+[*] Changed the `os_attention_read_models` table
+  [*] Renamed index `os_attention_read_models_organization_id_member_id_is_active_id` to `os_attention_read_models_organization_id_member_id_is_activ_idx`
+
+[*] Changed the `os_audit_logs` table
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `created_at` (type changed)
+  [+] Added index on columns (organization_id, created_at)
+  [+] Added foreign key on columns (organization_id)
+
+[*] Changed the `os_auth_identities` table
+  [-] Removed foreign key on columns (person_id)
+  [*] Altered column `invited_at` (type changed)
+  [*] Altered column `activated_at` (type changed)
+  [*] Altered column `revoked_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+  [+] Added index on columns (person_id)
+  [+] Added foreign key on columns (person_id)
+
+[*] Changed the `os_business_events` table
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `occurred_at` (type changed)
+  [*] Altered column `recorded_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+  [*] Renamed index `os_business_events_correlation` to `os_business_events_correlation_id_idx`
+  [*] Renamed index `os_business_events_org_time` to `os_business_events_organization_id_occurred_at_idx`
+
+[*] Changed the `os_capability_states` table
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+  [+] Added foreign key on columns (organization_id)
+
+[*] Changed the `os_catalog_product_attributes` table
+  [*] Renamed the foreign key "os_catalog_product_attributes_product_fk" to "os_catalog_product_attributes_organization_id_product_id_fkey"
+  [*] Renamed index `os_catalog_product_attributes_product_idx` to `os_catalog_product_attributes_organization_id_product_id_idx`
+
+[*] Changed the `os_catalog_product_provenance` table
+  [*] Renamed the foreign key "os_catalog_product_provenance_product_fk" to "os_catalog_product_provenance_organization_id_product_id_fkey"
+  [*] Renamed index `os_catalog_product_provenance_product_idx` to `os_catalog_product_provenance_organization_id_product_id_idx`
+
+[*] Changed the `os_catalog_product_status_events` table
+  [*] Altered column `recorded_at` (type changed)
+  [*] Renamed the foreign key "os_catalog_product_status_events_product_fk" to "os_catalog_product_status_events_organization_id_product_i_fkey"
+  [*] Renamed index `os_catalog_product_status_events_product_idx` to `os_catalog_product_status_events_organization_id_product_id_idx`
+
+[*] Changed the `os_catalog_products` table
+  [*] Altered column `review_notes` (default changed from `Some(Value(List([])))` to `None`)
+  [*] Altered column `deactivated_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+  [*] Renamed index `os_catalog_products_org_active_idx` to `os_catalog_products_organization_id_active_idx`
+  [*] Renamed index `os_catalog_products_org_canonical_uidx` to `os_catalog_products_organization_id_canonical_key_key`
+
+[*] Changed the `os_commercial_accounts` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (party_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (party_id)
+
+[*] Changed the `os_commitments` table
+  [*] Altered column `due_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `fulfilled_at` (type changed)
+  [*] Altered column `cancelled_at` (type changed)
+  [*] Renamed index `os_commitments_org_owner_lifecycle_due_idx` to `os_commitments_organization_id_owner_member_id_lifecycle_du_idx`
+
+[*] Changed the `os_contacts` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (organization_party_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (organization_party_id)
+  [*] Renamed index `os_contacts_org_party_idx` to `os_contacts_organization_party_id_idx`
+
+[*] Changed the `os_coordination_decisions` table
+  [*] Altered column `occurred_at` (type changed)
+  [*] Altered column `recorded_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_coordination_decisions_org_kind_idx` to `os_coordination_decisions_organization_id_kind_idx`
+  [*] Renamed index `os_coordination_decisions_org_occurred_idx` to `os_coordination_decisions_organization_id_occurred_at_idx`
+
+[*] Changed the `os_customer_committed_date_revisions` table
+  [*] Altered column `source` (default changed from `None` to `Some(Value(String("sales_customer_coordination")))`)
+  [*] Altered column `revised_at` (type changed)
+  [*] Renamed index `os_customer_committed_date_revisions_date_idx` to `os_customer_committed_date_revisions_committed_date_id_revi_idx`
+
+[*] Changed the `os_customer_committed_dates` table
+  [*] Altered column `source` (default changed from `None` to `Some(Value(String("sales_customer_coordination")))`)
+  [*] Altered column `set_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_customer_committed_dates_owner_idx` to `os_customer_committed_dates_organization_id_commercial_owne_idx`
+  [*] Renamed index `os_customer_committed_dates_subject_uidx` to `os_customer_committed_dates_organization_id_subject_type_su_key`
+
+[*] Changed the `os_customer_conversations` table
+  [*] Altered column `occurred_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_customer_conversations_org_customer_occurred_idx` to `os_customer_conversations_organization_id_customer_id_occur_idx`
+  [*] Renamed index `os_customer_conversations_org_occurred_idx` to `os_customer_conversations_organization_id_occurred_at_idx`
+
+[*] Changed the `os_customer_coverage_grants` table
+  [*] Altered column `starts_at` (type changed)
+  [*] Altered column `ends_at` (type changed)
+  [*] Altered column `revoked_at` (type changed)
+  [*] Altered column `recorded_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+
+[*] Changed the `os_customer_date_informed_records` table
+  [*] Altered column `recorded_at` (type changed)
+  [*] Renamed index `os_customer_date_informed_records_issue_idx` to `os_customer_date_informed_records_organization_id_issue_id__idx`
+
+[*] Changed the `os_delegations` table
+  [-] Removed foreign key on columns (delegate_member_id)
+  [-] Removed foreign key on columns (delegator_member_id)
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `starts_at` (type changed)
+  [*] Altered column `expires_at` (type changed)
+  [*] Altered column `revoked_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [+] Added index on columns (delegate_member_id, expires_at)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (delegator_member_id)
+  [+] Added foreign key on columns (delegate_member_id)
+
+[*] Changed the `os_deliveries` table
+  [-] Removed foreign key on columns (order_id)
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (recorded_by_member_id)
+  [*] Altered column `delivered_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_deliveries_org_note_idx` to `os_deliveries_organization_id_delivery_note_id_idx`
+  [*] Renamed index `os_deliveries_org_order_idx` to `os_deliveries_organization_id_order_id_idx`
+
+[*] Changed the `os_delivery_evidence` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (recorded_by_member_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_delivery_evidence_org_subject_idx` to `os_delivery_evidence_organization_id_subject_type_subject_i_idx`
+
+[*] Changed the `os_delivery_note_lines` table
+  [-] Removed foreign key on columns (delivery_note_id)
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_delivery_note_lines_org_note_idx` to `os_delivery_note_lines_organization_id_delivery_note_id_idx`
+
+[*] Changed the `os_delivery_notes` table
+  [-] Removed foreign key on columns (delivery_id)
+  [-] Removed foreign key on columns (order_id)
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `delivered_at` (type changed)
+  [*] Altered column `born_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_delivery_notes_delivery_uidx` to `os_delivery_notes_delivery_id_key`
+  [*] Renamed index `os_delivery_notes_org_internal_ref_uidx` to `os_delivery_notes_organization_id_internal_document_ref_key`
+  [*] Renamed index `os_delivery_notes_org_order_idx` to `os_delivery_notes_organization_id_order_id_idx`
+  [*] Renamed index `os_delivery_notes_org_party_idx` to `os_delivery_notes_organization_id_party_id_idx`
+
+[*] Changed the `os_department_assignments` table
+  [-] Removed foreign key on columns (department_id)
+  [-] Removed foreign key on columns (member_id)
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `effective_at` (type changed)
+  [*] Altered column `ended_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [+] Added index on columns (member_id, effective_at)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (member_id)
+  [+] Added foreign key on columns (department_id)
+
+[*] Changed the `os_departments` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (parent_id)
+  [*] Altered column `created_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (parent_id)
+
+[*] Changed the `os_finished_goods_receipts` table
+  [*] Altered column `received_at` (type changed)
+  [*] Altered column `recorded_at` (type changed)
+  [*] Renamed index `os_finished_goods_receipts_org_context_order_received_idx` to `os_finished_goods_receipts_organization_id_context_order_id_idx`
+  [*] Renamed index `os_finished_goods_receipts_org_product_received_idx` to `os_finished_goods_receipts_organization_id_product_id_recei_idx`
+  [*] Renamed index `os_finished_goods_receipts_org_received_idx` to `os_finished_goods_receipts_organization_id_received_at_idx`
+
+[*] Changed the `os_fiscal_identities` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (party_id)
+  [*] Altered column `effective_at` (type changed)
+  [*] Altered column `ended_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (party_id)
+  [*] Renamed index `os_fiscal_identities_org_nit_idx` to `os_fiscal_identities_organization_id_nit_idx`
+  [*] Renamed index `os_fiscal_identities_party_effective_idx` to `os_fiscal_identities_party_id_effective_at_idx`
+
+[*] Changed the `os_idempotency_keys` table
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `expires_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+
+[*] Changed the `os_import_batches` table
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `completed_at` (type changed)
+  [*] Altered column `reversed_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+  [*] Renamed index `os_import_batches_org_idempotency_uidx` to `os_import_batches_organization_id_idempotency_key_key`
+  [*] Renamed index `os_import_batches_org_status_idx` to `os_import_batches_organization_id_status_idx`
+
+[*] Changed the `os_import_rows` table
+  [-] Removed foreign key on columns (import_batch_id)
+  [-] Removed foreign key on columns (organization_id)
+  [+] Added foreign key on columns (import_batch_id)
+  [+] Added foreign key on columns (organization_id)
+  [*] Renamed index `os_import_rows_batch_idx` to `os_import_rows_import_batch_id_idx`
+  [*] Renamed index `os_import_rows_org_batch_idx` to `os_import_rows_organization_id_import_batch_id_idx`
+
+[*] Changed the `os_internal_notifications` table
+  [*] Altered column `read_at` (type changed)
+  [*] Altered column `resolved_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+
+[*] Changed the `os_issue_journal_entries` table
+  [*] Altered column `recorded_at` (type changed)
+  [*] Renamed index `os_issue_journal_entries_issue_recorded_idx` to `os_issue_journal_entries_issue_id_recorded_at_idx`
+
+[*] Changed the `os_issue_ownership_history` table
+  [*] Altered column `changed_at` (type changed)
+  [*] Renamed index `os_issue_ownership_history_issue_idx` to `os_issue_ownership_history_issue_id_changed_at_idx`
+
+[*] Changed the `os_issue_references` table
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_issue_references_lookup_idx` to `os_issue_references_organization_id_reference_type_referenc_idx`
+  [*] Renamed index `os_issue_references_unique_idx` to `os_issue_references_organization_id_issue_id_reference_type_key`
+
+[*] Changed the `os_issue_relations` table
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_issue_relations_unique_idx` to `os_issue_relations_organization_id_from_issue_id_to_issue_i_key`
+
+[*] Changed the `os_issue_resolution_cycles` table
+  [*] Altered column `confirmed_cause_at` (type changed)
+  [*] Altered column `resolved_at` (type changed)
+  [*] Altered column `outcome_recorded_at` (type changed)
+  [*] Altered column `closed_at` (type changed)
+  [*] Altered column `reopened_at` (type changed)
+  [*] Altered column `recorded_at` (type changed)
+  [*] Renamed index `os_issue_resolution_cycles_issue_idx` to `os_issue_resolution_cycles_issue_id_cycle_index_idx`
+
+[*] Changed the `os_issue_work_links` table
+  [*] Altered column `linked_at` (type changed)
+  [*] Renamed index `os_issue_work_links_unique_idx` to `os_issue_work_links_organization_id_issue_id_work_item_id_key`
+
+[*] Changed the `os_issues` table
+  [*] Altered column `reported_at` (type changed)
+  [*] Altered column `confirmed_cause_at` (type changed)
+  [*] Altered column `resolved_at` (type changed)
+  [*] Altered column `outcome_recorded_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+  [*] Renamed index `os_issues_org_created_idx` to `os_issues_organization_id_created_at_idx`
+  [*] Renamed index `os_issues_org_owner_idx` to `os_issues_organization_id_current_owner_member_id_idx`
+  [*] Renamed index `os_issues_org_reporter_idx` to `os_issues_organization_id_reported_by_member_id_idx`
+  [*] Renamed index `os_issues_org_status_idx` to `os_issues_organization_id_status_idx`
+
+[*] Changed the `os_leads` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (resolved_party_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (resolved_party_id)
+  [*] Renamed index `os_leads_org_status_idx` to `os_leads_organization_id_status_idx`
+
+[*] Changed the `os_locations` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (party_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (party_id)
+  [*] Renamed index `os_locations_org_party_idx` to `os_locations_organization_id_party_id_idx`
+  [*] Renamed index `os_locations_org_status_idx` to `os_locations_organization_id_status_idx`
+
+[*] Changed the `os_manager_assignments` table
+  [-] Removed foreign key on columns (manager_member_id)
+  [-] Removed foreign key on columns (member_id)
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `effective_at` (type changed)
+  [*] Altered column `ended_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [+] Added index on columns (member_id, effective_at)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (member_id)
+  [+] Added foreign key on columns (manager_member_id)
+
+[*] Changed the `os_operational_case_fact_reversals` table
+  [*] Altered column `recorded_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed the foreign key "os_operational_case_fact_reversals_fact_fk" to "os_operational_case_fact_reversals_fact_id_organization_id_fkey"
+  [*] Renamed index `os_operational_case_fact_reversals_fact_uidx` to `os_operational_case_fact_reversals_organization_id_fact_id_key`
+
+[*] Changed the `os_operational_case_facts` table
+  [*] Altered column `occurred_at` (type changed)
+  [*] Altered column `recorded_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed the foreign key "os_operational_case_facts_case_fk" to "os_operational_case_facts_case_id_organization_id_order_id_fkey"
+  [*] Renamed the foreign key "os_operational_case_facts_corrects_fk" to "os_operational_case_facts_corrects_fact_id_organization_id_fkey"
+  [*] Renamed index `os_operational_case_facts_id_org_uidx` to `os_operational_case_facts_id_organization_id_key`
+  [*] Renamed index `os_operational_case_facts_org_case_idx` to `os_operational_case_facts_organization_id_case_id_idx`
+  [*] Renamed index `os_operational_case_facts_org_idempotency_uidx` to `os_operational_case_facts_organization_id_idempotency_key_key`
+  [*] Renamed index `os_operational_case_facts_org_order_recorded_idx` to `os_operational_case_facts_organization_id_order_id_recorded_idx`
+
+[*] Changed the `os_operational_cases` table
+  [*] Altered column `opened_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_operational_cases_id_org_order_uidx` to `os_operational_cases_id_organization_id_order_id_key`
+  [*] Renamed index `os_operational_cases_org_order_idx` to `os_operational_cases_organization_id_order_id_idx`
+  [*] Renamed index `os_operational_cases_org_order_uidx` to `os_operational_cases_organization_id_order_id_key`
+
+[*] Changed the `os_operational_release_decision_reversals` table
+  [*] Altered column `recorded_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed the foreign key "os_operational_release_decision_reversals_decision_fk" to "os_operational_release_decision_reversals_decision_id_orga_fkey"
+  [*] Renamed index `os_operational_release_decision_reversals_decision_uidx` to `os_operational_release_decision_reversals_organization_id_d_key`
+
+[*] Changed the `os_operational_release_decisions` table
+  [*] Altered column `decided_at` (type changed)
+  [*] Altered column `recorded_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed the foreign key "os_operational_release_decisions_case_fk" to "os_operational_release_decisions_case_id_organization_id_o_fkey"
+  [*] Renamed the foreign key "os_operational_release_decisions_corrects_fk" to "os_operational_release_decisions_corrects_decision_id_orga_fkey"
+  [*] Renamed index `os_operational_release_decisions_id_org_uidx` to `os_operational_release_decisions_id_organization_id_key`
+  [*] Renamed index `os_operational_release_decisions_org_idempotency_uidx` to `os_operational_release_decisions_organization_id_idempotenc_key`
+  [*] Renamed index `os_operational_release_decisions_org_order_recorded_idx` to `os_operational_release_decisions_organization_id_order_id_r_idx`
+
+[*] Changed the `os_opportunity_read_models` table
+  [*] Renamed index `os_opportunity_read_models_org_party_idx` to `os_opportunity_read_models_organization_id_party_id_idx`
+  [*] Renamed index `os_opportunity_read_models_org_status_owner_idx` to `os_opportunity_read_models_organization_id_status_owner_mem_idx`
+  [*] Renamed index `os_opportunity_read_models_org_title_id_idx` to `os_opportunity_read_models_organization_id_title_opportunit_idx`
+
+[*] Changed the `os_order_allocations` table
+  [*] Altered column `allocated_at` (type changed)
+  [*] Altered column `recorded_at` (type changed)
+  [*] Renamed index `os_order_allocations_org_line_idx` to `os_order_allocations_organization_id_order_line_id_allocate_idx`
+  [*] Renamed index `os_order_allocations_org_product_idx` to `os_order_allocations_organization_id_product_id_allocated_a_idx`
+
+[*] Changed the `os_order_read_models` table
+  [*] Renamed index `os_order_read_models_org_number_id_idx` to `os_order_read_models_organization_id_order_number_order_id_idx`
+  [*] Renamed index `os_order_read_models_org_party_idx` to `os_order_read_models_organization_id_party_id_idx`
+  [*] Renamed index `os_order_read_models_org_quote_idx` to `os_order_read_models_organization_id_quote_id_idx`
+  [*] Renamed index `os_order_read_models_org_status_owner_idx` to `os_order_read_models_organization_id_status_owner_member_id_idx`
+
+[*] Changed the `os_organization_members` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (person_id)
+  [*] Altered column `employment_started_at` (type changed)
+  [*] Altered column `employment_ended_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+  [+] Added unique index on columns (organization_id, person_id, employment_started_at)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (person_id)
+  [*] Renamed index `os_organization_members_org_access` to `os_organization_members_organization_id_access_status_idx`
+
+[*] Changed the `os_organizations` table
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+
+[*] Changed the `os_outbox_consumer_dedup` table
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `processed_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+
+[*] Changed the `os_outbox_messages` table
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `published_at` (type changed)
+  [*] Altered column `next_attempt_at` (type changed)
+  [+] Added index on columns (status, created_at)
+  [+] Added foreign key on columns (organization_id)
+  [*] Renamed index `os_outbox_messages_status_next_attempt` to `os_outbox_messages_status_next_attempt_at_created_at_idx`
+
+[*] Changed the `os_parties` table
+  [-] Removed foreign key on columns (merged_into_party_id)
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (merged_into_party_id)
+  [*] Renamed index `os_parties_org_status_idx` to `os_parties_organization_id_status_idx`
+
+[*] Changed the `os_party_duplicate_candidates` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (party_id_a)
+  [-] Removed foreign key on columns (party_id_b)
+  [*] Altered column `created_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (party_id_a)
+  [+] Added foreign key on columns (party_id_b)
+
+[*] Changed the `os_party_merge_requests` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (source_party_id)
+  [-] Removed foreign key on columns (target_party_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `decided_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (source_party_id)
+  [+] Added foreign key on columns (target_party_id)
+  [*] Renamed index `os_party_merge_requests_org_status_idx` to `os_party_merge_requests_organization_id_status_idx`
+
+[*] Changed the `os_party_role_assignments` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (party_id)
+  [*] Altered column `effective_at` (type changed)
+  [*] Altered column `ended_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (party_id)
+  [*] Renamed index `os_party_role_assignments_org_role_idx` to `os_party_role_assignments_organization_id_role_key_idx`
+  [*] Renamed index `os_party_role_assignments_party_effective_idx` to `os_party_role_assignments_party_id_effective_at_idx`
+
+[*] Changed the `os_party_timeline_entries` table
+  [*] Renamed index `os_party_timeline_entries_org_party_occurred_idx` to `os_party_timeline_entries_organization_id_party_id_occurred_idx`
+
+[*] Changed the `os_persons` table
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+
+[*] Changed the `os_price_entries` table
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed the foreign key "os_price_entries_list_fk" to "os_price_entries_organization_id_price_list_id_fkey"
+  [*] Renamed the foreign key "os_price_entries_product_fk" to "os_price_entries_organization_id_product_id_fkey"
+  [*] Renamed index `os_price_entries_list_product_context_uidx` to `os_price_entries_organization_id_price_list_id_product_id_c_key`
+  [*] Renamed index `os_price_entries_product_idx` to `os_price_entries_organization_id_product_id_idx`
+
+[*] Changed the `os_price_lists` table
+  [*] Altered column `effective_from` (type changed)
+  [*] Altered column `effective_to` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_price_lists_org_effective_idx` to `os_price_lists_organization_id_effective_from_idx`
+  [*] Renamed index `os_price_lists_org_version_uidx` to `os_price_lists_organization_id_version_key`
+
+[*] Changed the `os_product_feedback` table
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_product_feedback_org_created_idx` to `os_product_feedback_organization_id_created_at_idx`
+
+[*] Changed the `os_production_date_issues` table
+  [*] Altered column `source` (default changed from `None` to `Some(Value(String("human_explicit")))`)
+  [*] Altered column `recorded_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_production_date_issues_subject_idx` to `os_production_date_issues_organization_id_subject_type_subj_idx`
+
+[*] Changed the `os_production_internal_target_date_revisions` table
+  [*] Altered column `source` (default changed from `None` to `Some(Value(String("production_internal")))`)
+  [*] Altered column `revised_at` (type changed)
+  [*] Renamed the foreign key "os_production_internal_target_date_revisio_organization_id_fkey" to "os_production_internal_target_date_revisions_organization__fkey"
+  [*] Renamed the foreign key "os_production_internal_target_date_revision_target_date_id_fkey" to "os_production_internal_target_date_revisions_target_date_i_fkey"
+  [*] Renamed index `os_production_internal_target_date_revisions_date_idx` to `os_production_internal_target_date_revisions_target_date_id_idx`
+
+[*] Changed the `os_production_internal_target_dates` table
+  [*] Altered column `source` (default changed from `None` to `Some(Value(String("production_internal")))`)
+  [*] Altered column `set_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_production_internal_target_dates_maintainer_idx` to `os_production_internal_target_dates_organization_id_maintai_idx`
+  [*] Renamed index `os_production_internal_target_dates_subject_uidx` to `os_production_internal_target_dates_organization_id_subject_key`
+
+[*] Changed the `os_production_quema_products` table
+  [-] Removed foreign key on columns (corrects_link_id)
+  [*] Altered column `occurred_at` (type changed)
+  [*] Altered column `recorded_at` (type changed)
+  [+] Added foreign key on columns (corrects_link_id)
+  [*] Renamed index `os_production_quema_products_org_product_idx` to `os_production_quema_products_organization_id_product_id_idx`
+  [*] Renamed index `os_production_quema_products_org_quema_idx` to `os_production_quema_products_organization_id_quema_id_idx`
+
+[*] Changed the `os_production_quema_times` table
+  [-] Removed foreign key on columns (corrects_time_id)
+  [*] Altered column `at` (type changed)
+  [*] Altered column `occurred_at` (type changed)
+  [*] Altered column `recorded_at` (type changed)
+  [+] Added foreign key on columns (corrects_time_id)
+  [*] Renamed index `os_production_quema_times_org_quema_idx` to `os_production_quema_times_organization_id_quema_id_phase_idx`
+
+[*] Changed the `os_production_quemas` table
+  [*] Altered column `recorded_at` (type changed)
+
+[*] Changed the `os_production_trace_entries` table
+  [-] Removed foreign key on columns (corrects_entry_id)
+  [-] Removed foreign key on columns (quema_id)
+  [*] Altered column `occurred_at` (type changed)
+  [*] Altered column `recorded_at` (type changed)
+  [+] Added foreign key on columns (quema_id)
+  [+] Added foreign key on columns (corrects_entry_id)
+  [*] Renamed index `os_production_trace_entries_corrects_idx` to `os_production_trace_entries_organization_id_corrects_entry__idx`
+  [*] Renamed index `os_production_trace_entries_org_kind_idx` to `os_production_trace_entries_organization_id_kind_idx`
+  [*] Renamed index `os_production_trace_entries_org_product_idx` to `os_production_trace_entries_organization_id_product_id_idx`
+
+[*] Changed the `os_purchase_request_notes` table
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `recorded_at` (type changed)
+  [*] Renamed index `os_purchase_request_notes_request_idx` to `os_purchase_request_notes_organization_id_purchase_request__idx`
+
+[*] Changed the `os_purchase_request_status_history` table
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `changed_at` (type changed)
+  [*] Renamed index `os_purchase_request_status_history_request_idx` to `os_purchase_request_status_history_organization_id_purchase_idx`
+
+[*] Changed the `os_purchase_requests` table
+  [*] Altered column `requested_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (type changed)
+  [*] Renamed index `os_purchase_requests_org_area_idx` to `os_purchase_requests_organization_id_requesting_area_idx`
+  [*] Renamed index `os_purchase_requests_org_status_requested_idx` to `os_purchase_requests_organization_id_status_requested_at_idx`
+
+[*] Changed the `os_quote_line_read_models` table
+  [*] Renamed index `os_quote_line_read_models_org_quote_idx` to `os_quote_line_read_models_organization_id_quote_id_idx`
+  [*] Renamed index `os_quote_line_read_models_quote_line_number_key` to `os_quote_line_read_models_quote_id_line_number_key`
+
+[*] Changed the `os_quote_lines` table
+  [+] Added foreign key on columns (organization_id)
+
+[*] Changed the `os_quote_read_models` table
+  [*] Renamed index `os_quote_read_models_org_number_id_idx` to `os_quote_read_models_organization_id_quote_number_quote_id_idx`
+  [*] Renamed index `os_quote_read_models_org_opportunity_idx` to `os_quote_read_models_organization_id_opportunity_id_idx`
+  [*] Renamed index `os_quote_read_models_org_party_idx` to `os_quote_read_models_organization_id_party_id_idx`
+  [*] Renamed index `os_quote_read_models_org_status_owner_idx` to `os_quote_read_models_organization_id_status_owner_member_id_idx`
+
+[*] Changed the `os_reported_operational_facts` table
+  [-] Removed foreign key on columns (corrects_fact_id)
+  [*] Altered column `reported_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [+] Added foreign key on columns (corrects_fact_id)
+  [*] Renamed index `os_reported_operational_facts_org_idempotency_uidx` to `os_reported_operational_facts_organization_id_idempotency_k_key`
+  [*] Renamed index `os_reported_operational_facts_org_kind_activity_idx` to `os_reported_operational_facts_organization_id_kind_activity_idx`
+  [*] Renamed index `os_reported_operational_facts_org_reported_idx` to `os_reported_operational_facts_organization_id_reported_at_idx`
+  [*] Renamed index `os_reported_operational_facts_org_subject_idx` to `os_reported_operational_facts_organization_id_subject_type__idx`
+
+[*] Changed the `os_role_assignments` table
+  [-] Removed foreign key on columns (member_id)
+  [-] Removed foreign key on columns (organization_id)
+  [*] Altered column `effective_at` (type changed)
+  [*] Altered column `ended_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (member_id)
+  [*] Renamed index `os_role_assignments_member` to `os_role_assignments_member_id_effective_at_idx`
+
+[*] Changed the `os_special_order_classifications` table
+  [*] Altered column `recorded_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_special_order_classifications_org_order_idx` to `os_special_order_classifications_organization_id_order_id_r_idx`
+
+[*] Changed the `os_territories` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (parent_id)
+  [*] Altered column `created_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (parent_id)
+
+[*] Changed the `os_warehouse_exits` table
+  [-] Removed foreign key on columns (order_id)
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (recorded_by_member_id)
+  [*] Altered column `exited_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_warehouse_exits_org_note_idx` to `os_warehouse_exits_organization_id_delivery_note_id_idx`
+  [*] Renamed index `os_warehouse_exits_org_order_idx` to `os_warehouse_exits_organization_id_order_id_idx`
+
+[*] Changed the `os_warehouse_outbound_note_lines` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (outbound_note_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_warehouse_outbound_note_lines_org_note_idx` to `os_warehouse_outbound_note_lines_organization_id_outbound_n_idx`
+
+[*] Changed the `os_warehouse_outbound_notes` table
+  [-] Removed foreign key on columns (order_id)
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (warehouse_exit_id)
+  [*] Altered column `exited_at` (type changed)
+  [*] Altered column `born_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Renamed index `os_warehouse_outbound_notes_exit_uidx` to `os_warehouse_outbound_notes_warehouse_exit_id_key`
+  [*] Renamed index `os_warehouse_outbound_notes_org_order_idx` to `os_warehouse_outbound_notes_organization_id_order_id_idx`
+
+[*] Changed the `os_work_item_ownership_history` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (work_item_id)
+  [*] Altered column `changed_at` (type changed)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (work_item_id)
+  [*] Renamed index `os_work_item_ownership_history_item_idx` to `os_work_item_ownership_history_work_item_id_changed_at_idx`
+
+[*] Changed the `os_work_items` table
+  [-] Removed foreign key on columns (organization_id)
+  [-] Removed foreign key on columns (owner_member_id)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (default changed from `Some(Now)` to `None`, type changed)
+  [*] Altered column `due_at` (type changed)
+  [*] Altered column `completed_at` (type changed)
+  [*] Altered column `cancelled_at` (type changed)
+  [+] Added index on columns (organization_id, status)
+  [+] Added foreign key on columns (organization_id)
+  [+] Added foreign key on columns (owner_member_id)
+  [*] Renamed index `os_work_items_org_owner_status_idx` to `os_work_items_organization_id_owner_member_id_status_idx`

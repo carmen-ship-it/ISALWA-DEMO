@@ -17,6 +17,7 @@ import {
   getOsPrisma,
   PrismaOsCommercialStore,
   PrismaOsPartyStore,
+  PrismaCustomerVisibilityLookup,
   PrismaOsProjectionStore,
   PrismaOsWorkforceStore,
   PrismaOsWorkStore,
@@ -51,6 +52,7 @@ describePrisma('party timeline prisma integration', () => {
     querySvc = new PartyTimelineQueryService({
       projectionStore,
       encodeCursor: encodePartyTimelineCursor,
+      customerVisibility: new PrismaCustomerVisibilityLookup(prisma),
       partyExists: async (organizationId, partyId) => {
         const party = await partyStore.getPartyInOrg(organizationId, partyId);
         return party != null;
@@ -172,6 +174,11 @@ describePrisma('party timeline prisma integration', () => {
     });
     const partyId = String(created.data.partyId);
     await drainOutbox(org.id);
+    // T02: the reader must hold current customer authority; the advisor owns the account.
+    await prisma.osCommercialAccount.updateMany({
+      where: { organizationId: org.id, partyId },
+      data: { ownerMemberId: sales.memberId },
+    });
 
     const opp = await commercialSvc.execute('CreateOpportunity', salesCtx, {
       partyId,

@@ -1,0 +1,16 @@
+# source: HEAD a62e7b05bdfee3e562a186a306dbbbae6fa80fee + T02 working tree; cwd packages/os-database; disposable PG 54329 (server timezone America/New_York); 2026-10-16T21:49:08Z
+[evidence] rate-limit race: hits=100 distinctCounts=100 overLimit60=40
+▶ shared rate-limit counter (real Postgres)
+  ✔ 100 concurrent hits from two pools count exactly 1..100, no lost update (40.509292ms)
+  ✔ a new window starts at 1 and prunes the previous window of that key only (3.361292ms)
+  ✔ organizations never share a bucket (3.911208ms)
+✔ shared rate-limit counter (real Postgres) (70.444041ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 196.125583
+# exit: 0

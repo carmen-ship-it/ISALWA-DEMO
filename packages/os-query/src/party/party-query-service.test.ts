@@ -2,6 +2,45 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { PartySummaryReadModel } from '@isalwa/os-contracts';
 import { PartyQueryService } from './party-query-service';
+import type { CustomerVisibilityFacts, CustomerVisibilityLookup } from './customer-visibility';
+
+/** Actor 'mem' owns the listed customer accounts. */
+function ownedBy(memberId: string, partyIds: string[], extra: CustomerVisibilityFacts[] = []): CustomerVisibilityLookup {
+  const facts: CustomerVisibilityFacts[] = [
+    ...partyIds.map((partyId) => ({
+      organizationId: 'org',
+      partyId,
+      hasCommercialAccount: true,
+      accountOwnerMemberId: memberId,
+      activeRoleKeys: ['customer'],
+    })),
+    ...extra,
+  ];
+  return {
+    getCustomerFacts: async (_org, id) => facts.find((f) => f.partyId === id) ?? null,
+    listCustomerFacts: async (_org, ids) => facts.filter((f) => ids.includes(f.partyId)),
+    listPartyIdsOwnedBy: async (_org, owners) =>
+      facts.filter((f) => f.accountOwnerMemberId && owners.includes(f.accountOwnerMemberId)).map((f) => f.partyId),
+    listActiveCoverageForAdvisor: async () => [],
+  };
+}
+
+const memCtx = (roleKeys: string[] = []) => ({
+  organizationId: 'org',
+  actorMemberId: 'mem',
+  personId: 'per',
+  authIdentityId: 'auth',
+  correlationId: 'corr',
+  effectiveAt: new Date('2026-09-14T06:00:00.000Z'),
+  auth: {
+    organizationId: 'org',
+    memberId: 'mem',
+    accessStatus: 'active' as const,
+    roleKeys,
+    delegatedScopes: [],
+    delegatedApproverFor: [],
+  },
+});
 
 const party = (partyId: string): PartySummaryReadModel => ({
   partyId,
@@ -27,6 +66,7 @@ describe('party search operating facts', () => {
         getFreshness: async () => null,
       } as never,
       encodeCursor: () => 'cursor',
+      customerVisibility: ownedBy('mem', ['p1', 'p2']),
       listOperatingSources: async (_org, partyIds) => {
         calls += 1;
         assert.deepEqual(partyIds, ['p1', 'p2']);
@@ -88,5 +128,47 @@ describe('party search operating facts', () => {
     assert.equal(result.items[0]?.locationProvenanceUrl, 'https://maps.example/shared');
     assert.equal(result.items[1]?.primaryPhone, null);
     assert.equal(result.items[1]?.hasCoordinates, true);
+  });
+
+  it('T02: passes the server-resolved scope to the store and drops rows the read model misclassified', async () => {
+    const seen: unknown[] = [];
+    const lagging = { ...party('lagging'), activeRoleKeys: ['supplier'], hasCommercialAccount: false };
+    const supplierRow = { ...party('supp'), activeRoleKeys: ['supplier'], hasCommercialAccount: false };
+    const service = new PartyQueryService({
+      projectionStore: {
+        searchParties: async (_org: string, _q: unknown, visibility: unknown) => {
+          seen.push(visibility);
+          return { items: [party('p1'), lagging, supplierRow], hasMore: false };
+        },
+        getFreshness: async () => null,
+      } as never,
+      encodeCursor: () => 'cursor',
+      customerVisibility: ownedBy('mem', ['p1'], [
+        // Source tables: 'lagging' is already a customer owned by someone else.
+        { organizationId: 'org', partyId: 'lagging', hasCommercialAccount: true, accountOwnerMemberId: 'other', activeRoleKeys: ['customer'] },
+        { organizationId: 'org', partyId: 'supp', hasCommercialAccount: false, accountOwnerMemberId: null, activeRoleKeys: ['supplier'] },
+      ]),
+    });
+    const result = await service.searchParties(memCtx(['people.admin']) as never, { limit: 25 });
+    assert.deepEqual(seen, [{ partyIds: ['p1'] }]);
+    assert.deepEqual(result.items.map((i) => i.partyId), ['p1', 'supp']);
+  });
+
+  it('T02: commercial.org.read searches the tenant without a party filter', async () => {
+    const seen: unknown[] = [];
+    const service = new PartyQueryService({
+      projectionStore: {
+        searchParties: async (_org: string, _q: unknown, visibility: unknown) => {
+          seen.push(visibility);
+          return { items: [party('p9')], hasMore: false };
+        },
+        getFreshness: async () => null,
+      } as never,
+      encodeCursor: () => 'cursor',
+      customerVisibility: ownedBy('nobody', []),
+    });
+    const result = await service.searchParties(memCtx(['commercial.org.read']) as never, { limit: 25 });
+    assert.deepEqual(seen, [undefined]);
+    assert.deepEqual(result.items.map((i) => i.partyId), ['p9']);
   });
 });

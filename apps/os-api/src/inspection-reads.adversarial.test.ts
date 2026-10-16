@@ -66,6 +66,35 @@ function ctx(roleKeys: string[] = [], accessStatus = 'active'): QueryContext {
   };
 }
 
+/** The session member owns the session party's account. Records every org it is asked about. */
+function sessionOwnsParty(calls: Call[]) {
+  const facts = {
+    organizationId: ORG,
+    partyId: PARTY,
+    hasCommercialAccount: true,
+    accountOwnerMemberId: MEMBER,
+    activeRoleKeys: ['customer'],
+  };
+  return {
+    async getCustomerFacts(organizationId: string, partyId: string) {
+      calls.push({ method: 'getCustomerFacts', organizationId, extra: partyId });
+      return organizationId === ORG && partyId === PARTY ? facts : null;
+    },
+    async listCustomerFacts(organizationId: string, partyIds: readonly string[]) {
+      calls.push({ method: 'listCustomerFacts', organizationId });
+      return organizationId === ORG && partyIds.includes(PARTY) ? [facts] : [];
+    },
+    async listPartyIdsOwnedBy(organizationId: string, owners: readonly string[]) {
+      calls.push({ method: 'listPartyIdsOwnedBy', organizationId });
+      return organizationId === ORG && owners.includes(MEMBER) ? [PARTY] : [];
+    },
+    async listActiveCoverageForAdvisor(organizationId: string) {
+      calls.push({ method: 'listActiveCoverageForAdvisor', organizationId });
+      return [];
+    },
+  };
+}
+
 function assertNoForeign(value: unknown, calls: Call[]): void {
   const serialized = JSON.stringify(value);
   for (const token of FOREIGN_TOKENS) {
@@ -309,19 +338,19 @@ const NEWLY_VERIFIED = [
 const UNPROVEN_AUTH_PATH = [] as const;
 
 const HTTP_CLASSIFICATION: Record<string, string> = {
-  // Reads that shipped without a read-authorization pass. These labels claim no
-  // proof: do not promote one to VERIFIED without an actual review and test.
-  // Tracked as S19 in docs/reviews/V1_REPAIR_LEDGER.md.
-  'GET /ai/capability': 'TENANT-SCOPED|READ_AUTHORIZATION_UNREVIEWED',
-  'GET /customer-conversations': 'TENANT-SCOPED|READ_AUTHORIZATION_UNREVIEWED',
-  'GET /parties/:partyId/contacts': 'TENANT-SCOPED|READ_AUTHORIZATION_UNREVIEWED',
-  'GET /delivery-notes': 'TENANT-SCOPED|READ_AUTHORIZATION_UNREVIEWED',
-  'GET /delivery-notes/:id/pdf': 'TENANT-SCOPED|READ_AUTHORIZATION_UNREVIEWED',
-  'GET /delivery-ops/orders': 'SCOPE-CHECKED|LOCAL_PROOF_MISSING',
-  'GET /delivery-ops/orders/:orderId': 'SCOPE-CHECKED|LOCAL_PROOF_MISSING',
-  'GET /delivery-ops/orders/:orderId/documents': 'SCOPE-CHECKED|LOCAL_PROOF_MISSING',
-  'GET /fulfillment/deliveries': 'SCOPE-CHECKED|LOCAL_PROOF_MISSING',
-  'GET /fulfillment/warehouse-exits': 'SCOPE-CHECKED|LOCAL_PROOF_MISSING',
+  // S19 reads reviewed in T02 (2026-10-16 customer-visibility decision).
+  // Operational reads keep their explicit scopes and expose at most customerName;
+  // their local proof is still missing and the label says so.
+  'GET /ai/capability': 'MEMBER_ACTIVE|NO_CUSTOMER_DATA|LOCAL_HTTP_PG_VERIFIED',
+  'GET /customer-conversations': 'CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
+  'GET /parties/:partyId/contacts': 'CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
+  'GET /delivery-notes': 'SCOPE-CHECKED|MIN_CUSTOMER_FIELDS|LOCAL_HTTP_PG_VERIFIED',
+  'GET /delivery-notes/:id/pdf': 'SCOPE-CHECKED|MIN_CUSTOMER_FIELDS|LOCAL_HTTP_PG_VERIFIED',
+  'GET /delivery-ops/orders': 'SCOPE-CHECKED|MIN_CUSTOMER_FIELDS|LOCAL_HTTP_PG_VERIFIED',
+  'GET /delivery-ops/orders/:orderId': 'SCOPE-CHECKED|MIN_CUSTOMER_FIELDS|LOCAL_HTTP_PG_VERIFIED',
+  'GET /delivery-ops/orders/:orderId/documents': 'SCOPE-CHECKED|MIN_CUSTOMER_FIELDS|LOCAL_HTTP_PG_VERIFIED',
+  'GET /fulfillment/deliveries': 'SCOPE-CHECKED|NO_CUSTOMER_DATA|LOCAL_HTTP_PG_VERIFIED',
+  'GET /fulfillment/warehouse-exits': 'SCOPE-CHECKED|NO_CUSTOMER_DATA|LOCAL_HTTP_PG_VERIFIED',
   'GET /parties': 'LOCAL_FUNCTION_VERIFIED',
   'GET /parties/:partyId/timeline': 'LOCAL_FUNCTION_VERIFIED',
   'GET /members': 'LOCAL_FUNCTION_VERIFIED',
@@ -344,11 +373,9 @@ const HTTP_CLASSIFICATION: Record<string, string> = {
   'GET /session/authorization': 'ALREADY_VERIFIED_ELSEWHERE',
   'GET /health': 'NON_TENANT',
   'GET /dev/status': 'NON_TENANT',
-  'GET /locations/:locationId':
-    'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED|TENANT-SCOPED|AUTHORIZATION_UNPROVEN',
-  'GET /parties/:partyId': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED|AUTHORIZATION_UNPROVEN',
-  'GET /parties/:partyId/locations':
-    'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED|AUTHORIZATION_UNPROVEN',
+  'GET /locations/:locationId': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
+  'GET /parties/:partyId': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
+  'GET /parties/:partyId/locations': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
   'GET /operations/outbox': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
   'GET /operations/outbox/dead-letters': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
   'GET /operations/outbox/dead-letters/:outboxId': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
@@ -395,11 +422,11 @@ describe('os-api inspection read inventory', () => {
     const unreviewed = Object.entries(HTTP_CLASSIFICATION).filter(
       ([, state]) => state.includes('UNREVIEWED') || state.includes('LOCAL_PROOF_MISSING'),
     );
-    assert.equal(unreviewed.length, 10, 'a newly added read must be reviewed, not just listed');
+    assert.equal(unreviewed.length, 0, 'a newly added read must be reviewed, not just listed');
     assert.equal(UNPROVEN_AUTH_PATH.length, 0);
     assert.equal(
       HTTP_CLASSIFICATION['GET /locations/:locationId'],
-      'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED|TENANT-SCOPED|AUTHORIZATION_UNPROVEN',
+      'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
     );
     assert.equal(HTTP_CLASSIFICATION['GET /health/ready'], 'ALREADY_VERIFIED_ELSEWHERE');
     assert.equal(
@@ -408,16 +435,22 @@ describe('os-api inspection read inventory', () => {
     );
   });
 
-  it('records GET /locations/:locationId as tenant-scoped and authorization-unproven', () => {
+  it('records GET /locations/:locationId as tenant-scoped plus the owning customer boundary', () => {
     const source = readFileSync(new URL('./locations.controller.ts', import.meta.url), 'utf8');
     assert.match(source, /getLocationInOrg\(session\.organizationId,\s*locationId\)/);
-    assert.equal(source.includes('assertQueryScope'), false);
+    assert.match(source, /canReadCustomer\(/);
     assert.equal(source.includes('PEOPLE_ADMIN'), false);
     assert.equal(source.includes('location.capability'), false);
-    assert.equal(source.includes('LOCATION_'), false);
     assert.match(source, /resolveSession\(/);
-    assert.equal(HTTP_CLASSIFICATION['GET /locations/:locationId']?.includes('AUTHORIZATION_UNPROVEN'), true);
-    assert.equal(HTTP_CLASSIFICATION['GET /locations/:locationId']?.includes('fully'), false);
+  });
+
+  it('T02: customer detail reads use the shared customer boundary, not a local rule', () => {
+    const parties = readFileSync(new URL('./parties.controller.ts', import.meta.url), 'utf8');
+    assert.match(parties, /assertCustomerReadable\(/);
+    const conversations = readFileSync(new URL('./customer-conversations.controller.ts', import.meta.url), 'utf8');
+    assert.match(conversations, /resolveCustomerReadScope\(/);
+    assert.match(conversations, /canReadCustomer\(/);
+    assert.equal(/enteredByMemberId\s*===\s*input\.actorMemberId/.test(conversations), false);
   });
 });
 
@@ -440,6 +473,7 @@ describe('PartyQueryService.searchParties', () => {
         },
       } as never,
       encodeCursor: () => 'cursor',
+      customerVisibility: sessionOwnsParty(calls),
     });
 
     const allowed = await service.searchParties(ctx(), {});
@@ -506,6 +540,7 @@ describe('PartyTimelineQueryService.listPartyTimeline', () => {
         },
       } as never,
       encodeCursor: () => 'cursor',
+      customerVisibility: sessionOwnsParty(calls),
       partyExists: async (organizationId, partyId) => {
         calls.push({ method: 'partyExists', organizationId, extra: partyId });
         return organizationId === ORG && partyId === PARTY;

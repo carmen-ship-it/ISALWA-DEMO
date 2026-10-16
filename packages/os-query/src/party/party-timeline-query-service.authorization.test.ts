@@ -4,6 +4,7 @@ import { PARTY_TIMELINE_EVENT_TYPES } from '@isalwa/os-contracts';
 import type { DirectReportLookup } from '../leadership/direct-reports';
 import type { OsProjectionStorePort, StoredPartyTimelineEntry } from '../projection-store-port';
 import type { QueryContext } from '../query-context';
+import type { CustomerVisibilityLookup } from './customer-visibility';
 import {
   classifyTimelineEventType,
   encodePartyTimelineCursor,
@@ -154,6 +155,20 @@ function store(items: StoredPartyTimelineEntry[] = ALL_ENTRIES, hasMore = false)
   } as unknown as OsProjectionStorePort;
 }
 
+/**
+ * Entry-level filtering is tested on a party every reader may open (supplier-only,
+ * outside the customer boundary). The customer gate itself is tested below.
+ */
+const openParty: CustomerVisibilityLookup = {
+  getCustomerFacts: async (org, id) =>
+    org === ORG && id === PARTY
+      ? { organizationId: ORG, partyId: PARTY, hasCommercialAccount: false, accountOwnerMemberId: null, activeRoleKeys: ['supplier'] }
+      : null,
+  listCustomerFacts: async () => [],
+  listPartyIdsOwnedBy: async () => [],
+  listActiveCoverageForAdvisor: async () => [],
+};
+
 const leadLookup: DirectReportLookup = {
   async listDirectReportMemberIds(_org, manager) {
     return manager === LEAD ? [OWNER] : [];
@@ -161,9 +176,15 @@ const leadLookup: DirectReportLookup = {
 };
 
 function service(
-  opts: { items?: StoredPartyTimelineEntry[]; hasMore?: boolean; directReports?: DirectReportLookup | null } = {},
+  opts: {
+    items?: StoredPartyTimelineEntry[];
+    hasMore?: boolean;
+    directReports?: DirectReportLookup | null;
+    customerVisibility?: CustomerVisibilityLookup;
+  } = {},
 ) {
   return new PartyTimelineQueryService({
+    customerVisibility: opts.customerVisibility ?? openParty,
     projectionStore: store(opts.items, opts.hasMore),
     encodeCursor: encodePartyTimelineCursor,
     partyExists: async (org, id) => org === ORG && id === PARTY,
@@ -324,5 +345,51 @@ describe('party timeline read authorization (S4)', () => {
       () => service().listPartyTimeline(ctx(OWNER), 'missing-party', { limit: 5 }),
       /NOT_FOUND/,
     );
+  });
+});
+
+describe('party timeline customer boundary (T02)', () => {
+  const customerParty = (owner: string, extra: Record<string, { owner: string | null }> = {}): CustomerVisibilityLookup => {
+    const facts = (id: string) =>
+      id === PARTY
+        ? { organizationId: ORG, partyId: PARTY, hasCommercialAccount: true, accountOwnerMemberId: owner, activeRoleKeys: ['customer'] }
+        : extra[id]
+          ? { organizationId: ORG, partyId: id, hasCommercialAccount: true, accountOwnerMemberId: extra[id].owner, activeRoleKeys: ['customer'] }
+          : null;
+    return {
+      getCustomerFacts: async (org, id) => (org === ORG ? facts(id) : null),
+      listCustomerFacts: async (org, ids) => (org === ORG ? ids.map(facts).filter((f) => f !== null) : []),
+      listPartyIdsOwnedBy: async () => [],
+      listActiveCoverageForAdvisor: async () => [],
+    };
+  };
+
+  it('a customer timeline is NOT_FOUND for membership-only, people.admin-only and previous owners', async () => {
+    const svc = service({ items: [ENTRIES.partyCreated], customerVisibility: customerParty(OWNER) });
+    await assert.rejects(() => svc.listPartyTimeline(ctx(STRANGER), PARTY, { limit: 5 }), /NOT_FOUND/);
+    await assert.rejects(() => svc.listPartyTimeline(ctx(ADMIN, ['people.admin']), PARTY, { limit: 5 }), /NOT_FOUND/);
+    const reassigned = service({ items: [ENTRIES.partyCreated], customerVisibility: customerParty('mem-new-owner') });
+    await assert.rejects(() => reassigned.listPartyTimeline(ctx(OWNER), PARTY, { limit: 5 }), /NOT_FOUND/);
+    assert.deepEqual(await visibleIds(svc, ctx(OWNER)), ids(ENTRIES.partyCreated));
+  });
+
+  it('a duplicate suggestion keeps a generic entry without the restricted counterpart id', async () => {
+    const dup = entry('party.duplicate.suggested', 'party', PARTY, { partyIdA: PARTY, partyIdB: 'party-hidden' });
+    const svc = service({
+      items: [dup],
+      customerVisibility: customerParty(OWNER, { 'party-hidden': { owner: 'someone-else' }, 'party-mine': { owner: OWNER } }),
+    });
+    const hidden = await svc.listPartyTimeline(ctx(OWNER), PARTY, { limit: 5 });
+    assert.equal(hidden.items[0]?.eventType, 'party.duplicate.suggested');
+    assert.deepEqual(hidden.items[0]?.facts, {});
+    assert.doesNotMatch(JSON.stringify(hidden), /party-hidden/);
+
+    const mine = entry('party.duplicate.suggested', 'party', PARTY, { partyIdA: 'party-mine', partyIdB: PARTY });
+    const svc2 = service({
+      items: [mine],
+      customerVisibility: customerParty(OWNER, { 'party-mine': { owner: OWNER } }),
+    });
+    const shown = await svc2.listPartyTimeline(ctx(OWNER), PARTY, { limit: 5 });
+    assert.equal(shown.items[0]?.facts.partyIdA, 'party-mine');
   });
 });

@@ -189,7 +189,7 @@ describe('staging-wave2-role-fixtures guards', () => {
     assert.equal(ALLOWED_SYNTHETIC_EMAILS.length, 9);
     assert.doesNotThrow(() => assertRoleEmailMapBounded());
     assert.equal(HOSTED_APP_SHA, 'ef7eeabdea5f8f4449ba706caa1a323435d96fcc');
-    assert.equal(EXPECTED_MIGRATION_COUNT, 33);
+    assert.equal(EXPECTED_MIGRATION_COUNT, 34);
     // Keep the pinned count and the migrations on disk from drifting apart.
     const migrationDirs = readdirSync(join(__dirname, '../prisma/migrations'), {
       withFileTypes: true,

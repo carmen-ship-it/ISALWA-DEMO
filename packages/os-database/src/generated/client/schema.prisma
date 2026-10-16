@@ -2235,3 +2235,17 @@ model OsIssueOwnershipHistory {
   @@index([issueId, changedAt])
   @@map("os_issue_ownership_history")
 }
+
+// fragment: rate-limit.prisma
+/// Shared fixed-window request counters (V2 §18.1). Ephemeral, not business data.
+model OsRateLimitBucket {
+  organizationId String   @map("organization_id")
+  bucketKey      String   @map("bucket_key")
+  windowStart    DateTime @map("window_start")
+  count          Int      @default(0)
+  updatedAt      DateTime @default(now()) @map("updated_at")
+
+  @@id([organizationId, bucketKey, windowStart])
+  @@index([windowStart], map: "os_rate_limit_buckets_window_idx")
+  @@map("os_rate_limit_buckets")
+}

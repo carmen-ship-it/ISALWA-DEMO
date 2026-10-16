@@ -481,21 +481,37 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
   async searchParties(
     organizationId: string,
     query: SearchPartiesQuery,
+    visibility?: { partyIds: readonly string[] },
   ): Promise<{ items: StoredPartyReadModel[]; hasMore: boolean }> {
     const limit = query.limit ?? 25;
     const cursor = decodeCursor(query.cursor);
     const q = query.q?.trim();
 
     const where: Record<string, unknown> = { organizationId };
+    const and: Record<string, unknown>[] = [];
     if (query.status) where.status = query.status;
-    if (query.roleKey) where.activeRoleKeys = { has: query.roleKey };
+    if (query.roleKey) and.push({ activeRoleKeys: { has: query.roleKey } });
     if (q) where.searchText = { contains: q, mode: 'insensitive' };
     if (cursor) {
-      where.OR = [
-        { displayName: { gt: cursor.displayName } },
-        { AND: [{ displayName: cursor.displayName }, { partyId: { gt: cursor.partyId } }] },
-      ];
+      and.push({
+        OR: [
+          { displayName: { gt: cursor.displayName } },
+          { AND: [{ displayName: cursor.displayName }, { partyId: { gt: cursor.partyId } }] },
+        ],
+      });
     }
+    if (visibility) {
+      and.push({
+        OR: [
+          { partyId: { in: [...visibility.partyIds] } },
+          {
+            hasCommercialAccount: false,
+            NOT: [{ activeRoleKeys: { has: 'customer' } }, { activeRoleKeys: { isEmpty: true } }],
+          },
+        ],
+      });
+    }
+    if (and.length) where.AND = and;
 
     const rows = await this.prisma.osPartyReadModel.findMany({
       where: where as never,

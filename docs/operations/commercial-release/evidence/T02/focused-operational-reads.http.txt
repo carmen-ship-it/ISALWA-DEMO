@@ -1,0 +1,59 @@
+# source: HEAD a62e7b05bdfee3e562a186a306dbbbae6fa80fee + T02 working tree; cwd apps/os-api; disposable PG 54329; 2026-10-16T21:52:15Z
+# cmd: node --import tsx --test --test-concurrency=1 src/operational-reads.http.test.ts src/inspection-reads.adversarial.test.ts
+▶ os-api inspection read inventory
+  ✔ classifies every GET and does not recount the 15 already-verified reads as new (1.578875ms)
+  ✔ records GET /locations/:locationId as tenant-scoped plus the owning customer boundary (0.160834ms)
+  ✔ T02: customer detail reads use the shared customer boundary, not a local rule (0.16025ms)
+✔ os-api inspection read inventory (2.357041ms)
+▶ PartyQueryService.searchParties
+  ✔ checks member_active, not a named scope, and excludes foreign rows (0.627583ms)
+✔ PartyQueryService.searchParties (0.693917ms)
+▶ PartyTimelineQueryService.listPartyTimeline
+  ✔ checks member_active and treats a foreign party id as missing (0.549375ms)
+✔ PartyTimelineQueryService.listPartyTimeline (0.5975ms)
+▶ MemberQueryService
+  ✔ listMembers checks people.admin and does not query on the wrong capability (0.219ms)
+  ✔ getMember and active options check member_active only and hide a foreign id (0.236ms)
+✔ MemberQueryService (0.583167ms)
+▶ CapabilityQueryService.getCapabilityState
+  ✔ checks member_active and does not apply the foreign organization override (0.254625ms)
+✔ CapabilityQueryService.getCapabilityState (0.304917ms)
+▶ ApprovalQueryService
+  ✔ list checks member_active plus approval list scope and excludes foreign rows (0.2785ms)
+  ✔ getApproval foreign id matches missing (0.15075ms)
+  ✔ listSubjectApprovals foreign subject matches missing and does not load foreign rows (0.28525ms)
+✔ ApprovalQueryService (0.76575ms)
+▶ AttentionQueryService.listAttentionItems
+  ✔ checks member_active and passes session organization and member to the port (0.180458ms)
+✔ AttentionQueryService.listAttentionItems (0.207ms)
+▶ WorkQueryService
+  ✔ list checks member_active and own scope, and drops foreign rows (0.411041ms)
+  ✔ getWorkSummary foreign id matches missing (0.140709ms)
+✔ WorkQueryService (0.585958ms)
+▶ CommercialQueryService inspection reads
+  ✔ lists own commercial rows and denies org visibility without commercial.org.read (0.571625ms)
+  ✔ exact foreign commercial ids match missing and do not load foreign lines (0.437292ms)
+✔ CommercialQueryService inspection reads (1.044958ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":7,"published":7,"retried":0,"deadLetter":0,"duplicates":0}
+▶ T02 operational reads over HTTP (disposable Postgres)
+  ✔ roles without an operational scope get PERMISSION_DENIED and no data on every operational read (106.781417ms)
+  ✔ the authorized operator reads its tenant with the minimum customer field and never contact details (86.933ms)
+  ✔ foreign ids are the same NOT_FOUND as missing ids and expose nothing from the other tenant (21.198916ms)
+  ✔ an operator presenting another organization header is refused without data (12.358125ms)
+  ✔ a suspended operator gets ACCESS_REVOKED on every operational read and the AI capability read (14.060584ms)
+[evidence] /ai/capability plain member body keys=available,blocked,citationsLive,providerMode
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ AI capability is member-level and carries no customer data (2.939875ms)
+✔ T02 operational reads over HTTP (disposable Postgres) (373.117042ms)
+ℹ tests 22
+ℹ suites 10
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 944.400958
+# exit: 0

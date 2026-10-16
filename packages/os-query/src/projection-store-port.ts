@@ -165,9 +165,14 @@ export interface OsProjectionStorePort {
   upsertPartyReadModel(model: StoredPartyReadModel): Promise<void>;
   getPartyReadModel(organizationId: string, partyId: string): Promise<StoredPartyReadModel | null>;
   deletePartyReadModelsForOrg(organizationId: string): Promise<void>;
+  /**
+   * `visibility` is server-applied, never read from the request. When set, only the
+   * listed party ids and parties that are not customer-bound in the read model match.
+   */
   searchParties(
     organizationId: string,
     query: SearchPartiesQuery,
+    visibility?: { partyIds: readonly string[] },
   ): Promise<{ items: StoredPartyReadModel[]; hasMore: boolean }>;
 
   upsertWorkReadModel(model: StoredWorkReadModel): Promise<void>;

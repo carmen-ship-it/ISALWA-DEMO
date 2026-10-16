@@ -1,0 +1,16 @@
+# source: HEAD a62e7b05bdfee3e562a186a306dbbbae6fa80fee + T02 working tree; cwd apps/os-api; disposable PG 54329; 2026-10-16T21:49:07Z
+# cmd: node --import tsx --test --test-concurrency=1 src/request-rate-limit.test.ts
+▶ request rate limits (V2 §18.1)
+  ✔ allows the configured search volume, then 429 with a body that names no user or rule (2.198791ms)
+  ✔ invitations are limited per member and per organization per day (1.102417ms)
+  ✔ keys carry the organization, so the same member id in another org has its own budget (0.4135ms)
+✔ request rate limits (V2 §18.1) (4.322458ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 191.294458
+# exit: 0

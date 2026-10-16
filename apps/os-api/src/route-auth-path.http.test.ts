@@ -171,6 +171,7 @@ describe('local HTTP auth path', { concurrency: false }, () => {
         ],
       });
       const healthOrgs: string[] = [];
+      const visibilityOrgs: string[] = [];
       const deadLetterOrgs: string[] = [];
       const renderedQuoteIds: string[] = [];
       const partyStore = {
@@ -210,7 +211,7 @@ describe('local HTTP auth path', { concurrency: false }, () => {
         },
         async getLocationInOrg(organizationId: string, locationId: string) {
           if (organizationId === ORG && locationId === 'loc-a') {
-            return { id: 'loc-a', organizationId: ORG, label: 'Taller A' };
+            return { id: 'loc-a', organizationId: ORG, partyId: 'party-a', label: 'Taller A' };
           }
           if (organizationId === OTHER && locationId === 'loc-foreign') {
             return { id: 'loc-foreign', organizationId: OTHER, label: FOREIGN_NOTE };
@@ -224,14 +225,42 @@ describe('local HTTP auth path', { concurrency: false }, () => {
           return [];
         },
       };
+      // T02: mem-a owns party-a. Every org the boundary is asked about is recorded.
+      const customerVisibility = {
+        async getCustomerFacts(organizationId: string, partyId: string) {
+          visibilityOrgs.push(organizationId);
+          return organizationId === ORG && partyId === 'party-a'
+            ? { organizationId: ORG, partyId, hasCommercialAccount: true, accountOwnerMemberId: 'mem-a', activeRoleKeys: ['customer'] }
+            : null;
+        },
+        async listCustomerFacts() {
+          return [];
+        },
+        async listPartyIdsOwnedBy() {
+          return [];
+        },
+        async listActiveCoverageForAdvisor(organizationId: string) {
+          visibilityOrgs.push(organizationId);
+          return [];
+        },
+      };
+      const directReports = { async listDirectReportMemberIds() { return []; } };
       const parties = new PartiesController(
         partyStore as never,
         workforce as never,
         commercialStore as never,
         {} as never,
         {} as never,
+        customerVisibility as never,
+        directReports as never,
+        { async hit() { return { count: 1, resetAt: new Date() }; } } as never,
       );
-      const locations = new LocationsController(partyStore as never, workforce as never);
+      const locations = new LocationsController(
+        partyStore as never,
+        workforce as never,
+        customerVisibility as never,
+        directReports as never,
+      );
       const operations = new OperationsController(
         workforce as never,
         {
@@ -426,6 +455,8 @@ describe('local HTTP auth path', { concurrency: false }, () => {
         assert.equal(outbox.status, 200);
         assert.deepEqual(healthOrgs.includes(ORG), true);
         assert.equal(healthOrgs.includes(OTHER), false);
+        assert.ok(visibilityOrgs.length > 0);
+        assert.equal(visibilityOrgs.every((organizationId) => organizationId === ORG), true);
         const deadForeign = await fetch(`${http.base}/v1/operations/outbox/dead-letters/dl-foreign`, {
           headers: headers({ 'x-os-organization-id': ORG }),
         });

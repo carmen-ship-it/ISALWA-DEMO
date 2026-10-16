@@ -4,6 +4,7 @@ import {
   getOsPrisma,
   PrismaOsOutboxStore,
   PrismaOsPartyStore,
+  PrismaCustomerVisibilityLookup,
   PrismaOsProjectionStore,
   PrismaOsWorkforceStore,
 } from './index';
@@ -42,6 +43,7 @@ describePrisma('projection prisma integration (Step 15)', () => {
     partyQuery = new PartyQueryService({
       projectionStore,
       encodeCursor: encodePartySearchCursor,
+      customerVisibility: new PrismaCustomerVisibilityLookup(prisma),
     });
     await workforceStore.truncateAll();
   });

@@ -1,0 +1,16 @@
+# source: HEAD a62e7b05bdfee3e562a186a306dbbbae6fa80fee + T02 working tree; cwd apps/os-api; disposable PG 54329; 2026-10-16T21:49:07Z
+# cmd: node --import tsx --test --test-concurrency=1 src/csrf-cors.guard.test.ts
+▶ CSRF / CORS guard (V2 §18.1)
+  ✔ os-api CORS origin is the validated env allowlist, never a wildcard or reflection (0.8205ms)
+  ✔ os-web does not widen Server Action origins (0.614833ms)
+  ✔ os-web route handlers export GET only (4.262917ms)
+✔ CSRF / CORS guard (V2 §18.1) (6.231792ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 99.85025
+# exit: 0

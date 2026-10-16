@@ -11,6 +11,13 @@ import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
 import { toPartySummary } from '../pagination';
 import type { OsProjectionStorePort } from '../projection-store-port';
+import type { DirectReportLookup } from '../leadership/direct-reports';
+import {
+  canReadCustomer,
+  isCustomerBoundParty,
+  resolveCustomerReadScope,
+  type CustomerVisibilityLookup,
+} from './customer-visibility';
 
 export type PartySearchResult = PaginatedResult<ReturnType<typeof toPartySummary>> & {
   freshness: Awaited<ReturnType<OsProjectionStorePort['getFreshness']>>;
@@ -24,6 +31,10 @@ export type PartyQueryServiceDeps = {
     organizationId: string,
     partyIds: string[],
   ) => Promise<PartyOperatingSource[]>;
+  /** Customer contact boundary. Required: there is no unscoped search. */
+  customerVisibility: CustomerVisibilityLookup;
+  /** Team-lead visibility. Missing lookup fails closed. */
+  directReports?: DirectReportLookup | null;
 };
 
 export class PartyQueryService {
@@ -33,10 +44,18 @@ export class PartyQueryService {
     assertQueryScope(ctx, 'member_active');
     assertQueryTenantResource(ctx, ctx.organizationId);
 
-    const { items, hasMore } = await this.deps.projectionStore.searchParties(
+    const scope = await resolveCustomerReadScope({
+      ctx,
+      lookup: this.deps.customerVisibility,
+      directReports: this.deps.directReports ?? null,
+    });
+    const { items: rawItems, hasMore } = await this.deps.projectionStore.searchParties(
       ctx.organizationId,
       query,
+      scope.kind === 'org' ? undefined : { partyIds: scope.partyIds },
     );
+    const items =
+      scope.kind === 'org' ? rawItems : await this.dropLaggingCustomers(ctx, rawItems, scope.partyIds);
 
     const freshness =
       (await this.deps.projectionStore.getFreshness(
@@ -54,7 +73,8 @@ export class PartyQueryService {
       };
 
     const limit = query.limit ?? 25;
-    const last = items.at(-1);
+    // Cursor follows the raw page so dropped rows never stall paging.
+    const last = rawItems.at(-1);
     const nextCursor =
       hasMore && last ? this.deps.encodeCursor(last.displayName, last.partyId) : null;
 
@@ -66,6 +86,27 @@ export class PartyQueryService {
       meta: { nextCursor, limit, hasMore },
       freshness,
     };
+  }
+
+  /**
+   * Rows admitted only because the read model says "not customer-bound" are re-checked
+   * against the source tables, so projection lag never exposes a customer.
+   */
+  private async dropLaggingCustomers<T extends { partyId: string }>(
+    ctx: QueryContext,
+    items: T[],
+    visiblePartyIds: readonly string[],
+  ): Promise<T[]> {
+    const visible = new Set(visiblePartyIds);
+    const unverified = items.filter((item) => !visible.has(item.partyId)).map((item) => item.partyId);
+    if (unverified.length === 0) return items;
+    const facts = await this.deps.customerVisibility.listCustomerFacts(
+      ctx.organizationId,
+      unverified,
+      ctx.effectiveAt ?? new Date(),
+    );
+    const openIds = new Set(facts.filter((f) => !isCustomerBoundParty(f)).map((f) => f.partyId));
+    return items.filter((item) => visible.has(item.partyId) || openIds.has(item.partyId));
   }
 
   private async attachOperatingFacts(
@@ -98,6 +139,13 @@ export class PartyQueryService {
       throw new Error('NOT_FOUND');
     }
     assertQueryTenantResource(ctx, model.organizationId);
+    const readable = await canReadCustomer({
+      ctx,
+      partyId,
+      lookup: this.deps.customerVisibility,
+      directReports: this.deps.directReports ?? null,
+    });
+    if (!readable) throw new Error('NOT_FOUND');
     const freshness = await this.deps.projectionStore.getFreshness(
       ctx.organizationId,
       OS_PROJECTION_CONSUMER_KEYS.partySearch,

@@ -497,6 +497,11 @@ export type OsProductFeedback = $Result.DefaultSelection<Prisma.$OsProductFeedba
  * Audit trail for issue ownership changes.
  */
 export type OsIssueOwnershipHistory = $Result.DefaultSelection<Prisma.$OsIssueOwnershipHistoryPayload>
+/**
+ * Model OsRateLimitBucket
+ * Shared fixed-window request counters (V2 §18.1). Ephemeral, not business data.
+ */
+export type OsRateLimitBucket = $Result.DefaultSelection<Prisma.$OsRateLimitBucketPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1555,6 +1560,16 @@ export class PrismaClient<
     * ```
     */
   get osIssueOwnershipHistory(): Prisma.OsIssueOwnershipHistoryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.osRateLimitBucket`: Exposes CRUD operations for the **OsRateLimitBucket** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsRateLimitBuckets
+    * const osRateLimitBuckets = await prisma.osRateLimitBucket.findMany()
+    * ```
+    */
+  get osRateLimitBucket(): Prisma.OsRateLimitBucketDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -2089,7 +2104,8 @@ export namespace Prisma {
     OsIssueRelation: 'OsIssueRelation',
     OsIssueResolutionCycle: 'OsIssueResolutionCycle',
     OsProductFeedback: 'OsProductFeedback',
-    OsIssueOwnershipHistory: 'OsIssueOwnershipHistory'
+    OsIssueOwnershipHistory: 'OsIssueOwnershipHistory',
+    OsRateLimitBucket: 'OsRateLimitBucket'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2108,7 +2124,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry" | "osReportedOperationalFact" | "osCommitment" | "osInternalNotification" | "osCatalogProduct" | "osCatalogProductProvenance" | "osCatalogProductAttribute" | "osCatalogProductStatusEvent" | "osOrderLine" | "osOperationalCase" | "osOperationalCaseFact" | "osOperationalCaseFactReversal" | "osOperationalReleaseDecision" | "osOperationalReleaseDecisionReversal" | "osProductionQuema" | "osProductionQuemaTime" | "osProductionQuemaProduct" | "osProductionTraceEntry" | "osCustomerConversation" | "osWarehouseExit" | "osWarehouseOutboundNote" | "osWarehouseOutboundNoteLine" | "osDelivery" | "osDeliveryNote" | "osDeliveryNoteLine" | "osDeliveryEvidence" | "customerCommittedDate" | "customerCommittedDateRevision" | "productionInternalTargetDate" | "productionInternalTargetRevision" | "productionDateIssue" | "customerDateInformedRecord" | "osOrderAllocation" | "osFinishedGoodsReceipt" | "osPurchaseRequest" | "osPurchaseRequestStatusHistory" | "osPurchaseRequestNote" | "osPriceList" | "osPriceEntry" | "osSpecialOrderClassification" | "osCustomerCoverageGrant" | "osCoordinationDecision" | "osIssue" | "osIssueReference" | "osIssueJournalEntry" | "osIssueWorkLink" | "osIssueRelation" | "osIssueResolutionCycle" | "osProductFeedback" | "osIssueOwnershipHistory"
+      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry" | "osReportedOperationalFact" | "osCommitment" | "osInternalNotification" | "osCatalogProduct" | "osCatalogProductProvenance" | "osCatalogProductAttribute" | "osCatalogProductStatusEvent" | "osOrderLine" | "osOperationalCase" | "osOperationalCaseFact" | "osOperationalCaseFactReversal" | "osOperationalReleaseDecision" | "osOperationalReleaseDecisionReversal" | "osProductionQuema" | "osProductionQuemaTime" | "osProductionQuemaProduct" | "osProductionTraceEntry" | "osCustomerConversation" | "osWarehouseExit" | "osWarehouseOutboundNote" | "osWarehouseOutboundNoteLine" | "osDelivery" | "osDeliveryNote" | "osDeliveryNoteLine" | "osDeliveryEvidence" | "customerCommittedDate" | "customerCommittedDateRevision" | "productionInternalTargetDate" | "productionInternalTargetRevision" | "productionDateIssue" | "customerDateInformedRecord" | "osOrderAllocation" | "osFinishedGoodsReceipt" | "osPurchaseRequest" | "osPurchaseRequestStatusHistory" | "osPurchaseRequestNote" | "osPriceList" | "osPriceEntry" | "osSpecialOrderClassification" | "osCustomerCoverageGrant" | "osCoordinationDecision" | "osIssue" | "osIssueReference" | "osIssueJournalEntry" | "osIssueWorkLink" | "osIssueRelation" | "osIssueResolutionCycle" | "osProductFeedback" | "osIssueOwnershipHistory" | "osRateLimitBucket"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -9068,6 +9084,80 @@ export namespace Prisma {
           }
         }
       }
+      OsRateLimitBucket: {
+        payload: Prisma.$OsRateLimitBucketPayload<ExtArgs>
+        fields: Prisma.OsRateLimitBucketFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsRateLimitBucketFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsRateLimitBucketPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsRateLimitBucketFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsRateLimitBucketPayload>
+          }
+          findFirst: {
+            args: Prisma.OsRateLimitBucketFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsRateLimitBucketPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsRateLimitBucketFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsRateLimitBucketPayload>
+          }
+          findMany: {
+            args: Prisma.OsRateLimitBucketFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsRateLimitBucketPayload>[]
+          }
+          create: {
+            args: Prisma.OsRateLimitBucketCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsRateLimitBucketPayload>
+          }
+          createMany: {
+            args: Prisma.OsRateLimitBucketCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsRateLimitBucketCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsRateLimitBucketPayload>[]
+          }
+          delete: {
+            args: Prisma.OsRateLimitBucketDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsRateLimitBucketPayload>
+          }
+          update: {
+            args: Prisma.OsRateLimitBucketUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsRateLimitBucketPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsRateLimitBucketDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsRateLimitBucketUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsRateLimitBucketUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsRateLimitBucketPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsRateLimitBucketUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsRateLimitBucketPayload>
+          }
+          aggregate: {
+            args: Prisma.OsRateLimitBucketAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsRateLimitBucket>
+          }
+          groupBy: {
+            args: Prisma.OsRateLimitBucketGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsRateLimitBucketGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsRateLimitBucketCountArgs<ExtArgs>
+            result: $Utils.Optional<OsRateLimitBucketCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -9258,6 +9348,7 @@ export namespace Prisma {
     osIssueResolutionCycle?: OsIssueResolutionCycleOmit
     osProductFeedback?: OsProductFeedbackOmit
     osIssueOwnershipHistory?: OsIssueOwnershipHistoryOmit
+    osRateLimitBucket?: OsRateLimitBucketOmit
   }
 
   /* Types for Logging */
@@ -124291,6 +124382,1035 @@ export namespace Prisma {
 
 
   /**
+   * Model OsRateLimitBucket
+   */
+
+  export type AggregateOsRateLimitBucket = {
+    _count: OsRateLimitBucketCountAggregateOutputType | null
+    _avg: OsRateLimitBucketAvgAggregateOutputType | null
+    _sum: OsRateLimitBucketSumAggregateOutputType | null
+    _min: OsRateLimitBucketMinAggregateOutputType | null
+    _max: OsRateLimitBucketMaxAggregateOutputType | null
+  }
+
+  export type OsRateLimitBucketAvgAggregateOutputType = {
+    count: number | null
+  }
+
+  export type OsRateLimitBucketSumAggregateOutputType = {
+    count: number | null
+  }
+
+  export type OsRateLimitBucketMinAggregateOutputType = {
+    organizationId: string | null
+    bucketKey: string | null
+    windowStart: Date | null
+    count: number | null
+    updatedAt: Date | null
+  }
+
+  export type OsRateLimitBucketMaxAggregateOutputType = {
+    organizationId: string | null
+    bucketKey: string | null
+    windowStart: Date | null
+    count: number | null
+    updatedAt: Date | null
+  }
+
+  export type OsRateLimitBucketCountAggregateOutputType = {
+    organizationId: number
+    bucketKey: number
+    windowStart: number
+    count: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type OsRateLimitBucketAvgAggregateInputType = {
+    count?: true
+  }
+
+  export type OsRateLimitBucketSumAggregateInputType = {
+    count?: true
+  }
+
+  export type OsRateLimitBucketMinAggregateInputType = {
+    organizationId?: true
+    bucketKey?: true
+    windowStart?: true
+    count?: true
+    updatedAt?: true
+  }
+
+  export type OsRateLimitBucketMaxAggregateInputType = {
+    organizationId?: true
+    bucketKey?: true
+    windowStart?: true
+    count?: true
+    updatedAt?: true
+  }
+
+  export type OsRateLimitBucketCountAggregateInputType = {
+    organizationId?: true
+    bucketKey?: true
+    windowStart?: true
+    count?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type OsRateLimitBucketAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsRateLimitBucket to aggregate.
+     */
+    where?: OsRateLimitBucketWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsRateLimitBuckets to fetch.
+     */
+    orderBy?: OsRateLimitBucketOrderByWithRelationInput | OsRateLimitBucketOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsRateLimitBucketWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsRateLimitBuckets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsRateLimitBuckets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsRateLimitBuckets
+    **/
+    _count?: true | OsRateLimitBucketCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OsRateLimitBucketAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OsRateLimitBucketSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsRateLimitBucketMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsRateLimitBucketMaxAggregateInputType
+  }
+
+  export type GetOsRateLimitBucketAggregateType<T extends OsRateLimitBucketAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsRateLimitBucket]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsRateLimitBucket[P]>
+      : GetScalarType<T[P], AggregateOsRateLimitBucket[P]>
+  }
+
+
+
+
+  export type OsRateLimitBucketGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsRateLimitBucketWhereInput
+    orderBy?: OsRateLimitBucketOrderByWithAggregationInput | OsRateLimitBucketOrderByWithAggregationInput[]
+    by: OsRateLimitBucketScalarFieldEnum[] | OsRateLimitBucketScalarFieldEnum
+    having?: OsRateLimitBucketScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsRateLimitBucketCountAggregateInputType | true
+    _avg?: OsRateLimitBucketAvgAggregateInputType
+    _sum?: OsRateLimitBucketSumAggregateInputType
+    _min?: OsRateLimitBucketMinAggregateInputType
+    _max?: OsRateLimitBucketMaxAggregateInputType
+  }
+
+  export type OsRateLimitBucketGroupByOutputType = {
+    organizationId: string
+    bucketKey: string
+    windowStart: Date
+    count: number
+    updatedAt: Date
+    _count: OsRateLimitBucketCountAggregateOutputType | null
+    _avg: OsRateLimitBucketAvgAggregateOutputType | null
+    _sum: OsRateLimitBucketSumAggregateOutputType | null
+    _min: OsRateLimitBucketMinAggregateOutputType | null
+    _max: OsRateLimitBucketMaxAggregateOutputType | null
+  }
+
+  type GetOsRateLimitBucketGroupByPayload<T extends OsRateLimitBucketGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsRateLimitBucketGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsRateLimitBucketGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsRateLimitBucketGroupByOutputType[P]>
+            : GetScalarType<T[P], OsRateLimitBucketGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsRateLimitBucketSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    organizationId?: boolean
+    bucketKey?: boolean
+    windowStart?: boolean
+    count?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["osRateLimitBucket"]>
+
+  export type OsRateLimitBucketSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    organizationId?: boolean
+    bucketKey?: boolean
+    windowStart?: boolean
+    count?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["osRateLimitBucket"]>
+
+  export type OsRateLimitBucketSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    organizationId?: boolean
+    bucketKey?: boolean
+    windowStart?: boolean
+    count?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["osRateLimitBucket"]>
+
+  export type OsRateLimitBucketSelectScalar = {
+    organizationId?: boolean
+    bucketKey?: boolean
+    windowStart?: boolean
+    count?: boolean
+    updatedAt?: boolean
+  }
+
+  export type OsRateLimitBucketOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"organizationId" | "bucketKey" | "windowStart" | "count" | "updatedAt", ExtArgs["result"]["osRateLimitBucket"]>
+
+  export type $OsRateLimitBucketPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsRateLimitBucket"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      organizationId: string
+      bucketKey: string
+      windowStart: Date
+      count: number
+      updatedAt: Date
+    }, ExtArgs["result"]["osRateLimitBucket"]>
+    composites: {}
+  }
+
+  type OsRateLimitBucketGetPayload<S extends boolean | null | undefined | OsRateLimitBucketDefaultArgs> = $Result.GetResult<Prisma.$OsRateLimitBucketPayload, S>
+
+  type OsRateLimitBucketCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsRateLimitBucketFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsRateLimitBucketCountAggregateInputType | true
+    }
+
+  export interface OsRateLimitBucketDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsRateLimitBucket'], meta: { name: 'OsRateLimitBucket' } }
+    /**
+     * Find zero or one OsRateLimitBucket that matches the filter.
+     * @param {OsRateLimitBucketFindUniqueArgs} args - Arguments to find a OsRateLimitBucket
+     * @example
+     * // Get one OsRateLimitBucket
+     * const osRateLimitBucket = await prisma.osRateLimitBucket.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsRateLimitBucketFindUniqueArgs>(args: SelectSubset<T, OsRateLimitBucketFindUniqueArgs<ExtArgs>>): Prisma__OsRateLimitBucketClient<$Result.GetResult<Prisma.$OsRateLimitBucketPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsRateLimitBucket that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsRateLimitBucketFindUniqueOrThrowArgs} args - Arguments to find a OsRateLimitBucket
+     * @example
+     * // Get one OsRateLimitBucket
+     * const osRateLimitBucket = await prisma.osRateLimitBucket.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsRateLimitBucketFindUniqueOrThrowArgs>(args: SelectSubset<T, OsRateLimitBucketFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsRateLimitBucketClient<$Result.GetResult<Prisma.$OsRateLimitBucketPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsRateLimitBucket that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsRateLimitBucketFindFirstArgs} args - Arguments to find a OsRateLimitBucket
+     * @example
+     * // Get one OsRateLimitBucket
+     * const osRateLimitBucket = await prisma.osRateLimitBucket.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsRateLimitBucketFindFirstArgs>(args?: SelectSubset<T, OsRateLimitBucketFindFirstArgs<ExtArgs>>): Prisma__OsRateLimitBucketClient<$Result.GetResult<Prisma.$OsRateLimitBucketPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsRateLimitBucket that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsRateLimitBucketFindFirstOrThrowArgs} args - Arguments to find a OsRateLimitBucket
+     * @example
+     * // Get one OsRateLimitBucket
+     * const osRateLimitBucket = await prisma.osRateLimitBucket.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsRateLimitBucketFindFirstOrThrowArgs>(args?: SelectSubset<T, OsRateLimitBucketFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsRateLimitBucketClient<$Result.GetResult<Prisma.$OsRateLimitBucketPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsRateLimitBuckets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsRateLimitBucketFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsRateLimitBuckets
+     * const osRateLimitBuckets = await prisma.osRateLimitBucket.findMany()
+     * 
+     * // Get first 10 OsRateLimitBuckets
+     * const osRateLimitBuckets = await prisma.osRateLimitBucket.findMany({ take: 10 })
+     * 
+     * // Only select the `organizationId`
+     * const osRateLimitBucketWithOrganizationIdOnly = await prisma.osRateLimitBucket.findMany({ select: { organizationId: true } })
+     * 
+     */
+    findMany<T extends OsRateLimitBucketFindManyArgs>(args?: SelectSubset<T, OsRateLimitBucketFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsRateLimitBucketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsRateLimitBucket.
+     * @param {OsRateLimitBucketCreateArgs} args - Arguments to create a OsRateLimitBucket.
+     * @example
+     * // Create one OsRateLimitBucket
+     * const OsRateLimitBucket = await prisma.osRateLimitBucket.create({
+     *   data: {
+     *     // ... data to create a OsRateLimitBucket
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsRateLimitBucketCreateArgs>(args: SelectSubset<T, OsRateLimitBucketCreateArgs<ExtArgs>>): Prisma__OsRateLimitBucketClient<$Result.GetResult<Prisma.$OsRateLimitBucketPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsRateLimitBuckets.
+     * @param {OsRateLimitBucketCreateManyArgs} args - Arguments to create many OsRateLimitBuckets.
+     * @example
+     * // Create many OsRateLimitBuckets
+     * const osRateLimitBucket = await prisma.osRateLimitBucket.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsRateLimitBucketCreateManyArgs>(args?: SelectSubset<T, OsRateLimitBucketCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsRateLimitBuckets and returns the data saved in the database.
+     * @param {OsRateLimitBucketCreateManyAndReturnArgs} args - Arguments to create many OsRateLimitBuckets.
+     * @example
+     * // Create many OsRateLimitBuckets
+     * const osRateLimitBucket = await prisma.osRateLimitBucket.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsRateLimitBuckets and only return the `organizationId`
+     * const osRateLimitBucketWithOrganizationIdOnly = await prisma.osRateLimitBucket.createManyAndReturn({
+     *   select: { organizationId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsRateLimitBucketCreateManyAndReturnArgs>(args?: SelectSubset<T, OsRateLimitBucketCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsRateLimitBucketPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsRateLimitBucket.
+     * @param {OsRateLimitBucketDeleteArgs} args - Arguments to delete one OsRateLimitBucket.
+     * @example
+     * // Delete one OsRateLimitBucket
+     * const OsRateLimitBucket = await prisma.osRateLimitBucket.delete({
+     *   where: {
+     *     // ... filter to delete one OsRateLimitBucket
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsRateLimitBucketDeleteArgs>(args: SelectSubset<T, OsRateLimitBucketDeleteArgs<ExtArgs>>): Prisma__OsRateLimitBucketClient<$Result.GetResult<Prisma.$OsRateLimitBucketPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsRateLimitBucket.
+     * @param {OsRateLimitBucketUpdateArgs} args - Arguments to update one OsRateLimitBucket.
+     * @example
+     * // Update one OsRateLimitBucket
+     * const osRateLimitBucket = await prisma.osRateLimitBucket.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsRateLimitBucketUpdateArgs>(args: SelectSubset<T, OsRateLimitBucketUpdateArgs<ExtArgs>>): Prisma__OsRateLimitBucketClient<$Result.GetResult<Prisma.$OsRateLimitBucketPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsRateLimitBuckets.
+     * @param {OsRateLimitBucketDeleteManyArgs} args - Arguments to filter OsRateLimitBuckets to delete.
+     * @example
+     * // Delete a few OsRateLimitBuckets
+     * const { count } = await prisma.osRateLimitBucket.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsRateLimitBucketDeleteManyArgs>(args?: SelectSubset<T, OsRateLimitBucketDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsRateLimitBuckets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsRateLimitBucketUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsRateLimitBuckets
+     * const osRateLimitBucket = await prisma.osRateLimitBucket.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsRateLimitBucketUpdateManyArgs>(args: SelectSubset<T, OsRateLimitBucketUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsRateLimitBuckets and returns the data updated in the database.
+     * @param {OsRateLimitBucketUpdateManyAndReturnArgs} args - Arguments to update many OsRateLimitBuckets.
+     * @example
+     * // Update many OsRateLimitBuckets
+     * const osRateLimitBucket = await prisma.osRateLimitBucket.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsRateLimitBuckets and only return the `organizationId`
+     * const osRateLimitBucketWithOrganizationIdOnly = await prisma.osRateLimitBucket.updateManyAndReturn({
+     *   select: { organizationId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsRateLimitBucketUpdateManyAndReturnArgs>(args: SelectSubset<T, OsRateLimitBucketUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsRateLimitBucketPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsRateLimitBucket.
+     * @param {OsRateLimitBucketUpsertArgs} args - Arguments to update or create a OsRateLimitBucket.
+     * @example
+     * // Update or create a OsRateLimitBucket
+     * const osRateLimitBucket = await prisma.osRateLimitBucket.upsert({
+     *   create: {
+     *     // ... data to create a OsRateLimitBucket
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsRateLimitBucket we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsRateLimitBucketUpsertArgs>(args: SelectSubset<T, OsRateLimitBucketUpsertArgs<ExtArgs>>): Prisma__OsRateLimitBucketClient<$Result.GetResult<Prisma.$OsRateLimitBucketPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsRateLimitBuckets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsRateLimitBucketCountArgs} args - Arguments to filter OsRateLimitBuckets to count.
+     * @example
+     * // Count the number of OsRateLimitBuckets
+     * const count = await prisma.osRateLimitBucket.count({
+     *   where: {
+     *     // ... the filter for the OsRateLimitBuckets we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsRateLimitBucketCountArgs>(
+      args?: Subset<T, OsRateLimitBucketCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsRateLimitBucketCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsRateLimitBucket.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsRateLimitBucketAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsRateLimitBucketAggregateArgs>(args: Subset<T, OsRateLimitBucketAggregateArgs>): Prisma.PrismaPromise<GetOsRateLimitBucketAggregateType<T>>
+
+    /**
+     * Group by OsRateLimitBucket.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsRateLimitBucketGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsRateLimitBucketGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsRateLimitBucketGroupByArgs['orderBy'] }
+        : { orderBy?: OsRateLimitBucketGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsRateLimitBucketGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsRateLimitBucketGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsRateLimitBucket model
+   */
+  readonly fields: OsRateLimitBucketFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsRateLimitBucket.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsRateLimitBucketClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsRateLimitBucket model
+   */
+  interface OsRateLimitBucketFieldRefs {
+    readonly organizationId: FieldRef<"OsRateLimitBucket", 'String'>
+    readonly bucketKey: FieldRef<"OsRateLimitBucket", 'String'>
+    readonly windowStart: FieldRef<"OsRateLimitBucket", 'DateTime'>
+    readonly count: FieldRef<"OsRateLimitBucket", 'Int'>
+    readonly updatedAt: FieldRef<"OsRateLimitBucket", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsRateLimitBucket findUnique
+   */
+  export type OsRateLimitBucketFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsRateLimitBucket
+     */
+    select?: OsRateLimitBucketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsRateLimitBucket
+     */
+    omit?: OsRateLimitBucketOmit<ExtArgs> | null
+    /**
+     * Filter, which OsRateLimitBucket to fetch.
+     */
+    where: OsRateLimitBucketWhereUniqueInput
+  }
+
+  /**
+   * OsRateLimitBucket findUniqueOrThrow
+   */
+  export type OsRateLimitBucketFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsRateLimitBucket
+     */
+    select?: OsRateLimitBucketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsRateLimitBucket
+     */
+    omit?: OsRateLimitBucketOmit<ExtArgs> | null
+    /**
+     * Filter, which OsRateLimitBucket to fetch.
+     */
+    where: OsRateLimitBucketWhereUniqueInput
+  }
+
+  /**
+   * OsRateLimitBucket findFirst
+   */
+  export type OsRateLimitBucketFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsRateLimitBucket
+     */
+    select?: OsRateLimitBucketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsRateLimitBucket
+     */
+    omit?: OsRateLimitBucketOmit<ExtArgs> | null
+    /**
+     * Filter, which OsRateLimitBucket to fetch.
+     */
+    where?: OsRateLimitBucketWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsRateLimitBuckets to fetch.
+     */
+    orderBy?: OsRateLimitBucketOrderByWithRelationInput | OsRateLimitBucketOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsRateLimitBuckets.
+     */
+    cursor?: OsRateLimitBucketWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsRateLimitBuckets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsRateLimitBuckets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsRateLimitBuckets.
+     */
+    distinct?: OsRateLimitBucketScalarFieldEnum | OsRateLimitBucketScalarFieldEnum[]
+  }
+
+  /**
+   * OsRateLimitBucket findFirstOrThrow
+   */
+  export type OsRateLimitBucketFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsRateLimitBucket
+     */
+    select?: OsRateLimitBucketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsRateLimitBucket
+     */
+    omit?: OsRateLimitBucketOmit<ExtArgs> | null
+    /**
+     * Filter, which OsRateLimitBucket to fetch.
+     */
+    where?: OsRateLimitBucketWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsRateLimitBuckets to fetch.
+     */
+    orderBy?: OsRateLimitBucketOrderByWithRelationInput | OsRateLimitBucketOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsRateLimitBuckets.
+     */
+    cursor?: OsRateLimitBucketWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsRateLimitBuckets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsRateLimitBuckets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsRateLimitBuckets.
+     */
+    distinct?: OsRateLimitBucketScalarFieldEnum | OsRateLimitBucketScalarFieldEnum[]
+  }
+
+  /**
+   * OsRateLimitBucket findMany
+   */
+  export type OsRateLimitBucketFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsRateLimitBucket
+     */
+    select?: OsRateLimitBucketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsRateLimitBucket
+     */
+    omit?: OsRateLimitBucketOmit<ExtArgs> | null
+    /**
+     * Filter, which OsRateLimitBuckets to fetch.
+     */
+    where?: OsRateLimitBucketWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsRateLimitBuckets to fetch.
+     */
+    orderBy?: OsRateLimitBucketOrderByWithRelationInput | OsRateLimitBucketOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsRateLimitBuckets.
+     */
+    cursor?: OsRateLimitBucketWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsRateLimitBuckets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsRateLimitBuckets.
+     */
+    skip?: number
+    distinct?: OsRateLimitBucketScalarFieldEnum | OsRateLimitBucketScalarFieldEnum[]
+  }
+
+  /**
+   * OsRateLimitBucket create
+   */
+  export type OsRateLimitBucketCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsRateLimitBucket
+     */
+    select?: OsRateLimitBucketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsRateLimitBucket
+     */
+    omit?: OsRateLimitBucketOmit<ExtArgs> | null
+    /**
+     * The data needed to create a OsRateLimitBucket.
+     */
+    data: XOR<OsRateLimitBucketCreateInput, OsRateLimitBucketUncheckedCreateInput>
+  }
+
+  /**
+   * OsRateLimitBucket createMany
+   */
+  export type OsRateLimitBucketCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsRateLimitBuckets.
+     */
+    data: OsRateLimitBucketCreateManyInput | OsRateLimitBucketCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsRateLimitBucket createManyAndReturn
+   */
+  export type OsRateLimitBucketCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsRateLimitBucket
+     */
+    select?: OsRateLimitBucketSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsRateLimitBucket
+     */
+    omit?: OsRateLimitBucketOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsRateLimitBuckets.
+     */
+    data: OsRateLimitBucketCreateManyInput | OsRateLimitBucketCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsRateLimitBucket update
+   */
+  export type OsRateLimitBucketUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsRateLimitBucket
+     */
+    select?: OsRateLimitBucketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsRateLimitBucket
+     */
+    omit?: OsRateLimitBucketOmit<ExtArgs> | null
+    /**
+     * The data needed to update a OsRateLimitBucket.
+     */
+    data: XOR<OsRateLimitBucketUpdateInput, OsRateLimitBucketUncheckedUpdateInput>
+    /**
+     * Choose, which OsRateLimitBucket to update.
+     */
+    where: OsRateLimitBucketWhereUniqueInput
+  }
+
+  /**
+   * OsRateLimitBucket updateMany
+   */
+  export type OsRateLimitBucketUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsRateLimitBuckets.
+     */
+    data: XOR<OsRateLimitBucketUpdateManyMutationInput, OsRateLimitBucketUncheckedUpdateManyInput>
+    /**
+     * Filter which OsRateLimitBuckets to update
+     */
+    where?: OsRateLimitBucketWhereInput
+    /**
+     * Limit how many OsRateLimitBuckets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsRateLimitBucket updateManyAndReturn
+   */
+  export type OsRateLimitBucketUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsRateLimitBucket
+     */
+    select?: OsRateLimitBucketSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsRateLimitBucket
+     */
+    omit?: OsRateLimitBucketOmit<ExtArgs> | null
+    /**
+     * The data used to update OsRateLimitBuckets.
+     */
+    data: XOR<OsRateLimitBucketUpdateManyMutationInput, OsRateLimitBucketUncheckedUpdateManyInput>
+    /**
+     * Filter which OsRateLimitBuckets to update
+     */
+    where?: OsRateLimitBucketWhereInput
+    /**
+     * Limit how many OsRateLimitBuckets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsRateLimitBucket upsert
+   */
+  export type OsRateLimitBucketUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsRateLimitBucket
+     */
+    select?: OsRateLimitBucketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsRateLimitBucket
+     */
+    omit?: OsRateLimitBucketOmit<ExtArgs> | null
+    /**
+     * The filter to search for the OsRateLimitBucket to update in case it exists.
+     */
+    where: OsRateLimitBucketWhereUniqueInput
+    /**
+     * In case the OsRateLimitBucket found by the `where` argument doesn't exist, create a new OsRateLimitBucket with this data.
+     */
+    create: XOR<OsRateLimitBucketCreateInput, OsRateLimitBucketUncheckedCreateInput>
+    /**
+     * In case the OsRateLimitBucket was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsRateLimitBucketUpdateInput, OsRateLimitBucketUncheckedUpdateInput>
+  }
+
+  /**
+   * OsRateLimitBucket delete
+   */
+  export type OsRateLimitBucketDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsRateLimitBucket
+     */
+    select?: OsRateLimitBucketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsRateLimitBucket
+     */
+    omit?: OsRateLimitBucketOmit<ExtArgs> | null
+    /**
+     * Filter which OsRateLimitBucket to delete.
+     */
+    where: OsRateLimitBucketWhereUniqueInput
+  }
+
+  /**
+   * OsRateLimitBucket deleteMany
+   */
+  export type OsRateLimitBucketDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsRateLimitBuckets to delete
+     */
+    where?: OsRateLimitBucketWhereInput
+    /**
+     * Limit how many OsRateLimitBuckets to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsRateLimitBucket without action
+   */
+  export type OsRateLimitBucketDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsRateLimitBucket
+     */
+    select?: OsRateLimitBucketSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsRateLimitBucket
+     */
+    omit?: OsRateLimitBucketOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -125968,6 +127088,17 @@ export namespace Prisma {
   };
 
   export type OsIssueOwnershipHistoryScalarFieldEnum = (typeof OsIssueOwnershipHistoryScalarFieldEnum)[keyof typeof OsIssueOwnershipHistoryScalarFieldEnum]
+
+
+  export const OsRateLimitBucketScalarFieldEnum: {
+    organizationId: 'organizationId',
+    bucketKey: 'bucketKey',
+    windowStart: 'windowStart',
+    count: 'count',
+    updatedAt: 'updatedAt'
+  };
+
+  export type OsRateLimitBucketScalarFieldEnum = (typeof OsRateLimitBucketScalarFieldEnum)[keyof typeof OsRateLimitBucketScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -135128,6 +136259,61 @@ export namespace Prisma {
     changedByMemberId?: StringWithAggregatesFilter<"OsIssueOwnershipHistory"> | string
     changedAt?: DateTimeWithAggregatesFilter<"OsIssueOwnershipHistory"> | Date | string
     reason?: StringNullableWithAggregatesFilter<"OsIssueOwnershipHistory"> | string | null
+  }
+
+  export type OsRateLimitBucketWhereInput = {
+    AND?: OsRateLimitBucketWhereInput | OsRateLimitBucketWhereInput[]
+    OR?: OsRateLimitBucketWhereInput[]
+    NOT?: OsRateLimitBucketWhereInput | OsRateLimitBucketWhereInput[]
+    organizationId?: StringFilter<"OsRateLimitBucket"> | string
+    bucketKey?: StringFilter<"OsRateLimitBucket"> | string
+    windowStart?: DateTimeFilter<"OsRateLimitBucket"> | Date | string
+    count?: IntFilter<"OsRateLimitBucket"> | number
+    updatedAt?: DateTimeFilter<"OsRateLimitBucket"> | Date | string
+  }
+
+  export type OsRateLimitBucketOrderByWithRelationInput = {
+    organizationId?: SortOrder
+    bucketKey?: SortOrder
+    windowStart?: SortOrder
+    count?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OsRateLimitBucketWhereUniqueInput = Prisma.AtLeast<{
+    organizationId_bucketKey_windowStart?: OsRateLimitBucketOrganizationIdBucketKeyWindowStartCompoundUniqueInput
+    AND?: OsRateLimitBucketWhereInput | OsRateLimitBucketWhereInput[]
+    OR?: OsRateLimitBucketWhereInput[]
+    NOT?: OsRateLimitBucketWhereInput | OsRateLimitBucketWhereInput[]
+    organizationId?: StringFilter<"OsRateLimitBucket"> | string
+    bucketKey?: StringFilter<"OsRateLimitBucket"> | string
+    windowStart?: DateTimeFilter<"OsRateLimitBucket"> | Date | string
+    count?: IntFilter<"OsRateLimitBucket"> | number
+    updatedAt?: DateTimeFilter<"OsRateLimitBucket"> | Date | string
+  }, "organizationId_bucketKey_windowStart">
+
+  export type OsRateLimitBucketOrderByWithAggregationInput = {
+    organizationId?: SortOrder
+    bucketKey?: SortOrder
+    windowStart?: SortOrder
+    count?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OsRateLimitBucketCountOrderByAggregateInput
+    _avg?: OsRateLimitBucketAvgOrderByAggregateInput
+    _max?: OsRateLimitBucketMaxOrderByAggregateInput
+    _min?: OsRateLimitBucketMinOrderByAggregateInput
+    _sum?: OsRateLimitBucketSumOrderByAggregateInput
+  }
+
+  export type OsRateLimitBucketScalarWhereWithAggregatesInput = {
+    AND?: OsRateLimitBucketScalarWhereWithAggregatesInput | OsRateLimitBucketScalarWhereWithAggregatesInput[]
+    OR?: OsRateLimitBucketScalarWhereWithAggregatesInput[]
+    NOT?: OsRateLimitBucketScalarWhereWithAggregatesInput | OsRateLimitBucketScalarWhereWithAggregatesInput[]
+    organizationId?: StringWithAggregatesFilter<"OsRateLimitBucket"> | string
+    bucketKey?: StringWithAggregatesFilter<"OsRateLimitBucket"> | string
+    windowStart?: DateTimeWithAggregatesFilter<"OsRateLimitBucket"> | Date | string
+    count?: IntWithAggregatesFilter<"OsRateLimitBucket"> | number
+    updatedAt?: DateTimeWithAggregatesFilter<"OsRateLimitBucket"> | Date | string
   }
 
   export type OsOrganizationCreateInput = {
@@ -145235,6 +146421,62 @@ export namespace Prisma {
     reason?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type OsRateLimitBucketCreateInput = {
+    organizationId: string
+    bucketKey: string
+    windowStart: Date | string
+    count?: number
+    updatedAt?: Date | string
+  }
+
+  export type OsRateLimitBucketUncheckedCreateInput = {
+    organizationId: string
+    bucketKey: string
+    windowStart: Date | string
+    count?: number
+    updatedAt?: Date | string
+  }
+
+  export type OsRateLimitBucketUpdateInput = {
+    organizationId?: StringFieldUpdateOperationsInput | string
+    bucketKey?: StringFieldUpdateOperationsInput | string
+    windowStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    count?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsRateLimitBucketUncheckedUpdateInput = {
+    organizationId?: StringFieldUpdateOperationsInput | string
+    bucketKey?: StringFieldUpdateOperationsInput | string
+    windowStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    count?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsRateLimitBucketCreateManyInput = {
+    organizationId: string
+    bucketKey: string
+    windowStart: Date | string
+    count?: number
+    updatedAt?: Date | string
+  }
+
+  export type OsRateLimitBucketUpdateManyMutationInput = {
+    organizationId?: StringFieldUpdateOperationsInput | string
+    bucketKey?: StringFieldUpdateOperationsInput | string
+    windowStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    count?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsRateLimitBucketUncheckedUpdateManyInput = {
+    organizationId?: StringFieldUpdateOperationsInput | string
+    bucketKey?: StringFieldUpdateOperationsInput | string
+    windowStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    count?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -151283,6 +152525,44 @@ export namespace Prisma {
     changedByMemberId?: SortOrder
     changedAt?: SortOrder
     reason?: SortOrder
+  }
+
+  export type OsRateLimitBucketOrganizationIdBucketKeyWindowStartCompoundUniqueInput = {
+    organizationId: string
+    bucketKey: string
+    windowStart: Date | string
+  }
+
+  export type OsRateLimitBucketCountOrderByAggregateInput = {
+    organizationId?: SortOrder
+    bucketKey?: SortOrder
+    windowStart?: SortOrder
+    count?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OsRateLimitBucketAvgOrderByAggregateInput = {
+    count?: SortOrder
+  }
+
+  export type OsRateLimitBucketMaxOrderByAggregateInput = {
+    organizationId?: SortOrder
+    bucketKey?: SortOrder
+    windowStart?: SortOrder
+    count?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OsRateLimitBucketMinOrderByAggregateInput = {
+    organizationId?: SortOrder
+    bucketKey?: SortOrder
+    windowStart?: SortOrder
+    count?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OsRateLimitBucketSumOrderByAggregateInput = {
+    count?: SortOrder
   }
 
   export type OsOrganizationMemberCreateNestedManyWithoutOrganizationInput = {

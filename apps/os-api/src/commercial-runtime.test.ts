@@ -393,6 +393,11 @@ describeHttp('os-api commercial runtime (Step 16.1A)', () => {
     const salesHeaders = sessionHeaders(org.id, sales.member, sales.person, sales.auth);
     const crossHeaders = sessionHeaders(orgB.id, salesB.member, salesB.person, salesB.auth);
     const partyId = await createPartyInOrg(org.id, 'Timeline HTTP party');
+    // T02: the timeline reader holds current customer authority as the account owner.
+    await getOsPrisma()!.osCommercialAccount.updateMany({
+      where: { organizationId: org.id, partyId },
+      data: { ownerMemberId: sales.member.id },
+    });
 
     await fetch(`${baseUrl}/v1/commands/CreateOpportunity`, {
       method: 'POST',

@@ -16,6 +16,7 @@ import {
   getOsPrisma,
   PrismaOsCommercialStore,
   PrismaOsPartyStore,
+  PrismaCustomerVisibilityLookup,
   PrismaOsProjectionStore,
   PrismaOsWorkforceStore,
   PrismaOsWorkStore,
@@ -50,6 +51,7 @@ describePrisma('party timeline work + approval prisma integration (Step 16.1B)',
     querySvc = new PartyTimelineQueryService({
       projectionStore,
       encodeCursor: encodePartyTimelineCursor,
+      customerVisibility: new PrismaCustomerVisibilityLookup(prisma),
       partyExists: async (organizationId, partyId) => {
         const party = await partyStore.getPartyInOrg(organizationId, partyId);
         return party != null;
@@ -151,6 +153,11 @@ describePrisma('party timeline work + approval prisma integration (Step 16.1B)',
 
     const commercialAccount = await commercialStore.getCommercialAccountForParty(org.id, partyId);
     assert.ok(commercialAccount);
+    // T02: the timeline reader (requester) must hold current customer authority.
+    await prisma.osCommercialAccount.update({
+      where: { id: commercialAccount.id },
+      data: { ownerMemberId: requester.member.id },
+    });
 
     return {
       org,

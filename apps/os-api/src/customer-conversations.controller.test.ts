@@ -58,7 +58,6 @@ describe('conversation visibility and commercial links', () => {
   const stranger = {
     actorMemberId: 'mem-stranger',
     grantedScopes: [] as string[],
-    enteredByMemberId: 'mem-owner',
     accountOwnerMemberId: 'mem-owner',
     directReportMemberIds: [] as string[],
   };
@@ -67,7 +66,7 @@ describe('conversation visibility and commercial links', () => {
     assert.equal(memberCanSeeConversation(stranger), false);
   });
 
-  it('shows the conversation to its author, the account owner, their team lead, and an organization reader', () => {
+  it('shows the linked record to the account owner, their team lead, and an organization reader', () => {
     assert.equal(memberCanSeeConversation({ ...stranger, actorMemberId: 'mem-owner' }), true);
     assert.equal(
       memberCanSeeConversation({
@@ -82,6 +81,16 @@ describe('conversation visibility and commercial links', () => {
       memberCanSeeConversation({ ...stranger, grantedScopes: ['commercial.org.read'] }),
       true,
     );
+  });
+
+  it('V2 §6: people.admin alone does not widen visibility', () => {
+    assert.equal(memberCanSeeConversation({ ...stranger, grantedScopes: ['people.admin'] }), false);
+  });
+
+  it('T02 decision: having entered a conversation is not authority (no author argument exists)', () => {
+    // The predicate has no author input; author-only access is denied over HTTP in
+    // customer-visibility.http.test.ts.
+    assert.equal(memberCanSeeConversation({ ...stranger, accountOwnerMemberId: 'mem-new-owner' }), false);
   });
 
   it('rejects a link the actor cannot read, a link for another customer, and a missing record the same way as a foreign one', () => {

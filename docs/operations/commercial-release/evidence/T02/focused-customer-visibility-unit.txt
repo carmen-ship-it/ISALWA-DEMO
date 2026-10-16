@@ -1,0 +1,19 @@
+# source: HEAD a62e7b05bdfee3e562a186a306dbbbae6fa80fee + T02 working tree; cwd packages/os-query
+▶ customer visibility (T02 decision)
+  ✔ classifies customer, account holder and role-less parties as customer-bound (0.414625ms)
+  ✔ owner reads; membership alone, people.admin alone and master_data.admin do not (0.39175ms)
+  ✔ team lead reads only accounts owned by an active direct report (0.16575ms)
+  ✔ coverage applies only while active and while the grant owner is still the account owner (0.29625ms)
+  ✔ suspended actor reads nothing, and a foreign or missing id is the same false (0.092458ms)
+  ✔ a role-less party is readable only by commercial.org.read; a supplier-only party keeps its existing rule (0.128708ms)
+  ✔ read scope lists owned, team and applicable coverage parties; org read is the tenant (0.642167ms)
+✔ customer visibility (T02 decision) (2.712875ms)
+ℹ tests 7
+ℹ suites 1
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 160.6865
+# exit: 0

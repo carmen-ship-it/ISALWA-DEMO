@@ -55,12 +55,14 @@ import {
 import { createId } from '@isalwa/ts-utils';
 import { REPLAY_REVIEW_REQUIRED, REPLAY_REVIEW_REQUIRED_MESSAGE } from '@isalwa/os-events';
 import { resolveSession } from './os-session';
+import { enforceRequestRateLimit, type RateLimitCounter } from './request-rate-limit';
 import {
   OS_COMMAND_SERVICE,
   OS_LOCATION_COMMAND_SERVICE,
   OS_PARTY_COMMAND_SERVICE,
   OS_IMPORT_COMMAND_SERVICE,
   OS_STORE,
+  OS_RATE_LIMIT_COUNTER,
   OS_WORK_COMMAND_SERVICE,
   OS_COMMERCIAL_COMMAND_SERVICE,
   OS_COMMITMENT_COMMAND_SERVICE,
@@ -163,6 +165,7 @@ export class CommandsController {
     @Inject(OS_PRODUCT_FEEDBACK_STORE) private readonly feedbackStore: OsProductFeedbackStore,
     @Inject(OS_DELIVERY_COMMAND_SERVICE) private readonly deliveryCommands: DeliveryCommandService,
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
+    @Inject(OS_RATE_LIMIT_COUNTER) private readonly rateLimits: RateLimitCounter,
   ) {}
 
   @Post(':commandName')
@@ -184,6 +187,10 @@ export class CommandsController {
 
     try {
       const session = await resolveSession(req, this.workforceStore);
+      await enforceRequestRateLimit(this.rateLimits, 'command', session);
+      if (command === 'InviteMember') {
+        await enforceRequestRateLimit(this.rateLimits, 'invitation', session);
+      }
       if (isWorkforceCommand(command)) {
         return await this.workforceCommands.execute(
           command,

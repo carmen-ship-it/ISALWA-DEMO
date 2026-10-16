@@ -19,13 +19,24 @@ import {
 import type { OsPartyStore } from '@isalwa/os-party';
 import type { OsCommercialStore } from '@isalwa/os-commercial';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
-import { buildQueryContext, type PartyQueryService, type PartyTimelineQueryService } from '@isalwa/os-query';
+import {
+  assertCustomerReadable,
+  buildQueryContext,
+  type CustomerVisibilityLookup,
+  type DirectReportLookup,
+  type PartyQueryService,
+  type PartyTimelineQueryService,
+} from '@isalwa/os-query';
 import { resolveSession } from './os-session';
+import { enforceRequestRateLimit, type RateLimitCounter } from './request-rate-limit';
 import {
   OS_COMMERCIAL_STORE,
+  OS_CUSTOMER_VISIBILITY,
+  OS_MEMBER_QUERY_STORE,
   OS_PARTY_QUERY_SERVICE,
   OS_PARTY_STORE,
   OS_PARTY_TIMELINE_QUERY_SERVICE,
+  OS_RATE_LIMIT_COUNTER,
   OS_STORE,
 } from './os-store.module';
 
@@ -38,7 +49,23 @@ export class PartiesController {
     @Inject(OS_PARTY_QUERY_SERVICE) private readonly partyQuery: PartyQueryService,
     @Inject(OS_PARTY_TIMELINE_QUERY_SERVICE)
     private readonly partyTimelineQuery: PartyTimelineQueryService,
+    @Inject(OS_CUSTOMER_VISIBILITY) private readonly customerVisibility: CustomerVisibilityLookup,
+    @Inject(OS_MEMBER_QUERY_STORE) private readonly directReports: DirectReportLookup,
+    @Inject(OS_RATE_LIMIT_COUNTER) private readonly rateLimits: RateLimitCounter,
   ) {}
+
+  /** Session, query context and the customer boundary. Unreadable is NOT_FOUND. */
+  private async readableCustomer(req: Request, partyId: string) {
+    const session = await resolveSession(req, this.workforceStore);
+    const ctx = await buildQueryContext(session, this.workforceStore);
+    await assertCustomerReadable({
+      ctx,
+      partyId,
+      lookup: this.customerVisibility,
+      directReports: this.directReports,
+    });
+    return { session, ctx };
+  }
 
   @Get()
   async searchParties(@Query() queryParams: Record<string, string>, @Req() req: Request) {
@@ -48,6 +75,7 @@ export class PartiesController {
       if (!parsed.success) {
         throw new HttpException({ code: 'VALIDATION_FAILED' }, HttpStatus.BAD_REQUEST);
       }
+      await enforceRequestRateLimit(this.rateLimits, 'search', session);
       const ctx = await buildQueryContext(session, this.workforceStore);
       const result = await this.partyQuery.searchParties(ctx, parsed.data);
       return result;
@@ -57,6 +85,8 @@ export class PartiesController {
       const status =
         code === 'AUTH_REQUIRED'
           ? HttpStatus.UNAUTHORIZED
+          : code === 'NOT_FOUND'
+            ? HttpStatus.NOT_FOUND
           : code === 'TENANT_FORBIDDEN' ||
               code === 'PERMISSION_DENIED' ||
               code === 'ACCESS_REVOKED'
@@ -104,11 +134,11 @@ export class PartiesController {
   @Get(':partyId/locations')
   async listPartyLocations(@Param('partyId') partyId: string, @Req() req: Request) {
     try {
-      const session = await resolveSession(req, this.workforceStore);
       const parsed = CursorPaginationSchema.safeParse(req.query ?? {});
       if (!parsed.success) {
         throw new HttpException({ code: 'VALIDATION_FAILED' }, HttpStatus.BAD_REQUEST);
       }
+      const { session } = await this.readableCustomer(req, partyId);
       const party = await this.partyStore.getPartyInOrg(session.organizationId, partyId);
       if (!party) {
         throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
@@ -132,6 +162,8 @@ export class PartiesController {
       const status =
         code === 'AUTH_REQUIRED'
           ? HttpStatus.UNAUTHORIZED
+          : code === 'NOT_FOUND'
+            ? HttpStatus.NOT_FOUND
           : code === 'TENANT_FORBIDDEN' ||
               code === 'PERMISSION_DENIED' ||
               code === 'ACCESS_REVOKED'
@@ -146,11 +178,11 @@ export class PartiesController {
   @Get(':partyId/contacts')
   async listPartyContacts(@Param('partyId') partyId: string, @Req() req: Request) {
     try {
-      const session = await resolveSession(req, this.workforceStore);
       const parsed = CursorPaginationSchema.safeParse(req.query ?? {});
       if (!parsed.success) {
         throw new HttpException({ code: 'VALIDATION_FAILED' }, HttpStatus.BAD_REQUEST);
       }
+      const { session } = await this.readableCustomer(req, partyId);
       const party = await this.partyStore.getPartyInOrg(session.organizationId, partyId);
       if (!party) {
         throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
@@ -190,7 +222,7 @@ export class PartiesController {
   @Get(':partyId')
   async getParty(@Param('partyId') partyId: string, @Req() req: Request) {
     try {
-      const session = await resolveSession(req, this.workforceStore);
+      const { session, ctx: queryCtx } = await this.readableCustomer(req, partyId);
       const party = await this.partyStore.getPartyInOrg(session.organizationId, partyId);
       if (!party) {
         throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
@@ -215,7 +247,6 @@ export class PartiesController {
         session.organizationId,
         partyId,
       );
-      const queryCtx = await buildQueryContext(session, this.workforceStore);
       const coverageRows = await this.commercialStore.listActiveCustomerCoverageForParty({
         organizationId: session.organizationId,
         customerPartyId: partyId,
@@ -255,6 +286,8 @@ export class PartiesController {
       const status =
         code === 'AUTH_REQUIRED'
           ? HttpStatus.UNAUTHORIZED
+          : code === 'NOT_FOUND'
+            ? HttpStatus.NOT_FOUND
           : code === 'TENANT_FORBIDDEN' ||
               code === 'PERMISSION_DENIED' ||
               code === 'ACCESS_REVOKED'

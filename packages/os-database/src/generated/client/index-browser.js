@@ -1505,6 +1505,14 @@ exports.Prisma.OsIssueOwnershipHistoryScalarFieldEnum = {
   reason: 'reason'
 };
 
+exports.Prisma.OsRateLimitBucketScalarFieldEnum = {
+  organizationId: 'organizationId',
+  bucketKey: 'bucketKey',
+  windowStart: 'windowStart',
+  count: 'count',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1630,7 +1638,8 @@ exports.Prisma.ModelName = {
   OsIssueRelation: 'OsIssueRelation',
   OsIssueResolutionCycle: 'OsIssueResolutionCycle',
   OsProductFeedback: 'OsProductFeedback',
-  OsIssueOwnershipHistory: 'OsIssueOwnershipHistory'
+  OsIssueOwnershipHistory: 'OsIssueOwnershipHistory',
+  OsRateLimitBucket: 'OsRateLimitBucket'
 };
 
 /**

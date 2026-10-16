@@ -1,0 +1,23 @@
+# source: HEAD a62e7b05bdfee3e562a186a306dbbbae6fa80fee + T02 working tree; cwd apps/os-api; disposable PG 54329; 2026-10-16T21:49:04Z
+# cmd: node --import tsx --test --test-concurrency=1 src/request-rate-limit.http.test.ts
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+[evidence] search limit=120 over={"code":"RATE_LIMITED","retryAfterSeconds":54} otherMember=200
+▶ request rate limits over HTTP (disposable Postgres)
+  ✔ search: configured volume passes, the next request is 429 with a generic body; others unaffected (860.785458ms)
+[evidence] commands {"403:PERMISSION_DENIED":120,"429:RATE_LIMITED":1} partiesCreated=0 bucketCount=121
+  ✔ commands: repeated denied CreateParty attempts are limited and create nothing (512.242ms)
+[evidence] concurrent burst sent=130 ok=120 limited=10
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ a concurrent burst is cut at exactly the limit (258.128125ms)
+✔ request rate limits over HTTP (disposable Postgres) (2172.568708ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2947.141334
+# exit: 0

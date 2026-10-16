@@ -2,6 +2,8 @@ export { getOsPrisma, OsPrismaClient, type OsDb } from './client';
 export { PrismaOsWorkforceStore } from './prisma-workforce-store';
 export { PrismaOsOutboxStore } from './prisma-outbox-store';
 export { PrismaOsPartyStore } from './prisma-party-store';
+export { PrismaCustomerVisibilityLookup } from './prisma-customer-visibility';
+export { PrismaRateLimitStore } from './prisma-rate-limit-store';
 export {
   OS_INTERACTIVE_TX,
   PRISMA_DEFAULT_INTERACTIVE_TX_TIMEOUT_MS,
