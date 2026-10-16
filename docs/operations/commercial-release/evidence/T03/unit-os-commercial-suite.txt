@@ -1,0 +1,100 @@
+# source: ct3/v1-repairs HEAD 4934a09cce64d5b26584c7152696f1954002dab6 + uncommitted T03 authority-layer working tree (see tested-source-manifest.sha256)
+# cwd: packages/os-commercial  env: none  date: 2026-10-16T22:12:40Z
+# cmd: node --import tsx --test --test-concurrency=1 "src/**/*.test.ts"
+# kind: FAKE stores (unit)
+▶ CreateOrder provisional authority
+  ✔ lets the quote owner convert a submitted quote once and marks it accepted (4.088667ms)
+  ✔ denies an unrelated active member (0.163083ms)
+  ✔ denies read-only Jefe and Gerente scopes (0.237375ms)
+  ✔ does not treat people.admin as conversion authority (0.147375ms)
+  ✔ lets the explicit conversion capability succeed (0.526292ms)
+  ✔ denies temporary coverage convert without commercial.order.convert (V1) (0.204834ms)
+  ✔ denies expired or revoked coverage and emits no success event (0.235666ms)
+  ✔ does not treat commercial.quote.convert.own as covering-advisor convert (0.131334ms)
+  ✔ denies a cross-tenant quote (0.123834ms)
+  ✔ denies draft, cancelled, and accepted quotes (0.232542ms)
+  ✔ enforces conversion inside the command and does not mention leadership read scopes (0.280666ms)
+✔ CreateOrder provisional authority (7.005ms)
+▶ ReassignCommercialAccountOwner
+  ✔ lets the explicit capability reassign and records both owners (0.537917ms)
+  ✔ does not let the current owner, people.admin, or read-only leadership reassign (0.220084ms)
+  ✔ denies an inactive or cross-tenant target (0.157959ms)
+  ✔ does not use people.admin as a reassignment shortcut (0.127167ms)
+✔ ReassignCommercialAccountOwner (1.12675ms)
+▶ GrantCustomerCoverage
+  ✔ lets reassignment-scoped Jefe/Gerencia grant same-company helper without changing owner (0.530083ms)
+  ✔ denies Asesor self-grant without commercial.account.reassign (0.09625ms)
+  ✔ denies cross-company helper (member not in actor org) (0.083375ms)
+  ✔ gates grant on canGrantCustomerCoverage (reassign scope only) (0.126875ms)
+✔ GrantCustomerCoverage (0.890375ms)
+▶ RevokeCustomerCoverage
+  ✔ marks grant inactive, keeps canonical owner, and retains history row (0.381ms)
+  ✔ denies revoke without commercial.account.reassign (0.088667ms)
+✔ RevokeCustomerCoverage (0.502666ms)
+▶ S11 commercial replay authorization
+  ✔ replays the same actor and request without a second write (3.895041ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.724083ms)
+  ✔ denies the original actor once suspended (this command needs member_active only) (0.43875ms)
+  ✔ keeps another company out: the same key there runs its own command (0.76ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.422541ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.386917ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.129834ms)
+  ✔ turns concurrent duplicates into one write; another actor in the race gets CONFLICT (1.308042ms)
+✔ S11 commercial replay authorization (8.638625ms)
+▶ commercial tenant writes
+  ✔ UpdateQuote treats a foreign id as missing and does not write (1.529916ms)
+  ✔ SubmitQuote treats a foreign id as missing and does not write (0.251834ms)
+  ✔ CancelQuote treats a foreign id as missing and does not write (0.236291ms)
+  ✔ AddQuoteLine treats a foreign id as missing and does not write (0.248625ms)
+  ✔ CreateOrder treats a foreign id as missing and does not write (0.297334ms)
+  ✔ UpdateQuoteLine treats a foreign id as missing and does not write (0.194541ms)
+  ✔ RemoveQuoteLine treats a foreign id as missing and does not write (0.130166ms)
+  ✔ CancelOrder treats a foreign id as missing and does not write (0.158416ms)
+  ✔ UpdateOpportunity treats a foreign id as missing and does not write (0.175ms)
+  ✔ ChangeOpportunityStage treats a foreign id as missing and does not write (0.169708ms)
+  ✔ CloseOpportunity treats a foreign id as missing and does not write (0.141334ms)
+  ✔ AssignOpportunityOwner treats a foreign id as missing and does not write (0.141083ms)
+  ✔ does not number or mutate a quote, line, or order loaded outside the session org (0.331167ms)
+  ✔ CreateQuote with a foreign opportunity is the same denial as a missing opportunity and does not insert (0.293958ms)
+  ✔ ReassignCommercialAccountOwner treats a foreign account as missing and does not write (0.241375ms)
+  ✔ CreateOpportunity with a foreign party is the same not-found as a missing party and does not insert (0.15925ms)
+  ✔ denies commercial.team.read for update, submit, line writes, and convert without writing (0.418417ms)
+  ✔ keeps own-submitted conversion and does not let commercial.team.read or people.admin convert (2.960708ms)
+  ✔ denies a missing session before any write (0.187625ms)
+  ✔ does not leave an id-only quote-line lookup or a read-scope write grant (1.2715ms)
+  ✔ refuses to open commercial work owned by a suspended member (0.588916ms)
+✔ commercial tenant writes (10.844916ms)
+▶ commercial money helpers
+  ✔ computes deterministic line and quote totals in centavos (0.377625ms)
+  ✔ rejects negative totals (0.1995ms)
+  ✔ parses centavos from string and bigint (0.0975ms)
+✔ commercial money helpers (1.147709ms)
+▶ copyQuoteLinesToOrderLines
+  ✔ copies description, quantity, prices, and productRef exactly (0.469208ms)
+  ✔ keeps quote id and quote line id as source links (0.4095ms)
+  ✔ does not follow a later product master or quote-line edit (0.097625ms)
+  ✔ refuses another tenant and another quote (0.236708ms)
+  ✔ does not invent lines from a header total (0.075583ms)
+✔ copyQuoteLinesToOrderLines (1.78825ms)
+▶ CreateOrder line copy
+  ✔ stores snapshots and source links and blocks a second conversion (3.184292ms)
+  ✔ blocks a duplicate order even while the quote is still submitted (0.165791ms)
+  ✔ does not copy another tenant quote into this order (0.166417ms)
+  ✔ leaves a legacy order readable without inventing lines (0.120292ms)
+  ✔ does not add an update path for stored snapshots (0.977ms)
+✔ CreateOrder line copy (4.773333ms)
+▶ RecordQuoteManualSend
+  ✔ lets the quote owner record a WhatsApp send without provider confirmation (3.112417ms)
+  ✔ denies another advisor who does not own the quote (0.594125ms)
+  ✔ denies a cross-tenant quote (0.167458ms)
+  ✔ denies draft, accepted, and cancelled quotes (0.2785ms)
+  ✔ replays the same idempotency key without a second event (0.558834ms)
+✔ RecordQuoteManualSend (5.33475ms)
+ℹ tests 68
+ℹ suites 10
+ℹ pass 68
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 723.978417

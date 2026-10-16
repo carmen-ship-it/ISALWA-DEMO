@@ -1,4 +1,5 @@
 import { createId } from '@isalwa/ts-utils';
+import { COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE, type CustomerCoverageGrant } from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type { OsPartyStore } from '@isalwa/os-party';
 import {
@@ -484,6 +485,44 @@ export class PrismaOsPartyStore implements OsPartyStore {
       commercialOwnerMemberId:
         accounts.find((account) => account.partyId === partyId)?.ownerMemberId ?? null,
     }));
+  }
+
+  async listCustomerCoverageGrants(
+    organizationId: string,
+    customerPartyId: string,
+  ): Promise<CustomerCoverageGrant[]> {
+    const rows = await this.db().osCustomerCoverageGrant.findMany({
+      where: { organizationId, customerPartyId, grantType: COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE },
+    });
+    return rows.map((row) => ({
+      grantType: COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE,
+      organizationId: row.organizationId,
+      customerPartyId: row.customerPartyId,
+      primaryOwnerMemberId: row.primaryOwnerMemberId,
+      actingAdvisorMemberId: row.actingAdvisorMemberId,
+      startsAt: row.startsAt,
+      endsAt: row.endsAt,
+      revokedAt: row.revokedAt,
+    }));
+  }
+
+  async isDirectReport(
+    organizationId: string,
+    managerMemberId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<boolean> {
+    const row = await this.db().osManagerAssignment.findFirst({
+      where: {
+        organizationId,
+        managerMemberId,
+        memberId,
+        effectiveAt: { lte: asOf },
+        OR: [{ endedAt: null }, { endedAt: { gt: asOf } }],
+      },
+      select: { id: true },
+    });
+    return row !== null;
   }
 
   async getCommercialAccountForParty(

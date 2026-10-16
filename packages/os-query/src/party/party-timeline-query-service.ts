@@ -7,7 +7,7 @@ import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
 import type { OsProjectionStorePort, StoredPartyTimelineEntry } from '../projection-store-port';
 import { canViewApproval, canViewWork } from '../work/work-auth';
-import { canReadCustomer, type CustomerVisibilityLookup } from './customer-visibility';
+import { canReadCustomer, coveredAccountOwner, type CustomerVisibilityLookup } from './customer-visibility';
 
 export type PartyTimelineQueryServiceDeps = {
   projectionStore: OsProjectionStorePort;
@@ -101,6 +101,8 @@ class TimelineVisibility {
     private readonly ctx: QueryContext,
     private readonly store: OsProjectionStorePort,
     lookup: DirectReportLookup | null,
+    /** Account owner of this party when the actor holds active coverage on it. */
+    private readonly coveredOwnerMemberId: string | null = null,
   ) {
     // canReadOwnedRecord loads direct reports per call; memoize per request.
     this.lookup = lookup
@@ -127,7 +129,14 @@ class TimelineVisibility {
     return pending as Promise<T>;
   }
 
-  private canReadOwner(organizationId: string, ownerMemberId: string): Promise<boolean> {
+  private async canReadOwner(organizationId: string, ownerMemberId: string): Promise<boolean> {
+    if (
+      this.coveredOwnerMemberId &&
+      organizationId === this.ctx.organizationId &&
+      ownerMemberId === this.coveredOwnerMemberId
+    ) {
+      return true;
+    }
     return canReadOwnedRecord({
       ctx: this.ctx,
       organizationId,
@@ -274,6 +283,7 @@ export class PartyTimelineQueryService {
       ctx,
       this.deps.projectionStore,
       this.deps.directReports ?? null,
+      await coveredAccountOwner({ ctx, partyId, lookup: this.deps.customerVisibility }),
     );
     const allowed = await Promise.all(items.map((item) => visibility.canSee(item)));
     const visible = items.filter((_, index) => allowed[index]);

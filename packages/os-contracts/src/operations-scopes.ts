@@ -4,6 +4,7 @@ import {
   APPROVAL_ACT_SCOPE,
   COMMERCIAL_AUTHORITY_SCOPE_KEYS,
   COMMERCIAL_ORDER_CONVERT_SCOPE,
+  COMMERCIAL_ORG_READ_SCOPE,
   COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
   COMMERCIAL_READ_SCOPE_KEYS,
   COMMERCIAL_TEAM_READ_SCOPE,
@@ -30,6 +31,14 @@ export const PEOPLE_ADMIN_SCOPE = 'people.admin' as const;
 export const INTEGRATION_ADMIN_SCOPE = 'integration.admin' as const;
 
 export const COMMERCIAL_CUSTOMER_CREATE_SCOPE = 'commercial.customer.create' as const;
+/**
+ * A2 §2 customer lifecycle. Each also needs resource authority (canActOnCustomer).
+ * A2 commercial.account.assign maps to the existing commercial.account.reassign.
+ */
+export const COMMERCIAL_CUSTOMER_EDIT_SCOPE = 'commercial.customer.edit' as const;
+export const COMMERCIAL_CUSTOMER_ARCHIVE_SCOPE = 'commercial.customer.archive' as const;
+export const COMMERCIAL_CUSTOMER_REACTIVATE_SCOPE = 'commercial.customer.reactivate' as const;
+export const COMMERCIAL_DATA_CORRECTION_REVIEW_SCOPE = 'commercial.data_correction.review' as const;
 export const MANAGEMENT_ORG_READ_SCOPE = 'management.org.read' as const;
 /** Re-export canonical convert.own — single definition lives in scopes.ts. */
 export { COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE };
@@ -100,6 +109,10 @@ export const PRODUCT_FEEDBACK_REVIEW_SCOPE = 'product.feedback.review' as const;
 
 export const OPERATIONS_ACCESS_SCOPE_KEYS = [
   COMMERCIAL_CUSTOMER_CREATE_SCOPE,
+  COMMERCIAL_CUSTOMER_EDIT_SCOPE,
+  COMMERCIAL_CUSTOMER_ARCHIVE_SCOPE,
+  COMMERCIAL_CUSTOMER_REACTIVATE_SCOPE,
+  COMMERCIAL_DATA_CORRECTION_REVIEW_SCOPE,
   COMMERCIAL_TEAM_READ_SCOPE,
   MANAGEMENT_ORG_READ_SCOPE,
   COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
@@ -484,4 +497,76 @@ export function continueCoveredCustomerWorkflow(input: {
 /** A role key, including the coverage grant type, never opens every customer. */
 export function memberScopesCoverAllCustomers(_grantedScopes: readonly string[]): false {
   return false;
+}
+
+export type CustomerLifecycleAction = 'edit' | 'archive' | 'reactivate';
+
+const CUSTOMER_ACTION_SCOPE: Record<CustomerLifecycleAction, string> = {
+  edit: COMMERCIAL_CUSTOMER_EDIT_SCOPE,
+  archive: COMMERCIAL_CUSTOMER_ARCHIVE_SCOPE,
+  reactivate: COMMERCIAL_CUSTOMER_REACTIVATE_SCOPE,
+};
+
+/**
+ * A2 §2 customer edit/archive/reactivate. The action scope is required, plus
+ * resource authority in the actor's own range: current account owner, team lead
+ * (commercial.team.read) over the owner, or commercial.org.read. Active coverage
+ * counts only for edit; coverage has no per-action delegation, so archive and
+ * reactivate stay with owner/leadership. people.admin never satisfies this.
+ */
+export function canActOnCustomer(input: {
+  action: CustomerLifecycleAction;
+  actorMemberId: string;
+  organizationId: string;
+  customerPartyId: string;
+  grantedScopes: readonly string[];
+  accountOwnerMemberId: string | null;
+  ownerIsDirectReportOfActor: boolean;
+  coverageGrants: readonly CustomerCoverageGrant[];
+  asOf: Date;
+}): boolean {
+  if (!input.actorMemberId || !input.organizationId || !input.customerPartyId) return false;
+  if (!hasExplicitScope(input.grantedScopes, CUSTOMER_ACTION_SCOPE[input.action])) return false;
+  if (hasExplicitScope(input.grantedScopes, COMMERCIAL_ORG_READ_SCOPE)) return true;
+  const owner = input.accountOwnerMemberId;
+  if (!owner) return false;
+  if (owner === input.actorMemberId) return true;
+  if (input.ownerIsDirectReportOfActor && hasExplicitScope(input.grantedScopes, COMMERCIAL_TEAM_READ_SCOPE)) {
+    return true;
+  }
+  if (input.action !== 'edit') return false;
+  return continueCoveredCustomerWorkflow({
+    actorMemberId: input.actorMemberId,
+    organizationId: input.organizationId,
+    customerPartyId: input.customerPartyId,
+    primaryOwnerMemberId: owner,
+    grants: input.coverageGrants,
+    asOf: input.asOf,
+  }).allowed;
+}
+
+/**
+ * Commercial work on a customer (opportunity, quote, order follow-up): current
+ * account owner or active coverage on that account. Leadership read scopes and
+ * people.admin do not create or edit another advisor's commercial records.
+ */
+export function canWorkCustomerAccount(input: {
+  actorMemberId: string;
+  organizationId: string;
+  customerPartyId: string;
+  accountOwnerMemberId: string | null;
+  coverageGrants: readonly CustomerCoverageGrant[];
+  asOf: Date;
+}): boolean {
+  const owner = input.accountOwnerMemberId;
+  if (!input.actorMemberId || !owner) return false;
+  if (owner === input.actorMemberId) return true;
+  return continueCoveredCustomerWorkflow({
+    actorMemberId: input.actorMemberId,
+    organizationId: input.organizationId,
+    customerPartyId: input.customerPartyId,
+    primaryOwnerMemberId: owner,
+    grants: input.coverageGrants,
+    asOf: input.asOf,
+  }).allowed;
 }

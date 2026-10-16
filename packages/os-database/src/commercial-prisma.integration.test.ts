@@ -98,6 +98,7 @@ describePrisma('commercial prisma integration', () => {
     orgId: string,
     adminCtx: RequestContext,
     displayName: string,
+    accountOwnerMemberId?: string,
   ) {
     const created = await partySvc.execute(
       'CreateParty',
@@ -110,7 +111,15 @@ describePrisma('commercial prisma integration', () => {
       },
       `party-${createId()}`,
     );
-    return String(created.data.partyId);
+    const partyId = String(created.data.partyId);
+    if (accountOwnerMemberId) {
+      // T03: commercial work needs the current account owner (or coverage).
+      await prisma.osCommercialAccount.updateMany({
+        where: { organizationId: orgId, partyId },
+        data: { ownerMemberId: accountOwnerMemberId },
+      });
+    }
+    return partyId;
   }
 
   it('happy path: Party → Opportunity → Quote → lines → Submit → Order', async () => {
@@ -126,7 +135,7 @@ describePrisma('commercial prisma integration', () => {
     const adminCtx = ctx(org.id, mdAdmin.member.id, mdAdmin.person.id, mdAdmin.auth.id);
     const salesCtx = ctx(org.id, sales.memberId, sales.personId, sales.authId);
 
-    const partyId = await seedCustomerParty(org.id, adminCtx, 'Cliente Demo SA');
+    const partyId = await seedCustomerParty(org.id, adminCtx, 'Cliente Demo SA', sales.memberId);
     const commercialAccount = await partyStore.getCommercialAccountForParty(org.id, partyId);
     assert.ok(commercialAccount);
 
@@ -254,7 +263,7 @@ describePrisma('commercial prisma integration', () => {
     const sales = await seedSalesMember(org.id, `sales-${createId()}@money.bo`);
     const adminCtx = ctx(org.id, mdAdmin.member.id, mdAdmin.person.id, mdAdmin.auth.id);
     const salesCtx = ctx(org.id, sales.memberId, sales.personId, sales.authId);
-    const partyId = await seedCustomerParty(org.id, adminCtx, 'Money Client');
+    const partyId = await seedCustomerParty(org.id, adminCtx, 'Money Client', sales.memberId);
 
     const quote = await commercialSvc.execute('CreateQuote', salesCtx, { partyId });
     const quoteId = String(quote.data.quoteId);
@@ -295,7 +304,7 @@ describePrisma('commercial prisma integration', () => {
     const sales = await seedSalesMember(org.id, `sales-${createId()}@idem.bo`);
     const adminCtx = ctx(org.id, mdAdmin.member.id, mdAdmin.person.id, mdAdmin.auth.id);
     const salesCtx = ctx(org.id, sales.memberId, sales.personId, sales.authId);
-    const partyId = await seedCustomerParty(org.id, adminCtx, 'Idem Client');
+    const partyId = await seedCustomerParty(org.id, adminCtx, 'Idem Client', sales.memberId);
     const key = `idem-opp-${createId()}`;
 
     const first = await commercialSvc.execute(
@@ -328,7 +337,7 @@ describePrisma('commercial prisma integration', () => {
     const sales = await seedSalesMember(org.id, `sales-${createId()}@rb.bo`);
     const adminCtx = ctx(org.id, mdAdmin.member.id, mdAdmin.person.id, mdAdmin.auth.id);
     const salesCtx = ctx(org.id, sales.memberId, sales.personId, sales.authId);
-    const partyId = await seedCustomerParty(org.id, adminCtx, 'Rollback Client');
+    const partyId = await seedCustomerParty(org.id, adminCtx, 'Rollback Client', sales.memberId);
 
     const eventsBefore = await commercialStore.countBusinessEvents(org.id);
     const oppsBefore = await prisma.osOpportunity.count({ where: { organizationId: org.id } });
@@ -361,7 +370,7 @@ describePrisma('commercial prisma integration', () => {
     const sales = await seedSalesMember(org.id, `sales-${createId()}@lc.bo`);
     const adminCtx = ctx(org.id, mdAdmin.member.id, mdAdmin.person.id, mdAdmin.auth.id);
     const salesCtx = ctx(org.id, sales.memberId, sales.personId, sales.authId);
-    const partyId = await seedCustomerParty(org.id, adminCtx, 'Lifecycle Client');
+    const partyId = await seedCustomerParty(org.id, adminCtx, 'Lifecycle Client', sales.memberId);
 
     const quote = await commercialSvc.execute('CreateQuote', salesCtx, { partyId });
     const quoteId = String(quote.data.quoteId);
@@ -467,6 +476,7 @@ describePrisma('commercial interactive transaction hardening', () => {
     orgId: string,
     adminCtx: RequestContext,
     displayName: string,
+    accountOwnerMemberId?: string,
   ) {
     const created = await partySvc.execute(
       'CreateParty',
@@ -479,7 +489,15 @@ describePrisma('commercial interactive transaction hardening', () => {
       },
       `party-${createId()}`,
     );
-    return String(created.data.partyId);
+    const partyId = String(created.data.partyId);
+    if (accountOwnerMemberId) {
+      // T03: commercial work needs the current account owner (or coverage).
+      await prisma.osCommercialAccount.updateMany({
+        where: { organizationId: orgId, partyId },
+        data: { ownerMemberId: accountOwnerMemberId },
+      });
+    }
+    return partyId;
   }
 
   async function counts(organizationId: string) {
@@ -505,7 +523,7 @@ describePrisma('commercial interactive transaction hardening', () => {
     const sales = await seedSalesMember(org.id, `sales-${createId()}@tx.bo`);
     const adminCtx = ctx(org.id, mdAdmin.member.id, mdAdmin.person.id, mdAdmin.auth.id);
     const salesCtx = ctx(org.id, sales.memberId, sales.personId, sales.authId);
-    const partyId = await seedCustomerParty(org.id, adminCtx, `${label} Client`);
+    const partyId = await seedCustomerParty(org.id, adminCtx, `${label} Client`, sales.memberId);
     return { org, sales, salesCtx, partyId };
   }
 

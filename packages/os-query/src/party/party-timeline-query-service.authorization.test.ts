@@ -265,7 +265,7 @@ describe('party timeline read authorization (S4)', () => {
     assert.deepEqual(got, [...OPEN_ENTRY_IDS].sort());
   });
 
-  it('lets commercial.org.read and people.admin see every attributable entry', async () => {
+  it('lets commercial.org.read see every attributable entry; people.admin alone sees none of the owned ones', async () => {
     const expected = ids(
       ENTRIES.partyCreated,
       ENTRIES.oppStage,
@@ -278,16 +278,25 @@ describe('party timeline read authorization (S4)', () => {
       ENTRIES.deliveryNote,
     );
     assert.deepEqual(await visibleIds(service(), ctx(ORG_READER, ['commercial.org.read'])), expected);
-    assert.deepEqual(await visibleIds(service(), ctx(ADMIN, ['people.admin'])), expected);
+    const adminOnly = await visibleIds(service(), ctx(ADMIN, ['people.admin']));
+    for (const entry of [
+      ENTRIES.oppStage,
+      ENTRIES.quoteSubmitted,
+      ENTRIES.orderCreated,
+      ENTRIES.strangerQuote,
+      ENTRIES.accountReassigned,
+    ]) {
+      assert.equal(adminOnly.includes(entry.entryId), false, entry.entryId);
+    }
   });
 
   it('omits entries whose owning record cannot be found, even for admins (fail closed)', async () => {
-    const got = await visibleIds(service(), ctx(ADMIN, ['people.admin']));
+    const got = await visibleIds(service(), ctx(ORG_READER, ['commercial.org.read']));
     assert.equal(got.includes(ENTRIES.orphanQuote.entryId), false);
   });
 
   it('omits entries whose owning record belongs to another tenant', async () => {
-    const got = await visibleIds(service(), ctx(ADMIN, ['people.admin']));
+    const got = await visibleIds(service(), ctx(ORG_READER, ['commercial.org.read']));
     assert.equal(got.includes(ENTRIES.foreignOrgQuote.entryId), false);
   });
 

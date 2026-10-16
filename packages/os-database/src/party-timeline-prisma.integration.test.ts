@@ -23,6 +23,14 @@ import {
   PrismaOsWorkStore,
 } from './index';
 
+/** T03: commercial work on a customer needs the current account owner (or coverage). */
+async function ownCustomerAccount(actor: { organizationId: string; actorMemberId: string }, partyId: string) {
+  await getOsPrisma()!.osCommercialAccount.updateMany({
+    where: { organizationId: actor.organizationId, partyId },
+    data: { ownerMemberId: actor.actorMemberId },
+  });
+}
+
 const describePrisma = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
 describePrisma('party timeline prisma integration', () => {
@@ -346,6 +354,7 @@ describePrisma('party timeline prisma integration', () => {
         initialRoleKey: 'customer',
       })).data.partyId,
     );
+    await ownCustomerAccount(salesCtx, partyId);
     await commercialSvc.execute('CreateOpportunity', salesCtx, { partyId, title: 'Replay Opp' });
     await drainOutbox(org.id);
 

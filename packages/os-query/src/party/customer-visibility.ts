@@ -102,6 +102,24 @@ function coverageApplies(
   }).allowed;
 }
 
+/**
+ * The account owner whose records on this customer the actor continues under active
+ * coverage, or null. Coverage reads the owner's records on that customer only; it
+ * does not change the owner (V2 T03).
+ */
+export async function coveredAccountOwner(input: {
+  ctx: QueryContext;
+  partyId: string;
+  lookup: CustomerVisibilityLookup;
+}): Promise<string | null> {
+  const { ctx, lookup } = input;
+  if (ctx.auth.accessStatus !== 'active') return null;
+  const facts = await lookup.getCustomerFacts(ctx.organizationId, input.partyId, asOfFor(ctx));
+  if (!facts || facts.organizationId !== ctx.organizationId) return null;
+  const grants = await lookup.listActiveCoverageForAdvisor(ctx.organizationId, ctx.auth.memberId, asOfFor(ctx));
+  return coverageApplies(ctx, facts, grants) ? facts.accountOwnerMemberId : null;
+}
+
 /** Party ids the actor may read, or the whole tenant for commercial.org.read. */
 export async function resolveCustomerReadScope(input: {
   ctx: QueryContext;

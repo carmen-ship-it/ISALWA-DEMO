@@ -1,4 +1,5 @@
-import { memberHasScope, type MemberAccessSnapshot } from '@isalwa/os-domain';
+import { COMMERCIAL_ORG_READ_SCOPE } from '@isalwa/os-contracts';
+import { memberHasGrantedScope, type MemberAccessSnapshot } from '@isalwa/os-domain';
 import type { QueryContext } from '../query-context';
 import type {
   StoredOpportunityReadModel,
@@ -6,12 +7,9 @@ import type {
   StoredQuoteReadModel,
 } from '../projection-store-port';
 
-/**
- * Existing directory-admin commercial read. Not a manager shortcut.
- * Team and org leadership reads use commercial.team.read / commercial.org.read.
- */
+/** Org-wide commercial read is commercial.org.read; people.admin is not a commercial read (V2 T03). */
 export function isCommercialOrgAdmin(auth: MemberAccessSnapshot): boolean {
-  return memberHasScope(auth, 'people.admin');
+  return memberHasGrantedScope(auth, COMMERCIAL_ORG_READ_SCOPE);
 }
 
 type OwnedCommercialRecord = {

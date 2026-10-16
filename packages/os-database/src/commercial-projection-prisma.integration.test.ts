@@ -22,6 +22,14 @@ import {
   PrismaOsWorkforceStore,
 } from './index';
 
+/** T03: commercial work on a customer needs the current account owner (or coverage). */
+async function ownCustomerAccount(actor: { organizationId: string; actorMemberId: string }, partyId: string) {
+  await getOsPrisma()!.osCommercialAccount.updateMany({
+    where: { organizationId: actor.organizationId, partyId },
+    data: { ownerMemberId: actor.actorMemberId },
+  });
+}
+
 const describePrisma = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
 describePrisma('commercial projection prisma integration', () => {
@@ -209,6 +217,7 @@ describePrisma('commercial projection prisma integration', () => {
       createCommercialAccount: true,
     });
     const partyId = String(created.data.partyId);
+    await ownCustomerAccount(salesCtx, partyId);
     const commercialAccount = await partyStore.getCommercialAccountForParty(org.id, partyId);
 
     const ids = await runHappyPath(org.id, salesCtx, partyId);
@@ -254,6 +263,7 @@ describePrisma('commercial projection prisma integration', () => {
       initialRoleKey: 'customer',
     });
     const partyId = String(created.data.partyId);
+    await ownCustomerAccount(salesCtx, partyId);
     const opp = await commercialSvc.execute('CreateOpportunity', salesCtx, {
       partyId,
       title: 'Dup',
@@ -305,6 +315,7 @@ describePrisma('commercial projection prisma integration', () => {
       initialRoleKey: 'customer',
     });
     const partyId = String(created.data.partyId);
+    await ownCustomerAccount(salesCtx, partyId);
     const ids = await runHappyPath(org.id, salesCtx, partyId);
     await drainOutbox(org.id);
 
@@ -345,6 +356,7 @@ describePrisma('commercial projection prisma integration', () => {
         initialRoleKey: 'customer',
       })).data.partyId,
     );
+    await ownCustomerAccount(salesCtxA, partyA);
     const ids = await runHappyPath(orgA.id, salesCtxA, partyA);
     await drainOutbox(orgA.id);
 
@@ -388,6 +400,7 @@ describePrisma('commercial projection prisma integration', () => {
         initialRoleKey: 'customer',
       })).data.partyId,
     );
+    await ownCustomerAccount(salesCtx, partyId);
     const quote = await commercialSvc.execute('CreateQuote', salesCtx, { partyId });
     const quoteId = String(quote.data.quoteId);
     await commercialSvc.execute('AddQuoteLine', salesCtx, {
@@ -422,6 +435,7 @@ describePrisma('commercial projection prisma integration', () => {
         initialRoleKey: 'customer',
       })).data.partyId,
     );
+    await ownCustomerAccount(salesCtx, partyId);
     const ids = await runHappyPath(org.id, salesCtx, partyId);
     await drainOutbox(org.id);
 
@@ -452,6 +466,7 @@ describePrisma('commercial projection prisma integration', () => {
         initialRoleKey: 'customer',
       })).data.partyId,
     );
+    await ownCustomerAccount(salesCtx, partyId);
     const ids = await runHappyPath(org.id, salesCtx, partyId);
     await commercialSvc.execute('CancelOrder', salesCtx, { orderId: ids.orderId, reason: 'test' });
     await drainOutbox(org.id);
@@ -480,6 +495,7 @@ describePrisma('commercial projection prisma integration', () => {
         initialRoleKey: 'customer',
       })).data.partyId,
     );
+    await ownCustomerAccount(salesCtx, partyId);
     const ids = await runHappyPath(org.id, salesCtx, partyId);
     await commercialSvc.execute('CancelOrder', salesCtx, { orderId: ids.orderId });
     await drainOutbox(org.id);
@@ -531,6 +547,7 @@ describePrisma('commercial projection prisma integration', () => {
         initialRoleKey: 'customer',
       })).data.partyId,
     );
+    await ownCustomerAccount(salesCtx, partyId);
     await commercialSvc.execute('CreateOpportunity', salesCtx, { partyId, title: 'Fresh Opp' });
 
     const pending = await projectionStore.countPendingOutbox(org.id);
@@ -570,6 +587,7 @@ describePrisma('commercial projection prisma integration', () => {
         initialRoleKey: 'customer',
       })).data.partyId,
     );
+    await ownCustomerAccount(salesCtx, partyId);
     const ids = await runHappyPath(org.id, salesCtx, partyId);
     await commercialSvc.execute('CancelOrder', salesCtx, { orderId: ids.orderId });
     await drainOutbox(org.id);

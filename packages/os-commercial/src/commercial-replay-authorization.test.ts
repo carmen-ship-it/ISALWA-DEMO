@@ -8,7 +8,7 @@
  */
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { RequestContext } from '@isalwa/os-contracts';
+import { COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE, type RequestContext } from '@isalwa/os-contracts';
 import { CommercialCommandService } from './commercial-command-service';
 
 type Member = { id: string; organizationId: string; accessStatus: string };
@@ -103,8 +103,38 @@ function ctx(actorMemberId: string, organizationId = 'org-a'): RequestContext {
 
 const SINCE = new Date('2026-01-01T00:00:00.000Z');
 
-function setup() {
-  const t = makeStore({ getPartyInOrg: (async (organizationId: string, id: string) => ({ id, organizationId, status: 'active', mergedIntoPartyId: null, partyKind: 'organization', displayName: 'Cliente' })) as never });
+function setup(options: { coveredAdvisor?: string } = {}) {
+  const t = makeStore({
+    listActiveCustomerCoverageGrants: (async (input: {
+      organizationId: string;
+      customerPartyId: string;
+      actingAdvisorMemberId: string;
+    }) =>
+      options.coveredAdvisor && input.actingAdvisorMemberId === options.coveredAdvisor
+        ? [
+            {
+              grantType: COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE,
+              organizationId: input.organizationId,
+              customerPartyId: input.customerPartyId,
+              primaryOwnerMemberId: 'mem-a',
+              actingAdvisorMemberId: input.actingAdvisorMemberId,
+              startsAt: SINCE,
+              endsAt: null,
+              revokedAt: null,
+            },
+          ]
+        : []) as never,
+    getPartyInOrg: (async (organizationId: string, id: string) => ({ id, organizationId, status: 'active', mergedIntoPartyId: null, partyKind: 'organization', displayName: 'Cliente' })) as never,
+    getCommercialAccountForParty: (async (organizationId: string, partyId: string) => ({
+      id: `acct-${organizationId}`,
+      organizationId,
+      partyId,
+      territoryId: null,
+      ownerMemberId: organizationId === 'org-x' ? 'mem-x' : 'mem-a',
+      status: 'active',
+      version: 0,
+    })) as never,
+  });
   t.members.set('mem-a', { id: 'mem-a', organizationId: 'org-a', accessStatus: 'active' });
   t.members.set('mem-b', { id: 'mem-b', organizationId: 'org-a', accessStatus: 'active' });
   t.members.set('mem-x', { id: 'mem-x', organizationId: 'org-x', accessStatus: 'active' });
@@ -204,7 +234,7 @@ describe('S11 commercial replay authorization', () => {
   });
 
   it('turns concurrent duplicates into one write; another actor in the race gets CONFLICT', async () => {
-    const t = setup();
+    const t = setup({ coveredAdvisor: 'mem-b' });
     const single = setup();
     await single.service.execute(COMMAND, ctx('mem-a'), payload(), 'solo');
     const results = await Promise.allSettled([

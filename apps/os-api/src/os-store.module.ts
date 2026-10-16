@@ -413,6 +413,7 @@ function createMemberQueryStore(): MemberQueryStorePort {
         projectionStore: OsProjectionStorePort,
         memberQueryStore: MemberQueryStorePort,
         commercialStore: OsCommercialStore,
+        customerVisibility: CustomerVisibilityLookup,
       ) =>
         new CommercialQueryService({
           projectionStore,
@@ -422,8 +423,9 @@ function createMemberQueryStore(): MemberQueryStorePort {
           directReports: memberQueryStore,
           listOrderLines: (organizationId, orderId) =>
             commercialStore.listOrderLines(organizationId, orderId),
+          customerVisibility,
         }),
-      inject: [OS_PROJECTION_STORE, OS_MEMBER_QUERY_STORE, OS_COMMERCIAL_STORE],
+      inject: [OS_PROJECTION_STORE, OS_MEMBER_QUERY_STORE, OS_COMMERCIAL_STORE, OS_CUSTOMER_VISIBILITY],
     },
     {
       provide: OS_PARTY_TIMELINE_QUERY_SERVICE,

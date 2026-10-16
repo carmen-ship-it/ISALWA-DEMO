@@ -1,0 +1,44 @@
+# source: ct3/v1-repairs HEAD 4934a09cce64d5b26584c7152696f1954002dab6 + uncommitted T03 authority-layer working tree (see tested-source-manifest.sha256)
+# cwd: packages/os-party  env: none  date: 2026-10-16T22:12:40Z
+# cmd: node --import tsx --test --test-concurrency=1 "src/**/*.test.ts"
+# kind: FAKE stores (unit)
+▶ party and location auth queries
+  ✔ scopes role and delegation reads by the session organization before denying (1.556708ms)
+✔ party and location auth queries (1.961583ms)
+▶ party bound-list — locations
+  ✔ 0/1/25/26 hasMore, default limit 25, no totals (1.312333ms)
+  ✔ puts active/current locations on the first page ahead of newer inactive rows (0.1585ms)
+  ✔ lists remainder after cursor without inventing totals (0.20425ms)
+✔ party bound-list — locations (2.169042ms)
+▶ party bound-list — contacts
+  ✔ getParty-shaped first page is bounded at 25; list remainder returns the 26th (0.205917ms)
+  ✔ round-trips cursors (0.1015ms)
+✔ party bound-list — contacts (0.381875ms)
+▶ S11 location replay authorization
+  ✔ replays the same actor and request without a second write (4.220875ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.789875ms)
+  ✔ denies the original actor once its required scope (master_data.admin) has ended (0.541542ms)
+  ✔ keeps another company out: the same key there runs its own command (0.70125ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.4085ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.360208ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.118417ms)
+  ✔ turns concurrent duplicates into one write; another actor in the race gets CONFLICT (1.23675ms)
+✔ S11 location replay authorization (8.943833ms)
+▶ S11 party replay authorization
+  ✔ replays the same actor and request without a second write (3.844542ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.7025ms)
+  ✔ denies the original actor once its required scope (master_data.admin) has ended (0.507375ms)
+  ✔ keeps another company out: the same key there runs its own command (0.688958ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.411084ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.353959ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.116375ms)
+  ✔ turns concurrent duplicates into one write; another actor in the race gets CONFLICT (1.147125ms)
+✔ S11 party replay authorization (8.347166ms)
+ℹ tests 22
+ℹ suites 5
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 455.981709

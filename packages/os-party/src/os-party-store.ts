@@ -1,3 +1,4 @@
+import type { CustomerCoverageGrant } from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type { PartyOperatingSource } from './store-types';
 import type {
@@ -106,6 +107,10 @@ export interface OsPartyStore {
 
   insertCommercialAccount(account: CommercialAccountRecord): Promise<void>;
   getCommercialAccountForParty(organizationId: string, partyId: string): Promise<CommercialAccountRecord | null>;
+  /** Coverage rows for one customer (all states; the caller decides what is active). */
+  listCustomerCoverageGrants(organizationId: string, customerPartyId: string): Promise<CustomerCoverageGrant[]>;
+  /** Manager assignment in force at asOf, same tenant. */
+  isDirectReport(organizationId: string, managerMemberId: string, memberId: string, asOf: Date): Promise<boolean>;
   /**
    * One page of customer operating facts. Three queries, never one GetParty per row.
    * Empty partyIds returns an empty list.

@@ -74,6 +74,10 @@ describe('operational access scopes', () => {
   it('lists explicit operational scopes and keeps system.admin separate', () => {
     assert.deepEqual(OPERATIONS_ACCESS_SCOPE_KEYS, [
       'commercial.customer.create',
+      'commercial.customer.edit',
+      'commercial.customer.archive',
+      'commercial.customer.reactivate',
+      'commercial.data_correction.review',
       COMMERCIAL_TEAM_READ_SCOPE,
       'management.org.read',
       'commercial.quote.convert.own',

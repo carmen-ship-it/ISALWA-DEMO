@@ -3,7 +3,7 @@ import {
   COMMERCIAL_TEAM_READ_SCOPE,
   type CommercialVisibilityMode,
 } from '@isalwa/os-contracts';
-import { memberHasGrantedScope, memberHasScope } from '@isalwa/os-domain';
+import { memberHasGrantedScope } from '@isalwa/os-domain';
 import type { QueryContext } from '../query-context';
 import type { DirectReportLookup } from './direct-reports';
 
@@ -24,9 +24,8 @@ export function hasCommercialOrgRead(auth: QueryContext['auth']): boolean {
 }
 
 /**
- * people.admin is not a leadership shortcut.
- * Default lists still honor the existing people.admin org read.
- * visibility=team|org requires the matching read scope even for people.admin.
+ * people.admin is not a leadership or commercial read (V2 T03). Default lists are
+ * the actor's own records; visibility=team|org requires the matching read scope.
  */
 export async function resolveOwnerReadScope(input: {
   ctx: QueryContext;
@@ -38,9 +37,6 @@ export async function resolveOwnerReadScope(input: {
   const visibility = input.visibility ?? 'own';
 
   if (visibility === 'own') {
-    if (memberHasScope(ctx.auth, 'people.admin')) {
-      return { kind: 'unrestricted', ownerMemberId: requestedOwnerMemberId };
-    }
     if (requestedOwnerMemberId && requestedOwnerMemberId !== ctx.auth.memberId) {
       throw new Error('PERMISSION_DENIED');
     }
@@ -97,7 +93,6 @@ export async function canReadOwnedRecord(input: {
 }): Promise<boolean> {
   if (input.organizationId !== input.ctx.organizationId) return false;
   if (input.ownerMemberId === input.ctx.auth.memberId) return true;
-  if (memberHasScope(input.ctx.auth, 'people.admin')) return true;
   if (hasCommercialOrgRead(input.ctx.auth)) return true;
   if (!hasCommercialTeamRead(input.ctx.auth) || !input.lookup) return false;
   const reports = await input.lookup.listDirectReportMemberIds(

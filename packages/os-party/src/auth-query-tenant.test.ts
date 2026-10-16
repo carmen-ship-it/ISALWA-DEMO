@@ -35,6 +35,18 @@ function recordingStore() {
       calls.push({ method: 'listDelegationsForDelegate', memberId, organizationId });
       return [];
     },
+    async getCommercialAccountForParty(organizationId: string, partyId: string) {
+      calls.push({ method: 'getCommercialAccountForParty', memberId: partyId, organizationId });
+      return null;
+    },
+    async listCustomerCoverageGrants(organizationId: string, partyId: string) {
+      calls.push({ method: 'listCustomerCoverageGrants', memberId: partyId, organizationId });
+      return [];
+    },
+    async isDirectReport(organizationId: string, _managerId: string, memberId: string) {
+      calls.push({ method: 'isDirectReport', memberId, organizationId });
+      return false;
+    },
     async findIdempotency() {
       return null;
     },
@@ -64,9 +76,10 @@ describe('party and location auth queries', () => {
       /PERMISSION_DENIED/,
     );
     for (const calls of [party.calls, location.calls]) {
+      assert.ok(calls.length >= 2);
       assert.deepEqual(
         calls.map((call) => call.organizationId),
-        [ORG, ORG],
+        calls.map(() => ORG),
       );
     }
   });

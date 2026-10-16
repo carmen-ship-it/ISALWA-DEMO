@@ -210,8 +210,17 @@ function harness(input: {
       lookups.push(`party:${organizationId}`);
       return visible(partyRow, organizationId, partyId);
     },
-    async getCommercialAccountForParty() {
-      return null;
+    async getCommercialAccountForParty(organizationId: string, partyId: string) {
+      const customer = visible(partyRow, organizationId, partyId);
+      if (!customer) return null;
+      return {
+        id: `acct-${partyId}`,
+        organizationId: customer.organizationId,
+        partyId,
+        ownerMemberId: OWNER,
+        status: 'active',
+        version: 1,
+      };
     },
     async getCommercialAccountInOrg(organizationId: string, commercialAccountId: string) {
       lookups.push(`account:${organizationId}`);

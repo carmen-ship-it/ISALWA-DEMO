@@ -151,6 +151,11 @@ describeHttp('os-api quote PDF (Cotización)', () => {
         )
       ).data.partyId,
     );
+    // T03: commercial work needs the current account owner (or coverage).
+    await getOsPrisma()!.osCommercialAccount.updateMany({
+      where: { organizationId: org.id, partyId },
+      data: { ownerMemberId: sales.member.id },
+    });
 
     const quoteRes = await fetch(`${baseUrl}/v1/commands/CreateQuote`, {
       method: 'POST',

@@ -1,3 +1,4 @@
+import { coveredAccountOwner, type CustomerVisibilityLookup } from '../party/customer-visibility';
 import { toOrderLineReadModel, type OrderLineRecord } from '@isalwa/os-commercial';
 import type {
   ListOpportunitiesQuery,
@@ -154,10 +155,33 @@ export type CommercialQueryServiceDeps = {
    * An empty list is a legacy order: do not invent lines from the header total.
    */
   listOrderLines?: (organizationId: string, orderId: string) => Promise<OrderLineRecord[]>;
+  /** Coverage continuation reads. Missing lookup means no coverage read (fails closed). */
+  customerVisibility?: CustomerVisibilityLookup;
 };
 
 export class CommercialQueryService {
   constructor(private readonly deps: CommercialQueryServiceDeps) {}
+
+  /** Owner/leadership read, or the account owner's record under active coverage on that customer. */
+  private async canReadRecord(
+    ctx: QueryContext,
+    model: { organizationId: string; ownerMemberId: string; partyId: string },
+  ): Promise<boolean> {
+    const ownerRead = await canReadOwnedRecord({
+      ctx,
+      organizationId: model.organizationId,
+      ownerMemberId: model.ownerMemberId,
+      lookup: this.lookup(),
+    });
+    if (ownerRead) return true;
+    if (!this.deps.customerVisibility || model.organizationId !== ctx.organizationId) return false;
+    const covered = await coveredAccountOwner({
+      ctx,
+      partyId: model.partyId,
+      lookup: this.deps.customerVisibility,
+    });
+    return covered !== null && covered === model.ownerMemberId;
+  }
 
   private async freshness(organizationId: string) {
     return this.deps.projectionStore.getFreshness(
@@ -234,16 +258,7 @@ export class CommercialQueryService {
       opportunityId,
     );
     if (!model) throw new Error('NOT_FOUND');
-    if (
-      !(await canReadOwnedRecord({
-        ctx,
-        organizationId: model.organizationId,
-        ownerMemberId: model.ownerMemberId,
-        lookup: this.lookup(),
-      }))
-    ) {
-      throw new Error('PERMISSION_DENIED');
-    }
+    if (!(await this.canReadRecord(ctx, model))) throw new Error('PERMISSION_DENIED');
     return { opportunity: toOpportunitySummary(model), freshness: await this.freshness(ctx.organizationId) };
   }
 
@@ -282,16 +297,7 @@ export class CommercialQueryService {
     assertQueryScope(ctx, 'member_active');
     const model = await this.deps.projectionStore.getQuoteReadModel(ctx.organizationId, quoteId);
     if (!model) throw new Error('NOT_FOUND');
-    if (
-      !(await canReadOwnedRecord({
-        ctx,
-        organizationId: model.organizationId,
-        ownerMemberId: model.ownerMemberId,
-        lookup: this.lookup(),
-      }))
-    ) {
-      throw new Error('PERMISSION_DENIED');
-    }
+    if (!(await this.canReadRecord(ctx, model))) throw new Error('PERMISSION_DENIED');
 
     const lines = await this.deps.projectionStore.listQuoteLineReadModels(ctx.organizationId, quoteId);
     const detail: QuoteDetailReadModel = {
@@ -342,16 +348,7 @@ export class CommercialQueryService {
     assertQueryScope(ctx, 'member_active');
     const model = await this.deps.projectionStore.getOrderReadModel(ctx.organizationId, orderId);
     if (!model) throw new Error('NOT_FOUND');
-    if (
-      !(await canReadOwnedRecord({
-        ctx,
-        organizationId: model.organizationId,
-        ownerMemberId: model.ownerMemberId,
-        lookup: this.lookup(),
-      }))
-    ) {
-      throw new Error('PERMISSION_DENIED');
-    }
+    if (!(await this.canReadRecord(ctx, model))) throw new Error('PERMISSION_DENIED');
     const storedLines = this.deps.listOrderLines
       ? await this.deps.listOrderLines(ctx.organizationId, orderId)
       : null;

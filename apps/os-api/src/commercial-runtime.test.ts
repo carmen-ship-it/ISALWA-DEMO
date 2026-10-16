@@ -164,6 +164,7 @@ describeHttp('os-api commercial runtime (Step 16.1A)', () => {
       },
     );
     const partyId = String(partyRes.data.partyId);
+    await assignAccountOwner(org.id, partyId, sales.member.id);
 
     const oppRes = await fetch(`${baseUrl}/v1/commands/CreateOpportunity`, {
       method: 'POST',
@@ -239,25 +240,9 @@ describeHttp('os-api commercial runtime (Step 16.1A)', () => {
     const quoteRes = await fetch(`${baseUrl}/v1/commands/CreateQuote`, {
       method: 'POST',
       headers: salesHeaders,
-      body: JSON.stringify({
-        partyId: String(
-          (
-            await partySvc.execute(
-              'CreateParty',
-              {
-                organizationId: org.id,
-                actorMemberId: mdAdmin.member.id,
-                personId: mdAdmin.person.id,
-                authIdentityId: mdAdmin.auth.id,
-                correlationId: createId(),
-                effectiveAt: new Date(),
-              },
-              { partyKind: 'organization', displayName: 'Cross tenant party' },
-            )
-          ).data.partyId,
-        ),
-      }),
+      body: JSON.stringify({ partyId: await createPartyInOrg(org.id, 'Cross tenant party') }),
     });
+    assert.equal(quoteRes.status, 201);
     const quoteId = String(((await quoteRes.json()) as { data: { quoteId: string } }).data.quoteId);
     await drainProjections();
 
@@ -265,8 +250,21 @@ describeHttp('os-api commercial runtime (Step 16.1A)', () => {
     assert.equal(crossGet.status, 404);
   });
 
+  async function assignAccountOwner(targetOrgId: string, partyId: string, ownerMemberId: string) {
+    const prisma = getOsPrisma()!;
+    const updated = await prisma.osCommercialAccount.updateMany({
+      where: { organizationId: targetOrgId, partyId },
+      data: { ownerMemberId },
+    });
+    if (updated.count === 0) {
+      await prisma.osCommercialAccount.create({
+        data: { id: createId(), organizationId: targetOrgId, partyId, ownerMemberId },
+      });
+    }
+  }
+
   async function createPartyInOrg(targetOrgId: string, displayName: string) {
-    return String(
+    const partyId = String(
       (
         await partySvc.execute(
           'CreateParty',
@@ -282,6 +280,9 @@ describeHttp('os-api commercial runtime (Step 16.1A)', () => {
         )
       ).data.partyId,
     );
+    // T03: commercial work needs the current account owner (or coverage).
+    await assignAccountOwner(targetOrgId, partyId, sales.member.id);
+    return partyId;
   }
 
   it('cross-tenant GET opportunity and order return NOT_FOUND', async () => {

@@ -332,7 +332,8 @@ describe('pilot leadership visibility', () => {
     const workSrc = readFileSync(resolve(__dirname, '../../../os-work/src/work-command-service.ts'), 'utf8');
     assert.doesNotMatch(commercialSrc, /commercial\.(team|org)\.read/);
     assert.doesNotMatch(workSrc, /commercial\.(team|org)\.read/);
-    assert.match(commercialSrc, /memberHasScope\(snap, 'people\.admin'\)/);
+    assert.doesNotMatch(commercialSrc, /memberHasScope\(snap, 'people\.admin'\)/);
+    assert.match(commercialSrc, /canWorkCustomerAccount/);
     assert.match(workSrc, /approval\.act/);
   });
 
@@ -439,7 +440,11 @@ describe('pilot leadership visibility', () => {
       (err: Error) => err.message === 'PERMISSION_DENIED',
     );
     const existing = await service.listOpportunities(admin, { limit: 25 });
-    assert.ok(existing.items.some((item) => item.opportunityId === 'opp-other'));
+    assert.equal(existing.items.some((item) => item.opportunityId === 'opp-other'), false);
+    await assert.rejects(
+      () => service.getQuote(admin, 'q-other'),
+      (err: Error) => err.message === 'PERMISSION_DENIED',
+    );
   });
 
   it('lets org read see tenant commercial records without people.admin', async () => {

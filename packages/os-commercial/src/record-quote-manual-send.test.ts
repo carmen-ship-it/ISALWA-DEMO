@@ -97,6 +97,21 @@ function storeFor(input: { quote?: QuoteRecord | null }): OsCommercialStore & {
     async listQuoteLines() {
       return [line()];
     },
+    async getCommercialAccountForParty(organizationId: string, partyId: string) {
+      if (organizationId !== ORG) return null;
+      return {
+        id: 'acct-1',
+        organizationId,
+        partyId,
+        territoryId: null,
+        ownerMemberId: OWNER,
+        status: 'active',
+        version: 0,
+      };
+    },
+    async listActiveCustomerCoverageGrants() {
+      return [];
+    },
     async appendEventAndAudit(event) {
       events.push({
         eventType: event.eventType,

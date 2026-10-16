@@ -1,10 +1,8 @@
 import type { LocationCommandName, LocationStatus, RequestContext } from '@isalwa/os-contracts';
-import { COMMAND_REQUIRED_SCOPES } from '@isalwa/os-contracts';
 import {
   assertMemberActive,
   assertTenantMatch,
   computeEffectiveScopes,
-  memberHasScope,
   type MemberAccessSnapshot,
 } from '@isalwa/os-domain';
 import {
@@ -19,6 +17,7 @@ import {
   withIdempotencyKey,
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
+import { assertPartyCommandAuthority } from './customer-authority';
 import type { OsPartyStore } from './os-party-store';
 import type { LocationRecord, PartyRecord } from './store-types';
 
@@ -68,14 +67,27 @@ export class LocationCommandService {
     ctx: RequestContext,
     command: LocationCommandName,
     targetOrgId: string,
+    customerPartyId?: string | null,
+    store: OsPartyStore = this.store,
   ): Promise<void> {
     assertTenantMatch(ctx.organizationId, targetOrgId);
     const snap = await this.snapshotInOrg(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt);
     if (!snap) throw new Error('AUTH_REQUIRED');
     assertMemberActive(snap);
-    const required = COMMAND_REQUIRED_SCOPES[command];
-    if (!required || required === 'member_active') return;
-    if (!memberHasScope(snap, required)) throw new Error('PERMISSION_DENIED');
+    await assertPartyCommandAuthority({ store, ctx, snap, command, customerPartyId });
+  }
+
+  /** Customer behind a location command, read without revealing whether the id exists. */
+  private async commandPartyId(
+    store: OsPartyStore,
+    ctx: RequestContext,
+    command: LocationCommandName,
+    payload: Record<string, unknown>,
+  ): Promise<string | null> {
+    if (command === 'CreateLocation') return typeof payload.partyId === 'string' ? payload.partyId : null;
+    if (typeof payload.locationId !== 'string') return null;
+    const location = await store.getLocationInOrg(ctx.organizationId, payload.locationId);
+    return location && location.organizationId === ctx.organizationId ? location.partyId : null;
   }
 
   /**
@@ -90,7 +102,7 @@ export class LocationCommandService {
     payload: Record<string, unknown>,
     stored: Record<string, unknown>,
   ): Promise<LocationCommandResult> {
-    await this.authorize(ctx, command, ctx.organizationId);
+    await this.authorize(ctx, command, ctx.organizationId, await this.commandPartyId(this.store, ctx, command, payload));
     return openReplay<LocationCommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
   }
 
@@ -237,7 +249,7 @@ export class LocationCommandService {
     payload: Record<string, unknown>,
     store: OsPartyStore,
   ): Promise<LocationCommandResult> {
-    await this.authorize(ctx, 'CreateLocation', ctx.organizationId);
+    await this.authorize(ctx, 'CreateLocation', ctx.organizationId, await this.commandPartyId(store, ctx, 'CreateLocation', payload), store);
     const partyId = String(payload.partyId);
     await this.requireActiveParty(store, ctx.organizationId, partyId);
 
@@ -282,7 +294,7 @@ export class LocationCommandService {
     payload: Record<string, unknown>,
     store: OsPartyStore,
   ): Promise<LocationCommandResult> {
-    await this.authorize(ctx, 'UpdateLocation', ctx.organizationId);
+    await this.authorize(ctx, 'UpdateLocation', ctx.organizationId, await this.commandPartyId(store, ctx, 'UpdateLocation', payload), store);
     const locationId = String(payload.locationId);
     const expectedVersion = Number(payload.expectedVersion);
     const before = await this.requireLocation(store, ctx.organizationId, locationId);
@@ -358,7 +370,7 @@ export class LocationCommandService {
     payload: Record<string, unknown>,
     store: OsPartyStore,
   ): Promise<LocationCommandResult> {
-    await this.authorize(ctx, 'DeactivateLocation', ctx.organizationId);
+    await this.authorize(ctx, 'DeactivateLocation', ctx.organizationId, await this.commandPartyId(store, ctx, 'DeactivateLocation', payload), store);
     const locationId = String(payload.locationId);
     const before = await this.requireLocation(store, ctx.organizationId, locationId);
     if (before.status !== 'active') throw new Error('VALIDATION_FAILED');

@@ -1,10 +1,8 @@
 import type { PartyCommandName, RequestContext } from '@isalwa/os-contracts';
-import { COMMAND_REQUIRED_SCOPES } from '@isalwa/os-contracts';
 import {
   assertMemberActive,
   assertTenantMatch,
   computeEffectiveScopes,
-  memberHasScope,
   type MemberAccessSnapshot,
 } from '@isalwa/os-domain';
 import {
@@ -19,6 +17,7 @@ import {
   withIdempotencyKey,
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
+import { assertPartyCommandAuthority } from './customer-authority';
 import type { OsPartyStore } from './os-party-store';
 import type {
   CommercialAccountRecord,
@@ -73,14 +72,20 @@ export class PartyCommandService {
     ctx: RequestContext,
     command: PartyCommandName,
     targetOrgId: string,
+    customerPartyId?: string | null,
+    store: OsPartyStore = this.store,
   ): Promise<void> {
     assertTenantMatch(ctx.organizationId, targetOrgId);
     const snap = await this.snapshotInOrg(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt);
     if (!snap) throw new Error('AUTH_REQUIRED');
     assertMemberActive(snap);
-    const required = COMMAND_REQUIRED_SCOPES[command];
-    if (!required || required === 'member_active') return;
-    if (!memberHasScope(snap, required)) throw new Error('PERMISSION_DENIED');
+    await assertPartyCommandAuthority({ store, ctx, snap, command, customerPartyId });
+  }
+
+  /** The customer a replayed payload targets, so replay re-checks the same resource authority. */
+  private static payloadPartyId(command: PartyCommandName, payload: Record<string, unknown>): string | null {
+    const raw = command === 'UpdateContact' ? payload.organizationPartyId : payload.partyId;
+    return typeof raw === 'string' ? raw : null;
   }
 
   /**
@@ -95,7 +100,7 @@ export class PartyCommandService {
     payload: Record<string, unknown>,
     stored: Record<string, unknown>,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, command, ctx.organizationId);
+    await this.authorize(ctx, command, ctx.organizationId, PartyCommandService.payloadPartyId(command, payload));
     return openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
   }
 
@@ -377,8 +382,8 @@ export class PartyCommandService {
     payload: Record<string, unknown>,
     store: OsPartyStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'UpdateParty', ctx.organizationId);
     const partyId = String(payload.partyId);
+    await this.authorize(ctx, 'UpdateParty', ctx.organizationId, partyId, store);
     const expectedVersion = Number(payload.expectedVersion);
     const before = await this.requireActiveParty(store, ctx.organizationId, partyId);
     const displayName = payload.displayName !== undefined ? String(payload.displayName) : before.displayName;
@@ -413,8 +418,8 @@ export class PartyCommandService {
     payload: Record<string, unknown>,
     store: OsPartyStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'DeactivateParty', ctx.organizationId);
     const partyId = String(payload.partyId);
+    await this.authorize(ctx, 'DeactivateParty', ctx.organizationId, partyId, store);
     const before = await this.requireActiveParty(store, ctx.organizationId, partyId);
     await store.updateParty(partyId, { status: 'inactive', version: before.version + 1 }, before.version);
     return this.emit(ctx, store, 'party.deactivated', 'party', partyId, { partyId });
@@ -425,8 +430,8 @@ export class PartyCommandService {
     payload: Record<string, unknown>,
     store: OsPartyStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'ReactivateParty', ctx.organizationId);
     const partyId = String(payload.partyId);
+    await this.authorize(ctx, 'ReactivateParty', ctx.organizationId, partyId, store);
     const party = await store.getPartyInOrg(ctx.organizationId, partyId);
     if (!party || party.status === 'merged') throw new Error('NOT_FOUND');
     await store.updateParty(partyId, { status: 'active', version: party.version + 1 }, party.version);
@@ -493,8 +498,8 @@ export class PartyCommandService {
     payload: Record<string, unknown>,
     store: OsPartyStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'UpdateContact', ctx.organizationId);
     const organizationPartyId = String(payload.organizationPartyId);
+    await this.authorize(ctx, 'UpdateContact', ctx.organizationId, organizationPartyId, store);
     await this.requireActiveParty(store, ctx.organizationId, organizationPartyId);
     const party = await store.getPartyInOrg(ctx.organizationId, organizationPartyId);
     if (party?.partyKind !== 'organization') throw new Error('VALIDATION_FAILED');
@@ -511,6 +516,8 @@ export class PartyCommandService {
     const existing = payload.contactId
       ? await store.getContactInOrg(ctx.organizationId, contactId)
       : null;
+    // Authority was checked on organizationPartyId; a contact of another party is not reachable through it.
+    if (existing && existing.organizationPartyId !== organizationPartyId) throw new Error('NOT_FOUND');
 
     if (existing) {
       await store.updateContact(
