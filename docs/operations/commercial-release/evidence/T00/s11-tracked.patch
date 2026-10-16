@@ -1,0 +1,623 @@
+diff --git a/packages/os-commercial/src/commercial-command-service.ts b/packages/os-commercial/src/commercial-command-service.ts
+index f613623..ed88859 100644
+--- a/packages/os-commercial/src/commercial-command-service.ts
++++ b/packages/os-commercial/src/commercial-command-service.ts
+@@ -20,6 +20,9 @@ import {
+   buildBusinessEvent,
+   buildOutboxForEvent,
+   currentIdempotencyKey,
++  isIdempotencyConflict,
++  replayForActor,
++  stampReplayActor,
+   withIdempotencyKey,
+ } from '@isalwa/os-events';
+ import { createId } from '@isalwa/ts-utils';
+@@ -90,6 +93,34 @@ export class CommercialCommandService {
+     return memberHasScope(snap, 'people.admin');
+   }
+ 
++  /**
++   * S11: authorize the current actor for this command, then return the stored
++   * result only if this actor produced it. Anyone else gets CONFLICT and never
++   * sees the stored body. A stored row with no bound actor is not replayed.
++   */
++  private async acceptedReplay(
++    ctx: RequestContext,
++    command: CommercialCommandName,
++    stored: Record<string, unknown>,
++  ): Promise<CommandResult> {
++    await this.authorize(ctx, command, ctx.organizationId);
++    return replayForActor<CommandResult>(stored, ctx.actorMemberId);
++  }
++
++  /** A concurrent request with the same key won the insert: replay its result under the same rules. */
++  private async replayAfterConflict(
++    ctx: RequestContext,
++    command: CommercialCommandName,
++    err: unknown,
++    idempotencyKey?: string,
++  ): Promise<CommandResult> {
++    if (idempotencyKey && isIdempotencyConflict(err)) {
++      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
++      if (existing) return this.acceptedReplay(ctx, command, existing.resultJson);
++    }
++    throw err;
++  }
++
+   async execute(
+     command: CommercialCommandName,
+     ctx: RequestContext,
+@@ -115,7 +146,7 @@ export class CommercialCommandService {
+     if (idempotencyKey) {
+       const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
+       if (existing) {
+-        return existing.resultJson as unknown as CommandResult;
++        return this.acceptedReplay(ctx, command, existing.resultJson);
+       }
+     }
+ 
+@@ -185,13 +216,13 @@ export class CommercialCommandService {
+           organizationId: ctx.organizationId,
+           key: idempotencyKey,
+           commandName: command,
+-          resultJson: result as unknown as Record<string, unknown>,
++          resultJson: stampReplayActor(result, ctx.actorMemberId),
+           expiresAt: new Date(Date.now() + 86400_000),
+         });
+       }
+ 
+       return result;
+-    });
++    }).catch((err: unknown) => this.replayAfterConflict(ctx, command, err, idempotencyKey));
+   }
+ 
+   private async emit(
+diff --git a/packages/os-commitment/src/commitment-command-service.ts b/packages/os-commitment/src/commitment-command-service.ts
+index b2a5a15..5b7280b 100644
+--- a/packages/os-commitment/src/commitment-command-service.ts
++++ b/packages/os-commitment/src/commitment-command-service.ts
+@@ -18,6 +18,9 @@ import {
+   buildBusinessEvent,
+   buildOutboxForEvent,
+   currentIdempotencyKey,
++  isIdempotencyConflict,
++  replayForActor,
++  stampReplayActor,
+   withIdempotencyKey,
+ } from '@isalwa/os-events';
+ import { createId } from '@isalwa/ts-utils';
+@@ -87,6 +90,34 @@ export class CommitmentCommandService {
+     return snap;
+   }
+ 
++  /**
++   * S11: authorize the current actor for this command, then return the stored
++   * result only if this actor produced it. Anyone else gets CONFLICT and never
++   * sees the stored body. A stored row with no bound actor is not replayed.
++   */
++  private async acceptedReplay(
++    ctx: RequestContext,
++    command: CommitmentCommandName,
++    stored: Record<string, unknown>,
++  ): Promise<CommandResult> {
++    await this.authorize(ctx, command, ctx.organizationId);
++    return replayForActor<CommandResult>(stored, ctx.actorMemberId);
++  }
++
++  /** A concurrent request with the same key won the insert: replay its result under the same rules. */
++  private async replayAfterConflict(
++    ctx: RequestContext,
++    command: CommitmentCommandName,
++    err: unknown,
++    idempotencyKey?: string,
++  ): Promise<CommandResult> {
++    if (idempotencyKey && isIdempotencyConflict(err)) {
++      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
++      if (existing) return this.acceptedReplay(ctx, command, existing.resultJson);
++    }
++    throw err;
++  }
++
+   async execute(
+     command: CommitmentCommandName,
+     ctx: RequestContext,
+@@ -112,7 +143,7 @@ export class CommitmentCommandService {
+     if (idempotencyKey) {
+       const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
+       if (existing) {
+-        return existing.resultJson as unknown as CommandResult;
++        return this.acceptedReplay(ctx, command, existing.resultJson);
+       }
+     }
+ 
+@@ -143,13 +174,13 @@ export class CommitmentCommandService {
+           organizationId: ctx.organizationId,
+           key: idempotencyKey,
+           commandName: command,
+-          resultJson: result as unknown as Record<string, unknown>,
++          resultJson: stampReplayActor(result, ctx.actorMemberId),
+           expiresAt: new Date(Date.now() + 86400_000),
+         });
+       }
+ 
+       return result;
+-    });
++    }).catch((err: unknown) => this.replayAfterConflict(ctx, command, err, idempotencyKey));
+   }
+ 
+   private async emit(
+diff --git a/packages/os-delivery/src/delivery-command-service.ts b/packages/os-delivery/src/delivery-command-service.ts
+index 3789167..4d898a5 100644
+--- a/packages/os-delivery/src/delivery-command-service.ts
++++ b/packages/os-delivery/src/delivery-command-service.ts
+@@ -163,6 +163,31 @@ function isDeliveryIdempotencyConflict(err: unknown): boolean {
+   return message === 'IDEMPOTENCY_CONFLICT' || /Unique constraint/i.test(message);
+ }
+ 
++/** The resource check each delivery command performs, reused when replaying its stored result. */
++function replayResource(command: DeliveryCommandName, payload: Record<string, unknown>): DeliveryResource {
++  switch (command) {
++    case 'CreateNotaDeEntrega':
++    case 'CorrectDeliveryDocument':
++      return 'delivery_note';
++    case 'RecordSalida':
++    case 'RecordWarehouseExit':
++      return 'warehouse_exit';
++    case 'RecordEntrega':
++    case 'RecordCustomerDelivery':
++      return 'delivery';
++    case 'RecordDeliveryEvidence':
++      return payload.subjectType === 'warehouse_exit'
++        ? 'warehouse_exit'
++        : payload.subjectType === 'delivery_note'
++          ? 'delivery_note'
++          : 'delivery';
++    default: {
++      const _exhaustive: never = command;
++      throw new Error(`VALIDATION_FAILED:${_exhaustive}`);
++    }
++  }
++}
++
+ export class DeliveryCommandService {
+   /**
+    * `inTransaction` is internal: true only for the instance bound to a transaction store
+@@ -193,7 +218,7 @@ export class DeliveryCommandService {
+     const organizationId = ctx.organizationId?.trim() || '';
+     if (key) {
+       if (!organizationId) throw new Error('TENANT_FORBIDDEN');
+-      const replay = await this.readReplay(organizationId, key);
++      const replay = await this.readReplay(ctx, command, payload, organizationId, key);
+       if (replay) return replay;
+       try {
+         await this.store.saveIdempotency({
+@@ -205,7 +230,7 @@ export class DeliveryCommandService {
+         });
+       } catch (err) {
+         if (!isDeliveryIdempotencyConflict(err)) throw err;
+-        const winner = await this.readReplay(organizationId, key);
++        const winner = await this.readReplay(ctx, command, payload, organizationId, key);
+         if (winner) return winner;
+         throw new Error('CONFLICT');
+       }
+@@ -220,11 +245,10 @@ export class DeliveryCommandService {
+       return await this.atomically(async (service) => {
+         const result = await service.dispatch(command, ctx, payload);
+         if (key) {
+-          await service.store.completeIdempotency(
+-            organizationId,
+-            key,
+-            result as unknown as Record<string, unknown>,
+-          );
++          await service.store.completeIdempotency(organizationId, key, {
++            ...(result as unknown as Record<string, unknown>),
++            actorMemberId: ctx.actorMemberId,
++          });
+         }
+         committing = true;
+         return result;
+@@ -237,11 +261,30 @@ export class DeliveryCommandService {
+     }
+   }
+ 
+-  private async readReplay(organizationId: string, key: string): Promise<DeliveryCommandResult | null> {
++  /**
++   * S11 (same rules as os-work): a completed row is returned only after the current actor
++   * passes the command's resource check, and only to the member who produced it. Anyone
++   * else, and any row written before the actor was recorded, gets CONFLICT without the body.
++   * A pending claim still returns null, so the caller falls through to the claim insert and
++   * gets the established CONFLICT.
++   */
++  private async readReplay(
++    ctx: DeliveryContext,
++    command: DeliveryCommandName,
++    payload: Record<string, unknown>,
++    organizationId: string,
++    key: string,
++  ): Promise<DeliveryCommandResult | null> {
+     const row = await this.store.findIdempotency(organizationId, key);
+     const json = row?.resultJson;
+     if (!json || json.pending === true || !json.data || typeof json.data !== 'object') return null;
+-    return json as unknown as DeliveryCommandResult;
++    await this.authorizeResource(ctx, replayResource(command, payload));
++    const bound = json.actorMemberId;
++    if (typeof bound !== 'string' || bound.length === 0 || bound !== ctx.actorMemberId) {
++      throw new Error('CONFLICT');
++    }
++    const { actorMemberId: _actor, ...result } = json;
++    return result as unknown as DeliveryCommandResult;
+   }
+ 
+   private async dispatch(
+diff --git a/packages/os-events/src/index.ts b/packages/os-events/src/index.ts
+index 31863b1..006144a 100644
+--- a/packages/os-events/src/index.ts
++++ b/packages/os-events/src/index.ts
+@@ -1,6 +1,7 @@
+ export * from './append';
+ export * from './envelope';
+ export * from './idempotency-scope';
++export * from './replay';
+ export * from './outbox-port';
+ export * from './outbox-worker';
+ export * from './outbox-worker-host';
+diff --git a/packages/os-import/src/import-command-service.ts b/packages/os-import/src/import-command-service.ts
+index 9f33977..014408d 100644
+--- a/packages/os-import/src/import-command-service.ts
++++ b/packages/os-import/src/import-command-service.ts
+@@ -16,6 +16,8 @@ import {
+   buildBusinessEvent,
+   buildOutboxForEvent,
+   currentIdempotencyKey,
++  replayForActor,
++  stampReplayActor,
+   withIdempotencyKey,
+ } from '@isalwa/os-events';
+ import type { LocationCommandService, PartyCommandService, OsPartyStore } from '@isalwa/os-party';
+@@ -129,7 +131,8 @@ export class ImportCommandService {
+     if (idempotencyKey) {
+       const existing = await this.partyAccess.findIdempotency(ctx.organizationId, idempotencyKey);
+       if (existing) {
+-        return existing.resultJson as unknown as ImportCommandResult;
++        await this.authorize(ctx, command, ctx.organizationId);
++        return replayForActor<ImportCommandResult>(existing.resultJson, ctx.actorMemberId);
+       }
+     }
+ 
+@@ -159,7 +162,7 @@ export class ImportCommandService {
+         organizationId: ctx.organizationId,
+         key: idempotencyKey,
+         commandName: command,
+-        resultJson: result as unknown as Record<string, unknown>,
++        resultJson: stampReplayActor(result, ctx.actorMemberId),
+         expiresAt: new Date(Date.now() + 86400_000),
+       });
+     }
+diff --git a/packages/os-issue/src/issue-command-service.ts b/packages/os-issue/src/issue-command-service.ts
+index 83aaf26..b462acf 100644
+--- a/packages/os-issue/src/issue-command-service.ts
++++ b/packages/os-issue/src/issue-command-service.ts
+@@ -35,6 +35,9 @@ import {
+   buildBusinessEvent,
+   buildOutboxForEvent,
+   currentIdempotencyKey,
++  isIdempotencyConflict,
++  replayForActor,
++  stampReplayActor,
+   withIdempotencyKey,
+ } from '@isalwa/os-events';
+ import { createId } from '@isalwa/ts-utils';
+@@ -122,6 +125,34 @@ export class IssueCommandService {
+     if (!allowed) throw new Error('PERMISSION_DENIED');
+   }
+ 
++  /**
++   * S11: authorize the current actor for this command, then return the stored
++   * result only if this actor produced it. Anyone else gets CONFLICT and never
++   * sees the stored body. A stored row with no bound actor is not replayed.
++   */
++  private async acceptedReplay(
++    ctx: RequestContext,
++    command: IssueCommandName,
++    stored: Record<string, unknown>,
++  ): Promise<CommandResult> {
++    await this.authorize(ctx, command, ctx.organizationId);
++    return replayForActor<CommandResult>(stored, ctx.actorMemberId);
++  }
++
++  /** A concurrent request with the same key won the insert: replay its result under the same rules. */
++  private async replayAfterConflict(
++    ctx: RequestContext,
++    command: IssueCommandName,
++    err: unknown,
++    idempotencyKey?: string,
++  ): Promise<CommandResult> {
++    if (idempotencyKey && isIdempotencyConflict(err)) {
++      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
++      if (existing) return this.acceptedReplay(ctx, command, existing.resultJson);
++    }
++    throw err;
++  }
++
+   async execute(
+     command: IssueCommandName,
+     ctx: RequestContext,
+@@ -147,7 +178,7 @@ export class IssueCommandService {
+     if (idempotencyKey) {
+       const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
+       if (existing) {
+-        return existing.resultJson as unknown as CommandResult;
++        return this.acceptedReplay(ctx, command, existing.resultJson);
+       }
+     }
+ 
+@@ -199,13 +230,13 @@ export class IssueCommandService {
+           organizationId: ctx.organizationId,
+           key: idempotencyKey,
+           commandName: command,
+-          resultJson: result as unknown as Record<string, unknown>,
++          resultJson: stampReplayActor(result, ctx.actorMemberId),
+           expiresAt: new Date(Date.now() + 86400_000),
+         });
+       }
+ 
+       return result;
+-    });
++    }).catch((err: unknown) => this.replayAfterConflict(ctx, command, err, idempotencyKey));
+   }
+ 
+   private async emit(
+diff --git a/packages/os-party/src/location-command-service.ts b/packages/os-party/src/location-command-service.ts
+index 9021283..cda200a 100644
+--- a/packages/os-party/src/location-command-service.ts
++++ b/packages/os-party/src/location-command-service.ts
+@@ -12,6 +12,9 @@ import {
+   buildBusinessEvent,
+   buildOutboxForEvent,
+   currentIdempotencyKey,
++  isIdempotencyConflict,
++  replayForActor,
++  stampReplayActor,
+   withIdempotencyKey,
+ } from '@isalwa/os-events';
+ import { createId } from '@isalwa/ts-utils';
+@@ -74,6 +77,34 @@ export class LocationCommandService {
+     if (!memberHasScope(snap, required)) throw new Error('PERMISSION_DENIED');
+   }
+ 
++  /**
++   * S11: authorize the current actor for this command, then return the stored
++   * result only if this actor produced it. Anyone else gets CONFLICT and never
++   * sees the stored body. A stored row with no bound actor is not replayed.
++   */
++  private async acceptedReplay(
++    ctx: RequestContext,
++    command: LocationCommandName,
++    stored: Record<string, unknown>,
++  ): Promise<LocationCommandResult> {
++    await this.authorize(ctx, command, ctx.organizationId);
++    return replayForActor<LocationCommandResult>(stored, ctx.actorMemberId);
++  }
++
++  /** A concurrent request with the same key won the insert: replay its result under the same rules. */
++  private async replayAfterConflict(
++    ctx: RequestContext,
++    command: LocationCommandName,
++    err: unknown,
++    idempotencyKey?: string,
++  ): Promise<LocationCommandResult> {
++    if (idempotencyKey && isIdempotencyConflict(err)) {
++      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
++      if (existing) return this.acceptedReplay(ctx, command, existing.resultJson);
++    }
++    throw err;
++  }
++
+   async execute(
+     command: LocationCommandName,
+     ctx: RequestContext,
+@@ -99,7 +130,7 @@ export class LocationCommandService {
+     if (idempotencyKey) {
+       const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
+       if (existing) {
+-        return existing.resultJson as unknown as LocationCommandResult;
++        return this.acceptedReplay(ctx, command, existing.resultJson);
+       }
+     }
+ 
+@@ -124,13 +155,13 @@ export class LocationCommandService {
+           organizationId: ctx.organizationId,
+           key: idempotencyKey,
+           commandName: command,
+-          resultJson: result as unknown as Record<string, unknown>,
++          resultJson: stampReplayActor(result, ctx.actorMemberId),
+           expiresAt: new Date(Date.now() + 86400_000),
+         });
+       }
+ 
+       return result;
+-    });
++    }).catch((err: unknown) => this.replayAfterConflict(ctx, command, err, idempotencyKey));
+   }
+ 
+   private async emit(
+diff --git a/packages/os-party/src/party-command-service.ts b/packages/os-party/src/party-command-service.ts
+index 5929e69..ebecd6a 100644
+--- a/packages/os-party/src/party-command-service.ts
++++ b/packages/os-party/src/party-command-service.ts
+@@ -12,6 +12,9 @@ import {
+   buildBusinessEvent,
+   buildOutboxForEvent,
+   currentIdempotencyKey,
++  isIdempotencyConflict,
++  replayForActor,
++  stampReplayActor,
+   withIdempotencyKey,
+ } from '@isalwa/os-events';
+ import { createId } from '@isalwa/ts-utils';
+@@ -79,6 +82,34 @@ export class PartyCommandService {
+     if (!memberHasScope(snap, required)) throw new Error('PERMISSION_DENIED');
+   }
+ 
++  /**
++   * S11: authorize the current actor for this command, then return the stored
++   * result only if this actor produced it. Anyone else gets CONFLICT and never
++   * sees the stored body. A stored row with no bound actor is not replayed.
++   */
++  private async acceptedReplay(
++    ctx: RequestContext,
++    command: PartyCommandName,
++    stored: Record<string, unknown>,
++  ): Promise<CommandResult> {
++    await this.authorize(ctx, command, ctx.organizationId);
++    return replayForActor<CommandResult>(stored, ctx.actorMemberId);
++  }
++
++  /** A concurrent request with the same key won the insert: replay its result under the same rules. */
++  private async replayAfterConflict(
++    ctx: RequestContext,
++    command: PartyCommandName,
++    err: unknown,
++    idempotencyKey?: string,
++  ): Promise<CommandResult> {
++    if (idempotencyKey && isIdempotencyConflict(err)) {
++      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
++      if (existing) return this.acceptedReplay(ctx, command, existing.resultJson);
++    }
++    throw err;
++  }
++
+   async execute(
+     command: PartyCommandName,
+     ctx: RequestContext,
+@@ -104,7 +135,7 @@ export class PartyCommandService {
+     if (idempotencyKey) {
+       const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
+       if (existing) {
+-        return existing.resultJson as unknown as CommandResult;
++        return this.acceptedReplay(ctx, command, existing.resultJson);
+       }
+     }
+ 
+@@ -159,13 +190,13 @@ export class PartyCommandService {
+           organizationId: ctx.organizationId,
+           key: idempotencyKey,
+           commandName: command,
+-          resultJson: result as unknown as Record<string, unknown>,
++          resultJson: stampReplayActor(result, ctx.actorMemberId),
+           expiresAt: new Date(Date.now() + 86400_000),
+         });
+       }
+ 
+       return result;
+-    });
++    }).catch((err: unknown) => this.replayAfterConflict(ctx, command, err, idempotencyKey));
+   }
+ 
+   private async emit(
+diff --git a/packages/os-work/src/open-request-claim.ts b/packages/os-work/src/open-request-claim.ts
+index 2cd4161..24d0118 100644
+--- a/packages/os-work/src/open-request-claim.ts
++++ b/packages/os-work/src/open-request-claim.ts
+@@ -28,13 +28,7 @@ export function openRequestClaimKey(
+   return null;
+ }
+ 
+-export function isIdempotencyConflict(err: unknown): boolean {
+-  if (!err || typeof err !== 'object') return false;
+-  const code = (err as { code?: string }).code;
+-  if (code === 'P2002') return true;
+-  const message = err instanceof Error ? err.message : '';
+-  return message === 'IDEMPOTENCY_CONFLICT' || /Unique constraint/i.test(message);
+-}
++export { isIdempotencyConflict } from '@isalwa/os-events';
+ 
+ export function isStoredCommandResult(value: Record<string, unknown> | null | undefined): boolean {
+   return Boolean(value && typeof value.commandId === 'string' && value.data && typeof value.data === 'object');
+diff --git a/packages/os-workforce/src/workforce-command-service.ts b/packages/os-workforce/src/workforce-command-service.ts
+index 8f4bd9d..33b4d98 100644
+--- a/packages/os-workforce/src/workforce-command-service.ts
++++ b/packages/os-workforce/src/workforce-command-service.ts
+@@ -22,6 +22,9 @@ import {
+   buildBusinessEvent,
+   buildOutboxForEvent,
+   currentIdempotencyKey,
++  isIdempotencyConflict,
++  replayForActor,
++  stampReplayActor,
+   withIdempotencyKey,
+ } from '@isalwa/os-events';
+ import { createId } from '@isalwa/ts-utils';
+@@ -201,6 +204,34 @@ export class WorkforceCommandService {
+     void store;
+   }
+ 
++  /**
++   * S11: authorize the current actor for this command, then return the stored
++   * result only if this actor produced it. Anyone else gets CONFLICT and never
++   * sees the stored body. A stored row with no bound actor is not replayed.
++   */
++  private async acceptedReplay(
++    ctx: RequestContext,
++    command: WorkforceCommandName,
++    stored: Record<string, unknown>,
++  ): Promise<CommandResult> {
++    await this.authorize(ctx, command, ctx.organizationId);
++    return replayForActor<CommandResult>(stored, ctx.actorMemberId);
++  }
++
++  /** A concurrent request with the same key won the insert: replay its result under the same rules. */
++  private async replayAfterConflict(
++    ctx: RequestContext,
++    command: WorkforceCommandName,
++    err: unknown,
++    idempotencyKey?: string,
++  ): Promise<CommandResult> {
++    if (idempotencyKey && isIdempotencyConflict(err)) {
++      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
++      if (existing) return this.acceptedReplay(ctx, command, existing.resultJson);
++    }
++    throw err;
++  }
++
+   async execute(
+     command: WorkforceCommandName,
+     ctx: RequestContext,
+@@ -226,7 +257,7 @@ export class WorkforceCommandService {
+     if (idempotencyKey) {
+       const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
+       if (existing) {
+-        return existing.resultJson as unknown as CommandResult;
++        return this.acceptedReplay(ctx, command, existing.resultJson);
+       }
+     }
+ 
+@@ -236,6 +267,9 @@ export class WorkforceCommandService {
+ 
+     const postCommit: ScheduledProviderEffect[] = [];
+ 
++    // Set when a concurrent request with the same key committed first. Its provider
++    // effects already ran, so this request must not run them again.
++    let lostRace = false;
+     const result = await this.store.runInTransaction(async (store) => {
+       let commandResult: CommandResult;
+       switch (command) {
+@@ -293,13 +327,17 @@ export class WorkforceCommandService {
+           organizationId: ctx.organizationId,
+           key: idempotencyKey,
+           commandName: command,
+-          resultJson: commandResult as unknown as Record<string, unknown>,
++          resultJson: stampReplayActor(commandResult, ctx.actorMemberId),
+           expiresAt: new Date(Date.now() + 86400_000),
+         });
+       }
+ 
+       return commandResult;
++    }).catch((err: unknown) => {
++      lostRace = true;
++      return this.replayAfterConflict(ctx, command, err, idempotencyKey);
+     });
++    if (lostRace) return result;
+ 
+     await this.runScheduledProviderEffects(ctx, postCommit);
+ 
