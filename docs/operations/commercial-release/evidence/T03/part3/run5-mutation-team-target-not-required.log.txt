@@ -1,0 +1,15 @@
+MUTATION: team-target-not-required
+replaced:     input.actorLeadsTarget
+with:     true
+✖ T03 assignment boundary (2026-10-16 19:30): action permission + explicit assignment scope (4.065625ms)
+ℹ pass 99
+ℹ fail 2
+✖ failing tests:
+✖ refuses a cross-team transfer by a team-scoped manager (2.168292ms)
+✖ applies the same boundary to coverage administration (0.572333ms)
+✖ T03 customer authority over HTTP (disposable Postgres) (953.749375ms)
+ℹ pass 9
+ℹ fail 1
+✖ failing tests:
+✖ reassignment needs the action permission AND explicit assignment scope (T03 19:30) (25.6485ms)
+  AssertionError [ERR_ASSERTION]: teamMgr

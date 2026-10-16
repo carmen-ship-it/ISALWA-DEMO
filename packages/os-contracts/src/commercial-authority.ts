@@ -12,7 +12,8 @@ import {
 /**
  * V1 commercial convert / reassignment predicates (canonical consolidation).
  * Cargo and title never satisfy these checks.
- * Temporary coverage does NOT authorize Quote → Pedido (§9 / §37).
+ * Coverage alone never grants conversion permission. A covering advisor converts
+ * only through canConvertCoveredQuote (T03 2026-10-16 19:30, superseding BR-CNV-02).
  */
 export function grantedScopeSet(grantedScopes: readonly string[]): Set<string> {
   return new Set(grantedScopes.map((scope) => scope.trim()).filter(Boolean));
@@ -23,12 +24,11 @@ export function hasExplicitScope(grantedScopes: readonly string[], scope: string
 }
 
 /**
- * Live CreateOrder gate (V1):
+ * Conversion permission for the own and range paths:
  * 1. actor is quote owner AND holds commercial.quote.convert.own, OR
  * 2. actor holds commercial.order.convert (explicit cross-owner / leadership convert)
- *
- * Temporary coverage alone does not authorize convert.
- * people.admin / leadership read scopes never authorize convert.
+ * CreateOrder also requires account access for either path. The covering-advisor
+ * path is canConvertCoveredQuote. people.admin / read scopes never authorize convert.
  */
 export function canConvertQuoteToOrder(input: {
   actorMemberId: string;
@@ -51,7 +51,7 @@ export function canConvertQuoteToOrder(input: {
   return false;
 }
 
-/** Evaluate coverage for workflow continuation (not convert). */
+/** Audit facts for a conversion under coverage that explicitly covers quote.convert. */
 export function coverageAuditForConvert(input: {
   actorMemberId: string;
   organizationId: string;
@@ -60,7 +60,7 @@ export function coverageAuditForConvert(input: {
   grants: readonly CustomerCoverageGrant[];
   asOf: Date;
 }): CoverageWorkflowAudit {
-  return continueCoveredCustomerWorkflow(input);
+  return continueCoveredCustomerWorkflow({ ...input, action: 'quote.convert' });
 }
 
 /** commercial.quote.convert.own is wired into CreateOrder for the own-quote path. */
@@ -72,9 +72,9 @@ export function canReassignCommercialAccountOwner(grantedScopes: readonly string
 }
 
 /**
- * V1 temporary coverage grant/revoke — same governed actors as permanent reassignment
- * (Jefe Comercial / Gerencia via commercial.account.reassign). Cargo alone never qualifies.
- * Coverage never authorizes Quote → Pedido.
+ * Action permission for coverage grant/revoke (same as reassignment). Commands also
+ * need assignment scope over the account (resolveAccountAssignmentAuthority).
+ * Cargo alone never qualifies.
  */
 export function canGrantCustomerCoverage(grantedScopes: readonly string[]): boolean {
   return canReassignCommercialAccountOwner(grantedScopes);

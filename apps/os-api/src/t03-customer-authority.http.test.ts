@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { OS_STORE } from './os-store.module';
+import { OS_PROJECTION_RUNNER, OS_STORE } from './os-store.module';
+import type { ProjectionRunner } from '@isalwa/os-query';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { getOsPrisma } from '@isalwa/os-database';
 import { createId } from '@isalwa/ts-utils';
@@ -22,6 +23,7 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
   let app: INestApplication;
   let baseUrl: string;
   let store: OsWorkforceStore;
+  let runner: ProjectionRunner;
   const prisma = () => getOsPrisma()!;
   let orgA: { id: string };
   let orgB: { id: string };
@@ -47,6 +49,12 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     });
     const text = await res.text();
     return { status: res.status, body: text ? JSON.parse(text) : {} };
+  }
+
+  async function get(who: string, path: string, opts: { org?: string } = {}): Promise<Reply & { text: string }> {
+    const res = await fetch(`${baseUrl}/v1${path}`, { headers: headers(opts.org ?? orgA.id, m[who]!) });
+    const text = await res.text();
+    return { status: res.status, body: text ? JSON.parse(text) : {}, text };
   }
 
   async function seedMember(orgId: string, name: string, roleKeys: string[]): Promise<Seeded> {
@@ -82,13 +90,26 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     await app.listen(0);
     baseUrl = `http://127.0.0.1:${(app.getHttpServer().address() as { port: number }).port}`;
     store = moduleRef.get(OS_STORE);
+    runner = moduleRef.get(OS_PROJECTION_RUNNER);
     orgA = await store.seedOrganization('T03 Org A', `t03-a-${createId()}`);
     orgB = await store.seedOrganization('T03 Org B', `t03-b-${createId()}`);
     m.seller = await seedMember(orgA.id, 'seller', ['commercial.customer.create', 'commercial.quote.convert.own']);
     m.otherSeller = await seedMember(orgA.id, 'otherSeller', ['commercial.customer.create']);
     m.helper = await seedMember(orgA.id, 'helper', ['commercial.quote.convert.own']);
     m.steward = await seedMember(orgA.id, 'steward', ['master_data.admin']);
-    m.manager = await seedMember(orgA.id, 'manager', ['commercial.account.reassign']);
+    // T03 19:30: reassign needs explicit assignment scope; a grantor delegates only what it holds.
+    m.manager = await seedMember(orgA.id, 'manager', [
+      'commercial.account.reassign',
+      'commercial.assignment.org',
+      'commercial.customer.edit',
+      'commercial.order.convert',
+    ]);
+    m.assigner = await seedMember(orgA.id, 'assigner', ['commercial.account.reassign', 'commercial.assignment.org']);
+    m.reassignOnly = await seedMember(orgA.id, 'reassignOnly', ['commercial.account.reassign']);
+    m.orgReassign = await seedMember(orgA.id, 'orgReassign', ['commercial.account.reassign', 'commercial.org.read']);
+    m.teamMgr = await seedMember(orgA.id, 'teamMgr', ['commercial.account.reassign', 'commercial.team.read']);
+    m.outsideMgr = await seedMember(orgA.id, 'outsideMgr', ['commercial.account.reassign', 'commercial.team.read']);
+    m.teamSeller = await seedMember(orgA.id, 'teamSeller', ['commercial.quote.convert.own']);
     m.peopleAdmin = await seedMember(orgA.id, 'peopleAdmin', ['people.admin']);
     m.sellerB = await seedMember(orgB.id, 'sellerB', ['commercial.customer.create']);
     const managerScopes = ['commercial.team.read', 'commercial.customer.edit', 'commercial.work.manage'];
@@ -105,6 +126,9 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     await team(m.readLead.member.id, m.seller.member.id);
     await team(m.outsideLead.member.id, m.otherSeller.member.id);
     await team(m.endedLead.member.id, m.seller.member.id, new Date('2026-01-01'));
+    await team(m.teamMgr.member.id, m.seller.member.id);
+    await team(m.teamMgr.member.id, m.teamSeller.member.id);
+    await team(m.outsideMgr.member.id, m.otherSeller.member.id);
   });
 
   after(async () => {
@@ -245,7 +269,7 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     assert.equal(coveredQuote.ownerMemberId, m.seller!.member.id);
     const event = await prisma().osBusinessEvent.findFirstOrThrow({ where: { organizationId: orgA.id, eventType: 'quote.created', primaryEntityId: coveredQuote.id } });
     assert.equal(event.actorMemberId, m.helper!.member.id);
-    // Coverage never converts, even with convert.own on the helper.
+    // commercial.work coverage does not convert, even with convert.own on the helper.
     const convert = await command('helper', 'CreateOrder', { quoteId: state.quoteId });
     assert.deepEqual([convert.status, convert.body], [403, { code: 'PERMISSION_DENIED' }]);
     const account = await prisma().osCommercialAccount.findUniqueOrThrow({ where: { id: state.accountId } });
@@ -328,5 +352,175 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     assert.equal(unchanged.version, party.version);
     assert.equal(unchanged.displayName, party.displayName);
     assert.equal(await prisma().osQuote.count(), quotesBefore);
+  });
+
+  async function submittedSellerQuote(): Promise<string> {
+    const created = await command('seller', 'CreateQuote', { partyId: state.partyId });
+    assert.equal(created.status, 201);
+    const quoteId = String((created.body.data as Record<string, unknown>).quoteId);
+    assert.equal((await command('seller', 'AddQuoteLine', { quoteId, description: 'Ladrillo 6H', quantity: 4, unitPriceCentavos: 150 })).status, 201);
+    assert.equal((await command('seller', 'SubmitQuote', { quoteId })).status, 201);
+    return quoteId;
+  }
+
+  it('coverage converts only with explicit quote.convert plus the advisor\'s own permission (T03 19:30)', async () => {
+    const quoteId = await submittedSellerQuote();
+    const ordersBefore = await prisma().osOrder.count({ where: { organizationId: orgA.id } });
+    const grant = (who: string, coveredActions: string[], advisor = m.helper!) =>
+      command(who, 'GrantCustomerCoverage', { commercialAccountId: state.accountId, actingAdvisorMemberId: advisor.member.id, coveredActions });
+
+    // A grantor without conversion authority cannot delegate it.
+    const overreach = await grant('assigner', ['commercial.work', 'quote.convert']);
+    assert.deepEqual([overreach.status, overreach.body], [403, { code: 'PERMISSION_DENIED' }]);
+    assert.equal(await prisma().osCustomerCoverageGrant.count({ where: { organizationId: orgA.id, revokedAt: null } }), 0);
+
+    // Edit-only coverage does not convert.
+    const edit = await grant('manager', ['customer.edit']);
+    assert.equal(edit.status, 201);
+    const editOnly = await command('helper', 'CreateOrder', { quoteId });
+    assert.deepEqual([editOnly.status, editOnly.body], [403, { code: 'PERMISSION_DENIED' }]);
+    await command('manager', 'RevokeCustomerCoverage', { grantId: String((edit.body.data as Record<string, unknown>).grantId) });
+
+    // Explicit quote.convert, but the advisor lacks conversion permission.
+    const noPerm = await grant('manager', ['commercial.work', 'quote.convert'], m.otherSeller!);
+    assert.equal(noPerm.status, 201);
+    const denied = await command('otherSeller', 'CreateOrder', { quoteId });
+    assert.deepEqual([denied.status, denied.body], [403, { code: 'PERMISSION_DENIED' }]);
+    await command('manager', 'RevokeCustomerCoverage', { grantId: String((noPerm.body.data as Record<string, unknown>).grantId) });
+    assert.equal(await prisma().osOrder.count({ where: { organizationId: orgA.id } }), ordersBefore);
+
+    // Revoked quote.convert coverage is no access at all.
+    const toRevoke = await grant('manager', ['commercial.work', 'quote.convert']);
+    await command('manager', 'RevokeCustomerCoverage', { grantId: String((toRevoke.body.data as Record<string, unknown>).grantId) });
+    const revoked = await command('helper', 'CreateOrder', { quoteId });
+    assert.deepEqual([revoked.status, revoked.body], [404, { code: 'NOT_FOUND' }]);
+
+    // Allowed: explicit quote.convert + helper's convert.own. Owner and actor are both preserved.
+    const allowed = await grant('manager', ['commercial.work', 'quote.convert']);
+    assert.equal(allowed.status, 201);
+    const stored = await prisma().osCustomerCoverageGrant.findUniqueOrThrow({ where: { id: String((allowed.body.data as Record<string, unknown>).grantId) } });
+    assert.deepEqual(stored.coveredActions, ['commercial.work', 'quote.convert']);
+    const converted = await command('helper', 'CreateOrder', { quoteId });
+    assert.equal(converted.status, 201);
+    const orderRow = await prisma().osOrder.findFirstOrThrow({ where: { organizationId: orgA.id, quoteId } });
+    assert.equal(orderRow.ownerMemberId, m.seller!.member.id);
+    const event = await prisma().osBusinessEvent.findFirstOrThrow({ where: { organizationId: orgA.id, eventType: 'order.created', primaryEntityId: orderRow.id } });
+    assert.equal(event.actorMemberId, m.helper!.member.id);
+    const payload = event.payloadJson as Record<string, unknown>;
+    assert.equal(payload.primaryOwnerMemberId, m.seller!.member.id);
+    assert.equal(payload.actingAdvisorMemberId, m.helper!.member.id);
+    assert.equal(payload.conversionPath, 'coverage');
+    assert.equal((await prisma().osCommercialAccount.findUniqueOrThrow({ where: { id: state.accountId } })).ownerMemberId, m.seller!.member.id);
+
+    // Cross-tenant: the same quote id from another company is unknown.
+    const foreign = await command('sellerB', 'CreateOrder', { quoteId }, { org: orgB.id });
+    assert.deepEqual([foreign.status, foreign.body], [404, { code: 'NOT_FOUND' }]);
+    await command('manager', 'RevokeCustomerCoverage', { grantId: stored.id });
+  });
+
+  it('data steward finds and reads legal fields without commercial data or authority (T03 19:30)', async () => {
+    await runner.runOnce();
+    await runner.runOnce();
+    const byName = await get('steward', `/master-data/parties?q=${encodeURIComponent('Andina SRL')}`);
+    assert.equal(byName.status, 200);
+    const ids = (byName.body.items as Array<{ partyId: string }>).map((i) => i.partyId);
+    assert.ok(ids.includes(state.partyId), byName.text);
+    for (const q of [phone, 'Rosa', 'Quispe']) {
+      const miss = await get('steward', `/master-data/parties?q=${encodeURIComponent(q)}`);
+      assert.equal(miss.status, 200, q);
+      assert.deepEqual(miss.body.items, [], q);
+    }
+    const detail = await get('steward', `/master-data/parties/${state.partyId}`);
+    assert.equal(detail.status, 200);
+    assert.deepEqual(Object.keys(detail.body).sort(), [
+      'activeRoleKeys', 'displayName', 'fiscalIdentities', 'legalName', 'mergedIntoPartyId', 'partyId', 'partyKind', 'status', 'version',
+    ]);
+    assert.equal(detail.text.includes(phone), false);
+    assert.equal(detail.text.includes(m.seller!.member.id), false, 'no account owner');
+
+    const foreignParty = await prisma().osParty.findFirstOrThrow({ where: { organizationId: orgB.id } });
+    const foreign = await get('steward', `/master-data/parties/${foreignParty.id}`);
+    const missing = await get('steward', `/master-data/parties/${createId()}`);
+    assert.deepEqual([foreign.status, foreign.body], [404, { code: 'NOT_FOUND' }]);
+    assert.deepEqual(foreign.body, missing.body);
+    for (const who of ['lead', 'seller', 'peopleAdmin']) {
+      const denied = await get(who, `/master-data/parties?q=Andina`);
+      assert.deepEqual([denied.status, denied.body], [403, { code: 'PERMISSION_DENIED' }], who);
+    }
+    const quote = await command('steward', 'CreateQuote', { partyId: state.partyId });
+    assert.deepEqual([quote.status, quote.body], [403, { code: 'PERMISSION_DENIED' }]);
+  });
+
+  it('reassignment needs the action permission AND explicit assignment scope (T03 19:30)', async () => {
+    const reassign = (who: string, target: Seeded) =>
+      command(who, 'ReassignCommercialAccountOwner', { commercialAccountId: state.accountId, ownerMemberId: target.member.id });
+    const accountBefore = await prisma().osCommercialAccount.findUniqueOrThrow({ where: { id: state.accountId } });
+
+    for (const [who, target, expected] of [
+      ['reassignOnly', m.teamSeller!, [404, { code: 'NOT_FOUND' }]],
+      ['orgReassign', m.teamSeller!, [403, { code: 'PERMISSION_DENIED' }]],
+      ['outsideMgr', m.otherSeller!, [404, { code: 'NOT_FOUND' }]],
+      ['teamMgr', m.otherSeller!, [403, { code: 'PERMISSION_DENIED' }]],
+      ['lead', m.teamSeller!, [403, { code: 'PERMISSION_DENIED' }]],
+    ] as const) {
+      const reply = await reassign(who, target);
+      assert.deepEqual([reply.status, reply.body], expected, who);
+    }
+    assert.equal((await prisma().osCommercialAccount.findUniqueOrThrow({ where: { id: state.accountId } })).version, accountBefore.version);
+
+    // Same boundary for coverage administration.
+    const teamGrantOutside = await command('teamMgr', 'GrantCustomerCoverage', {
+      commercialAccountId: state.accountId,
+      actingAdvisorMemberId: m.otherSeller!.member.id,
+    });
+    assert.deepEqual([teamGrantOutside.status, teamGrantOutside.body], [403, { code: 'PERMISSION_DENIED' }]);
+    const teamGrant = await command('teamMgr', 'GrantCustomerCoverage', {
+      commercialAccountId: state.accountId,
+      actingAdvisorMemberId: m.teamSeller!.member.id,
+    });
+    assert.equal(teamGrant.status, 201);
+    const grantId = String((teamGrant.body.data as Record<string, unknown>).grantId);
+
+    // Pending draft by the old owner.
+    const draft = await command('seller', 'CreateQuote', { partyId: state.partyId });
+    const draftId = String((draft.body.data as Record<string, unknown>).quoteId);
+    const quoteOwnersBefore = await prisma().osQuote.findMany({ where: { partyId: state.partyId }, select: { id: true, ownerMemberId: true } });
+    const ordersBefore = await prisma().osOrder.findMany({ where: { partyId: state.partyId }, select: { id: true, ownerMemberId: true } });
+
+    const moved = await reassign('teamMgr', m.teamSeller!);
+    assert.equal(moved.status, 201);
+    assert.equal((moved.body.data as Record<string, unknown>).assignmentAuthority, 'team');
+    const account = await prisma().osCommercialAccount.findUniqueOrThrow({ where: { id: state.accountId } });
+    assert.equal(account.ownerMemberId, m.teamSeller!.member.id);
+    const ended = await prisma().osCustomerCoverageGrant.findUniqueOrThrow({ where: { id: grantId } });
+    assert.ok(ended.revokedAt, 'coverage ended on reassignment');
+    const event = await prisma().osBusinessEvent.findFirstOrThrow({
+      where: { organizationId: orgA.id, eventType: 'commercial_account.owner_reassigned', primaryEntityId: state.accountId },
+      orderBy: { occurredAt: 'desc' },
+    });
+    const payload = event.payloadJson as Record<string, unknown>;
+    assert.equal(payload.previousOwnerMemberId, m.seller!.member.id);
+    assert.deepEqual(payload.endedCoverageGrantIds, [grantId]);
+    assert.equal(event.actorMemberId, m.teamMgr!.member.id);
+    // Historical quote and order ownership (sales attribution) is not rewritten.
+    assert.deepEqual(await prisma().osQuote.findMany({ where: { partyId: state.partyId }, select: { id: true, ownerMemberId: true } }), quoteOwnersBefore);
+    assert.deepEqual(await prisma().osOrder.findMany({ where: { partyId: state.partyId }, select: { id: true, ownerMemberId: true } }), ordersBefore);
+
+    // The new owner continues pending work; the old owner no longer reaches the account.
+    const line = await command('teamSeller', 'AddQuoteLine', { quoteId: draftId, description: 'Teja', quantity: 2, unitPriceCentavos: 900 });
+    assert.equal(line.status, 201);
+    assert.equal((await prisma().osQuote.findUniqueOrThrow({ where: { id: draftId } })).ownerMemberId, m.seller!.member.id);
+    const old = await command('seller', 'CreateQuote', { partyId: state.partyId });
+    assert.deepEqual([old.status, old.body], [404, { code: 'NOT_FOUND' }]);
+    const exHelper = await command('teamSeller', 'CreateQuote', { partyId: state.partyId });
+    assert.equal(exHelper.status, 201, 'teamSeller now acts as owner, not via the ended coverage');
+
+    // Cross-team transfer needs organization-wide assignment authority.
+    const crossTeam = await reassign('teamMgr', m.otherSeller!);
+    assert.deepEqual([crossTeam.status, crossTeam.body], [403, { code: 'PERMISSION_DENIED' }]);
+    const orgMove = await reassign('assigner', m.otherSeller!);
+    assert.equal(orgMove.status, 201);
+    assert.equal((orgMove.body.data as Record<string, unknown>).assignmentAuthority, 'org');
+    assert.equal((await prisma().osCommercialAccount.findUniqueOrThrow({ where: { id: state.accountId } })).ownerMemberId, m.otherSeller!.member.id);
   });
 });

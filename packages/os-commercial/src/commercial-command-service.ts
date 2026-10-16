@@ -5,8 +5,11 @@ import {
   canGrantCustomerCoverage,
   canReassignCommercialAccountOwner,
   canRevokeCustomerCoverage,
+  canConvertCoveredQuote,
   canKnowCustomer,
   canManageCustomerAccountWork,
+  COVERAGE_ACTION_GRANTOR_SCOPE,
+  resolveAccountAssignmentAuthority,
   canWorkCustomerAccount,
   COMMERCIAL_ORDER_CONVERT_SCOPE,
   MASTER_DATA_ADMIN_SCOPE,
@@ -353,6 +356,38 @@ export class CommercialCommandService {
     };
   }
 
+  /**
+   * Assignment authority over an account (reassignment and coverage administration):
+   * commercial.account.reassign plus org, team or intake scope
+   * (resolveAccountAssignmentAuthority). targetMemberId null = no target (revocation
+   * only removes access, so authority over the account is enough). Without
+   * authority: NOT_FOUND when the caller cannot know the customer, else PERMISSION_DENIED.
+   */
+  private async assignmentAuthority(
+    ctx: RequestContext,
+    store: OsCommercialStore,
+    snap: MemberAccessSnapshot,
+    account: { partyId: string; ownerMemberId: string | null },
+    targetMemberId: string | null,
+  ): Promise<'org' | 'team' | 'intake'> {
+    const { organizationId, actorMemberId, effectiveAt } = ctx;
+    const owner = account.ownerMemberId;
+    const authority = resolveAccountAssignmentAuthority({
+      grantedScopes: [...snap.roleKeys, ...snap.delegatedScopes],
+      currentOwnerMemberId: owner,
+      actorLeadsCurrentOwner: owner
+        ? await store.isDirectReport(organizationId, actorMemberId, owner, effectiveAt)
+        : false,
+      actorLeadsTarget:
+        targetMemberId === null ||
+        (await store.isDirectReport(organizationId, actorMemberId, targetMemberId, effectiveAt)),
+    });
+    if (authority) return authority;
+    const access = await this.customerAccess(ctx, store, snap, account.partyId);
+    if (!access.knowable) throw new Error('NOT_FOUND');
+    throw new Error('PERMISSION_DENIED');
+  }
+
   /** Opening new commercial work: knowable, then active customer, then account access. */
   private async requireWorkableCustomer(
     ctx: RequestContext,
@@ -425,6 +460,9 @@ export class CommercialCommandService {
       return;
     }
     if (!access.canWork) throw new Error('PERMISSION_DENIED');
+    // After a reassignment the current account owner continues pending records;
+    // the record keeps its original owner for history and attribution.
+    if (access.accountOwnerMemberId === snap.memberId) return;
     if (
       record.ownerMemberId !== snap.memberId &&
       access.accountOwnerMemberId !== record.ownerMemberId
@@ -1171,6 +1209,33 @@ export class CommercialCommandService {
       actingAdvisorMemberId: snap.memberId,
       asOf: ctx.effectiveAt,
     });
+    // Conversion permission and account access must both hold, by path:
+    // own: quote owner with convert.own who is the current account owner;
+    // range: order.convert within the actor's team/org range;
+    // coverage: active grant that explicitly covers quote.convert + the advisor's
+    // own conversion permission, on the current owner's quote (canConvertCoveredQuote).
+    const permitted = canConvertQuoteToOrder({
+      actorMemberId: snap.memberId,
+      grantedScopes: scopes,
+      quoteOwnerMemberId: quote.ownerMemberId,
+    });
+    const ownConvert =
+      permitted &&
+      quote.ownerMemberId === snap.memberId &&
+      access.accountOwnerMemberId === snap.memberId;
+    const rangeConvert = scopes.includes(COMMERCIAL_ORDER_CONVERT_SCOPE) && access.inCommercialRange;
+    const coverageConvert = canConvertCoveredQuote({
+      actorMemberId: snap.memberId,
+      organizationId: ctx.organizationId,
+      customerPartyId: quote.partyId,
+      grantedScopes: scopes,
+      accountOwnerMemberId: access.accountOwnerMemberId,
+      quoteOwnerMemberId: quote.ownerMemberId,
+      coverageGrants: grants,
+      asOf: ctx.effectiveAt,
+    });
+    if (!ownConvert && !rangeConvert && !coverageConvert) throw new Error('PERMISSION_DENIED');
+    const viaCoverage = !ownConvert && !rangeConvert;
     const coverage = coverageAuditForConvert({
       actorMemberId: snap.memberId,
       organizationId: ctx.organizationId,
@@ -1179,23 +1244,6 @@ export class CommercialCommandService {
       grants,
       asOf: ctx.effectiveAt,
     });
-    if (
-      !canConvertQuoteToOrder({
-        actorMemberId: snap.memberId,
-        grantedScopes: scopes,
-        quoteOwnerMemberId: quote.ownerMemberId,
-        coverage,
-      })
-    ) {
-      throw new Error('PERMISSION_DENIED');
-    }
-    // Conversion permission and account access must both hold. The quote owner
-    // converts with current account access; order.convert acts on accounts it
-    // works or within its leadership range.
-    const ownConvert = quote.ownerMemberId === snap.memberId && access.canWork;
-    const rangeConvert =
-      scopes.includes(COMMERCIAL_ORDER_CONVERT_SCOPE) && (access.canWork || access.inCommercialRange);
-    if (!ownConvert && !rangeConvert) throw new Error('PERMISSION_DENIED');
 
     const existingOrder = await store.getOrderForQuote(ctx.organizationId, quote.id);
     if (this.isSessionRecord(existingOrder, ctx.organizationId)) {
@@ -1258,8 +1306,9 @@ export class CommercialCommandService {
         lineCount: orderLines.length,
         quoteLineIds: orderLines.map((line) => line.quoteLineId),
         primaryOwnerMemberId,
-        actingAdvisorMemberId: coverage.allowed ? coverage.actingAdvisorMemberId : null,
-        coverageSource: coverage.allowed ? 'commercial.customer.coverage' : null,
+        actingAdvisorMemberId: viaCoverage ? coverage.actingAdvisorMemberId : null,
+        coverageSource: viaCoverage ? 'commercial.customer.coverage' : null,
+        conversionPath: ownConvert ? 'own' : rangeConvert ? 'range' : 'coverage',
         convertingActorMemberId: snap.memberId,
         sharedOwnership: false,
       },
@@ -1324,6 +1373,7 @@ export class CommercialCommandService {
       await store.getCommercialAccountInOrg(ctx.organizationId, commercialAccountId),
       ctx.organizationId,
     );
+    const authority = await this.assignmentAuthority(ctx, store, snap, account, ownerMemberId);
     if (account.status !== 'active') throw new Error('VALIDATION_FAILED');
 
     const target = this.refuseForeign(
@@ -1353,6 +1403,23 @@ export class CommercialCommandService {
       { ownerMemberId, version: account.version + 1 },
       account.version,
     );
+    // Coverage was granted on behalf of the previous owner; end it explicitly so
+    // the history shows why it stopped. Quotes, orders and opportunities keep
+    // their recorded owner (sales attribution is not rewritten).
+    const endedCoverageGrantIds: string[] = [];
+    for (const grant of await store.listActiveCustomerCoverageForParty({
+      organizationId: ctx.organizationId,
+      customerPartyId: account.partyId,
+      asOf: ctx.effectiveAt,
+    })) {
+      const ended = await store.revokeCustomerCoverageGrant({
+        organizationId: ctx.organizationId,
+        grantId: grant.id,
+        revokedAt: ctx.effectiveAt,
+        recordedByMemberId: snap.memberId,
+      });
+      if (ended) endedCoverageGrantIds.push(ended.id);
+    }
 
     return this.emit(
       ctx,
@@ -1365,6 +1432,8 @@ export class CommercialCommandService {
         partyId: account.partyId,
         previousOwnerMemberId,
         ownerMemberId,
+        assignmentAuthority: authority,
+        endedCoverageGrantIds,
       },
       'commercial_account.owner_reassigned',
       { ownerMemberId: previousOwnerMemberId },
@@ -1401,6 +1470,13 @@ export class CommercialCommandService {
       await store.getCommercialAccountInOrg(ctx.organizationId, commercialAccountId),
       ctx.organizationId,
     );
+    await this.assignmentAuthority(ctx, store, snap, account, actingAdvisorMemberId);
+    // A grantor delegates only what they are authorized to do themselves.
+    const grantorScopes = [...snap.roleKeys, ...snap.delegatedScopes];
+    for (const action of requestedActions as Array<keyof typeof COVERAGE_ACTION_GRANTOR_SCOPE>) {
+      const needed = COVERAGE_ACTION_GRANTOR_SCOPE[action];
+      if (needed && !grantorScopes.includes(needed)) throw new Error('PERMISSION_DENIED');
+    }
     if (account.status !== 'active') throw new Error('VALIDATION_FAILED');
     if (!account.ownerMemberId) throw new Error('VALIDATION_FAILED');
 
@@ -1484,6 +1560,18 @@ export class CommercialCommandService {
 
     const grantId = String(payload.grantId);
     const note = payload.note != null ? String(payload.note).trim() || undefined : undefined;
+    const grant = this.refuseForeign(
+      await store.getCustomerCoverageGrantInOrg(ctx.organizationId, grantId),
+      ctx.organizationId,
+    );
+    const account = await store.getCommercialAccountForParty(ctx.organizationId, grant.customerPartyId);
+    await this.assignmentAuthority(
+      ctx,
+      store,
+      snap,
+      { partyId: grant.customerPartyId, ownerMemberId: account?.ownerMemberId ?? grant.primaryOwnerMemberId },
+      null,
+    );
     const revokedAt = new Date();
     const revoked = await store.revokeCustomerCoverageGrant({
       organizationId: ctx.organizationId,

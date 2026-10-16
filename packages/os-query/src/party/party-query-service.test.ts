@@ -172,3 +172,51 @@ describe('party search operating facts', () => {
     assert.deepEqual(result.items.map((i) => i.partyId), ['p9']);
   });
 });
+
+describe('master-data lookup (T03 2026-10-16 19:30)', () => {
+  const rows: PartySummaryReadModel[] = [
+    { ...party('p1'), displayName: 'Ferretería Norte', legalName: 'Ferretería Norte S.R.L.', searchText: 'ferreteria norte juan perez 70011122 juan@norte.bo' },
+    { ...party('p2'), displayName: 'Constructora Sur', legalName: null, searchText: 'constructora sur ana 70099988' },
+  ];
+  const service = (seen: Array<{ partyIds?: string[] } | undefined> = []) =>
+    new PartyQueryService({
+      projectionStore: {
+        searchParties: async (_org: string, _query: unknown, filter?: { partyIds?: string[] }) => {
+          seen.push(filter);
+          return { items: rows, hasMore: false };
+        },
+        getFreshness: async () => null,
+      } as never,
+      encodeCursor: () => 'cursor',
+      customerVisibility: ownedBy('someone-else', []),
+    });
+
+  it('lets master_data.admin find customers by name without commercial read or contact fields', async () => {
+    const seen: Array<{ partyIds?: string[] } | undefined> = [];
+    const result = await service(seen).searchMasterDataParties(memCtx(['master_data.admin']), { q: 'ferreteria' });
+    assert.deepEqual(seen, [undefined], 'org-wide lookup, not the commercial visibility filter');
+    assert.deepEqual(result.items.map((i) => i.partyId), ['p1']);
+    assert.deepEqual(Object.keys(result.items[0]!).sort(), [
+      'activeRoleKeys',
+      'displayName',
+      'legalName',
+      'mergedIntoPartyId',
+      'partyId',
+      'partyKind',
+      'status',
+    ]);
+  });
+
+  it('does not match on contact names, phones or emails', async () => {
+    for (const q of ['juan', '70011122', 'juan@norte.bo', 'ana']) {
+      const result = await service().searchMasterDataParties(memCtx(['master_data.admin']), { q });
+      assert.deepEqual(result.items, [], q);
+    }
+  });
+
+  it('refuses callers without master_data.admin, including commercial readers', async () => {
+    for (const roles of [[], ['commercial.org.read'], ['people.admin']]) {
+      await assert.rejects(() => service().searchMasterDataParties(memCtx(roles), { q: 'ferreteria' }), roles.join(','));
+    }
+  });
+});

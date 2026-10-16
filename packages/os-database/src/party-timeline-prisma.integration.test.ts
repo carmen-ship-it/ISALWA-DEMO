@@ -117,7 +117,7 @@ describePrisma('party timeline prisma integration', () => {
       },
     });
     // The quote owner converting their own quote holds the Asesor Comercial
-    // convert scope. Coverage is not convert authority.
+    // convert scope. Coverage alone is not convert authority.
     await prisma.osRoleAssignment.create({
       data: {
         id: createId(),

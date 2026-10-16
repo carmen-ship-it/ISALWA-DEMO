@@ -211,7 +211,7 @@ function conversionStore(input: {
     },
     async listRoleAssignmentsForMember(memberId: string) {
       // The owner converting their own quote holds the scope the real Asesor
-      // Comercial role carries; coverage alone never authorizes convert.
+      // Comercial role carries; coverage alone never authorizes convert (explicit quote.convert coverage plus the advisor's own permission does).
       if (memberId !== OWNER) return [];
       return [
         {

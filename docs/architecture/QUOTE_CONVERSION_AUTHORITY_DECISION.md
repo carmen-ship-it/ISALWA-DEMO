@@ -1,5 +1,7 @@
 # Quote conversion — capability vs live CreateOrder
 
+> **Superseded 2026-10-16 (owner decision 19:30, T03).** Rule 2 below ("any active coverage → allow") is no longer in force. Coverage converts only when it explicitly delegates `quote.convert` and the advisor holds `commercial.quote.convert.own` or `commercial.order.convert`; `commercial.quote.convert.own` is wired into CreateOrder. Authoritative: `docs/operations/commercial-release/REUSE_MAP.md` §12.1.
+
 Candidate context: Wave 2 P0 operating-loop pass.
 
 ## Live CreateOrder gate (exact)

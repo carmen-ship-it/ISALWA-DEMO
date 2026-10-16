@@ -278,7 +278,8 @@ describe('CreateOrder provisional authority', () => {
     );
   });
 
-  it('denies temporary coverage convert without commercial.order.convert (V1)', async () => {
+  // T03 2026-10-16 19:30: conversion under coverage needs explicit quote.convert (BR-CNV-02 superseded).
+  it('denies conversion under commercial.work-only coverage', async () => {
     const store = storeFor({
       coverageGrants: [
         {
@@ -408,6 +409,8 @@ function reassignStore(input: {
   scopes?: string[];
   account?: CommercialAccountRecord | null;
   targetStatus?: string | null;
+  /** Members the actor currently manages (direct reports). */
+  leads?: string[];
 }) {
   const events: string[] = [];
   const scopes = input.scopes ?? [];
@@ -450,6 +453,18 @@ function reassignStore(input: {
       }
       if (patch.ownerMemberId) row.ownerMemberId = patch.ownerMemberId;
     },
+    async isDirectReport(_organizationId: string, _managerMemberId: string, memberId: string) {
+      return (input.leads ?? []).includes(memberId);
+    },
+    async getCommercialAccountForParty(organizationId: string, partyId: string) {
+      return row && row.organizationId === organizationId && row.partyId === partyId ? row : null;
+    },
+    async listActiveCustomerCoverageGrants() {
+      return [];
+    },
+    async listActiveCustomerCoverageForParty() {
+      return [];
+    },
     async appendEventAndAudit(event: { eventType: string }) {
       events.push(event.eventType);
     },
@@ -461,8 +476,9 @@ function reassignStore(input: {
 }
 
 describe('ReassignCommercialAccountOwner', () => {
+  // T03 2026-10-16 19:30: reassign alone is not organization-wide; org assignment scope added.
   it('lets the explicit capability reassign and records both owners', async () => {
-    const store = reassignStore({ scopes: ['commercial.account.reassign'] });
+    const store = reassignStore({ scopes: ['commercial.account.reassign', 'commercial.assignment.org'] });
     const service = new CommercialCommandService(store as unknown as OsCommercialStore);
     const result = await service.execute(
       'ReassignCommercialAccountOwner',
@@ -491,7 +507,7 @@ describe('ReassignCommercialAccountOwner', () => {
 
   it('denies an inactive or cross-tenant target', async () => {
     const inactive = reassignStore({
-      scopes: ['commercial.account.reassign'],
+      scopes: ['commercial.account.reassign', 'commercial.assignment.org'],
       targetStatus: 'suspended',
     });
     await assert.rejects(
@@ -505,7 +521,7 @@ describe('ReassignCommercialAccountOwner', () => {
     );
 
     const missing = reassignStore({
-      scopes: ['commercial.account.reassign'],
+      scopes: ['commercial.account.reassign', 'commercial.assignment.org'],
       targetStatus: null,
     });
     await assert.rejects(
@@ -548,6 +564,8 @@ function coverageStore(input: {
   /** Members present in ORG. Absent id → cross-company / foreign helper. */
   memberIdsInOrg?: string[];
   grants?: CoverageGrantRow[];
+  /** Members the actor currently manages (direct reports). */
+  leads?: string[];
 }) {
   const events: Array<{ eventType: string; payload?: Record<string, unknown> }> = [];
   const scopes = input.scopes ?? [];
@@ -646,6 +664,15 @@ function coverageStore(input: {
       const grant = grants.find((g) => g.id === grantId && g.organizationId === organizationId);
       return grant ?? null;
     },
+    async isDirectReport(_organizationId: string, _managerMemberId: string, memberId: string) {
+      return (input.leads ?? []).includes(memberId);
+    },
+    async getCommercialAccountForParty(organizationId: string, partyId: string) {
+      return row && row.organizationId === organizationId && row.partyId === partyId ? row : null;
+    },
+    async listActiveCustomerCoverageForParty() {
+      return [];
+    },
     async appendEventAndAudit(event: { eventType: string; payload?: Record<string, unknown> }) {
       events.push({ eventType: event.eventType, payload: event.payload });
     },
@@ -657,8 +684,9 @@ function coverageStore(input: {
 }
 
 describe('GrantCustomerCoverage', () => {
+  // T03 2026-10-16 19:30: reassign alone is not organization-wide; org assignment scope added.
   it('lets reassignment-scoped Jefe/Gerencia grant same-company helper without changing owner', async () => {
-    const store = coverageStore({ scopes: ['commercial.account.reassign'] });
+    const store = coverageStore({ scopes: ['commercial.account.reassign', 'commercial.assignment.org'] });
     const ownerBefore = store.account!.ownerMemberId;
     const service = new CommercialCommandService(store as unknown as OsCommercialStore);
     const result = await service.execute('GrantCustomerCoverage', ctx('mem-actor'), {
@@ -683,7 +711,10 @@ describe('GrantCustomerCoverage', () => {
   });
 
   it('records explicitly requested grantable actions on the row and the event', async () => {
-    const store = coverageStore({ scopes: ['commercial.account.reassign'] });
+    // The grantor holds commercial.customer.edit: a delegation cannot exceed the grantor's authority.
+    const store = coverageStore({
+      scopes: ['commercial.account.reassign', 'commercial.assignment.org', 'commercial.customer.edit'],
+    });
     await new CommercialCommandService(store as unknown as OsCommercialStore).execute(
       'GrantCustomerCoverage',
       ctx('mem-actor'),
@@ -695,7 +726,7 @@ describe('GrantCustomerCoverage', () => {
 
   it('does not issue archive, reactivate, unknown, or empty coverage actions in this release', async () => {
     for (const coveredActions of [['customer.archive'], ['customer.reactivate'], ['order.convert'], []]) {
-      const store = coverageStore({ scopes: ['commercial.account.reassign'] });
+      const store = coverageStore({ scopes: ['commercial.account.reassign', 'commercial.assignment.org'] });
       await assert.rejects(
         () =>
           new CommercialCommandService(store as unknown as OsCommercialStore).execute(
@@ -731,7 +762,7 @@ describe('GrantCustomerCoverage', () => {
 
   it('denies cross-company helper (member not in actor org)', async () => {
     const store = coverageStore({
-      scopes: ['commercial.account.reassign'],
+      scopes: ['commercial.account.reassign', 'commercial.assignment.org'],
       memberIdsInOrg: [OWNER, 'mem-actor'],
     });
     const service = new CommercialCommandService(store as unknown as OsCommercialStore);
@@ -765,7 +796,7 @@ describe('RevokeCustomerCoverage', () => {
   it('marks grant inactive, keeps canonical owner, and retains history row', async () => {
     const grantId = 'grant-1';
     const store = coverageStore({
-      scopes: ['commercial.account.reassign'],
+      scopes: ['commercial.account.reassign', 'commercial.assignment.org'],
       grants: [
         {
           id: grantId,
@@ -835,5 +866,98 @@ describe('RevokeCustomerCoverage', () => {
       /PERMISSION_DENIED/,
     );
     assert.equal(store.grants[0]!.revokedAt, null);
+  });
+});
+
+describe('T03 assignment boundary (2026-10-16 19:30): action permission + explicit assignment scope', () => {
+  const reassign = (store: ReturnType<typeof reassignStore>, ownerMemberId = OTHER) =>
+    new CommercialCommandService(store as unknown as OsCommercialStore).execute(
+      'ReassignCommercialAccountOwner',
+      ctx('mem-actor'),
+      { commercialAccountId: 'acct-1', ownerMemberId },
+    );
+
+  it('does not let commercial.account.reassign alone reach any account', async () => {
+    const store = reassignStore({ scopes: ['commercial.account.reassign'] });
+    await assert.rejects(() => reassign(store), /NOT_FOUND/);
+    assert.deepEqual(store.events, []);
+  });
+
+  it('does not treat commercial.org.read as organization-wide assignment authority', async () => {
+    const store = reassignStore({ scopes: ['commercial.account.reassign', 'commercial.org.read'] });
+    await assert.rejects(() => reassign(store), /PERMISSION_DENIED/);
+    assert.deepEqual(store.events, []);
+  });
+
+  it('lets a team-scoped manager move an account between current team members', async () => {
+    const store = reassignStore({
+      scopes: ['commercial.account.reassign', 'commercial.team.read'],
+      leads: [OWNER, OTHER],
+    });
+    const result = await reassign(store);
+    assert.equal(result.data.ownerMemberId, OTHER);
+    assert.equal(result.data.assignmentAuthority, 'team');
+  });
+
+  it('refuses a cross-team transfer by a team-scoped manager', async () => {
+    const store = reassignStore({ scopes: ['commercial.account.reassign', 'commercial.team.read'], leads: [OWNER] });
+    await assert.rejects(() => reassign(store), /PERMISSION_DENIED/);
+    const outside = reassignStore({ scopes: ['commercial.account.reassign', 'commercial.team.read'], leads: [OTHER] });
+    await assert.rejects(() => reassign(outside), /NOT_FOUND/);
+    assert.deepEqual([...store.events, ...outside.events], []);
+  });
+
+  it('allocates an unassigned account only with org or intake assignment scope', async () => {
+    const unassigned = () => account({ ownerMemberId: null as unknown as string });
+    const team = reassignStore({ scopes: ['commercial.account.reassign', 'commercial.team.read', 'commercial.org.read'], leads: [OTHER], account: unassigned() });
+    await assert.rejects(() => reassign(team), /PERMISSION_DENIED/);
+    const intake = reassignStore({ scopes: ['commercial.account.reassign', 'commercial.intake.assign'], account: unassigned() });
+    assert.equal((await reassign(intake)).data.assignmentAuthority, 'intake');
+    const intakeOnOwned = reassignStore({ scopes: ['commercial.account.reassign', 'commercial.intake.assign'] });
+    await assert.rejects(() => reassign(intakeOnOwned), /NOT_FOUND/);
+  });
+
+  it('applies the same boundary to coverage administration', async () => {
+    const grant = (store: ReturnType<typeof coverageStore>, coveredActions?: string[]) =>
+      new CommercialCommandService(store as unknown as OsCommercialStore).execute('GrantCustomerCoverage', ctx('mem-actor'), {
+        commercialAccountId: 'acct-1',
+        actingAdvisorMemberId: OTHER,
+        ...(coveredActions ? { coveredActions } : {}),
+      });
+    const alone = coverageStore({ scopes: ['commercial.account.reassign'] });
+    await assert.rejects(() => grant(alone), /NOT_FOUND/);
+    const team = coverageStore({ scopes: ['commercial.account.reassign', 'commercial.team.read'], leads: [OWNER, OTHER] });
+    await grant(team);
+    assert.equal(team.grants.length, 1);
+    const helperOutside = coverageStore({ scopes: ['commercial.account.reassign', 'commercial.team.read'], leads: [OWNER] });
+    await assert.rejects(() => grant(helperOutside), /PERMISSION_DENIED/);
+    assert.equal(alone.grants.length + helperOutside.grants.length, 0);
+  });
+
+  it('does not let a grantor delegate conversion or edit authority they lack', async () => {
+    const scopes = ['commercial.account.reassign', 'commercial.assignment.org'];
+    for (const [actions, extra] of [
+      [['quote.convert'], []],
+      [['customer.edit'], []],
+    ] as const) {
+      const store = coverageStore({ scopes: [...scopes, ...extra] });
+      await assert.rejects(
+        () =>
+          new CommercialCommandService(store as unknown as OsCommercialStore).execute('GrantCustomerCoverage', ctx('mem-actor'), {
+            commercialAccountId: 'acct-1',
+            actingAdvisorMemberId: OTHER,
+            coveredActions: [...actions],
+          }),
+        /PERMISSION_DENIED/,
+      );
+      assert.equal(store.grants.length, 0);
+    }
+    const store = coverageStore({ scopes: [...scopes, 'commercial.order.convert'] });
+    await new CommercialCommandService(store as unknown as OsCommercialStore).execute('GrantCustomerCoverage', ctx('mem-actor'), {
+      commercialAccountId: 'acct-1',
+      actingAdvisorMemberId: OTHER,
+      coveredActions: ['commercial.work', 'quote.convert'],
+    });
+    assert.deepEqual(store.grants[0]!.coveredActions, ['commercial.work', 'quote.convert']);
   });
 });

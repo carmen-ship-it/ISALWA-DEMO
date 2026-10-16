@@ -66,6 +66,9 @@ New command names in the contract are proposed contracts; the column "Maps to" n
 | team read | `commercial.team.read`, `commercial.org.read` | REUSE |
 | convert | `commercial.order.convert`, `commercial.quote.convert.own` | REUSE |
 | approvals | `approval.act` | REUSE |
+| commercial.work.manage | none | NEW narrow (T03, 2026-10-16 19:19): continue in-range opportunity/quote work; see §12 |
+| commercial.assignment.org | none (`commercial.account.reassign` alone was treated as org-wide) | NEW narrow (T03, 2026-10-16 19:30): organization-wide assignment reach (cross-team, any account). Required with `commercial.account.reassign`; see §12 |
+| commercial.intake.assign | none | NEW narrow (T03, 2026-10-16 19:30): allocate unassigned accounts only. Required with `commercial.account.reassign`; see §12 |
 
 No scope is mapped to a real person. Fixtures only use synthetic members.
 
@@ -198,7 +201,7 @@ Contract: `docs/product/COMMERCIAL_SELF_SERVICE_A2.md` (SHA256 `1b16dd90ce709cb0
 |---|---|---|---|
 | Edit name/contact/phone/city/address | `UpdateParty`, `UpdateContact`, `UpdateLocation` require org-wide `master_data.admin`, tenant check only, no resource check (`packages/os-contracts/src/scopes.ts` `COMMAND_REQUIRED_SCOPES`) | Resource authority (owner, or active coverage with explicit edit delegation) + proposed `commercial.customer.edit`; `master_data.admin` keeps its existing data-steward meaning, not widened | T03 |
 | Archive / reactivate | `DeactivateParty` / `ReactivateParty` (`master_data.admin`) | Reuse the commands (no new record on reactivation); add obligations preview/block, motive list, proposed `commercial.customer.archive` / `.reactivate` | T03 |
-| Change owner / coverage | `ReassignCommercialAccountOwner`, `GrantCustomerCoverage`, `RevokeCustomerCoverage` with `commercial.account.reassign` | Map `commercial.account.assign` (A2) onto existing `commercial.account.reassign`; no second scope. Add "Solicitar reasignación" request for advisors | T03/T10 |
+| Change owner / coverage | `ReassignCommercialAccountOwner`, `GrantCustomerCoverage`, `RevokeCustomerCoverage` with `commercial.account.reassign` | Map `commercial.account.assign` (A2) onto existing `commercial.account.reassign`; no second action scope. Since 2026-10-16 19:30 the action scope also needs an assignment reach (team, `commercial.assignment.org` or `commercial.intake.assign`), see §12. Add "Solicitar reasignación" request for advisors | T03/T10 |
 | Manager edits customer data in range (2026-10-16 19:19) | `commercial.customer.edit` + range in `canActOnCustomer` (team lead with `commercial.team.read` over the current owner, or `commercial.org.read`) | MAPPED, no new scope. `legalName` stays `master_data.admin` maintenance | T03 |
 | Manager continues opportunities/quotes in range without owning or covering (2026-10-16 19:19) | none (record commands required owner or `commercial.work` coverage) | NEW narrow `commercial.work.manage` + same range (`canManageCustomerAccountWork`). Never converts (`commercial.order.convert`), cancels orders, approves, reassigns owners, or touches payments/documents/dispatch | T03 |
 | Correction review | none | proposed `commercial.data_correction.review` | T03/T17 |
@@ -296,3 +299,61 @@ It is a data mode, not a separate route tree: `?datos=demo` switches the active 
 | T20 | Update B steps/screens/navigation/button names/Spanish copy to the verified journeys (WhatsApp, human-reviewed AI suggestions, quotes/PDF, orders, payment reporting + Accounting verification, promises, follow-up); remove obsolete/unsupported claims; label unavailable integrations; screenshots from clearly identified synthetic data | walkthrough location + step → verified journey mapping |
 
 Isolated test fixtures (`setDemoSeedIdMapForTests`, owner-demo guard tests in `packages/os-database`, `GUIDE_STORAGE_KEY` test) are preserved.
+
+## 12. Authoritative commercial authority matrix (owner decisions 2026-10-16 19:19 and 19:30)
+
+This section is the authoritative record for T03 onward. Where an older document disagrees, this section wins; the superseded sources are listed in §12.5. Code: `packages/os-contracts/src/operations-scopes.ts`, `packages/os-contracts/src/commercial-authority.ts`, `packages/os-commercial/src/commercial-command-service.ts`.
+
+### 12.1 Coverage and conversion (19:30 item 1; supersedes BR-CNV-02 "coverage never converts")
+
+An advisor converts a quote of a covered account (`CreateOrder`) only when all hold (`canConvertCoveredQuote`):
+
+1. Coverage is active now for that account and its current owner (not ended, not revoked, same tenant).
+2. Its `coveredActions` explicitly include `quote.convert`.
+3. The advisor independently holds a conversion permission (`commercial.quote.convert.own` or `commercial.order.convert`).
+4. The quote belongs to the current account owner and is eligible under the same status, line, approval and existing-order checks as any conversion.
+
+Coverage alone never grants conversion. A grantor may delegate an action only if they hold its permission (`COVERAGE_ACTION_GRANTOR_SCOPE`): `quote.convert` needs `commercial.order.convert`, `customer.edit` needs `commercial.customer.edit`; `commercial.work` needs no extra scope. The order keeps the account owner as owner; the `order.created` event records the advisor as actor, `actingAdvisorMemberId`, `primaryOwnerMemberId` and `conversionPath: 'coverage'`. Coverage never cancels orders.
+
+### 12.2 Reassignment and coverage administration (19:30 item 2)
+
+`ReassignCommercialAccountOwner`, `GrantCustomerCoverage` and `RevokeCustomerCoverage` need BOTH `commercial.account.reassign` AND one assignment reach (`resolveAccountAssignmentAuthority`):
+
+| Reach | Grant | Allowed |
+|---|---|---|
+| org | `commercial.assignment.org` | any account and any eligible active member in the tenant, including cross-team and unassigned accounts |
+| team | `commercial.team.read` + current direct-report relation | account whose current owner is the actor's direct report, target (new owner or helper) also a current direct report |
+| intake | `commercial.intake.assign` | only accounts with no owner (including a new account at `CreateParty`) |
+
+`commercial.org.read` is read range only, never assignment reach. `commercial.account.reassign` alone reaches nothing (404 if the actor cannot know the account, 403 otherwise). On reassignment: active coverage on the account is ended (ids in `endedCoverageGrantIds`); quotes, orders and opportunities keep their recorded owner (sales attribution is not rewritten); the new account owner may continue pending records of the account; the previous owner loses access unless otherwise authorized. Queued customer actions do not exist yet (sends and reminders arrive in T09/T12); those tasks must recheck owner and coverage at execution.
+
+### 12.3 Data-steward lookup (19:30 item 3)
+
+`master_data.admin` locates and reads the fields it maintains through `GET /v1/master-data/parties?q=` (display or legal name only), `?nit=` (exact active NIT) and `GET /v1/master-data/parties/:partyId` (identity, legal name, status, roles, fiscal identities). No contacts, phones, locations, account owner, conversations, quotes or payments. Commercial reads still need commercial range; no commercial action follows from this access. Legal/fiscal edits stay separate from ordinary commercial edits (`legalName` only under `master_data.admin`).
+
+### 12.4 Managers (19:19)
+
+Unchanged from §10.1: action permission AND current range; `commercial.team.read` / `commercial.org.read` alone are read-only; no `people.admin` / `master_data.admin` override.
+
+### 12.5 Superseded or reconciled sources
+
+| Source | Statement | Status |
+|---|---|---|
+| `docs/operations/ct3-owner-demo-completeness-2026-09-17/v1-canonical-consolidation/CANONICAL_BUSINESS_RULE_REGISTER.md` BR-CNV-02 | "Temporary coverage grants automatic Quote conversion = NO" | Still true for automatic conversion; refined by §12.1 (explicit delegated conversion). Dated note added in the register |
+| same register BR-COV-02/03, BR-REA-01/02 | Jefe Comercial / Gerente General assign coverage and reassign | Refined by §12.2 (reach required) |
+| `docs/architecture/QUOTE_CONVERSION_AUTHORITY_DECISION.md` | "any active coverage → allow" | Superseded by §12.1; dated note added |
+| `final-rc-evidence-0268843/FINAL_V1_REQUIREMENTS_RECONCILIATION.md` D02, RC2–RC4 "coverage cannot convert" evidence | historical evidence | Not edited (historical); superseded by §12.1 |
+| commit `2a4c969` code and the tests named in `receipts/T03.md` §7 | coverage never converts | Replaced in T03 part 3 |
+| `docs/product/COMMERCIAL_RELEASE_V2.md` line 121 ("propietario/cobertura explícita/convertidor autorizado") | — | Consistent with §12.1; not edited (byte copy of the contract) |
+
+### 12.6 Migration impact (grants inspected in this repo; no real grants changed)
+
+| Grant source | Holds | Effect of §12.2 |
+|---|---|---|
+| `v1-planned-assignments.ts` | `commercial.account.reassign` is in `V1_UNASSIGNED_CAPABILITIES` (no planned real holder) | none |
+| `staging-carmen-owner-evaluation-grant(-spec).ts` | reassign + `commercial.org.read` | loses org-wide reassignment until `commercial.assignment.org` is added; not added here (staging change, gated) |
+| `staging-carmen-synth-demo-scopes.ts` | reassign | same |
+| Wave 2 fixture seed (`packages/os-database/src/staging-wave2-role-fixtures.ts`, `w2.fixture-seed`) | `master_data.admin` + reassign; moves steward-created (unassigned) accounts to the asesor | needs `commercial.intake.assign` (narrowest) or `commercial.assignment.org`; not changed here |
+| `apps/os-web/lib/qa/access-matrix.ts` `commercial-reassign` row | QA label "Autorización commercial.account.reassign" | label only; describes the action scope, reach not shown. Update with the T10 admin surfaces |
+| Hosted databases | unknown | UNVERIFIED: staging/production grants were not inspected (staging access forbidden in this lane) |
+

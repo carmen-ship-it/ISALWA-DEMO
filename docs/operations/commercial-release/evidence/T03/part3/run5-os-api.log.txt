@@ -1,0 +1,388 @@
+▶ buildAuthorizedAssistPacket
+  ✔ drops issues the actor cannot read (0.469292ms)
+  ✔ returns facts for authorized reporters (0.360917ms)
+  ✔ caps evidence items and marks truncated (0.292583ms)
+  ✔ does not treat prompt-injection text as authorization (0.0745ms)
+  ✔ builds authorized commitment packets without issue fan-out (0.449166ms)
+✔ buildAuthorizedAssistPacket (2.161709ms)
+▶ AiController assist
+  ✔ returns AI_UNAVAILABLE when disabled without calling the provider (1.52225ms)
+  ✔ requires auth before calling the provider when AI is enabled (0.558584ms)
+  ✔ loads authorized evidence and calls the provider when enabled (3.416125ms)
+  ✔ rejects client-supplied model names (0.190959ms)
+  ✔ rejects mutation intents before provider (0.418625ms)
+  ✔ does not send hidden issue evidence to the provider (0.735958ms)
+  ✔ appends free-text as phrasing without expanding evidence selectors (0.961958ms)
+  ✔ summarize_commitments uses authorized commitment evidence only (0.628042ms)
+  ✔ returns AI_UNAVAILABLE when live provider is blocked before auth (0.156125ms)
+✔ AiController assist (9.175959ms)
+▶ AiController capability
+  ✔ requires auth (0.262708ms)
+  ✔ reports mock readiness when configured (0.258584ms)
+  ✔ surfaces PROVIDER_BLOCKED without calling assist (0.239792ms)
+  ✔ boots in Nest with store tokens (no third-party AI provider DI) (4.861583ms)
+✔ AiController capability (5.711334ms)
+▶ resolveAiProviderGatewayState
+  ✔ is disabled when AI_ENABLED is not true (0.662875ms)
+  ✔ blocks live provider when credential is missing (0.077417ms)
+  ✔ is ready live with citations when key is present (0.066667ms)
+  ✔ is ready mock without live citations (0.058792ms)
+  ✔ assertAiProviderGatewayReady throws AI_UNAVAILABLE when blocked (0.2105ms)
+  ✔ blocks unknown provider modes (0.05625ms)
+  ✔ treats openai-compatible like openai for credential gate (0.055208ms)
+✔ resolveAiProviderGatewayState (1.711083ms)
+▶ AiRateLimiter
+  ✔ enforces per-member minute and concurrency limits (0.388792ms)
+✔ AiRateLimiter (0.782625ms)
+▶ conversation-context-adapter
+  ✔ classifies assist fact lines into certainty buckets (0.477625ms)
+  ✔ shapes LO CONFIRMADO / PENDIENTE / NO REGISTRADO / FUENTES with deep links (0.535417ms)
+  ✔ drops cross-tenant facts (negative) (0.104875ms)
+  ✔ reports no responsible when canonical owner is unknown (0.076958ms)
+  ✔ builds pedido deep links under the client path (0.070291ms)
+  ✔ maps assist packet lines into authorized facts with refs (0.110708ms)
+✔ conversation-context-adapter (1.88025ms)
+▶ future-ingestion-adapter types
+  ✔ accepts a provider-neutral envelope without vendor fields (0.332083ms)
+✔ future-ingestion-adapter types (0.730667ms)
+▶ AuditController
+  ✔ exposes cursor pagination and search query params (0.69675ms)
+  ✔ allows owner-eval business audit via management/commercial org read (not people.admin only) (0.171042ms)
+  ✔ round-trips audit cursors (0.840708ms)
+✔ AuditController (2.2845ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":9,"published":9,"retried":0,"deadLetter":0,"duplicates":0}
+▶ os-api commercial runtime (Step 16.1A)
+  ✔ HTTP happy path: commands → projection → GET queries (175.651ms)
+  ✔ cross-tenant GET quote returns NOT_FOUND (47.290458ms)
+  ✔ cross-tenant GET opportunity and order return NOT_FOUND (96.773208ms)
+  ✔ malicious ownerMemberId filter cannot widen visibility (28.028167ms)
+  ✔ inactive member cannot query commercial data (3.498583ms)
+  ✔ foreign tenant partyId filter returns no records (27.689417ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ GET party timeline returns authorized entries without raw payload (34.641167ms)
+✔ os-api commercial runtime (Step 16.1A) (624.20775ms)
+▶ complete-invite HTTP authority
+  ✔ denies a missing provider session (0.3775ms)
+  ✔ ignores browser member, organization, and subject, and rejects a conflicting email (0.088875ms)
+  ✔ does not treat an unconfirmed email as proof of control (0.060542ms)
+  ✔ keeps denial status fail-closed (0.07125ms)
+  ✔ returns CROSS_LANE_CHANGE_REQUEST without member rows when the invite is unbound (0.377625ms)
+✔ complete-invite HTTP authority (1.486583ms)
+▶ CSRF / CORS guard (V2 §18.1)
+  ✔ os-api CORS origin is the validated env allowlist, never a wildcard or reflection (0.895334ms)
+  ✔ os-web does not widen Server Action origins (0.272625ms)
+  ✔ os-web route handlers export GET only (3.366292ms)
+✔ CSRF / CORS guard (V2 §18.1) (5.102334ms)
+▶ customer-conversations controller
+  ✔ lists OsCustomerConversation via /customer-conversations, not legacy messaging (0.527166ms)
+  ✔ re-admits persisted manual rows without inventing WhatsApp connectivity (1.05925ms)
+✔ customer-conversations controller (2.031166ms)
+▶ conversation visibility and commercial links
+  ✔ hides another member conversation, including pasted evidence, from an unrelated member (0.114666ms)
+  ✔ shows the linked record to the account owner, their team lead, and an organization reader (0.064375ms)
+  ✔ V2 §6: people.admin alone does not widen visibility (0.052334ms)
+  ✔ T02 decision: having entered a conversation is not authority (no author argument exists) (0.050708ms)
+  ✔ rejects a link the actor cannot read, a link for another customer, and a missing record the same way as a foreign one (0.088041ms)
+✔ conversation visibility and commercial links (0.519583ms)
+▶ customer conversation actor comes from the session (S5)
+  ✔ ignores client-supplied id, enteredByMemberId, enteredByLabel and organizationId (1.417708ms)
+  ✔ takes the customer label from the server, not the client (0.29ms)
+  ✔ still logs a normal conversation that carries no actor fields (0.139834ms)
+  ✔ still logs a conversation that echoes its own (matching) actor fields, as the web app does (0.108583ms)
+  ✔ refuses when the session has no actor member (0.358541ms)
+  ✔ still refuses an invalid body (non-object, missing summary) (0.350708ms)
+  ✔ controller no longer trusts body actor fields and verifies the customer in-tenant (0.171125ms)
+✔ customer conversation actor comes from the session (S5) (3.368084ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ T02 customer visibility over HTTP (disposable Postgres)
+  ✔ allows the current owner, the owner team lead, and commercial.org.read (173.959ms)
+  ✔ denies membership alone, people.admin alone, master_data.admin, an unrelated team lead, and the conversation author (207.466667ms)
+  ✔ a supplier-only party keeps its existing member read (outside the customer boundary) (4.283583ms)
+  ✔ coverage: active grants read; expired, revoked and future grants do not (144.002917ms)
+  ✔ reassignment: previous owner and stale coverage lose access, new owner gains it, author stays denied (217.274209ms)
+  ✔ a suspended owner gets ACCESS_REVOKED with no customer data on every read (9.629291ms)
+  ✔ cross-tenant: a foreign id is the same NOT_FOUND, and the same phone in two orgs never crosses (21.966084ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ recording a conversation on an unreadable customer writes nothing and looks like an unknown customer (29.928917ms)
+✔ T02 customer visibility over HTTP (disposable Postgres) (940.901166ms)
+▶ delivery error mapping
+  ✔ tells an over-delivery apart from a malformed payload (0.791583ms)
+✔ delivery error mapping (1.191042ms)
+▶ delivery operational order read gate
+  ✔ allows production operational record to read pedido context (0.454375ms)
+  ✔ allows purchasing operational record to read pedido context (0.083708ms)
+  ✔ keeps delivery and warehouse outbound readers (0.075709ms)
+  ✔ denies unrelated scopes (0.064125ms)
+✔ delivery operational order read gate (1.222833ms)
+▶ env-validation
+  ✔ accepts valid development dev config (0.935333ms)
+  ✔ accepts valid production-like supabase config (0.95175ms)
+  ✔ defaults CORS to localhost in development when unset (0.339417ms)
+  ✔ rejects missing OS_CORS_ORIGINS on staging (0.478959ms)
+  ✔ rejects wildcard OS_CORS_ORIGINS (0.69175ms)
+  ✔ resolveListenPort prefers PORT over OS_API_PORT (0.258292ms)
+  ✔ resolveListenPort falls back to OS_API_PORT then 4001 (0.207417ms)
+  ✔ rejects invalid OS_AUTH_MODE (0.201917ms)
+  ✔ rejects dev auth on staging profile (0.221417ms)
+  ✔ rejects missing OS_DATABASE_URL on staging (0.238208ms)
+  ✔ rejects missing Supabase config in supabase mode (0.214334ms)
+  ✔ does not fall back to legacy DATABASE_URL for staging (0.216666ms)
+  ✔ never includes secrets in validation errors (0.258042ms)
+  ✔ blocks dev bootstrap outside development profile (0.176458ms)
+  ✔ fresh process disables dev routes for staging profile (62.320792ms)
+✔ env-validation (68.401708ms)
+▶ startup fail-closed
+  ✔ main.ts exits on invalid auth mode without leaking secrets (265.219583ms)
+✔ startup fail-closed (265.285917ms)
+▶ FulfillmentController wiring
+  ✔ registers fulfillment reads on AppModule and uses existing company read gate (0.50625ms)
+  ✔ does not invent auto-delivery-from-order in the controller (0.127792ms)
+✔ FulfillmentController wiring (1.074375ms)
+▶ unauthenticated health/ready
+  ✔ does not run the global outbox count when there is no session (0.432084ms)
+✔ unauthenticated health/ready (0.824625ms)
+▶ os-api inspection read inventory
+  ✔ classifies every GET and does not recount the 15 already-verified reads as new (3.113959ms)
+  ✔ records GET /locations/:locationId as tenant-scoped plus the owning customer boundary (0.222ms)
+  ✔ T02: customer detail reads use the shared customer boundary, not a local rule (0.193125ms)
+✔ os-api inspection read inventory (4.034958ms)
+▶ PartyQueryService.searchParties
+  ✔ checks member_active, not a named scope, and excludes foreign rows (0.731042ms)
+✔ PartyQueryService.searchParties (0.796375ms)
+▶ PartyTimelineQueryService.listPartyTimeline
+  ✔ checks member_active and treats a foreign party id as missing (0.676583ms)
+✔ PartyTimelineQueryService.listPartyTimeline (0.72575ms)
+▶ MemberQueryService
+  ✔ listMembers checks people.admin and does not query on the wrong capability (0.24725ms)
+  ✔ getMember and active options check member_active only and hide a foreign id (0.250625ms)
+✔ MemberQueryService (0.5945ms)
+▶ CapabilityQueryService.getCapabilityState
+  ✔ checks member_active and does not apply the foreign organization override (0.239458ms)
+✔ CapabilityQueryService.getCapabilityState (0.277ms)
+▶ ApprovalQueryService
+  ✔ list checks member_active plus approval list scope and excludes foreign rows (0.279083ms)
+  ✔ getApproval foreign id matches missing (0.15ms)
+  ✔ listSubjectApprovals foreign subject matches missing and does not load foreign rows (0.306792ms)
+✔ ApprovalQueryService (0.78775ms)
+▶ AttentionQueryService.listAttentionItems
+  ✔ checks member_active and passes session organization and member to the port (0.184917ms)
+✔ AttentionQueryService.listAttentionItems (0.210208ms)
+▶ WorkQueryService
+  ✔ list checks member_active and own scope, and drops foreign rows (0.427375ms)
+  ✔ getWorkSummary foreign id matches missing (0.139709ms)
+✔ WorkQueryService (0.604583ms)
+▶ CommercialQueryService inspection reads
+  ✔ lists own commercial rows and denies org visibility without commercial.org.read (0.606834ms)
+  ✔ exact foreign commercial ids match missing and do not load foreign lines (0.432834ms)
+✔ CommercialQueryService inspection reads (1.08475ms)
+▶ toIssueDetailResponse
+  ✔ wraps IssueDetail so the web page can read issue.journal and issue.version (1.696833ms)
+✔ toIssueDetailResponse (2.140417ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ os-api member + capability runtime (Step 15.2)
+  ✔ GET /v1/members lists directory for people.admin (28.615625ms)
+  ✔ GET /v1/members denied for non-admin (4.758333ms)
+  ✔ cross-tenant GET /v1/members cannot see other org (3.041834ms)
+  ✔ GET /v1/capabilities returns factual states (5.212542ms)
+  ✔ capability state does not grant commercial list without owner records (9.69925ms)
+  ✔ canonical terminated member denied on HTTP queries (4.917333ms)
+  ✔ suspended member denied on HTTP queries (3.800584ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ cross-tenant capabilities remain org-scoped via session (6.956042ms)
+✔ os-api member + capability runtime (Step 15.2) (166.708708ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ T02 operational reads over HTTP (disposable Postgres)
+  ✔ roles without an operational scope get PERMISSION_DENIED and no data on every operational read (107.697792ms)
+  ✔ the authorized operator reads its tenant with the minimum customer field and never contact details (132.902875ms)
+  ✔ foreign ids are the same NOT_FOUND as missing ids and expose nothing from the other tenant (27.049167ms)
+  ✔ an operator presenting another organization header is refused without data (18.945458ms)
+  ✔ a suspended operator gets ACCESS_REVOKED on every operational read and the AI capability read (20.269417ms)
+[evidence] /ai/capability plain member body keys=available,blocked,citationsLive,providerMode
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ AI capability is member-level and carries no customer data (4.351625ms)
+✔ T02 operational reads over HTTP (disposable Postgres) (450.337625ms)
+▶ TASK 11D — party locations bound
+  ✔ controller uses CursorPaginationSchema and returns meta without totals (0.468125ms)
+  ✔ 0/1/25/26 hasMore; active on first page; no totals (0.980083ms)
+✔ TASK 11D — party locations bound (1.891834ms)
+▶ TASK 11D — party contacts bound
+  ✔ getParty is bounded and list remainder returns the 26th (0.357542ms)
+✔ TASK 11D — party contacts bound (0.417458ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ os-api party timeline work + approval runtime (Step 16.1B)
+  ✔ GET party timeline includes work and approval entries without raw payload (132.366583ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ cross-tenant party timeline remains blocked with work events present (39.716084ms)
+✔ os-api party timeline work + approval runtime (Step 16.1B) (309.715209ms)
+▶ production safety runtime
+  ✔ bootstrap controller returns 404 when dev bootstrap disabled (1.274459ms)
+✔ production safety runtime (1.718084ms)
+▶ health controller
+  ✔ liveness returns ok without dependency checks (2.712541ms)
+  ✔ readiness returns not_ready when database is unreachable (17.188708ms)
+✔ health controller (20.043208ms)
+▶ os-session auth mode safety
+  ✔ ignores dev headers when auth mode is supabase (46.718042ms)
+✔ os-session auth mode safety (46.846792ms)
+▶ resolveQaSynthRoster
+  ✔ resolves SYNTH fixture emails to memberIds (0.670833ms)
+  ✔ fail-closes REAL organization memberships (0.126375ms)
+  ✔ skips inactive SYNTH members (0.129167ms)
+✔ resolveQaSynthRoster (1.390833ms)
+▶ applyQaViewIfPresent
+  ✔ overlays SYNTH target scopes when staging QA is enabled (1.554875ms)
+  ✔ does not overlay in production even with a valid cookie (0.1375ms)
+  ✔ rejects a REAL-org bound payload (0.1255ms)
+✔ applyQaViewIfPresent (2.325625ms)
+▶ resolveQaSynthRoster
+  ✔ resolves fixture emails to SYNTH memberIds only (0.915041ms)
+  ✔ fails closed when email maps only to REAL org (0.204459ms)
+  ✔ returns empty members when nothing resolves (0.1285ms)
+✔ resolveQaSynthRoster (1.708542ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ os-api query runtime (Step 15.1)
+  ✔ GET /v1/parties returns projected search results over HTTP (63.666333ms)
+  ✔ GET /v1/work-items and /v1/approvals and /v1/attention over HTTP (64.400292ms)
+  ✔ cross-tenant HTTP query is denied for work list (2.412542ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ guessed work ID from another member returns forbidden over HTTP (20.2465ms)
+✔ os-api query runtime (Step 15.1) (261.640417ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ os-api quote PDF (Cotización)
+  ✔ unauthenticated PDF request is denied (97.2975ms)
+  ✔ valid draft quote returns PDF with correct content-type and filename (78.0005ms)
+  ✔ submitted quote returns PDF (84.920708ms)
+  ✔ cross-tenant PDF is NOT_FOUND (no existence leak) (54.337875ms)
+  ✔ invalid quote id is denied safely (3.921333ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ malformed quote id is safe (3.209708ms)
+✔ os-api quote PDF (Cotización) (421.368667ms)
+▶ quote PDF document builder
+  ✔ builds totals and draft label from governed quote (12.84675ms)
+  ✔ omits contact when none exist and uses submitted date when present (0.185666ms)
+  ✔ picks active contact phone/email without inventing values (0.087084ms)
+✔ quote PDF document builder (13.613583ms)
+▶ QuotePdfService render
+  ✔ returns application/pdf bytes with safe filename (37.71875ms)
+✔ QuotePdfService render (37.8465ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+[evidence] search limit=120 over={"code":"RATE_LIMITED","retryAfterSeconds":19} otherMember=200
+▶ request rate limits over HTTP (disposable Postgres)
+  ✔ search: configured volume passes, the next request is 429 with a generic body; others unaffected (583.973375ms)
+[evidence] commands {"403:PERMISSION_DENIED":120,"429:RATE_LIMITED":1} partiesCreated=0 bucketCount=121
+  ✔ commands: repeated denied CreateParty attempts are limited and create nothing (433.222542ms)
+[evidence] concurrent burst sent=130 ok=120 limited=10
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ a concurrent burst is cut at exactly the limit (221.068375ms)
+✔ request rate limits over HTTP (disposable Postgres) (1363.246917ms)
+▶ request rate limits (V2 §18.1)
+  ✔ allows the configured search volume, then 429 with a body that names no user or rule (1.761291ms)
+  ✔ invitations are limited per member and per organization per day (0.909417ms)
+  ✔ keys carry the organization, so the same member id in another org has its own budget (1.042542ms)
+✔ request rate limits (V2 §18.1) (4.213541ms)
+▶ local HTTP auth path
+  ✔ exercises session, party, location, outbox, and quote PDF controllers (46.540708ms)
+✔ local HTTP auth path (47.000208ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ S11 replay binding over HTTP
+  ✔ same session, same body: second POST returns the first body and writes nothing (48.582417ms)
+  ✔ another session reusing the key gets CONFLICT with no stored body, even if the body names the first actor (16.345666ms)
+  ✔ same session, changed body on the same key: CONFLICT (13.343ms)
+  ✔ a pre-binding row answers 409 REPLAY_REVIEW_REQUIRED with the review message, not the stored body (5.386375ms)
+[evidence] http race statuses: 201,201,201,201,201,201
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ 6 overlapping POSTs from one session on one key create one party (34.6145ms)
+✔ S11 replay binding over HTTP (214.610125ms)
+▶ retired membership probe
+  ✔ is not a production session attachment path (0.817459ms)
+✔ retired membership probe (1.363625ms)
+▶ CC-2A session HTTP errors
+  ✔ maps expected auth states to 401/403 and hides store errors (0.177167ms)
+  ✔ does not read caller member or organization from the session controller (0.128708ms)
+✔ CC-2A session HTTP errors (0.391458ms)
+▶ resolveSession trusted attachment
+  ✔ attaches organization and stored scopes, ignoring the request body (1.855917ms)
+  ✔ does not attach a session when the header names a foreign tenant (0.4915ms)
+  ✔ fails closed for multiple memberships without a selector (1.524666ms)
+✔ resolveSession trusted attachment (4.435791ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":4,"published":4,"retried":0,"deadLetter":0,"duplicates":0}
+▶ T03 customer authority over HTTP (disposable Postgres)
+  ✔ seller registers a customer and immediately quotes it (item 6, actual command path) (91.4765ms)
+  ✔ shared phone: generic 409 without a reason, second customer with a reason, no merge (40.545917ms)
+  ✔ master_data.admin cannot quote, convert, cancel or approve (403, exact body, no writes) (31.517208ms)
+  ✔ nonexistent, foreign-tenant and inaccessible customers get the same 404 body (46.598ms)
+  ✔ coverage must explicitly cover the action and never changes the owner (60.742541ms)
+  ✔ team manager with the action permissions edits the customer and quotes without owning or covering (239.394459ms)
+  ✔ read-only, outside-team, ended-team and cross-tenant managers are denied with no writes (78.371583ms)
+  ✔ coverage converts only with explicit quote.convert plus the advisor's own permission (T03 19:30) (181.476458ms)
+  ✔ data steward finds and reads legal fields without commercial data or authority (T03 19:30) (264.560459ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ reassignment needs the action permission AND explicit assignment scope (T03 19:30) (81.683208ms)
+✔ T03 customer authority over HTTP (disposable Postgres) (1255.045208ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ os-api tenant isolation
+  ✔ cannot read member from another tenant (24.718166ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+  ✔ cross-tenant invite is forbidden (12.321375ms)
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":6,"published":6,"retried":0,"deadLetter":0,"duplicates":0}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+✔ os-api tenant isolation (177.398625ms)
+▶ loadTrustedMemberContextFromRequest
+  ✔ ignores client organizationId, member id, and scopes (3.269208ms)
+  ✔ denies a suspended member even when the client claims active scopes (0.192209ms)
+  ✔ does not select a foreign tenant named by the header or the client (0.308417ms)
+  ✔ fails closed when several active memberships have no selector (0.155875ms)
+  ✔ selects only the proven membership named by the header (0.175917ms)
+  ✔ denies an inactive member and does not fall back to another tenant (0.200625ms)
+  ✔ does not let cargo, title, or people.admin grant operating scopes (0.253916ms)
+  ✔ does not read query, body, or member headers as the grant source (0.561375ms)
+✔ loadTrustedMemberContextFromRequest (5.717375ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ os-api workforce admin mutation HTTP (Step 14.7)
+  ✔ POST ChangeRole succeeds for people.admin (39.797167ms)
+  ✔ POST ChangeDepartment with nonexistent departmentId returns VALIDATION_FAILED 400 (7.141667ms)
+  ✔ POST ChangeDepartment with foreign-tenant departmentId returns VALIDATION_FAILED 400 (6.233916ms)
+  ✔ POST ChangeDepartment succeeds for valid same-tenant department (12.383916ms)
+  ✔ POST ChangeRole forbidden for non-admin (6.742583ms)
+  ✔ POST SuspendMember succeeds; suspended actor blocked on next command (18.802834ms)
+  ✔ POST TerminateMember blocked with open work returns VALIDATION_FAILED (17.106333ms)
+  ✔ POST ActivateMember on terminated member rejected (J-13) (17.06325ms)
+  ✔ POST GrantDelegation and RevokeDelegation succeed (13.042625ms)
+  ✔ POST RequestMemberEmailChange succeeds without provider side effect (6.153375ms)
+  ✔ cross-tenant SuspendMember returns NOT_FOUND (5.62875ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ idempotent SuspendMember returns same commandId (30.967ms)
+✔ os-api workforce admin mutation HTTP (Step 14.7) (285.326209ms)
+ℹ tests 210
+ℹ suites 57
+ℹ pass 210
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17250.182666

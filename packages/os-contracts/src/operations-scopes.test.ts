@@ -79,6 +79,8 @@ describe('operational access scopes', () => {
       'commercial.customer.reactivate',
       'commercial.data_correction.review',
       'commercial.work.manage',
+      'commercial.assignment.org',
+      'commercial.intake.assign',
       COMMERCIAL_TEAM_READ_SCOPE,
       'management.org.read',
       'commercial.quote.convert.own',

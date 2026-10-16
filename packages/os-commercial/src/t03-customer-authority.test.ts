@@ -190,8 +190,8 @@ function harness(
     async updateQuote() {
       writes.push('updateQuote');
     },
-    async insertOrder() {
-      writes.push('insertOrder');
+    async insertOrder(row: OrderRecord) {
+      writes.push(`insertOrder:${row.ownerMemberId}`);
     },
     async insertOrderLines() {
       writes.push('insertOrderLines');
@@ -281,13 +281,64 @@ describe('T03 customer authority: coverage covers only explicit actions', () => 
     }
   });
 
-  it('never lets coverage convert or cancel the owner\'s order', async () => {
-    for (const probe of COMMANDS.slice(4)) {
-      const t = harness({ grants: [{ actingAdvisorMemberId: ADVISOR, coveredActions: ['commercial.work', 'customer.edit'] }] });
-      const result = await outcome(() => t.service.execute(probe.command, ctx(ADVISOR), probe.payload));
-      assert.equal(result, 'PERMISSION_DENIED', probe.command);
-      assert.deepEqual(t.writes, [], probe.command);
+  // T03 2026-10-16 19:30 supersedes BR-CNV-02 ("coverage never converts"): conversion needs explicit
+  // quote.convert coverage AND the advisor's own conversion permission. Coverage never cancels orders.
+  it('never lets coverage cancel the owner\'s order', async () => {
+    const t = harness({
+      scopes: { [ADVISOR]: ['commercial.quote.convert.own'] },
+      grants: [{ actingAdvisorMemberId: ADVISOR, coveredActions: ['commercial.work', 'customer.edit', 'quote.convert'] }],
+    });
+    assert.equal(await outcome(() => t.service.execute('CancelOrder', ctx(ADVISOR), { orderId: 'order-1' })), 'PERMISSION_DENIED');
+    assert.deepEqual(t.writes, []);
+  });
+
+  it('converts under explicit quote.convert coverage when the advisor holds conversion permission', async () => {
+    const t = harness({
+      scopes: { [ADVISOR]: ['commercial.quote.convert.own'] },
+      grants: [{ actingAdvisorMemberId: ADVISOR, coveredActions: ['commercial.work', 'quote.convert'] }],
+    });
+    assert.equal(await outcome(() => t.service.execute('CreateOrder', ctx(ADVISOR), { quoteId: 'quote-1' })), 'OK');
+    assert.ok(t.writes.includes(`insertOrder:${OWNER}`), 'order keeps the account owner');
+    const event = t.events.find((e) => e.eventType === 'order.created')!;
+    assert.equal(event.actorMemberId, ADVISOR);
+    assert.equal(event.payload?.primaryOwnerMemberId, OWNER);
+    assert.equal(event.payload?.actingAdvisorMemberId, ADVISOR);
+    assert.equal(event.payload?.conversionPath, 'coverage');
+  });
+
+  it('denies conversion under edit-only or work-only coverage, even with conversion permission', async () => {
+    for (const coveredActions of [['customer.edit'], ['commercial.work', 'customer.edit']] as CustomerCoverageAction[][]) {
+      const t = harness({
+        scopes: { [ADVISOR]: ['commercial.quote.convert.own', 'commercial.order.convert'] },
+        grants: [{ actingAdvisorMemberId: ADVISOR, coveredActions }],
+      });
+      assert.equal(await outcome(() => t.service.execute('CreateOrder', ctx(ADVISOR), { quoteId: 'quote-1' })), 'PERMISSION_DENIED');
+      assert.deepEqual(t.writes, []);
     }
+  });
+
+  it('denies quote.convert coverage when the advisor lacks conversion permission', async () => {
+    const t = harness({ grants: [{ actingAdvisorMemberId: ADVISOR, coveredActions: ['commercial.work', 'quote.convert'] }] });
+    assert.equal(await outcome(() => t.service.execute('CreateOrder', ctx(ADVISOR), { quoteId: 'quote-1' })), 'PERMISSION_DENIED');
+    assert.deepEqual(t.writes, []);
+  });
+
+  it('treats expired, revoked or foreign quote.convert coverage as no access', async () => {
+    for (const grant of [
+      { actingAdvisorMemberId: ADVISOR, coveredActions: ['quote.convert'] as const, endsAt: new Date('2026-10-01T00:00:00Z') },
+      { actingAdvisorMemberId: ADVISOR, coveredActions: ['quote.convert'] as const, revokedAt: new Date('2026-10-01T00:00:00Z') },
+    ]) {
+      const t = harness({ scopes: { [ADVISOR]: ['commercial.quote.convert.own'] }, grants: [grant] });
+      assert.equal(await outcome(() => t.service.execute('CreateOrder', ctx(ADVISOR), { quoteId: 'quote-1' })), 'NOT_FOUND');
+      assert.deepEqual(t.writes, []);
+    }
+    const foreign = harness({
+      scopes: { [ADVISOR]: ['commercial.quote.convert.own'] },
+      grants: [{ actingAdvisorMemberId: ADVISOR, coveredActions: ['quote.convert'] }],
+      quote: quote({ organizationId: FOREIGN_ORG, partyId: FOREIGN_PARTY }),
+    });
+    assert.equal(await outcome(() => foreign.service.execute('CreateOrder', ctx(ADVISOR), { quoteId: 'quote-1' })), 'NOT_FOUND');
+    assert.deepEqual(foreign.writes, []);
   });
 
   it('treats expired and revoked coverage as no access and no visibility', async () => {

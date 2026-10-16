@@ -1,0 +1,22 @@
+MUTATION: coverage-convert-uses-work
+replaced:     action: 'quote.convert',
+with:     action: 'commercial.work',
+✖ CreateOrder provisional authority (11.463042ms)
+✖ T03 customer authority: coverage covers only explicit actions (4.792834ms)
+ℹ pass 99
+ℹ fail 2
+✖ failing tests:
+✖ does not treat commercial.quote.convert.own as covering-advisor convert (2.794416ms)
+✖ denies conversion under edit-only or work-only coverage, even with conversion permission (2.239083ms)
+✖ T03 customer authority over HTTP (disposable Postgres) (1086.302125ms)
+ℹ pass 6
+ℹ fail 4
+✖ failing tests:
+✖ coverage must explicitly cover the action and never changes the owner (54.024584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+✖ team manager with the action permissions edits the customer and quotes without owning or covering (43.243625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+✖ coverage converts only with explicit quote.convert plus the advisor's own permission (T03 19:30) (24.960917ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+✖ reassignment needs the action permission AND explicit assignment scope (T03 19:30) (189.926291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:

@@ -14,6 +14,7 @@ import {
   canReassignCommercialAccountOwner,
   CursorPaginationSchema,
   ListPartyTimelineQuerySchema,
+  resolveAccountAssignmentAuthority,
   SearchPartiesQuerySchema,
 } from '@isalwa/os-contracts';
 import type { OsPartyStore } from '@isalwa/os-party';
@@ -53,6 +54,31 @@ export class PartiesController {
     @Inject(OS_MEMBER_QUERY_STORE) private readonly directReports: DirectReportLookup,
     @Inject(OS_RATE_LIMIT_COUNTER) private readonly rateLimits: RateLimitCounter,
   ) {}
+
+  /**
+   * UI hints only; the commands recheck. Reassignment/coverage needs the action
+   * permission plus assignment scope over this account (any eligible target in scope).
+   */
+  private async accountAssignmentFlags(
+    organizationId: string,
+    actorMemberId: string,
+    asOf: Date,
+    grantedScopes: string[],
+    ownerMemberId: string | null,
+  ): Promise<{ canReassignOwner: boolean; canManageCoverage: boolean }> {
+    const authority = resolveAccountAssignmentAuthority({
+      grantedScopes,
+      currentOwnerMemberId: ownerMemberId,
+      actorLeadsCurrentOwner: ownerMemberId
+        ? await this.partyStore.isDirectReport(organizationId, actorMemberId, ownerMemberId, asOf)
+        : false,
+      actorLeadsTarget: true,
+    });
+    return {
+      canReassignOwner: authority !== null && canReassignCommercialAccountOwner(grantedScopes),
+      canManageCoverage: authority !== null && ownerMemberId !== null && canGrantCustomerCoverage(grantedScopes),
+    };
+  }
 
   /** Session, query context and the customer boundary. Unreadable is NOT_FOUND. */
   private async readableCustomer(req: Request, partyId: string) {
@@ -269,16 +295,13 @@ export class PartiesController {
         contactsMeta,
         commercialAccount,
         activeCoverage,
-        commercialAuthority: {
-          canReassignOwner: canReassignCommercialAccountOwner([
-            ...queryCtx.auth.roleKeys,
-            ...queryCtx.auth.delegatedScopes,
-          ]),
-          canManageCoverage: canGrantCustomerCoverage([
-            ...queryCtx.auth.roleKeys,
-            ...queryCtx.auth.delegatedScopes,
-          ]),
-        },
+        commercialAuthority: await this.accountAssignmentFlags(
+          session.organizationId,
+          session.actorMemberId,
+          session.effectiveAt ?? new Date(),
+          [...queryCtx.auth.roleKeys, ...queryCtx.auth.delegatedScopes],
+          commercialAccount?.ownerMemberId ?? null,
+        ),
       };
     } catch (err) {
       if (err instanceof HttpException) throw err;

@@ -3,6 +3,8 @@
 **Authority:** Canonical V1 consolidation prompt §37  
 **Status:** REGISTERED — implementation compliance filled as lanes report  
 
+> **2026-10-16 (owner decision 19:30, T03):** BR-CNV-02 is refined: coverage still never converts automatically, but an advisor may convert for a covered account when the active coverage explicitly delegates `quote.convert`, the advisor holds a conversion permission, and the grantor could delegate it. BR-COV-02/03 and BR-REA-01/02 now also require an assignment reach (team, organization-wide or intake). Authoritative: `docs/operations/commercial-release/REUSE_MAP.md` §12.
+
 | RULE_ID | RULE | IMPLEMENTED? | TESTED? | HOSTED_PROVEN? | REVERSIBLE_V1_DEFAULT? | REAL_COMPANY_CONFIRMED? | BUSINESS_DECISION_REQUIRED? | CONTRADICTION? |
 |---|---|---|---|---|---|---|---|---|
 | BR-OWN-01 | ONE commercial owner | TBD | TBD | TBD | YES | YES (intent) | NO | |

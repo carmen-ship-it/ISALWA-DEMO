@@ -394,6 +394,9 @@ const HTTP_CLASSIFICATION: Record<string, string> = {
   'GET /product-feedback': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
   'GET /qa/effective-access': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
   'GET /qa/synth-personas': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  // master_data.admin only; proven in t03-customer-authority.http.test.ts on disposable Postgres.
+  'GET /master-data/parties': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_PG_VERIFIED',
+  'GET /master-data/parties/:partyId': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_PG_VERIFIED',
 };
 
 function getRoutes(source: string): string[] {

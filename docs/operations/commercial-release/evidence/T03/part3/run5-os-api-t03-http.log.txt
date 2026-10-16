@@ -1,0 +1,25 @@
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":17,"published":17,"retried":0,"deadLetter":0,"duplicates":0}
+▶ T03 customer authority over HTTP (disposable Postgres)
+  ✔ seller registers a customer and immediately quotes it (item 6, actual command path) (131.727541ms)
+  ✔ shared phone: generic 409 without a reason, second customer with a reason, no merge (29.344125ms)
+  ✔ master_data.admin cannot quote, convert, cancel or approve (403, exact body, no writes) (34.049958ms)
+  ✔ nonexistent, foreign-tenant and inaccessible customers get the same 404 body (50.743875ms)
+  ✔ coverage must explicitly cover the action and never changes the owner (61.074667ms)
+  ✔ team manager with the action permissions edits the customer and quotes without owning or covering (51.238834ms)
+  ✔ read-only, outside-team, ended-team and cross-tenant managers are denied with no writes (42.070416ms)
+  ✔ coverage converts only with explicit quote.convert plus the advisor's own permission (T03 19:30) (113.171ms)
+  ✔ data steward finds and reads legal fields without commercial data or authority (T03 19:30) (202.029417ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ reassignment needs the action permission AND explicit assignment scope (T03 19:30) (92.016042ms)
+✔ T03 customer authority over HTTP (disposable Postgres) (1034.342458ms)
+ℹ tests 10
+ℹ suites 1
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1781.092125

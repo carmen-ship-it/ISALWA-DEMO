@@ -2,6 +2,7 @@ import { hasExplicitScope } from './commercial-authority';
 import {
   ADMIN_SCOPE_KEYS,
   APPROVAL_ACT_SCOPE,
+  COMMERCIAL_ACCOUNT_REASSIGN_SCOPE,
   COMMERCIAL_AUTHORITY_SCOPE_KEYS,
   COMMERCIAL_ORDER_CONVERT_SCOPE,
   COMMERCIAL_ORG_READ_SCOPE,
@@ -48,6 +49,18 @@ export const COMMERCIAL_DATA_CORRECTION_REVIEW_SCOPE = 'commercial.data_correcti
  * documents, or dispatch. Read scopes alone never supply it.
  */
 export const COMMERCIAL_WORK_MANAGE_SCOPE = 'commercial.work.manage' as const;
+/**
+ * Organization-wide assignment authority (T03, 2026-10-16 19:30). With
+ * commercial.account.reassign: cross-team transfers, any account in the
+ * organization, allocation of unassigned accounts, and coverage administration
+ * anywhere in the organization. commercial.org.read never implies it.
+ */
+export const COMMERCIAL_ASSIGNMENT_ORG_SCOPE = 'commercial.assignment.org' as const;
+/**
+ * Intake queue allocation (T03, 2026-10-16 19:30). With commercial.account.reassign:
+ * assign an account that has no owner to an active member. Does not move owned accounts.
+ */
+export const COMMERCIAL_INTAKE_ASSIGN_SCOPE = 'commercial.intake.assign' as const;
 export const MANAGEMENT_ORG_READ_SCOPE = 'management.org.read' as const;
 /** Re-export canonical convert.own — single definition lives in scopes.ts. */
 export { COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE };
@@ -123,6 +136,8 @@ export const OPERATIONS_ACCESS_SCOPE_KEYS = [
   COMMERCIAL_CUSTOMER_REACTIVATE_SCOPE,
   COMMERCIAL_DATA_CORRECTION_REVIEW_SCOPE,
   COMMERCIAL_WORK_MANAGE_SCOPE,
+  COMMERCIAL_ASSIGNMENT_ORG_SCOPE,
+  COMMERCIAL_INTAKE_ASSIGN_SCOPE,
   COMMERCIAL_TEAM_READ_SCOPE,
   MANAGEMENT_ORG_READ_SCOPE,
   COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
@@ -385,20 +400,35 @@ export function mayEnterProduction(input: {
  * command permission: the advisor must hold it too.
  * - commercial.work: continue the primary owner's opportunities and quotes.
  * - customer.edit: maintain customer data (also needs commercial.customer.edit).
+ * - quote.convert: convert the primary owner's eligible quote to a Pedido (also
+ *   needs the advisor's own conversion permission; canConvertCoveredQuote).
  * - customer.archive / customer.reactivate: representable for explicit delegated
  *   authority; this release does not issue them (see GRANTABLE_COVERAGE_ACTIONS).
- * Coverage never covers Quote → Pedido conversion (canConvertQuoteToOrder).
  */
 export const CUSTOMER_COVERAGE_ACTIONS = [
   'commercial.work',
   'customer.edit',
+  'quote.convert',
   'customer.archive',
   'customer.reactivate',
 ] as const;
 export type CustomerCoverageAction = (typeof CUSTOMER_COVERAGE_ACTIONS)[number];
 
 /** Actions a coverage grant may carry in this release. */
-export const GRANTABLE_COVERAGE_ACTIONS = ['commercial.work', 'customer.edit'] as const;
+export const GRANTABLE_COVERAGE_ACTIONS = ['commercial.work', 'customer.edit', 'quote.convert'] as const;
+
+/**
+ * A grantor may delegate only what they are authorized to do: delegating an
+ * action needs this scope on the grantor, in addition to coverage administration
+ * authority over the account. null = coverage administration authority suffices.
+ */
+export const COVERAGE_ACTION_GRANTOR_SCOPE: Record<CustomerCoverageAction, string | null> = {
+  'commercial.work': null,
+  'customer.edit': COMMERCIAL_CUSTOMER_EDIT_SCOPE,
+  'quote.convert': COMMERCIAL_ORDER_CONVERT_SCOPE,
+  'customer.archive': COMMERCIAL_CUSTOMER_ARCHIVE_SCOPE,
+  'customer.reactivate': COMMERCIAL_CUSTOMER_REACTIVATE_SCOPE,
+};
 
 /** Grants recorded before actions were explicit carried only the commercial-work meaning. */
 export const LEGACY_COVERAGE_ACTIONS: readonly CustomerCoverageAction[] = ['commercial.work'];
@@ -644,6 +674,76 @@ export function canManageCustomerAccountWork(input: {
   if (!hasExplicitScope(input.grantedScopes, COMMERCIAL_WORK_MANAGE_SCOPE)) return false;
   if (hasExplicitScope(input.grantedScopes, COMMERCIAL_ORG_READ_SCOPE)) return true;
   return input.ownerIsDirectReportOfActor && hasExplicitScope(input.grantedScopes, COMMERCIAL_TEAM_READ_SCOPE);
+}
+
+/**
+ * Quote → Pedido by a covering advisor (T03, 2026-10-16 19:30; supersedes
+ * BR-CNV-02 "coverage never converts"). All must hold: an active grant for this
+ * account and its current owner that explicitly covers quote.convert; the
+ * advisor's own conversion permission (commercial.quote.convert.own or
+ * commercial.order.convert); the quote belongs to the current account owner.
+ * Quote eligibility (status, lines, existing order) is checked by the command.
+ */
+export function canConvertCoveredQuote(input: {
+  actorMemberId: string;
+  organizationId: string;
+  customerPartyId: string;
+  grantedScopes: readonly string[];
+  accountOwnerMemberId: string | null;
+  quoteOwnerMemberId: string;
+  coverageGrants: readonly CustomerCoverageGrant[];
+  asOf: Date;
+}): boolean {
+  const owner = input.accountOwnerMemberId;
+  if (!input.actorMemberId || !owner || input.quoteOwnerMemberId !== owner) return false;
+  if (
+    !hasExplicitScope(input.grantedScopes, COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE) &&
+    !hasExplicitScope(input.grantedScopes, COMMERCIAL_ORDER_CONVERT_SCOPE)
+  ) {
+    return false;
+  }
+  return continueCoveredCustomerWorkflow({
+    actorMemberId: input.actorMemberId,
+    organizationId: input.organizationId,
+    customerPartyId: input.customerPartyId,
+    primaryOwnerMemberId: owner,
+    grants: input.coverageGrants,
+    asOf: input.asOf,
+    action: 'quote.convert',
+  }).allowed;
+}
+
+export type AccountAssignmentAuthority = 'org' | 'team' | 'intake' | null;
+
+/**
+ * Who may move account ownership or administer coverage (T03, 2026-10-16 19:30).
+ * Always needs commercial.account.reassign (the action) plus one assignment scope:
+ * - 'org': commercial.assignment.org, anywhere in the organization;
+ * - 'intake': commercial.intake.assign, only for an account with no owner;
+ * - 'team': commercial.team.read and the actor currently manages both the current
+ *   owner and the target member (direct reports, same definition as T02).
+ * commercial.org.read, people.admin and master_data.admin are never assignment scope.
+ * Eligibility of the target (active member of this organization) is checked by the command.
+ */
+export function resolveAccountAssignmentAuthority(input: {
+  grantedScopes: readonly string[];
+  currentOwnerMemberId: string | null;
+  actorLeadsCurrentOwner: boolean;
+  actorLeadsTarget: boolean;
+}): AccountAssignmentAuthority {
+  if (!hasExplicitScope(input.grantedScopes, COMMERCIAL_ACCOUNT_REASSIGN_SCOPE)) return null;
+  if (hasExplicitScope(input.grantedScopes, COMMERCIAL_ASSIGNMENT_ORG_SCOPE)) return 'org';
+  if (!input.currentOwnerMemberId) {
+    return hasExplicitScope(input.grantedScopes, COMMERCIAL_INTAKE_ASSIGN_SCOPE) ? 'intake' : null;
+  }
+  if (
+    hasExplicitScope(input.grantedScopes, COMMERCIAL_TEAM_READ_SCOPE) &&
+    input.actorLeadsCurrentOwner &&
+    input.actorLeadsTarget
+  ) {
+    return 'team';
+  }
+  return null;
 }
 
 /**

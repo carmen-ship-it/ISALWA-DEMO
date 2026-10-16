@@ -246,7 +246,7 @@ describe('T03 Registrar cliente: steward is not an owner', () => {
     assert.equal(t.rows.account![0]!.ownerMemberId, null);
   });
 
-  it('does not let the steward self-assign ownership; assignment needs commercial.account.reassign', async () => {
+  it('does not let the steward self-assign ownership; assignment needs reassign plus org or intake assignment scope', async () => {
     const self = harness({ scopes: { [STEWARD]: ['master_data.admin'] } });
     assert.equal(
       await outcome(() =>
@@ -261,14 +261,31 @@ describe('T03 Registrar cliente: steward is not an owner', () => {
     );
     assert.equal(self.rows.party!.length, 0);
 
-    const assigned = harness({ scopes: { [MANAGER]: ['master_data.admin', 'commercial.account.reassign'], [SELLER]: [] } });
-    await assigned.party.execute('CreateParty', ctx(MANAGER), {
-      partyKind: 'organization',
-      displayName: 'Ferretería Norte',
-      initialRoleKey: 'customer',
-      accountOwnerMemberId: SELLER,
-    });
-    assert.equal(assigned.rows.account![0]!.ownerMemberId, SELLER);
+    // T03 2026-10-16 19:30: allocating a new (unassigned) account needs reassign AND org-wide or intake scope.
+    const alone = harness({ scopes: { [MANAGER]: ['master_data.admin', 'commercial.account.reassign', 'commercial.org.read'], [SELLER]: [] } });
+    assert.equal(
+      await outcome(() =>
+        alone.party.execute('CreateParty', ctx(MANAGER), {
+          partyKind: 'organization',
+          displayName: 'Ferretería Norte',
+          initialRoleKey: 'customer',
+          accountOwnerMemberId: SELLER,
+        }),
+      ),
+      'PERMISSION_DENIED',
+    );
+    assert.equal(alone.rows.party!.length, 0);
+
+    for (const scope of ['commercial.intake.assign', 'commercial.assignment.org']) {
+      const assigned = harness({ scopes: { [MANAGER]: ['master_data.admin', 'commercial.account.reassign', scope], [SELLER]: [] } });
+      await assigned.party.execute('CreateParty', ctx(MANAGER), {
+        partyKind: 'organization',
+        displayName: 'Ferretería Norte',
+        initialRoleKey: 'customer',
+        accountOwnerMemberId: SELLER,
+      });
+      assert.equal(assigned.rows.account![0]!.ownerMemberId, SELLER, scope);
+    }
   });
 });
 

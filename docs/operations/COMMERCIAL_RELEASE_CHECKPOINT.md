@@ -7,13 +7,15 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | T00 | LOCAL_COMPLETE (docs only) | `30077c6` | `commercial-release/receipts/T00.md` |
 | T01 | LOCAL_COMPLETE (tested fake + disposable PG + local HTTP; NOT INDEPENDENTLY REVIEWED) | `1d69341` | `commercial-release/receipts/T01.md` |
 | T02 | LOCAL_COMPLETE (customer visibility boundary + operational reads + shared rate limit; tested fake + disposable PG + local HTTP; NOT INDEPENDENTLY REVIEWED) | `f76751d` | `commercial-release/receipts/T02.md` |
-| T03 | IN_PROGRESS (part 1 `3183c36`; part 2 committed, see `receipts/T03.md` §11; not complete) | `receipts/T03.md` (partial) | `commercial-release/evidence/T03/part2/` (run4 all green, HTTP + Postgres, mutation check) |
+| T03 | IN_PROGRESS (part 1 `3183c36`; part 2 `1d20081`; part 3 committed, see `receipts/T03.md` §11; not complete) | `receipts/T03.md` (partial) | `commercial-release/evidence/T03/part2/` (run4), `part3/` (run5 all green, HTTP + Postgres, 2 mutation checks) |
 
 ## Last confirmed step
 
 T02 committed: shared customer-visibility predicate (search/detail/contacts/locations/timeline/conversations), duplicate-counterpart redaction, HTTP+PG proof for the 8 remaining operational GETs (ledger pending = 0), Postgres-shared rate limit (`os_rate_limit_buckets`, migration 34) for search/commands/invitations.
 
 ## Next command
+
+T03 part 3 done (owner decisions 2026-10-16 19:30, authoritative record `REUSE_MAP.md` §12): coverage converts only with explicit `quote.convert` + the advisor's own conversion permission (BR-CNV-02 refined; grantor delegates only what it holds); reassign/coverage administration need `commercial.account.reassign` AND reach (team, new `commercial.assignment.org`, new `commercial.intake.assign`; `org.read` is not reach); reassignment ends coverage and keeps record ownership; data-steward lookup `GET /v1/master-data/parties`. Migration impact on staging/fixture grants in §12.6 (not changed; hosted grants UNVERIFIED). Payments authorization PENDING T07. Delegation/date failure accounting in `receipts/T03.md` §12. Open: new owner cannot `convert.own` the previous owner's submitted quote (recorded).
 
 T03 part 2 done (authority rules in `receipts/T03.md` §3): master-data vs commercial authority per command; coverage by explicit action (`coveredActions`); non-disclosure 404/403 order; atomic seller CreateParty with account ownership + generic duplicate 409; manager work = action permission (`commercial.customer.edit`, new `commercial.work.manage`) + current team/org range. T10/T11 also removes the unused "Modo aprendizaje" toggle (no functional consumer, `REUSE_MAP.md` §11.0). Open policy items: coverage-convert (V2 l.121), org-wide `commercial.account.reassign`. Still to do in T03: receipt §9. Generated Prisma client is now committed with the T03 schema; regenerate (`npx prisma generate`) instead of `git checkout`.
 

@@ -1,7 +1,7 @@
 import {
-  canReassignCommercialAccountOwner,
   COMMERCIAL_CUSTOMER_CREATE_SCOPE,
   MASTER_DATA_ADMIN_SCOPE,
+  resolveAccountAssignmentAuthority,
   type PartyCommandName,
   type RequestContext,
 } from '@isalwa/os-contracts';
@@ -323,7 +323,8 @@ export class PartyCommandService {
   /**
    * Initial account owner. Holding commercial.customer.create makes the creator
    * the default owner (V2 §5.4 "Responsable default actor para asesor").
-   * Naming another member is an assignment and needs commercial.account.reassign.
+   * Naming another member allocates an unassigned account: commercial.account.reassign
+   * plus organization-wide or intake assignment scope (resolveAccountAssignmentAuthority).
    * master_data.admin alone never makes the steward an owner.
    */
   private async resolveInitialAccountOwner(
@@ -339,7 +340,13 @@ export class PartyCommandService {
       if (!seller) throw new Error('PERMISSION_DENIED');
       return ownerMemberId;
     }
-    if (!canReassignCommercialAccountOwner(scopes)) throw new Error('PERMISSION_DENIED');
+    const authority = resolveAccountAssignmentAuthority({
+      grantedScopes: scopes,
+      currentOwnerMemberId: null,
+      actorLeadsCurrentOwner: false,
+      actorLeadsTarget: false,
+    });
+    if (!authority) throw new Error('PERMISSION_DENIED');
     const member = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
     if (!member || member.organizationId !== ctx.organizationId || member.accessStatus !== 'active') {
       throw new Error('VALIDATION_FAILED');

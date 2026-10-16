@@ -1,6 +1,7 @@
 import type { PartySummaryReadModel, SearchPartiesQuery } from '@isalwa/os-contracts';
 import {
   locationHasCoordinates,
+  MASTER_DATA_ADMIN_SCOPE,
   OS_PROJECTION_CONSUMER_KEYS,
   selectLocationProvenanceUrl,
   selectPrimaryPhone,
@@ -18,6 +19,33 @@ import {
   resolveCustomerReadScope,
   type CustomerVisibilityLookup,
 } from './customer-visibility';
+
+/** Party identity a data steward maintains. Never contact, location or commercial data. */
+export type MasterDataPartySummary = {
+  partyId: string;
+  partyKind: string;
+  displayName: string;
+  legalName: string | null;
+  status: string;
+  activeRoleKeys: string[];
+  mergedIntoPartyId: string | null;
+};
+
+export function toMasterDataPartySummary(model: PartySummaryReadModel): MasterDataPartySummary {
+  return {
+    partyId: model.partyId,
+    partyKind: model.partyKind,
+    displayName: model.displayName,
+    legalName: model.legalName ?? null,
+    status: model.status,
+    activeRoleKeys: [...model.activeRoleKeys],
+    mergedIntoPartyId: model.mergedIntoPartyId ?? null,
+  };
+}
+
+function foldForMatch(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
 
 export type PartySearchResult = PaginatedResult<ReturnType<typeof toPartySummary>> & {
   freshness: Awaited<ReturnType<OsProjectionStorePort['getFreshness']>>;
@@ -86,6 +114,39 @@ export class PartyQueryService {
       meta: { nextCursor, limit, hasMore },
       freshness,
     };
+  }
+
+  /**
+   * Data-steward lookup (T03, 2026-10-16 19:30): a master_data.admin holder locates
+   * the party records they maintain without commercial.org.read. Identity fields only;
+   * matches only on display/legal name, so a contact name, email or phone never
+   * reveals a party. No contacts, locations, owner, conversations, quotes or
+   * payments. Grants no commercial action.
+   */
+  async searchMasterDataParties(
+    ctx: QueryContext,
+    query: SearchPartiesQuery,
+  ): Promise<{ items: MasterDataPartySummary[]; meta: { nextCursor: string | null; limit: number; hasMore: boolean } }> {
+    assertQueryScope(ctx, MASTER_DATA_ADMIN_SCOPE);
+    assertQueryTenantResource(ctx, ctx.organizationId);
+    const { items: rawItems, hasMore } = await this.deps.projectionStore.searchParties(
+      ctx.organizationId,
+      query,
+      undefined,
+    );
+    const needle = foldForMatch(query.q ?? '');
+    const items = rawItems
+      .filter(
+        (item) =>
+          !needle ||
+          foldForMatch(item.displayName).includes(needle) ||
+          foldForMatch(item.legalName ?? '').includes(needle),
+      )
+      .map(toMasterDataPartySummary);
+    const limit = query.limit ?? 25;
+    const last = rawItems.at(-1);
+    const nextCursor = hasMore && last ? this.deps.encodeCursor(last.displayName, last.partyId) : null;
+    return { items, meta: { nextCursor, limit, hasMore } };
   }
 
   /**
