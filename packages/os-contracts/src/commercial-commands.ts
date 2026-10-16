@@ -138,6 +138,8 @@ export const ReassignCommercialAccountOwnerPayloadSchema = z.object({
 export const GrantCustomerCoveragePayloadSchema = z.object({
   commercialAccountId: z.string().min(1),
   actingAdvisorMemberId: z.string().min(1),
+  /** Defaults to commercial.work. The service accepts only GRANTABLE_COVERAGE_ACTIONS. */
+  coveredActions: z.array(z.string().min(1)).min(1).max(4).optional(),
   endsAt: z.string().datetime().optional().nullable(),
   note: z.string().max(2000).optional(),
 });

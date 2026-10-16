@@ -188,6 +188,15 @@ describePrisma('projection prisma integration (Step 15)', () => {
       'master_data.admin',
     );
 
+    // T02: master_data.admin alone reads no customer; the searcher holds org-wide commercial read.
+    await workforceStore.insertRoleAssignment({
+      id: `ta-read-${Date.now()}`,
+      organizationId: orgA.id,
+      memberId: adminA.member.id,
+      roleKey: 'commercial.org.read',
+      effectiveAt: new Date('2020-01-01'),
+      endedAt: null,
+    });
     await partySvc.execute(
       'CreateParty',
       ctx(orgA.id, adminA.member.id, adminA.person.id, adminA.auth.id),

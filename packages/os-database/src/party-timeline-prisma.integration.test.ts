@@ -232,6 +232,15 @@ describePrisma('party timeline prisma integration', () => {
       'Admin',
       'master_data.admin',
     );
+    // T02: master_data.admin alone reads no customer; the reader holds org-wide commercial read.
+    await workforceStore.insertRoleAssignment({
+      id: `iso-read-${createId()}`,
+      organizationId: org.id,
+      memberId: mdAdmin.member.id,
+      roleKey: 'commercial.org.read',
+      effectiveAt: new Date('2020-01-01'),
+      endedAt: null,
+    });
     const adminCtx = ctx(org.id, mdAdmin.member.id, mdAdmin.person.id, mdAdmin.auth.id);
     const partyA = String(
       (await partySvc.execute('CreateParty', adminCtx, {

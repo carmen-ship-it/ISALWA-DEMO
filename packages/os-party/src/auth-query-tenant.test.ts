@@ -35,6 +35,10 @@ function recordingStore() {
       calls.push({ method: 'listDelegationsForDelegate', memberId, organizationId });
       return [];
     },
+    async getPartyInOrg(organizationId: string, partyId: string) {
+      calls.push({ method: 'getPartyInOrg', memberId: partyId, organizationId });
+      return organizationId === ORG ? { id: partyId, organizationId: ORG, status: 'active' } : null;
+    },
     async getCommercialAccountForParty(organizationId: string, partyId: string) {
       calls.push({ method: 'getCommercialAccountForParty', memberId: partyId, organizationId });
       return null;
@@ -73,7 +77,8 @@ describe('party and location auth queries', () => {
         partyId: 'party-1',
         label: 'Planta',
       }),
-      /PERMISSION_DENIED/,
+      // T02 non-disclosure: a caller who cannot know the customer gets the missing-id answer.
+      /NOT_FOUND/,
     );
     for (const calls of [party.calls, location.calls]) {
       assert.ok(calls.length >= 2);

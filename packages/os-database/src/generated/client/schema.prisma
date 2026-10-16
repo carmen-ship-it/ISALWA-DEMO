@@ -104,6 +104,8 @@ model OsOrganization {
   productFeedback       OsProductFeedback[]
   issueOwnershipHistory OsIssueOwnershipHistory[]
 
+  contactFollowupPreferences OsContactFollowupPreference[]
+
   @@map("os_organizations")
 }
 
@@ -485,6 +487,8 @@ model OsLocation {
   latitude       Float?
   longitude      Float?
   provenanceUrl  String?  @map("provenance_url")
+  city           String?
+  department     String?
   status         String   @default("active")
   version        Int      @default(0)
   createdAt      DateTime @default(now()) @map("created_at")
@@ -670,23 +674,30 @@ model OsPartyRoleAssignment {
 }
 
 model OsContact {
-  id                  String   @id
-  organizationId      String   @map("organization_id")
-  organizationPartyId String   @map("organization_party_id")
-  personPartyId       String?  @map("person_party_id")
-  givenName           String   @map("given_name")
-  familyName          String   @map("family_name")
+  id                  String    @id
+  organizationId      String    @map("organization_id")
+  organizationPartyId String    @map("organization_party_id")
+  personPartyId       String?   @map("person_party_id")
+  givenName           String    @map("given_name")
+  familyName          String    @map("family_name")
   email               String?
   phone               String?
   whatsapp            String?
   title               String?
-  status              String   @default("active")
-  version             Int      @default(0)
-  createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @updatedAt @map("updated_at")
+  status              String    @default("active")
+  version             Int       @default(0)
+  /// A2 §5 Finalizar relación: the person stays; only this company relation ends.
+  relationEndedAt     DateTime? @map("relation_ended_at")
+  relationEndReason   String?   @map("relation_end_reason")
+  /// A2 §5 retired number: excluded from follow-ups, jobs and default selection.
+  phoneRetiredAt      DateTime? @map("phone_retired_at")
+  phoneRetiredReason  String?   @map("phone_retired_reason")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
-  organization      OsOrganization @relation(fields: [organizationId], references: [id])
-  organizationParty OsParty        @relation("OrgPartyContacts", fields: [organizationPartyId], references: [id])
+  organization        OsOrganization                @relation(fields: [organizationId], references: [id])
+  organizationParty   OsParty                       @relation("OrgPartyContacts", fields: [organizationPartyId], references: [id])
+  followupPreferences OsContactFollowupPreference[]
 
   @@index([organizationPartyId])
   @@map("os_contacts")
@@ -2021,6 +2032,8 @@ model OsCustomerCoverageGrant {
   primaryOwnerMemberId  String    @map("primary_owner_member_id")
   actingAdvisorMemberId String    @map("acting_advisor_member_id")
   grantType             String    @default("commercial.customer.coverage") @map("grant_type")
+  /// Explicit actions this grant covers (CUSTOMER_COVERAGE_ACTIONS). Never the underlying command permission.
+  coveredActions        String[]  @default(["commercial.work"]) @map("covered_actions")
   startsAt              DateTime  @map("starts_at")
   endsAt                DateTime? @map("ends_at")
   revokedAt             DateTime? @map("revoked_at")
@@ -2248,4 +2261,25 @@ model OsRateLimitBucket {
   @@id([organizationId, bucketKey, windowStart])
   @@index([windowStart], map: "os_rate_limit_buckets_window_idx")
   @@map("os_rate_limit_buckets")
+}
+
+// fragment: contact-followup-preference.prisma
+/// A1 §7 follow-up preference per contact + channel + tenant. Current row only; history is in business events.
+model OsContactFollowupPreference {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  contactId          String   @map("contact_id")
+  channel            String
+  preference         String
+  source             String
+  identityConfirmed  Boolean  @default(false) @map("identity_confirmed")
+  version            Int      @default(0)
+  recordedByMemberId String   @map("recorded_by_member_id")
+  updatedAt          DateTime @default(now()) @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  contact      OsContact      @relation(fields: [contactId], references: [id])
+
+  @@unique([organizationId, contactId, channel])
+  @@map("os_contact_followup_preferences")
 }

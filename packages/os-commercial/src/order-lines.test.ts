@@ -253,6 +253,20 @@ function conversionStore(input: {
         version: 1,
       };
     },
+    async getCommercialAccountForParty(organizationId: string, partyId: string) {
+      if (organizationId !== row.organizationId || partyId !== row.partyId) return null;
+      return {
+        id: row.commercialAccountId,
+        organizationId: row.organizationId,
+        partyId: row.partyId,
+        ownerMemberId: row.ownerMemberId,
+        status: 'active',
+        version: 1,
+      };
+    },
+    async isDirectReport() {
+      return false;
+    },
     async insertOrder(order: OrderRecord) {
       orders.push(order);
     },

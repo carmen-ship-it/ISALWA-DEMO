@@ -1,5 +1,5 @@
 import { createId } from '@isalwa/ts-utils';
-import { COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE, type CustomerCoverageGrant } from '@isalwa/os-contracts';
+import { COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE, type CustomerCoverageGrant, coverageActionsFromStored } from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type { OsPartyStore } from '@isalwa/os-party';
 import {
@@ -176,6 +176,8 @@ export class PrismaOsPartyStore implements OsPartyStore {
         latitude: location.latitude,
         longitude: location.longitude,
         provenanceUrl: location.provenanceUrl,
+        city: location.city ?? null,
+        department: location.department ?? null,
         status: location.status,
         version: location.version,
         createdAt: location.createdAt,
@@ -279,6 +281,22 @@ export class PrismaOsPartyStore implements OsPartyStore {
       },
     });
     return rows.map(mapRole);
+  }
+
+  async listPartyIdsWithContactPhone(organizationId: string, phone: string): Promise<string[]> {
+    const rows = await this.db().osContact.findMany({
+      where: {
+        organizationId,
+        status: 'active',
+        phoneRetiredAt: null,
+        OR: [{ phone }, { whatsapp: phone }],
+      },
+      select: { organizationPartyId: true },
+      distinct: ['organizationPartyId'],
+      orderBy: { organizationPartyId: 'asc' },
+      take: 50,
+    });
+    return rows.map((row) => row.organizationPartyId);
   }
 
   async insertContact(contact: ContactRecord): Promise<void> {
@@ -500,6 +518,7 @@ export class PrismaOsPartyStore implements OsPartyStore {
       customerPartyId: row.customerPartyId,
       primaryOwnerMemberId: row.primaryOwnerMemberId,
       actingAdvisorMemberId: row.actingAdvisorMemberId,
+      coveredActions: coverageActionsFromStored(row.coveredActions),
       startsAt: row.startsAt,
       endsAt: row.endsAt,
       revokedAt: row.revokedAt,
@@ -896,6 +915,8 @@ function mapLocation(row: {
   latitude: number | null;
   longitude: number | null;
   provenanceUrl: string | null;
+  city?: string | null;
+  department?: string | null;
   status: string;
   version: number;
   createdAt: Date;
@@ -910,6 +931,8 @@ function mapLocation(row: {
     latitude: row.latitude,
     longitude: row.longitude,
     provenanceUrl: row.provenanceUrl,
+    city: row.city ?? null,
+    department: row.department ?? null,
     status: row.status as LocationRecord['status'],
     version: row.version,
     createdAt: row.createdAt,

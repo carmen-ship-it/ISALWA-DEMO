@@ -1,4 +1,10 @@
-import type { PartyCommandName, RequestContext } from '@isalwa/os-contracts';
+import {
+  canReassignCommercialAccountOwner,
+  COMMERCIAL_CUSTOMER_CREATE_SCOPE,
+  MASTER_DATA_ADMIN_SCOPE,
+  type PartyCommandName,
+  type RequestContext,
+} from '@isalwa/os-contracts';
 import {
   assertMemberActive,
   assertTenantMatch,
@@ -16,7 +22,7 @@ import {
   sealReplay,
   withIdempotencyKey,
 } from '@isalwa/os-events';
-import { createId } from '@isalwa/ts-utils';
+import { createId, normalizeBoliviaPhone } from '@isalwa/ts-utils';
 import { assertPartyCommandAuthority } from './customer-authority';
 import type { OsPartyStore } from './os-party-store';
 import type {
@@ -74,12 +80,13 @@ export class PartyCommandService {
     targetOrgId: string,
     customerPartyId?: string | null,
     store: OsPartyStore = this.store,
-  ): Promise<void> {
+  ): Promise<MemberAccessSnapshot> {
     assertTenantMatch(ctx.organizationId, targetOrgId);
     const snap = await this.snapshotInOrg(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt);
     if (!snap) throw new Error('AUTH_REQUIRED');
     assertMemberActive(snap);
     await assertPartyCommandAuthority({ store, ctx, snap, command, customerPartyId });
+    return snap;
   }
 
   /** The customer a replayed payload targets, so replay re-checks the same resource authority. */
@@ -289,14 +296,14 @@ export class PartyCommandService {
     });
   }
 
+  /** Account owner is explicit: the creating seller, an assigned member, or nobody (steward data entry). */
   private async maybeCreateCommercialAccount(
     store: OsPartyStore,
     ctx: RequestContext,
     partyId: string,
     roleKey: string,
-    createCommercialAccount?: boolean,
+    ownerMemberId: string | null,
   ): Promise<CommercialAccountRecord | null> {
-    if (roleKey !== 'customer' && !createCommercialAccount) return null;
     if (roleKey !== 'customer') return null;
     const existing = await store.getCommercialAccountForParty(ctx.organizationId, partyId);
     if (existing) return existing;
@@ -305,7 +312,7 @@ export class PartyCommandService {
       organizationId: ctx.organizationId,
       partyId,
       territoryId: null,
-      ownerMemberId: ctx.actorMemberId,
+      ownerMemberId,
       status: 'active',
       version: 0,
     };
@@ -313,18 +320,77 @@ export class PartyCommandService {
     return account;
   }
 
+  /**
+   * Initial account owner. Holding commercial.customer.create makes the creator
+   * the default owner (V2 §5.4 "Responsable default actor para asesor").
+   * Naming another member is an assignment and needs commercial.account.reassign.
+   * master_data.admin alone never makes the steward an owner.
+   */
+  private async resolveInitialAccountOwner(
+    ctx: RequestContext,
+    store: OsPartyStore,
+    scopes: readonly string[],
+    requested: unknown,
+  ): Promise<string | null> {
+    const seller = scopes.includes(COMMERCIAL_CUSTOMER_CREATE_SCOPE);
+    if (requested == null || requested === '') return seller ? ctx.actorMemberId : null;
+    const ownerMemberId = String(requested);
+    if (ownerMemberId === ctx.actorMemberId) {
+      if (!seller) throw new Error('PERMISSION_DENIED');
+      return ownerMemberId;
+    }
+    if (!canReassignCommercialAccountOwner(scopes)) throw new Error('PERMISSION_DENIED');
+    const member = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
+    if (!member || member.organizationId !== ctx.organizationId || member.accessStatus !== 'active') {
+      throw new Error('VALIDATION_FAILED');
+    }
+    return ownerMemberId;
+  }
+
   private async createParty(
     ctx: RequestContext,
     payload: Record<string, unknown>,
     store: OsPartyStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'CreateParty', ctx.organizationId);
+    const snap = await this.authorize(ctx, 'CreateParty', ctx.organizationId);
+    const scopes = [...snap.roleKeys, ...snap.delegatedScopes];
+    const steward = scopes.includes(MASTER_DATA_ADMIN_SCOPE);
     const partyKind = String(payload.partyKind) as PartyRecord['partyKind'];
-    const displayName = String(payload.displayName);
+    const displayName = String(payload.displayName).trim();
     const legalName = payload.legalName ? String(payload.legalName) : null;
     const fiscal = payload.fiscalIdentity as { nit: string; razonSocial: string } | undefined;
-    const initialRoleKey = payload.initialRoleKey ? String(payload.initialRoleKey) : undefined;
-    const createCommercialAccount = Boolean(payload.createCommercialAccount);
+    let initialRoleKey = payload.initialRoleKey ? String(payload.initialRoleKey) : undefined;
+    const contactInput = payload.contact as { givenName: string; familyName?: string } | undefined;
+    const duplicateReason = payload.duplicateReason ? String(payload.duplicateReason).trim() : '';
+    if (!displayName) throw new Error('VALIDATION_FAILED');
+
+    let phone: string | null = null;
+    if (payload.phone != null && String(payload.phone).trim()) {
+      phone = normalizeBoliviaPhone(String(payload.phone));
+      if (!/^\+\d{8,15}$/.test(phone)) throw new Error('VALIDATION_FAILED');
+    }
+
+    if (!steward) {
+      // Bounded seller registration (V2 §5.4): a customer with contact data only.
+      if (fiscal || legalName) throw new Error('VALIDATION_FAILED');
+      if (initialRoleKey && initialRoleKey !== 'customer') throw new Error('VALIDATION_FAILED');
+      initialRoleKey = 'customer';
+      if (!phone && payload.noPhoneReason !== 'no_phone_available') throw new Error('VALIDATION_FAILED');
+      if (partyKind === 'organization' && !contactInput?.givenName?.trim()) {
+        throw new Error('VALIDATION_FAILED');
+      }
+    }
+
+    const accountOwnerMemberId =
+      initialRoleKey === 'customer'
+        ? await this.resolveInitialAccountOwner(ctx, store, scopes, payload.accountOwnerMemberId)
+        : null;
+    if (initialRoleKey !== 'customer' && payload.accountOwnerMemberId) throw new Error('VALIDATION_FAILED');
+
+    // A shared phone is never blocked and nothing merges. Matches need an explicit
+    // reason ("Registrar otro cliente"); the response never names the matches.
+    const phoneMatches = phone ? await store.listPartyIdsWithContactPhone(ctx.organizationId, phone) : [];
+    if (phoneMatches.length > 0 && !duplicateReason) throw new Error('DUPLICATE_REVIEW_REQUIRED');
 
     const partyId = createId();
     const party: PartyRecord = {
@@ -353,6 +419,7 @@ export class PartyCommandService {
     }
 
     let roleAssignmentId: string | undefined;
+    let commercialAccount: CommercialAccountRecord | null = null;
     if (initialRoleKey) {
       roleAssignmentId = createId();
       await store.insertPartyRoleAssignment({
@@ -363,7 +430,69 @@ export class PartyCommandService {
         effectiveAt: ctx.effectiveAt,
         endedAt: null,
       });
-      await this.maybeCreateCommercialAccount(store, ctx, partyId, initialRoleKey, createCommercialAccount);
+      commercialAccount = await this.maybeCreateCommercialAccount(
+        store,
+        ctx,
+        partyId,
+        initialRoleKey,
+        accountOwnerMemberId,
+      );
+    }
+
+    let contactId: string | undefined;
+    if (phone || contactInput) {
+      contactId = createId();
+      await store.insertContact({
+        id: contactId,
+        organizationId: ctx.organizationId,
+        organizationPartyId: partyId,
+        personPartyId: null,
+        givenName: contactInput?.givenName?.trim() || displayName,
+        familyName: contactInput?.familyName?.trim() ?? '',
+        email: null,
+        phone,
+        whatsapp: null,
+        title: null,
+        status: 'active',
+        version: 0,
+      });
+    }
+
+    const city = payload.city ? String(payload.city).trim() || null : null;
+    const department = payload.department ? String(payload.department).trim() || null : null;
+    const addressText = payload.addressReference ? String(payload.addressReference).trim() || null : null;
+    let locationId: string | undefined;
+    if (city || department || addressText) {
+      locationId = createId();
+      await store.insertLocation({
+        id: locationId,
+        organizationId: ctx.organizationId,
+        partyId,
+        label: 'Principal',
+        addressText,
+        latitude: null,
+        longitude: null,
+        provenanceUrl: null,
+        city,
+        department,
+        status: 'active',
+        version: 0,
+        createdAt: ctx.effectiveAt,
+        updatedAt: ctx.effectiveAt,
+      });
+    }
+
+    for (const matchPartyId of phoneMatches) {
+      const [partyIdA, partyIdB] = partyId < matchPartyId ? [partyId, matchPartyId] : [matchPartyId, partyId];
+      await store.upsertDuplicateCandidate({
+        id: createId(),
+        organizationId: ctx.organizationId,
+        partyIdA,
+        partyIdB,
+        matchReason: 'phone_shared',
+        confidence: 0.5,
+        status: 'suggested',
+      });
     }
 
     return this.emit(ctx, store, 'party.created', 'party', partyId, {
@@ -374,6 +503,12 @@ export class PartyCommandService {
       fiscalIdentity: fiscal,
       initialRoleKey,
       roleAssignmentId,
+      commercialAccountId: commercialAccount?.id,
+      accountOwnerMemberId: commercialAccount?.ownerMemberId ?? null,
+      contactId,
+      locationId,
+      duplicateReviewRequested: phoneMatches.length > 0,
+      duplicateReason: phoneMatches.length > 0 ? duplicateReason : undefined,
     });
   }
 
@@ -383,9 +518,16 @@ export class PartyCommandService {
     store: OsPartyStore,
   ): Promise<CommandResult> {
     const partyId = String(payload.partyId);
-    await this.authorize(ctx, 'UpdateParty', ctx.organizationId, partyId, store);
+    const snap = await this.authorize(ctx, 'UpdateParty', ctx.organizationId, partyId, store);
     const expectedVersion = Number(payload.expectedVersion);
     const before = await this.requireActiveParty(store, ctx.organizationId, partyId);
+    // Legal/fiscal identity stays data-steward maintenance; commercial edit covers the commercial name.
+    if (
+      payload.legalName !== undefined &&
+      ![...snap.roleKeys, ...snap.delegatedScopes].includes(MASTER_DATA_ADMIN_SCOPE)
+    ) {
+      throw new Error('VALIDATION_FAILED');
+    }
     const displayName = payload.displayName !== undefined ? String(payload.displayName) : before.displayName;
     const legalName =
       payload.legalName !== undefined
@@ -458,13 +600,7 @@ export class PartyCommandService {
       effectiveAt,
       endedAt: null,
     });
-    const commercialAccount = await this.maybeCreateCommercialAccount(
-      store,
-      ctx,
-      partyId,
-      roleKey,
-      Boolean(payload.createCommercialAccount),
-    );
+    const commercialAccount = await this.maybeCreateCommercialAccount(store, ctx, partyId, roleKey, null);
 
     return this.emit(ctx, store, 'party.role.assigned', 'party_role_assignment', roleAssignmentId, {
       partyId,

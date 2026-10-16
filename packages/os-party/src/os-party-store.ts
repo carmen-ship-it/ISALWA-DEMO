@@ -89,6 +89,8 @@ export interface OsPartyStore {
     expectedVersion: number,
   ): Promise<void>;
   getContactInOrg(organizationId: string, contactId: string): Promise<ContactRecord | null>;
+  /** Parties with an active, unretired contact whose phone or WhatsApp equals this normalized number. */
+  listPartyIdsWithContactPhone(organizationId: string, phone: string): Promise<string[]>;
   listContactsForOrgParty(
     organizationId: string,
     organizationPartyId: string,

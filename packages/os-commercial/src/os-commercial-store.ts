@@ -1,3 +1,4 @@
+import type { CustomerCoverageAction } from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type {
   CommercialAccountRecord,
@@ -130,6 +131,7 @@ export interface OsCommercialStore {
       customerPartyId: string;
       primaryOwnerMemberId: string;
       actingAdvisorMemberId: string;
+      coveredActions: readonly CustomerCoverageAction[];
       startsAt: Date;
       endsAt: Date | null;
       revokedAt: Date | null;
@@ -149,12 +151,16 @@ export interface OsCommercialStore {
       customerPartyId: string;
       primaryOwnerMemberId: string;
       actingAdvisorMemberId: string;
+      coveredActions: readonly CustomerCoverageAction[];
       startsAt: Date;
       endsAt: Date | null;
       revokedAt: Date | null;
       recordedByMemberId: string | null;
     }>
   >;
+
+  /** Manager assignment in force at asOf, same tenant. */
+  isDirectReport(organizationId: string, managerMemberId: string, memberId: string, asOf: Date): Promise<boolean>;
 
   /** Persist a new temporary coverage grant (existing OsCustomerCoverageGrant model). */
   createCustomerCoverageGrant(input: {
@@ -163,6 +169,7 @@ export interface OsCommercialStore {
     customerPartyId: string;
     primaryOwnerMemberId: string;
     actingAdvisorMemberId: string;
+    coveredActions: readonly CustomerCoverageAction[];
     startsAt: Date;
     endsAt: Date | null;
     recordedAt: Date;

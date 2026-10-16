@@ -1,0 +1,60 @@
+▶ party and location auth queries
+  ✔ scopes role and delegation reads by the session organization before denying (2.010458ms)
+✔ party and location auth queries (2.472791ms)
+▶ party bound-list — locations
+  ✔ 0/1/25/26 hasMore, default limit 25, no totals (1.24725ms)
+  ✔ puts active/current locations on the first page ahead of newer inactive rows (0.163584ms)
+  ✔ lists remainder after cursor without inventing totals (0.203084ms)
+✔ party bound-list — locations (2.080833ms)
+▶ party bound-list — contacts
+  ✔ getParty-shaped first page is bounded at 25; list remainder returns the 26th (0.214125ms)
+  ✔ round-trips cursors (0.099417ms)
+✔ party bound-list — contacts (0.390208ms)
+▶ S11 location replay authorization
+  ✔ replays the same actor and request without a second write (5.539333ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.755958ms)
+  ✔ denies the original actor once its required scope (master_data.admin) has ended (0.493209ms)
+  ✔ keeps another company out: the same key there runs its own command (0.708208ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.496875ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.622708ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.188458ms)
+  ✔ turns concurrent duplicates into one write; another actor in the race gets CONFLICT (1.309375ms)
+✔ S11 location replay authorization (10.705542ms)
+▶ S11 party replay authorization
+  ✔ replays the same actor and request without a second write (3.929083ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.803541ms)
+  ✔ denies the original actor once its required scope (master_data.admin) has ended (0.517958ms)
+  ✔ keeps another company out: the same key there runs its own command (0.888042ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.450792ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.383708ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.128292ms)
+  ✔ turns concurrent duplicates into one write; another actor in the race gets CONFLICT (1.254583ms)
+✔ S11 party replay authorization (8.988083ms)
+▶ T03 Registrar cliente: seller path
+  ✔ creates the customer, account ownership, contact and location in one command (4.269ms)
+  ✔ accepts "Sin teléfono disponible" instead of a phone, and refuses neither (0.79925ms)
+  ✔ keeps the seller path bounded: no fiscal/legal data, no other role, no other owner (0.866208ms)
+  ✔ denies a member with neither commercial.customer.create nor master_data.admin (0.428875ms)
+✔ T03 Registrar cliente: seller path (6.891125ms)
+▶ T03 Registrar cliente: shared phone and duplicates
+  ✔ asks for a reason when the phone already appears, without naming the matches (0.174042ms)
+  ✔ registers another customer on a shared phone with a reason and queues review, never merging (0.552375ms)
+✔ T03 Registrar cliente: shared phone and duplicates (0.804417ms)
+▶ T03 Registrar cliente: steward is not an owner
+  ✔ lets master_data.admin create a customer with no implicit owner (0.421042ms)
+  ✔ does not let the steward self-assign ownership; assignment needs commercial.account.reassign (0.457334ms)
+✔ T03 Registrar cliente: steward is not an owner (0.968625ms)
+▶ T03 customer commands: non-disclosure
+  ✔ answers nonexistent, foreign-tenant and inaccessible customers identically (0.875667ms)
+  ✔ lets a team lead with commercial.customer.edit edit without owning or covering, recording the actor (0.521375ms)
+  ✔ keeps team.read / org.read read-only and denies managers outside the team (0.292125ms)
+  ✔ gives PERMISSION_DENIED when the caller may know the customer but lacks the action (0.330333ms)
+✔ T03 customer commands: non-disclosure (2.1035ms)
+ℹ tests 34
+ℹ suites 9
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 624.685625

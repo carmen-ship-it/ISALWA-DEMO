@@ -1,0 +1,64 @@
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ T03 customer authority over HTTP (disposable Postgres)
+  ✔ seller registers a customer and immediately quotes it (item 6, actual command path) (99.883833ms)
+  ✔ shared phone: generic 409 without a reason, second customer with a reason, no merge (31.543584ms)
+  ✔ master_data.admin cannot quote, convert, cancel or approve (403, exact body, no writes) (47.409041ms)
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":14,"published":14,"retried":0,"deadLetter":0,"duplicates":0}
+  ✔ nonexistent, foreign-tenant and inaccessible customers get the same 404 body (48.678667ms)
+  ✔ coverage must explicitly cover the action and never changes the owner (56.346709ms)
+  ✔ team manager with the action permissions edits the customer and quotes without owning or covering (44.550917ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✖ read-only, outside-team, ended-team and cross-tenant managers are denied with no writes (47.211125ms)
+✖ T03 customer authority over HTTP (disposable Postgres) (554.961708ms)
+ℹ tests 7
+ℹ suites 1
+ℹ pass 6
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1240.62275
+
+✖ failing tests:
+
+test at src/t03-customer-authority.http.test.ts:2:15381
+✖ read-only, outside-team, ended-team and cross-tenant managers are denied with no writes (47.211125ms)
+  AssertionError [ERR_ASSERTION]: readLead CreateQuote
+  + actual - expected
+  
+    [
+  +   201,
+  -   403,
+      {
+  +     commandId: '01M53GH9WTMC9CGN131CW007J5',
+  +     correlationId: '01M53GH9WQWCC9E3NWFPJJV9VY',
+  +     data: {
+  +       currency: 'BOB',
+  +       eventId: '01M53GH9WTMC9CGN131CW007J5',
+  +       headerDiscountCentavos: '0',
+  +       opportunityId: null,
+  +       ownerMemberId: '01M53GH9G0CFTMEGPKDGKD029H',
+  +       partyId: '01M53GH9JESYVVCE0N122F5APX',
+  +       quoteId: '01M53GH9WT0J02VKCGQ6PWQKYB',
+  +       quoteNumber: 'Q-000004',
+  +       status: 'draft',
+  +       subtotalCentavos: '0',
+  +       totalCentavos: '0'
+  +     }
+  -     code: 'PERMISSION_DENIED'
+      }
+    ]
+  
+      at TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/apps/os-api/src/t03-customer-authority.http.test.ts:317:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 201, { commandId: '01M53GH9WTMC9CGN131CW007J5', correlationId: '01M53GH9WQWCC9E3NWFPJJV9VY', data: [Object] } ],
+    expected: [ 403, { code: 'PERMISSION_DENIED' } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

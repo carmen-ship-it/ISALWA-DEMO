@@ -1,0 +1,96 @@
+▶ party and location auth queries
+  ✖ scopes role and delegation reads by the session organization before denying (2.253916ms)
+✖ party and location auth queries (2.663666ms)
+▶ party bound-list — locations
+  ✔ 0/1/25/26 hasMore, default limit 25, no totals (1.531458ms)
+  ✔ puts active/current locations on the first page ahead of newer inactive rows (0.167166ms)
+  ✔ lists remainder after cursor without inventing totals (0.218ms)
+✔ party bound-list — locations (2.403167ms)
+▶ party bound-list — contacts
+  ✔ getParty-shaped first page is bounded at 25; list remainder returns the 26th (0.214833ms)
+  ✔ round-trips cursors (0.098166ms)
+✔ party bound-list — contacts (0.391458ms)
+▶ S11 location replay authorization
+  ✔ replays the same actor and request without a second write (4.037334ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.764792ms)
+  ✖ denies the original actor once its required scope (master_data.admin) has ended (1.684375ms)
+  ✔ keeps another company out: the same key there runs its own command (0.733292ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.388708ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.401958ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.127459ms)
+  ✔ turns concurrent duplicates into one write; another actor in the race gets CONFLICT (1.094042ms)
+✖ S11 location replay authorization (9.817958ms)
+▶ S11 party replay authorization
+  ✔ replays the same actor and request without a second write (3.984084ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.867625ms)
+  ✔ denies the original actor once its required scope (master_data.admin) has ended (0.590917ms)
+  ✔ keeps another company out: the same key there runs its own command (0.715167ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.393083ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.3665ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.115458ms)
+  ✔ turns concurrent duplicates into one write; another actor in the race gets CONFLICT (1.135083ms)
+✔ S11 party replay authorization (8.764334ms)
+ℹ tests 22
+ℹ suites 5
+ℹ pass 20
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 506.783334
+
+✖ failing tests:
+
+test at src/auth-query-tenant.test.ts:2:2488
+✖ scopes role and delegation reads by the session organization before denying (2.253916ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /PERMISSION_DENIED/. Input:
+  
+  'TypeError: store.getPartyInOrg is not a function'
+  
+      at async TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/auth-query-tenant.test.ts:71:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1619:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: TypeError: store.getPartyInOrg is not a function
+        at assertPartyCommandAuthority (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/customer-authority.ts:97:29)
+        at LocationCommandService.authorize (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/location-command-service.ts:77:11)
+        at async LocationCommandService.createLocation (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/location-command-service.ts:252:5)
+        at async <anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/location-command-service.ts:157:20)
+        at async waitForActual (node:assert:646:5)
+        at async strict.rejects (node:assert:769:25)
+        at async TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/auth-query-tenant.test.ts:71:5)
+        at async Test.run (node:internal/test_runner/test:1208:7)
+        at async Promise.all (index 0)
+        at async Suite.run (node:internal/test_runner/test:1619:7),
+    expected: /PERMISSION_DENIED/,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at src/location-replay-authorization.test.ts:2:5030
+✖ denies the original actor once its required scope (master_data.admin) has ended (1.684375ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+  
+  Caught error:
+  
+  Error: NOT_FOUND
+      at async TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/location-replay-authorization.test.ts:147:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: NOT_FOUND
+        at assertPartyCommandAuthority (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/customer-authority.ts:100:63)
+        at async LocationCommandService.authorize (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/location-command-service.ts:77:5)
+        at async LocationCommandService.acceptedReplay (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/location-command-service.ts:105:5)
+        at async waitForActual (node:assert:646:5)
+        at async strict.rejects (node:assert:769:25)
+        at async TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/location-replay-authorization.test.ts:147:5)
+        at async Test.run (node:internal/test_runner/test:1208:7)
+        at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7),
+    operator: 'rejects',
+    diff: 'simple'
+  }

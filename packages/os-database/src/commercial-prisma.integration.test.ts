@@ -755,7 +755,8 @@ describePrisma('commercial interactive transaction hardening', () => {
           opportunityId,
           title: 'Hijack',
         }),
-      (err: Error) => err.message === 'PERMISSION_DENIED',
+      // Another seller cannot know this customer: same answer as a missing id (T02 non-disclosure).
+      (err: Error) => err.message === 'NOT_FOUND',
     );
     const unchanged = await commercialStore.getOpportunityInOrg(org.id, opportunityId);
     assert.equal(unchanged?.title, 'Owned Opp');

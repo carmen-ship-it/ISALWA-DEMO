@@ -1,6 +1,6 @@
 import {
   COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE,
-  type CustomerCoverageGrant,
+  type CustomerCoverageGrant, coverageActionsFromStored
 } from '@isalwa/os-contracts';
 import type { CustomerVisibilityFacts, CustomerVisibilityLookup } from '@isalwa/os-query';
 import type { OsPrismaClient } from './client';
@@ -99,6 +99,7 @@ export class PrismaCustomerVisibilityLookup implements CustomerVisibilityLookup 
       customerPartyId: row.customerPartyId,
       primaryOwnerMemberId: row.primaryOwnerMemberId,
       actingAdvisorMemberId: row.actingAdvisorMemberId,
+      coveredActions: coverageActionsFromStored(row.coveredActions),
       startsAt: row.startsAt,
       endsAt: row.endsAt,
       revokedAt: row.revokedAt,

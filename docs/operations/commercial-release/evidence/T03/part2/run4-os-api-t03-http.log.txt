@@ -1,0 +1,22 @@
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":9,"published":9,"retried":0,"deadLetter":0,"duplicates":0}
+▶ T03 customer authority over HTTP (disposable Postgres)
+  ✔ seller registers a customer and immediately quotes it (item 6, actual command path) (108.950125ms)
+  ✔ shared phone: generic 409 without a reason, second customer with a reason, no merge (27.652333ms)
+  ✔ master_data.admin cannot quote, convert, cancel or approve (403, exact body, no writes) (34.800417ms)
+  ✔ nonexistent, foreign-tenant and inaccessible customers get the same 404 body (54.751875ms)
+  ✔ coverage must explicitly cover the action and never changes the owner (56.011709ms)
+  ✔ team manager with the action permissions edits the customer and quotes without owning or covering (42.552542ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ read-only, outside-team, ended-team and cross-tenant managers are denied with no writes (45.594541ms)
+✔ T03 customer authority over HTTP (disposable Postgres) (1734.99675ms)
+ℹ tests 7
+ℹ suites 1
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2556.06325

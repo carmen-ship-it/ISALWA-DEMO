@@ -156,6 +156,8 @@ function harness(input: {
   order?: OrderRecord | null;
   opportunity?: OpportunityRecord | null;
   party?: PartyRecord | null;
+  /** ADVISOR is OWNER's manager in force. */
+  advisorLeadsOwner?: boolean;
 }) {
   const writes: WriteName[] = [];
   const lookups: string[] = [];
@@ -312,6 +314,9 @@ function harness(input: {
     },
     async listActiveCustomerCoverageGrants() {
       return [];
+    },
+    async isDirectReport(_organizationId: string, managerMemberId: string, memberId: string) {
+      return input.advisorLeadsOwner === true && managerMemberId === ADVISOR && memberId === OWNER;
     },
     async appendEventAndAudit() {
       record('appendEventAndAudit');
@@ -547,6 +552,7 @@ describe('commercial tenant writes', () => {
     const sessionQuote = quote({
       id: 'quote-a',
       organizationId: ORG_A,
+      partyId: 'party-a',
       ownerMemberId: OWNER,
       status: 'draft',
     });
@@ -558,6 +564,7 @@ describe('commercial tenant writes', () => {
     const submitted = quote({
       id: 'quote-a',
       organizationId: ORG_A,
+      partyId: 'party-a',
       ownerMemberId: OWNER,
       status: 'submitted',
     });
@@ -599,16 +606,26 @@ describe('commercial tenant writes', () => {
     ];
 
     for (const probe of denied) {
+      // The Jefe over the owner may see the quote but may not write it.
       const box = harness({
         scopes: ['commercial.team.read'],
         quote: probe.quoteRow,
         line: sessionLine,
+        advisorLeadsOwner: true,
       });
       const result = await settle(() =>
         new CommercialCommandService(box.store).execute(probe.command, ctx(ADVISOR), probe.payload),
       );
       assert.equal(result, 'PERMISSION_DENIED', probe.command);
       assert.deepEqual(box.writes, [], probe.command);
+
+      // Outside the Jefe's team the quote is not disclosed at all (T02 non-disclosure).
+      const outside = harness({ scopes: ['commercial.team.read'], quote: probe.quoteRow, line: sessionLine });
+      const hidden = await settle(() =>
+        new CommercialCommandService(outside.store).execute(probe.command, ctx(ADVISOR), probe.payload),
+      );
+      assert.equal(hidden, 'NOT_FOUND', probe.command);
+      assert.deepEqual(outside.writes, [], probe.command);
     }
 
     const reassign = harness({ scopes: ['commercial.team.read'] });
@@ -627,6 +644,7 @@ describe('commercial tenant writes', () => {
     const submitted = quote({
       id: 'quote-a',
       organizationId: ORG_A,
+      partyId: 'party-a',
       ownerMemberId: OWNER,
       status: 'submitted',
     });
@@ -647,19 +665,32 @@ describe('commercial tenant writes', () => {
     assert.equal(owner.writes.includes('appendEventAndAudit'), true);
     assert.equal(owner.writes.includes('updateQuote'), true);
 
-    for (const scopes of [['commercial.team.read'], ['people.admin'], ['commercial.org.read']]) {
-      const denied = harness({ scopes, quote: submitted, line: sessionLine });
+    for (const [scopes, expected] of [
+      [['commercial.team.read'], 'PERMISSION_DENIED'],
+      [['commercial.org.read'], 'PERMISSION_DENIED'],
+      // people.admin gives neither visibility nor conversion.
+      [['people.admin'], 'NOT_FOUND'],
+    ] as const) {
+      const denied = harness({ scopes: [...scopes], quote: submitted, line: sessionLine, advisorLeadsOwner: true });
       const result = await settle(() =>
         new CommercialCommandService(denied.store).execute('CreateOrder', ctx(ADVISOR), {
           quoteId: 'quote-a',
         }),
       );
-      assert.equal(result, 'PERMISSION_DENIED', scopes.join(','));
+      assert.equal(result, expected, scopes.join(','));
       assert.deepEqual(denied.writes, [], scopes.join(','));
     }
 
+    // commercial.order.convert needs account access too: alone it cannot reach this account.
+    const noRange = harness({ scopes: ['commercial.order.convert'], quote: submitted, line: sessionLine });
+    const noRangeResult = await settle(() =>
+      new CommercialCommandService(noRange.store).execute('CreateOrder', ctx(ADVISOR), { quoteId: 'quote-a' }),
+    );
+    assert.equal(noRangeResult, 'NOT_FOUND');
+    assert.deepEqual(noRange.writes, []);
+
     const converter = harness({
-      scopes: ['commercial.order.convert'],
+      scopes: ['commercial.order.convert', 'commercial.org.read'],
       quote: submitted,
       line: sessionLine,
     });

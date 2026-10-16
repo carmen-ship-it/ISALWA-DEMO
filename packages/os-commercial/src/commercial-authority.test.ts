@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { resolve } from 'node:path';
-import type { RequestContext } from '@isalwa/os-contracts';
+import type { CustomerCoverageAction, RequestContext } from '@isalwa/os-contracts';
 import { CommercialCommandService } from './commercial-command-service';
 import type { OsCommercialStore } from './os-commercial-store';
 import type { CommercialAccountRecord, QuoteLineRecord, QuoteRecord } from './store-types';
@@ -78,11 +78,14 @@ function storeFor(input: {
     customerPartyId: string;
     primaryOwnerMemberId: string;
     actingAdvisorMemberId: string;
+    coveredActions: readonly CustomerCoverageAction[];
     startsAt: Date;
     endsAt: Date | null;
     revokedAt: Date | null;
   }>;
   accountOwnerMemberId?: string | null;
+  /** Members whose manager (in force) is the actor. */
+  directReportsOfActor?: string[];
 }): OsCommercialStore {
   const actorScopes = input.actorScopes ?? [];
   const row = input.quote === undefined ? quote() : input.quote;
@@ -125,6 +128,20 @@ function storeFor(input: {
         status: 'active',
         version: 1,
       } satisfies CommercialAccountRecord;
+    },
+    async getCommercialAccountForParty(organizationId, partyId) {
+      if (!row || organizationId !== row.organizationId || partyId !== row.partyId) return null;
+      return {
+        id: row.commercialAccountId,
+        organizationId: ORG,
+        partyId: row.partyId,
+        ownerMemberId: input.accountOwnerMemberId === undefined ? OWNER : input.accountOwnerMemberId,
+        status: 'active',
+        version: 1,
+      } as CommercialAccountRecord;
+    },
+    async isDirectReport(_organizationId, _managerMemberId, memberId) {
+      return (input.directReportsOfActor ?? []).includes(memberId);
     },
     async getQuoteInOrg(organizationId, quoteId) {
       if (!row || organizationId !== row.organizationId || quoteId !== row.id) return null;
@@ -204,31 +221,61 @@ describe('CreateOrder provisional authority', () => {
     assert.equal(orders.length, 1);
   });
 
-  it('denies an unrelated active member', async () => {
-    await assert.rejects(() => convert(OTHER), /PERMISSION_DENIED/);
+  it('answers an unrelated active member as for a missing quote (T02 non-disclosure)', async () => {
+    await assert.rejects(() => convert(OTHER), /NOT_FOUND/);
+    await assert.rejects(() => convert(OTHER, { quote: null }), /NOT_FOUND/);
   });
 
-  it('denies read-only Jefe and Gerente scopes', async () => {
+  it('denies read-only Jefe and Gerente scopes that may see the quote', async () => {
     await assert.rejects(
-      () => convert(OTHER, { actorScopes: ['commercial.team.read'] }),
+      () => convert(OTHER, { actorScopes: ['commercial.team.read'], directReportsOfActor: [OWNER] }),
       /PERMISSION_DENIED/,
     );
     await assert.rejects(
       () => convert(OTHER, { actorScopes: ['commercial.org.read'] }),
       /PERMISSION_DENIED/,
     );
+    // A team lead over someone else cannot even learn this quote exists.
+    await assert.rejects(
+      () => convert(OTHER, { actorScopes: ['commercial.team.read'] }),
+      /NOT_FOUND/,
+    );
   });
 
-  it('does not treat people.admin as conversion authority', async () => {
+  it('does not treat people.admin as conversion authority or visibility', async () => {
     await assert.rejects(
       () => convert(OTHER, { actorScopes: ['people.admin'] }),
+      /NOT_FOUND/,
+    );
+  });
+
+  it('denies master_data.admin conversion: steward knowledge is not commercial authority', async () => {
+    await assert.rejects(
+      () => convert(OTHER, { actorScopes: ['master_data.admin'] }),
+      /PERMISSION_DENIED/,
+    );
+    // Steward knowledge does not widen commercial.order.convert to every account either.
+    await assert.rejects(
+      () => convert(OTHER, { actorScopes: ['master_data.admin', 'commercial.order.convert'] }),
       /PERMISSION_DENIED/,
     );
   });
 
-  it('lets the explicit conversion capability succeed', async () => {
-    const result = await convert(OTHER, { actorScopes: ['commercial.order.convert'] });
-    assert.equal(result.data.quoteId, QUOTE_ID);
+  it('lets the explicit conversion capability succeed only with account access', async () => {
+    const orgWide = await convert(OTHER, {
+      actorScopes: ['commercial.order.convert', 'commercial.org.read'],
+    });
+    assert.equal(orgWide.data.quoteId, QUOTE_ID);
+    const teamLead = await convert(OTHER, {
+      actorScopes: ['commercial.order.convert', 'commercial.team.read'],
+      directReportsOfActor: [OWNER],
+    });
+    assert.equal(teamLead.data.quoteId, QUOTE_ID);
+    // The permission alone, with no access to this account, is not enough.
+    await assert.rejects(
+      () => convert(OTHER, { actorScopes: ['commercial.order.convert'] }),
+      /NOT_FOUND/,
+    );
   });
 
   it('denies temporary coverage convert without commercial.order.convert (V1)', async () => {
@@ -240,6 +287,7 @@ describe('CreateOrder provisional authority', () => {
           customerPartyId: 'party-1',
           primaryOwnerMemberId: OWNER,
           actingAdvisorMemberId: OTHER,
+          coveredActions: ['commercial.work'],
           startsAt: new Date('2026-01-01T00:00:00.000Z'),
           endsAt: null,
           revokedAt: null,
@@ -261,6 +309,7 @@ describe('CreateOrder provisional authority', () => {
         customerPartyId: 'party-1',
         primaryOwnerMemberId: OWNER,
         actingAdvisorMemberId: OTHER,
+        coveredActions: ['commercial.work'] as const,
         startsAt: new Date('2026-01-01T00:00:00.000Z'),
         endsAt: new Date('2026-09-01T00:00:00.000Z'),
         revokedAt: null,
@@ -271,15 +320,17 @@ describe('CreateOrder provisional authority', () => {
         customerPartyId: 'party-1',
         primaryOwnerMemberId: OWNER,
         actingAdvisorMemberId: OTHER,
+        coveredActions: ['commercial.work'] as const,
         startsAt: new Date('2026-01-01T00:00:00.000Z'),
         endsAt: null,
         revokedAt: new Date('2026-09-01T00:00:00.000Z'),
       },
     ]) {
       const store = storeFor({ coverageGrants: [grant] });
+      // Ended coverage leaves no visibility: the quote answers as missing.
       await assert.rejects(
         () => new CommercialCommandService(store).execute('CreateOrder', ctx(OTHER), { quoteId: QUOTE_ID }),
-        /PERMISSION_DENIED/,
+        /NOT_FOUND/,
       );
       assert.deepEqual((store as unknown as { events: string[] }).events, []);
     }
@@ -288,8 +339,32 @@ describe('CreateOrder provisional authority', () => {
   it('does not treat commercial.quote.convert.own as covering-advisor convert', async () => {
     await assert.rejects(
       () => convert(OTHER, { actorScopes: ['commercial.quote.convert.own'] }),
+      /NOT_FOUND/,
+    );
+    await assert.rejects(
+      () =>
+        convert(OTHER, {
+          actorScopes: ['commercial.quote.convert.own'],
+          coverageGrants: [
+            {
+              grantType: 'commercial.customer.coverage',
+              organizationId: ORG,
+              customerPartyId: 'party-1',
+              primaryOwnerMemberId: OWNER,
+              actingAdvisorMemberId: OTHER,
+              coveredActions: ['commercial.work', 'customer.edit'],
+              startsAt: new Date('2026-01-01T00:00:00.000Z'),
+              endsAt: null,
+              revokedAt: null,
+            },
+          ],
+        }),
       /PERMISSION_DENIED/,
     );
+  });
+
+  it('denies the quote owner after the account moved to another owner', async () => {
+    await assert.rejects(() => convert(OWNER, { accountOwnerMemberId: OTHER }), /PERMISSION_DENIED/);
   });
 
   it('denies a cross-tenant quote', async () => {
@@ -459,6 +534,7 @@ type CoverageGrantRow = {
   customerPartyId: string;
   primaryOwnerMemberId: string;
   actingAdvisorMemberId: string;
+  coveredActions?: readonly CustomerCoverageAction[];
   startsAt: Date;
   endsAt: Date | null;
   revokedAt: Date | null;
@@ -538,6 +614,7 @@ function coverageStore(input: {
       customerPartyId: string;
       primaryOwnerMemberId: string;
       actingAdvisorMemberId: string;
+      coveredActions: readonly CustomerCoverageAction[];
       startsAt: Date;
       endsAt: Date | null;
       recordedAt: Date;
@@ -600,6 +677,38 @@ describe('GrantCustomerCoverage', () => {
     assert.equal(store.events.length, 1);
     assert.equal(store.events[0]!.eventType, 'customer_coverage.granted');
     assert.equal(store.events[0]!.payload?.primaryOwnerMemberId, OWNER);
+    // No actions requested: the grant records the commercial-work meaning explicitly.
+    assert.deepEqual(store.grants[0]!.coveredActions, ['commercial.work']);
+    assert.deepEqual(store.events[0]!.payload?.coveredActions, ['commercial.work']);
+  });
+
+  it('records explicitly requested grantable actions on the row and the event', async () => {
+    const store = coverageStore({ scopes: ['commercial.account.reassign'] });
+    await new CommercialCommandService(store as unknown as OsCommercialStore).execute(
+      'GrantCustomerCoverage',
+      ctx('mem-actor'),
+      { commercialAccountId: 'acct-1', actingAdvisorMemberId: OTHER, coveredActions: ['commercial.work', 'customer.edit'] },
+    );
+    assert.deepEqual(store.grants[0]!.coveredActions, ['commercial.work', 'customer.edit']);
+    assert.deepEqual(store.events[0]!.payload?.coveredActions, ['commercial.work', 'customer.edit']);
+  });
+
+  it('does not issue archive, reactivate, unknown, or empty coverage actions in this release', async () => {
+    for (const coveredActions of [['customer.archive'], ['customer.reactivate'], ['order.convert'], []]) {
+      const store = coverageStore({ scopes: ['commercial.account.reassign'] });
+      await assert.rejects(
+        () =>
+          new CommercialCommandService(store as unknown as OsCommercialStore).execute(
+            'GrantCustomerCoverage',
+            ctx('mem-actor'),
+            { commercialAccountId: 'acct-1', actingAdvisorMemberId: OTHER, coveredActions },
+          ),
+        /VALIDATION_FAILED/,
+        JSON.stringify(coveredActions),
+      );
+      assert.equal(store.grants.length, 0);
+      assert.deepEqual(store.events, []);
+    }
   });
 
   it('denies Asesor self-grant without commercial.account.reassign', async () => {

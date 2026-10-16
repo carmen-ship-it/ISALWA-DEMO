@@ -144,9 +144,11 @@ describe('S11 location replay authorization', () => {
     await t.service.execute(COMMAND, ctx('mem-a'), payload(), 'k1');
     const before = effects(t);
     t.roles.set('mem-a', [{ roleKey: 'master_data.admin', effectiveAt: SINCE, endedAt: new Date('2026-09-01T00:00:00.000Z') }]);
+    // Without the steward scope and without owner/range/coverage the caller may not know
+    // this customer exists, so the replay answers as for a missing id (T02 non-disclosure).
     await assert.rejects(
       t.service.execute(COMMAND, ctx('mem-a'), payload(), 'k1'),
-      (err: Error) => err.message === 'PERMISSION_DENIED',
+      (err: Error) => err.message === 'NOT_FOUND',
     );
     assert.equal(effects(t), before);
   });

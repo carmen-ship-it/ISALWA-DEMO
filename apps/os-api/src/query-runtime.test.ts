@@ -159,12 +159,27 @@ describeHttp('os-api query runtime (Step 15.1)', () => {
     );
     await drainProjections();
 
+    // T02: master_data.admin alone reads no customer; T03: the steward is not made account owner.
+    const reader = await seedMemberWithSingleRole(
+      org.id,
+      `http-reader-${Date.now()}@o.bo`,
+      'Http',
+      'Reader',
+      'commercial.org.read',
+    );
     const res = await fetch(`${baseUrl}/v1/parties?q=HTTP+Visible`, {
-      headers: sessionHeaders(org.id, admin.member, admin.person, admin.auth),
+      headers: sessionHeaders(org.id, reader.member, reader.person, reader.auth),
     });
     assert.equal(res.status, 200);
     const json = (await res.json()) as { items: Array<{ displayName: string }> };
     assert.ok(json.items.some((p) => p.displayName.includes('HTTP Visible')));
+
+    const stewardRes = await fetch(`${baseUrl}/v1/parties?q=HTTP+Visible`, {
+      headers: sessionHeaders(org.id, admin.member, admin.person, admin.auth),
+    });
+    assert.equal(stewardRes.status, 200);
+    const stewardJson = (await stewardRes.json()) as { items: Array<{ displayName: string }> };
+    assert.equal(stewardJson.items.some((p) => p.displayName.includes('HTTP Visible')), false);
   });
 
   it('GET /v1/work-items and /v1/approvals and /v1/attention over HTTP', async () => {

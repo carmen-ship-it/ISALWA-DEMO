@@ -78,6 +78,7 @@ describe('operational access scopes', () => {
       'commercial.customer.archive',
       'commercial.customer.reactivate',
       'commercial.data_correction.review',
+      'commercial.work.manage',
       COMMERCIAL_TEAM_READ_SCOPE,
       'management.org.read',
       'commercial.quote.convert.own',
@@ -329,6 +330,7 @@ describe('operational access scopes', () => {
       customerPartyId: 'party-1',
       primaryOwnerMemberId: OWNER,
       actingAdvisorMemberId: OTHER,
+      coveredActions: ['commercial.work'],
       startsAt: new Date('2026-06-01T00:00:00.000Z'),
     });
     assert.ok(grant);

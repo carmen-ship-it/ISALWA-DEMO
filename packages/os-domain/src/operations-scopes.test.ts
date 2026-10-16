@@ -144,6 +144,7 @@ describe('operational scopes through the existing authorization engine', () => {
       customerPartyId: 'party-1',
       primaryOwnerMemberId: 'mem-owner',
       actingAdvisorMemberId: 'mem-cover',
+      coveredActions: ['commercial.work'],
       startsAt: new Date('2026-06-01T00:00:00.000Z'),
     });
     assert.ok(grant);

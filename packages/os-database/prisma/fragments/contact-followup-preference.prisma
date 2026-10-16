@@ -1,0 +1,19 @@
+/// A1 §7 follow-up preference per contact + channel + tenant. Current row only; history is in business events.
+model OsContactFollowupPreference {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  contactId          String   @map("contact_id")
+  channel            String
+  preference         String
+  source             String
+  identityConfirmed  Boolean  @default(false) @map("identity_confirmed")
+  version            Int      @default(0)
+  recordedByMemberId String   @map("recorded_by_member_id")
+  updatedAt          DateTime @default(now()) @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  contact      OsContact      @relation(fields: [contactId], references: [id])
+
+  @@unique([organizationId, contactId, channel])
+  @@map("os_contact_followup_preferences")
+}

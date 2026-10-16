@@ -1,3 +1,4 @@
+import { coverageActionsFromStored } from '@isalwa/os-contracts';
 import { createId } from '@isalwa/ts-utils';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import { ORDER_LINE_PROVENANCE, type OsCommercialStore } from '@isalwa/os-commercial';
@@ -545,6 +546,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
       customerPartyId: row.customerPartyId,
       primaryOwnerMemberId: row.primaryOwnerMemberId,
       actingAdvisorMemberId: row.actingAdvisorMemberId,
+      coveredActions: coverageActionsFromStored(row.coveredActions),
       startsAt: row.startsAt,
       endsAt: row.endsAt,
       revokedAt: row.revokedAt,
@@ -574,11 +576,31 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
       customerPartyId: row.customerPartyId,
       primaryOwnerMemberId: row.primaryOwnerMemberId,
       actingAdvisorMemberId: row.actingAdvisorMemberId,
+      coveredActions: coverageActionsFromStored(row.coveredActions),
       startsAt: row.startsAt,
       endsAt: row.endsAt,
       revokedAt: row.revokedAt,
       recordedByMemberId: row.recordedByMemberId,
     }));
+  }
+
+  async isDirectReport(
+    organizationId: string,
+    managerMemberId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<boolean> {
+    const row = await this.db().osManagerAssignment.findFirst({
+      where: {
+        organizationId,
+        managerMemberId,
+        memberId,
+        effectiveAt: { lte: asOf },
+        OR: [{ endedAt: null }, { endedAt: { gt: asOf } }],
+      },
+      select: { id: true },
+    });
+    return row !== null;
   }
 
   async createCustomerCoverageGrant(input: {
@@ -587,6 +609,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
     customerPartyId: string;
     primaryOwnerMemberId: string;
     actingAdvisorMemberId: string;
+    coveredActions: readonly string[];
     startsAt: Date;
     endsAt: Date | null;
     recordedAt: Date;
@@ -600,6 +623,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
         primaryOwnerMemberId: input.primaryOwnerMemberId,
         actingAdvisorMemberId: input.actingAdvisorMemberId,
         grantType: 'commercial.customer.coverage',
+        coveredActions: [...input.coveredActions],
         startsAt: input.startsAt,
         endsAt: input.endsAt,
         revokedAt: null,
@@ -620,6 +644,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
       customerPartyId: row.customerPartyId,
       primaryOwnerMemberId: row.primaryOwnerMemberId,
       actingAdvisorMemberId: row.actingAdvisorMemberId,
+      coveredActions: coverageActionsFromStored(row.coveredActions),
       startsAt: row.startsAt,
       endsAt: row.endsAt,
       revokedAt: row.revokedAt,

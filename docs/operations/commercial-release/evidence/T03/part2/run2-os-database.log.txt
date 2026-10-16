@@ -1,0 +1,481 @@
+▶ approval security + integrity (Step 14.4)
+  ✔ accepts allowed party subject (58.162042ms)
+  ✔ rejects unknown subject type (16.167042ms)
+  ✔ rejects blocked commercial_account subject type (14.855791ms)
+  ✔ rejects nonexistent party subject (17.533417ms)
+  ✔ rejects cross-tenant party subject (23.51875ms)
+  ✔ RequestApproval event payload is bounded and excludes malicious context (27.49ms)
+  ✔ rejects free-form context keys at validation (15.42625ms)
+  ✔ approve emits safe bounded decision payload (41.921667ms)
+  ✔ reject succeeds on separate approval (23.083292ms)
+  ✔ concurrent approve vs reject allows exactly one terminal decision (25.046833ms)
+  ✔ second terminal decision returns CONFLICT (21.663708ms)
+  ✔ duplicate Approve command is idempotent (23.468542ms)
+  ✔ rejects expired delegation for approve (23.243958ms)
+  ✔ rejects unauthorized member for approve (22.45175ms)
+  ✔ rejects suspended approver for approve (32.031042ms)
+  ✔ rejects cross-tenant approval decision (16.946583ms)
+  ✔ rolls back approval decision when outbox append fails (16.313625ms)
+✔ approval security + integrity (Step 14.4) (2560.846667ms)
+▶ attention clock prisma
+  ✔ refreshes past-due open work without a business event, once, per tenant (34.983209ms)
+✔ attention clock prisma (58.67425ms)
+▶ auth provider lifecycle (Step 14.6)
+  ✔ suspend commits OS state and revokes provider sessions post-commit (34.848541ms)
+  ✔ provider session revoke failure keeps OS suspended and records audit (169.463334ms)
+  ✔ RetryAuthProviderSync replays suspend session revoke (171.109541ms)
+  ✔ terminate revokes provider credentials post-commit (13.653125ms)
+  ✔ provider credential revoke failure keeps OS terminated and allows retry (173.483125ms)
+  ✔ reactivation does not require provider relink when credentials preserved (22.653875ms)
+  ✔ rehire creates new invited AuthIdentity and provider invite (22.983ms)
+  ✔ duplicate SuspendMember idempotent without duplicate provider revoke (17.042166ms)
+✔ auth provider lifecycle (Step 14.6) (989.159125ms)
+▶ commercial prisma integration
+  ✔ happy path: Party → Opportunity → Quote → lines → Submit → Order (83.727208ms)
+  ✔ rejects tenant B party on tenant A command (19.222667ms)
+  ✔ rejects malformed money and negative totals (31.781708ms)
+  ✔ duplicate commandId does not duplicate commercial state (17.545708ms)
+  ✔ transaction rolls back when outbox append fails (18.572125ms)
+  ✔ rejects submit on empty quote and create order from draft (18.453208ms)
+✔ commercial prisma integration (328.212334ms)
+▶ commercial interactive transaction hardening
+  ✔ CreateOpportunity and CreateQuote commit entity event audit outbox atomically (30.727916ms)
+  ✔ rolls back Opportunity/Quote/event/audit/outbox when append fails (24.050209ms)
+  ✔ latency regression: delay above old 5s default still succeeds with new timeout (11063.148333ms)
+  ✔ latency regression: delay beyond configured timeout leaves no partial rows (4072.807292ms)
+  ✔ after failed commercial command, same store instance succeeds without stale tx client (50.1125ms)
+  ✔ tenant isolation unchanged: foreign party CreateOpportunity/CreateQuote still NOT_FOUND (19.396709ms)
+  ✖ authority unchanged: suspended member denied; non-owner UpdateOpportunity denied (29.935542ms)
+✖ commercial interactive transaction hardening (15291.59875ms)
+▶ commercial projection prisma integration
+  ✔ projects opportunity, quote lines, and order from commercial events (105.097333ms)
+  ✔ duplicate event delivery is idempotent (19.688084ms)
+  ✔ rebuild from event replay restores read models (103.117459ms)
+  ✔ authorized queries enforce tenant and owner scope (79.785084ms)
+  ✔ quote cancellation updates projection status (32.954ms)
+  ✔ query path does not mutate authoritative commercial tables (75.268458ms)
+  ✔ order cancellation updates projection status (80.273541ms)
+  ✔ duplicate order.cancelled delivery is idempotent (82.337083ms)
+  ✔ commercial freshness is stale when outbox pending and current after drain (16.40975ms)
+  ✔ rebuild preserves cancelled order state (101.574625ms)
+  ✔ unknown commercial event schema version is rejected (1.266083ms)
+✔ commercial projection prisma integration (824.289416ms)
+▶ client import prisma integration
+  ✔ dry-run creates no business party/contact/location records (26.186583ms)
+  ✔ validate persists validated batch without business creates (11.360417ms)
+  ✔ execute blocked when OS_REAL_CLIENT_IMPORT_ENABLED is not true (11.706208ms)
+  ✔ master_data.admin required (5.310458ms)
+  ✔ cross-tenant batch denied (13.008583ms)
+  ✔ execute + location integration + rollback only batch-created; never AuthIdentity/Invite (75.753208ms)
+✔ client import prisma integration (281.90575ms)
+▶ location prisma integration
+  ✔ creates first location with event audit outbox (30.256375ms)
+  ✔ allows multiple locations on same party (17.782583ms)
+  ✔ updates location fields (17.924167ms)
+  ✔ deactivates location (16.4665ms)
+  ✔ allows latitude/longitude optional (11.848375ms)
+  ✔ preserves short map provenanceUrl without coordinates (13.349917ms)
+  ✔ rejects cross-tenant write (10.378042ms)
+  ✔ rejects cross-tenant read without existence leak (14.888042ms)
+  ✔ fails closed on foreign party id (4.491917ms)
+  ✔ emits no location event on validation failure (14.50275ms)
+  ✔ rejects actor from other org (tenant boundary) (5.559208ms)
+✔ location prisma integration (284.724ms)
+▶ member + capability query prisma integration
+  ✔ ListMembers returns org directory for people.admin (14.251ms)
+  ✔ ListMembers denies non-admin members (4.403584ms)
+  ✔ GetMember summary is tenant scoped (6.53275ms)
+  ✔ GetCapabilityState reports ACTIVE implemented lanes and LOCKED finance (3.717958ms)
+  ✔ org capability override is respected (3.348334ms)
+  ✔ canonical terminated member is denied query context (5.068833ms)
+  ✔ DEFENSE-IN-DEPTH — invalid canonical state employment terminated + access active (3.340666ms)
+  ✔ suspended member is denied query context (3.326708ms)
+✔ member + capability query prisma integration (168.791125ms)
+▶ Migration Safety Tests
+  ✔ should have at least one migration (1.171875ms)
+  ✔ os_issue_memory migration should be additive only (0.737333ms)
+  ✔ os_issue_memory migration should have proper foreign keys (0.139ms)
+  ✔ os_issue_memory migration should have proper indexes (0.12125ms)
+✔ Migration Safety Tests (2.668458ms)
+▶ outbox crash recovery (real Postgres, SIGKILL)
+  ✔ SIGKILL mid-delivery before any write: no completion row, message stays leased, restart applies it (197.823042ms)
+  ✔ SIGKILL after the consumer wrote but before completion was recorded: re-delivered, effect still single (183.037875ms)
+  ✔ a recorded completion is honoured and is not re-delivered (4.466625ms)
+  ✔ classifies real Postgres unique violations: only the dedup key is a duplicate (9.611209ms)
+✔ outbox crash recovery (real Postgres, SIGKILL) (624.90425ms)
+▶ outbox consumer dedup error classification
+  ✔ treats the unique violation on the dedup key as an existing completion marker (0.445083ms)
+  ✔ accepts the dedup key reported by field name or by constraint name (0.079375ms)
+  ✔ does not treat other database errors as an existing claim (0.067667ms)
+  ✔ does not treat a P2002 on a different model as a duplicate delivery (0.065458ms)
+  ✔ does not treat a P2002 with a different target as a duplicate delivery (0.079041ms)
+  ✔ does not treat an unidentified P2002 as a duplicate delivery (0.07125ms)
+✔ outbox consumer dedup error classification (1.293333ms)
+▶ PrismaOsOutboxStore.tryRecordConsumerDelivery
+  ✔ returns false only for the dedup-key violation (0.17075ms)
+  ✔ throws a P2002 on another model so the message retries (0.366959ms)
+  ✔ throws an unidentified P2002 and non-unique errors (0.120625ms)
+  ✔ returns true when the completion marker is inserted (0.100917ms)
+✔ PrismaOsOutboxStore.tryRecordConsumerDelivery (0.878125ms)
+▶ outbox prisma integration
+  ✔ invite command persists event audit outbox atomically (23.24375ms)
+  ✔ worker dispatches pending outbox to published (8.232042ms)
+  ✔ worker retries then dead-letters failing consumer (4.401833ms)
+  ✔ consumer dedup prevents duplicate delivery side effects (4.63725ms)
+  ✔ tenant stats are scoped (9.422917ms)
+✔ outbox prisma integration (226.02925ms)
+▶ outbox recovery replay binding (prisma)
+  ✔ same actor and request replays after current authorization; one requeue (24.847417ms)
+  ✔ another actor, a different reason, or a different dead letter on the same key is CONFLICT (18.228167ms)
+  ✔ the original actor without people.admin gets PERMISSION_DENIED, not the stored result (13.087959ms)
+  ✔ a pre-binding row is REPLAY_REVIEW_REQUIRED and does not requeue (9.278584ms)
+[evidence] recovery race: ok,ok,ok,ok,ok
+  ✔ 5 overlapping retries by one actor on one key requeue once (14.875125ms)
+✔ outbox recovery replay binding (prisma) (200.694583ms)
+▶ outbox dead-letter recovery
+  ✔ failure → dead letter → governed recovery → worker success (22.49725ms)
+  ✔ recovery idempotency prevents duplicate requeue (10.393667ms)
+  ✔ cross-tenant recovery rejected (9.778167ms)
+  ✔ non-admin cannot recover dead letters (17.906916ms)
+  ✔ published outbox cannot be recovered (11.636458ms)
+  ✔ recovery while consumer still fails returns to dead letter (8.750541ms)
+✔ outbox dead-letter recovery (306.469709ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":50}
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":1,"published":1,"retried":0,"deadLetter":0,"duplicates":0}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+▶ outbox runtime operability
+  ✔ host starts, dispatches pending, and exposes health (219.642ms)
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":1,"published":1,"retried":0,"deadLetter":0,"duplicates":0}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":1,"published":1,"retried":0,"deadLetter":0,"duplicates":0}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ host restart resumes pending backlog (170.10075ms)
+  ✔ concurrent workers do not duplicate consumer side effects (36.00275ms)
+  ✔ operational health reports backlog without payloads (12.187958ms)
+✔ outbox runtime operability (675.720375ms)
+▶ owner-demo durable conversations
+  ✔ defines a natural key per DEMO client (0.390875ms)
+  ✔ plans exactly five OsCustomerConversation rows for all required DEMO clients (0.49275ms)
+  ✔ admits five manual company-entered rows with evidenced related ids only (2.212625ms)
+  ✔ keeps channel manual even when story mentions WhatsApp evidence (0.083875ms)
+  ✔ owner-demo seed upserts one conversation per client and fails if incomplete (0.942625ms)
+✔ owner-demo durable conversations (4.67475ms)
+▶ owner-demo guards
+  ✔ accepts only SYNTH org (0.523708ms)
+  ✔ refuses REAL seven names (0.398375ms)
+  ✔ requires explicit confirm (0.080458ms)
+  ✔ tags demo display names and notes (0.078666ms)
+  ✔ publishes REAL_SEVEN_MUTATED=NO proof shape (0.063417ms)
+✔ owner-demo guards (1.6175ms)
+▶ owner-demo catalog
+  ✔ defines five DEMO clients and 20 story steps (0.752792ms)
+  ✔ numbers story steps 1..20 without gaps (0.409375ms)
+  ✔ publishes commercial density contract for PF-1 demo desks (0.130208ms)
+✔ owner-demo catalog (1.405792ms)
+▶ journey-customer guards
+  ✔ refuses any non-SYNTH organization (1.100542ms)
+  ✔ refuses protected REAL names (0.51175ms)
+  ✔ resolves exactly one owner for w2.asesor@isalwa.demo (0.111625ms)
+✔ journey-customer guards (2.240292ms)
+▶ journey-customer insert plan
+  ✔ creates exactly one party, one contact, and one location (0.52775ms)
+  ✔ creates zero commercial or operational pipeline records (0.280833ms)
+  ✔ a second run creates no duplicate (0.109916ms)
+  ✔ keeps existing five Demo party IDs unchanged (0.104792ms)
+  ✔ keeps protected REAL records unchanged (0.133583ms)
+  ✔ keeps notes empty and stores no forbidden engineering label (0.223917ms)
+  ✔ is visible in Demo mode and absent from Real mode (0.496333ms)
+  ✔ refuses an existing party whose shape does not match the journey customer (0.088042ms)
+✔ journey-customer insert plan (2.158292ms)
+▶ partygraph prisma integration
+  ✔ creates party with event audit outbox atomically (24.40375ms)
+  ✔ assigns multiple roles to same party (15.968ms)
+  ✔ ends role without deleting party (13.398708ms)
+  ✔ updates contact on organization party (12.887291ms)
+  ✔ deactivates and reactivates party (16.213791ms)
+  ✔ suggests duplicate candidate on matching NIT without silent merge (16.643541ms)
+  ✔ governed merge preserves lineage and references (30.989125ms)
+  ✔ idempotent command retry does not duplicate party (10.206042ms)
+  ✔ rejects cross-tenant party command (4.673792ms)
+✔ partygraph prisma integration (271.935ms)
+▶ partygraph interactive transaction hardening
+  ✔ CreateParty commits party role commercial event audit outbox atomically (17.528209ms)
+  ✔ rolls back Party/role/account/event/audit/outbox when append fails (10.613667ms)
+  ✔ latency regression: delay above old 5s default still succeeds with new timeout (5520.973459ms)
+  ✔ latency regression: delay beyond configured timeout leaves no partial rows (2046.508959ms)
+  ✔ after failed CreateParty, same store instance succeeds without stale tx client (24.373166ms)
+  ✖ CreateParty still requires master_data.admin; Asesor scopes are denied (12.193625ms)
+✖ partygraph interactive transaction hardening (7635.256125ms)
+▶ party timeline prisma integration
+  ✔ projects Party and Commercial events for the same party (127.491167ms)
+  ✖ does not include unrelated party events (28.239334ms)
+  ✔ duplicate event delivery does not duplicate timeline entry (17.845875ms)
+  ✔ enforces tenant isolation on timeline query (13.621625ms)
+  ✔ replay rebuild restores timeline entries (27.019959ms)
+  ✔ timeline freshness is stale when outbox pending (11.730458ms)
+✖ party timeline prisma integration (387.470209ms)
+▶ party timeline work + approval prisma integration (Step 16.1B)
+  ✔ projects work lifecycle events for party-subject work (79.383333ms)
+  ✔ projects work for commercial_account subject via canonical lookup (33.528958ms)
+  ✔ excludes work without party association (35.581167ms)
+  ✔ projects approval events for party subject and work_item chain (163.109125ms)
+  ✔ excludes organization_member approval from party timeline (40.839ms)
+  ✔ duplicate work event does not duplicate timeline entry (75.474917ms)
+  ✔ replay rebuild includes work and approval entries (62.060792ms)
+✔ party timeline work + approval prisma integration (Step 16.1B) (617.501583ms)
+▶ prisma interactive tx config (party)
+  ✔ uses bounded options above Prisma default timeout (0.371834ms)
+✔ prisma interactive tx config (party) (0.800625ms)
+▶ projection prisma integration (Step 15)
+  ✔ party event projects into read model (34.880833ms)
+  ✔ duplicate event delivery does not duplicate projection rows (18.184041ms)
+  ✔ checkpoint survives restart and projection rebuild replays events (23.946708ms)
+  ✖ tenant isolation on search and pagination (36.68025ms)
+  ✔ stale freshness when outbox pending and authorized query has no writes (22.387167ms)
+✖ projection prisma integration (Step 15) (267.034333ms)
+[evidence] outage run: {"claimed":1,"published":0,"retried":1,"deadLetter":0,"duplicates":0} status=pending attempts=1 lastError=PROVIDER_UNAVAILABLE
+[evidence] recovery run: {"claimed":1,"published":1,"retried":0,"deadLetter":0,"duplicates":0} status=published attempts=1
+▶ T01b auth provider effects through the outbox (prisma)
+  ✔ suspend during a provider outage: committed, retried by the worker, applied once when the provider returns (256.5275ms)
+✔ T01b auth provider effects through the outbox (prisma) (390.827167ms)
+[evidence] rate-limit race: hits=100 distinctCounts=100 overLimit60=40
+▶ shared rate-limit counter (real Postgres)
+  ✔ 100 concurrent hits from two pools count exactly 1..100, no lost update (44.728583ms)
+  ✔ a new window starts at 1 and prunes the previous window of that key only (2.668625ms)
+  ✔ organizations never share a bucket (4.748583ms)
+✔ shared rate-limit counter (real Postgres) (76.38875ms)
+▶ S11 replay binding (prisma)
+  ✔ same actor, command, and payload replays the stored result without a second write (28.590583ms)
+  ✔ a different actor with the same key gets CONFLICT and no body (12.075875ms)
+  ✔ same actor, different payload on the same key is CONFLICT (11.63475ms)
+  ✔ a stored row bound to another command is CONFLICT (11.99825ms)
+  ✔ the original actor whose permission was revoked gets PERMISSION_DENIED, not the stored body (12.087084ms)
+  ✔ the same key in another tenant runs independently and never returns tenant A data (22.069291ms)
+  ✔ a pre-binding legacy row is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (6.54175ms)
+[evidence] party race: fulfilled=8 rejected=none
+  ✔ 8 overlapping same-actor requests on one key create exactly one party (38.360041ms)
+[evidence] import race: fulfilled=1 rejected=CONFLICT,CONFLICT,CONFLICT
+  ✔ import claim-first: overlapping same-actor and other-actor requests write one batch; a later retry replays (26.984917ms)
+  ✔ import claim-first: a failed run releases the claim and the key can run again (14.69675ms)
+✔ S11 replay binding (prisma) (323.2695ms)
+▶ carmen owner-evaluation grant list
+  ✔ includes finance.operational.record and forbids system.admin shortcuts (0.509625ms)
+✔ carmen owner-evaluation grant list (0.914375ms)
+▶ owner-demo SYNTH scope policy
+  ✔ forbids admin and QA bypass scopes (0.361375ms)
+  ✔ filters a copied REAL grant set down to business scopes only (0.144041ms)
+  ✔ documents rationale for every remaining business scope (0.084583ms)
+✔ owner-demo SYNTH scope policy (1.076166ms)
+▶ staging-wave2-role-fixtures guards
+  ✔ A: missing STAGING_FIXTURE_CONFIRM => fail (0.616166ms)
+  ✔ A2: confirm fails before secrets (clean-room load path) (0.102334ms)
+  ✔ A3: package exports point at gitignored dist (clean-room needs prepare) (0.396541ms)
+  ✔ A4: fixture prepare script must not nest bare pnpm (0.472167ms)
+  ✔ B: wrong DB name => fail before writes (0.179792ms)
+  ✔ B2: wrong DB host => fail (0.121041ms)
+  ✔ C: wrong Supabase ref => fail before writes (0.091417ms)
+  ✔ D: missing required env => fail (after confirm) (0.133792ms)
+  ✔ E: valid staging guards => execution may proceed (pre-connect) (0.1755ms)
+  ✔ F: real tenant collision => fail (0.158333ms)
+  ✔ G: unexpected email/domain => fail; seed email not a business persona (0.193208ms)
+  ✔ H: exact 9-role assignment set; seed actor not in V1 map (0.740625ms)
+  ✔ I: migration count guard + confirm latch for idempotent entry (0.13275ms)
+  ✔ assigns delivery.record only to Coordinación fixtures (0.07275ms)
+  ✔ auxiliar email is w2.coordinacion@isalwa.demo (0.035959ms)
+✔ staging-wave2-role-fixtures guards (4.336542ms)
+▶ staging-wave2-role-fixtures seed actor + recovery
+  ✔ seed actor is fixture-only with CreateParty + account reassign scopes (0.137209ms)
+  ✔ expected fixture counts match intended commercial-only setup (0.088667ms)
+  ✔ partial-state recovery: grant reconcile reuses active keys and grants only missing (0.091709ms)
+  ✔ idempotent second run: reconcile is a no-op when complete (0.088542ms)
+  ✔ materializes delivery.record on Coordinación without duplicating or broadening (0.172708ms)
+  ✔ idempotent grant reconcile ends drift without duplicating (0.037958ms)
+  ✔ CreateParty seed must use fixture seed actor email, never Asesor (0.081791ms)
+  ✔ ownership reconcile prefers keep-id moves over recreate (0.087333ms)
+  ✔ fixture source: CreateParty via seed; Opp/Quote owned by Asesor (0.579709ms)
+  ✔ Asesor owns synth proof: view own, deny unrelated, convert own submitted, create=NO (0.148792ms)
+✔ staging-wave2-role-fixtures seed actor + recovery (1.64375ms)
+▶ staging-wave2-role-fixtures authorization truth
+  ✔ CreateParty requires master_data.admin; Asesor scopes do not satisfy (0.128708ms)
+  ✔ people.admin does not imply CreateParty (0.079083ms)
+  ✔ cargo/title grants nothing toward CreateParty (0.034958ms)
+  ✔ fixture seed actor can CreateParty; Asesor commercial commands stay member_active (0.046ms)
+  ✔ tenant isolation: real tenant id refused; synth org id allowed against real set (0.059583ms)
+✔ staging-wave2-role-fixtures authorization truth (0.414875ms)
+▶ suspend member / open work lifecycle (Step 14.5)
+  ✔ suspends member with no open work (38.697875ms)
+  ✔ blocks suspend while open work remains owned (24.633833ms)
+  ✔ blocks suspended member from completing owned work (32.719541ms)
+  ✔ blocks suspended member from reassigning work (31.155333ms)
+  ✔ blocks suspended member from approve and request approval (27.860958ms)
+  ✔ blocks suspended delegate from exercising delegation authority (31.567959ms)
+  ✔ admin can explicitly reassign work after suspend (35.041667ms)
+  ✔ reactivation via ActivateMember restores work authority (29.3105ms)
+  ✔ duplicate SuspendMember is idempotent (22.087583ms)
+  ✔ rolls back suspension when outbox append fails (21.001667ms)
+  ✔ rejects cross-tenant suspend target (15.027791ms)
+✔ suspend member / open work lifecycle (Step 14.5) (435.407166ms)
+▶ work prisma integration
+  ✔ creates work item with party subject and atomic event/outbox (30.060541ms)
+  ✔ reassigns work with ownership history (15.807417ms)
+  ✔ completes work when owner acts (11.746917ms)
+  ✔ approval flow with delegation authority (22.291584ms)
+  ✔ blocks termination when open work remains; succeeds after reassignment (33.394708ms)
+  ✔ idempotent create does not duplicate work item (9.810417ms)
+  ✔ rejects cross-tenant work command (3.751833ms)
+  ✔ CreateWorkItem commits work ownership event audit outbox atomically (13.222292ms)
+  ✔ rolls back work/ownership/event/audit/outbox when append fails (9.081917ms)
+  ✔ latency regression: delay above old 5s default still succeeds with new timeout (5520.043042ms)
+  ✔ latency regression: delay beyond configured timeout leaves no partial rows (2029.963166ms)
+  ✔ after failed CreateWorkItem, same store instance succeeds without stale tx client (26.081375ms)
+  ✔ ReassignWork still requires people.admin; non-admin scopes are denied (15.699792ms)
+✔ work prisma integration (7872.707459ms)
+▶ work projection prisma integration (Step 15.1)
+  ✔ work event projects into read model with owner and subject (43.831875ms)
+  ✔ approval event projects and derives pending approval attention (34.468541ms)
+  ✔ completion removes open-work attention and approval decision clears pending attention (45.356125ms)
+  ✔ reassignment updates projected owner (29.087167ms)
+  ✔ duplicate delivery is idempotent (14.713083ms)
+  ✔ tenant isolation and authorization scope on queries (21.979584ms)
+  ✔ rebuild from events restores projections (23.691375ms)
+✔ work projection prisma integration (Step 15.1) (350.233834ms)
+▶ workforce admin mutation API readiness (Step 14.7)
+  ✔ ChangeDepartment succeeds with event, audit, outbox (27.9865ms)
+  ✔ ChangeDepartment rejects cross-tenant target (10.036917ms)
+  ✔ ChangeDepartment rejects nonexistent departmentId with VALIDATION_FAILED (no mutation) (9.063417ms)
+  ✔ ChangeDepartment rejects foreign-tenant departmentId as VALIDATION_FAILED (no leak) (8.670917ms)
+  ✔ ChangeRole succeeds; non-admin denied (10.639792ms)
+  ✔ ChangeManager succeeds for same-org manager (9.67675ms)
+  ✔ ChangeManager rejects cross-tenant manager target member (11.362833ms)
+  ✔ SuspendMember revokes provider sessions; suspended actor blocked (18.197125ms)
+  ✔ ActivateMember reactivates suspended member (admin only) (17.573125ms)
+  ✔ ActivateMember rejects terminated/revoked member (J-13) (14.261292ms)
+  ✔ ActivateMember rejects self-reactivation from suspended (11.677666ms)
+  ✔ TerminateMember blocked with open work; succeeds after reassignment (33.019541ms)
+  ✔ GrantDelegation and RevokeDelegation are atomic with audit/outbox (13.021667ms)
+  ✔ expired delegation cannot grant authority (9.486542ms)
+  ✔ RequestMemberEmailChange records request without provider mutation (9.25025ms)
+  ✔ RequestMemberEmailChange denied for suspended member (12.7705ms)
+  ✔ admin mutation idempotency returns same commandId (14.648083ms)
+✔ workforce admin mutation API readiness (Step 14.7) (374.432208ms)
+▶ Prisma active membership selection
+  ✔ does not pick the first active membership when several exist (0.494291ms)
+✔ Prisma active membership selection (0.891ms)
+▶ workforce auth SQL tenant predicates
+  ✔ includes session organizationId in role and delegation where, and does not return the foreign role (0.625833ms)
+  ✔ includes the proven organization in the member where and omits the other organization member (0.16425ms)
+  ✔ keeps a member-only role query valid when organizationId is omitted (0.093458ms)
+  ✔ applies the same session organization predicate on the work and party stores (0.295542ms)
+✔ workforce auth SQL tenant predicates (1.3075ms)
+▶ workforce prisma integration
+  ✔ invite and activate persists lifecycle + events (26.900459ms)
+  ✔ tenant isolation on prisma store (4.945833ms)
+  ✔ full lifecycle: role, dept, manager, delegation, terminate, rehire (52.626417ms)
+  ✔ idempotency prevents duplicate invite (9.966833ms)
+  ✔ terminated member cannot operate (22.20675ms)
+✔ workforce prisma integration (381.7985ms)
+▶ workforce transactional completion
+  ✔ ChangeRole persists domain + event + audit + outbox + idempotency atomically (38.135291ms)
+  ✔ GrantDelegation atomic write includes outbox row (17.967583ms)
+  ✔ transaction rolls back when outbox append fails (16.880208ms)
+  ✔ RevokeDelegation is atomic with event and audit (25.552209ms)
+  ✔ cross-tenant workforce command rejected (4.56025ms)
+✔ workforce transactional completion (365.39075ms)
+▶ workforce interactive transaction hardening
+  ✔ ChangeRole commits role event audit outbox atomically (33.030416ms)
+  ✔ rolls back role/event/audit/outbox when append fails (20.422333ms)
+  ✔ latency regression: delay above old 5s default still succeeds with new timeout (5524.521ms)
+  ✔ latency regression: delay beyond configured timeout leaves no partial rows (2045.933375ms)
+  ✔ after failed ChangeRole, same store instance succeeds without stale tx client (35.525625ms)
+  ✔ ChangeRole still requires people.admin; sales_rep is denied (14.884458ms)
+  ✔ cross-tenant ChangeRole rejected (tenant isolation) (12.982417ms)
+✔ workforce interactive transaction hardening (7688.03775ms)
+ℹ tests 289
+ℹ suites 45
+ℹ pass 285
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 56445.503792
+
+✖ failing tests:
+
+test at src/commercial-prisma.integration.test.ts:2:22799
+✖ authority unchanged: suspended member denied; non-owner UpdateOpportunity denied (29.935542ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+  
+  Caught error:
+  
+  Error: NOT_FOUND
+      at async TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-database/src/commercial-prisma.integration.test.ts:752:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: NOT_FOUND
+        at CommercialCommandService.assertCanEditOwnedRecord (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-commercial/src/commercial-command-service.ts:410:75)
+        at async CommercialCommandService.updateOpportunity (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-commercial/src/commercial-command-service.ts:560:5)
+        at async <anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-commercial/src/commercial-command-service.ts:167:18)
+        at async prisma.$transaction.maxWait (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-database/src/prisma-commercial-store.ts:55:18)
+        at async Proxy._transactionWithCallback (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-database/src/generated/client/runtime/library.js:134:8120)
+        at async waitForActual (node:assert:646:5)
+        at async strict.rejects (node:assert:769:25)
+        at async TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-database/src/commercial-prisma.integration.test.ts:752:5)
+        at async Test.run (node:internal/test_runner/test:1208:7)
+        at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7),
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at src/party-prisma.integration.test.ts:2:17554
+✖ CreateParty still requires master_data.admin; Asesor scopes are denied (12.193625ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+  
+  Caught error:
+  
+  Error: VALIDATION_FAILED
+      at async TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-database/src/party-prisma.integration.test.ts:554:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: VALIDATION_FAILED
+        at PartyCommandService.createParty (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/party-command-service.ts:378:75)
+        at async <anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-party/src/party-command-service.ts:162:18)
+        at async prisma.$transaction.maxWait (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-database/src/prisma-party-store.ts:66:18)
+        at async Proxy._transactionWithCallback (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-database/src/generated/client/runtime/library.js:134:8120)
+        at async waitForActual (node:assert:646:5)
+        at async strict.rejects (node:assert:769:25)
+        at async TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-database/src/party-prisma.integration.test.ts:554:5)
+        at async Test.run (node:internal/test_runner/test:1208:7)
+        at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7),
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at src/party-timeline-prisma.integration.test.ts:2:7616
+✖ does not include unrelated party events (28.239334ms)
+  Error: NOT_FOUND
+      at PartyTimelineQueryService.listPartyTimeline (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-query/src/party/party-timeline-query-service.ts:274:26)
+      at async TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-database/src/party-timeline-prisma.integration.test.ts:253:19)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7)
+
+test at src/projection-prisma.integration.test.ts:2:5635
+✖ tenant isolation on search and pagination (36.68025ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-database/src/projection-prisma.integration.test.ts:210:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

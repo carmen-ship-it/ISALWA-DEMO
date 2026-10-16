@@ -1,6 +1,9 @@
 import {
   canActOnCustomer,
+  canKnowCustomer,
   COMMAND_REQUIRED_SCOPES,
+  COMMERCIAL_CUSTOMER_CREATE_SCOPE,
+  type CustomerCoverageGrant,
   type CustomerLifecycleAction,
   type RequestContext,
 } from '@isalwa/os-contracts';
@@ -18,10 +21,54 @@ export const CUSTOMER_COMMAND_ACTION: Partial<Record<string, CustomerLifecycleAc
   ReactivateParty: 'reactivate',
 };
 
+export type CustomerAuthorityFacts = {
+  accountOwnerMemberId: string | null;
+  ownerIsDirectReportOfActor: boolean;
+  coverageGrants: readonly CustomerCoverageGrant[];
+};
+
+export async function loadCustomerAuthorityFacts(
+  store: OsPartyStore,
+  ctx: RequestContext,
+  partyId: string,
+): Promise<CustomerAuthorityFacts> {
+  const { organizationId, actorMemberId, effectiveAt } = ctx;
+  const account = await store.getCommercialAccountForParty(organizationId, partyId);
+  const owner = account && account.organizationId === organizationId ? account.ownerMemberId : null;
+  const coverageGrants = await store.listCustomerCoverageGrants(organizationId, partyId);
+  const ownerIsDirectReportOfActor =
+    owner && owner !== actorMemberId
+      ? await store.isDirectReport(organizationId, actorMemberId, owner, effectiveAt)
+      : false;
+  return { accountOwnerMemberId: owner, ownerIsDirectReportOfActor, coverageGrants };
+}
+
+export function actorCanKnowCustomer(
+  ctx: RequestContext,
+  snap: MemberAccessSnapshot,
+  partyId: string,
+  facts: CustomerAuthorityFacts,
+): boolean {
+  return canKnowCustomer({
+    actorMemberId: ctx.actorMemberId,
+    organizationId: ctx.organizationId,
+    customerPartyId: partyId,
+    grantedScopes: [...snap.roleKeys, ...snap.delegatedScopes],
+    asOf: ctx.effectiveAt,
+    ...facts,
+  });
+}
+
 /**
- * Command scope first (master_data.admin keeps its data-steward meaning). Otherwise
- * the command must be a customer action and the actor must pass canActOnCustomer on
- * that party. Missing, foreign, and unauthorized parties all end as PERMISSION_DENIED.
+ * Non-resource commands: the registered scope, or for CreateParty the bounded
+ * seller path (commercial.customer.create; bounds enforced by the command).
+ *
+ * Customer commands (CUSTOMER_COMMAND_ACTION) with a target party, in order:
+ * 1. missing, foreign, or not knowable by the caller → NOT_FOUND, identical
+ *    for all three (T02 non-disclosure);
+ * 2. master_data.admin keeps its data-steward maintenance of party data;
+ * 3. otherwise canActOnCustomer (action scope + owner/leadership range or
+ *    coverage that explicitly covers customer.<action>) else PERMISSION_DENIED.
  */
 export async function assertPartyCommandAuthority(input: {
   store: OsPartyStore;
@@ -32,28 +79,34 @@ export async function assertPartyCommandAuthority(input: {
 }): Promise<void> {
   const required = COMMAND_REQUIRED_SCOPES[input.command];
   if (!required || required === 'member_active') return;
-  if (memberHasScope(input.snap, required)) return;
   const action = CUSTOMER_COMMAND_ACTION[input.command];
   const partyId = input.customerPartyId?.trim();
-  if (!action || !partyId) throw new Error('PERMISSION_DENIED');
+  if (!action || !partyId) {
+    if (memberHasScope(input.snap, required)) return;
+    if (
+      input.command === 'CreateParty' &&
+      input.snap.accessStatus === 'active' &&
+      [...input.snap.roleKeys, ...input.snap.delegatedScopes].includes(COMMERCIAL_CUSTOMER_CREATE_SCOPE)
+    ) {
+      return;
+    }
+    throw new Error('PERMISSION_DENIED');
+  }
 
-  const { organizationId, actorMemberId, effectiveAt } = input.ctx;
-  const account = await input.store.getCommercialAccountForParty(organizationId, partyId);
-  const owner = account && account.organizationId === organizationId ? account.ownerMemberId : null;
-  const [coverageGrants, ownerIsDirectReportOfActor] = await Promise.all([
-    input.store.listCustomerCoverageGrants(organizationId, partyId),
-    owner ? input.store.isDirectReport(organizationId, actorMemberId, owner, effectiveAt) : Promise.resolve(false),
-  ]);
+  const { ctx, snap, store } = input;
+  const party = await store.getPartyInOrg(ctx.organizationId, partyId);
+  if (!party || party.organizationId !== ctx.organizationId) throw new Error('NOT_FOUND');
+  const facts = await loadCustomerAuthorityFacts(store, ctx, partyId);
+  if (!actorCanKnowCustomer(ctx, snap, partyId, facts)) throw new Error('NOT_FOUND');
+  if (memberHasScope(snap, required)) return;
   const allowed = canActOnCustomer({
     action,
-    actorMemberId,
-    organizationId,
+    actorMemberId: ctx.actorMemberId,
+    organizationId: ctx.organizationId,
     customerPartyId: partyId,
-    grantedScopes: [...input.snap.roleKeys, ...input.snap.delegatedScopes],
-    accountOwnerMemberId: owner,
-    ownerIsDirectReportOfActor,
-    coverageGrants,
-    asOf: effectiveAt,
+    grantedScopes: [...snap.roleKeys, ...snap.delegatedScopes],
+    asOf: ctx.effectiveAt,
+    ...facts,
   });
   if (!allowed) throw new Error('PERMISSION_DENIED');
 }

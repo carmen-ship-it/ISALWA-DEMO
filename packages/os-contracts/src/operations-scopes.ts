@@ -39,6 +39,15 @@ export const COMMERCIAL_CUSTOMER_EDIT_SCOPE = 'commercial.customer.edit' as cons
 export const COMMERCIAL_CUSTOMER_ARCHIVE_SCOPE = 'commercial.customer.archive' as const;
 export const COMMERCIAL_CUSTOMER_REACTIVATE_SCOPE = 'commercial.customer.reactivate' as const;
 export const COMMERCIAL_DATA_CORRECTION_REVIEW_SCOPE = 'commercial.data_correction.review' as const;
+/**
+ * Manager commercial work (T03, 2026-10-16 19:19): create and continue
+ * opportunities and quotes on an account in the holder's current range (team
+ * lead with commercial.team.read over the account owner, or commercial.org.read).
+ * The account and record owner stay; the event records the manager as actor.
+ * Does not convert, cancel orders, approve, reassign owners, or touch payments,
+ * documents, or dispatch. Read scopes alone never supply it.
+ */
+export const COMMERCIAL_WORK_MANAGE_SCOPE = 'commercial.work.manage' as const;
 export const MANAGEMENT_ORG_READ_SCOPE = 'management.org.read' as const;
 /** Re-export canonical convert.own — single definition lives in scopes.ts. */
 export { COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE };
@@ -113,6 +122,7 @@ export const OPERATIONS_ACCESS_SCOPE_KEYS = [
   COMMERCIAL_CUSTOMER_ARCHIVE_SCOPE,
   COMMERCIAL_CUSTOMER_REACTIVATE_SCOPE,
   COMMERCIAL_DATA_CORRECTION_REVIEW_SCOPE,
+  COMMERCIAL_WORK_MANAGE_SCOPE,
   COMMERCIAL_TEAM_READ_SCOPE,
   MANAGEMENT_ORG_READ_SCOPE,
   COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
@@ -370,16 +380,53 @@ export function mayEnterProduction(input: {
   return canEnterProduction(input.grantedScopes);
 }
 
+/**
+ * What a coverage grant explicitly covers. A grant never confers the underlying
+ * command permission: the advisor must hold it too.
+ * - commercial.work: continue the primary owner's opportunities and quotes.
+ * - customer.edit: maintain customer data (also needs commercial.customer.edit).
+ * - customer.archive / customer.reactivate: representable for explicit delegated
+ *   authority; this release does not issue them (see GRANTABLE_COVERAGE_ACTIONS).
+ * Coverage never covers Quote → Pedido conversion (canConvertQuoteToOrder).
+ */
+export const CUSTOMER_COVERAGE_ACTIONS = [
+  'commercial.work',
+  'customer.edit',
+  'customer.archive',
+  'customer.reactivate',
+] as const;
+export type CustomerCoverageAction = (typeof CUSTOMER_COVERAGE_ACTIONS)[number];
+
+/** Actions a coverage grant may carry in this release. */
+export const GRANTABLE_COVERAGE_ACTIONS = ['commercial.work', 'customer.edit'] as const;
+
+/** Grants recorded before actions were explicit carried only the commercial-work meaning. */
+export const LEGACY_COVERAGE_ACTIONS: readonly CustomerCoverageAction[] = ['commercial.work'];
+
+export function isCustomerCoverageAction(value: string): value is CustomerCoverageAction {
+  return (CUSTOMER_COVERAGE_ACTIONS as readonly string[]).includes(value);
+}
+
+export function isGrantableCoverageAction(value: string): boolean {
+  return (GRANTABLE_COVERAGE_ACTIONS as readonly string[]).includes(value);
+}
+
 export type CustomerCoverageGrant = {
   grantType: typeof COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE;
   organizationId: string;
   customerPartyId: string;
   primaryOwnerMemberId: string;
   actingAdvisorMemberId: string;
+  coveredActions: readonly CustomerCoverageAction[];
   startsAt: Date;
   endsAt: Date | null;
   revokedAt: Date | null;
 };
+
+/** Stored action strings → known actions; unknown strings cover nothing. */
+export function coverageActionsFromStored(values: readonly string[] | null | undefined): CustomerCoverageAction[] {
+  return [...new Set((values ?? []).filter(isCustomerCoverageAction))];
+}
 
 export type CoverageWorkflowAudit = {
   allowed: boolean;
@@ -407,6 +454,7 @@ export function buildCustomerCoverageGrant(input: {
   customerPartyId: string;
   primaryOwnerMemberId: string;
   actingAdvisorMemberId: string;
+  coveredActions: readonly string[];
   startsAt: Date;
   endsAt?: Date | null;
 }): CustomerCoverageGrant | null {
@@ -419,12 +467,14 @@ export function buildCustomerCoverageGrant(input: {
   }
   if (actingAdvisorMemberId === primaryOwnerMemberId) return null;
   if (input.endsAt && input.endsAt <= input.startsAt) return null;
+  if (input.coveredActions.length === 0 || !input.coveredActions.every(isCustomerCoverageAction)) return null;
   return {
     grantType: COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE,
     organizationId,
     customerPartyId,
     primaryOwnerMemberId,
     actingAdvisorMemberId,
+    coveredActions: [...new Set(input.coveredActions)] as CustomerCoverageAction[],
     startsAt: input.startsAt,
     endsAt: input.endsAt ?? null,
     revokedAt: null,
@@ -458,6 +508,8 @@ export function continueCoveredCustomerWorkflow(input: {
   primaryOwnerMemberId: string;
   grants: readonly CustomerCoverageGrant[];
   asOf: Date;
+  /** When set, the grant must explicitly cover this action. Unset = any active grant (read visibility). */
+  action?: CustomerCoverageAction;
 }): CoverageWorkflowAudit {
   const actorMemberId = trimmedId(input.actorMemberId);
   const organizationId = trimmedId(input.organizationId);
@@ -480,7 +532,8 @@ export function continueCoveredCustomerWorkflow(input: {
       grant.organizationId === organizationId &&
       grant.customerPartyId === customerPartyId &&
       grant.primaryOwnerMemberId === primaryOwnerMemberId &&
-      grant.actingAdvisorMemberId === actorMemberId,
+      grant.actingAdvisorMemberId === actorMemberId &&
+      (!input.action || (grant.coveredActions ?? []).includes(input.action)),
   );
   if (!match) return denied;
 
@@ -510,9 +563,9 @@ const CUSTOMER_ACTION_SCOPE: Record<CustomerLifecycleAction, string> = {
 /**
  * A2 §2 customer edit/archive/reactivate. The action scope is required, plus
  * resource authority in the actor's own range: current account owner, team lead
- * (commercial.team.read) over the owner, or commercial.org.read. Active coverage
- * counts only for edit; coverage has no per-action delegation, so archive and
- * reactivate stay with owner/leadership. people.admin never satisfies this.
+ * (commercial.team.read) over the owner, or commercial.org.read; or an active
+ * coverage grant on this account that explicitly covers customer.<action>.
+ * Coverage never supplies the action scope. people.admin never satisfies this.
  */
 export function canActOnCustomer(input: {
   action: CustomerLifecycleAction;
@@ -534,7 +587,6 @@ export function canActOnCustomer(input: {
   if (input.ownerIsDirectReportOfActor && hasExplicitScope(input.grantedScopes, COMMERCIAL_TEAM_READ_SCOPE)) {
     return true;
   }
-  if (input.action !== 'edit') return false;
   return continueCoveredCustomerWorkflow({
     actorMemberId: input.actorMemberId,
     organizationId: input.organizationId,
@@ -542,6 +594,7 @@ export function canActOnCustomer(input: {
     primaryOwnerMemberId: owner,
     grants: input.coverageGrants,
     asOf: input.asOf,
+    action: `customer.${input.action}`,
   }).allowed;
 }
 
@@ -561,6 +614,65 @@ export function canWorkCustomerAccount(input: {
   const owner = input.accountOwnerMemberId;
   if (!input.actorMemberId || !owner) return false;
   if (owner === input.actorMemberId) return true;
+  return continueCoveredCustomerWorkflow({
+    actorMemberId: input.actorMemberId,
+    organizationId: input.organizationId,
+    customerPartyId: input.customerPartyId,
+    primaryOwnerMemberId: owner,
+    grants: input.coverageGrants,
+    asOf: input.asOf,
+    action: 'commercial.work',
+  }).allowed;
+}
+
+/**
+ * Manager commercial work on an account without owning or covering it: the
+ * action scope commercial.work.manage plus current range over the account
+ * (commercial.org.read, or commercial.team.read with the owner as a current
+ * direct report). people.admin and master_data.admin never satisfy either part.
+ */
+export function canManageCustomerAccountWork(input: {
+  actorMemberId: string;
+  organizationId: string;
+  customerPartyId: string;
+  grantedScopes: readonly string[];
+  accountOwnerMemberId: string | null;
+  ownerIsDirectReportOfActor: boolean;
+}): boolean {
+  if (!input.actorMemberId || !input.organizationId || !input.customerPartyId) return false;
+  if (!input.accountOwnerMemberId) return false;
+  if (!hasExplicitScope(input.grantedScopes, COMMERCIAL_WORK_MANAGE_SCOPE)) return false;
+  if (hasExplicitScope(input.grantedScopes, COMMERCIAL_ORG_READ_SCOPE)) return true;
+  return input.ownerIsDirectReportOfActor && hasExplicitScope(input.grantedScopes, COMMERCIAL_TEAM_READ_SCOPE);
+}
+
+/**
+ * Whether the actor may know this customer exists (T02 non-disclosure). When false,
+ * a command must answer exactly as for a missing or foreign id. When true but the
+ * action is not allowed, PERMISSION_DENIED is the honest answer.
+ * Knows: commercial.org.read, the current account owner, a commercial.team.read
+ * holder over the owner, the acting advisor of any active applicable coverage, and
+ * master_data.admin (existing data-steward permission over party records).
+ */
+export function canKnowCustomer(input: {
+  actorMemberId: string;
+  organizationId: string;
+  customerPartyId: string;
+  grantedScopes: readonly string[];
+  accountOwnerMemberId: string | null;
+  ownerIsDirectReportOfActor: boolean;
+  coverageGrants: readonly CustomerCoverageGrant[];
+  asOf: Date;
+}): boolean {
+  if (!input.actorMemberId || !input.organizationId || !input.customerPartyId) return false;
+  if (hasExplicitScope(input.grantedScopes, COMMERCIAL_ORG_READ_SCOPE)) return true;
+  if (hasExplicitScope(input.grantedScopes, MASTER_DATA_ADMIN_SCOPE)) return true;
+  const owner = input.accountOwnerMemberId;
+  if (!owner) return false;
+  if (owner === input.actorMemberId) return true;
+  if (input.ownerIsDirectReportOfActor && hasExplicitScope(input.grantedScopes, COMMERCIAL_TEAM_READ_SCOPE)) {
+    return true;
+  }
   return continueCoveredCustomerWorkflow({
     actorMemberId: input.actorMemberId,
     organizationId: input.organizationId,

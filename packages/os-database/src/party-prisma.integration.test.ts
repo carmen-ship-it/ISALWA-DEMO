@@ -534,37 +534,123 @@ describePrisma('partygraph interactive transaction hardening', () => {
     assert.equal(party?.displayName, 'Succeed Second');
   });
 
-  it('CreateParty still requires master_data.admin; Asesor scopes are denied', async () => {
-    const org = await workforceStore.seedOrganization('Tx Auth Org', `txa-${Date.now()}`);
+  it('T03: a seller registers a bounded customer and owns its account in the same transaction', async () => {
+    const org = await workforceStore.seedOrganization('Tx Seller Org', `txs-${Date.now()}`);
     const asesor = await workforceStore.seedScopedAdminMember(
       org.id,
-      `txa-asesor-${Date.now()}@o.bo`,
+      `txs-asesor-${Date.now()}@o.bo`,
       'Synth',
       'Asesor',
       'commercial.customer.create',
     );
-    await workforceStore.insertRoleAssignment({
-      id: `txa-q-${Date.now()}`,
-      organizationId: org.id,
-      memberId: asesor.member.id,
-      roleKey: 'commercial.quote.convert.own',
-      effectiveAt: new Date('2020-01-01'),
-      endedAt: null,
+    const sellerCtx = ctx(org.id, asesor.member.id, asesor.person.id, asesor.auth.id);
+    const customer = {
+      partyKind: 'organization',
+      displayName: 'Constructora Andina',
+      contact: { givenName: 'Rosa', familyName: 'Quispe' },
+      phone: '71234567',
+      city: 'Santa Cruz de la Sierra',
+      department: 'Santa Cruz',
+    };
+
+    // Same idempotency key twice at once: one customer, one account, one event.
+    const key = `txs-${Date.now()}`;
+    const [first, second] = await Promise.all([
+      svc.execute('CreateParty', sellerCtx, customer, key),
+      svc.execute('CreateParty', sellerCtx, customer, key),
+    ]);
+    // The loser replays the stored (JSON) result of the winner.
+    assert.deepEqual(JSON.parse(JSON.stringify(second)), JSON.parse(JSON.stringify(first)));
+    const partyId = String(first.data.partyId);
+    assert.equal(await prisma.osParty.count({ where: { organizationId: org.id } }), 1);
+    const accounts = await prisma.osCommercialAccount.findMany({ where: { organizationId: org.id } });
+    assert.equal(accounts.length, 1);
+    assert.equal(accounts[0]!.partyId, partyId);
+    assert.equal(accounts[0]!.ownerMemberId, asesor.member.id);
+    const contact = await prisma.osContact.findFirstOrThrow({ where: { organizationId: org.id } });
+    assert.equal(contact.phone, '+59171234567');
+    const location = await prisma.osLocation.findFirstOrThrow({ where: { organizationId: org.id } });
+    assert.equal(location.city, 'Santa Cruz de la Sierra');
+    assert.equal(location.latitude, null);
+    assert.equal(
+      await prisma.osBusinessEvent.count({ where: { organizationId: org.id, eventType: 'party.created' } }),
+      1,
+    );
+
+    // Shared phone: no reason → generic review answer and nothing written.
+    await assert.rejects(
+      () => svc.execute('CreateParty', sellerCtx, { ...customer, displayName: 'Otra Constructora' }),
+      (err: Error) => err.message === 'DUPLICATE_REVIEW_REQUIRED',
+    );
+    assert.equal(await prisma.osParty.count({ where: { organizationId: org.id } }), 1);
+    // With a reason: second customer, same phone, review candidate, no merge.
+    const other = await svc.execute('CreateParty', sellerCtx, {
+      ...customer,
+      displayName: 'Otra Constructora',
+      duplicateReason: 'Mismo teléfono de oficina compartida',
     });
+    assert.equal(await prisma.osParty.count({ where: { organizationId: org.id, status: 'active' } }), 2);
+    const candidates = await prisma.osPartyDuplicateCandidate.findMany({ where: { organizationId: org.id } });
+    assert.equal(candidates.length, 1);
+    assert.equal(candidates[0]!.matchReason, 'phone_shared');
+    assert.deepEqual(
+      [candidates[0]!.partyIdA, candidates[0]!.partyIdB].sort(),
+      [partyId, String(other.data.partyId)].sort(),
+    );
+
+    // Bounded: fiscal data on the seller path is refused and writes nothing.
     await assert.rejects(
       () =>
-        svc.execute(
-          'CreateParty',
-          ctx(org.id, asesor.member.id, asesor.person.id, asesor.auth.id),
-          {
-            partyKind: 'organization',
-            displayName: 'Denied Asesor',
-            initialRoleKey: 'customer',
-            createCommercialAccount: true,
-          },
-        ),
+        svc.execute('CreateParty', sellerCtx, {
+          ...customer,
+          displayName: 'Con NIT',
+          phone: '72222222',
+          fiscalIdentity: { nit: '123456789', razonSocial: 'Con NIT SRL' },
+        }),
+      (err: Error) => err.message === 'VALIDATION_FAILED',
+    );
+    assert.equal(await prisma.osParty.count({ where: { organizationId: org.id } }), 2);
+  });
+
+  it('T03: without commercial.customer.create or master_data.admin, CreateParty is denied', async () => {
+    const org = await workforceStore.seedOrganization('Tx Auth Org', `txa-${Date.now()}`);
+    const member = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txa-member-${Date.now()}@o.bo`,
+      'Synth',
+      'Miembro',
+      'people.admin',
+    );
+    await assert.rejects(
+      () =>
+        svc.execute('CreateParty', ctx(org.id, member.member.id, member.person.id, member.auth.id), {
+          partyKind: 'organization',
+          displayName: 'Denied',
+          phone: '71234567',
+          contact: { givenName: 'Ana' },
+        }),
       (err: Error) => err.message === 'PERMISSION_DENIED',
     );
     assert.equal(await prisma.osParty.count({ where: { organizationId: org.id } }), 0);
+  });
+
+  it('T03: a master_data.admin steward creates a customer without becoming its owner', async () => {
+    const org = await workforceStore.seedOrganization('Tx Steward Org', `txm-${Date.now()}`);
+    const steward = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txm-${Date.now()}@o.bo`,
+      'MD',
+      'Admin',
+      'master_data.admin',
+    );
+    const created = await svc.execute(
+      'CreateParty',
+      ctx(org.id, steward.member.id, steward.person.id, steward.auth.id),
+      { partyKind: 'organization', displayName: 'Ferretería Norte', initialRoleKey: 'customer' },
+    );
+    const account = await prisma.osCommercialAccount.findFirstOrThrow({
+      where: { organizationId: org.id, partyId: String(created.data.partyId) },
+    });
+    assert.equal(account.ownerMemberId, null);
   });
 });

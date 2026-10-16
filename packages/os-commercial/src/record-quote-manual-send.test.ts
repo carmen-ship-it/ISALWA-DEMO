@@ -66,7 +66,11 @@ function line(): QuoteLineRecord {
   };
 }
 
-function storeFor(input: { quote?: QuoteRecord | null }): OsCommercialStore & {
+function storeFor(input: {
+  quote?: QuoteRecord | null;
+  leadOfOwner?: string;
+  scopesFor?: Record<string, string[]>;
+}): OsCommercialStore & {
   events: Array<{ eventType: string; payload?: Record<string, unknown>; actorMemberId?: string }>;
 } {
   const row = input.quote === undefined ? quote() : input.quote;
@@ -84,8 +88,12 @@ function storeFor(input: { quote?: QuoteRecord | null }): OsCommercialStore & {
       if (organizationId !== ORG) return null;
       return { id: memberId, organizationId, accessStatus: 'active' };
     },
-    async listRoleAssignmentsForMember() {
-      return [];
+    async listRoleAssignmentsForMember(memberId: string) {
+      return (input.scopesFor?.[memberId] ?? []).map((roleKey) => ({
+        roleKey,
+        effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
+        endedAt: null,
+      }));
     },
     async listDelegationsForDelegate() {
       return [];
@@ -111,6 +119,9 @@ function storeFor(input: { quote?: QuoteRecord | null }): OsCommercialStore & {
     },
     async listActiveCustomerCoverageGrants() {
       return [];
+    },
+    async isDirectReport(_organizationId: string, managerMemberId: string, memberId: string) {
+      return managerMemberId === input.leadOfOwner && memberId === OWNER;
     },
     async appendEventAndAudit(event) {
       events.push({
@@ -149,7 +160,7 @@ describe('RecordQuoteManualSend', () => {
     assert.equal(store.events[0]?.payload?.note, 'PDF por chat');
   });
 
-  it('denies another advisor who does not own the quote', async () => {
+  it('answers another advisor who does not own the quote as for a missing quote', async () => {
     const store = storeFor({});
     const service = new CommercialCommandService(store);
     await assert.rejects(
@@ -158,9 +169,24 @@ describe('RecordQuoteManualSend', () => {
           quoteId: QUOTE_ID,
           channel: 'whatsapp',
         }),
-      /PERMISSION_DENIED/,
+      /NOT_FOUND/,
     );
     assert.equal(store.events.length, 0);
+  });
+
+  it('denies a team lead who may see the quote but has no account access', async () => {
+    const send = (store: ReturnType<typeof storeFor>) =>
+      new CommercialCommandService(store).execute('RecordQuoteManualSend', ctx(OTHER), {
+        quoteId: QUOTE_ID,
+        channel: 'whatsapp',
+      });
+    const lead = storeFor({ leadOfOwner: OTHER, scopesFor: { [OTHER]: ['commercial.team.read'] } });
+    await assert.rejects(() => send(lead), /PERMISSION_DENIED/);
+    assert.equal(lead.events.length, 0);
+    // Reporting line without the read scope gives no knowledge.
+    const noScope = storeFor({ leadOfOwner: OTHER });
+    await assert.rejects(() => send(noScope), /NOT_FOUND/);
+    assert.equal(noScope.events.length, 0);
   });
 
   it('denies a cross-tenant quote', async () => {

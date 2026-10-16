@@ -1,0 +1,58 @@
+▶ party and location auth queries
+  ✔ scopes role and delegation reads by the session organization before denying (1.702042ms)
+✔ party and location auth queries (2.104416ms)
+▶ party bound-list — locations
+  ✔ 0/1/25/26 hasMore, default limit 25, no totals (1.202584ms)
+  ✔ puts active/current locations on the first page ahead of newer inactive rows (0.154083ms)
+  ✔ lists remainder after cursor without inventing totals (0.196333ms)
+✔ party bound-list — locations (2.01375ms)
+▶ party bound-list — contacts
+  ✔ getParty-shaped first page is bounded at 25; list remainder returns the 26th (0.207459ms)
+  ✔ round-trips cursors (0.096792ms)
+✔ party bound-list — contacts (0.380125ms)
+▶ S11 location replay authorization
+  ✔ replays the same actor and request without a second write (3.886417ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.842333ms)
+  ✔ denies the original actor once its required scope (master_data.admin) has ended (0.605916ms)
+  ✔ keeps another company out: the same key there runs its own command (0.86275ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.446875ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.506958ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.158292ms)
+  ✔ turns concurrent duplicates into one write; another actor in the race gets CONFLICT (1.535125ms)
+✔ S11 location replay authorization (9.486417ms)
+▶ S11 party replay authorization
+  ✔ replays the same actor and request without a second write (3.850625ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (1.122625ms)
+  ✔ denies the original actor once its required scope (master_data.admin) has ended (1.021334ms)
+  ✔ keeps another company out: the same key there runs its own command (0.868542ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.419334ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.40125ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.116167ms)
+  ✔ turns concurrent duplicates into one write; another actor in the race gets CONFLICT (1.142083ms)
+✔ S11 party replay authorization (9.569125ms)
+▶ T03 Registrar cliente: seller path
+  ✔ creates the customer, account ownership, contact and location in one command (4.290292ms)
+  ✔ accepts "Sin teléfono disponible" instead of a phone, and refuses neither (0.757042ms)
+  ✔ keeps the seller path bounded: no fiscal/legal data, no other role, no other owner (0.804625ms)
+  ✔ denies a member with neither commercial.customer.create nor master_data.admin (0.383583ms)
+✔ T03 Registrar cliente: seller path (6.726375ms)
+▶ T03 Registrar cliente: shared phone and duplicates
+  ✔ asks for a reason when the phone already appears, without naming the matches (0.162541ms)
+  ✔ registers another customer on a shared phone with a reason and queues review, never merging (0.524208ms)
+✔ T03 Registrar cliente: shared phone and duplicates (0.763709ms)
+▶ T03 Registrar cliente: steward is not an owner
+  ✔ lets master_data.admin create a customer with no implicit owner (0.4115ms)
+  ✔ does not let the steward self-assign ownership; assignment needs commercial.account.reassign (0.458209ms)
+✔ T03 Registrar cliente: steward is not an owner (0.960917ms)
+▶ T03 customer commands: non-disclosure
+  ✔ answers nonexistent, foreign-tenant and inaccessible customers identically (0.793083ms)
+  ✔ gives PERMISSION_DENIED when the caller may know the customer but lacks the action (0.408375ms)
+✔ T03 customer commands: non-disclosure (1.24825ms)
+ℹ tests 32
+ℹ suites 9
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 608.117292

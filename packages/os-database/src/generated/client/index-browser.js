@@ -364,6 +364,8 @@ exports.Prisma.OsLocationScalarFieldEnum = {
   latitude: 'latitude',
   longitude: 'longitude',
   provenanceUrl: 'provenanceUrl',
+  city: 'city',
+  department: 'department',
   status: 'status',
   version: 'version',
   createdAt: 'createdAt',
@@ -494,6 +496,10 @@ exports.Prisma.OsContactScalarFieldEnum = {
   title: 'title',
   status: 'status',
   version: 'version',
+  relationEndedAt: 'relationEndedAt',
+  relationEndReason: 'relationEndReason',
+  phoneRetiredAt: 'phoneRetiredAt',
+  phoneRetiredReason: 'phoneRetiredReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -1373,6 +1379,7 @@ exports.Prisma.OsCustomerCoverageGrantScalarFieldEnum = {
   primaryOwnerMemberId: 'primaryOwnerMemberId',
   actingAdvisorMemberId: 'actingAdvisorMemberId',
   grantType: 'grantType',
+  coveredActions: 'coveredActions',
   startsAt: 'startsAt',
   endsAt: 'endsAt',
   revokedAt: 'revokedAt',
@@ -1513,6 +1520,19 @@ exports.Prisma.OsRateLimitBucketScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.OsContactFollowupPreferenceScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  contactId: 'contactId',
+  channel: 'channel',
+  preference: 'preference',
+  source: 'source',
+  identityConfirmed: 'identityConfirmed',
+  version: 'version',
+  recordedByMemberId: 'recordedByMemberId',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1639,7 +1659,8 @@ exports.Prisma.ModelName = {
   OsIssueResolutionCycle: 'OsIssueResolutionCycle',
   OsProductFeedback: 'OsProductFeedback',
   OsIssueOwnershipHistory: 'OsIssueOwnershipHistory',
-  OsRateLimitBucket: 'OsRateLimitBucket'
+  OsRateLimitBucket: 'OsRateLimitBucket',
+  OsContactFollowupPreference: 'OsContactFollowupPreference'
 };
 
 /**

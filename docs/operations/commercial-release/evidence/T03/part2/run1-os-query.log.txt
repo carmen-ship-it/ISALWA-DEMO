@@ -1,0 +1,428 @@
+▶ quote read model after CreateOrder
+  ✔ starts submitted and becomes accepted after order.created (1.570625ms)
+  ✔ does not create a second order or revert the quote on replay (0.2205ms)
+  ✔ does not project a cross-tenant order into this quote (0.275375ms)
+✔ quote read model after CreateOrder (2.536541ms)
+▶ order line query
+  ✔ returns copied snapshots and does not invent a line for a legacy order (1.419583ms)
+  ✔ does not return another tenant line on this order (0.134459ms)
+✔ order line query (2.016792ms)
+▶ RC3 order owner-evaluation reads
+  ✔ A: commercial.org.read owner-eval may read seeded Maderas Pedido (not owner, not people.admin) (1.4275ms)
+  ✔ B/C: team visibility lists only direct-report owners; org lists tenant (0.717333ms)
+  ✔ D: advisor without org/team read cannot open another advisor Pedido (0.267334ms)
+  ✔ E: cross-company Pedido id is not found in actor org (no foreign leak) (0.10025ms)
+  ✔ F: REAL-org actor cannot see SYNTH Pedido via org id mismatch (0.085917ms)
+  ✔ G: Cliente360 party list with visibility=org returns seeded Pedido count (0.150125ms)
+✔ RC3 order owner-evaluation reads (3.328ms)
+▶ pilot leadership visibility
+  ✖ does not add the read scopes to admin or command authority (3.084583ms)
+  ✔ keeps direct reports to one active hop (0.438084ms)
+  ✔ denies a salesperson team and org reads (0.773625ms)
+  ✔ lets a jefe read direct reports only (1.294917ms)
+  ✔ does not treat people.admin as the team shortcut (0.274542ms)
+  ✔ lets org read see tenant commercial records without people.admin (0.546125ms)
+  ✔ does not let org read open Administración (0.17325ms)
+  ✔ reads direct-report work, overdue, and follow-ups without approval authority (0.634208ms)
+  ✔ keeps personal attention on the signed-in member (0.226375ms)
+  ✔ fails closed when the team lookup is missing (0.193167ms)
+✖ pilot leadership visibility (8.271083ms)
+▶ MemberQueryService.getMember field policy (S14)
+  ✔ gives a plain member only display fields for another member (0.677209ms)
+  ✔ keeps the cargo label for display but never exposes scope or role keys to a peer (0.435541ms)
+  ✔ does not widen a peer view for commercial.team.read over a direct report (0.092334ms)
+  ✔ does not widen a peer view for commercial.org.read (0.080292ms)
+  ✔ still returns the full row for the member reading their own record (0.098625ms)
+  ✔ still returns the full row to people.admin for any member of the tenant (0.093083ms)
+  ✔ keeps NOT_FOUND identical for a missing id and a foreign-tenant id (0.119416ms)
+✔ MemberQueryService.getMember field policy (S14) (2.17675ms)
+▶ searchActiveMembers
+  ✔ searches only inside the session organization before limit (0.530792ms)
+  ✔ returns empty for short queries and does not call the store (0.332625ms)
+  ✔ denies suspended members and returns no foreign-org evidence (0.309167ms)
+  ✔ keeps people.admin directory search capability-gated (0.159625ms)
+  ✔ denies revoked access before any search and does not call the store (0.11825ms)
+  ✔ returns empty for blank query without store evidence (0.125416ms)
+  ✔ caps limit to 50 and always scopes search to the session organization (0.091584ms)
+✔ searchActiveMembers (2.181708ms)
+▶ customer visibility (T02 decision)
+  ✔ classifies customer, account holder and role-less parties as customer-bound (0.384958ms)
+  ✔ owner reads; membership alone, people.admin alone and master_data.admin do not (0.3525ms)
+  ✔ team lead reads only accounts owned by an active direct report (0.184166ms)
+  ✔ coverage applies only while active and while the grant owner is still the account owner (0.264ms)
+  ✔ suspended actor reads nothing, and a foreign or missing id is the same false (0.086583ms)
+  ✔ a role-less party is readable only by commercial.org.read; a supplier-only party keeps its existing rule (0.085875ms)
+  ✔ read scope lists owned, team and applicable coverage parties; org read is the tenant (0.570292ms)
+✔ customer visibility (T02 decision) (2.449917ms)
+▶ party search operating facts
+  ✔ attaches owner, phone, and coordinates in one batch (1.2355ms)
+  ✔ T02: passes the server-resolved scope to the store and drops rows the read model misclassified (0.246917ms)
+  ✔ T02: commercial.org.read searches the tenant without a party filter (0.139917ms)
+✔ party search operating facts (2.079792ms)
+▶ party timeline read authorization (S4)
+  ✔ shows a plain member only party-level and fulfilment entries, no commercial values (2.330166ms)
+  ✔ lets the record owner see their own commercial, work, approval and account entries (0.731416ms)
+  ✔ lets another rep see exactly their own quote and nothing of the owner (0.331167ms)
+  ✔ never exposes another rep's quote to the owner of different records (0.244208ms)
+  ✔ lets a team lead see direct reports' records but not other reps' records (0.373208ms)
+  ✔ fails closed for a team lead when no direct-report lookup is wired (0.211083ms)
+  ✔ does not treat commercial.team.read alone as org-wide (0.160875ms)
+  ✔ lets commercial.org.read see every attributable entry; people.admin alone sees none of the owned ones (0.308042ms)
+  ✔ omits entries whose owning record cannot be found, even for admins (fail closed) (0.191709ms)
+  ✔ omits entries whose owning record belongs to another tenant (0.172917ms)
+  ✔ classifies every projectable timeline event type (new types must be classified) (0.104541ms)
+  ✔ returns a non-projectable event type without any facts, never with stored values (0.092208ms)
+  ✔ shows approval entries to the requester and approver but not to an unrelated member (0.330959ms)
+  ✔ shows work entries to the work creator/owner but not to an unrelated member (0.181792ms)
+  ✔ derives the next cursor from the raw page so filtered rows do not stall paging (0.115542ms)
+  ✔ still returns NOT_FOUND for an unknown party (0.244125ms)
+✔ party timeline read authorization (S4) (6.838834ms)
+▶ party timeline customer boundary (T02)
+  ✔ a customer timeline is NOT_FOUND for membership-only, people.admin-only and previous owners (0.307958ms)
+  ✔ a duplicate suggestion keeps a generic entry without the restricted counterpart id (0.230208ms)
+✔ party timeline customer boundary (T02) (0.583917ms)
+▶ query context session organization
+  ✔ omits a role row for the same member in another organization when the session org is passed (0.982ms)
+✔ query context session organization (1.387417ms)
+▶ attention clock
+  ✔ does not mark future work overdue (1.733625ms)
+  ✔ marks open work overdue when the clock crosses dueAt without a business event (0.473708ms)
+  ✔ does not re-add overdue attention for completed work (0.169542ms)
+  ✔ clears a stale overdue row for completed work on the next tick (0.121834ms)
+  ✔ refreshes only the tenant whose work crossed dueAt (0.150625ms)
+  ✔ is idempotent across a restart and does not duplicate attention (0.339ms)
+  ✔ keeps open-work and approval attention when adding overdue (0.169375ms)
+✔ attention clock (3.754917ms)
+▶ purchasing prep work visibility
+  ✔ detects open purchasing prep markers (0.453125ms)
+  ✔ lets purchasing operators view requester-owned open prep reviews (0.284542ms)
+  ✔ denies unrelated operators (0.066708ms)
+✔ purchasing prep work visibility (1.315167ms)
+ℹ tests 74
+ℹ suites 13
+ℹ pass 73
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1497.315
+
+✖ failing tests:
+
+test at src/leadership/leadership-visibility.test.ts:2:8282
+✖ does not add the read scopes to admin or command authority (3.084583ms)
+  AssertionError [ERR_ASSERTION]: The input was expected to not match the regular expression /commercial\.(team|org)\.read/. Input:
+  
+  "import type { CommercialCommandName, RequestContext } from '@isalwa/os-contracts';\n" +
+    'import {\n' +
+    '  COMMAND_REQUIRED_SCOPES,\n' +
+    '  canConvertQuoteToOrder,\n' +
+    '  canGrantCustomerCoverage,\n' +
+    '  canReassignCommercialAccountOwner,\n' +
+    '  canRevokeCustomerCoverage,\n' +
+    '  canKnowCustomer,\n' +
+    '  canWorkCustomerAccount,\n' +
+    '  COMMERCIAL_ORDER_CONVERT_SCOPE,\n' +
+    '  MASTER_DATA_ADMIN_SCOPE,\n' +
+    '  coverageAuditForConvert,\n' +
+    '  buildCustomerCoverageGrant,\n' +
+    '  isGrantableCoverageAction,\n' +
+    '  LEGACY_COVERAGE_ACTIONS,\n' +
+    '  type CustomerCoverageGrant,\n' +
+    "} from '@isalwa/os-contracts';\n" +
+    'import {\n' +
+    '  assertMemberActive,\n' +
+    '  assertTenantMatch,\n' +
+    '  computeEffectiveScopes,\n' +
+    '  memberHasScope,\n' +
+    '  type MemberAccessSnapshot,\n' +
+    "} from '@isalwa/os-domain';\n" +
+    'import {\n' +
+    '  buildAuditEntry,\n' +
+    '  buildBusinessEvent,\n' +
+    '  buildOutboxForEvent,\n' +
+    '  currentIdempotencyKey,\n' +
+    '  isIdempotencyConflict,\n' +
+    '  openReplay,\n' +
+    '  replayBinding,\n' +
+    '  sealReplay,\n' +
+    '  withIdempotencyKey,\n' +
+    "} from '@isalwa/os-events';\n" +
+    "import { createId } from '@isalwa/ts-utils';\n" +
+    'import {\n' +
+    '  centavosToString,\n' +
+    '  computeLineTotalCentavos,\n' +
+    '  computeQuoteTotals,\n' +
+    '  parseCentavos,\n' +
+    "} from './money';\n" +
+    "import type { OsCommercialStore } from './os-commercial-store';\n" +
+    "import { copyQuoteLinesToOrderLines } from './order-lines';\n" +
+    "import type { OpportunityRecord, OrderRecord, QuoteLineRecord, QuoteRecord } from './store-types';\n" +
+    '\n' +
+    'export type CommandResult = {\n' +
+    '  commandId: string;\n' +
+    '  correlationId: string;\n' +
+    '  data: Record<string, unknown>;\n' +
+    '};\n' +
+    '\n' +
+    'export class CommercialCommandService {\n' +
+    '  constructor(private readonly store: OsCommercialStore) {}\n' +
+    '\n' +
+    '  private async snapshotInOrg(\n' +
+    '    organizationId: string,\n' +
+    '    memberId: string,\n' +
+    '    asOf: Date,\n' +
+    '  ): Promise<MemberAccessSnapshot | null> {\n' +
+    '    const member = await this.store.getMemberInOrg(organizationId, memberId);\n' +
+    '    if (!member) return null;\n' +
+    '    const roles = await this.store.listRoleAssignmentsForMember(memberId, organizationId);\n' +
+    '    const delegations = await this.store.listDelegationsForDelegate(memberId, organizationId);\n' +
+    '    return {\n' +
+    '      memberId: member.id,\n' +
+    '      organizationId: member.organizationId,\n' +
+    '      accessStatus: member.accessStatus,\n' +
+    '      roleKeys: computeEffectiveScopes(\n' +
+    '        roles.map((r) => ({ roleKey: r.roleKey, effectiveAt: r.effectiveAt, endedAt: r.endedAt })),\n' +
+    '        delegations.map((d) => ({\n' +
+    '          scopes: d.scopes,\n' +
+    '          startsAt: d.startsAt,\n' +
+    '          expiresAt: d.expiresAt,\n' +
+    '          revokedAt: d.revokedAt,\n' +
+    '          delegatorMemberId: d.delegatorMemberId,\n' +
+    '        })),\n' +
+    '        asOf,\n' +
+    '      ),\n' +
+    '      delegatedScopes: [],\n' +
+    '    };\n' +
+    '  }\n' +
+    '\n' +
+    '  private async authorize(\n' +
+    '    ctx: RequestContext,\n' +
+    '    command: CommercialCommandName,\n' +
+    '    targetOrgId: string,\n' +
+    '  ): Promise<MemberAccessSnapshot> {\n' +
+    '    assertTenantMatch(ctx.organizationId, targetOrgId);\n' +
+    '    const snap = await this.snapshotInOrg(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt);\n' +
+    "    if (!snap) throw new Error('AUTH_REQUIRED');\n" +
+    '    assertMemberActive(snap);\n' +
+    '    const required = COMMAND_REQUIRED_SCOPES[command];\n' +
+    "    if (required && required !== 'member_active' && !memberHasScope(snap, required)) {\n" +
+    "      throw new Error('PERMISSION_DENIED');\n" +
+    '    }\n' +
+    '    return snap;\n' +
+    '  }\n' +
+    '\n' +
+    '  /**\n' +
+    '   * S11: authorize the current actor for this command, then return the stored\n' +
+    '   * result only for the same actor, command, and payload. Any mismatch is\n' +
+    '   * CONFLICT without the stored body; a row without that binding is\n' +
+    '   * REPLAY_REVIEW_REQUIRED and is not re-run.\n' +
+    '   */\n' +
+    '  private async acceptedReplay(\n' +
+    '    ctx: RequestContext,\n' +
+    '    command: CommercialCommandName,\n' +
+    '    payload: Record<string, unknown>,\n' +
+    '    stored: Record<string, unknown>,\n' +
+    '  ): Promise<CommandResult> {\n' +
+    '    await this.authorize(ctx, command, ctx.organizationId);\n' +
+    '    return openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));\n' +
+    '  }\n' +
+    '\n' +
+    '  /** A concurrent request with the same key won the insert: replay its result under the same rules. */\n' +
+    '  private async replayAfterConflict(\n' +
+    '    ctx: RequestContext,\n' +
+    '    command: CommercialCommandName,\n' +
+    '    payload: Record<string, unknown>,\n' +
+    '    err: unknown,\n' +
+    '    idempotencyKey?: string,\n' +
+    '  ): Promise<CommandResult> {\n' +
+    '    if (idempotencyKey && isIdempotencyConflict(err)) {\n' +
+    '      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);\n' +
+    '      if (existing) return this.acceptedReplay(ctx, command, payload, existing.resultJson);\n' +
+    '    }\n' +
+    '    throw err;\n' +
+    '  }\n' +
+    '\n' +
+    '  async execute(\n' +
+    '    command: CommercialCommandName,\n' +
+    '    ctx: RequestContext,\n' +
+    '    payload: Record<string, unknown>,\n' +
+    '    idempotencyKey?: string,\n' +
+    '  ): Promise<CommandResult> {\n' +
+    '    return withIdempotencyKey(idempotencyKey, () =>\n' +
+    '      this.runCommand(command, ctx, payload, idempotencyKey),\n' +
+    '    );\n' +
+    '  }\n' +
+    '\n' +
+    '  private async runCommand(\n' +
+    '    command: CommercialCommandName,\n' +
+    '    ctx: RequestContext,\n' +
+    '    payload: Record<string, unknown>,\n' +
+    '    idempotencyKey?: string,\n' +
+    '  ): Promise<CommandResult> {\n' +
+    '    const actor = await this.store.getMemberInOrg(ctx.organizationId, ctx.actorMemberId);\n' +
+    '    if (!actor || actor.organizationId !== ctx.organizationId) {\n' +
+    "      throw new Error('TENANT_FORBIDDEN');\n" +
+    '    }\n' +
+    '\n' +
+    '    if (idempotencyKey) {\n' +
+    '      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);\n' +
+    '      if (existing) {\n' +
+    '        return this.acceptedReplay(ctx, command, payload, existing.resultJson);\n' +
+    '      }\n' +
+    '    }\n' +
+    '\n' +
+    '    return this.store.runInTransaction(async (store) => {\n' +
+    '      let result: CommandResult;\n' +
+    '      switch (command) {\n' +
+    "      case 'CreateOpportunity':\n" +
+    '        result = await this.createOpportunity(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'UpdateOpportunity':\n" +
+    '        result = await this.updateOpportunity(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'ChangeOpportunityStage':\n" +
+    '        result = await this.changeOpportunityStage(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'CloseOpportunity':\n" +
+    '        result = await this.closeOpportunity(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'AssignOpportunityOwner':\n" +
+    '        result = await this.assignOpportunityOwner(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'CreateQuote':\n" +
+    '        result = await this.createQuote(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'AddQuoteLine':\n" +
+    '        result = await this.addQuoteLine(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'UpdateQuoteLine':\n" +
+    '        result = await this.updateQuoteLine(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'RemoveQuoteLine':\n" +
+    '        result = await this.removeQuoteLine(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'UpdateQuote':\n" +
+    '        result = await this.updateQuote(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'SubmitQuote':\n" +
+    '        result = await this.submitQuote(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'RecordQuoteManualSend':\n" +
+    '        result = await this.recordQuoteManualSend(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'CancelQuote':\n" +
+    '        result = await this.cancelQuote(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'CreateOrder':\n" +
+    '        result = await this.createOrder(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'CancelOrder':\n" +
+    '        result = await this.cancelOrder(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'ReassignCommercialAccountOwner':\n" +
+    '        result = await this.reassignCommercialAccountOwner(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'GrantCustomerCoverage':\n" +
+    '        result = await this.grantCustomerCoverage(ctx, payload, store);\n' +
+    '        break;\n' +
+    "      case 'RevokeCustomerCoverage':\n" +
+    '        result = await this.revokeCustomerCoverage(ctx, payload, store);\n' +
+    '        break;\n' +
+    '      default:\n' +
+    "        throw new Error('VALIDATION_FAILED');\n" +
+    '      }\n' +
+    '\n' +
+    '      if (idempotencyKey) {\n' +
+    '        await store.saveIdempotency({\n' +
+    '          organizationId: ctx.organizationId,\n' +
+    '          key: idempotencyKey,\n' +
+    '          commandName: command,\n' +
+    '          resultJson: sealReplay(result, replayBinding(ctx.actorMemberId, command, payload)),\n' +
+    '          expiresAt: new Date(Date.now() + 86400_000),\n' +
+    '        });\n' +
+    '      }\n' +
+    '\n' +
+    '      return result;\n' +
+    '    }).catch((err: unknown) => this.replayAfterConflict(ctx, command, payload, err, idempotencyKey));\n' +
+    '  }\n' +
+    '\n' +
+    '  private async emit(\n' +
+    '    ctx: RequestContext,\n' +
+    '    store: OsCommercialStore,\n' +
+    '    eventType: string,\n' +
+    '    primaryType: string,\n' +
+    '    primaryId: string,\n' +
+    '    payload?: Record<string, unknown>,\n' +
+    '    auditAction?: string,\n' +
+    '    before?: Record<string, unknown>,\n' +
+    '    after?: Record<string, unknown>,\n' +
+    '  ): Promise<CommandResult> {\n' +
+    '    const event = buildBusinessEvent({\n' +
+    '      organizationId: ctx.organizationId,\n' +
+    '      eventType,\n' +
+    '      occurredAt: ctx.effectiveAt,\n' +
+    '      actorMemberId: ctx.actorMemberId,\n' +
+    '      authorizationContext: { memberId: ctx.actorMemberId },\n' +
+    '      primaryEntityType: primaryType,\n' +
+    '      primaryEntityId: primaryId,\n' +
+    '      payload,\n' +
+    '      correlationId: ctx.correlationId,\n' +
+    '      idempotencyKey: currentIdempotencyKey(),\n' +
+    "      capabilityKey: 'commercial',\n" +
+    '    });\n' +
+    '    const outbox = buildOutboxForEvent(event);\n' +
+    '    const audit = buildAuditEntry(\n' +
+    '      ctx.organizationId,\n' +
+    '      ctx.actorMemberId,\n' +
+    '      auditAction ?? eventType,\n' +
+    '      primaryType,\n' +
+    '      primaryId,\n' +
+    '      ctx.correlationId,\n' +
+    '      before,\n' +
+    '      after,\n' +
+    '    );\n' +
+    '    await store.appendEventAndAudit(event, outbox, audit);\n' +
+    '    return {\n' +
+    '      commandId: event.id,\n' +
+    '      correlationId: ctx.correlationId,\n' +
+    '      data: { eventId: event.id, ...(payload ?? {}) },\n' +
+    '    };\n' +
+    '  }\n' +
+    '\n' +
+    '  private async resolveCommercialAccountId(\n' +
+    '    store: OsCommercialStore,\n' +
+    '    orgId: string,\n' +
+    '    partyId: string,\n' +
+    '  ): Promise<string | null> {\n' +
+    '    const account = await store.getCommercialAccountForParty(orgId, partyId);\n' +
+    "    if (!account || account.organizationId !== orgId || account.status !== 'active') return null;\n" +
+    '    return account.id;\n' +
+    '  }\n' +
+    '\n' +
+    '  /**\n' +
+    '   * T03 account access for one customer. knowable follows T02 non-disclosure:\n' +
+    '   * when false the command answers exactly as for a missing or foreign id.\n' +
+    '   * canWork is the commercial account access (owner, or active coverage that\n' +
+    '   * explicitly covers commercial.work). Neither people.admin nor\n' +
+    '   * master_data.admin gives commercial access. inCommercialRange is the\n' +
+    '   * leadership range (commercial.org.read, owner, commercial.team.read over the\n' +
+    '   * owner) without c'... 39225 more characters
+  
+      at TestContext.<anonymous> (/Users/carmen/projects/isalwa-wt-v1-repairs/packages/os-query/src/leadership/leadership-visibility.test.ts:333:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at node:internal/test_runner/test:1617:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: "import type { CommercialCommandName, RequestContext } from '@isalwa/os-contracts';\nimport {\n  COMMAND_REQUIRED_SCOPES,\n  canConvertQuoteToOrder,\n  canGrantCustomerCoverage,\n  canReassignCommercialAccountOwner,\n  canRevokeCustomerCoverage,\n  canKnowCustomer,\n  canWorkCustomerAccount,\n  COMMERCIAL_ORDER_CONVERT_SCOPE,\n  MASTER_DATA_ADMIN_SCOPE,\n  coverageAuditForConvert,\n  buildCustomerCoverageGrant,\n  isGrantableCoverageAction,\n  LEGACY_COVERAGE_ACTIONS,\n  type CustomerCoverageGrant,\n} from '@isalwa/os-contracts';\nimport {\n  assertMemberActive,\n  assertTenantMatch,\n  computeEffectiveScopes,\n  memberHasScope,\n  type MemberAccessSnapshot,\n} from '@isalwa/os-domain';\nimport {\n  buildAuditEntry,\n  buildBusinessEvent,\n  buildOutboxForEvent,\n  currentIdempotencyKey,\n  isIdempotencyConflict,\n  openReplay,\n  replayBinding,\n  sealReplay,\n  withIdempotencyKey,\n} from '@isalwa/os-events';\nimport { createId } from '@isalwa/ts-utils';\nimport {\n  centavosToString,\n  computeLineTotalCentavos,\n  computeQuoteTotals,\n  parseCentavos,\n} from './money';\nimport type { OsCommercialStore } from './os-commercial-store';\nimport { copyQuoteLinesToOrderLines } from './order-lines';\nimport type { OpportunityRecord, OrderRecord, QuoteLineRecord, QuoteRecord } from './store-types';\n\nexport type CommandResult = {\n  commandId: string;\n  correlationId: string;\n  data: Record<string, unknown>;\n};\n\nexport class CommercialCommandService {\n  constructor(private readonly store: OsCommercialStore) {}\n\n  private async snapshotInOrg(\n    organizationId: string,\n    memberId: string,\n    asOf: Date,\n  ): Promise<MemberAccessSnapshot | null> {\n    const member = await this.store.getMemberInOrg(organizationId, memberId);\n    if (!member) return null;\n    const roles = await this.store.listRoleAssignmentsForMember(memberId, organizationId);\n    const delegations = await this.store.listDelegationsForDelegate(memberId, organizationId);\n    return {\n      memberId: member.id,\n      organizationId: member.organizationId,\n      accessStatus: member.accessStatus,\n      roleKeys: computeEffectiveScopes(\n        roles.map((r) => ({ roleKey: r.roleKey, effectiveAt: r.effectiveAt, endedAt: r.endedAt })),\n        delegations.map((d) => ({\n          scopes: d.scopes,\n          startsAt: d.startsAt,\n          expiresAt: d.expiresAt,\n          revokedAt: d.revokedAt,\n          delegatorMemberId: d.delegatorMemberId,\n        })),\n        asOf,\n      ),\n      delegatedScopes: [],\n    };\n  }\n\n  private async authorize(\n    ctx: RequestContext,\n    command: CommercialCommandName,\n    targetOrgId: string,\n  ): Promise<MemberAccessSnapshot> {\n    assertTenantMatch(ctx.organizationId, targetOrgId);\n    const snap = await this.snapshotInOrg(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt);\n    if (!snap) throw new Error('AUTH_REQUIRED');\n    assertMemberActive(snap);\n    const required = COMMAND_REQUIRED_SCOPES[command];\n    if (required && required !== 'member_active' && !memberHasScope(snap, required)) {\n      throw new Error('PERMISSION_DENIED');\n    }\n    return snap;\n  }\n\n  /**\n   * S11: authorize the current actor for this command, then return the stored\n   * result only for the same actor, command, and payload. Any mismatch is\n   * CONFLICT without the stored body; a row without that binding is\n   * REPLAY_REVIEW_REQUIRED and is not re-run.\n   */\n  private async acceptedReplay(\n    ctx: RequestContext,\n    command: CommercialCommandName,\n    payload: Record<string, unknown>,\n    stored: Record<string, unknown>,\n  ): Promise<CommandResult> {\n    await this.authorize(ctx, command, ctx.organizationId);\n    return openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));\n  }\n\n  /** A concurrent request with the same key won the insert: replay its result under the same rules. */\n  private async replayAfterConflict(\n    ctx: RequestContext,\n    command: CommercialCommandName,\n    payload: Record<string, unknown>,\n    err: unknown,\n    idempotencyKey?: string,\n  ): Promise<CommandResult> {\n    if (idempotencyKey && isIdempotencyConflict(err)) {\n      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);\n      if (existing) return this.acceptedReplay(ctx, command, payload, existing.resultJson);\n    }\n    throw err;\n  }\n\n  async execute(\n    command: CommercialCommandName,\n    ctx: RequestContext,\n    payload: Record<string, unknown>,\n    idempotencyKey?: string,\n  ): Promise<CommandResult> {\n    return withIdempotencyKey(idempotencyKey, () =>\n      this.runCommand(command, ctx, payload, idempotencyKey),\n    );\n  }\n\n  private async runCommand(\n    command: CommercialCommandName,\n    ctx: RequestContext,\n    payload: Record<string, unknown>,\n    idempotencyKey?: string,\n  ): Promise<CommandResult> {\n    const actor = await this.store.getMemberInOrg(ctx.organizationId, ctx.actorMemberId);\n    if (!actor || actor.organizationId !== ctx.organizationId) {\n      throw new Error('TENANT_FORBIDDEN');\n    }\n\n    if (idempotencyKey) {\n      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);\n      if (existing) {\n        return this.acceptedReplay(ctx, command, payload, existing.resultJson);\n      }\n    }\n\n    return this.store.runInTransaction(async (store) => {\n      let result: CommandResult;\n      switch (command) {\n      case 'CreateOpportunity':\n        result = await this.createOpportunity(ctx, payload, store);\n        break;\n      case 'UpdateOpportunity':\n        result = await this.updateOpportunity(ctx, payload, store);\n        break;\n      case 'ChangeOpportunityStage':\n        result = await this.changeOpportunityStage(ctx, payload, store);\n        break;\n      case 'CloseOpportunity':\n        result = await this.closeOpportunity(ctx, payload, store);\n        break;\n      case 'AssignOpportunityOwner':\n        result = await this.assignOpportunityOwner(ctx, payload, store);\n        break;\n      case 'CreateQuote':\n        result = await this.createQuote(ctx, payload, store);\n        break;\n      case 'AddQuoteLine':\n        result = await this.addQuoteLine(ctx, payload, store);\n        break;\n      case 'UpdateQuoteLine':\n        result = await this.updateQuoteLine(ctx, payload, store);\n        break;\n      case 'RemoveQuoteLine':\n        result = await this.removeQuoteLine(ctx, payload, store);\n        break;\n      case 'UpdateQuote':\n        result = await this.updateQuote(ctx, payload, store);\n        break;\n      case 'SubmitQuote':\n        result = await this.submitQuote(ctx, payload, store);\n        break;\n      case 'RecordQuoteManualSend':\n        result = await this.recordQuoteManualSend(ctx, payload, store);\n        break;\n      case 'CancelQuote':\n        result = await this.cancelQuote(ctx, payload, store);\n        break;\n      case 'CreateOrder':\n        result = await this.createOrder(ctx, payload, store);\n        break;\n      case 'CancelOrder':\n        result = await this.cancelOrder(ctx, payload, store);\n        break;\n      case 'ReassignCommercialAccountOwner':\n        result = await this.reassignCommercialAccountOwner(ctx, payload, store);\n        break;\n      case 'GrantCustomerCoverage':\n        result = await this.grantCustomerCoverage(ctx, payload, store);\n        break;\n      case 'RevokeCustomerCoverage':\n        result = await this.revokeCustomerCoverage(ctx, payload, store);\n        break;\n      default:\n        throw new Error('VALIDATION_FAILED');\n      }\n\n      if (idempotencyKey) {\n        await store.saveIdempotency({\n          organizationId: ctx.organizationId,\n          key: idempotencyKey,\n          commandName: command,\n          resultJson: sealReplay(result, replayBinding(ctx.actorMemberId, command, payload)),\n          expiresAt: new Date(Date.now() + 86400_000),\n        });\n      }\n\n      return result;\n    }).catch((err: unknown) => this.replayAfterConflict(ctx, command, payload, err, idempotencyKey));\n  }\n\n  private async emit(\n    ctx: RequestContext,\n    store: OsCommercialStore,\n    eventType: string,\n    primaryType: string,\n    primaryId: string,\n    payload?: Record<string, unknown>,\n    auditAction?: string,\n    before?: Record<string, unknown>,\n    after?: Record<string, unknown>,\n  ): Promise<CommandResult> {\n    const event = buildBusinessEvent({\n      organizationId: ctx.organizationId,\n      eventType,\n      occurredAt: ctx.effectiveAt,\n      actorMemberId: ctx.actorMemberId,\n      authorizationContext: { memberId: ctx.actorMemberId },\n      primaryEntityType: primaryType,\n      primaryEntityId: primaryId,\n      payload,\n      correlationId: ctx.correlationId,\n      idempotencyKey: currentIdempotencyKey(),\n      capabilityKey: 'commercial',\n    });\n    const outbox = buildOutboxForEvent(event);\n    const audit = buildAuditEntry(\n      ctx.organizationId,\n      ctx.actorMemberId,\n      auditAction ?? eventType,\n      primaryType,\n      primaryId,\n      ctx.correlationId,\n      before,\n      after,\n    );\n    await store.appendEventAndAudit(event, outbox, audit);\n    return {\n      commandId: event.id,\n      correlationId: ctx.correlationId,\n      data: { eventId: event.id, ...(payload ?? {}) },\n    };\n  }\n\n  private async resolveCommercialAccountId(\n    store: OsCommercialStore,\n    orgId: string,\n    partyId: string,\n  ): Promise<string | null> {\n    const account = await store.getCommercialAccountForParty(orgId, partyId);\n    if (!account || account.organizationId !== orgId || account.status !== 'active') return null;\n    return account.id;\n  }\n\n  /**\n   * T03 account access for one customer. knowable follows T02 non-disclosure:\n   * when false the command answers exactly as for a missing or foreign id.\n   * canWork is the commercial account access (owner, or active coverage that\n   * explicitly covers commercial.work). Neither people.admin nor\n   * master_data.admin gives commercial access. inCommercialRange is the\n   * leadership range (commercial.org.read, owner, commercial.team.read over the\n   * owner) without c"... 39225 more characters,
+    expected: /commercial\.(team|org)\.read/,
+    operator: 'doesNotMatch',
+    diff: 'simple'
+  }

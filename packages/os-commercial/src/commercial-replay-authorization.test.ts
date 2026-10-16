@@ -118,6 +118,7 @@ function setup(options: { coveredAdvisor?: string } = {}) {
               customerPartyId: input.customerPartyId,
               primaryOwnerMemberId: 'mem-a',
               actingAdvisorMemberId: input.actingAdvisorMemberId,
+              coveredActions: ['commercial.work'],
               startsAt: SINCE,
               endsAt: null,
               revokedAt: null,

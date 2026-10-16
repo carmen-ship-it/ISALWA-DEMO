@@ -37,6 +37,7 @@ function grant(partial: Partial<CustomerCoverageGrant>): CustomerCoverageGrant {
     customerPartyId: 'cust-owned',
     primaryOwnerMemberId: 'owner',
     actingAdvisorMemberId: 'advisor',
+    coveredActions: ['commercial.work'],
     startsAt: new Date('2026-10-01T00:00:00Z'),
     endsAt: null,
     revokedAt: null,

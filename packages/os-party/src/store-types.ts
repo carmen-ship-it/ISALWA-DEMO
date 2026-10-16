@@ -20,6 +20,8 @@ export type LocationRecord = {
   latitude: number | null;
   longitude: number | null;
   provenanceUrl: string | null;
+  city?: string | null;
+  department?: string | null;
   status: LocationStatus;
   version: number;
   createdAt: Date;

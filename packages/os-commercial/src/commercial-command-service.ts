@@ -5,9 +5,16 @@ import {
   canGrantCustomerCoverage,
   canReassignCommercialAccountOwner,
   canRevokeCustomerCoverage,
+  canKnowCustomer,
+  canManageCustomerAccountWork,
   canWorkCustomerAccount,
+  COMMERCIAL_ORDER_CONVERT_SCOPE,
+  MASTER_DATA_ADMIN_SCOPE,
   coverageAuditForConvert,
   buildCustomerCoverageGrant,
+  isGrantableCoverageAction,
+  LEGACY_COVERAGE_ACTIONS,
+  type CustomerCoverageGrant,
 } from '@isalwa/os-contracts';
 import {
   assertMemberActive,
@@ -269,18 +276,6 @@ export class CommercialCommandService {
     };
   }
 
-  private async requireActiveParty(
-    store: OsCommercialStore,
-    orgId: string,
-    partyId: string,
-  ) {
-    const party = this.refuseForeign(await store.getPartyInOrg(orgId, partyId), orgId);
-    if (party.status !== 'active' || party.mergedIntoPartyId) {
-      throw new Error('VALIDATION_FAILED');
-    }
-    return party;
-  }
-
   private async resolveCommercialAccountId(
     store: OsCommercialStore,
     orgId: string,
@@ -292,51 +287,150 @@ export class CommercialCommandService {
   }
 
   /**
-   * T03: commercial work on a customer needs the current account owner or active
-   * coverage on that account (canWorkCustomerAccount). people.admin is not a
-   * commercial bypass. Missing and foreign parties end the same way.
+   * T03 account access for one customer. knowable follows T02 non-disclosure:
+   * when false the command answers exactly as for a missing or foreign id.
+   * canWork is the commercial account access (owner, or active coverage that
+   * explicitly covers commercial.work). Neither people.admin nor
+   * master_data.admin gives commercial access. inCommercialRange is the
+   * canKnowCustomer range without coverage or data-steward knowledge; it only
+   * narrows a separately held permission and never authorizes on its own.
+   * canManage is commercial.work.manage plus current range over the account.
    */
-  private async assertCanWorkCustomer(
+  private async customerAccess(
     ctx: RequestContext,
     store: OsCommercialStore,
+    snap: MemberAccessSnapshot,
     partyId: string,
-  ): Promise<{ accountOwnerMemberId: string | null }> {
+  ): Promise<{
+    knowable: boolean;
+    canWork: boolean;
+    canManage: boolean;
+    inCommercialRange: boolean;
+    accountOwnerMemberId: string | null;
+    coverageGrants: readonly CustomerCoverageGrant[];
+  }> {
     const account = await store.getCommercialAccountForParty(ctx.organizationId, partyId);
     const accountOwnerMemberId =
       account && account.organizationId === ctx.organizationId ? account.ownerMemberId : null;
-    const coverageGrants = accountOwnerMemberId
-      ? await store.listActiveCustomerCoverageGrants({
-          organizationId: ctx.organizationId,
-          customerPartyId: partyId,
-          actingAdvisorMemberId: ctx.actorMemberId,
-          asOf: ctx.effectiveAt,
-        })
-      : [];
-    const allowed = canWorkCustomerAccount({
-      actorMemberId: ctx.actorMemberId,
+    const actorMemberId = ctx.actorMemberId;
+    let coverageGrants: readonly CustomerCoverageGrant[] = [];
+    let ownerIsDirectReportOfActor = false;
+    const grantedScopes = [...snap.roleKeys, ...snap.delegatedScopes];
+    if (accountOwnerMemberId && accountOwnerMemberId !== actorMemberId) {
+      coverageGrants = await store.listActiveCustomerCoverageGrants({
+        organizationId: ctx.organizationId,
+        customerPartyId: partyId,
+        actingAdvisorMemberId: actorMemberId,
+        asOf: ctx.effectiveAt,
+      });
+      ownerIsDirectReportOfActor = await store.isDirectReport(
+        ctx.organizationId,
+        actorMemberId,
+        accountOwnerMemberId,
+        ctx.effectiveAt,
+      );
+    }
+    const base = {
+      actorMemberId,
       organizationId: ctx.organizationId,
       customerPartyId: partyId,
       accountOwnerMemberId,
       coverageGrants,
       asOf: ctx.effectiveAt,
-    });
-    if (!allowed) throw new Error('PERMISSION_DENIED');
-    return { accountOwnerMemberId };
+    };
+    return {
+      knowable: canKnowCustomer({ ...base, grantedScopes, ownerIsDirectReportOfActor }),
+      canWork: canWorkCustomerAccount(base),
+      canManage: canManageCustomerAccountWork({ ...base, grantedScopes, ownerIsDirectReportOfActor }),
+      inCommercialRange: canKnowCustomer({
+        ...base,
+        coverageGrants: [],
+        grantedScopes: grantedScopes.filter((scope) => scope !== MASTER_DATA_ADMIN_SCOPE),
+        ownerIsDirectReportOfActor,
+      }),
+      accountOwnerMemberId,
+      coverageGrants,
+    };
+  }
+
+  /** Opening new commercial work: knowable, then active customer, then account access. */
+  private async requireWorkableCustomer(
+    ctx: RequestContext,
+    store: OsCommercialStore,
+    snap: MemberAccessSnapshot,
+    partyId: string,
+  ): Promise<{ accountOwnerMemberId: string }> {
+    const party = this.refuseForeign(
+      await store.getPartyInOrg(ctx.organizationId, partyId),
+      ctx.organizationId,
+    );
+    const access = await this.customerAccess(ctx, store, snap, partyId);
+    if (!access.knowable) throw new Error('NOT_FOUND');
+    if (party.status !== 'active' || party.mergedIntoPartyId) {
+      throw new Error('VALIDATION_FAILED');
+    }
+    if (!(access.canWork || access.canManage) || !access.accountOwnerMemberId) {
+      throw new Error('PERMISSION_DENIED');
+    }
+    return { accountOwnerMemberId: access.accountOwnerMemberId };
   }
 
   /**
-   * Record owner edits their record. A covering advisor continues the account
-   * owner's records on that customer without changing the owner (V2 T03).
+   * New work belongs to the account owner. A covering advisor acts without
+   * becoming the owner; the event keeps the real actor.
+   */
+  private async resolveNewRecordOwner(
+    ctx: RequestContext,
+    store: OsCommercialStore,
+    payload: Record<string, unknown>,
+    accountOwnerMemberId: string,
+  ): Promise<string> {
+    if (!payload.ownerMemberId) return accountOwnerMemberId;
+    const ownerMemberId = String(payload.ownerMemberId);
+    const owner = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
+    if (
+      !owner ||
+      owner.organizationId !== ctx.organizationId ||
+      owner.accessStatus !== 'active' ||
+      ownerMemberId !== accountOwnerMemberId
+    ) {
+      throw new Error('VALIDATION_FAILED');
+    }
+    return ownerMemberId;
+  }
+
+  /**
+   * Existing record command. Order: knowable (else NOT_FOUND), state (else
+   * VALIDATION_FAILED), then current account access plus record ownership: the
+   * record owner, or a covering advisor continuing the account owner's record,
+   * or (unless ownership changes) a manager with canManage on the account
+   * owner's record. Record authorship alone never keeps access after the account moves.
    */
   private async assertCanEditOwnedRecord(
     ctx: RequestContext,
     store: OsCommercialStore,
     snap: MemberAccessSnapshot,
     record: { ownerMemberId: string; partyId: string },
+    stateAllowsCommand: boolean,
+    changesOwnership = false,
   ): Promise<void> {
-    if (record.ownerMemberId === snap.memberId) return;
-    const { accountOwnerMemberId } = await this.assertCanWorkCustomer(ctx, store, record.partyId);
-    if (accountOwnerMemberId !== record.ownerMemberId) throw new Error('PERMISSION_DENIED');
+    const access = await this.customerAccess(ctx, store, snap, record.partyId);
+    if (!access.knowable && record.ownerMemberId !== snap.memberId) throw new Error('NOT_FOUND');
+    if (!stateAllowsCommand) throw new Error('VALIDATION_FAILED');
+    if (
+      !changesOwnership &&
+      access.canManage &&
+      access.accountOwnerMemberId === record.ownerMemberId
+    ) {
+      return;
+    }
+    if (!access.canWork) throw new Error('PERMISSION_DENIED');
+    if (
+      record.ownerMemberId !== snap.memberId &&
+      access.accountOwnerMemberId !== record.ownerMemberId
+    ) {
+      throw new Error('PERMISSION_DENIED');
+    }
   }
 
   private refuseForeign<T extends { organizationId: string }>(
@@ -403,6 +497,7 @@ export class CommercialCommandService {
     return {
       quoteId: quote.id,
       partyId: quote.partyId,
+      ownerMemberId: quote.ownerMemberId,
       opportunityId: quote.opportunityId,
       quoteNumber: quote.quoteNumber,
       status: quote.status,
@@ -418,24 +513,10 @@ export class CommercialCommandService {
     payload: Record<string, unknown>,
     store: OsCommercialStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'CreateOpportunity', ctx.organizationId);
+    const snap = await this.authorize(ctx, 'CreateOpportunity', ctx.organizationId);
     const partyId = String(payload.partyId);
-    await this.requireActiveParty(store, ctx.organizationId, partyId);
-    await this.assertCanWorkCustomer(ctx, store, partyId);
-
-    const ownerMemberId = payload.ownerMemberId
-      ? String(payload.ownerMemberId)
-      : ctx.actorMemberId;
-    if (payload.ownerMemberId) {
-      const owner = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
-      if (
-        !owner ||
-        owner.organizationId !== ctx.organizationId ||
-        owner.accessStatus !== 'active'
-      ) {
-        throw new Error('VALIDATION_FAILED');
-      }
-    }
+    const { accountOwnerMemberId } = await this.requireWorkableCustomer(ctx, store, snap, partyId);
+    const ownerMemberId = await this.resolveNewRecordOwner(ctx, store, payload, accountOwnerMemberId);
 
     const commercialAccountId = await this.resolveCommercialAccountId(
       store,
@@ -491,8 +572,7 @@ export class CommercialCommandService {
       await store.getOpportunityInOrg(ctx.organizationId, opportunityId),
       ctx.organizationId,
     );
-    if (existing.status !== 'open') throw new Error('VALIDATION_FAILED');
-    await this.assertCanEditOwnedRecord(ctx, store, snap, existing);
+    await this.assertCanEditOwnedRecord(ctx, store, snap, existing, existing.status === 'open');
 
     const patch: Partial<OpportunityRecord> = { version: existing.version + 1 };
     if (payload.title != null) patch.title = String(payload.title);
@@ -539,8 +619,7 @@ export class CommercialCommandService {
       await store.getOpportunityInOrg(ctx.organizationId, opportunityId),
       ctx.organizationId,
     );
-    if (existing.status !== 'open') throw new Error('VALIDATION_FAILED');
-    await this.assertCanEditOwnedRecord(ctx, store, snap, existing);
+    await this.assertCanEditOwnedRecord(ctx, store, snap, existing, existing.status === 'open');
 
     await store.updateOpportunity(
       ctx.organizationId,
@@ -574,8 +653,7 @@ export class CommercialCommandService {
       await store.getOpportunityInOrg(ctx.organizationId, opportunityId),
       ctx.organizationId,
     );
-    if (existing.status !== 'open') throw new Error('VALIDATION_FAILED');
-    await this.assertCanEditOwnedRecord(ctx, store, snap, existing);
+    await this.assertCanEditOwnedRecord(ctx, store, snap, existing, existing.status === 'open');
 
     const status = outcome;
     await store.updateOpportunity(
@@ -611,8 +689,7 @@ export class CommercialCommandService {
       await store.getOpportunityInOrg(ctx.organizationId, opportunityId),
       ctx.organizationId,
     );
-    if (existing.status !== 'open') throw new Error('VALIDATION_FAILED');
-    await this.assertCanEditOwnedRecord(ctx, store, snap, existing);
+    await this.assertCanEditOwnedRecord(ctx, store, snap, existing, existing.status === 'open', true);
 
     const owner = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
     if (!owner || owner.organizationId !== ctx.organizationId || owner.accessStatus !== 'active') {
@@ -645,24 +722,10 @@ export class CommercialCommandService {
     payload: Record<string, unknown>,
     store: OsCommercialStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'CreateQuote', ctx.organizationId);
+    const snap = await this.authorize(ctx, 'CreateQuote', ctx.organizationId);
     const partyId = String(payload.partyId);
-    await this.requireActiveParty(store, ctx.organizationId, partyId);
-    await this.assertCanWorkCustomer(ctx, store, partyId);
-
-    const ownerMemberId = payload.ownerMemberId
-      ? String(payload.ownerMemberId)
-      : ctx.actorMemberId;
-    if (payload.ownerMemberId) {
-      const owner = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
-      if (
-        !owner ||
-        owner.organizationId !== ctx.organizationId ||
-        owner.accessStatus !== 'active'
-      ) {
-        throw new Error('VALIDATION_FAILED');
-      }
-    }
+    const { accountOwnerMemberId } = await this.requireWorkableCustomer(ctx, store, snap, partyId);
+    const ownerMemberId = await this.resolveNewRecordOwner(ctx, store, payload, accountOwnerMemberId);
 
     let opportunityId: string | null = null;
     if (payload.opportunityId) {
@@ -720,14 +783,12 @@ export class CommercialCommandService {
     );
   }
 
-  private async requireDraftQuote(
+  private async requireQuote(
     store: OsCommercialStore,
     orgId: string,
     quoteId: string,
   ): Promise<QuoteRecord> {
-    const quote = this.refuseForeign(await store.getQuoteInOrg(orgId, quoteId), orgId);
-    if (quote.status !== 'draft') throw new Error('VALIDATION_FAILED');
-    return quote;
+    return this.refuseForeign(await store.getQuoteInOrg(orgId, quoteId), orgId);
   }
 
   private async addQuoteLine(
@@ -737,8 +798,8 @@ export class CommercialCommandService {
   ): Promise<CommandResult> {
     const snap = await this.authorize(ctx, 'AddQuoteLine', ctx.organizationId);
     const quoteId = String(payload.quoteId);
-    const quote = await this.requireDraftQuote(store, ctx.organizationId, quoteId);
-    await this.assertCanEditOwnedRecord(ctx, store, snap, quote);
+    const quote = await this.requireQuote(store, ctx.organizationId, quoteId);
+    await this.assertCanEditOwnedRecord(ctx, store, snap, quote, quote.status === 'draft');
 
     const quantity = Number(payload.quantity);
     const unitPriceCentavos = parseCentavos(payload.unitPriceCentavos as string | number | bigint);
@@ -799,8 +860,8 @@ export class CommercialCommandService {
       await store.getQuoteLineInOrg(ctx.organizationId, quoteLineId),
       ctx.organizationId,
     );
-    const quote = await this.requireDraftQuote(store, ctx.organizationId, line.quoteId);
-    await this.assertCanEditOwnedRecord(ctx, store, snap, quote);
+    const quote = await this.requireQuote(store, ctx.organizationId, line.quoteId);
+    await this.assertCanEditOwnedRecord(ctx, store, snap, quote, quote.status === 'draft');
 
     const quantity = payload.quantity != null ? Number(payload.quantity) : line.quantity;
     const unitPriceCentavos =
@@ -864,8 +925,8 @@ export class CommercialCommandService {
       await store.getQuoteLineInOrg(ctx.organizationId, quoteLineId),
       ctx.organizationId,
     );
-    const quote = await this.requireDraftQuote(store, ctx.organizationId, line.quoteId);
-    await this.assertCanEditOwnedRecord(ctx, store, snap, quote);
+    const quote = await this.requireQuote(store, ctx.organizationId, line.quoteId);
+    await this.assertCanEditOwnedRecord(ctx, store, snap, quote, quote.status === 'draft');
 
     await store.deleteQuoteLine(ctx.organizationId, line.id);
     const updatedQuote = await this.recalculateQuoteTotals(store, ctx.organizationId, quote);
@@ -891,8 +952,8 @@ export class CommercialCommandService {
   ): Promise<CommandResult> {
     const snap = await this.authorize(ctx, 'UpdateQuote', ctx.organizationId);
     const quoteId = String(payload.quoteId);
-    const quote = await this.requireDraftQuote(store, ctx.organizationId, quoteId);
-    await this.assertCanEditOwnedRecord(ctx, store, snap, quote);
+    const quote = await this.requireQuote(store, ctx.organizationId, quoteId);
+    await this.assertCanEditOwnedRecord(ctx, store, snap, quote, quote.status === 'draft');
 
     const headerDiscountCentavos =
       payload.headerDiscountCentavos != null
@@ -952,8 +1013,8 @@ export class CommercialCommandService {
   ): Promise<CommandResult> {
     const snap = await this.authorize(ctx, 'SubmitQuote', ctx.organizationId);
     const quoteId = String(payload.quoteId);
-    const quote = await this.requireDraftQuote(store, ctx.organizationId, quoteId);
-    await this.assertCanEditOwnedRecord(ctx, store, snap, quote);
+    const quote = await this.requireQuote(store, ctx.organizationId, quoteId);
+    await this.assertCanEditOwnedRecord(ctx, store, snap, quote, quote.status === 'draft');
 
     const lines = await store.listQuoteLines(ctx.organizationId, quote.id);
     if (lines.length === 0) throw new Error('VALIDATION_FAILED');
@@ -998,8 +1059,7 @@ export class CommercialCommandService {
       await store.getQuoteInOrg(ctx.organizationId, quoteId),
       ctx.organizationId,
     );
-    if (quote.status !== 'submitted') throw new Error('VALIDATION_FAILED');
-    await this.assertCanEditOwnedRecord(ctx, store, snap, quote);
+    await this.assertCanEditOwnedRecord(ctx, store, snap, quote, quote.status === 'submitted');
 
     const channel = String(payload.channel ?? '');
     if (channel !== 'whatsapp' && channel !== 'email' && channel !== 'otro') {
@@ -1038,10 +1098,13 @@ export class CommercialCommandService {
       await store.getQuoteInOrg(ctx.organizationId, quoteId),
       ctx.organizationId,
     );
-    if (quote.status === 'cancelled' || quote.status === 'accepted') {
-      throw new Error('VALIDATION_FAILED');
-    }
-    await this.assertCanEditOwnedRecord(ctx, store, snap, quote);
+    await this.assertCanEditOwnedRecord(
+      ctx,
+      store,
+      snap,
+      quote,
+      quote.status !== 'cancelled' && quote.status !== 'accepted',
+    );
 
     const existingOrder = await store.getOrderForQuote(ctx.organizationId, quote.id);
     if (
@@ -1086,6 +1149,8 @@ export class CommercialCommandService {
       await store.getQuoteInOrg(ctx.organizationId, quoteId),
       ctx.organizationId,
     );
+    const access = await this.customerAccess(ctx, store, snap, quote.partyId);
+    if (!access.knowable && quote.ownerMemberId !== snap.memberId) throw new Error('NOT_FOUND');
     if (quote.status !== 'submitted') throw new Error('VALIDATION_FAILED');
     const scopes = [...snap.roleKeys, ...snap.delegatedScopes];
     const account = quote.commercialAccountId
@@ -1124,6 +1189,13 @@ export class CommercialCommandService {
     ) {
       throw new Error('PERMISSION_DENIED');
     }
+    // Conversion permission and account access must both hold. The quote owner
+    // converts with current account access; order.convert acts on accounts it
+    // works or within its leadership range.
+    const ownConvert = quote.ownerMemberId === snap.memberId && access.canWork;
+    const rangeConvert =
+      scopes.includes(COMMERCIAL_ORDER_CONVERT_SCOPE) && (access.canWork || access.inCommercialRange);
+    if (!ownConvert && !rangeConvert) throw new Error('PERMISSION_DENIED');
 
     const existingOrder = await store.getOrderForQuote(ctx.organizationId, quote.id);
     if (this.isSessionRecord(existingOrder, ctx.organizationId)) {
@@ -1205,8 +1277,12 @@ export class CommercialCommandService {
       await store.getOrderInOrg(ctx.organizationId, orderId),
       ctx.organizationId,
     );
+    const access = await this.customerAccess(ctx, store, snap, order.partyId);
+    if (!access.knowable && order.ownerMemberId !== snap.memberId) throw new Error('NOT_FOUND');
     if (order.status !== 'open') throw new Error('VALIDATION_FAILED');
-    if (order.ownerMemberId !== snap.memberId) throw new Error('PERMISSION_DENIED');
+    if (order.ownerMemberId !== snap.memberId || !access.canWork) {
+      throw new Error('PERMISSION_DENIED');
+    }
 
     await store.updateOrder(
       ctx.organizationId,
@@ -1309,6 +1385,12 @@ export class CommercialCommandService {
     const commercialAccountId = String(payload.commercialAccountId);
     const actingAdvisorMemberId = String(payload.actingAdvisorMemberId);
     const note = payload.note != null ? String(payload.note).trim() || undefined : undefined;
+    const requestedActions = Array.isArray(payload.coveredActions)
+      ? payload.coveredActions.map(String)
+      : [...LEGACY_COVERAGE_ACTIONS];
+    if (requestedActions.length === 0 || !requestedActions.every(isGrantableCoverageAction)) {
+      throw new Error('VALIDATION_FAILED');
+    }
     let endsAt: Date | null = null;
     if (payload.endsAt != null && String(payload.endsAt).trim()) {
       endsAt = new Date(String(payload.endsAt));
@@ -1334,6 +1416,7 @@ export class CommercialCommandService {
       customerPartyId: account.partyId,
       primaryOwnerMemberId: account.ownerMemberId,
       actingAdvisorMemberId,
+      coveredActions: requestedActions,
       startsAt,
       endsAt: endsAt ?? undefined,
     });
@@ -1354,6 +1437,7 @@ export class CommercialCommandService {
       customerPartyId: account.partyId,
       primaryOwnerMemberId: account.ownerMemberId,
       actingAdvisorMemberId,
+      coveredActions: built.coveredActions,
       startsAt,
       endsAt,
       recordedAt: startsAt,
@@ -1372,6 +1456,7 @@ export class CommercialCommandService {
         partyId: account.partyId,
         primaryOwnerMemberId: account.ownerMemberId,
         actingAdvisorMemberId,
+        coveredActions: [...built.coveredActions],
         startsAt: startsAt.toISOString(),
         endsAt: endsAt?.toISOString() ?? null,
         note,

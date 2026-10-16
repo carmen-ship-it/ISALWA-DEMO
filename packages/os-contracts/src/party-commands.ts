@@ -31,6 +31,18 @@ export const CreatePartyPayloadSchema = z.object({
   fiscalIdentity: FiscalIdentityInputSchema.optional(),
   initialRoleKey: z.enum(PARTY_ROLE_KEYS).optional(),
   createCommercialAccount: z.boolean().optional(),
+  /** V2 §5.4 Registrar cliente. Omitted = creator when they hold commercial.customer.create. */
+  accountOwnerMemberId: z.string().min(1).optional(),
+  contact: z
+    .object({ givenName: z.string().trim().min(1).max(200), familyName: z.string().max(200).optional() })
+    .optional(),
+  phone: z.string().max(32).optional(),
+  noPhoneReason: z.literal('no_phone_available').optional(),
+  city: z.string().max(120).optional(),
+  department: z.string().max(120).optional(),
+  addressReference: z.string().max(500).optional(),
+  /** Required when the phone already appears on other records ("Registrar otro cliente"). */
+  duplicateReason: z.string().trim().min(1).max(500).optional(),
 });
 
 export const UpdatePartyPayloadSchema = z.object({
