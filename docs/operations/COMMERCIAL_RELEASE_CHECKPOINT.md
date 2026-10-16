@@ -6,7 +6,7 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 |---|---|---|---|
 | T00 | LOCAL_COMPLETE (docs only) | `30077c6` | `commercial-release/receipts/T00.md` |
 | T01 | LOCAL_COMPLETE (tested fake + disposable PG + local HTTP; NOT INDEPENDENTLY REVIEWED) | `1d69341` | `commercial-release/receipts/T01.md` |
-| T02 | LOCAL_COMPLETE (customer visibility boundary + operational reads + shared rate limit; tested fake + disposable PG + local HTTP; NOT INDEPENDENTLY REVIEWED) | see receipt §10 | `commercial-release/receipts/T02.md` |
+| T02 | LOCAL_COMPLETE (customer visibility boundary + operational reads + shared rate limit; tested fake + disposable PG + local HTTP; NOT INDEPENDENTLY REVIEWED) | `f76751d` | `commercial-release/receipts/T02.md` |
 | T03 | NEXT | — | — |
 
 ## Last confirmed step
