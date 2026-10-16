@@ -1,0 +1,13 @@
+[evidence] outage run: {"claimed":1,"published":0,"retried":1,"deadLetter":0,"duplicates":0} status=pending attempts=1 lastError=PROVIDER_UNAVAILABLE
+[evidence] recovery run: {"claimed":1,"published":1,"retried":0,"deadLetter":0,"duplicates":0} status=published attempts=1
+▶ T01b auth provider effects through the outbox (prisma)
+  ✔ suspend during a provider outage: committed, retried by the worker, applied once when the provider returns (211.095792ms)
+✔ T01b auth provider effects through the outbox (prisma) (340.599875ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 597.257125

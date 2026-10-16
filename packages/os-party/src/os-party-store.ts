@@ -141,4 +141,12 @@ export interface OsPartyStore {
   ): Promise<void>;
   findIdempotency(organizationId: string, key: string): Promise<IdempotencyRecord | null>;
   saveIdempotency(record: IdempotencyRecord & { id?: string }): Promise<void>;
+  /** Replaces the stored result of an existing key (claim → completed). */
+  completeIdempotency(
+    organizationId: string,
+    key: string,
+    resultJson: Record<string, unknown>,
+  ): Promise<void>;
+  /** Releases a claim whose command did not complete. */
+  deleteIdempotency(organizationId: string, key: string): Promise<void>;
 }

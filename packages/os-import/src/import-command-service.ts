@@ -16,6 +16,11 @@ import {
   buildBusinessEvent,
   buildOutboxForEvent,
   currentIdempotencyKey,
+  isIdempotencyConflict,
+  openReplay,
+  replayBinding,
+  sealReplay,
+  type ReplayBinding,
   withIdempotencyKey,
 } from '@isalwa/os-events';
 import type { LocationCommandService, PartyCommandService, OsPartyStore } from '@isalwa/os-party';
@@ -47,6 +52,8 @@ type PartyAccessStore = Pick<
   | 'appendEventAndAudit'
   | 'findIdempotency'
   | 'saveIdempotency'
+  | 'completeIdempotency'
+  | 'deleteIdempotency'
 >;
 
 export class ImportCommandService {
@@ -126,45 +133,82 @@ export class ImportCommandService {
       throw new Error('TENANT_FORBIDDEN');
     }
 
+    const binding = replayBinding(ctx.actorMemberId, command, payload);
     if (idempotencyKey) {
-      const existing = await this.partyAccess.findIdempotency(ctx.organizationId, idempotencyKey);
-      if (existing) {
-        return existing.resultJson as unknown as ImportCommandResult;
+      // Import writes outside one transaction, so the key is claimed before any write.
+      // A pending claim means another request with this key is running: CONFLICT, no run.
+      await this.authorize(ctx, command, ctx.organizationId);
+      const existing = await this.readReplay(ctx, idempotencyKey, binding);
+      if (existing) return existing;
+      try {
+        await this.partyAccess.saveIdempotency({
+          organizationId: ctx.organizationId,
+          key: idempotencyKey,
+          commandName: command,
+          resultJson: { pending: true },
+          expiresAt: new Date(Date.now() + 86400_000),
+        });
+      } catch (err) {
+        if (!isIdempotencyConflict(err)) throw err;
+        const winner = await this.readReplay(ctx, idempotencyKey, binding);
+        if (winner) return winner;
+        throw new Error('CONFLICT');
       }
     }
 
     let result: ImportCommandResult;
-    switch (command) {
-      case 'DryRunClientImport':
-        result = await this.dryRunOrValidate(ctx, payload, 'dry_run');
-        break;
-      case 'ValidateClientImport':
-        result = await this.dryRunOrValidate(ctx, payload, 'validated');
-        break;
-      case 'ExecuteClientImport':
-        result = await this.executeImport(ctx, payload);
-        break;
-      case 'ReverseImportBatch':
-        result = await this.reverseBatch(ctx, payload);
-        break;
-      case 'GetImportBatchReceipt':
-        result = await this.getReceipt(ctx, payload);
-        break;
-      default:
-        throw new Error('VALIDATION_FAILED');
+    try {
+      switch (command) {
+        case 'DryRunClientImport':
+          result = await this.dryRunOrValidate(ctx, payload, 'dry_run');
+          break;
+        case 'ValidateClientImport':
+          result = await this.dryRunOrValidate(ctx, payload, 'validated');
+          break;
+        case 'ExecuteClientImport':
+          result = await this.executeImport(ctx, payload);
+          break;
+        case 'ReverseImportBatch':
+          result = await this.reverseBatch(ctx, payload);
+          break;
+        case 'GetImportBatchReceipt':
+          result = await this.getReceipt(ctx, payload);
+          break;
+        default:
+          throw new Error('VALIDATION_FAILED');
+      }
+    } catch (err) {
+      // Release the claim so the same key can be retried. Writes already made by
+      // ExecuteClientImport use per-row keys, so a retry replays them instead of
+      // writing them again.
+      if (idempotencyKey) {
+        await this.partyAccess
+          .deleteIdempotency(ctx.organizationId, idempotencyKey)
+          .catch(() => undefined);
+      }
+      throw err;
     }
 
     if (idempotencyKey) {
-      await this.partyAccess.saveIdempotency({
-        organizationId: ctx.organizationId,
-        key: idempotencyKey,
-        commandName: command,
-        resultJson: result as unknown as Record<string, unknown>,
-        expiresAt: new Date(Date.now() + 86400_000),
-      });
+      await this.partyAccess.completeIdempotency(
+        ctx.organizationId,
+        idempotencyKey,
+        sealReplay(result, binding),
+      );
     }
 
     return result;
+  }
+
+  /** Completed row → S11 replay; pending claim → null (caller decides); legacy → REPLAY_REVIEW_REQUIRED. */
+  private async readReplay(
+    ctx: RequestContext,
+    idempotencyKey: string,
+    binding: ReplayBinding,
+  ): Promise<ImportCommandResult | null> {
+    const row = await this.partyAccess.findIdempotency(ctx.organizationId, idempotencyKey);
+    if (!row || row.resultJson?.pending === true) return null;
+    return openReplay<ImportCommandResult>(row.resultJson, binding);
   }
 
   private async dryRunOrValidate(

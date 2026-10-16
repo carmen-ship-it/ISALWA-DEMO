@@ -5,9 +5,10 @@ import type {
   OutboxStats,
   IdempotencyRecord,
   OsOutboxStorePort,
+  ReplayBinding,
   StoredOutboxMessage,
 } from '@isalwa/os-events';
-import { OUTBOX_RECOVERY_AUDIT_ACTION, buildAuditEntry } from '@isalwa/os-events';
+import { OUTBOX_RECOVERY_AUDIT_ACTION, buildAuditEntry, sealReplay } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
 import { Prisma } from './generated/client';
 import type { OsPrismaClient } from './client';
@@ -330,7 +331,7 @@ export class PrismaOsOutboxStore implements OsOutboxStorePort {
 
   async recoverDeadLetterDelivery(
     request: OutboxRecoveryRequest,
-    idempotency?: { key: string; commandName: string },
+    idempotency?: { key: string; commandName: string; binding: ReplayBinding },
   ): Promise<OutboxRecoveryResult> {
     return this.prisma.$transaction(async (tx) => {
       const row = await tx.osOutboxMessage.findFirst({
@@ -425,7 +426,7 @@ export class PrismaOsOutboxStore implements OsOutboxStorePort {
             organizationId: request.organizationId,
             key: idempotency.key,
             commandName: idempotency.commandName,
-            resultJson: commandResult as unknown as Prisma.InputJsonValue,
+            resultJson: sealReplay(commandResult, idempotency.binding) as unknown as Prisma.InputJsonValue,
             expiresAt: new Date(Date.now() + 86400_000),
           },
         });

@@ -53,6 +53,7 @@ import {
   receiveFinishedGoods,
 } from '@isalwa/os-finished-goods';
 import { createId } from '@isalwa/ts-utils';
+import { REPLAY_REVIEW_REQUIRED, REPLAY_REVIEW_REQUIRED_MESSAGE } from '@isalwa/os-events';
 import { resolveSession } from './os-session';
 import {
   OS_COMMAND_SERVICE,
@@ -70,6 +71,9 @@ import {
 
 function mapError(err: unknown): HttpException {
   const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';
+  if (code === REPLAY_REVIEW_REQUIRED) {
+    return new HttpException({ code, message: REPLAY_REVIEW_REQUIRED_MESSAGE }, HttpStatus.CONFLICT);
+  }
   const status =
     code === 'AUTH_REQUIRED' || code === 'PROVIDER_NOT_CONFIGURED'
       ? HttpStatus.UNAUTHORIZED
@@ -138,6 +142,9 @@ function mapReceiveDenial(reason: string): HttpException {
   }
   if (reason === 'not_found' || reason === 'citation_not_in_org' || reason === 'invalid_order_context') {
     return new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+  }
+  if (reason === 'conflict') {
+    return new HttpException({ code: 'CONFLICT' }, HttpStatus.BAD_REQUEST);
   }
   return new HttpException({ code: 'VALIDATION_FAILED' }, HttpStatus.BAD_REQUEST);
 }

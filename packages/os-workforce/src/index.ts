@@ -3,6 +3,7 @@ export * from './auth-provider';
 export * from './invite-completion';
 export * from './supabase-auth-provider';
 export * from './provider-side-effects';
+export * from './provider-effect-consumer';
 export * from './memory-store';
 export * from './workforce-command-service';
 export * from './os-workforce-store';

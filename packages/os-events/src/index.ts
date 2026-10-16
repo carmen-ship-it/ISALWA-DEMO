@@ -1,6 +1,7 @@
 export * from './append';
 export * from './envelope';
 export * from './idempotency-scope';
+export * from './replay';
 export * from './outbox-port';
 export * from './outbox-worker';
 export * from './outbox-worker-host';

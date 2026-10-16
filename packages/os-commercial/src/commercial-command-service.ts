@@ -20,6 +20,10 @@ import {
   buildBusinessEvent,
   buildOutboxForEvent,
   currentIdempotencyKey,
+  isIdempotencyConflict,
+  openReplay,
+  replayBinding,
+  sealReplay,
   withIdempotencyKey,
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
@@ -90,6 +94,37 @@ export class CommercialCommandService {
     return memberHasScope(snap, 'people.admin');
   }
 
+  /**
+   * S11: authorize the current actor for this command, then return the stored
+   * result only for the same actor, command, and payload. Any mismatch is
+   * CONFLICT without the stored body; a row without that binding is
+   * REPLAY_REVIEW_REQUIRED and is not re-run.
+   */
+  private async acceptedReplay(
+    ctx: RequestContext,
+    command: CommercialCommandName,
+    payload: Record<string, unknown>,
+    stored: Record<string, unknown>,
+  ): Promise<CommandResult> {
+    await this.authorize(ctx, command, ctx.organizationId);
+    return openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
+  }
+
+  /** A concurrent request with the same key won the insert: replay its result under the same rules. */
+  private async replayAfterConflict(
+    ctx: RequestContext,
+    command: CommercialCommandName,
+    payload: Record<string, unknown>,
+    err: unknown,
+    idempotencyKey?: string,
+  ): Promise<CommandResult> {
+    if (idempotencyKey && isIdempotencyConflict(err)) {
+      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
+      if (existing) return this.acceptedReplay(ctx, command, payload, existing.resultJson);
+    }
+    throw err;
+  }
+
   async execute(
     command: CommercialCommandName,
     ctx: RequestContext,
@@ -115,7 +150,7 @@ export class CommercialCommandService {
     if (idempotencyKey) {
       const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
       if (existing) {
-        return existing.resultJson as unknown as CommandResult;
+        return this.acceptedReplay(ctx, command, payload, existing.resultJson);
       }
     }
 
@@ -185,13 +220,13 @@ export class CommercialCommandService {
           organizationId: ctx.organizationId,
           key: idempotencyKey,
           commandName: command,
-          resultJson: result as unknown as Record<string, unknown>,
+          resultJson: sealReplay(result, replayBinding(ctx.actorMemberId, command, payload)),
           expiresAt: new Date(Date.now() + 86400_000),
         });
       }
 
       return result;
-    });
+    }).catch((err: unknown) => this.replayAfterConflict(ctx, command, payload, err, idempotencyKey));
   }
 
   private async emit(

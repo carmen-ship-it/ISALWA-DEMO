@@ -1,0 +1,2 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+lib/mobile/mobile-390-proof.test.ts(10,50): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.

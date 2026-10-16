@@ -761,6 +761,21 @@ export class PrismaOsPartyStore implements OsPartyStore {
       },
     });
   }
+
+  async completeIdempotency(
+    organizationId: string,
+    key: string,
+    resultJson: Record<string, unknown>,
+  ): Promise<void> {
+    await this.db().osIdempotencyKey.update({
+      where: { organizationId_key: { organizationId, key } },
+      data: { resultJson: resultJson as Prisma.InputJsonValue },
+    });
+  }
+
+  async deleteIdempotency(organizationId: string, key: string): Promise<void> {
+    await this.db().osIdempotencyKey.deleteMany({ where: { organizationId, key } });
+  }
 }
 
 function mapParty(row: {

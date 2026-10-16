@@ -28,14 +28,12 @@ export function openRequestClaimKey(
   return null;
 }
 
-export function isIdempotencyConflict(err: unknown): boolean {
-  if (!err || typeof err !== 'object') return false;
-  const code = (err as { code?: string }).code;
-  if (code === 'P2002') return true;
-  const message = err instanceof Error ? err.message : '';
-  return message === 'IDEMPOTENCY_CONFLICT' || /Unique constraint/i.test(message);
-}
+import { sealedResult } from '@isalwa/os-events';
 
+export { isIdempotencyConflict } from '@isalwa/os-events';
+
+/** A completed result, sealed (S11 binding) or written before the binding existed. */
 export function isStoredCommandResult(value: Record<string, unknown> | null | undefined): boolean {
-  return Boolean(value && typeof value.commandId === 'string' && value.data && typeof value.data === 'object');
+  const result = sealedResult(value) ?? value;
+  return Boolean(result && typeof result.commandId === 'string' && result.data && typeof result.data === 'object');
 }

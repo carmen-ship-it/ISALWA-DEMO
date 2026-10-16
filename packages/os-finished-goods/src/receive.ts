@@ -144,7 +144,9 @@ export type ReceiveDenialReason =
   | 'order_link_rejected'
   | 'not_found'
   | 'citation_not_in_org'
-  | 'invalid_order_context';
+  | 'invalid_order_context'
+  /** S11: the key was used by another actor or for a different receipt. */
+  | 'conflict';
 
 export type ReceiveFinishedGoodsResult =
   | {
@@ -213,6 +215,29 @@ function replayEvent(
   };
 }
 
+/** S11: a stored receipt is replayed only for the same actor and the same requested fields. */
+function isSameRequest(
+  existing: FinishedGoodsReceiptRecord,
+  session: ReceiveSession,
+  command: ReceiveFinishedGoodsInput,
+): boolean {
+  const optional = (value: unknown) => text(value) || null;
+  const receivedAt = Date.parse(text(command.receivedAt));
+  return (
+    existing.actorMemberId === (text(session.actorMemberId) || null) &&
+    existing.productId === text(command.productId) &&
+    existing.quantity === positiveQuantity(command.quantity) &&
+    Date.parse(existing.receivedAt) === receivedAt &&
+    existing.productionTraceEntryId === optional(command.productionTraceEntryId) &&
+    existing.quemaId === optional(command.quemaId) &&
+    existing.contextOrderId === optional(command.contextOrderId) &&
+    existing.contextOrderLineId === optional(command.contextOrderLineId) &&
+    existing.note === optional(command.note) &&
+    existing.correctsReceiptId === optional(command.correctsReceiptId) &&
+    existing.correctionReason === optional(command.correctionReason)
+  );
+}
+
 function replayResult(
   existing: FinishedGoodsReceiptRecord,
   organizationId: string,
@@ -259,6 +284,7 @@ export async function receiveFinishedGoods(input: {
     const existing = await input.store.findByIdempotency(organizationId, idempotencyKey);
     if (existing) {
       if (existing.organizationId !== organizationId) return denied('not_found');
+      if (!isSameRequest(existing, input.session, input.command)) return denied('conflict');
       return replayResult(existing, organizationId, correlationId || existing.id, idempotencyKey);
     }
   }
@@ -359,6 +385,7 @@ export async function receiveFinishedGoods(input: {
     if (!existing || existing.organizationId !== organizationId) {
       throw new Error('finished_goods_receive_persist_failed');
     }
+    if (!isSameRequest(existing, input.session, input.command)) return denied('conflict');
     return replayResult(existing, organizationId, correlationId || existing.id, idempotencyKey);
   }
 

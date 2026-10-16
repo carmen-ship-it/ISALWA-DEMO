@@ -1,0 +1,64 @@
+▶ customer-conversations controller
+  ✔ lists OsCustomerConversation via /customer-conversations, not legacy messaging (0.961ms)
+  ✔ re-admits persisted manual rows without inventing WhatsApp connectivity (1.401ms)
+✔ customer-conversations controller (2.857583ms)
+▶ conversation visibility and commercial links
+  ✔ hides another member conversation, including pasted evidence, from an unrelated member (0.112083ms)
+  ✔ shows the conversation to its author, the account owner, their team lead, and an organization reader (0.063542ms)
+  ✔ rejects a link the actor cannot read, a link for another customer, and a missing record the same way as a foreign one (0.09675ms)
+✔ conversation visibility and commercial links (0.368083ms)
+▶ customer conversation actor comes from the session (S5)
+  ✔ ignores client-supplied id, enteredByMemberId, enteredByLabel and organizationId (1.4595ms)
+  ✔ takes the customer label from the server, not the client (0.362875ms)
+  ✔ still logs a normal conversation that carries no actor fields (0.178166ms)
+  ✔ still logs a conversation that echoes its own (matching) actor fields, as the web app does (0.2375ms)
+  ✔ refuses when the session has no actor member (1.083125ms)
+  ✔ still refuses an invalid body (non-object, missing summary) (0.607416ms)
+  ✔ controller no longer trusts body actor fields and verifies the customer in-tenant (0.495916ms)
+✔ customer conversation actor comes from the session (S5) (5.223708ms)
+▶ S11 replay binding over HTTP
+  ✔ same session, same body: second POST returns the first body and writes nothing (62.978917ms)
+  ✔ another session reusing the key gets CONFLICT with no stored body, even if the body names the first actor (29.039458ms)
+  ✔ same session, changed body on the same key: CONFLICT (14.668667ms)
+  ✔ a pre-binding row answers 409 REPLAY_REVIEW_REQUIRED with the review message, not the stored body (6.474917ms)
+[evidence] http race statuses: 201,201,201,201,201,201
+  ✔ 6 overlapping POSTs from one session on one key create one party (42.405084ms)
+✔ S11 replay binding over HTTP (324.704666ms)
+▶ os-api workforce admin mutation HTTP (Step 14.7)
+  ✔ POST ChangeRole succeeds for people.admin (43.368875ms)
+  ✔ POST ChangeDepartment with nonexistent departmentId returns VALIDATION_FAILED 400 (10.700917ms)
+  ✔ POST ChangeDepartment with foreign-tenant departmentId returns VALIDATION_FAILED 400 (11.461958ms)
+  ✔ POST ChangeDepartment succeeds for valid same-tenant department (24.76225ms)
+  ✔ POST ChangeRole forbidden for non-admin (7.884625ms)
+  ✔ POST SuspendMember succeeds; suspended actor blocked on next command (42.629084ms)
+  ✔ POST TerminateMember blocked with open work returns VALIDATION_FAILED (54.4185ms)
+  ✔ POST ActivateMember on terminated member rejected (J-13) (18.429625ms)
+  ✖ POST GrantDelegation and RevokeDelegation succeed (7.379875ms)
+  ✔ POST RequestMemberEmailChange succeeds without provider side effect (7.832875ms)
+  ✔ cross-tenant SuspendMember returns NOT_FOUND (7.440333ms)
+  ✔ idempotent SuspendMember returns same commandId (49.92775ms)
+✖ os-api workforce admin mutation HTTP (Step 14.7) (399.017166ms)
+ℹ tests 29
+ℹ suites 5
+ℹ pass 28
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3306.308334
+
+✖ failing tests:
+
+test at src/workforce-admin-mutation-http.test.ts:2:7274
+✖ POST GrantDelegation and RevokeDelegation succeed (7.379875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  403 !== 201
+  
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 403,
+    expected: 201,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

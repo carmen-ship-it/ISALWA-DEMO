@@ -1,0 +1,12 @@
+== os-events :: ℹ tests 12 ℹ pass 12 ℹ fail 0 ℹ skipped 0 ℹ todo 0 
+== os-work :: ℹ tests 21 ℹ pass 21 ℹ fail 0 ℹ skipped 0 ℹ todo 0 
+== os-commercial :: ℹ tests 68 ℹ pass 68 ℹ fail 0 ℹ skipped 0 ℹ todo 0 
+== os-commitment :: ℹ tests 18 ℹ pass 18 ℹ fail 0 ℹ skipped 0 ℹ todo 0 
+== os-issue :: ℹ tests 93 ℹ pass 93 ℹ fail 0 ℹ skipped 0 ℹ todo 0 
+== os-party :: ℹ tests 22 ℹ pass 22 ℹ fail 0 ℹ skipped 0 ℹ todo 0 
+== os-workforce :: ℹ tests 118 ℹ pass 118 ℹ fail 0 ℹ skipped 0 ℹ todo 0 
+== os-import :: ℹ tests 28 ℹ pass 28 ℹ fail 0 ℹ skipped 0 ℹ todo 0 
+== os-delivery :: ℹ tests 106 ℹ pass 105 ℹ fail 1 ℹ skipped 0 ℹ todo 0 
+  ✖ replays nota, salida, and entrega on the same key and allows a later key (5.741625ms)
+✖ delivery create retry (6.675833ms)
+✖ replays nota, salida, and entrega on the same key and allows a later key (5.741625ms)

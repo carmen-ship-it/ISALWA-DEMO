@@ -1,0 +1,301 @@
+▶ buildAuthorizedAssistPacket
+  ✔ drops issues the actor cannot read (0.585875ms)
+  ✔ returns facts for authorized reporters (0.399875ms)
+  ✔ caps evidence items and marks truncated (1.365833ms)
+  ✔ does not treat prompt-injection text as authorization (0.269958ms)
+  ✔ builds authorized commitment packets without issue fan-out (0.692625ms)
+✔ buildAuthorizedAssistPacket (3.954583ms)
+▶ AiController assist
+  ✔ returns AI_UNAVAILABLE when disabled without calling the provider (1.843125ms)
+  ✔ requires auth before calling the provider when AI is enabled (0.593542ms)
+  ✔ loads authorized evidence and calls the provider when enabled (3.630417ms)
+  ✔ rejects client-supplied model names (0.192959ms)
+  ✔ rejects mutation intents before provider (0.397667ms)
+  ✔ does not send hidden issue evidence to the provider (0.714ms)
+  ✔ appends free-text as phrasing without expanding evidence selectors (1.068ms)
+  ✔ summarize_commitments uses authorized commitment evidence only (0.689208ms)
+  ✔ returns AI_UNAVAILABLE when live provider is blocked before auth (0.175458ms)
+✔ AiController assist (9.937083ms)
+▶ AiController capability
+  ✔ requires auth (0.277791ms)
+  ✔ reports mock readiness when configured (0.293333ms)
+  ✔ surfaces PROVIDER_BLOCKED without calling assist (0.300583ms)
+  ✔ boots in Nest with store tokens (no third-party AI provider DI) (9.848ms)
+✔ AiController capability (10.823125ms)
+▶ resolveAiProviderGatewayState
+  ✔ is disabled when AI_ENABLED is not true (0.671958ms)
+  ✔ blocks live provider when credential is missing (0.069417ms)
+  ✔ is ready live with citations when key is present (0.057333ms)
+  ✔ is ready mock without live citations (0.04825ms)
+  ✔ assertAiProviderGatewayReady throws AI_UNAVAILABLE when blocked (0.197334ms)
+  ✔ blocks unknown provider modes (0.053917ms)
+  ✔ treats openai-compatible like openai for credential gate (0.05475ms)
+✔ resolveAiProviderGatewayState (1.658125ms)
+▶ AiRateLimiter
+  ✔ enforces per-member minute and concurrency limits (0.422375ms)
+✔ AiRateLimiter (0.841708ms)
+▶ conversation-context-adapter
+  ✔ classifies assist fact lines into certainty buckets (0.5245ms)
+  ✔ shapes LO CONFIRMADO / PENDIENTE / NO REGISTRADO / FUENTES with deep links (0.608375ms)
+  ✔ drops cross-tenant facts (negative) (0.12075ms)
+  ✔ reports no responsible when canonical owner is unknown (0.080541ms)
+  ✔ builds pedido deep links under the client path (0.068667ms)
+  ✔ maps assist packet lines into authorized facts with refs (0.109542ms)
+✔ conversation-context-adapter (2.047291ms)
+▶ future-ingestion-adapter types
+  ✔ accepts a provider-neutral envelope without vendor fields (0.328542ms)
+✔ future-ingestion-adapter types (0.724459ms)
+▶ AuditController
+  ✔ exposes cursor pagination and search query params (0.965458ms)
+  ✔ allows owner-eval business audit via management/commercial org read (not people.admin only) (0.133833ms)
+  ✔ round-trips audit cursors (1.520583ms)
+✔ AuditController (3.540708ms)
+▶ os-api commercial runtime (Step 16.1A)
+  ✔ HTTP happy path: commands → projection → GET queries (251.919ms)
+  ✔ cross-tenant GET quote returns NOT_FOUND (93.315291ms)
+  ✔ cross-tenant GET opportunity and order return NOT_FOUND (125.610959ms)
+  ✔ malicious ownerMemberId filter cannot widen visibility (34.014334ms)
+  ✔ inactive member cannot query commercial data (4.623291ms)
+  ✔ foreign tenant partyId filter returns no records (33.467125ms)
+  ✔ GET party timeline returns authorized entries without raw payload (40.681958ms)
+✔ os-api commercial runtime (Step 16.1A) (2657.44625ms)
+▶ complete-invite HTTP authority
+  ✔ denies a missing provider session (0.48875ms)
+  ✔ ignores browser member, organization, and subject, and rejects a conflicting email (0.145ms)
+  ✔ does not treat an unconfirmed email as proof of control (0.07ms)
+  ✔ keeps denial status fail-closed (0.083084ms)
+  ✔ returns CROSS_LANE_CHANGE_REQUEST without member rows when the invite is unbound (0.455208ms)
+✔ complete-invite HTTP authority (1.802417ms)
+▶ customer-conversations controller
+  ✔ lists OsCustomerConversation via /customer-conversations, not legacy messaging (0.527542ms)
+  ✔ re-admits persisted manual rows without inventing WhatsApp connectivity (1.109625ms)
+✔ customer-conversations controller (2.086083ms)
+▶ conversation visibility and commercial links
+  ✔ hides another member conversation, including pasted evidence, from an unrelated member (0.106667ms)
+  ✔ shows the conversation to its author, the account owner, their team lead, and an organization reader (0.067042ms)
+  ✔ rejects a link the actor cannot read, a link for another customer, and a missing record the same way as a foreign one (0.111334ms)
+✔ conversation visibility and commercial links (0.3825ms)
+▶ customer conversation actor comes from the session (S5)
+  ✔ ignores client-supplied id, enteredByMemberId, enteredByLabel and organizationId (1.408334ms)
+  ✔ takes the customer label from the server, not the client (0.307375ms)
+  ✔ still logs a normal conversation that carries no actor fields (0.137917ms)
+  ✔ still logs a conversation that echoes its own (matching) actor fields, as the web app does (0.120083ms)
+  ✔ refuses when the session has no actor member (0.37825ms)
+  ✔ still refuses an invalid body (non-object, missing summary) (0.372709ms)
+  ✔ controller no longer trusts body actor fields and verifies the customer in-tenant (0.284375ms)
+✔ customer conversation actor comes from the session (S5) (3.566334ms)
+▶ delivery error mapping
+  ✔ tells an over-delivery apart from a malformed payload (0.84725ms)
+✔ delivery error mapping (1.254875ms)
+▶ delivery operational order read gate
+  ✔ allows production operational record to read pedido context (0.440041ms)
+  ✔ allows purchasing operational record to read pedido context (0.085208ms)
+  ✔ keeps delivery and warehouse outbound readers (0.067125ms)
+  ✔ denies unrelated scopes (0.052917ms)
+✔ delivery operational order read gate (1.168584ms)
+▶ env-validation
+  ✔ accepts valid development dev config (0.906875ms)
+  ✔ accepts valid production-like supabase config (1.276834ms)
+  ✔ defaults CORS to localhost in development when unset (0.326583ms)
+  ✔ rejects missing OS_CORS_ORIGINS on staging (0.476833ms)
+  ✔ rejects wildcard OS_CORS_ORIGINS (0.2735ms)
+  ✔ resolveListenPort prefers PORT over OS_API_PORT (0.241792ms)
+  ✔ resolveListenPort falls back to OS_API_PORT then 4001 (0.696333ms)
+  ✔ rejects invalid OS_AUTH_MODE (0.232083ms)
+  ✔ rejects dev auth on staging profile (0.220375ms)
+  ✔ rejects missing OS_DATABASE_URL on staging (0.2565ms)
+  ✔ rejects missing Supabase config in supabase mode (0.22075ms)
+  ✔ does not fall back to legacy DATABASE_URL for staging (0.224458ms)
+  ✔ never includes secrets in validation errors (0.280041ms)
+  ✔ blocks dev bootstrap outside development profile (0.18925ms)
+  ✔ fresh process disables dev routes for staging profile (101.701667ms)
+✔ env-validation (108.193125ms)
+▶ startup fail-closed
+  ✔ main.ts exits on invalid auth mode without leaking secrets (226.028834ms)
+✔ startup fail-closed (226.089625ms)
+▶ FulfillmentController wiring
+  ✔ registers fulfillment reads on AppModule and uses existing company read gate (0.550791ms)
+  ✔ does not invent auto-delivery-from-order in the controller (0.129084ms)
+✔ FulfillmentController wiring (1.128083ms)
+▶ unauthenticated health/ready
+  ✔ does not run the global outbox count when there is no session (0.439458ms)
+✔ unauthenticated health/ready (0.851042ms)
+▶ os-api inspection read inventory
+  ✔ classifies every GET and does not recount the 15 already-verified reads as new (1.770208ms)
+  ✔ records GET /locations/:locationId as tenant-scoped and authorization-unproven (0.162958ms)
+✔ os-api inspection read inventory (2.366417ms)
+▶ PartyQueryService.searchParties
+  ✔ checks member_active, not a named scope, and excludes foreign rows (0.455875ms)
+✔ PartyQueryService.searchParties (0.510583ms)
+▶ PartyTimelineQueryService.listPartyTimeline
+  ✔ checks member_active and treats a foreign party id as missing (0.412375ms)
+✔ PartyTimelineQueryService.listPartyTimeline (0.4585ms)
+▶ MemberQueryService
+  ✔ listMembers checks people.admin and does not query on the wrong capability (0.221958ms)
+  ✔ getMember and active options check member_active only and hide a foreign id (0.258833ms)
+✔ MemberQueryService (0.569666ms)
+▶ CapabilityQueryService.getCapabilityState
+  ✔ checks member_active and does not apply the foreign organization override (0.243875ms)
+✔ CapabilityQueryService.getCapabilityState (0.297792ms)
+▶ ApprovalQueryService
+  ✔ list checks member_active plus approval list scope and excludes foreign rows (0.330167ms)
+  ✔ getApproval foreign id matches missing (0.148958ms)
+  ✔ listSubjectApprovals foreign subject matches missing and does not load foreign rows (0.334542ms)
+✔ ApprovalQueryService (0.878709ms)
+▶ AttentionQueryService.listAttentionItems
+  ✔ checks member_active and passes session organization and member to the port (0.197125ms)
+✔ AttentionQueryService.listAttentionItems (0.229ms)
+▶ WorkQueryService
+  ✔ list checks member_active and own scope, and drops foreign rows (0.4515ms)
+  ✔ getWorkSummary foreign id matches missing (0.129916ms)
+✔ WorkQueryService (0.617791ms)
+▶ CommercialQueryService inspection reads
+  ✔ lists own commercial rows and denies org visibility without commercial.org.read (0.569083ms)
+  ✔ exact foreign commercial ids match missing and do not load foreign lines (0.407166ms)
+✔ CommercialQueryService inspection reads (1.014542ms)
+▶ toIssueDetailResponse
+  ✔ wraps IssueDetail so the web page can read issue.journal and issue.version (1.331ms)
+✔ toIssueDetailResponse (1.732792ms)
+▶ os-api member + capability runtime (Step 15.2)
+  ✔ GET /v1/members lists directory for people.admin (30.215125ms)
+  ✔ GET /v1/members denied for non-admin (5.298541ms)
+  ✔ cross-tenant GET /v1/members cannot see other org (3.25625ms)
+  ✔ GET /v1/capabilities returns factual states (6.713417ms)
+  ✔ capability state does not grant commercial list without owner records (9.913166ms)
+  ✔ canonical terminated member denied on HTTP queries (6.118625ms)
+  ✔ suspended member denied on HTTP queries (4.075291ms)
+  ✔ cross-tenant capabilities remain org-scoped via session (7.168208ms)
+✔ os-api member + capability runtime (Step 15.2) (188.129625ms)
+▶ TASK 11D — party locations bound
+  ✔ controller uses CursorPaginationSchema and returns meta without totals (0.494167ms)
+  ✔ 0/1/25/26 hasMore; active on first page; no totals (1.237ms)
+✔ TASK 11D — party locations bound (2.182792ms)
+▶ TASK 11D — party contacts bound
+  ✔ getParty is bounded and list remainder returns the 26th (0.353875ms)
+✔ TASK 11D — party contacts bound (0.422ms)
+▶ os-api party timeline work + approval runtime (Step 16.1B)
+  ✔ GET party timeline includes work and approval entries without raw payload (152.973458ms)
+  ✔ cross-tenant party timeline remains blocked with work events present (40.832292ms)
+✔ os-api party timeline work + approval runtime (Step 16.1B) (380.750416ms)
+▶ production safety runtime
+  ✔ bootstrap controller returns 404 when dev bootstrap disabled (1.240625ms)
+✔ production safety runtime (1.640416ms)
+▶ health controller
+  ✔ liveness returns ok without dependency checks (2.746416ms)
+  ✔ readiness returns not_ready when database is unreachable (16.480833ms)
+✔ health controller (19.366ms)
+▶ os-session auth mode safety
+  ✔ ignores dev headers when auth mode is supabase (33.75125ms)
+✔ os-session auth mode safety (33.818625ms)
+▶ resolveQaSynthRoster
+  ✔ resolves SYNTH fixture emails to memberIds (0.722417ms)
+  ✔ fail-closes REAL organization memberships (0.127583ms)
+  ✔ skips inactive SYNTH members (0.147834ms)
+✔ resolveQaSynthRoster (1.498167ms)
+▶ applyQaViewIfPresent
+  ✔ overlays SYNTH target scopes when staging QA is enabled (1.653125ms)
+  ✔ does not overlay in production even with a valid cookie (0.137417ms)
+  ✔ rejects a REAL-org bound payload (0.122459ms)
+✔ applyQaViewIfPresent (2.391084ms)
+▶ resolveQaSynthRoster
+  ✔ resolves fixture emails to SYNTH memberIds only (0.939125ms)
+  ✔ fails closed when email maps only to REAL org (0.206625ms)
+  ✔ returns empty members when nothing resolves (0.116208ms)
+✔ resolveQaSynthRoster (1.72825ms)
+▶ os-api query runtime (Step 15.1)
+  ✔ GET /v1/parties returns projected search results over HTTP (69.2025ms)
+  ✔ GET /v1/work-items and /v1/approvals and /v1/attention over HTTP (72.9675ms)
+  ✔ cross-tenant HTTP query is denied for work list (2.982417ms)
+  ✔ guessed work ID from another member returns forbidden over HTTP (22.333792ms)
+✔ os-api query runtime (Step 15.1) (458.229375ms)
+▶ os-api quote PDF (Cotización)
+  ✔ unauthenticated PDF request is denied (95.693541ms)
+  ✔ valid draft quote returns PDF with correct content-type and filename (74.300875ms)
+  ✔ submitted quote returns PDF (81.873292ms)
+  ✔ cross-tenant PDF is NOT_FOUND (no existence leak) (50.763041ms)
+  ✔ invalid quote id is denied safely (4.12275ms)
+  ✔ malformed quote id is safe (4.598291ms)
+✔ os-api quote PDF (Cotización) (412.050708ms)
+▶ quote PDF document builder
+  ✔ builds totals and draft label from governed quote (12.661667ms)
+  ✔ omits contact when none exist and uses submitted date when present (0.18025ms)
+  ✔ picks active contact phone/email without inventing values (0.078417ms)
+✔ quote PDF document builder (13.396625ms)
+▶ QuotePdfService render
+  ✔ returns application/pdf bytes with safe filename (40.252917ms)
+✔ QuotePdfService render (40.373375ms)
+▶ local HTTP auth path
+  ✔ exercises session, party, location, outbox, and quote PDF controllers (55.152125ms)
+✔ local HTTP auth path (55.616042ms)
+▶ S11 replay binding over HTTP
+  ✔ same session, same body: second POST returns the first body and writes nothing (49.656417ms)
+  ✔ another session reusing the key gets CONFLICT with no stored body, even if the body names the first actor (14.851084ms)
+  ✔ same session, changed body on the same key: CONFLICT (13.258459ms)
+  ✔ a pre-binding row answers 409 REPLAY_REVIEW_REQUIRED with the review message, not the stored body (4.728125ms)
+[evidence] http race statuses: 201,201,201,201,201,201
+  ✔ 6 overlapping POSTs from one session on one key create one party (30.440166ms)
+✔ S11 replay binding over HTTP (216.192375ms)
+▶ retired membership probe
+  ✔ is not a production session attachment path (0.890833ms)
+✔ retired membership probe (1.32175ms)
+▶ CC-2A session HTTP errors
+  ✔ maps expected auth states to 401/403 and hides store errors (0.19525ms)
+  ✔ does not read caller member or organization from the session controller (0.112583ms)
+✔ CC-2A session HTTP errors (0.38875ms)
+▶ resolveSession trusted attachment
+  ✔ attaches organization and stored scopes, ignoring the request body (1.797417ms)
+  ✔ does not attach a session when the header names a foreign tenant (0.708625ms)
+  ✔ fails closed for multiple memberships without a selector (0.302375ms)
+✔ resolveSession trusted attachment (3.366958ms)
+▶ os-api tenant isolation
+  ✔ cannot read member from another tenant (24.4855ms)
+  ✔ cross-tenant invite is forbidden (12.593292ms)
+✔ os-api tenant isolation (173.227208ms)
+▶ loadTrustedMemberContextFromRequest
+  ✔ ignores client organizationId, member id, and scopes (1.644875ms)
+  ✔ denies a suspended member even when the client claims active scopes (0.224417ms)
+  ✔ does not select a foreign tenant named by the header or the client (0.415917ms)
+  ✔ fails closed when several active memberships have no selector (0.143709ms)
+  ✔ selects only the proven membership named by the header (0.162416ms)
+  ✔ denies an inactive member and does not fall back to another tenant (0.191833ms)
+  ✔ does not let cargo, title, or people.admin grant operating scopes (0.26875ms)
+  ✔ does not read query, body, or member headers as the grant source (0.5445ms)
+✔ loadTrustedMemberContextFromRequest (4.188583ms)
+▶ os-api workforce admin mutation HTTP (Step 14.7)
+  ✔ POST ChangeRole succeeds for people.admin (44.887084ms)
+  ✔ POST ChangeDepartment with nonexistent departmentId returns VALIDATION_FAILED 400 (6.563125ms)
+  ✔ POST ChangeDepartment with foreign-tenant departmentId returns VALIDATION_FAILED 400 (6.190375ms)
+  ✔ POST ChangeDepartment succeeds for valid same-tenant department (8.507708ms)
+  ✔ POST ChangeRole forbidden for non-admin (5.156292ms)
+  ✔ POST SuspendMember succeeds; suspended actor blocked on next command (20.765041ms)
+  ✔ POST TerminateMember blocked with open work returns VALIDATION_FAILED (18.363459ms)
+  ✔ POST ActivateMember on terminated member rejected (J-13) (16.013583ms)
+  ✖ POST GrantDelegation and RevokeDelegation succeed (5.47975ms)
+  ✔ POST RequestMemberEmailChange succeeds without provider side effect (7.51675ms)
+  ✔ cross-tenant SuspendMember returns NOT_FOUND (5.160625ms)
+  ✔ idempotent SuspendMember returns same commandId (15.793375ms)
+✖ os-api workforce admin mutation HTTP (Step 14.7) (275.772083ms)
+ℹ tests 174
+ℹ suites 51
+ℹ pass 173
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16365.981334
+
+✖ failing tests:
+
+test at src/workforce-admin-mutation-http.test.ts:2:7274
+✖ POST GrantDelegation and RevokeDelegation succeed (5.47975ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  403 !== 201
+  
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 403,
+    expected: 201,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

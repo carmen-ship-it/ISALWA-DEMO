@@ -17,6 +17,9 @@ import {
   buildBusinessEvent,
   buildOutboxForEvent,
   currentIdempotencyKey,
+  openReplay,
+  replayBinding,
+  sealReplay,
   withIdempotencyKey,
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
@@ -88,22 +91,20 @@ export class WorkCommandService {
   }
 
   /**
-   * A stored result is returned only to the member who produced it, and only
-   * while that member is still authorized. Another caller, including one who
-   * guesses the key or hits the same open-request claim, gets CONFLICT and
-   * never sees the stored body. A row with no bound actor is not replayed.
+   * A stored result is returned only for the same actor, command, and payload,
+   * and only while that actor is still authorized. Another caller, including
+   * one who guesses the key or hits the same open-request claim, gets CONFLICT
+   * and never sees the stored body. A row without the S11 binding is
+   * REPLAY_REVIEW_REQUIRED and is not re-run.
    */
   private async acceptedReplay(
     ctx: RequestContext,
     command: WorkCommandName,
+    payload: Record<string, unknown>,
     stored: Record<string, unknown>,
   ): Promise<CommandResult> {
     await this.authorize(ctx, command, ctx.organizationId);
-    if (stored.actorMemberId !== ctx.actorMemberId) {
-      throw new Error('CONFLICT');
-    }
-    const { actorMemberId: _actor, ...result } = stored;
-    return result as unknown as CommandResult;
+    return openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
   }
 
   private memberHasAdminScope(snap: MemberAccessSnapshot): boolean {
@@ -161,7 +162,7 @@ export class WorkCommandService {
     if (replayKey) {
       const existing = await this.store.findIdempotency(ctx.organizationId, replayKey);
       if (existing && isStoredCommandResult(existing.resultJson)) {
-        return this.acceptedReplay(ctx, command, existing.resultJson);
+        return this.acceptedReplay(ctx, command, payload, existing.resultJson);
       }
     }
 
@@ -170,7 +171,7 @@ export class WorkCommandService {
         if (replayKey) {
           const existing = await store.findIdempotency(ctx.organizationId, replayKey);
           if (existing && isStoredCommandResult(existing.resultJson)) {
-            return this.acceptedReplay(ctx, command, existing.resultJson);
+            return this.acceptedReplay(ctx, command, payload, existing.resultJson);
           }
         }
 
@@ -209,10 +210,7 @@ export class WorkCommandService {
             organizationId: ctx.organizationId,
             key: replayKey,
             commandName: command,
-            resultJson: {
-              ...(result as unknown as Record<string, unknown>),
-              actorMemberId: ctx.actorMemberId,
-            },
+            resultJson: sealReplay(result, replayBinding(ctx.actorMemberId, command, payload)),
             expiresAt: new Date(Date.now() + 86400_000),
           });
         }
@@ -223,7 +221,7 @@ export class WorkCommandService {
       if (replayKey && isIdempotencyConflict(err)) {
         const existing = await this.store.findIdempotency(ctx.organizationId, replayKey);
         if (existing && isStoredCommandResult(existing.resultJson)) {
-          return this.acceptedReplay(ctx, command, existing.resultJson);
+          return this.acceptedReplay(ctx, command, payload, existing.resultJson);
         }
       }
       throw err;

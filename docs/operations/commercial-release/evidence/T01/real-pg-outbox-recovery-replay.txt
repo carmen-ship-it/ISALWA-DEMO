@@ -1,0 +1,150 @@
+=== run 1
+▶ outbox recovery replay binding (prisma)
+  ✔ same actor and request replays after current authorization; one requeue (25.923208ms)
+  ✔ another actor, a different reason, or a different dead letter on the same key is CONFLICT (18.021125ms)
+  ✔ the original actor without people.admin gets PERMISSION_DENIED, not the stored result (11.821458ms)
+  ✔ a pre-binding row is REPLAY_REVIEW_REQUIRED and does not requeue (9.207458ms)
+[evidence] recovery race: ok,ok,ok,ok,ok
+  ✔ 5 overlapping retries by one actor on one key requeue once (26.5485ms)
+✔ outbox recovery replay binding (prisma) (238.305916ms)
+▶ outbox dead-letter recovery
+  ✔ failure → dead letter → governed recovery → worker success (26.309792ms)
+  ✔ recovery idempotency prevents duplicate requeue (14.039208ms)
+  ✔ cross-tenant recovery rejected (8.90625ms)
+  ✔ non-admin cannot recover dead letters (26.15425ms)
+  ✔ published outbox cannot be recovered (17.094959ms)
+  ✔ recovery while consumer still fails returns to dead letter (11.518ms)
+✔ outbox dead-letter recovery (320.661ms)
+ℹ tests 11
+ℹ suites 2
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 967.263666
+=== run 2
+▶ outbox recovery replay binding (prisma)
+  ✔ same actor and request replays after current authorization; one requeue (26.214625ms)
+  ✔ another actor, a different reason, or a different dead letter on the same key is CONFLICT (18.168042ms)
+  ✔ the original actor without people.admin gets PERMISSION_DENIED, not the stored result (12.335167ms)
+  ✔ a pre-binding row is REPLAY_REVIEW_REQUIRED and does not requeue (8.770833ms)
+[evidence] recovery race: ok,ok,ok,ok,ok
+  ✔ 5 overlapping retries by one actor on one key requeue once (14.094625ms)
+✔ outbox recovery replay binding (prisma) (217.1175ms)
+▶ outbox dead-letter recovery
+  ✔ failure → dead letter → governed recovery → worker success (24.791167ms)
+  ✔ recovery idempotency prevents duplicate requeue (10.424292ms)
+  ✔ cross-tenant recovery rejected (8.210125ms)
+  ✔ non-admin cannot recover dead letters (18.332584ms)
+  ✔ published outbox cannot be recovered (12.338084ms)
+  ✔ recovery while consumer still fails returns to dead letter (8.238833ms)
+✔ outbox dead-letter recovery (306.0345ms)
+ℹ tests 11
+ℹ suites 2
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 868.015709
+=== run 3
+▶ outbox recovery replay binding (prisma)
+  ✔ same actor and request replays after current authorization; one requeue (25.5445ms)
+  ✔ another actor, a different reason, or a different dead letter on the same key is CONFLICT (16.43425ms)
+  ✔ the original actor without people.admin gets PERMISSION_DENIED, not the stored result (13.626959ms)
+  ✔ a pre-binding row is REPLAY_REVIEW_REQUIRED and does not requeue (9.546125ms)
+[evidence] recovery race: ok,ok,ok,ok,ok
+  ✔ 5 overlapping retries by one actor on one key requeue once (14.170958ms)
+✔ outbox recovery replay binding (prisma) (197.70725ms)
+▶ outbox dead-letter recovery
+  ✔ failure → dead letter → governed recovery → worker success (23.795541ms)
+  ✔ recovery idempotency prevents duplicate requeue (10.055584ms)
+  ✔ cross-tenant recovery rejected (10.039709ms)
+  ✔ non-admin cannot recover dead letters (17.719375ms)
+  ✔ published outbox cannot be recovered (12.166459ms)
+  ✔ recovery while consumer still fails returns to dead letter (8.875417ms)
+✔ outbox dead-letter recovery (310.834625ms)
+ℹ tests 11
+ℹ suites 2
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 853.124667
+=== run 4
+▶ outbox recovery replay binding (prisma)
+  ✔ same actor and request replays after current authorization; one requeue (23.819125ms)
+  ✔ another actor, a different reason, or a different dead letter on the same key is CONFLICT (17.997083ms)
+  ✔ the original actor without people.admin gets PERMISSION_DENIED, not the stored result (12.258084ms)
+  ✔ a pre-binding row is REPLAY_REVIEW_REQUIRED and does not requeue (9.327583ms)
+[evidence] recovery race: ok,ok,ok,ok,ok
+  ✔ 5 overlapping retries by one actor on one key requeue once (24.433167ms)
+✔ outbox recovery replay binding (prisma) (209.444333ms)
+▶ outbox dead-letter recovery
+  ✔ failure → dead letter → governed recovery → worker success (23.048334ms)
+  ✔ recovery idempotency prevents duplicate requeue (10.312375ms)
+  ✔ cross-tenant recovery rejected (9.714916ms)
+  ✔ non-admin cannot recover dead letters (17.730458ms)
+  ✔ published outbox cannot be recovered (12.472209ms)
+  ✔ recovery while consumer still fails returns to dead letter (8.758667ms)
+✔ outbox dead-letter recovery (340.252917ms)
+ℹ tests 11
+ℹ suites 2
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 904.792959
+=== run 5
+▶ outbox recovery replay binding (prisma)
+  ✔ same actor and request replays after current authorization; one requeue (24.40325ms)
+  ✔ another actor, a different reason, or a different dead letter on the same key is CONFLICT (18.056375ms)
+  ✔ the original actor without people.admin gets PERMISSION_DENIED, not the stored result (12.415459ms)
+  ✔ a pre-binding row is REPLAY_REVIEW_REQUIRED and does not requeue (9.186125ms)
+[evidence] recovery race: ok,ok,ok,ok,ok
+  ✔ 5 overlapping retries by one actor on one key requeue once (25.620459ms)
+✔ outbox recovery replay binding (prisma) (213.278625ms)
+▶ outbox dead-letter recovery
+  ✔ failure → dead letter → governed recovery → worker success (25.045875ms)
+  ✔ recovery idempotency prevents duplicate requeue (10.698208ms)
+  ✔ cross-tenant recovery rejected (8.195708ms)
+  ✔ non-admin cannot recover dead letters (20.148375ms)
+  ✔ published outbox cannot be recovered (12.976541ms)
+  ✔ recovery while consumer still fails returns to dead letter (12.092ms)
+✔ outbox dead-letter recovery (329.855542ms)
+ℹ tests 11
+ℹ suites 2
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 887.574
+=== run 6
+▶ outbox recovery replay binding (prisma)
+  ✔ same actor and request replays after current authorization; one requeue (25.627041ms)
+  ✔ another actor, a different reason, or a different dead letter on the same key is CONFLICT (18.294833ms)
+  ✔ the original actor without people.admin gets PERMISSION_DENIED, not the stored result (12.487167ms)
+  ✔ a pre-binding row is REPLAY_REVIEW_REQUIRED and does not requeue (8.785125ms)
+[evidence] recovery race: ok,ok,ok,ok,ok
+  ✔ 5 overlapping retries by one actor on one key requeue once (14.940167ms)
+✔ outbox recovery replay binding (prisma) (201.527834ms)
+▶ outbox dead-letter recovery
+  ✔ failure → dead letter → governed recovery → worker success (22.918292ms)
+  ✔ recovery idempotency prevents duplicate requeue (10.642166ms)
+  ✔ cross-tenant recovery rejected (10.345167ms)
+  ✔ non-admin cannot recover dead letters (23.613125ms)
+  ✔ published outbox cannot be recovered (26.072084ms)
+  ✔ recovery while consumer still fails returns to dead letter (33.938292ms)
+✔ outbox dead-letter recovery (371.721458ms)
+ℹ tests 11
+ℹ suites 2
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 929.164333

@@ -26,10 +26,41 @@ import {
   type RecordCustomerConversationInput,
 } from '@isalwa/os-contracts';
 import { getOsPrisma } from '@isalwa/os-database';
+import {
+  REPLAY_REVIEW_REQUIRED,
+  REPLAY_REVIEW_REQUIRED_MESSAGE,
+  isIdempotencyConflict,
+  openReplay,
+  replayBinding,
+  sealReplay,
+  type ReplayBinding,
+} from '@isalwa/os-events';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { resolveSession } from './os-session';
 import { createId } from '@isalwa/ts-utils';
 import { OS_STORE } from './os-store.module';
+
+const RECORD_CONVERSATION_COMMAND = 'RecordCustomerConversation';
+
+type StoredJson = NonNullable<
+  Parameters<NonNullable<ReturnType<typeof getOsPrisma>>['osIdempotencyKey']['create']>[0]
+>['data']['resultJson'];
+
+/** S11 replay for this controller. Status 409 is the code this route already used for CONFLICT. */
+function openReplayOrHttp<T>(stored: unknown, binding: ReplayBinding): T {
+  try {
+    return openReplay<T>(stored, binding);
+  } catch (err) {
+    const code = err instanceof Error ? err.message : 'CONFLICT';
+    if (code === REPLAY_REVIEW_REQUIRED) {
+      throw new HttpException(
+        { code: REPLAY_REVIEW_REQUIRED, message: REPLAY_REVIEW_REQUIRED_MESSAGE },
+        HttpStatus.CONFLICT,
+      );
+    }
+    throw new HttpException('CONFLICT', HttpStatus.CONFLICT);
+  }
+}
 
 function toManual(row: {
   id: string;
@@ -330,22 +361,26 @@ export class CustomerConversationsController {
       }
 
       const idempotencyKey = req.header('idempotency-key')?.trim();
-      if (idempotencyKey) {
+      const binding = replayBinding(session.actorMemberId, RECORD_CONVERSATION_COMMAND, draft);
+      // Authorization above already ran for this actor and these links.
+      const replayStored = async (): Promise<{ item: ManualCustomerConversation } | null> => {
+        if (!idempotencyKey) return null;
         const prior = await prisma.osIdempotencyKey.findUnique({
           where: { organizationId_key: { organizationId: session.organizationId, key: idempotencyKey } },
         });
-        const stored = prior?.resultJson as { actorMemberId?: string; conversationId?: string } | null;
-        if (stored?.conversationId) {
-          if (stored.actorMemberId !== session.actorMemberId) {
-            throw new HttpException('CONFLICT', HttpStatus.CONFLICT);
-          }
-          const existing = await prisma.osCustomerConversation.findFirst({
-            where: { id: stored.conversationId, organizationId: session.organizationId },
-          });
-          const replay = existing ? toManual(existing) : null;
-          if (replay) return { item: replay };
-        }
-      }
+        if (!prior) return null;
+        const stored = openReplayOrHttp<{ conversationId?: string }>(prior.resultJson, binding);
+        const existing = stored.conversationId
+          ? await prisma.osCustomerConversation.findFirst({
+              where: { id: stored.conversationId, organizationId: session.organizationId },
+            })
+          : null;
+        const replay = existing ? toManual(existing) : null;
+        if (!replay) throw new HttpException({ code: REPLAY_REVIEW_REQUIRED, message: REPLAY_REVIEW_REQUIRED_MESSAGE }, HttpStatus.CONFLICT);
+        return { item: replay };
+      };
+      const earlier = await replayStored();
+      if (earlier) return earlier;
 
       const person = await prisma.osPerson.findUnique({
         where: { id: session.personId },
@@ -370,18 +405,30 @@ export class CustomerConversationsController {
       }
 
       const data = prismaCreateFromManual(admitted.record, new Date().toISOString());
-      await prisma.osCustomerConversation.create({ data });
-      if (idempotencyKey) {
-        await prisma.osIdempotencyKey.create({
-          data: {
-            id: createId(),
-            organizationId: session.organizationId,
-            key: idempotencyKey,
-            commandName: 'RecordCustomerConversation',
-            resultJson: { actorMemberId: session.actorMemberId, conversationId: admitted.record.id },
-            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-          },
+      try {
+        await prisma.$transaction(async (tx) => {
+          await tx.osCustomerConversation.create({ data });
+          if (idempotencyKey) {
+            await tx.osIdempotencyKey.create({
+              data: {
+                id: createId(),
+                organizationId: session.organizationId,
+                key: idempotencyKey,
+                commandName: RECORD_CONVERSATION_COMMAND,
+                resultJson: sealReplay(
+                  { conversationId: admitted.record.id },
+                  binding,
+                ) as StoredJson,
+                expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+              },
+            });
+          }
         });
+      } catch (err) {
+        if (!idempotencyKey || !isIdempotencyConflict(err)) throw err;
+        const winner = await replayStored();
+        if (winner) return winner;
+        throw err;
       }
       return { item: admitted.record };
     } catch (err) {

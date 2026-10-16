@@ -1,0 +1,8 @@
+packages/os-commercial/src/commercial-replay-authorization.test.ts :: ℹ pass 7 ℹ fail 0 
+packages/os-commitment/src/commitment-replay-authorization.test.ts :: ℹ pass 7 ℹ fail 0 
+packages/os-delivery/src/delivery-replay-authorization.test.ts :: ℹ pass 8 ℹ fail 0 
+packages/os-import/src/import-replay-authorization.test.ts :: ℹ pass 6 ℹ fail 0 
+packages/os-issue/src/issue-replay-authorization.test.ts :: ℹ pass 7 ℹ fail 0 
+packages/os-party/src/location-replay-authorization.test.ts :: ℹ pass 7 ℹ fail 0 
+packages/os-party/src/party-replay-authorization.test.ts :: ℹ pass 7 ℹ fail 0 
+packages/os-workforce/src/workforce-replay-authorization.test.ts :: ℹ pass 7 ℹ fail 0 

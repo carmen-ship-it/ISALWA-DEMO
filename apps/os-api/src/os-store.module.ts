@@ -15,6 +15,7 @@ import {
   encodePartySearchCursor,
 } from '@isalwa/os-database';
 import {
+  AuthProviderEffectConsumer,
   LocalAuthProviderPort,
   MemoryOsStore,
   SupabaseAuthProviderPort,
@@ -450,6 +451,7 @@ function createMemberQueryStore(): MemberQueryStorePort {
         workStore: OsWorkStore,
         commercialStore: OsCommercialStore,
         projectionStore: OsProjectionStorePort,
+        workforce: WorkforceCommandService,
       ) => {
         const partyConsumer = new PartyProjectionConsumer({ projectionStore, partyStore });
         const workConsumer = new WorkProjectionConsumer({ projectionStore, workStore });
@@ -464,7 +466,13 @@ function createMemberQueryStore(): MemberQueryStorePort {
         });
         return new ProjectionRunner({
           outboxStore,
-          consumers: [partyConsumer, workConsumer, commercialConsumer, partyTimelineConsumer],
+          consumers: [
+            partyConsumer,
+            workConsumer,
+            commercialConsumer,
+            partyTimelineConsumer,
+            new AuthProviderEffectConsumer(workforce),
+          ],
         });
       },
       inject: [
@@ -473,6 +481,7 @@ function createMemberQueryStore(): MemberQueryStorePort {
         OS_WORK_STORE,
         OS_COMMERCIAL_STORE,
         OS_PROJECTION_STORE,
+        OS_COMMAND_SERVICE,
       ],
     },
     {

@@ -1,0 +1,22 @@
+▶ S11 replay binding (prisma)
+  ✔ same actor, command, and payload replays the stored result without a second write (36.264792ms)
+  ✔ a different actor with the same key gets CONFLICT and no body (11.223959ms)
+  ✔ same actor, different payload on the same key is CONFLICT (10.81825ms)
+  ✔ a stored row bound to another command is CONFLICT (11.768834ms)
+  ✔ the original actor whose permission was revoked gets PERMISSION_DENIED, not the stored body (10.738667ms)
+  ✔ the same key in another tenant runs independently and never returns tenant A data (22.283084ms)
+  ✔ a pre-binding legacy row is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (5.952625ms)
+[evidence] party race: fulfilled=8 rejected=none
+  ✔ 8 overlapping same-actor requests on one key create exactly one party (34.6845ms)
+[evidence] import race: fulfilled=1 rejected=CONFLICT,CONFLICT,CONFLICT
+  ✔ import claim-first: overlapping same-actor and other-actor requests write one batch; a later retry replays (24.984084ms)
+  ✔ import claim-first: a failed run releases the claim and the key can run again (13.304792ms)
+✔ S11 replay binding (prisma) (315.188167ms)
+ℹ tests 10
+ℹ suites 1
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 633.326125

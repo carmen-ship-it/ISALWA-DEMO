@@ -1,4 +1,5 @@
 import { ZodError } from 'zod';
+import { openReplay, replayBinding, sealReplay, sealedResult } from '@isalwa/os-events';
 import {
   CUSTOMER_DELIVERY_NOTE_KIND,
   DELIVERY_CLAIMS_INVOICE,
@@ -163,6 +164,31 @@ function isDeliveryIdempotencyConflict(err: unknown): boolean {
   return message === 'IDEMPOTENCY_CONFLICT' || /Unique constraint/i.test(message);
 }
 
+/** The resource check each delivery command performs, reused when replaying its stored result. */
+function replayResource(command: DeliveryCommandName, payload: Record<string, unknown>): DeliveryResource {
+  switch (command) {
+    case 'CreateNotaDeEntrega':
+    case 'CorrectDeliveryDocument':
+      return 'delivery_note';
+    case 'RecordSalida':
+    case 'RecordWarehouseExit':
+      return 'warehouse_exit';
+    case 'RecordEntrega':
+    case 'RecordCustomerDelivery':
+      return 'delivery';
+    case 'RecordDeliveryEvidence':
+      return payload.subjectType === 'warehouse_exit'
+        ? 'warehouse_exit'
+        : payload.subjectType === 'delivery_note'
+          ? 'delivery_note'
+          : 'delivery';
+    default: {
+      const _exhaustive: never = command;
+      throw new Error(`VALIDATION_FAILED:${_exhaustive}`);
+    }
+  }
+}
+
 export class DeliveryCommandService {
   /**
    * `inTransaction` is internal: true only for the instance bound to a transaction store
@@ -193,7 +219,7 @@ export class DeliveryCommandService {
     const organizationId = ctx.organizationId?.trim() || '';
     if (key) {
       if (!organizationId) throw new Error('TENANT_FORBIDDEN');
-      const replay = await this.readReplay(organizationId, key);
+      const replay = await this.readReplay(ctx, command, payload, organizationId, key);
       if (replay) return replay;
       try {
         await this.store.saveIdempotency({
@@ -205,7 +231,7 @@ export class DeliveryCommandService {
         });
       } catch (err) {
         if (!isDeliveryIdempotencyConflict(err)) throw err;
-        const winner = await this.readReplay(organizationId, key);
+        const winner = await this.readReplay(ctx, command, payload, organizationId, key);
         if (winner) return winner;
         throw new Error('CONFLICT');
       }
@@ -223,7 +249,7 @@ export class DeliveryCommandService {
           await service.store.completeIdempotency(
             organizationId,
             key,
-            result as unknown as Record<string, unknown>,
+            sealReplay(result, replayBinding(ctx.actorMemberId, command, payload)),
           );
         }
         committing = true;
@@ -237,11 +263,30 @@ export class DeliveryCommandService {
     }
   }
 
-  private async readReplay(organizationId: string, key: string): Promise<DeliveryCommandResult | null> {
+  /**
+   * S11 (same rules as os-work): a completed row is returned only after the current actor
+   * passes the command's resource check, and only for the same actor, command, and payload.
+   * Any mismatch is CONFLICT without the body; a completed row written before the binding
+   * existed is REPLAY_REVIEW_REQUIRED and is not re-run. A pending claim still returns null,
+   * so the caller falls through to the claim insert and gets the established CONFLICT.
+   */
+  private async readReplay(
+    ctx: DeliveryContext,
+    command: DeliveryCommandName,
+    payload: Record<string, unknown>,
+    organizationId: string,
+    key: string,
+  ): Promise<DeliveryCommandResult | null> {
     const row = await this.store.findIdempotency(organizationId, key);
     const json = row?.resultJson;
-    if (!json || json.pending === true || !json.data || typeof json.data !== 'object') return null;
-    return json as unknown as DeliveryCommandResult;
+    if (!json || json.pending === true) return null;
+    const completed = sealedResult(json) ?? json;
+    if (!completed.data || typeof completed.data !== 'object') return null;
+    await this.authorizeResource(ctx, replayResource(command, payload));
+    return openReplay<DeliveryCommandResult>(
+      json,
+      replayBinding(ctx.actorMemberId, command, payload),
+    );
   }
 
   private async dispatch(

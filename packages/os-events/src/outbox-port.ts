@@ -1,4 +1,5 @@
 import type { BusinessEventEnvelope, OsOutboxStatus } from '@isalwa/os-contracts';
+import type { ReplayBinding } from './replay';
 import type { StoredOutboxMessage } from './append';
 
 /** Delivery observability counts — not employee attention items. */
@@ -107,7 +108,7 @@ export interface OsOutboxStorePort {
   saveIdempotency(record: IdempotencyRecord): Promise<void>;
   recoverDeadLetterDelivery(
     request: OutboxRecoveryRequest,
-    idempotency?: { key: string; commandName: string },
+    idempotency?: { key: string; commandName: string; binding: ReplayBinding },
   ): Promise<OutboxRecoveryResult>;
 }
 

@@ -256,18 +256,31 @@ describe('receiveFinishedGoods', () => {
       session: session(),
       store,
       id: 'fgr-idem-2',
-      command: {
-        productId: 'prod-other',
-        quantity: '99',
-        receivedAt,
-        idempotencyKey: 'idem-fg-1',
-      },
+      command: { productId: 'prod-1', quantity: '4', receivedAt, idempotencyKey: 'idem-fg-1' },
     });
     assert.equal(second.ok, true);
     if (!second.ok) return;
     assert.equal(second.replayed, true);
     assert.equal(second.receipt.id, 'fgr-idem-1');
     assert.equal(second.receipt.quantity, '4');
+    assert.equal(store.receipts.length, 1);
+    assert.equal(store.events.length, 1);
+
+    // V2 §10: a changed request or another actor on the same key is a conflict, not the first receipt.
+    const changed = await receiveFinishedGoods({
+      session: session(),
+      store,
+      id: 'fgr-idem-3',
+      command: { productId: 'prod-other', quantity: '99', receivedAt, idempotencyKey: 'idem-fg-1' },
+    });
+    assert.deepEqual(changed.ok ? null : changed.reason, 'conflict');
+    const otherActor = await receiveFinishedGoods({
+      session: { ...session(), actorMemberId: 'mem-other' },
+      store,
+      id: 'fgr-idem-4',
+      command: { productId: 'prod-1', quantity: '4', receivedAt, idempotencyKey: 'idem-fg-1' },
+    });
+    assert.deepEqual(otherActor.ok ? null : otherActor.reason, 'conflict');
     assert.equal(store.receipts.length, 1);
     assert.equal(store.events.length, 1);
 

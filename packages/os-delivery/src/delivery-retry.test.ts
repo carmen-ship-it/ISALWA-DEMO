@@ -73,11 +73,12 @@ describe('delivery create retry', () => {
       quantities: [{ orderLineId: 'line-1', quantity: 1 }],
     };
     const firstSalida = await svc.execute('RecordSalida', ctx(), salidaPayload, 'attempt-salida');
-    const replaySalida = await svc.execute('RecordSalida', ctx(), {
-      ...salidaPayload,
-      exitedAt: '2026-09-14T13:05:00.000Z',
-    }, 'attempt-salida');
+    const replaySalida = await svc.execute('RecordSalida', ctx(), salidaPayload, 'attempt-salida');
     assert.equal(replaySalida.data.warehouseExitId, firstSalida.data.warehouseExitId);
+    await assert.rejects(
+      () => svc.execute('RecordSalida', ctx(), { ...salidaPayload, exitedAt: '2026-09-14T13:05:00.000Z' }, 'attempt-salida'),
+      (err: Error) => err.message === 'CONFLICT',
+    );
     assert.equal((await store.listAllWarehouseExits('org-a')).length, 1);
 
     const entregaPayload = {

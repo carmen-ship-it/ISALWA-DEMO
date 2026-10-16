@@ -7,7 +7,10 @@ import {
   type MemberAccessSnapshot,
 } from '@isalwa/os-domain';
 import { buildAuditEntry } from './append';
+import { isIdempotencyConflict, openReplay, replayBinding } from './replay';
 import type { OsOutboxStorePort, OutboxRecoveryResult } from './outbox-port';
+
+const RETRY_DEAD_LETTER_COMMAND = 'RetryDeadLetterDelivery';
 
 export type OutboxRecoveryCommandResult = {
   commandId: string;
@@ -94,40 +97,56 @@ export class OutboxRecoveryService {
       throw new Error('TENANT_FORBIDDEN');
     }
 
-    if (idempotencyKey) {
-      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
-      if (existing) {
-        return existing.resultJson as unknown as OutboxRecoveryCommandResult;
-      }
-    }
-
     await this.authorize(ctx);
 
     const trimmedReason = reason.trim();
+    // S11: a stored result is returned only to the same actor for the same dead letter and reason.
+    const binding = replayBinding(ctx.actorMemberId, RETRY_DEAD_LETTER_COMMAND, {
+      outboxId,
+      reason: trimmedReason,
+    });
+    if (idempotencyKey) {
+      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
+      if (existing) return openReplay<OutboxRecoveryCommandResult>(existing.resultJson, binding);
+    }
+
     if (trimmedReason.length < 3) {
       throw new Error('VALIDATION_FAILED');
     }
 
     const deadLetter = await this.store.getDeadLetterInOrg(ctx.organizationId, outboxId);
     if (!deadLetter) {
+      // A concurrent retry with this key may have requeued it since the first read.
+      const winner = idempotencyKey
+        ? await this.store.findIdempotency(ctx.organizationId, idempotencyKey)
+        : null;
+      if (winner) return openReplay<OutboxRecoveryCommandResult>(winner.resultJson, binding);
       throw new Error('NOT_FOUND');
     }
 
-    const recovery = await this.store.recoverDeadLetterDelivery(
-      {
-        organizationId: ctx.organizationId,
-        outboxId,
-        actorMemberId: ctx.actorMemberId,
-        reason: trimmedReason,
-        correlationId: ctx.correlationId,
-      },
-      idempotencyKey
-        ? {
-            key: idempotencyKey,
-            commandName: 'RetryDeadLetterDelivery',
-          }
-        : undefined,
-    );
+    let recovery: OutboxRecoveryResult;
+    try {
+      recovery = await this.store.recoverDeadLetterDelivery(
+        {
+          organizationId: ctx.organizationId,
+          outboxId,
+          actorMemberId: ctx.actorMemberId,
+          reason: trimmedReason,
+          correlationId: ctx.correlationId,
+        },
+        idempotencyKey
+          ? { key: idempotencyKey, commandName: RETRY_DEAD_LETTER_COMMAND, binding }
+          : undefined,
+      );
+    } catch (err) {
+      // A concurrent request with this key committed first: its transaction requeued the
+      // message (NOT_FOUND here) or holds the key (unique conflict).
+      const lostRace = isIdempotencyConflict(err) || (err instanceof Error && err.message === 'NOT_FOUND');
+      if (!idempotencyKey || !lostRace) throw err;
+      const winner = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
+      if (!winner) throw err;
+      return openReplay<OutboxRecoveryCommandResult>(winner.resultJson, binding);
+    }
 
     return {
       commandId: recovery.outboxId,

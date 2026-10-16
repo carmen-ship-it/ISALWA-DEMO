@@ -22,6 +22,10 @@ import {
   buildBusinessEvent,
   buildOutboxForEvent,
   currentIdempotencyKey,
+  isIdempotencyConflict,
+  openReplay,
+  replayBinding,
+  sealReplay,
   withIdempotencyKey,
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
@@ -36,6 +40,8 @@ export type CommandResult = {
   correlationId: string;
   data: Record<string, unknown>;
 };
+
+const PROVIDER_EFFECT_EVENTS = new Set(['member.suspended', 'member.terminated', 'member.email.changed']);
 
 type ScheduledProviderEffect = {
   action: 'revoke_sessions' | 'revoke_credentials' | 'update_email';
@@ -201,6 +207,37 @@ export class WorkforceCommandService {
     void store;
   }
 
+  /**
+   * S11: authorize the current actor for this command, then return the stored
+   * result only for the same actor, command, and payload. Any mismatch is
+   * CONFLICT without the stored body; a row without that binding is
+   * REPLAY_REVIEW_REQUIRED and is not re-run.
+   */
+  private async acceptedReplay(
+    ctx: RequestContext,
+    command: WorkforceCommandName,
+    payload: Record<string, unknown>,
+    stored: Record<string, unknown>,
+  ): Promise<CommandResult> {
+    await this.authorize(ctx, command, ctx.organizationId);
+    return openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
+  }
+
+  /** A concurrent request with the same key won the insert: replay its result under the same rules. */
+  private async replayAfterConflict(
+    ctx: RequestContext,
+    command: WorkforceCommandName,
+    payload: Record<string, unknown>,
+    err: unknown,
+    idempotencyKey?: string,
+  ): Promise<CommandResult> {
+    if (idempotencyKey && isIdempotencyConflict(err)) {
+      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
+      if (existing) return this.acceptedReplay(ctx, command, payload, existing.resultJson);
+    }
+    throw err;
+  }
+
   async execute(
     command: WorkforceCommandName,
     ctx: RequestContext,
@@ -226,7 +263,7 @@ export class WorkforceCommandService {
     if (idempotencyKey) {
       const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
       if (existing) {
-        return existing.resultJson as unknown as CommandResult;
+        return this.acceptedReplay(ctx, command, payload, existing.resultJson);
       }
     }
 
@@ -236,6 +273,9 @@ export class WorkforceCommandService {
 
     const postCommit: ScheduledProviderEffect[] = [];
 
+    // Set when a concurrent request with the same key committed first. Its provider
+    // effects already ran, so this request must not run them again.
+    let lostRace = false;
     const result = await this.store.runInTransaction(async (store) => {
       let commandResult: CommandResult;
       switch (command) {
@@ -293,13 +333,18 @@ export class WorkforceCommandService {
           organizationId: ctx.organizationId,
           key: idempotencyKey,
           commandName: command,
-          resultJson: commandResult as unknown as Record<string, unknown>,
+          resultJson: sealReplay(commandResult, replayBinding(ctx.actorMemberId, command, payload)),
           expiresAt: new Date(Date.now() + 86400_000),
         });
       }
 
       return commandResult;
+    }).catch(async (err: unknown) => {
+      const winner = await this.replayAfterConflict(ctx, command, payload, err, idempotencyKey);
+      lostRace = true;
+      return winner;
     });
+    if (lostRace) return result;
 
     await this.runScheduledProviderEffects(ctx, postCommit);
 
@@ -330,6 +375,52 @@ export class WorkforceCommandService {
           },
         ),
       );
+    }
+  }
+
+  /**
+   * Durable side of the provider effects above. The member event is committed in the
+   * same transaction as the access change, so the outbox redelivers it after a crash
+   * or a provider failure. Each delivery converges the provider to the identity's
+   * current state instead of replaying the event's values, so a late delivery can
+   * neither restore an older email nor revoke access that was restored since.
+   * Throwing leaves the message to the outbox retry and dead-letter path.
+   */
+  async reconcileProviderEffect(event: {
+    organizationId: string;
+    eventType: string;
+    primaryEntityType: string;
+    primaryEntityId: string;
+  }): Promise<void> {
+    if (!PROVIDER_EFFECT_EVENTS.has(event.eventType)) return;
+    if (event.primaryEntityType !== 'organization_member') return;
+    const memberId = event.primaryEntityId;
+    const member = memberId ? await this.store.getMemberInOrg(event.organizationId, memberId) : null;
+    if (!member) return;
+    // Same rule as the command: the login is person-wide, so it is left alone while
+    // another organization still depends on it.
+    const sharedLogin = () =>
+      this.personBelongsToAnotherOrg(member.personId, event.organizationId, this.store);
+    switch (event.eventType) {
+      case 'member.suspended': {
+        if (member.accessStatus !== 'suspended' || (await sharedLogin())) return;
+        const auth = await this.store.findAuthIdentityByPersonAndStatus(member.personId, 'active');
+        if (auth?.providerSubject) await this.authProvider.revokeSessions(auth.providerSubject);
+        return;
+      }
+      case 'member.terminated': {
+        if (member.accessStatus !== 'revoked' || (await sharedLogin())) return;
+        const auth = await this.store.findAuthIdentityByPersonAndStatus(member.personId, 'revoked');
+        if (auth?.providerSubject) await this.authProvider.revokeCredentials(auth.providerSubject);
+        return;
+      }
+      case 'member.email.changed': {
+        const auth = await this.store.findAuthIdentityByPersonAndStatus(member.personId, 'active');
+        if (auth?.providerSubject && auth.email) {
+          await this.authProvider.updateEmail(auth.providerSubject, auth.email);
+        }
+        return;
+      }
     }
   }
 

@@ -581,6 +581,9 @@ importers:
       '@isalwa/os-contracts':
         specifier: workspace:*
         version: link:../os-contracts
+      '@isalwa/os-events':
+        specifier: workspace:*
+        version: link:../os-events
       '@isalwa/ts-utils':
         specifier: workspace:*
         version: link:../ts-utils
