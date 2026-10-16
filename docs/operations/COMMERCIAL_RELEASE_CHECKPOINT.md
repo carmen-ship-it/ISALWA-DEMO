@@ -7,7 +7,7 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | T00 | LOCAL_COMPLETE (docs only) | `30077c6` | `commercial-release/receipts/T00.md` |
 | T01 | LOCAL_COMPLETE (tested fake + disposable PG + local HTTP; NOT INDEPENDENTLY REVIEWED) | `1d69341` | `commercial-release/receipts/T01.md` |
 | T02 | LOCAL_COMPLETE (customer visibility boundary + operational reads + shared rate limit; tested fake + disposable PG + local HTTP; NOT INDEPENDENTLY REVIEWED) | `f76751d` | `commercial-release/receipts/T02.md` |
-| T03 | NEXT | — | — |
+| T03 | IN_PROGRESS (part 1 committed `3183c36`; not complete) | — | `commercial-release/evidence/T03/` (part 1 suites at T02 baseline) |
 
 ## Last confirmed step
 
@@ -15,7 +15,7 @@ T02 committed: shared customer-visibility predicate (search/detail/contacts/loca
 
 ## Next command
 
-T03 with A1 (`REUSE_MAP.md` §9.5) and A2 (§10.4) deltas, plus T02 dependencies recorded in `receipts/T02.md` §8 (customer authority on CreateOpportunity/CreateQuote, resource checks on party edit commands, quote/order people.admin bypass). Before DB tests: `pnpm --filter "@isalwa/os-api^..." run build` (packages export `dist`; rebuild after every package source change). Restore the 3 generated Prisma client files with `git checkout --` unless the schema changed. Disposable cluster `~/.isalwa-disposable-pg/commercial-v2` (port 54329, DB `isalwa_t01_disposable`, server TZ America/New_York; start with `LC_ALL=C pg_ctl -D ~/.isalwa-disposable-pg/commercial-v2 -o "-p 54329 -k /tmp" -l ~/.isalwa-disposable-pg/commercial-v2/server.log start`). Never port 5432, never staging. New migrations: bump `EXPECTED_MIGRATION_COUNT` in `staging-wave2-role-fixtures-guards.ts`.
+T03 remaining after part 1 (`3183c36`: owner/coverage authority on customer + commercial commands and reads; people.admin bypass removed): bounded CreateParty for commercial.customer.create (generic duplicate result + "Registrar otro cliente" motive), version check + motive + history on edits, phone update/retire, end contact relation, archive/reactivate with obligation block, correction requests via issues, coverage proof, import/export bounds, HTTP/PG negative + concurrency evidence, A2-J01/J04/J05/J07/J10, receipt. Interpretation in force: coverage + the actor's own commercial.customer.edit = edit; coverage never grants archive/reactivate. Known pre-existing failures outside T03: delegation fixtures (os-database 5, os-api 1, os-domain 3), os-query session-org role row, missing dist for os-pedido-case/database. T03 with A1 (`REUSE_MAP.md` §9.5) and A2 (§10.4) deltas, plus T02 dependencies recorded in `receipts/T02.md` §8 (customer authority on CreateOpportunity/CreateQuote, resource checks on party edit commands, quote/order people.admin bypass). Before DB tests: `pnpm --filter "@isalwa/os-api^..." run build` (packages export `dist`; rebuild after every package source change). Restore the 3 generated Prisma client files with `git checkout --` unless the schema changed. Disposable cluster `~/.isalwa-disposable-pg/commercial-v2` (port 54329, DB `isalwa_t01_disposable`, server TZ America/New_York; start with `LC_ALL=C pg_ctl -D ~/.isalwa-disposable-pg/commercial-v2 -o "-p 54329 -k /tmp" -l ~/.isalwa-disposable-pg/commercial-v2/server.log start`). Never port 5432, never staging. New migrations: bump `EXPECTED_MIGRATION_COUNT` in `staging-wave2-role-fixtures-guards.ts`.
 
 ## Owner decision 2026-10-16 17:58 (demo artifacts)
 
