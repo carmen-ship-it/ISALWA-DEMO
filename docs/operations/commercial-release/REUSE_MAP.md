@@ -357,3 +357,62 @@ Unchanged from §10.1: action permission AND current range; `commercial.team.rea
 | `apps/os-web/lib/qa/access-matrix.ts` `commercial-reassign` row | QA label "Autorización commercial.account.reassign" | label only; describes the action scope, reach not shown. Update with the T10 admin surfaces |
 | Hosted databases | unknown | UNVERIFIED: staging/production grants were not inspected (staging access forbidden in this lane) |
 
+
+## 13. Consolidated engineering decisions (owner message 2026-10-16 20:03) and task dependencies
+
+Authoritative alongside §12. Reconciliation of the independent review (snapshot `2bdc81a`) against current source: `REVIEW_RECONCILIATION.md`.
+
+### 13.1 Reassignment: current authority vs historical attribution (§1)
+
+- Authorization = current account responsibility + the action permission. The new account owner continues and converts an inherited eligible quote with their normal conversion permission (`commercial.quote.convert.own`); organization-wide conversion is not required because another advisor created it.
+- Historical quote creator/owner (`os_quotes.owner_member_id`), original ownership and the conversion actor (event `actorMemberId`, `convertingActorMemberId`) are kept separately. No attribution rewrite; no commission rules.
+- Conversion still requires current acceptance, valid terms/approval, version checks and existing integrity constraints.
+- After reassignment: prior owner loses account-derived access; new owner continues permitted open work; coverage ends (`7f9286f`); pending actions/notifications recheck current authority (T09/T12 when they exist); orders stay actionable only through their specific permitted commands (no blanket cancel/dispatch).
+- Proof: inherited submitted-quote conversion by the new owner; former owner denied; attribution unchanged; concurrent conversion → one order.
+
+### 13.2 Keep the 19:30 repairs (§2) + UI
+
+Explicit `quote.convert` coverage + independent permission; grantor bound; team/org/intake reach; restricted steward lookup; no people.admin/master_data.admin commercial bypass. Authorship and broad read scopes are not action authority.
+UI (mapped as its own task, backend tests do not complete it):
+- "Apoyo temporal": choose permitted actions; conversion offered only when the grantor may delegate it; show granted actions and expiry; server stays authoritative.
+- Authorized UI entry to the restricted master-data lookup.
+
+### 13.3 Grant provisioning (§3)
+
+- Every grant path (`InviteMember`, `ChangeRole`, `GrantAdditionalRole`, `GrantDelegation`, `ChangeManager` where it confers range) enforces independent possession against the actor's own effective scopes (`delegations: false`); the grant being created never counts.
+- Commercial action scopes (`commercial.customer.edit`, `commercial.work.manage`, range scopes, assignment scopes, …) can coexist on one member through existing assignment machinery (`GrantAdditionalRole`).
+- No auto-assignment to real people, no fabricated superuser, no bootstrap bypass. Initial provisioning of the first holder is a recorded dependency (owner/out-of-band, synthetic in tests).
+- Read-only manager permissions stay read-only.
+
+### 13.4 Read authorization gaps (§4)
+
+Commitments, work items, approvals (list/detail/search/count/links): applicable customer/account scope, assigned work responsibility, or explicit managerial/operational authority. Membership alone authorizes nothing; task assignment does not expose unrelated customer history; suspended members and expired/revoked delegations (and delegations from suspended or no-longer-holding delegators) lose effect. Unknowable → established 404.
+
+### 13.5 Quote approval sequence for T04 (§5)
+
+`draft → approval of exact terms (if required) → issuance → reviewed external sending → customer acceptance → eligible conversion`. Approval possible before issuance or sending; `submitted` is not "Enviada" without send evidence; approval bound to exact terms/version, voided by material change, rechecked at issuance, queued sending and conversion. Requester cannot appoint an arbitrary approver or approve their own exception; routing to currently authorized approvers in scope. "Owner" ≠ account owner or Carmen: price/discount exceptions → explicitly authorized Jefatura Comercial or Gerencia via configured grants (`commercial.price.approve` + range). No approved price basis → manual-price quotes stay approval-routed. Historical submitted/sent records are not bulk relabelled; legacy treatment recorded in the T04 receipt.
+
+### 13.6 Payments for T07 (§6)
+
+Report = one or more tender components (QR, cash, transfer, other), each with amount, evidence and verification state; Contabilidad confirms/rejects per component. Summary derived: Reportado (nothing resolved, work pending) · Parcialmente confirmado (some confirmed, others unresolved) · Confirmado (all confirmed) · Rechazado (all rejected) · Cerrado con diferencias (all resolved, mixed). Confirmed/pending/rejected amounts shown; rejection does not erase confirmed funds; reversals separate and audited; only confirmed funds allocate. Accounting gets bounded access (customer, order ids, amounts, relevant commercial payment terms, verification evidence; no chats). Payment exception = separate authorized decision (scope, terms, reason, approver, validity) satisfying only an applicable existing gate; never bypasses stock/dispatch/other controls; no universal prepaid requirement. Schema/transition mapping goes into the T07 record before implementation.
+
+### 13.7 Tenant selection (§7) and automation boundary for T13 (§8)
+
+- Web org context from authenticated active membership + authorized selection; one → use it; several → explicit selection unless a still-valid previous one; none → honest no-access state; tampered/stale selection rejected server-side; switching clears/rekeys scoped state; Journey open/close never changes organization or data mode. Full demo removal stays T10/T11.
+- T13: approved deterministic public responses may auto-send while automation enabled and no human takeover/pause. Human confirmation for definitive customer-data changes, quotes, acceptance, orders, payment instructions, business commitments. Message capture, provisional channel records, derived proposals, handoff tickets, internal alerts persist automatically as classified operational records. Unknown/ambiguous → fallback + handoff.
+
+### 13.8 Task order (one bounded task at a time)
+
+| # | Task | Depends on | Findings |
+|---|---|---|---|
+| 1 | Grant provisioning: independent possession on all grant paths, no self-escalation, coexisting commercial scopes, ChangeManager server time/no self | — | F03, F04 |
+| 2 | Effective delegation: delegator active + still holds scope, in every store reader and approval delegation check | 1 | F10 |
+| 3 | Tenant selection in os-web (membership-derived, server-validated selection, Journey neutral) | — | F09 |
+| 4 | Read gaps: commitments, work items, approvals | 2 | F07, F10 (authorship), F11 |
+| 5 | Reassignment: inherited conversion by new owner, attribution preserved, concurrent conversion → one order | — | F05, F14(part) |
+| 6 | UI: "Apoyo temporal" action selection/expiry; steward lookup entry | 5 | §2 |
+| 7 | Remaining T03 (archive/reactivate incl. steward bypass removal, contacts/phones, edit motive/history, corrections, import/export, drawer, A2 journeys) | 1–6 | F12 |
+| 8 | T04 per §13.5 | 7 | F01, F02, F14 |
+| 9+ | T05… T07 per §13.6, T13 per §13.7 | | F08, F17, F20 |
+
+External dependencies (do not block development; synthetic fixtures only): catalog PDFs transfer, price matrix, live phone setup, named role holders, published hours, payment destinations, hosted grant inventory.
