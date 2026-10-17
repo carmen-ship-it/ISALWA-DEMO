@@ -1,0 +1,42 @@
+  ✔ keeps stable ids and rebuilds the same preview (17.267833ms)
+  ✔ cites a filename and page on every product and refuses invented commercial fields (2.004958ms)
+  ✔ has no price columns in the migration or fragment (1.069709ms)
+✔ product catalog preview (20.850791ms)
+  ✔ isolates organizations and keeps history when a product is deactivated (5.422ms)
+✔ tenant product catalog (5.505125ms)
+  ✔ every presented field carries at least one source (0.592583ms)
+  ✔ shows the pending label for inconsistent fields and excludes them from automatic answers (0.189541ms)
+  ✔ keeps consistent values that only differ in typography (0.133292ms)
+  ✔ marks measures without a printed unit and keeps them out of automatic answers (0.0605ms)
+  ✔ has no approved image, variant or condition today (0.37275ms)
+  ✔ every card without an approved price shows Precio por confirmar (1.625125ms)
+  ✔ shows a price only from an approved, active price list (0.203583ms)
+  ✔ exposes no cost, margin or other forbidden field (3.619666ms)
+  ✔ searches by product, model alias or historical key and filters active (2.024125ms)
+✔ catalog presentation (9.462084ms)
+  ✔ creates no price entry and marks every unmatched source REVIEW_REQUIRED (12.089792ms)
+  ✔ does not add a price column to the product master (0.467792ms)
+✔ vitri price source (13.00925ms)
+  ✔ keeps product inside the session organization (1.276ms)
+  ✔ keeps price_list inside the session organization (0.236458ms)
+  ✔ keeps price_entry inside the session organization (0.22525ms)
+  ✔ does not show denied products in the catalog surface (0.442875ms)
+✔ fixture organizations do not leak prices (2.322625ms)
+  ✔ lists every starter key from the starter file, active and retired, exactly once (1.012958ms)
+  ✔ maps each key to a stable catalog id or records an explicit reason (0.22325ms)
+  ✔ keeps the recorded mapping for the alias and unmatched keys (0.086709ms)
+  ✔ active starter categories agree with the catalog category (0.622625ms)
+  ✔ resolves aliases, retired keys, canonical keys and ids to one stable id (0.463125ms)
+  ✔ never loses a historical key (1.008542ms)
+  ✔ records contradictions as pending, not resolved (0.062167ms)
+  ✔ summarizes counts and matches the committed reconciliation file (0.759708ms)
+✔ preview25 ↔ starter21 reconciliation (4.8185ms)
+ℹ tests 27
+ℹ suites 6
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 459.525125
+exit=0

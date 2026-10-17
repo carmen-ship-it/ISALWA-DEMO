@@ -1,0 +1,46 @@
+✔ CAUGHT break-mapping (packages/os-catalog/src/reconciliation.ts)
+ℹ os-catalog exit=1 ℹ tests 27 ℹ pass 23 ℹ fail 4
+  ✖ searches by product, model alias or historical key and filters active
+  ✖ catalog presentation
+  ✖ keeps the recorded mapping for the alias and unmatched keys
+  ✖ resolves aliases, retired keys, canonical keys and ids to one stable id
+  ✖ summarizes counts and matches the committed reconciliation file
+  ✖ preview25 ↔ starter21 reconciliation
+ℹ os-web catalog exit=1 ℹ tests 13 ℹ pass 12 ℹ fail 1
+  ✖ resolves the ficha by stable id and redirects historical keys
+  ✖ catalog view (os-web)
+ℹ restored=true sha256=30fa9a4d937a36f91db87ddcb4f28d2e86895c643c2547d76c563099bfa1e0a4
+
+✔ CAUGHT drop-historical-key (packages/os-catalog/src/reconciliation.ts)
+ℹ os-catalog exit=1 ℹ tests 27 ℹ pass 24 ℹ fail 3
+  ✖ lists every starter key from the starter file, active and retired, exactly once
+  ✖ resolves aliases, retired keys, canonical keys and ids to one stable id
+  ✖ summarizes counts and matches the committed reconciliation file
+  ✖ preview25 ↔ starter21 reconciliation
+ℹ os-web catalog exit=0 ℹ tests 13 ℹ pass 13 ℹ fail 0
+ℹ restored=true sha256=30fa9a4d937a36f91db87ddcb4f28d2e86895c643c2547d76c563099bfa1e0a4
+
+✔ CAUGHT drop-provenance (packages/os-catalog/src/presentation.ts)
+ℹ os-catalog exit=1 ℹ tests 27 ℹ pass 25 ℹ fail 2
+  ✖ every presented field carries at least one source
+  ✖ every card without an approved price shows Precio por confirmar
+  ✖ catalog presentation
+ℹ os-web catalog exit=0 ℹ tests 13 ℹ pass 13 ℹ fail 0
+ℹ restored=true sha256=96c9bf42a1ee98dfca8207c98a7e6af5e3ff83d71a3b56e57de414261f94187c
+
+✔ CAUGHT price-without-approval (packages/os-catalog/src/presentation.ts)
+ℹ os-catalog exit=1 ℹ tests 27 ℹ pass 26 ℹ fail 1
+  ✖ shows a price only from an approved, active price list
+  ✖ catalog presentation
+ℹ os-web catalog exit=0 ℹ tests 13 ℹ pass 13 ℹ fail 0
+ℹ restored=true sha256=96c9bf42a1ee98dfca8207c98a7e6af5e3ff83d71a3b56e57de414261f94187c
+
+✔ CAUGHT inconsistent-field-shows-value (packages/os-catalog/src/presentation.ts)
+ℹ os-catalog exit=1 ℹ tests 27 ℹ pass 26 ℹ fail 1
+  ✖ shows the pending label for inconsistent fields and excludes them from automatic answers
+  ✖ catalog presentation
+ℹ os-web catalog exit=1 ℹ tests 13 ℹ pass 12 ℹ fail 1
+  ✖ ficha replaces inconsistent values with the pending label
+  ✖ /productos rendering
+ℹ restored=true sha256=96c9bf42a1ee98dfca8207c98a7e6af5e3ff83d71a3b56e57de414261f94187c
+
