@@ -895,6 +895,15 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
     });
   }
 
+  async listOrganizationsByIds(ids: readonly string[]): Promise<OrganizationRecord[]> {
+    if (ids.length === 0) return [];
+    const rows = await this.db().osOrganization.findMany({
+      where: { id: { in: [...ids] } },
+      select: { id: true, legalName: true, slug: true, status: true },
+    });
+    return rows;
+  }
+
   async seedOrganization(legalName: string, slug: string): Promise<OrganizationRecord> {
     const orgId = createId();
     const deptId = createId();

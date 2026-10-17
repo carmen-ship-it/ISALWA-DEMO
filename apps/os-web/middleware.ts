@@ -4,7 +4,6 @@ import { getOsAuthMode, isSupabaseConfigured } from '@/lib/auth/config';
 import { decodeDevSession } from '@/lib/auth/dev-session';
 import { updateSupabaseSession } from '@/lib/auth/supabase/middleware';
 import { DEMO_DATA_MODE_COOKIE } from '@/lib/demo/owner-demo-identity';
-import { OWNER_EFFECTIVE_COMPANY_COOKIE } from '@/lib/demo/owner-company-context';
 import { DATA_MODE_REQUEST_HEADER, explicitDataMode } from '@/lib/demo/preserve-data-mode';
 
 function isPublicPath(pathname: string): boolean {
@@ -41,11 +40,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // Pin explicit ?datos= onto this request before the session response is built,
-  // so the first RSC paint uses the URL company instead of the previous cookie.
+  // so the first RSC paint uses the URL data mode instead of the previous cookie.
+  // Data mode filters within the selected organization; it never selects one.
   const datos = explicitDataMode(request.nextUrl.searchParams.get('datos'));
   if (datos) {
     request.cookies.set(DEMO_DATA_MODE_COOKIE, datos);
-    request.cookies.set(OWNER_EFFECTIVE_COMPANY_COOKIE, datos === 'demo' ? 'synth' : 'real');
     request.headers.set(DATA_MODE_REQUEST_HEADER, datos);
   }
 
@@ -69,11 +68,6 @@ export async function middleware(request: NextRequest) {
 
   if (datos) {
     response.cookies.set(DEMO_DATA_MODE_COOKIE, datos, {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 30,
-      sameSite: 'lax',
-    });
-    response.cookies.set(OWNER_EFFECTIVE_COMPANY_COOKIE, datos === 'demo' ? 'synth' : 'real', {
       path: '/',
       maxAge: 60 * 60 * 24 * 30,
       sameSite: 'lax',

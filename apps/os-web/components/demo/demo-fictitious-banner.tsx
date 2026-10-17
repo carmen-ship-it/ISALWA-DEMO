@@ -3,11 +3,14 @@
 import { DEMO_FICTITIOUS_BADGE } from '@/lib/demo/owner-demo-identity';
 import { useOwnerDemo } from '@/components/demo/owner-demo-provider';
 
-/** Persistent banner while demo data mode or Story Mode is active. */
+/**
+ * Persistent banner while demo data mode is active. The Journey does not
+ * change data mode, so it must not label the current data as fictitious.
+ */
 export function DemoFictitiousBanner() {
-  const { dataMode, storyOpen, canUseOwnerDemo } = useOwnerDemo();
+  const { dataMode, canUseOwnerDemo } = useOwnerDemo();
   if (!canUseOwnerDemo) return null;
-  if (dataMode !== 'demo' && !storyOpen) return null;
+  if (dataMode !== 'demo') return null;
 
   return (
     <div

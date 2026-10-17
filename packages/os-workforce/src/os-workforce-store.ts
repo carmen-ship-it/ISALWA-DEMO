@@ -203,6 +203,9 @@ export interface OsWorkforceStore {
   findIdempotency(organizationId: string, key: string): Promise<IdempotencyRecord | null>;
   saveIdempotency(record: IdempotencyRecord & { id?: string }): Promise<void>;
 
+  /** Display rows for organizations the caller already proved membership in. */
+  listOrganizationsByIds(ids: readonly string[]): Promise<OrganizationRecord[]>;
+
   /** Test/bootstrap helpers — not used in production command paths. */
   seedOrganization(legalName: string, slug: string): Promise<OrganizationRecord>;
   seedAdminMember(

@@ -138,28 +138,23 @@ describe('story mode steps', () => {
     for (const step of STORY_MODE_STEPS) {
       const href = step.hrefFor(map);
       assert.ok(href, `step ${step.step} should resolve with seeded ids`);
-      if (isStoryPdfApiHref(href)) {
-        assert.doesNotMatch(href, /[?&]datos=/);
-      } else {
-        assert.match(href, /(?:^|[?&])datos=demo(?:&|$)/, `step ${step.step} page href`);
-      }
+      // F09: the Journey never changes organization or data mode.
+      assert.doesNotMatch(href, /[?&]datos=/, `step ${step.step} href`);
     }
     assert.equal(STORY_MODE_STEPS[5]!.hrefFor(map), '/api/quotes/quote-1/pdf');
     assert.equal(STORY_MODE_STEPS[13]!.hrefFor(map), '/api/delivery-notes/note-1/pdf');
     assert.match(STORY_MODE_STEPS[1]!.hrefFor(map) ?? '', /\/clientes\/party-maderas/);
-    assert.match(STORY_MODE_STEPS[1]!.hrefFor(map) ?? '', /[?&]datos=demo(?:&|$)/);
     assert.match(STORY_MODE_STEPS[9]!.hrefFor(map) ?? '', /\/pedidos\/order-1/);
-    assert.match(STORY_MODE_STEPS[9]!.hrefFor(map) ?? '', /[?&]datos=demo(?:&|$)/);
-    assert.equal(STORY_MODE_STEPS[18]!.hrefFor(map), '/inicio?datos=demo');
-    assert.equal(STORY_MODE_STEPS[19]!.hrefFor(map), '/inicio?lente=gerencia&datos=demo');
+    assert.equal(STORY_MODE_STEPS[18]!.hrefFor(map), '/inicio');
+    assert.equal(STORY_MODE_STEPS[19]!.hrefFor(map), '/inicio?lente=gerencia');
     setDemoSeedIdMapForTests(null);
   });
 
-  it('keeps datos=demo on page fallbacks when seed ids are missing', () => {
+  it('page fallbacks carry no data mode when seed ids are missing', () => {
     assert.equal(STORY_MODE_STEPS.length, 20);
-    assert.equal(STORY_MODE_STEPS[0]!.hrefFor(null), '/conversaciones?datos=demo');
-    assert.equal(STORY_MODE_STEPS[2]!.hrefFor(null), '/oportunidades?datos=demo');
-    assert.equal(STORY_MODE_STEPS[7]!.hrefFor(null), '/inicio?datos=demo');
+    assert.equal(STORY_MODE_STEPS[0]!.hrefFor(null), '/conversaciones');
+    assert.equal(STORY_MODE_STEPS[2]!.hrefFor(null), '/oportunidades');
+    assert.equal(STORY_MODE_STEPS[7]!.hrefFor(null), '/inicio');
     assert.equal(STORY_MODE_STEPS[5]!.hrefFor(null), null);
     assert.equal(STORY_MODE_STEPS[13]!.hrefFor(null), null);
   });

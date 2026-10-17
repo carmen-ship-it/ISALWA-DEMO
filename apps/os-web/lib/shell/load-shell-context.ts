@@ -2,7 +2,12 @@ import { cache } from 'react';
 import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
-import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
+import {
+  getServerOrganizationSelection,
+  getServerOsAuthContext,
+  getServerWebSession,
+} from '@/lib/auth/actions';
+import type { SessionOrganization } from '@/lib/auth/organization-selection';
 import { actorCanMutateMasterData, loadActorRoleKeys } from '@/lib/party/master-data-access';
 import { resolveQaShellOverlay } from '@/lib/qa/shell-overlay';
 import { canUseRolePreview } from '@/lib/role-preview/access';
@@ -24,7 +29,17 @@ export type ShellContext = {
   actorKey: string | null;
   /** Trusted scopes for display labeling only — never used to hide shell nav. */
   grantedScopes: string[];
-  osAccess: 'ok' | 'revoked' | 'unavailable' | 'unauthorized' | 'denied';
+  osAccess:
+    | 'ok'
+    | 'revoked'
+    | 'unavailable'
+    | 'unauthorized'
+    | 'denied'
+    | 'choose-organization'
+    | 'no-organization';
+  /** Proven memberships; more than one enables the organization switcher. */
+  organizations: SessionOrganization[];
+  currentOrganizationId: string | null;
   capabilities: CapabilityStateReadModel[];
   /** SYNTH/REAL commercial owners for Vista de evaluación · Asesor picker. */
   asesorOptions: Array<{ memberId: string; label: string }>;
@@ -38,8 +53,11 @@ function displayLabelOf(label: string | undefined): string {
 function shell(
   displayLabel: string | undefined,
   osAccess: ShellContext['osAccess'],
+  organizations: SessionOrganization[] = [],
 ): ShellContext {
   return {
+    organizations,
+    currentOrganizationId: null,
     displayLabel: displayLabelOf(displayLabel),
     givenName: null,
     asesorOptions: [],
@@ -73,14 +91,20 @@ export const loadShellContext = cache(async function loadShellContext(): Promise
   if (!webSession) return null;
 
   let auth;
+  let selection;
   try {
+    selection = await getServerOrganizationSelection();
     auth = await getServerOsAuthContext();
   } catch (err) {
     if (isSessionFailure(err)) return shell(webSession.displayLabel, 'unauthorized');
-    return shell(webSession.displayLabel, 'unavailable');
+    return shell(webSession.displayLabel, classifyProbeError(err));
   }
 
-  if (!auth) return shell(webSession.displayLabel, 'unauthorized');
+  if (!auth || !selection) return shell(webSession.displayLabel, 'unauthorized');
+  if (selection.state === 'none') return shell(webSession.displayLabel, 'no-organization');
+  if (selection.state === 'choose') {
+    return shell(webSession.displayLabel, 'choose-organization', selection.organizations);
+  }
 
   const client = createOsApiClient(auth);
 
@@ -164,6 +188,8 @@ export const loadShellContext = cache(async function loadShellContext(): Promise
     osAccess,
     capabilities,
     asesorOptions,
+    organizations: selection.organizations,
+    currentOrganizationId: selection.organizationId,
   };
 });
 

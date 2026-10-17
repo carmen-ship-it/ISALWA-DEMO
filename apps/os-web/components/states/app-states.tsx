@@ -103,6 +103,17 @@ export function AccountInactiveState() {
   );
 }
 
+export function NoOrganizationState() {
+  return (
+    <AccessState
+      title="Sin empresa asignada"
+      description="Su cuenta no tiene acceso activo a ninguna empresa. Pida a un administrador de su empresa que revise su acceso."
+      semantic="blocked"
+      action={<EndSessionButton label={t('states.goToLogin')} />}
+    />
+  );
+}
+
 export function ServiceUnavailableState({ onRetry }: { onRetry?: () => void }) {
   return (
     <AccessState

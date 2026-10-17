@@ -28,6 +28,7 @@ import type {
 } from '@isalwa/os-contracts';
 import type { WorkCommandResult } from '@/lib/work/command-types';
 import type { AuthenticatedSessionView } from '@/lib/auth/session-identity';
+import type { SessionOrganization } from '@/lib/auth/organization-selection';
 import type {
   OpportunityDetailResponse,
   OpportunityListResponse,
@@ -249,6 +250,8 @@ export function createOsApiClient(auth: OsAuthContext) {
       }),
     health: () => request<{ status: string; service: string }>('/health'),
     getAuthenticatedSession: () => request<AuthenticatedSessionView>('/session/me'),
+    listSessionOrganizations: () =>
+      request<{ organizations: SessionOrganization[] }>('/session/organizations'),
     getTrustedAuthorization: () =>
       request<Record<string, unknown>>('/session/authorization'),
     listAttention: (query?: Record<string, string | number | boolean>) =>

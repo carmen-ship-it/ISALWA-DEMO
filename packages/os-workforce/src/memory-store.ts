@@ -494,6 +494,10 @@ export class MemoryOsStore implements OsWorkforceStore {
     this.idempotency.push(record);
   }
 
+  async listOrganizationsByIds(ids: readonly string[]): Promise<OrganizationRecord[]> {
+    return this.organizations.filter((org) => ids.includes(org.id)).map((org) => ({ ...org }));
+  }
+
   async seedOrganization(legalName: string, slug: string): Promise<OrganizationRecord> {
     const org: OrganizationRecord = {
       id: createId(),

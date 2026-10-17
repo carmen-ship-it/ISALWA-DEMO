@@ -1,0 +1,15 @@
+mutation: api-lists-inactive-memberships
+file: packages/os-domain/src/trusted-member-context.ts
+exit: 1
+  ✔ one membership: the list has exactly that org and the session uses it without a selector (38.57275ms)
+  ✔ several memberships: both are listed, and the session requires a selection (14.920666ms)
+  ✔ a tampered selector naming a foreign org is refused and never widens the list (17.881667ms)
+  ✖ a stale selection (membership suspended) is refused, and the list drops that org (6.887792ms)
+  ✖ no eligible membership: the list refuses honestly instead of choosing an org (3.530667ms)
+  ✔ an unauthenticated caller gets no list (1.044833ms)
+✖ Review R3 tenant selection over HTTP (disposable Postgres) (315.574875ms)
+ℹ pass 4
+ℹ fail 2
+✖ failing tests:
+✖ a stale selection (membership suspended) is refused, and the list drops that org (6.887792ms)
+✖ no eligible membership: the list refuses honestly instead of choosing an org (3.530667ms)

@@ -1,5 +1,6 @@
 'use server';
 
+import { cache } from 'react';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -16,13 +17,13 @@ import { t } from '@/lib/i18n/es';
 import { readInviteCompletionCode } from '@/lib/auth/invite-completion';
 import { QA_VIEW_COOKIE_NAME } from '@/lib/qa/constants';
 import {
-  OWNER_EFFECTIVE_COMPANY_COOKIE,
-  companyForDemoDataMode,
-  organizationIdForCompany,
-  parseOwnerEffectiveCompany,
-} from '@/lib/demo/owner-company-context';
-import { parseDemoDataMode, DEMO_DATA_MODE_COOKIE } from '@/lib/demo/owner-demo-identity';
-import { DATA_MODE_REQUEST_HEADER, explicitDataMode } from '@/lib/demo/preserve-data-mode';
+  SELECTED_ORGANIZATION_COOKIE,
+  SELECTED_ORGANIZATION_MAX_AGE_SECONDS,
+  isSelectableOrganization,
+  resolveOrganizationSelection,
+  type OrganizationSelection,
+  type SessionOrganization,
+} from '@/lib/auth/organization-selection';
 import {
   PASSWORD_RESET_COPY,
   buildPasswordResetRedirectUrl,
@@ -77,56 +78,40 @@ async function getSupabaseAccessToken(): Promise<string> {
 }
 
 /**
- * Probe os-api with an explicit token when possible (avoids cookie race after sign-in).
- * When the actor has multiple proven memberships, canonical session fails closed without
- * x-os-organization-id — try REAL then SYNTH selectors (owner-demo company context),
- * never invent memberships.
+ * Lists the proven memberships with an explicit token (avoids cookie race after sign-in).
+ * The organization options come only from os-api; nothing here names an organization.
  */
-async function validateOsMembershipWithToken(
+async function listMembershipsWithToken(
   accessToken: string,
-): Promise<{ ok: true; organizationId?: string } | { ok: false; error: string }> {
-  const orgCandidates: Array<string | undefined> = [
-    undefined,
-    organizationIdForCompany('real'),
-    organizationIdForCompany('synth'),
-  ];
-
-  let lastError: unknown;
-  for (const organizationId of orgCandidates) {
-    const client = createOsApiClient({
-      mode: 'supabase',
-      accessToken,
-      ...(organizationId ? { organizationId } : {}),
-    });
-    const attempt = async () => {
-      await client.listAttention({ limit: '1' });
-    };
-    try {
-      await attempt();
-      return { ok: true, organizationId };
-    } catch (first) {
-      lastError = first;
-      // Free-tier cold start / brief blip — retry once before next candidate.
-      if (first instanceof OsApiError && first.kind === 'unavailable') {
-        try {
-          await new Promise((r) => setTimeout(r, 1500));
-          await attempt();
-          return { ok: true, organizationId };
-        } catch (second) {
-          lastError = second;
-        }
+): Promise<{ ok: true; organizations: SessionOrganization[] } | { ok: false; error: string }> {
+  const client = createOsApiClient({ mode: 'supabase', accessToken });
+  try {
+    return { ok: true, organizations: (await client.listSessionOrganizations()).organizations };
+  } catch (first) {
+    // Free-tier cold start / brief blip — retry once.
+    if (first instanceof OsApiError && first.kind === 'unavailable') {
+      try {
+        await new Promise((r) => setTimeout(r, 1500));
+        return { ok: true, organizations: (await client.listSessionOrganizations()).organizations };
+      } catch (second) {
+        return { ok: false, error: membershipProbeError(second) };
       }
-      // unauthorized/forbidden: try next org selector (multi-membership ambiguity).
-      if (
-        first instanceof OsApiError &&
-        (first.kind === 'forbidden' || first.kind === 'unauthorized')
-      ) {
-        continue;
-      }
-      return { ok: false, error: membershipProbeError(first) };
     }
+    return { ok: false, error: membershipProbeError(first) };
   }
-  return { ok: false, error: membershipProbeError(lastError) };
+}
+
+function persistSelectedOrganization(
+  cookieStore: Awaited<ReturnType<typeof cookies>>,
+  organizationId: string,
+): void {
+  cookieStore.set(SELECTED_ORGANIZATION_COOKIE, organizationId, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: SELECTED_ORGANIZATION_MAX_AGE_SECONDS,
+  });
 }
 
 function membershipProbeError(err: unknown): string {
@@ -164,25 +149,27 @@ export async function signInAction(formData: FormData): Promise<{ error?: string
 
       // Use the token from sign-in directly — do not re-read cookies via getSession()
       // in the same Server Action (can race and false-fail membership).
-      const membership = await validateOsMembershipWithToken(accessToken);
+      const membership = await listMembershipsWithToken(accessToken);
       if (!membership.ok) {
         await supabase.auth.signOut();
         return { error: membership.error };
       }
 
-      // Persist company selector when multi-membership required an org header.
-      // Default proven REAL; Demo toggle later switches to SYNTH. Does not impersonate.
-      if (membership.organizationId) {
-        const cookieStore = await cookies();
-        const company =
-          membership.organizationId === organizationIdForCompany('synth') ? 'synth' : 'real';
-        cookieStore.set(OWNER_EFFECTIVE_COMPANY_COOKIE, company, {
-          httpOnly: false,
-          sameSite: 'lax',
-          secure: process.env.NODE_ENV === 'production',
-          path: '/',
-          maxAge: 60 * 60 * 24 * 30,
-        });
+      // One option is used; several keep a still-valid previous choice or
+      // leave the choice to the authenticated layout. None is an honest denial.
+      const cookieStore = await cookies();
+      const selection = resolveOrganizationSelection(
+        membership.organizations,
+        cookieStore.get(SELECTED_ORGANIZATION_COOKIE)?.value,
+      );
+      if (selection.state === 'none') {
+        await supabase.auth.signOut();
+        return { error: t('login.errorNoMembership') };
+      }
+      if (selection.state === 'selected') {
+        persistSelectedOrganization(cookieStore, selection.organizationId);
+      } else {
+        cookieStore.delete(SELECTED_ORGANIZATION_COOKIE);
       }
 
       return { redirectTo: DEFAULT_POST_LOGIN };
@@ -260,6 +247,7 @@ async function clearWebSession(): Promise<void> {
       .map((cookie) => cookie.name),
   );
   names.add(OS_DEV_SESSION_COOKIE);
+  names.add(SELECTED_ORGANIZATION_COOKIE);
 
   if (isSupabaseConfigured()) {
     try {
@@ -356,53 +344,75 @@ export async function completeInviteAction(): Promise<{ code: string }> {
   }
 }
 
-export async function getServerOsAuthContext(options?: { skipQaView?: boolean }) {
+type BaseOsAuth = { mode: 'dev'; session: DevSession } | { mode: 'supabase'; accessToken: string };
+
+async function getBaseOsAuth(): Promise<BaseOsAuth | null> {
   const session = await getServerWebSession();
   if (!session) return null;
-
-  let base:
-    | { mode: 'dev'; session: DevSession }
-    | { mode: 'supabase'; accessToken: string }
-    | null = null;
-
   if (session.mode === 'dev' && session.devSession) {
-    base = { mode: 'dev', session: session.devSession };
-  } else if (session.mode === 'supabase') {
-    const token = await getSupabaseAccessToken();
-    base = { mode: 'supabase', accessToken: token };
+    return { mode: 'dev', session: session.devSession };
   }
+  if (session.mode === 'supabase') {
+    return { mode: 'supabase', accessToken: await getSupabaseAccessToken() };
+  }
+  return null;
+}
 
+export async function getServerOsAuthContext(options?: { skipQaView?: boolean }) {
+  const base = await getBaseOsAuth();
   if (!base) return null;
-  if (options?.skipQaView) return base;
 
-  const store = await cookies();
-  const headerStore = await headers();
-  const qaViewCookie = store.get(QA_VIEW_COOKIE_NAME)?.value;
-
-  // Explicit URL mode (middleware header) wins over the previous cookie on this request.
-  // Demo/Datos reales cookie is authoritative when present. Else company cookie.
-  const headerMode = explicitDataMode(headerStore.get(DATA_MODE_REQUEST_HEADER));
-  const demoModeRaw = headerMode ?? store.get(DEMO_DATA_MODE_COOKIE)?.value;
-  const companyExplicit = parseOwnerEffectiveCompany(
-    store.get(OWNER_EFFECTIVE_COMPANY_COOKIE)?.value,
-  );
-  const company =
-    demoModeRaw != null
-      ? companyForDemoDataMode(parseDemoDataMode(demoModeRaw))
-      : companyExplicit;
-  const organizationId = company ? organizationIdForCompany(company) : undefined;
-
+  // Organization comes only from a selection among proven memberships.
+  // Data mode (Demo / Datos reales) and the Journey never change it.
+  const selection = await selectionForBase(base);
+  const organizationId = selection.state === 'selected' ? selection.organizationId : undefined;
   const withOrg =
     organizationId && base.mode === 'supabase'
       ? { ...base, organizationId }
       : organizationId && base.mode === 'dev'
-        ? {
-            ...base,
-            session: { ...base.session, organizationId },
-          }
+        ? { ...base, session: { ...base.session, organizationId } }
         : base;
+  if (options?.skipQaView) return withOrg;
 
+  const qaViewCookie = (await cookies()).get(QA_VIEW_COOKIE_NAME)?.value;
   return qaViewCookie ? { ...withOrg, qaViewCookie } : withOrg;
+}
+
+const listMembershipsForRequest = cache(async (key: string, base: BaseOsAuth) => {
+  void key;
+  return (await createOsApiClient(base).listSessionOrganizations()).organizations;
+});
+
+async function selectionForBase(base: BaseOsAuth): Promise<OrganizationSelection> {
+  const key = base.mode === 'supabase' ? `supabase:${base.accessToken}` : `dev:${base.session.authIdentityId}`;
+  const organizations = await listMembershipsForRequest(key, base);
+  const previous = (await cookies()).get(SELECTED_ORGANIZATION_COOKIE)?.value;
+  return resolveOrganizationSelection(organizations, previous);
+}
+
+/** Organization options and current selection for the authenticated layout. */
+export async function getServerOrganizationSelection(): Promise<OrganizationSelection | null> {
+  const base = await getBaseOsAuth();
+  return base ? selectionForBase(base) : null;
+}
+
+/**
+ * Switches the organization. Accepted only when os-api lists it as one of the
+ * caller's active memberships; the selector is re-validated on every request.
+ */
+export async function selectOrganizationAction(
+  formData: FormData,
+): Promise<{ error?: string; redirectTo?: string }> {
+  const requested = String(formData.get('organizationId') ?? '').trim();
+  const selection = await getServerOrganizationSelection().catch(() => null);
+  if (!selection || selection.state === 'none') {
+    return { error: t('login.errorNoMembership') };
+  }
+  if (!isSelectableOrganization(selection.organizations, requested)) {
+    return { error: 'Esa empresa no está disponible para su cuenta.' };
+  }
+  persistSelectedOrganization(await cookies(), requested);
+  return { redirectTo: DEFAULT_POST_LOGIN };
 }
 
 

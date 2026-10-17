@@ -1,0 +1,18 @@
+mutation: web-auto-picks-first-org
+file: apps/os-web/lib/auth/organization-selection.ts
+exit: 1
+  ✔ no membership is an honest no-access state, never a default org (0.727208ms)
+  ✔ one membership is used, even over a stale or tampered previous choice (0.088917ms)
+  ✔ several memberships keep a still-valid previous choice (0.064791ms)
+  ✖ several memberships without a choice require one (1.888542ms)
+  ✖ several memberships with a stale or tampered choice require a new one (0.252375ms)
+  ✔ a switch is accepted only for a current option (0.109041ms)
+  ✔ switching clears unscoped session storage (0.075958ms)
+  ✔ no hard-coded company ids remain in the organization path (1.032958ms)
+  ✔ the Journey never changes organization or data mode (0.544834ms)
+✖ Review R3 organization selection (F09) (5.38875ms)
+ℹ pass 7
+ℹ fail 2
+✖ failing tests:
+✖ several memberships without a choice require one (1.888542ms)
+✖ several memberships with a stale or tampered choice require a new one (0.252375ms)

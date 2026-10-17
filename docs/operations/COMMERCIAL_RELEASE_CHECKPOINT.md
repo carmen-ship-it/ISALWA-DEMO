@@ -10,12 +10,15 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | T03 | IN_PROGRESS (part 1 `3183c36`; part 2 `1d20081`; part 3 `7f9286f`; not complete) | `receipts/T03.md` (partial) | `commercial-release/evidence/T03/part2/` (run4), `part3/` (run5 all green, HTTP + Postgres, 2 mutation checks) |
 | R1 (review: grant provisioning F03/F04) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 2 mutation checks; NOT INDEPENDENTLY REVIEWED) | see git log `fix(workforce): R1` | `commercial-release/receipts/REVIEW-R1.md` |
 | R2 (review: effective delegation F10, grant/team range, bootstrap procedure) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 3 mutation checks; NOT INDEPENDENTLY REVIEWED; bootstrap PREPARED, NOT EXECUTED) | see git log `fix(authz): R2` | `commercial-release/receipts/REVIEW-R2.md` |
+| R3 (review: tenant selection F09) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 3 mutation checks; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN) | see git log `fix(tenancy): R3` | `commercial-release/receipts/REVIEW-R3.md` |
 
 ## Last confirmed step
 
 T02 committed: shared customer-visibility predicate (search/detail/contacts/locations/timeline/conversations), duplicate-counterpart redaction, HTTP+PG proof for the 8 remaining operational GETs (ledger pending = 0), Postgres-shared rate limit (`os_rate_limit_buckets`, migration 34) for search/commands/invitations.
 
 ## Next command
+
+R3 done (20:03 §7, §13.8 #3): web organization context comes from proven active membership via `GET /v1/session/organizations`; one → used, several → valid previous choice or chooser, none → honest no-access; tampered/stale selectors refused by os-api; switching clears session storage and reloads; the Journey no longer changes organization or data mode. Next: task 4 read gaps (commitments, work items, approvals; F07, F10 authorship, F11) with HTTP+PG and 404 non-disclosure.
 
 R2 done (20:03 §13.8 #2, 20:39 §1–§4): delegations confer only while the delegator is active and still holds the scope (reads, commands, replays, approval decisions); grants and ChangeManager cannot give reach beyond the grantor's own; initial provisioning procedure prepared and tested with synthetic identities only (execution needs owner-named member + approval); os-web TS5097 repaired. Next: R3 tenant selection (F09).
 

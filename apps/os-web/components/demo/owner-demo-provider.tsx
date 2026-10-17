@@ -10,10 +10,6 @@ import {
   type ReactNode,
 } from 'react';
 import {
-  companyForDemoDataMode,
-  saveOwnerEffectiveCompanyCookie,
-} from '@/lib/demo/owner-company-context';
-import {
   DEMO_DATA_MODE_STORAGE_KEY,
   loadDemoDataMode,
   saveDemoDataMode,
@@ -71,34 +67,30 @@ export function OwnerDemoProvider({
     const params = new URLSearchParams(window.location.search);
     const storyRequested = params.get('story') === '1' && canUseOwnerDemo;
     const datos = params.get('datos')?.trim().toLowerCase();
-    // Explicit ?datos=demo|real wins; Story forces demo; else last local choice.
+    // Explicit ?datos=demo|real wins; else last local choice. Opening the
+    // Journey never changes organization or data mode.
     let mode: DemoDataMode = loadDemoDataMode(window.localStorage);
-    if (storyRequested || datos === 'demo') mode = 'demo';
+    if (datos === 'demo') mode = 'demo';
     else if (datos === 'real') mode = 'real';
     if (storyRequested) setStoryOpen(true);
     setDataModeState(mode);
-    // Keep cookie + localStorage aligned so SSR desks honor the same mode across nav.
     saveDemoDataMode(window.localStorage, mode);
-    saveOwnerEffectiveCompanyCookie(companyForDemoDataMode(mode));
     setReady(true);
   }, [canUseOwnerDemo]);
 
   const setDataMode = useCallback((mode: DemoDataMode) => {
     setDataModeState(mode);
     saveDemoDataMode(window.localStorage, mode);
-    saveOwnerEffectiveCompanyCookie(companyForDemoDataMode(mode));
   }, []);
 
   const openStory = useCallback(() => {
-    setDataMode('demo');
     setStoryOpen(true);
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
-      url.searchParams.set('datos', 'demo');
       url.searchParams.set('story', '1');
       window.history.replaceState({}, '', url.toString());
     }
-  }, [setDataMode]);
+  }, []);
 
   const closeStory = useCallback((options?: CloseStoryOptions) => {
     setStoryOpen(false);

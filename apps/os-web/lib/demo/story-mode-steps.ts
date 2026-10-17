@@ -2,13 +2,9 @@
  * Owner Story Mode — "Recorrido completo de ISALWA" (20 steps).
  * CTAs resolve against seeded DEMO MADERAS ORIENTE ids when available.
  *
- * Demo company context:
- * - App page deep links append `?datos=demo` so SSR desks keep the Demo filter
- *   when Story CTAs navigate (parity with normal Demo navigation intent).
- * - Raw PDF API routes (`/api/.../pdf`) are left unchanged — they are session/
- *   auth scoped downloads, not app pages.
- * - Effective company cookie (Demo → SYNTH org among memberships) is set by
- *   OwnerDemoProvider (OA-1). This module does not rewrite the company resolver.
+ * The Journey never changes organization or data mode: step links carry no
+ * `datos=` parameter, so the person's current organization and Demo / Datos
+ * reales choice stay as they were when the Journey opened.
  */
 
 import type { DemoSeedIdMap } from '@/lib/demo/owner-demo-registry';
@@ -36,8 +32,8 @@ export function isStoryPdfApiHref(href: string): boolean {
 }
 
 /**
- * Append `datos=demo` to Story Mode app-page CTAs.
- * Leaves null and raw PDF API hrefs unchanged.
+ * Append `datos=demo` to an app-page href when the person chose Demo themselves
+ * (shell navigation). Leaves null and raw PDF API hrefs unchanged.
  */
 export function withStoryDemoDatos(href: string | null): string | null {
   if (href == null) return null;
@@ -49,7 +45,7 @@ export function withStoryDemoDatos(href: string | null): string | null {
 function storyHref(
   build: (ids: DemoSeedIdMap | null) => string | null,
 ): StoryModeStep['hrefFor'] {
-  return (ids) => withStoryDemoDatos(build(ids));
+  return (ids) => build(ids);
 }
 
 export const STORY_MODE_STEPS: readonly StoryModeStep[] = [

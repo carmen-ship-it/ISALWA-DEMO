@@ -1,14 +1,16 @@
 'use client';
 
 import { useEffect, useId, useRef, useState, useTransition } from 'react';
+import Link from 'next/link';
 import { signOutAction } from '@/lib/auth/actions';
 import { t } from '@/lib/i18n/es';
 
 type UserMenuProps = {
   displayLabel: string;
+  canSwitchOrganization?: boolean;
 };
 
-export function UserMenu({ displayLabel }: UserMenuProps) {
+export function UserMenu({ displayLabel, canSwitchOrganization = false }: UserMenuProps) {
   const label = displayLabel.trim() || 'Usuario';
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -96,6 +98,16 @@ export function UserMenu({ displayLabel }: UserMenuProps) {
         >
           <p className="isalwa-kicker px-2">{t('account.signedInAs')}</p>
           <p className="mt-2 break-words px-2 text-sm text-[var(--isalwa-kiln)]">{label}</p>
+          {canSwitchOrganization ? (
+            <Link
+              href="/empresa"
+              role="menuitem"
+              className="isalwa-t-fast mt-3 block w-full rounded-[var(--isalwa-radius-control)] px-2 py-2.5 text-left text-sm text-[var(--isalwa-kiln)] hover:bg-[var(--isalwa-mist)] focus-visible:outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+              onClick={() => setOpen(false)}
+            >
+              Cambiar empresa
+            </Link>
+          ) : null}
           <button
             ref={signOutRef}
             type="button"

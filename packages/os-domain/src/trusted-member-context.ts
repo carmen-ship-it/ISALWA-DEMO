@@ -187,6 +187,56 @@ function selectMember(
   return denied('AUTH_REQUIRED');
 }
 
+async function provenPerson(
+  reader: Pick<TrustedMembershipReader, 'findAuthIdentityByProviderSubject'>,
+  rawProvider: string,
+  rawProviderSubject: string,
+): Promise<{ ok: false; denial: TrustedContextDenial } | { personId: string; authIdentityId: string }> {
+  const authRequired = { ok: false as const, denial: 'AUTH_REQUIRED' as const };
+  const provider = text(rawProvider);
+  const providerSubject = text(rawProviderSubject);
+  if (!provider || !providerSubject) return authRequired;
+
+  const identity = await reader.findAuthIdentityByProviderSubject(provider, providerSubject);
+  if (!identity || identity.status !== ACTIVE_ACCESS) return authRequired;
+  const personId = text(identity.personId);
+  const authIdentityId = text(identity.id);
+  if (!personId || !authIdentityId) return authRequired;
+  if (text(identity.providerSubject) !== providerSubject) return authRequired;
+  return { personId, authIdentityId };
+}
+
+export type EligibleMembershipsResult =
+  | { ok: true; organizationIds: string[] }
+  | { ok: false; denial: TrustedContextDenial };
+
+/**
+ * Organizations the proven person may select. Uses the same identity proof and
+ * membership lifecycle rules as resolveTrustedMemberContext. Returns no member
+ * ids, roles or scopes; selection is still re-validated on every request.
+ */
+export async function listEligibleOrganizations(
+  reader: Pick<TrustedMembershipReader, 'findAuthIdentityByProviderSubject' | 'listMembersForPerson'>,
+  input: { provider: string; providerSubject: string },
+): Promise<EligibleMembershipsResult> {
+  const proven = await provenPerson(reader, input.provider, input.providerSubject);
+  if (!('personId' in proven)) return proven;
+  const own = (await reader.listMembersForPerson(proven.personId)).filter(
+    (member) => member.personId === proven.personId,
+  );
+  const organizationIds = [
+    ...new Set(
+      own
+        .filter((member) => text(member.id) && text(member.organizationId) && lifecycleDenial(member) === null)
+        .map((member) => text(member.organizationId)),
+    ),
+  ].sort();
+  if (organizationIds.length === 0 && own.some((member) => lifecycleDenial(member) === 'MEMBER_INACTIVE')) {
+    return { ok: false, denial: 'MEMBER_INACTIVE' };
+  }
+  return { ok: true, organizationIds };
+}
+
 /**
  * Resolves the member and grants for an already-proven provider subject.
  * `organizationId`, `grantedScopes`, `cargo`, and `title` are not inputs.
@@ -199,16 +249,9 @@ export async function resolveTrustedMemberContext(
   void input.grantedScopes;
   void scopesGrantedByCargoOrTitle(input.cargo, input.title);
 
-  const provider = text(input.provider);
-  const providerSubject = text(input.providerSubject);
-  if (!provider || !providerSubject) return denied('AUTH_REQUIRED');
-
-  const identity = await reader.findAuthIdentityByProviderSubject(provider, providerSubject);
-  if (!identity || identity.status !== ACTIVE_ACCESS) return denied('AUTH_REQUIRED');
-  const personId = text(identity.personId);
-  const authIdentityId = text(identity.id);
-  if (!personId || !authIdentityId) return denied('AUTH_REQUIRED');
-  if (text(identity.providerSubject) !== providerSubject) return denied('AUTH_REQUIRED');
+  const proven = await provenPerson(reader, input.provider, input.providerSubject);
+  if (!('personId' in proven)) return proven;
+  const { personId, authIdentityId } = proven;
 
   const selected = selectMember(personId, await reader.listMembersForPerson(personId));
   if (!('id' in selected)) return selected;

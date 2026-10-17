@@ -5,9 +5,11 @@ import { ShellNotificationSlot } from '@/components/shell/shell-notification-slo
 import {
   AccessDeniedState,
   AccountInactiveState,
+  NoOrganizationState,
   ServiceUnavailableState,
   SessionExpiredState,
 } from '@/components/states/app-states';
+import { OrganizationChooser } from '@/components/auth/organization-chooser';
 import { QaViewBanner } from '@/components/qa/qa-view-banner';
 import { PreserveExplicitDataMode } from '@/components/demo/preserve-explicit-data-mode';
 import { loadShellContext } from '@/lib/shell/load-shell-context';
@@ -42,6 +44,22 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
     );
   }
 
+  if (shell.osAccess === 'no-organization') {
+    return (
+      <PageContainer label="Sin empresa" className="flex min-h-screen items-center justify-center">
+        <NoOrganizationState />
+      </PageContainer>
+    );
+  }
+
+  if (shell.osAccess === 'choose-organization') {
+    return (
+      <PageContainer label="Elegir empresa" className="flex min-h-screen items-center justify-center">
+        <OrganizationChooser organizations={shell.organizations} />
+      </PageContainer>
+    );
+  }
+
   if (shell.osAccess === 'unavailable') {
     return (
       <PageContainer label="Servicio no disponible" className="flex min-h-screen items-center justify-center">
@@ -64,6 +82,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
         grantedScopes={shell.grantedScopes}
         capabilities={shell.capabilities}
         asesorOptions={shell.asesorOptions}
+        canSwitchOrganization={shell.organizations.length > 1}
         notificationSlot={<ShellNotificationSlot />}
       >
         {children}

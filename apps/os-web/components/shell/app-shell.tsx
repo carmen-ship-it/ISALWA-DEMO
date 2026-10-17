@@ -78,6 +78,8 @@ type AppShellProps = {
   notificationSlot?: ReactNode;
   /** Person-specific Asesor options for Vista de evaluación. */
   asesorOptions?: readonly { memberId: string; label: string }[];
+  /** True only when the person has more than one proven membership. */
+  canSwitchOrganization?: boolean;
 };
 
 export function AppShell({
@@ -91,6 +93,7 @@ export function AppShell({
   capabilities,
   notificationSlot,
   asesorOptions = [],
+  canSwitchOrganization = false,
 }: AppShellProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -295,7 +298,7 @@ export function AppShell({
                   {showRolePreview ? <VerEjemploCompletoButton /> : null}
                   <RolePreviewDesktopControl grantedScopes={grantedScopes} />
                   {notificationSlot}
-                  <UserMenu displayLabel={actorLabel} />
+                  <UserMenu displayLabel={actorLabel} canSwitchOrganization={canSwitchOrganization} />
                 </div>
               </header>
 

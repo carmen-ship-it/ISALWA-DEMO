@@ -21,13 +21,13 @@ export function InicioOwnerDemoCard() {
         ¿Quiere ver ISALWA con un proceso completo?
       </p>
       <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-        Un recorrido guiado con datos DEMO · ficticios. No altera clientes reales.
+        Un recorrido guiado. No cambia su empresa ni el modo de datos, y no altera clientes reales.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         <Button type="button" variant="primary" size="sm" onClick={openStory}>
           Ver recorrido completo
         </Button>
-        <Link href="/inicio?datos=demo&story=1" className="inline-flex">
+        <Link href="/inicio?story=1" className="inline-flex">
           <Button type="button" variant="tertiary" size="sm">
             Abrir con enlace
           </Button>
