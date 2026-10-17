@@ -43,6 +43,32 @@ Status values: **ALREADY FIXED** (fixed after the reviewed snapshot, with eviden
 | Steward lookup without commercial read | 2bdc81a | `7f9286f` `master-data.controller.ts` | ALREADY FIXED (API); UI entry pending (§2) | 19:30, §2 | T03 part 3 / UI task | HTTP test 9 |
 | people.admin / master_data.admin commercial command bypass | 2bdc81a | removed in T03 parts 1–2 (`receipts/T03.md` §3.4) | ALREADY FIXED for commercial commands | §2 | T03 | `evidence/T03/part2/run4-*` |
 
+## Re-review R3 / R2 follow-up (`RE-REVIEW_R3_R2F.md`, 22:29 decision 5)
+
+- Source: `isalwa-review-evidence/INDEPENDENT_REVIEW_20261016-192946/RE-REVIEW_R3_R2F.md`, SHA256 `8a96ef88fc30e582bc3aa86d07d67b4b3d865f532b3024b9cd06b2f80296b27a`. Reviewed `78003ff` and `ce74648`.
+- **Method limit:** the reviewer checked the tested-source manifests against `git archive` exports (24/24, 29/29) and inspected source. Nothing was run in that review: no tests, HTTP, database, browser or hosted environment. Every behavior and test count there is a source reading or a builder claim. Nothing below is independently runtime-verified.
+
+| Re-review item | Review status | Placement | Builder state now | Still open |
+|---|---|---|---|---|
+| §2.1 company selection (F09) | Resolved (source) | R3 `78003ff` | unchanged | Browser verification |
+| §2.2 #1 Journey "DEMO · ficticio" badge on real data | Partially resolved | R4 Journey `da6c7e4` (decision 3) | badge and seed targets removed; heading "Recorrido de ISALWA"; no tenant/demo selection | Browser verification |
+| §2.2 #2 Journey steps seeded against SYNTH ids | Partially resolved | R4 Journey `da6c7e4`; content T20 | steps now link generic authorized pages only | Journey content T20; browser verification |
+| §2.2 #3–4 owner-demo gate and data-mode cookie | Out of F09 scope | T10/T11 (REUSE_MAP §11) | unchanged | Full removal in T10/T11 |
+| §3 delegation read/write enforcement (F10 delegation half) | Resolved (source) | R2 follow-up `ce74648` | unchanged | Runtime review |
+| §4 reinstatement revives pre-`ce74648` delegations | Residual reachable in product | R4 reactivation `0316531` (decision 1); backfill proposal `cc47c68` (22:20 §3) | ActivateMember ends previous-lifecycle delegations and received coverage atomically; dry-run backfill ready | **Backfill execution** (needs authorization); runtime review |
+| §4 coverage on suspension (receipt-only in review) | Unverified by reviewer | R4 corrections `3520dfe` | suspension/termination end coverage without blocking | Runtime review; browser verification of copy |
+| §5 role change preserves additional grants (F04 residual) | Resolved (source) | R2 follow-up `ce74648`; R4 corrections `3520dfe` | additional grants only via explicit GrantAdditionalRole | Browser verification of form |
+| §5 P3 preview shows plans the command refuses | Note | R4 role-change preview `a8a3307` (decision 4) | same authorization as execution; reason shown; confirm disabled | Browser verification |
+| §6 bootstrap scope bounds | Resolved (source) | R2 follow-up `ce74648` | kept | — |
+| §6 provisioning-order constraint (F04) | New, owner plan needed | R4 provisioning plan `71d048a` (decision 2, recommendation (i)) | one approved multi-holder plan; no people.admin needed | **Bootstrap execution** (owner-named holders + authorization); advisor grants still need a people.admin + scope holder |
+| §6 `customer_data_steward` naming | Note, not security | open | unchanged | Naming decision |
+| §7 F10 authorship half | Unresolved | R4 read gaps (next) | not started | Implementation + review |
+| §7 F01 self-approval | Unresolved | T04 | not started | Implementation + review |
+| §7 F03 grant escalation | Resolved (source) | R1/R2 | unchanged | Runtime review |
+| §7 regression note: `os-delivery` → `os-domain` link (+3 lockfile lines) | Not built by reviewer | R2 follow-up `ce74648` | builds in every builder run since | Independent build |
+
+**Explicitly open after R4 so far:** browser verification (R3 chooser/switch/no-access, Journey, role-change form, coverage copy); backfill execution; bootstrap execution; independent runtime verification of R1–R4; hosted grants (UNVERIFIED).
+
 ## Unresolved evidence (exact)
 
 - Reviewer's direct read of three web files was rejected in their session (REVIEW_SCOPE §8). This builder read the same files in current source without rejection; F09 is now verified at `0667eb6`.
