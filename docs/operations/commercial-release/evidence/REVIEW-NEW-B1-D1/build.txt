@@ -1,0 +1,1 @@
+os-query pnpm run build: exit 0

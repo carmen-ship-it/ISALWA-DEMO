@@ -1,0 +1,5 @@
+e7498380f32314b1b9ae7500ed808ba27b84e0bdab09ceb2f9060ca2c08ca79a  packages/os-query/src/commercial/commercial-query-service.ts
+7aa80c02c22cd52ed249ad5e2fcb8af0839a91e0cf6f300433a5f242a94322d7  packages/os-query/src/commercial/order-owner-eval-read.test.ts
+275ebcc38b35fc964822c412ec3d1b2d556072cb929c5664baeec14c3d1f35bd  packages/os-query/src/leadership/leadership-visibility.test.ts
+debcb0eee8667aa11ba1e716b98591ca9debcb71bf7b05cb7d2d2273ecf6bdb1  apps/os-api/src/review-new-b1-d1-detail-oracle.http.test.ts
+78f266213cc6e65519a59a2069bbb351c31ead554459d823499e805b1cd51a89  apps/os-api/src/review-b1-advisor-provisioning.http.test.ts

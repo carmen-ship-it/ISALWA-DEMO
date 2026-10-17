@@ -146,7 +146,7 @@ describe('RC3 order owner-evaluation reads', () => {
     const asesor = ctx(OTHER_ASESOR, ['member_active']);
     await assert.rejects(
       () => svc.getOrder(asesor, MADERAS_ORDER),
-      (err: Error) => err.message === 'PERMISSION_DENIED',
+      (err: Error) => err.message === 'NOT_FOUND',
     );
   });
 

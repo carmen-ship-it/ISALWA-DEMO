@@ -1,0 +1,16 @@
+  ✔ plan advisor: registers a customer, quotes and converts their own submitted quote; holds nothing administrative (233.626792ms)
+  ✔ plan advisor cannot convert or read another advisor’s quote (no team or organization range) (199.38175ms)
+  ✔ ongoing onboarding: RRHH invites with a job title; neither RRHH nor the Gerente alone can grant; RRHH delegates people.admin and the Gerente grants (230.264291ms)
+✔ B1 advisor provisioning and onboarding over HTTP (disposable Postgres) (853.969292ms)
+  ✔ owner and team manager read every detail (79.908083ms)
+  ✔ a peer advisor and people.admin get exactly the missing-id answer (80.327459ms)
+✔ NEW-B1-D1 commercial detail has no existence oracle (disposable Postgres) (483.463584ms)
+ℹ tests 5
+ℹ suites 2
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2493.499542
+exit 0

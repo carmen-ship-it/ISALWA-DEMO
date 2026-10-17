@@ -1,0 +1,3 @@
+packages/os-query tsc --noEmit: exit 0
+apps/os-api tsc --noEmit: exit 0
+apps/os-web tsc --noEmit: exit 0

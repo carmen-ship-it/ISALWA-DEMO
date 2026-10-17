@@ -252,7 +252,8 @@ export class CommercialQueryService {
       opportunityId,
     );
     if (!model) throw new Error('NOT_FOUND');
-    if (!(await this.canReadRecord(ctx, model))) throw new Error('PERMISSION_DENIED');
+    // An unreadable record answers exactly like a missing id (no existence oracle).
+    if (!(await this.canReadRecord(ctx, model))) throw new Error('NOT_FOUND');
     return { opportunity: toOpportunitySummary(model), freshness: await this.freshness(ctx.organizationId) };
   }
 
@@ -291,7 +292,8 @@ export class CommercialQueryService {
     assertQueryScope(ctx, 'member_active');
     const model = await this.deps.projectionStore.getQuoteReadModel(ctx.organizationId, quoteId);
     if (!model) throw new Error('NOT_FOUND');
-    if (!(await this.canReadRecord(ctx, model))) throw new Error('PERMISSION_DENIED');
+    // An unreadable record answers exactly like a missing id (no existence oracle).
+    if (!(await this.canReadRecord(ctx, model))) throw new Error('NOT_FOUND');
 
     const lines = await this.deps.projectionStore.listQuoteLineReadModels(ctx.organizationId, quoteId);
     const detail: QuoteDetailReadModel = {
@@ -342,7 +344,8 @@ export class CommercialQueryService {
     assertQueryScope(ctx, 'member_active');
     const model = await this.deps.projectionStore.getOrderReadModel(ctx.organizationId, orderId);
     if (!model) throw new Error('NOT_FOUND');
-    if (!(await this.canReadRecord(ctx, model))) throw new Error('PERMISSION_DENIED');
+    // An unreadable record answers exactly like a missing id (no existence oracle).
+    if (!(await this.canReadRecord(ctx, model))) throw new Error('NOT_FOUND');
     const storedLines = this.deps.listOrderLines
       ? await this.deps.listOrderLines(ctx.organizationId, orderId)
       : null;

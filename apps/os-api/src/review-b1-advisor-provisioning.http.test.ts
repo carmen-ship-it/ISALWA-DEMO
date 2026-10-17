@@ -165,9 +165,8 @@ describeHttp('B1 advisor provisioning and onboarding over HTTP (disposable Postg
     await own.text();
     assert.equal(own.status, 200, 'the route answers for the owner');
     const read = await fetch(`${baseUrl}/v1/quotes/${state.otherQuote}`, { headers: headers(m.asesor!) });
-    const body = await read.text();
-    assert.notEqual(read.status, 200);
-    assert.equal(body.includes(state.otherQuote), false, 'no quote data in the refusal');
+    const missing = await fetch(`${baseUrl}/v1/quotes/${createId()}`, { headers: headers(m.asesor!) });
+    assert.deepEqual([read.status, await read.text()], [missing.status, await missing.text()], 'same answer as a missing id (NEW-B1-D1)');
   });
 
   it('ongoing onboarding: RRHH invites with a job title; neither RRHH nor the Gerente alone can grant; RRHH delegates people.admin and the Gerente grants', async () => {

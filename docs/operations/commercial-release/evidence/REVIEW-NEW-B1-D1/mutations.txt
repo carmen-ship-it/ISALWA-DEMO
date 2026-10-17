@@ -1,0 +1,17 @@
+M: getOpportunity answers PERMISSION_DENIED for an unreadable record
+  os-query: ℹ pass 112
+  os-query: ℹ fail 2
+  http: ℹ pass 1
+  http: ℹ fail 1
+M: getQuote answers PERMISSION_DENIED for an unreadable record
+  os-query: ℹ pass 113
+  os-query: ℹ fail 1
+  http: ℹ pass 1
+  http: ℹ fail 1
+M: getOrder answers PERMISSION_DENIED for an unreadable record
+  os-query: ℹ pass 113
+  os-query: ℹ fail 1
+  http: ℹ pass 1
+  http: ℹ fail 1
+rebuild after restore: exit 0
+restored: sha256 verified (e7498380f32314b1b9ae7500ed808ba27b84e0bdab09ceb2f9060ca2c08ca79a)

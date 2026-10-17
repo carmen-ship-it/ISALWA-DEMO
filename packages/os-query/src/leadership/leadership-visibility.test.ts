@@ -393,7 +393,7 @@ describe('pilot leadership visibility', () => {
     );
     await assert.rejects(
       () => service.getOpportunity(sales, 'opp-report'),
-      (err: Error) => err.message === 'PERMISSION_DENIED',
+      (err: Error) => err.message === 'NOT_FOUND',
     );
   });
 
@@ -417,7 +417,7 @@ describe('pilot leadership visibility', () => {
 
     await assert.rejects(
       () => service.getOpportunity(jefe, 'opp-other'),
-      (err: Error) => err.message === 'PERMISSION_DENIED',
+      (err: Error) => err.message === 'NOT_FOUND',
     );
     await assert.rejects(
       () => service.listOpportunities(jefe, { limit: 25, visibility: 'team', ownerMemberId: OTHER }),
@@ -444,7 +444,7 @@ describe('pilot leadership visibility', () => {
     assert.equal(existing.items.some((item) => item.opportunityId === 'opp-other'), false);
     await assert.rejects(
       () => service.getQuote(admin, 'q-other'),
-      (err: Error) => err.message === 'PERMISSION_DENIED',
+      (err: Error) => err.message === 'NOT_FOUND',
     );
   });
 
