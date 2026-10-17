@@ -39,6 +39,10 @@ describe('retired demo data mode stays retired', () => {
     assert.deepEqual(offenders(/demoPrices|DEMO_STARTER_PRICES|demo-starter-prices/), []);
   });
 
+  it('no production file mounts or stores the learning mode switch', () => {
+    assert.deepEqual(offenders(/LearningModeToggle|learningModeEnabled|LEARNING_MODE_COPY|setLearningMode/), []);
+  });
+
   it('the Journey provider never touches data mode, organization or storage', () => {
     const provider = readFileSync(join(ROOT, 'components/journey/journey-provider.tsx'), 'utf8');
     assert.doesNotMatch(provider, /dataMode|datos|document\.cookie|localStorage|sessionStorage|organizationId|orgId|selectOrganization|switchOrganization/);

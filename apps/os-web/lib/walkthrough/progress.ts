@@ -1,8 +1,8 @@
-import { GUIDE_CHROME, INTRO_COPY, LEARNING_MODE_COPY, PAGE_MICRO_TOURS } from './copy';
+import { GUIDE_CHROME, INTRO_COPY, PAGE_MICRO_TOURS } from './copy';
 
 /**
  * Browser-local onboarding cursor. Not a tenant record: no organization, customer, or order fields.
- * Version 2 adds first-use intro welcome and learning mode.
+ * Version 2 adds the first-use intro welcome.
  */
 export type GuideRecord = {
   version: 2;
@@ -16,7 +16,6 @@ export type GuideRecord = {
   introCompleted: boolean;
   introSkipped: boolean;
   introStepIndex: number;
-  learningModeEnabled: boolean;
   pageTourSeen: Record<string, boolean>;
 };
 
@@ -31,7 +30,6 @@ export function initialGuideRecord(): GuideRecord {
     introCompleted: false,
     introSkipped: false,
     introStepIndex: 0,
-    learningModeEnabled: false,
     pageTourSeen: {},
   };
 }
@@ -45,7 +43,6 @@ export function migrateV1ToV2(
     | 'introCompleted'
     | 'introSkipped'
     | 'introStepIndex'
-    | 'learningModeEnabled'
     | 'pageTourSeen'
   > & { version: 1 },
 ): GuideRecord {
@@ -72,7 +69,6 @@ export function resumeGuide(record: GuideRecord, _pathname: string): GuideRecord
     introCompleted: record.introCompleted,
     introSkipped: record.introSkipped,
     introStepIndex: record.introStepIndex,
-    learningModeEnabled: record.learningModeEnabled,
     pageTourSeen: { ...record.pageTourSeen },
   };
 }
@@ -116,20 +112,6 @@ export function replayIntro(record: GuideRecord): GuideRecord {
   };
 }
 
-export function toggleLearningMode(record: GuideRecord): GuideRecord {
-  return {
-    ...record,
-    learningModeEnabled: !record.learningModeEnabled,
-  };
-}
-
-export function setLearningMode(record: GuideRecord, enabled: boolean): GuideRecord {
-  return {
-    ...record,
-    learningModeEnabled: enabled,
-  };
-}
-
 export function markPageTourSeen(record: GuideRecord, pageId: string): GuideRecord {
   return {
     ...record,
@@ -168,9 +150,6 @@ export function collectGuideCopy(): string[] {
     INTRO_COPY.ayuda.finalSecondary,
     INTRO_COPY.ayuda.cta,
     ...INTRO_COPY.ayuda.affordances,
-    LEARNING_MODE_COPY.label,
-    LEARNING_MODE_COPY.description,
-    LEARNING_MODE_COPY.secondary,
   );
   for (const tour of PAGE_MICRO_TOURS) {
     for (const step of tour.steps) {

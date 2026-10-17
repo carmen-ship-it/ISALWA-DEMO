@@ -5,10 +5,9 @@ import { GUIDE_CHROME, INTRO_COPY } from '@/lib/walkthrough/copy';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import { useJourney } from '@/components/journey/journey-provider';
 import { useGuide } from './guide-provider';
-import { LearningModeToggle } from './learning-mode-toggle';
 
 /**
- * Ayuda affordances: welcome replay + Recorrido completo + learning mode.
+ * Ayuda affordances: welcome replay + Recorrido completo.
  * Recorrido completo is the only multi-step guided walkthrough.
  */
 export function WalkthroughHelpPanel() {
@@ -49,10 +48,6 @@ export function WalkthroughHelpPanel() {
           </div>
         </div>
       ) : null}
-
-      <div className="border-t border-[var(--isalwa-mist)] pt-6">
-        <LearningModeToggle />
-      </div>
     </Panel>
   );
 }

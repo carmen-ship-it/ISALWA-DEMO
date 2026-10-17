@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it } from 'node:test';
-import { GUIDE_CHROME, INTRO_COPY, LEARNING_MODE_COPY, PAGE_MICRO_TOURS, canViewMicroTour, getMicroTourForPage } from './copy';
+import { GUIDE_CHROME, INTRO_COPY, PAGE_MICRO_TOURS, canViewMicroTour, getMicroTourForPage } from './copy';
 import { handleGuideEscape, restoreHeadingFocus, type GuideDoc, type GuideFocusable } from './focus';
 import { JOURNEYS, journeysForViewer } from './journeys';
 import {
@@ -25,10 +25,8 @@ import {
   replayIntro,
   resetGuide,
   resumeGuide,
-  setLearningMode,
   skipIntro,
   startIntro,
-  toggleLearningMode,
 } from './progress';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -320,7 +318,7 @@ describe('modo guiado', () => {
     assert.match(help, /Recorrido completo/);
     assert.doesNotMatch(help, /Story Mode/);
     assert.match(help, /openStory/);
-    assert.match(help, /LearningModeToggle/);
+    assert.doesNotMatch(help, /LearningModeToggle|learning-mode|Modo aprendizaje/i);
   });
 
   it('deletes obsolete walkthrough entry points', () => {
@@ -354,7 +352,7 @@ describe('first-use intro', () => {
     assert.equal(record.introCompleted, false);
     assert.equal(record.introSkipped, false);
     assert.equal(record.introStepIndex, 0);
-    assert.equal(record.learningModeEnabled, false);
+    assert.equal('learningModeEnabled' in record, false);
     assert.deepEqual(record.pageTourSeen, {});
   });
 
@@ -431,40 +429,28 @@ describe('first-use intro', () => {
   });
 });
 
-describe('learning mode', () => {
-  it('toggleLearningMode flips the enabled state', () => {
-    const record = initialGuideRecord();
-    assert.equal(record.learningModeEnabled, false);
-    
-    const enabled = toggleLearningMode(record);
-    assert.equal(enabled.learningModeEnabled, true);
-    
-    const disabled = toggleLearningMode(enabled);
-    assert.equal(disabled.learningModeEnabled, false);
+describe('learning mode is retired', () => {
+  it('the help panel no longer renders a learning mode switch', () => {
+    const help = readFileSync(join(here, '../../components/walkthrough/walkthrough-help-panel.tsx'), 'utf8');
+    assert.doesNotMatch(help, /LearningModeToggle|learning-mode|aprendizaje/i);
+    assert.throws(
+      () => readFileSync(join(here, '../../components/walkthrough/learning-mode-toggle.tsx'), 'utf8'),
+      /ENOENT/,
+    );
+    assert.doesNotMatch(collectGuideCopy().join(' '), /Modo aprendizaje/i);
   });
 
-  it('setLearningMode sets a specific state', () => {
-    const record = initialGuideRecord();
-    
-    const enabled = setLearningMode(record, true);
-    assert.equal(enabled.learningModeEnabled, true);
-    
-    const stillEnabled = setLearningMode(enabled, true);
-    assert.equal(stillEnabled.learningModeEnabled, true);
-    
-    const disabled = setLearningMode(stillEnabled, false);
-    assert.equal(disabled.learningModeEnabled, false);
-  });
-
-  it('learning mode copy is jargon-free', () => {
-    const copy = [
-      LEARNING_MODE_COPY.label,
-      LEARNING_MODE_COPY.description,
-      LEARNING_MODE_COPY.secondary,
-    ].join(' ');
-    
-    assert.doesNotMatch(copy, /Gate\s+[A-Z]|finance\.operational|scope|auth|provider/i);
-    assert.match(copy, /aprendizaje/i);
+  it('ignores a stored learning mode value on read and never writes it back', () => {
+    const scope = '01ORG:01MEM_LEARN';
+    const key = guideStorageKey(scope)!;
+    const store = memoryStore({
+      [key]: JSON.stringify({ ...initialGuideRecord(), introCompleted: true, learningModeEnabled: true }),
+    });
+    const loaded = loadGuide(store, scope);
+    assert.equal(loaded.introCompleted, true);
+    assert.equal('learningModeEnabled' in loaded, false);
+    saveGuide(store, loaded, scope);
+    assert.equal('learningModeEnabled' in JSON.parse(store.getItem(key) ?? '{}'), false);
   });
 });
 

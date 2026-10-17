@@ -1,4 +1,4 @@
-export { GUIDE_CHROME, INTRO_COPY, LEARNING_MODE_COPY } from './copy';
+export { GUIDE_CHROME, INTRO_COPY } from './copy';
 export { findPageHeading, handleGuideEscape, restoreHeadingFocus } from './focus';
 export type { GuideDoc, GuideFocusable } from './focus';
 export {
@@ -11,10 +11,8 @@ export {
   replayIntro,
   resetGuide,
   resumeGuide,
-  setLearningMode,
   skipIntro,
   startIntro,
-  toggleLearningMode,
 } from './progress';
 export type { GuideRecord } from './progress';
 export {

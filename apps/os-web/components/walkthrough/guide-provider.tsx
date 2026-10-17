@@ -19,10 +19,8 @@ import {
   replayIntro,
   resetGuide,
   resumeGuide,
-  setLearningMode,
   skipIntro,
   startIntro,
-  toggleLearningMode,
   type GuideRecord,
 } from '@/lib/walkthrough/progress';
 
@@ -39,8 +37,6 @@ type GuideContextValue = {
   startIntro: () => void;
   skipIntro: () => void;
   replayIntro: () => void;
-  toggleLearningMode: () => void;
-  setLearningMode: (enabled: boolean) => void;
   markPageTourSeen: (pageId: string) => void;
   clearPageTourSeen: (pageId: string) => void;
   hasSeenPageTour: (pageId: string) => boolean;
@@ -95,8 +91,6 @@ export function GuideProvider({
       startIntro: () => commit(startIntro(record)),
       skipIntro: () => commit(skipIntro(record)),
       replayIntro: () => commit(replayIntro(record)),
-      toggleLearningMode: () => commit(toggleLearningMode(record)),
-      setLearningMode: (enabled: boolean) => commit(setLearningMode(record, enabled)),
       markPageTourSeen: (pageId: string) => commit(markPageTourSeen(record, pageId)),
       clearPageTourSeen: (pageId: string) => commit(clearPageTourSeen(record, pageId)),
       hasSeenPageTour: (pageId: string) => hasSeenPageTour(record, pageId),

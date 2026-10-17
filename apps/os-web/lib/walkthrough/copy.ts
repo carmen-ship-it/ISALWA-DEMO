@@ -87,7 +87,6 @@ export const INTRO_COPY = {
     body: 'Cuando entres por primera vez a una sección nueva, ISALWA puede explicarte solamente lo necesario para trabajar ahí.',
     affordances: [
       'Repetir introducción',
-      'Modo aprendizaje',
       'Glosario',
       'Cómo funcionan los accesos',
     ],
@@ -95,14 +94,6 @@ export const INTRO_COPY = {
     finalSecondary: 'El resto lo puedes ir descubriendo mientras trabajas.',
     cta: 'Entrar a ISALWA',
   },
-} as const;
-
-// ---------- Learning Mode copy ----------
-
-export const LEARNING_MODE_COPY = {
-  label: 'Modo aprendizaje',
-  description: 'Actívalo cuando quieras ver explicaciones adicionales mientras trabajas.',
-  secondary: 'Puedes apagarlo cuando ya te sientas cómodo.',
 } as const;
 
 // ---------- Page micro-tour content ----------
