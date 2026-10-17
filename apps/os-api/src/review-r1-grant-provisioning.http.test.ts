@@ -158,7 +158,7 @@ describeHttp('Review R1 grant provisioning over HTTP (disposable Postgres)', () 
 
   it('before provisioning, the candidate cannot edit or quote the customer', async () => {
     const party = await prisma().osParty.findUniqueOrThrow({ where: { id: state.partyId } });
-    const edit = await command('candidate', 'UpdateParty', { partyId: state.partyId, displayName: 'x', expectedVersion: party.version });
+    const edit = await command('candidate', 'UpdateParty', { partyId: state.partyId, displayName: 'x', expectedVersion: party.version, changeReason: 'Prueba' });
     assert.notEqual(edit.status, 201);
     const quote = await command('candidate', 'CreateQuote', { partyId: state.partyId });
     assert.notEqual(quote.status, 201);
@@ -205,6 +205,7 @@ describeHttp('Review R1 grant provisioning over HTTP (disposable Postgres)', () 
       partyId: state.partyId,
       displayName: 'Ferretería Norte SRL R1',
       expectedVersion: party.version,
+      changeReason: 'Prueba',
     });
     assert.equal(edit.status, 201, JSON.stringify(edit.body));
     const quote = await command('candidate', 'CreateQuote', { partyId: state.partyId });
@@ -224,6 +225,7 @@ describeHttp('Review R1 grant provisioning over HTTP (disposable Postgres)', () 
       partyId: state.readPartyId,
       displayName: 'x',
       expectedVersion: party.version,
+      changeReason: 'Prueba',
     });
     assert.deepEqual([edit.status, edit.body], DENIED);
     const quote = await command('readCandidate', 'CreateQuote', { partyId: state.readPartyId });
@@ -243,7 +245,7 @@ describeHttp('Review R1 grant provisioning over HTTP (disposable Postgres)', () 
     }
     assert.deepEqual(await writes(), before);
     const party = await prisma().osParty.findUniqueOrThrow({ where: { id: state.readPartyId } });
-    const edit = await command('candidate', 'UpdateParty', { partyId: state.readPartyId, displayName: 'x', expectedVersion: party.version });
+    const edit = await command('candidate', 'UpdateParty', { partyId: state.readPartyId, displayName: 'x', expectedVersion: party.version, changeReason: 'Prueba' });
     assert.notEqual(edit.status, 201, 'candidate still has no reach over seller2');
   });
 

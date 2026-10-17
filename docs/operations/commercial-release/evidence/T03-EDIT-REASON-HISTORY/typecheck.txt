@@ -1,0 +1,5 @@
+packages/os-contracts tsc --noEmit: exit 0
+packages/os-party tsc --noEmit: exit 0
+packages/os-query tsc --noEmit: exit 0
+apps/os-api tsc --noEmit: exit 0
+apps/os-web tsc --noEmit: exit 0

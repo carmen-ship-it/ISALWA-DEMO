@@ -1,7 +1,9 @@
 import {
   COMMERCIAL_CUSTOMER_CREATE_SCOPE,
   MASTER_DATA_ADMIN_SCOPE,
+  partyChangeNeedsReason,
   resolveAccountAssignmentAuthority,
+  type PartyChangeKind,
   type PartyCommandName,
   type RequestContext,
 } from '@isalwa/os-contracts';
@@ -544,12 +546,16 @@ export class PartyCommandService {
           ? null
           : String(payload.legalName)
         : before.legalName;
+    const changedFields = [
+      ...(displayName !== before.displayName ? ['displayName'] : []),
+      ...((legalName ?? null) !== (before.legalName ?? null) ? ['legalName'] : []),
+    ];
+    const changeKind = (payload.changeKind as PartyChangeKind | undefined) ?? 'update';
+    const reason = typeof payload.changeReason === 'string' ? payload.changeReason.trim() : '';
+    if (partyChangeNeedsReason({ changedFields, changeKind }) && !reason) throw new Error('VALIDATION_FAILED');
+    const version = before.version + 1;
 
-    await store.updateParty(
-      partyId,
-      { displayName, legalName, version: before.version + 1 },
-      expectedVersion,
-    );
+    await store.updateParty(partyId, { displayName, legalName, version }, expectedVersion);
 
     return this.emit(
       ctx,
@@ -557,7 +563,18 @@ export class PartyCommandService {
       'party.updated',
       'party',
       partyId,
-      { partyId, displayName, legalName },
+      {
+        partyId,
+        displayName,
+        legalName,
+        previousDisplayName: before.displayName,
+        previousLegalName: before.legalName ?? null,
+        changedFields: changedFields.join(','),
+        changeKind,
+        reason: reason || null,
+        version,
+        source: 'manual',
+      },
       'party.updated',
       { displayName: before.displayName, legalName: before.legalName },
       { displayName, legalName },

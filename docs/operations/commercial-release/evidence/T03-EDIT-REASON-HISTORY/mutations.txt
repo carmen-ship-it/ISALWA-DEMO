@@ -1,0 +1,28 @@
+c038955f03fb6b8ce103d690f0943444b232d8d2dd00063c824fb50c5a335b77  packages/os-contracts/src/party-commands.ts
+bfe6a312baf8d10535c23696d4281a56cf423990d545194515f58f781a748d33  packages/os-party/src/party-command-service.ts
+350618fe3785c6f9a8d0ca63b4e64923658187cadb81de96c0ead5878ad6beee  packages/os-query/src/party/party-timeline-facts.ts
+d6e8792a4977a00a62fe7cbfa58574f23511302dd89f4baf504debf6241e2fc0  apps/os-web/lib/commercial/timeline-labels.ts
+M1 partyChangeNeedsReason always false
+1
+build-os-contracts=0 party: ℹ pass 34 ℹ fail 2 web: ℹ pass 2 ℹ fail 1 
+build-os-contracts=0 
+M2 server reason check removed
+0
+build-os-party=0 party: ℹ pass 34 ℹ fail 2 http: ℹ pass 8 ℹ fail 2 
+build-os-party=0 
+M3 typo exception extended to legal name
+1
+build-os-contracts=0 party: ℹ pass 35 ℹ fail 1 web: ℹ pass 2 ℹ fail 1 
+build-os-contracts=0 
+M4 reason dropped from timeline allowlist
+2
+build-os-query=0 http: ℹ pass 9 ℹ fail 1 
+build-os-query=0 
+M5 history line drops previous value
+0
+web: ℹ pass 2 ℹ fail 1 
+restored:
+c038955f03fb6b8ce103d690f0943444b232d8d2dd00063c824fb50c5a335b77  packages/os-contracts/src/party-commands.ts
+bfe6a312baf8d10535c23696d4281a56cf423990d545194515f58f781a748d33  packages/os-party/src/party-command-service.ts
+350618fe3785c6f9a8d0ca63b4e64923658187cadb81de96c0ead5878ad6beee  packages/os-query/src/party/party-timeline-facts.ts
+d6e8792a4977a00a62fe7cbfa58574f23511302dd89f4baf504debf6241e2fc0  apps/os-web/lib/commercial/timeline-labels.ts

@@ -1,0 +1,10 @@
+exit 1 (one known timing failure under suite load)
+ℹ tests 300
+ℹ pass 299
+ℹ fail 1
+ℹ skipped 0
+  ✖ a concurrent burst is cut at exactly the limit (14768.968083ms)
+rerun alone: src/request-rate-limit.http.test.ts exit 0
+ℹ tests 3
+ℹ pass 3
+ℹ fail 0

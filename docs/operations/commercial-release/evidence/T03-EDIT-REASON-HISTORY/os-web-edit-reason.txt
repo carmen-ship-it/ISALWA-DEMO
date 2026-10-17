@@ -1,0 +1,4 @@
+  ✔ asks for a reason unless only the name changes as a typo (1.243417ms)
+  ✔ sends kind and trimmed reason; unknown kinds fall back to update (0.519708ms)
+  ✔ history shows old and new values, kind, reason and version; older entries say they have no detail (3.961334ms)
+✔ T03 customer edit with reason and field history (A2 §46) (6.671291ms)

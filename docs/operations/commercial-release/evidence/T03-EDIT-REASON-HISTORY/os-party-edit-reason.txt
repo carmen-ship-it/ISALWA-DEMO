@@ -1,0 +1,3 @@
+  ✔ lets a team lead with commercial.customer.edit edit without owning or covering, recording the actor (0.772417ms)
+  ✔ edits record kind, reason, old and new values and version; reason required except a name typo (A2 §46) (0.923ms)
+  ✔ a legal-name change cannot be marked as a typo to skip the reason (0.311709ms)

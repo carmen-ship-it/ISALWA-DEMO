@@ -158,7 +158,37 @@ function factLine(
   }
 }
 
+const PARTY_CHANGE_KIND_LABELS: Record<string, string> = {
+  update: 'Actualización',
+  correction: 'Corrección',
+  typo: 'Error de escritura',
+};
+
+function factText(value: unknown): string {
+  return typeof value === 'string' && value.trim() ? value : '—';
+}
+
+/** Field history line for a customer edit; entries recorded before T03 carry only the new values. */
+export function partyUpdateSummary(facts: PartyTimelineFacts): string {
+  if (typeof facts.changedFields !== 'string') {
+    return [typeof facts.displayName === 'string' ? `Nombre: ${facts.displayName}` : null, 'Cambio anterior sin detalle']
+      .filter(Boolean)
+      .join(' · ');
+  }
+  const fields = facts.changedFields.split(',').filter(Boolean);
+  const parts: string[] = [];
+  if (fields.includes('displayName')) parts.push(`Nombre: ${factText(facts.previousDisplayName)} → ${factText(facts.displayName)}`);
+  if (fields.includes('legalName')) parts.push(`Razón social: ${factText(facts.previousLegalName)} → ${factText(facts.legalName)}`);
+  if (fields.length === 0) parts.push('Sin cambios de valor');
+  const kind = typeof facts.changeKind === 'string' ? PARTY_CHANGE_KIND_LABELS[facts.changeKind] : undefined;
+  if (kind) parts.push(kind);
+  if (typeof facts.reason === 'string' && facts.reason) parts.push(`Motivo: ${facts.reason}`);
+  if (typeof facts.version === 'number') parts.push(`Versión ${facts.version}`);
+  return parts.join(' · ');
+}
+
 export function timelineEntrySummary(entry: PartyTimelineEntryReadModel): string {
+  if (entry.eventType === 'party.updated') return partyUpdateSummary(entry.facts);
   if (entry.eventType === 'quote.send_recorded') {
     const parts = [timelineEventLabel(entry.eventType, entry.facts)];
     if (typeof entry.facts.quoteNumber === 'string' && entry.facts.quoteNumber) {

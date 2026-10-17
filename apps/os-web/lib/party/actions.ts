@@ -17,6 +17,8 @@ import {
   createCustomerSearchGate,
   PARTY_KINDS_FOR_CUSTOMER,
   parseCoordinatePair,
+  parsePartyChangeKind,
+  partyEditReasonError,
   preserveProvenanceUrl,
 } from '@/lib/party/customer-self-service';
 import { clientesSearchHref, partyHref } from '@/lib/party/navigation';
@@ -101,6 +103,19 @@ export async function updateCustomerAction(formData: FormData): Promise<CommandA
   if (!Number.isInteger(expectedVersion) || expectedVersion < 0) {
     return { ok: false, error: 'No se pudo guardar. Actualice la página e intente de nuevo.' };
   }
+  const changeKind = parsePartyChangeKind(formData.get('changeKind'));
+  const changeReason = String(formData.get('changeReason') ?? '').trim();
+  const reasonError = partyEditReasonError({
+    previous: {
+      displayName: String(formData.get('previousDisplayName') ?? ''),
+      legalName: String(formData.get('previousLegalName') ?? '') || null,
+    },
+    displayName,
+    legalName: legalName || null,
+    changeKind,
+    changeReason,
+  });
+  if (reasonError) return { ok: false, error: reasonError };
 
   const session = await adminClient();
   if (!session.ok) return session;
@@ -110,6 +125,8 @@ export async function updateCustomerAction(formData: FormData): Promise<CommandA
     displayName,
     legalName,
     expectedVersion,
+    changeKind,
+    changeReason,
   });
 
   try {

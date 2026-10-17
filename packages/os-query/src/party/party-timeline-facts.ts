@@ -2,7 +2,18 @@ import type { PartyTimelineFacts } from '@isalwa/os-contracts';
 
 const TIMELINE_FACT_ALLOWLIST: Record<string, readonly string[]> = {
   'party.created': ['partyId', 'displayName', 'partyKind', 'initialRoleKey'],
-  'party.updated': ['partyId', 'displayName', 'legalName'],
+  'party.updated': [
+    'partyId',
+    'displayName',
+    'legalName',
+    'previousDisplayName',
+    'previousLegalName',
+    'changedFields',
+    'changeKind',
+    'reason',
+    'version',
+    'source',
+  ],
   'party.deactivated': ['partyId'],
   'party.reactivated': ['partyId'],
   'party.role.assigned': ['partyId', 'roleKey', 'roleAssignmentId'],

@@ -1,0 +1,3 @@
+  ✔ the provisioned manager edits and quotes the team customer over HTTP; ownership is unchanged (35.740334ms)
+  ✔ the read-only manager stays read-only (403, no writes) (18.013ms)
+  ✔ team manager with the action permissions edits the customer and quotes without owning or covering (180.559292ms)

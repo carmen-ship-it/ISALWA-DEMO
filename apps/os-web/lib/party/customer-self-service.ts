@@ -1,4 +1,10 @@
-import { COMMAND_REQUIRED_SCOPES, type PartyKind } from '@isalwa/os-contracts';
+import {
+  COMMAND_REQUIRED_SCOPES,
+  PARTY_CHANGE_KINDS,
+  partyChangeNeedsReason,
+  type PartyChangeKind,
+  type PartyKind,
+} from '@isalwa/os-contracts';
 
 /** Existing command scope. Not a salesperson create permission. */
 export const MASTER_DATA_ADMIN_SCOPE = 'master_data.admin' as const;
@@ -159,11 +165,41 @@ export function createCustomerSearchGate(input: {
   return { ok: true };
 }
 
+export const PARTY_CHANGE_KIND_OPTIONS: ReadonlyArray<{ value: PartyChangeKind; label: string }> = [
+  { value: 'update', label: 'Actualización (el dato cambió)' },
+  { value: 'correction', label: 'Corrección (se registró mal)' },
+  { value: 'typo', label: 'Error de escritura en el nombre' },
+];
+
+export function parsePartyChangeKind(value: unknown): PartyChangeKind {
+  return (PARTY_CHANGE_KINDS as readonly string[]).includes(String(value)) ? (String(value) as PartyChangeKind) : 'update';
+}
+
+/** Mirrors the UpdateParty rule so the form can ask for the reason before sending; the server rechecks. */
+export function partyEditReasonError(input: {
+  previous: { displayName: string; legalName: string | null };
+  displayName: string;
+  legalName: string | null;
+  changeKind: PartyChangeKind;
+  changeReason: string;
+}): string | null {
+  const changedFields = [
+    ...(input.displayName.trim() !== input.previous.displayName ? ['displayName'] : []),
+    ...((input.legalName?.trim() || null) !== (input.previous.legalName || null) ? ['legalName'] : []),
+  ];
+  if (!partyChangeNeedsReason({ changedFields, changeKind: input.changeKind }) || input.changeReason.trim()) return null;
+  return changedFields.includes('legalName') && input.changeKind === 'typo'
+    ? 'La razón social no se corrige como error de escritura. Indique el motivo del cambio.'
+    : 'Indique el motivo del cambio.';
+}
+
 export function buildUpdatePartyPayload(input: {
   partyId: string;
   displayName: string;
   legalName?: string | null;
   expectedVersion: number;
+  changeKind?: PartyChangeKind;
+  changeReason?: string | null;
 }): Record<string, unknown> {
   const payload: Record<string, unknown> = {
     partyId: input.partyId.trim(),
@@ -174,6 +210,9 @@ export function buildUpdatePartyPayload(input: {
     const legalName = input.legalName?.trim() ?? '';
     payload.legalName = legalName || null;
   }
+  if (input.changeKind) payload.changeKind = input.changeKind;
+  const changeReason = input.changeReason?.trim();
+  if (changeReason) payload.changeReason = changeReason;
   rejectForbiddenKeys(payload);
   return payload;
 }

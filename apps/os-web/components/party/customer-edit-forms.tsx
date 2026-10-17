@@ -5,6 +5,7 @@ import { useActionState, useState } from 'react';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
 import { updateContactAction, updateCustomerAction } from '@/lib/party/actions';
+import { PARTY_CHANGE_KIND_OPTIONS } from '@/lib/party/customer-self-service';
 import type { PartyDetailResponse } from '@/lib/party/types';
 
 const fieldClass =
@@ -85,6 +86,29 @@ function PartyFieldsForm({ party }: { party: PartyDetailResponse['party'] }) {
             defaultValue={party.legalName ?? ''}
             className={fieldClass}
           />
+        </div>
+        <input type="hidden" name="previousDisplayName" value={party.displayName} />
+        <input type="hidden" name="previousLegalName" value={party.legalName ?? ''} />
+        <div>
+          <label htmlFor="edit-change-kind" className="isalwa-section-label">
+            Tipo de cambio
+          </label>
+          <select id="edit-change-kind" name="changeKind" defaultValue="update" className={fieldClass}>
+            {PARTY_CHANGE_KIND_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="edit-change-reason" className="isalwa-section-label">
+            Motivo
+          </label>
+          <textarea id="edit-change-reason" name="changeReason" rows={2} maxLength={500} className={fieldClass} />
+          <p className="mt-1 text-xs text-[var(--isalwa-slate)]">
+            Obligatorio salvo un error de escritura en el nombre. Queda en el historial con el valor anterior y el nuevo.
+          </p>
         </div>
         <CommandSubmitButton label="Guardar cliente" />
       </form>

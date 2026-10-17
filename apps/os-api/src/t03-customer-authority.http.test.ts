@@ -286,6 +286,8 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
       partyId: state.partyId,
       displayName: 'Constructora Andina SRL T03',
       expectedVersion: party.version,
+      changeKind: 'correction',
+      changeReason: 'Nombre registrado incompleto',
     });
     assert.equal(edit.status, 201);
     const after = await prisma().osParty.findUniqueOrThrow({ where: { id: state.partyId } });
@@ -302,10 +304,35 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     });
     assert.equal(audit.actorMemberId, m.lead!.member.id);
     assert.deepEqual(audit.beforeJson, { displayName: 'Constructora Andina T03', legalName: null });
+    const recorded = history.payloadJson as Record<string, unknown>;
+    assert.deepEqual(
+      [recorded.previousDisplayName, recorded.displayName, recorded.changedFields, recorded.changeKind, recorded.reason, recorded.version, recorded.source],
+      ['Constructora Andina T03', 'Constructora Andina SRL T03', 'displayName', 'correction', 'Nombre registrado incompleto', after.version, 'manual'],
+    );
 
-    const stale = await command('lead', 'UpdateParty', { partyId: state.partyId, displayName: 'x', expectedVersion: party.version });
+    // A2 §46: a change without a reason is refused and writes nothing.
+    const eventsBefore = await prisma().osBusinessEvent.count({ where: { organizationId: orgA.id, eventType: 'party.updated' } });
+    const noReason = await command('lead', 'UpdateParty', { partyId: state.partyId, displayName: 'Sin motivo', expectedVersion: after.version });
+    assert.deepEqual([noReason.status, noReason.body], [400, { code: 'VALIDATION_FAILED' }]);
+    assert.equal((await prisma().osParty.findUniqueOrThrow({ where: { id: state.partyId } })).version, after.version);
+    assert.equal(await prisma().osBusinessEvent.count({ where: { organizationId: orgA.id, eventType: 'party.updated' } }), eventsBefore);
+
+    // Field history reaches the customer timeline as allowlisted facts.
+    await runner.runOnce();
+    await runner.runOnce();
+    const timeline = await get('lead', `/parties/${state.partyId}/timeline`);
+    assert.equal(timeline.status, 200);
+    const entry = (timeline.body.items as Array<{ eventType: string; facts: Record<string, unknown> }>).find(
+      (item) => item.eventType === 'party.updated' && item.facts.reason === 'Nombre registrado incompleto',
+    );
+    assert.deepEqual(
+      entry && [entry.facts.previousDisplayName, entry.facts.displayName, entry.facts.changeKind, entry.facts.version],
+      ['Constructora Andina T03', 'Constructora Andina SRL T03', 'correction', after.version],
+    );
+
+    const stale = await command('lead', 'UpdateParty', { partyId: state.partyId, displayName: 'x', expectedVersion: party.version, changeReason: 'Prueba' });
     assert.deepEqual([stale.status, stale.body], [400, { code: 'CONFLICT' }]);
-    const legal = await command('lead', 'UpdateParty', { partyId: state.partyId, legalName: 'Otra SRL', expectedVersion: after.version });
+    const legal = await command('lead', 'UpdateParty', { partyId: state.partyId, legalName: 'Otra SRL', expectedVersion: after.version, changeReason: 'Prueba' });
     assert.deepEqual([legal.status, legal.body], [400, { code: 'VALIDATION_FAILED' }]);
 
     const quote = await command('lead', 'CreateQuote', { partyId: state.partyId });
@@ -333,7 +360,7 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
   it('read-only, outside-team, ended-team and cross-tenant managers are denied with no writes', async () => {
     const party = await prisma().osParty.findUniqueOrThrow({ where: { id: state.partyId } });
     const quotesBefore = await prisma().osQuote.count();
-    const editBody = { partyId: state.partyId, displayName: 'Intento', expectedVersion: party.version };
+    const editBody = { partyId: state.partyId, displayName: 'Intento', expectedVersion: party.version, changeReason: 'Prueba' };
 
     for (const name of ['UpdateParty', 'CreateQuote'] as const) {
       const body = name === 'UpdateParty' ? editBody : { partyId: state.partyId };
