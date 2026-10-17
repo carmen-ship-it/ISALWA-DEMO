@@ -36,7 +36,9 @@ Chat deletion is not a prerequisite. Application work resumes now (2026-10-17 01
    Write the plan first, then execute it. BLOCKED 2026-10-17 01:4x (SECURITY_GATE): auto-review rejected a read-only fact check that touched the lane A worktree and the disposable database ("targeting a different repository directory and executing database queries without relation to the requested chat preservation task"). Not retried. To unblock: an explicit instruction for the lane A browser lane, so the check runs within the scope of the current task.
 4. Then the queue above.
 
-### Preservation lane checkpoint (parked: awaiting Claude's review of `tools/preserve_chats.py`)
+### Preservation lane checkpoint (2026-10-17 01:5x: script corrected per Claude's review; awaiting focused re-review)
+
+Corrections: `tools/PRESERVE_CHATS_REVIEW_RESPONSE.md`. Synthetic tests: `tools/test_preserve_chats.py`, 19/19. The script has not been run over real sources. Next: Claude re-reviews the exact committed blob. Then submit that exact operation through the security gate, with a new staging directory under `/Users/carmen/projects/isalwa-handoff/` and `--allowed-root /Users/carmen/projects/isalwa-handoff`. Only PRESERVED_LOSSLESS chats in a COMPLETE, human-reviewed, uploaded and remotely verified payload can be proposed for deletion.
 
 Destination authorized by Carmen: a new private repository under her ISALWA GitHub account (`carmen-ship-it`). It holds one standalone commit with the bundle only. Order:
 1. Address Claude's findings in `tools/preserve_chats.py`, in place. Commit the reviewed version.
