@@ -1,4 +1,4 @@
-import type { MemberSummaryReadModel } from '@isalwa/os-contracts';
+import { roleKeysThatConferAuthority, type MemberSummaryReadModel } from '@isalwa/os-contracts';
 
 export type MemberAdminVisibility = {
   organization: boolean;
@@ -41,4 +41,13 @@ export function memberAdminVisibility(
       active,
     reassignWork: !invited,
   };
+}
+
+/**
+ * Permissions that end when a suspended member is reactivated (23:47 §B4): the
+ * same keys ActivateMember ends. Job titles stay. Mirrors the backend; the
+ * command remains the authority.
+ */
+export function reactivationEndedRoleKeys(roleKeys: readonly string[]): string[] {
+  return [...new Set(roleKeysThatConferAuthority(roleKeys))].sort();
 }

@@ -6,7 +6,7 @@ import {
   UI_2B_WORKFORCE_COMMANDS,
   WORKFORCE_COMMANDS_BLOCKED_IN_UI,
 } from '@/lib/workforce/command-types';
-import { memberAdminVisibility } from '@/lib/workforce/lifecycle-ui';
+import { memberAdminVisibility, reactivationEndedRoleKeys } from '@/lib/workforce/lifecycle-ui';
 import { DELEGATION_SCOPE_OPTIONS } from '@/lib/workforce/admin-options';
 import {
   sampleActiveMember,
@@ -151,5 +151,15 @@ describe('UI-2B RequestMemberEmailChange semantics', () => {
   it('is self-service command in approved list', () => {
     assert.ok(UI_2B_WORKFORCE_COMMANDS.includes('RequestMemberEmailChange'));
     assert.equal(UI_2B_WORKFORCE_COMMANDS.includes('ChangeMemberEmail' as never), false);
+  });
+});
+
+describe('B4 reactivation note', () => {
+  it('lists the permissions ActivateMember ends and never a job title', () => {
+    assert.deepEqual(
+      reactivationEndedRoleKeys(['sales_rep', 'commercial.quote.convert.own', 'people.admin', 'commercial.customer.create']),
+      ['commercial.customer.create', 'commercial.quote.convert.own', 'people.admin'],
+    );
+    assert.deepEqual(reactivationEndedRoleKeys(['Asesor', 'sales_rep']), []);
   });
 });

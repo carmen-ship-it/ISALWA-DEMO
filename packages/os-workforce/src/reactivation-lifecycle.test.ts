@@ -141,6 +141,81 @@ describe('ActivateMember ends authority from the previous lifecycle', () => {
     assert.equal(early.revokedAt, null);
   });
 
+  it('B4: reinstatement ends every role assignment that confers authority (primary scope and additional grants); job titles stay; rows kept', async () => {
+    const h = await harness();
+    const role = (roleKey: string) => {
+      const row = { id: createId(), organizationId: h.org.id, memberId: h.legacy.member.id, roleKey, effectiveAt: new Date(NOW.getTime() - DAY), endedAt: null as Date | null };
+      h.store.roleAssignments.push(row);
+      return row;
+    };
+    const title = role('Asesor');
+    const edit = role('commercial.customer.edit');
+    const convert = role('commercial.quote.convert.own');
+    h.setStatus(h.legacy.member.id, 'suspended');
+
+    await h.svc.execute('ActivateMember', ctx(h.org.id, h.admin.member.id), {
+      memberId: h.legacy.member.id,
+      providerSubject: `subject:${h.legacy.member.id}`,
+    });
+
+    const rows = h.store.roleAssignments.filter((r) => r.memberId === h.legacy.member.id);
+    assert.equal(rows.length, 4, 'rows kept as history');
+    for (const row of [edit, convert]) assert.deepEqual(row.endedAt, NOW);
+    assert.deepEqual(rows.find((r) => r.roleKey === 'people.admin')!.endedAt, NOW, 'primary role that is a scope ends too');
+    assert.equal(title.endedAt, null, 'a job title confers nothing and stays');
+    const later = new Date(NOW.getTime() + DAY);
+    assert.deepEqual(computeEffectiveScopes(await h.store.listRoleAssignmentsForMember(h.legacy.member.id, h.org.id), [], later), []);
+    const payload = h.store.businessEvents.find((e) => e.eventType === 'member.activated')!.payload as Record<string, unknown>;
+    assert.deepEqual(payload.endedRoleKeys, ['commercial.customer.edit', 'commercial.quote.convert.own', 'people.admin']);
+    await assert.rejects(
+      h.svc.execute('InviteMember', ctx(h.org.id, h.legacy.member.id), {
+        email: 'otro@isalwa.bo',
+        givenName: 'Otro',
+        familyName: 'User',
+        roleKey: 'sales_rep',
+      }),
+      /PERMISSION_DENIED/,
+      'the reinstated member no longer administers people',
+    );
+  });
+
+  it('B4: authority returns only through the existing grant commands, with their grantor checks', async () => {
+    const h = await harness();
+    h.store.roleAssignments.push({ id: createId(), organizationId: h.org.id, memberId: h.legacy.member.id, roleKey: 'commercial.customer.edit', effectiveAt: new Date(NOW.getTime() - DAY), endedAt: null });
+    h.setStatus(h.legacy.member.id, 'suspended');
+    await h.svc.execute('ActivateMember', ctx(h.org.id, h.admin.member.id), {
+      memberId: h.legacy.member.id,
+      providerSubject: `subject:${h.legacy.member.id}`,
+    });
+    const scopes = async () =>
+      computeEffectiveScopes(await h.store.listRoleAssignmentsForMember(h.legacy.member.id, h.org.id), [], NOW).sort();
+
+    await assert.rejects(
+      h.svc.execute('GrantAdditionalRole', ctx(h.org.id, h.admin.member.id), { memberId: h.legacy.member.id, roleKey: 'commercial.customer.edit' }),
+      /PERMISSION_DENIED|VALIDATION_FAILED/,
+      'an admin who does not hold the scope cannot regrant it',
+    );
+    h.store.roleAssignments.push({ id: createId(), organizationId: h.org.id, memberId: h.admin.member.id, roleKey: 'commercial.customer.edit', effectiveAt: new Date(NOW.getTime() - DAY), endedAt: null });
+    await h.svc.execute('GrantAdditionalRole', ctx(h.org.id, h.admin.member.id), { memberId: h.legacy.member.id, roleKey: 'commercial.customer.edit' });
+    await h.svc.execute('ChangeRole', ctx(h.org.id, h.admin.member.id), { memberId: h.legacy.member.id, roleKey: 'people.admin' });
+    assert.deepEqual(await scopes(), ['commercial.customer.edit', 'people.admin']);
+  });
+
+  it('B4: first activation of an invited member keeps the role given at invitation', async () => {
+    const h = await harness();
+    const invited = await h.svc.execute('InviteMember', ctx(h.org.id, h.admin.member.id), {
+      email: 'nuevo2@isalwa.bo',
+      givenName: 'Nuevo',
+      familyName: 'User',
+      roleKey: 'people.admin',
+    });
+    const memberId = String(invited.data.memberId);
+    await h.svc.execute('ActivateMember', ctx(h.org.id, memberId), { memberId, providerSubject: 'subject:nuevo2' });
+    assert.deepEqual(computeEffectiveScopes(await h.store.listRoleAssignmentsForMember(memberId, h.org.id), [], NOW), ['people.admin']);
+    const payload = h.store.businessEvents.find((e) => e.eventType === 'member.activated')!.payload as Record<string, unknown>;
+    assert.equal(payload.endedRoleKeys, undefined);
+  });
+
   it('GrantDelegation to a suspended member is refused and writes nothing', async () => {
     const h = await harness();
     h.setStatus(h.legacy.member.id, 'suspended');

@@ -1,0 +1,15 @@
+M1: reinstatement ends no role assignment
+  unit: ℹ pass 7
+  unit: ℹ fail 1
+  http: ℹ pass 0
+  http: ℹ fail 3
+M2: only additional-assignable grants end (primary scope survives)
+  unit: ℹ pass 7
+  unit: ℹ fail 1
+  http: ℹ pass 2
+  http: ℹ fail 1
+M3: UI note lists no permissions
+  os-web ui-2b: ℹ pass 18
+  os-web ui-2b: ℹ fail 1
+rebuild after restore: exit 0
+restored: sha256 verified (608a31a024d8a356a8b98849c04777be55b363efbb361fa2939729913654d63c, eb76ba0acc8e49bdc8ef031e3e613648a84cf6bebe8677c68c9f5057072b5399)

@@ -1,0 +1,18 @@
+  ✔ a member suspended before ce74648 keeps nothing on reactivation: delegations issued/received (current and future) and received coverage end; rows kept (6.630125ms)
+  ✔ a fresh authorized grant after reactivation works (1.449083ms)
+  ✔ repeated activation of an active member is refused and does not touch legitimate delegations (0.899167ms)
+  ✔ first activation of an invited member does not end delegations granted to them while invited (1.3795ms)
+  ✔ B4: reinstatement ends every role assignment that confers authority (primary scope and additional grants); job titles stay; rows kept (0.977625ms)
+  ✔ B4: authority returns only through the existing grant commands, with their grantor checks (2.015541ms)
+  ✔ B4: first activation of an invited member keeps the role given at invitation (1.055833ms)
+  ✔ GrantDelegation to a suspended member is refused and writes nothing (0.580167ms)
+✔ ActivateMember ends authority from the previous lifecycle (15.571125ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 174.811042
+exit 0

@@ -1,0 +1,13 @@
+  ✔ additional commercial grants end at reinstatement; the job title stays; rows are kept; the member cannot use them (118.12325ms)
+  ✔ regrant goes through GrantAdditionalRole: people.admin alone is refused, a holder of the scope may grant it (42.647834ms)
+  ✔ a primary role that is a permission ends too and returns only through ChangeRole (74.411375ms)
+✔ B4 reactivation needs a fresh grant over HTTP (disposable Postgres) (406.459042ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1049.774625
+exit 0

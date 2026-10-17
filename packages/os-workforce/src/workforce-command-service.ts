@@ -742,6 +742,9 @@ export class WorkforceCommandService {
     const endedCustomerCoverage = reinstated
       ? await this.endCustomerCoverageForLifecycle(ctx, memberId, store, 'received')
       : [];
+    const endedRoleKeys = reinstated
+      ? await this.endRoleAuthorityForReinstatement(ctx, memberId, store)
+      : [];
 
     if (auth) {
       await store.updateAuthIdentity(auth.id, {
@@ -754,8 +757,30 @@ export class WorkforceCommandService {
     return this.emit(ctx, 'member.activated', 'organization_member', memberId, store, {
       memberId,
       providerSubject,
-      ...(reinstated ? { endedDelegationIds, endedCustomerCoverage } : {}),
+      ...(reinstated ? { endedDelegationIds, endedCustomerCoverage, endedRoleKeys } : {}),
     });
+  }
+
+  /**
+   * Reinstatement restores access, not authority. Every open role assignment
+   * that confers a permission (a primary role that is a scope, and every
+   * additional grant) ends at reactivation; job-title labels stay. Rows are
+   * kept as history. Authority returns only through ChangeRole or
+   * GrantAdditionalRole, with their usual grantor checks.
+   */
+  private async endRoleAuthorityForReinstatement(
+    ctx: RequestContext,
+    memberId: string,
+    store: OsWorkforceStore,
+  ): Promise<string[]> {
+    const open = (await store.listRoleAssignmentsForMember(memberId, ctx.organizationId)).filter(
+      (row) => row.endedAt === null,
+    );
+    const keys = [...new Set(roleKeysThatConferAuthority(open.map((row) => row.roleKey)))].sort();
+    for (const key of keys) {
+      await store.endActiveRoleAssignmentsForKey(ctx.organizationId, memberId, key, ctx.effectiveAt);
+    }
+    return keys;
   }
 
   private async requestMemberEmailChange(

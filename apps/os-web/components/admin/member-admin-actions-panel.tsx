@@ -22,7 +22,7 @@ import { ServerMemberTypeahead } from '@/components/operating/server-member-type
 import { RoleChangeForm } from '@/components/admin/role-change-form';
 import type { SelectOption } from '@/lib/workforce/admin-options';
 import { DELEGATION_SCOPE_OPTIONS } from '@/lib/workforce/admin-options';
-import type { MemberAdminVisibility } from '@/lib/workforce/lifecycle-ui';
+import { reactivationEndedRoleKeys, type MemberAdminVisibility } from '@/lib/workforce/lifecycle-ui';
 import { ADDITIONAL_ASSIGNABLE_SCOPE_KEYS } from '@isalwa/os-contracts';
 import { formatRoleKey, formatRoleKeys, isAdditionalAssignableScope, splitRoleKeys } from '@/lib/workforce/labels';
 
@@ -46,6 +46,19 @@ function UnresolvedNote({ count }: { count: number }) {
         Responsabilidades
       </a>{' '}
       para reasignarlos. El historial se conserva.
+    </p>
+  );
+}
+
+function ReactivationNote({ roleKeys }: { roleKeys: string[] }) {
+  const ending = reactivationEndedRoleKeys(roleKeys);
+  return (
+    <p className="mt-2 text-sm text-[var(--isalwa-slate)]" data-reactivation="regrant-note">
+      {ending.length > 0
+        ? `Al reactivar terminan estos permisos: ${formatRoleKeys(ending)}. `
+        : 'Al reactivar no se restablece ningún permiso anterior. '}
+      Quien pueda otorgarlos los asigna de nuevo después de revisarlos (rol principal o permisos
+      adicionales). Delegaciones y coberturas recibidas tampoco vuelven.
     </p>
   );
 }
@@ -110,7 +123,10 @@ export function MemberAdminActionsPanel({
     initial,
   );
   const [reactivateState, reactivateAction] = useActionState(
-    wrapAction(activateMemberAction, 'Acceso reactivado.'),
+    wrapAction(
+      activateMemberAction,
+      'Acceso reactivado. Los permisos anteriores no se restablecieron: asígnelos de nuevo solo después de revisarlos.',
+    ),
     initial,
   );
   const [terminateState, terminateAction] = useActionState(
@@ -348,6 +364,7 @@ export function MemberAdminActionsPanel({
               <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
                 Restaura el acceso suspendido. Esto no es un recontrato.
               </p>
+              <ReactivationNote roleKeys={summary.roleKeys} />
               <FormFeedback error={reactivateState.error} success={reactivateState.success} />
               <form action={reactivateAction} className="mt-4">
                 <input type="hidden" name="memberId" value={memberId} />

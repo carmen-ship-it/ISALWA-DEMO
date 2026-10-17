@@ -1,0 +1,7 @@
+608a31a024d8a356a8b98849c04777be55b363efbb361fa2939729913654d63c  packages/os-workforce/src/workforce-command-service.ts
+177ec758c2362f580aecdc552e877202677f7c6b2e706f48ef7b7375534a6200  packages/os-workforce/src/reactivation-lifecycle.test.ts
+bd98e45d5355b6ec4d00fd4cfd526bedb7adcf754adb102bba06355141e2194f  apps/os-api/src/review-b4-reactivation-regrant.http.test.ts
+eb76ba0acc8e49bdc8ef031e3e613648a84cf6bebe8677c68c9f5057072b5399  apps/os-web/lib/workforce/lifecycle-ui.ts
+2b89c877cf28f94b2df3d65a4378db9d3dae05cd78f8254c6dea4cf013304f47  apps/os-web/lib/workforce/ui-2b.test.ts
+e76ea237eef4890ed9bdbb65e3ef0da79ba58a890f3f9e9b5769bc0594bff62c  apps/os-web/components/admin/member-admin-actions-panel.tsx
+c1d872d12d7139205fc6344083870eaae835539447d3aa45477943a54c245d42  apps/os-web/lib/guidance/catalog.ts

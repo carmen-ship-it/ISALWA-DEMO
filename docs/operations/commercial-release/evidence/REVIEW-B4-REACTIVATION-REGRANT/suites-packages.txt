@@ -1,0 +1,12 @@
+== os-contracts
+ℹ tests 185
+ℹ pass 185
+ℹ fail 0
+== os-workforce
+ℹ tests 148
+ℹ pass 148
+ℹ fail 0
+== os-query
+ℹ tests 114
+ℹ pass 114
+ℹ fail 0

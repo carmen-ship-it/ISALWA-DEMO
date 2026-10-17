@@ -256,7 +256,7 @@ export const EMPLOYEE_ADMIN_HELP = guidanceNote({
     'Estado — indica si el empleado está activo, suspendido o terminado.',
     'Activar — habilita el acceso de un empleado.',
     'Suspender — desactiva temporalmente el acceso sin eliminar la cuenta.',
-    'Reactivar — restaura el acceso de un empleado suspendido.',
+    'Reactivar — restaura el acceso de un empleado suspendido, sin sus permisos anteriores: se asignan de nuevo tras revisarlos.',
     'Terminar — finaliza la relación laboral y desactiva el acceso.',
     'Rol — define qué permisos tiene el empleado.',
     'Cada empleado crea su propia contraseña.',
