@@ -1,0 +1,2 @@
+# typecheck: tsc-os-web.txt
+exit=0

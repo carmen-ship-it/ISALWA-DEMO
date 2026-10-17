@@ -1,0 +1,2 @@
+# typecheck: tsc-os-database.txt
+exit=0

@@ -12,8 +12,11 @@ import { PrismaOsWorkforceStore } from '../prisma-workforce-store';
  * This procedure gives the first holder of each such scope to one existing, active,
  * unambiguously identified member, once per scope per organization:
  * - dry run by default; execution needs the exact plan hash the dry run printed;
- * - refuses wrong tenant, ambiguous or inactive identity, scopes outside the allowlist,
- *   and any scope that an active member already holds (then GrantAdditionalRole applies);
+ * - the request names a role-specific proposal, its range and a subset of its scopes;
+ *   there is no default proposal, person or scope list;
+ * - refuses wrong tenant, ambiguous or inactive identity, scopes outside the named
+ *   proposal, organization-wide scopes without range `organization`, and any scope
+ *   that an active member already holds (then GrantAdditionalRole applies);
  * - one transaction; role assignment ids are `bootstrap:<org>:<scope>`, so a scope can be
  *   bootstrapped at most once per organization, concurrent runs included;
  * - writes one business event, outbox row and audit row naming the operator and approval.
@@ -22,13 +25,49 @@ import { PrismaOsWorkforceStore } from '../prisma-workforce-store';
  * os-api (a test enforces it). It creates no identity, password or session.
  */
 
-export const BOOTSTRAP_SCOPE_ALLOWLIST: readonly string[] = ADDITIONAL_ASSIGNABLE_SCOPE_KEYS;
+export type BootstrapRange = 'team' | 'organization';
+
+/**
+ * Minimal role-specific proposals for owner approval (21:33 §4). There is no
+ * all-scopes proposal and no default: a request names one proposal, its range and
+ * a subset of its scopes. Scopes outside every proposal stay ungrantable until a
+ * later approved change adds a proposal for them.
+ */
+export const BOOTSTRAP_PROPOSALS = {
+  team_manager: {
+    range: 'team',
+    scopes: ['commercial.team.read', 'commercial.customer.edit', 'commercial.work.manage'],
+  },
+  commercial_manager: {
+    range: 'organization',
+    scopes: ['commercial.org.read', 'commercial.customer.edit', 'commercial.work.manage'],
+  },
+  customer_data_steward: {
+    range: 'team',
+    scopes: ['commercial.team.read', 'commercial.customer.create', 'commercial.customer.edit'],
+  },
+} as const satisfies Record<string, { range: BootstrapRange; scopes: readonly string[] }>;
+
+export type BootstrapProposalKey = keyof typeof BOOTSTRAP_PROPOSALS;
+
+/** Scopes whose reach is the whole organization; refused unless range is `organization`. */
+export const ORGANIZATION_RANGE_SCOPES: readonly string[] = [
+  'commercial.org.read',
+  'commercial.assignment.org',
+  'commercial.intake.assign',
+];
+
+export const BOOTSTRAP_SCOPE_ALLOWLIST: readonly string[] = [
+  ...new Set(Object.values(BOOTSTRAP_PROPOSALS).flatMap((proposal) => proposal.scopes)),
+].filter((scope) => (ADDITIONAL_ASSIGNABLE_SCOPE_KEYS as readonly string[]).includes(scope));
 
 export type BootstrapRequest = {
   organizationId: string;
   organizationSlug: string;
   memberId: string;
   memberEmail: string;
+  proposal: string;
+  range: string;
   scopes: readonly string[];
   approvalReference: string;
   operator: string;
@@ -38,6 +77,8 @@ export type BootstrapRequest = {
 export type BootstrapPlan = {
   organization: { id: string; slug: string };
   member: { id: string };
+  proposal: BootstrapProposalKey;
+  range: BootstrapRange;
   currentScopes: string[];
   proposedScopes: string[];
   alreadyAppliedScopes: string[];
@@ -47,6 +88,7 @@ export type BootstrapPlan = {
 export type BootstrapRefusal =
   | 'INVALID_INPUT'
   | 'SCOPE_NOT_ALLOWED'
+  | 'RANGE_MISMATCH'
   | 'WRONG_TENANT'
   | 'MEMBER_NOT_FOUND'
   | 'MEMBER_NOT_ACTIVE'
@@ -71,6 +113,8 @@ function planHashOf(request: BootstrapRequest, scopes: readonly string[]): strin
   const canonical = JSON.stringify({
     organizationId: request.organizationId,
     memberId: request.memberId,
+    proposal: request.proposal,
+    range: request.range,
     scopes: [...scopes].sort(),
     approvalReference: request.approvalReference.trim(),
   });
@@ -82,14 +126,28 @@ export async function planInitialCommercialBootstrap(
   request: BootstrapRequest,
   asOf: Date = new Date(),
 ): Promise<BootstrapPlan> {
-  const fields = [request.organizationId, request.organizationSlug, request.memberId, request.memberEmail, request.approvalReference, request.operator, request.reason];
+  const fields = [request.organizationId, request.organizationSlug, request.memberId, request.memberEmail, request.proposal, request.range, request.approvalReference, request.operator, request.reason];
   if (fields.some((value) => typeof value !== 'string' || value.trim() === '')) {
     throw new BootstrapRefused('INVALID_INPUT', 'every input is required and explicit');
   }
+  if (!Array.isArray(request.scopes)) throw new BootstrapRefused('INVALID_INPUT', 'scopes must be listed explicitly');
   const scopes = [...new Set(request.scopes)];
   if (scopes.length === 0) throw new BootstrapRefused('INVALID_INPUT', 'no scopes requested');
-  const outside = scopes.filter((scope) => !BOOTSTRAP_SCOPE_ALLOWLIST.includes(scope));
+  if (!Object.prototype.hasOwnProperty.call(BOOTSTRAP_PROPOSALS, request.proposal)) {
+    throw new BootstrapRefused('INVALID_INPUT', 'unknown proposal');
+  }
+  const proposalKey = request.proposal as BootstrapProposalKey;
+  const proposal = BOOTSTRAP_PROPOSALS[proposalKey];
+  const proposalScopes: readonly string[] = proposal.scopes;
+  const outside = scopes.filter((scope) => !BOOTSTRAP_SCOPE_ALLOWLIST.includes(scope) || !proposalScopes.includes(scope));
   if (outside.length > 0) throw new BootstrapRefused('SCOPE_NOT_ALLOWED', outside.join(','));
+  if (request.range !== proposal.range) {
+    throw new BootstrapRefused('RANGE_MISMATCH', `${request.proposal} has range ${proposal.range}`);
+  }
+  const orgWide = scopes.filter((scope) => ORGANIZATION_RANGE_SCOPES.includes(scope));
+  if (orgWide.length > 0 && request.range !== 'organization') {
+    throw new BootstrapRefused('RANGE_MISMATCH', `${orgWide.join(',')} needs range organization`);
+  }
 
   const org = await prisma.osOrganization.findUnique({ where: { id: request.organizationId } });
   if (!org || org.slug !== request.organizationSlug) {
@@ -149,6 +207,8 @@ export async function planInitialCommercialBootstrap(
   return {
     organization: { id: org.id, slug: org.slug },
     member: { id: member.id },
+    proposal: proposalKey,
+    range: proposal.range,
     currentScopes,
     proposedScopes,
     alreadyAppliedScopes,
@@ -190,6 +250,8 @@ export async function executeInitialCommercialBootstrap(
     const payload = {
       memberId: plan.member.id,
       roleKeys: plan.proposedScopes,
+      proposal: plan.proposal,
+      range: plan.range,
       planHash: plan.planHash,
       approvalReference: request.approvalReference.trim(),
       operator: request.operator.trim(),

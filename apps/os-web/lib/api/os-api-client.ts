@@ -29,6 +29,7 @@ import type {
 import type { WorkCommandResult } from '@/lib/work/command-types';
 import type { AuthenticatedSessionView } from '@/lib/auth/session-identity';
 import type { SessionOrganization } from '@/lib/auth/organization-selection';
+import type { RoleChangePreview } from '@/lib/workforce/role-change';
 import type {
   OpportunityDetailResponse,
   OpportunityListResponse,
@@ -296,6 +297,10 @@ export function createOsApiClient(auth: OsAuthContext) {
       request<TerminationImpactResponse>(
         `/members/${encodeURIComponent(memberId)}/termination-impact`,
       ),
+    previewRoleChange: (memberId: string, roleKey: string, revokeAdditionalRoleKeys: readonly string[]) =>
+      request<RoleChangePreview>(`/members/${encodeURIComponent(memberId)}/role-change-preview`, {
+        query: { roleKey, revoke: revokeAdditionalRoleKeys.join(',') || undefined },
+      }),
     getMemberAccessHistory: (memberId: string) =>
       request<MemberAccessHistoryResponse>(
         `/members/${encodeURIComponent(memberId)}/access-history`,

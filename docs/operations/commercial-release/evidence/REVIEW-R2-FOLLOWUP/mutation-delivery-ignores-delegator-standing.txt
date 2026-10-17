@@ -1,0 +1,28 @@
+# mutation: delivery-ignores-delegator-standing
+## diff
+--- a/packages/os-delivery/src/prisma-store.ts
++++ b/packages/os-delivery/src/prisma-store.ts
+@@ -609,7 +609,7 @@
+           revokedAt: delegation.revokedAt == null ? null : toDate(delegation.revokedAt),
+           delegatorMemberId: delegation.delegatorMemberId ?? '',
+           organizationId,
+-          delegator: delegatorStanding(delegation.delegator, organizationId),
++          delegator: { organizationId, accessStatus: 'active', roleAssignments: scopesFromJson(delegation.scopesJson).map((roleKey) => ({ roleKey, effectiveAt: new Date(0), endedAt: null })) },
+         })),
+         asOf,
+       );
+## result (expected: tests fail)
+packages/os-delivery: exit=1
+▶ Delivery permission lookup follows the canonical delegation rule
+  ✔ direct valid grants still work (1.021709ms)
+  ✔ an ended direct grant confers nothing (0.1065ms)
+  ✔ delivery scopes stay non-delegable, even from an active holder (0.203417ms)
+  ✔ a delegable scope from an active holder is conferred (0.104958ms)
+  ✖ revoked, suspended-delegator and no-longer-held delegations confer nothing (1.413875ms)
+✖ Delivery permission lookup follows the canonical delegation rule (3.385542ms)
+ℹ tests 5
+ℹ pass 4
+ℹ fail 1
+✖ failing tests:
+✖ revoked, suspended-delegator and no-longer-held delegations confer nothing (1.413875ms)
+## source restored: True

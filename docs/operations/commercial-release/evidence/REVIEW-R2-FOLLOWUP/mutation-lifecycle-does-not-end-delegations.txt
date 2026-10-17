@@ -1,0 +1,36 @@
+# mutation: lifecycle-does-not-end-delegations
+## diff
+--- a/packages/os-workforce/src/workforce-command-service.ts
++++ b/packages/os-workforce/src/workforce-command-service.ts
+@@ -1091,7 +1091,7 @@
+       ctx.effectiveAt,
+     );
+     for (const delegation of open) {
+-      await store.revokeDelegation(delegation.id, ctx.effectiveAt);
++      void delegation;
+     }
+     return open.map((delegation) => delegation.id).sort();
+   }
+## result (expected: tests fail)
+apps/os-api: exit=1
+▶ Review R2 delegation standing over HTTP (disposable Postgres)
+  ✔ an active delegation from an active holder works for reads and commands (70.975958ms)
+  ✖ suspending the delegator stops the delegate (read, new command, replay) and ends the delegation in the same transaction (32.448416ms)
+  ✖ reinstatement does not revive the old delegation (read and replay stay denied); a fresh authorized grant is required (7.009084ms)
+  ✖ suspending a delegate ends delegations granted to them; their reinstatement restores nothing (31.082916ms)
+  ✖ future-dated delegations from a suspended member are ended too (20.225833ms)
+  ✔ the delegator losing the scope stops the delegate (30.3095ms)
+  ✖ revocation stops the delegate (2.469542ms)
+  ✖ termination ends delegations the open-delegation gate does not see (future-dated) and records them (23.824417ms)
+✖ Review R2 delegation standing over HTTP (disposable Postgres) (386.767375ms)
+ℹ tests 8
+ℹ pass 2
+ℹ fail 6
+✖ failing tests:
+✖ suspending the delegator stops the delegate (read, new command, replay) and ends the delegation in the same transaction (32.448416ms)
+✖ reinstatement does not revive the old delegation (read and replay stay denied); a fresh authorized grant is required (7.009084ms)
+✖ suspending a delegate ends delegations granted to them; their reinstatement restores nothing (31.082916ms)
+✖ future-dated delegations from a suspended member are ended too (20.225833ms)
+✖ revocation stops the delegate (2.469542ms)
+✖ termination ends delegations the open-delegation gate does not see (future-dated) and records them (23.824417ms)
+## source restored: True

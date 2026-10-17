@@ -103,6 +103,12 @@ export interface OsWorkforceStore {
     memberId: string,
     asOf: Date,
   ): Promise<DelegationRecord[]>;
+  /** Unrevoked, unexpired delegations from or to the member, including future-dated ones. */
+  listUnexpiredDelegationsInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<DelegationRecord[]>;
   /**
    * Active customer coverage grants where the member is primary owner or acting advisor.
    * Uses the same active-window semantics as commercial coverage authority.

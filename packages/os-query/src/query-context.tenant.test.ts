@@ -88,12 +88,19 @@ function reader() {
         },
       ]
         .filter((row) => matchesOrg(row.organizationId, organizationId))
-        .map(({ scopes, startsAt, expiresAt, revokedAt, delegatorMemberId }) => ({
+        .map(({ organizationId: rowOrg, scopes, startsAt, expiresAt, revokedAt, delegatorMemberId }) => ({
           scopes,
           startsAt,
           expiresAt,
           revokedAt,
           delegatorMemberId,
+          organizationId: rowOrg,
+          // Canonical rule (R2 follow-up): the delegator is active in the row's org and holds the scope.
+          delegator: {
+            organizationId: rowOrg,
+            accessStatus: 'active',
+            roleAssignments: [{ roleKey: 'approval.act', effectiveAt: new Date('2026-01-01T00:00:00.000Z'), endedAt: null }],
+          },
         }));
     },
   };

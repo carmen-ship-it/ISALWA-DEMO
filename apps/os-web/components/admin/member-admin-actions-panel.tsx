@@ -19,6 +19,7 @@ import {
   terminateMemberAction,
 } from '@/lib/workforce/actions';
 import { ServerMemberTypeahead } from '@/components/operating/server-member-typeahead';
+import { RoleChangeForm } from '@/components/admin/role-change-form';
 import type { SelectOption } from '@/lib/workforce/admin-options';
 import { DELEGATION_SCOPE_OPTIONS } from '@/lib/workforce/admin-options';
 import type { MemberAdminVisibility } from '@/lib/workforce/lifecycle-ui';
@@ -183,33 +184,18 @@ export function MemberAdminActionsPanel({
             <div>
               <h3 className="isalwa-section-label">Rol principal</h3>
               <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                Sustituye el rol operativo. También finaliza los demás roles activos, incluidos los
-                permisos adicionales. No lo use para agregar un permiso.
+                Sustituye el rol operativo. Los permisos adicionales se mantienen salvo que marque su
+                retiro. No lo use para agregar un permiso.
               </p>
               <FormFeedback error={roleState.error} success={roleState.success} />
               {primaryRoleOptions.length > 0 ? (
-                <form action={roleAction} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
-                  <input type="hidden" name="memberId" value={memberId} />
-                  <div className="min-w-0 flex-1">
-                    <label htmlFor="role-select" className="isalwa-section-label">
-                      Rol principal
-                    </label>
-                    <select
-                      id="role-select"
-                      name="roleKey"
-                      required
-                      defaultValue={primary[0] ?? ''}
-                      className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2"
-                    >
-                      {primaryRoleOptions.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <CommandSubmitButton label="Cambiar rol principal" variant="secondary" />
-                </form>
+                <RoleChangeForm
+                  memberId={memberId}
+                  currentPrimary={primary[0] ?? null}
+                  additional={additional}
+                  options={primaryRoleOptions}
+                  action={roleAction}
+                />
               ) : (
                 <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
                   No hay roles operativos registrados para elegir. El rol actual es{' '}

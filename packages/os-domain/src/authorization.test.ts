@@ -194,7 +194,7 @@ describe('F10 delegation follows its delegator', () => {
     assert.deepEqual(computeEffectiveScopes([], [base()], new Date('2026-07-15')), []);
   });
 
-  it('a delegator reinstated before expiry confers again (use-time evaluation, row unchanged)', () => {
+  it('pure use-time rule: an unrevoked row from an active delegator confers (suspension/termination revoke the row, so reinstatement does not revive it — see R2 HTTP)', () => {
     const d = base();
     assert.deepEqual(computeEffectiveScopes([], [{ ...d, delegator: holder('people.admin', { accessStatus: 'suspended' }) }], asOf), []);
     assert.deepEqual(computeEffectiveScopes([], [d], asOf), ['people.admin']);

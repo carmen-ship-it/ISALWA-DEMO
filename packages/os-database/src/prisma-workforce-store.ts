@@ -368,6 +368,31 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
     }));
   }
 
+  async listUnexpiredDelegationsInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<DelegationRecord[]> {
+    const rows = await this.db().osDelegation.findMany({
+      where: {
+        organizationId,
+        revokedAt: null,
+        expiresAt: { gt: asOf },
+        OR: [{ delegatorMemberId: memberId }, { delegateMemberId: memberId }],
+      },
+    });
+    return rows.map((d) => ({
+      id: d.id,
+      organizationId: d.organizationId,
+      delegatorMemberId: d.delegatorMemberId,
+      delegateMemberId: d.delegateMemberId,
+      scopes: d.scopesJson as string[],
+      startsAt: d.startsAt,
+      expiresAt: d.expiresAt,
+      revokedAt: d.revokedAt,
+    }));
+  }
+
   async listActiveCustomerCoverageInvolvingMember(
     organizationId: string,
     memberId: string,

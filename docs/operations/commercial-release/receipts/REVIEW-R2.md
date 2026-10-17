@@ -42,7 +42,7 @@ Consequences, stated plainly:
 
 `packages/os-database/src/ops/initial-commercial-bootstrap.ts` + `ops/bootstrap-cli.ts`:
 - inputs: organization id **and** slug, existing member id **and** email, scopes, approval reference, operator, reason (all required);
-- allowlist: `ADDITIONAL_ASSIGNABLE_SCOPE_KEYS` only (no `people.admin`, technical or reserved scopes);
+- allowlist: `ADDITIONAL_ASSIGNABLE_SCOPE_KEYS` only (no `people.admin`, technical or reserved scopes) — narrowed by the R2 follow-up to named minimal proposals with explicit range (`receipts/REVIEW-R2-FOLLOWUP.md` §4);
 - dry run (default) prints current vs proposed grants and a plan hash; execution requires that exact hash;
 - refuses: wrong tenant (id/slug mismatch), member not in org, member not active, email not an active identity of that member, email resolving to more than one person or membership, scope outside allowlist, scope already held by any active member (then `GrantAdditionalRole` applies), scope bootstrapped before;
 - one transaction; ids `bootstrap:<org>:<scope>` make each scope bootstrappable at most once per organization, concurrent runs included;
@@ -57,8 +57,9 @@ Tested with synthetic organizations and identities on the disposable cluster (7/
 |---|---|
 | Organization | ISALWA production organization: id and slug to be read from the hosted database by an authorized operator (not inspected in this lane) |
 | Member | **owner to name**: existing active member, id + login email. Not chosen by engineering. |
-| Proposed scopes (first holder, so that each commercial scope becomes grantable through normal commands) | `commercial.org.read`, `commercial.team.read`, `commercial.customer.create`, `commercial.customer.edit`, `commercial.customer.archive`, `commercial.customer.reactivate`, `commercial.work.manage`, `commercial.account.reassign`, `commercial.assignment.org`, `commercial.intake.assign`, `commercial.order.convert`, `commercial.quote.convert.own` |
-| Narrower alternative | only the scopes needed for the first managers now (e.g. `commercial.org.read`, `commercial.team.read`, `commercial.customer.edit`, `commercial.work.manage`); the rest remain ungrantable until a later approved bootstrap |
+| Proposal (superseded 21:33 §4: no all-scopes or org-wide default) | owner to pick one per member: `team_manager` (team: team.read, customer.edit, work.manage), `commercial_manager` (organization: org.read, customer.edit, work.manage) or `customer_data_steward` (team: team.read, customer.create, customer.edit), and a subset of its scopes. See `receipts/REVIEW-R2-FOLLOWUP.md` §4 |
+| Range | must match the proposal; organization-wide scopes need explicit `organization` |
+| Not proposed | `commercial.assignment.org`, `commercial.intake.assign`, `commercial.account.reassign`, `commercial.customer.archive`, `commercial.customer.reactivate`, conversions: stay ungrantable until a later approved change |
 | Approval reference | owner to supply |
 | Execution | separate authorization required; dry-run output reviewed first |
 

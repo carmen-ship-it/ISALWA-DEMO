@@ -14,7 +14,8 @@ import {
  *   node --import tsx src/ops/bootstrap-cli.ts <request.json> --execute <planHash> # apply
  *
  * The request file names the organization (id + slug), the existing member (id + email),
- * the scopes, the owner approval reference, the operator and the reason. Output is the
+ * the proposal (see BOOTSTRAP_PROPOSALS), its range, the scopes, the owner approval
+ * reference, the operator and the reason. Nothing is filled in by default. Output is the
  * plan or result only; no connection string or environment value is printed.
  */
 async function main(): Promise<number> {

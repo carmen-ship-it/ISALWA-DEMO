@@ -11,12 +11,15 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | R1 (review: grant provisioning F03/F04) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 2 mutation checks; NOT INDEPENDENTLY REVIEWED) | see git log `fix(workforce): R1` | `commercial-release/receipts/REVIEW-R1.md` |
 | R2 (review: effective delegation F10, grant/team range, bootstrap procedure) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 3 mutation checks; NOT INDEPENDENTLY REVIEWED; bootstrap PREPARED, NOT EXECUTED) | see git log `fix(authz): R2` | `commercial-release/receipts/REVIEW-R2.md` |
 | R3 (review: tenant selection F09) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 3 mutation checks; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN) | see git log `fix(tenancy): R3` | `commercial-release/receipts/REVIEW-R3.md` |
+| R2 follow-up (21:33: delegation enforcement, suspension lifecycle, ChangeRole, bootstrap) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 5 mutation checks; NOT INDEPENDENTLY REVIEWED; preview BROWSER CHECK UNPROVEN; bootstrap PREPARED, NOT EXECUTED) | see git log `fix(authz): R2 follow-up` | `commercial-release/receipts/REVIEW-R2-FOLLOWUP.md` |
 
 ## Last confirmed step
 
 T02 committed: shared customer-visibility predicate (search/detail/contacts/locations/timeline/conversations), duplicate-counterpart redaction, HTTP+PG proof for the 8 remaining operational GETs (ledger pending = 0), Postgres-shared rate limit (`os_rate_limit_buckets`, migration 34) for search/commands/invitations.
 
 ## Next command
+
+R2 follow-up done (21:33 §1–§6): os-query approval reads and os-delivery permission lookup use the canonical delegation rule; suspension/termination end delegations issued by and granted to the member in the same transaction (reinstatement needs a fresh grant); ChangeRole replaces only the primary role, preserves additional grants unless explicitly revoked, with a preview shown before confirmation; bootstrap limited to three minimal proposals with explicit range. Next: R4 / task 4 read gaps (F07, F10 authorship, F11) with HTTP+PG and 404 non-disclosure.
 
 R3 done (20:03 §7, §13.8 #3): web organization context comes from proven active membership via `GET /v1/session/organizations`; one → used, several → valid previous choice or chooser, none → honest no-access; tampered/stale selectors refused by os-api; switching clears session storage and reloads; the Journey no longer changes organization or data mode. Next: task 4 read gaps (commitments, work items, approvals; F07, F10 authorship, F11) with HTTP+PG and 404 non-disclosure.
 
@@ -36,7 +39,7 @@ Recorded in `commercial-release/REUSE_MAP.md` §11. Remove the sample-data demo 
 
 ## Open blockers
 
-**TRANSFER/PUSH BLOCKER (20:39 §5):** four R1 evidence logs and every commit from `e7d8d98` on are UNREVIEWED — NOT FOR TRANSFER (`commercial-release/evidence/REVIEW-R1/UNREVIEWED-NOT-FOR-TRANSFER.md`). No push, upload, archive or sharing of this branch until resolved through an authorized review. Local development continues.
+**TRANSFER/PUSH BLOCKER (20:39 §5):** four R1 evidence logs and every commit from `e7d8d98` on are UNREVIEWED — NOT FOR TRANSFER (`commercial-release/evidence/REVIEW-R1/UNREVIEWED-NOT-FOR-TRANSFER.md`). No push, upload, archive or sharing of this branch until resolved through an authorized review. Local development continues. Review snapshots of this branch carry the same marking; future review exports are built from an explicit path allowlist that excludes restricted logs before any file is materialized (21:33 §6). The logs are not sanitized and the blocked inspection is not retried.
 
 None for local work. External dependencies (§14) recorded per task when reached.
 

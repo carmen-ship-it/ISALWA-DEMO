@@ -10,6 +10,7 @@ import { memberHasScope } from '@isalwa/os-domain';
 import { LocalAuthProviderPort } from './auth-provider';
 import { MemoryOsStore } from './memory-store';
 import { WorkforceCommandService } from './workforce-command-service';
+import { planRoleChange } from './role-change-plan';
 
 function ctx(
   orgId: string,
@@ -273,16 +274,89 @@ describe('GrantAdditionalRole / EndAdditionalRole', () => {
     assert.ok(history[0]?.endedAt);
   });
 
-  it('ChangeRole still replaces every active assignment, including additional permissions', async () => {
+});
+
+describe('ChangeRole replaces the primary role only (21:33 §3)', () => {
+  it('replaces the primary role, preserves additional grants, and ends permissions from the old primary', async () => {
     const { store, svc, org, admin, memberId } = await harness();
     const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
-    await svc.execute('GrantAdditionalRole', adminCtx, {
+    await svc.execute('GrantAdditionalRole', adminCtx, { memberId, roleKey: 'commercial.org.read' });
+    await svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'people.admin' });
+    assert.deepEqual((await activeKeys(store, memberId, adminCtx.effectiveAt)).sort(), ['commercial.org.read', 'people.admin']);
+
+    const result = await svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'sales_manager' });
+    assert.deepEqual((await activeKeys(store, memberId, adminCtx.effectiveAt)).sort(), ['commercial.org.read', 'sales_manager']);
+    assert.deepEqual(result.data.endedPrimaryRoleKeys, ['people.admin']);
+    assert.deepEqual(result.data.preservedAdditionalRoleKeys, ['commercial.org.read']);
+    assert.deepEqual(result.data.revokedAdditionalRoleKeys, []);
+    assert.deepEqual(result.data.scopesLost, ['people.admin'], 'permission derived from the old primary ends');
+  });
+
+  it('revokes an additional grant only when the command names it', async () => {
+    const { store, svc, org, admin, memberId } = await harness();
+    const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    await svc.execute('GrantAdditionalRole', adminCtx, { memberId, roleKey: 'commercial.org.read' });
+    await svc.execute('GrantAdditionalRole', adminCtx, { memberId, roleKey: 'commercial.customer.edit' });
+    const result = await svc.execute('ChangeRole', adminCtx, {
       memberId,
-      roleKey: 'commercial.org.read',
+      roleKey: 'sales_manager',
+      revokeAdditionalRoleKeys: ['commercial.org.read'],
     });
-    await svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'sales_manager' });
-    const keys = await activeKeys(store, memberId, adminCtx.effectiveAt);
-    assert.deepEqual(keys, ['sales_manager']);
+    assert.deepEqual((await activeKeys(store, memberId, adminCtx.effectiveAt)).sort(), ['commercial.customer.edit', 'sales_manager']);
+    assert.deepEqual(result.data.revokedAdditionalRoleKeys, ['commercial.org.read']);
+  });
+
+  it('refuses to revoke an additional grant the member does not hold, changing nothing', async () => {
+    const { store, svc, org, admin, memberId } = await harness();
+    const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    await assert.rejects(
+      () => svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'sales_manager', revokeAdditionalRoleKeys: ['commercial.org.read'] }),
+      /VALIDATION_FAILED/,
+    );
+    assert.deepEqual(await activeKeys(store, memberId, adminCtx.effectiveAt), ['sales_rep']);
+  });
+
+  it('a held scope may still be given as the new role (R1 path); an already-held one keeps its row and cannot also be revoked', async () => {
+    const { store, svc, org, admin, memberId } = await harness();
+    const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    await svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'commercial.team.read' });
+    assert.deepEqual(await activeKeys(store, memberId, adminCtx.effectiveAt), ['commercial.team.read']);
+
+    await svc.execute('GrantAdditionalRole', adminCtx, { memberId, roleKey: 'commercial.org.read' });
+    await assert.rejects(
+      () => svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'commercial.org.read', revokeAdditionalRoleKeys: ['commercial.org.read'] }),
+      /VALIDATION_FAILED/,
+    );
+    await svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'commercial.org.read' });
+    const open = (await store.listRoleAssignmentsForMember(memberId)).filter((row) => row.endedAt === null);
+    assert.deepEqual(open.map((row) => row.roleKey).sort(), ['commercial.org.read', 'commercial.team.read'], 'one row per key, no duplicate');
+  });
+
+  it('preserving extra grants does not let a grantor expand privileges: a primary the grantor lacks is denied', async () => {
+    const { store, svc, org, admin, peopleOnly, memberId } = await harness();
+    const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    await svc.execute('GrantAdditionalRole', adminCtx, { memberId, roleKey: 'commercial.org.read' });
+    const rrhh = ctx(org.id, peopleOnly.member.id, peopleOnly.person.id, peopleOnly.auth.id);
+    await assert.rejects(() => svc.execute('ChangeRole', rrhh, { memberId, roleKey: 'master_data.admin' }), /PERMISSION_DENIED/);
+    assert.deepEqual((await activeKeys(store, memberId, adminCtx.effectiveAt)).sort(), ['commercial.org.read', 'sales_rep']);
+  });
+
+  it('the preview plan matches what the command applies', async () => {
+    const { store, svc, org, admin, memberId } = await harness();
+    const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    await svc.execute('GrantAdditionalRole', adminCtx, { memberId, roleKey: 'commercial.org.read' });
+    await svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'people.admin' });
+    const plan = planRoleChange({
+      memberId,
+      assignments: await store.listRoleAssignmentsForMember(memberId),
+      roleKey: 'sales_manager',
+      revokeAdditionalRoleKeys: [],
+      asOf: adminCtx.effectiveAt,
+    });
+    assert.deepEqual(plan.scopesLost, ['people.admin']);
+    assert.deepEqual(plan.effectiveScopesAfter, ['commercial.org.read']);
+    const result = await svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'sales_manager' });
+    assert.deepEqual([result.data.scopesGained, result.data.scopesLost], [plan.scopesGained, plan.scopesLost]);
   });
 });
 

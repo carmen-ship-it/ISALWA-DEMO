@@ -1,0 +1,67 @@
+# mutation: changerole-ends-all-assignments
+## diff
+--- a/packages/os-workforce/src/workforce-command-service.ts
++++ b/packages/os-workforce/src/workforce-command-service.ts
+@@ -861,7 +861,7 @@
+ 
+     // Replaces the primary role only. Additional permissions stay unless the
+     // request names them for revocation.
+-    for (const key of [...plan.endedPrimaryRoleKeys, ...plan.revokedAdditionalRoleKeys]) {
++    for (const key of [...new Set(assignments.filter((r) => r.endedAt === null).map((r) => r.roleKey))]) {
+       await store.endActiveRoleAssignmentsForKey(ctx.organizationId, memberId, key, effectiveAt);
+     }
+     const keptAsHeld =
+## result (expected: tests fail)
+apps/os-api: exit=1
+▶ Review R2 follow-up: ChangeRole preserves additional grants (disposable Postgres)
+  ✖ preview shows primary replacement with additional grants preserved, and the command does exactly that (55.1785ms)
+  ✖ explicit revocation ends only the named additional grant, and the preview lists the lost scope first (23.632708ms)
+  ✔ revoking a grant the member does not hold is rejected with no change (11.400333ms)
+  ✔ no unauthorized expansion: a commercial or admin scope the actor lacks, or a non-admin actor, are all refused (18.020917ms)
+  ✔ the preview needs people.admin and stays inside the selected organization (10.279791ms)
+✖ Review R2 follow-up: ChangeRole preserves additional grants (disposable Postgres) (233.633041ms)
+ℹ tests 5
+ℹ pass 3
+ℹ fail 2
+✖ failing tests:
+✖ preview shows primary replacement with additional grants preserved, and the command does exactly that (55.1785ms)
+✖ explicit revocation ends only the named additional grant, and the preview lists the lost scope first (23.632708ms)
+packages/os-workforce: exit=1
+▶ GrantAdditionalRole / EndAdditionalRole
+  ✔ keeps the operational role when an explicit permission is added and revoked (7.809292ms)
+  ✔ treats a duplicate active grant as the same assignment (1.613417ms)
+  ✔ denies an unknown key, an unauthorized actor, and a cross-tenant target (1.655917ms)
+  ✔ follows ChangeRole for a suspended target and does not infer Cargo (1.676208ms)
+  ✔ does not give people.admin the commercial capability being assigned (1.124291ms)
+  ✔ records grant and revoke on the event, audit, and outbox without rewriting history (1.494084ms)
+✔ GrantAdditionalRole / EndAdditionalRole (15.907666ms)
+▶ ChangeRole replaces the primary role only (21:33 §3)
+  ✖ replaces the primary role, preserves additional grants, and ends permissions from the old primary (4.215833ms)
+  ✖ revokes an additional grant only when the command names it (5.079625ms)
+  ✔ refuses to revoke an additional grant the member does not hold, changing nothing (1.527375ms)
+  ✖ a held scope may still be given as the new role (R1 path); an already-held one keeps its row and cannot also be revoked (4.722917ms)
+  ✔ preserving extra grants does not let a grantor expand privileges: a primary the grantor lacks is denied (1.196375ms)
+  ✖ the preview plan matches what the command applies (1.338667ms)
+✖ ChangeRole replaces the primary role only (21:33 §3) (18.383584ms)
+▶ Grant provisioning escalation (F03/F04)
+  ✔ denies a people administrator granting a commercial scope they do not hold, to anyone (2.490125ms)
+  ✔ denies granting to yourself even a scope you already hold (1.078625ms)
+  ✔ lets a grantor who holds them provision a manager with edit, work and range scopes together (1.479584ms)
+  ✔ denies appointing yourself as manager, a member as their own manager, and backdated changes (1.395791ms)
+✔ Grant provisioning escalation (F03/F04) (6.5605ms)
+▶ Grant and team range stay within the grantor (20:39 §2)
+  ✔ people.admin alone cannot put someone under a manager who holds team range (2.267041ms)
+  ✔ people.admin alone may still assign a manager who holds no commercial range (1.692083ms)
+  ✔ a team-range grantor cannot extend a lead over someone outside their own team (1.9355ms)
+  ✔ an org-range grantor can extend a lead over anyone (9.934416ms)
+  ✔ granting org range to an editor needs org-wide edit authority, not just commercial.org.read (1.824125ms)
+✔ Grant and team range stay within the grantor (20:39 §2) (17.748542ms)
+ℹ tests 21
+ℹ pass 17
+ℹ fail 4
+✖ failing tests:
+✖ replaces the primary role, preserves additional grants, and ends permissions from the old primary (4.215833ms)
+✖ revokes an additional grant only when the command names it (5.079625ms)
+✖ a held scope may still be given as the new role (R1 path); an already-held one keeps its row and cannot also be revoked (4.722917ms)
+✖ the preview plan matches what the command applies (1.338667ms)
+## source restored: True

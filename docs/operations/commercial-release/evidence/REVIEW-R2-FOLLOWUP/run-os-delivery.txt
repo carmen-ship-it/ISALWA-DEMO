@@ -1,0 +1,176 @@
+# suite: run-os-delivery.txt
+▶ delivery documents: Pedido → Nota → Salida → Entrega
+  ✔ creates nota de entrega from pedido with provisional numbering (SYNTH) (5.578083ms)
+  ✔ prefills party/order/lines from order — no retype of customer or line labels (0.477375ms)
+  ✔ keeps provisional numbering honest and refuses invented official numbers (0.693167ms)
+  ✔ records salida without creating a nota; PDF download does not create salida (1.33925ms)
+  ✔ records entrega without auto-creating a nota and sets receivedBy on linked nota (5.905708ms)
+  ✔ keeps correction history append-only (23.952666ms)
+  ✔ rejects cross-tenant access as NOT_FOUND (1.114166ms)
+  ✔ denies unauthorized create (5.603333ms)
+  ✔ rejects invalid or cancelled order (7.921416ms)
+  ✔ rejects quantity above order line when lines are known (6.478959ms)
+  ✔ allows partial quantities and payment-optional entrega (21.597167ms)
+  ✔ creates notes across seven synthetic orgs (REAL_SEVEN_MUTATED via SYNTH) (178.413458ms)
+✔ delivery documents: Pedido → Nota → Salida → Entrega (264.390916ms)
+▶ delivery persistence and panel stay inside the boundary
+  ✔ evolves SQL for flexible notas without inventing official numbering (5.781875ms)
+  ✔ mounts delivery documents on pedido and keeps /entregas warehouse ≠ delivery honesty (10.752625ms)
+✔ delivery persistence and panel stay inside the boundary (16.660125ms)
+▶ delivery tenant and role isolation
+  ✔ allows a same-tenant read of warehouse exit, delivery, and delivery note (6.147959ms)
+  ✔ denies the same tenant when the role does not match the resource (13.048ms)
+  ✔ returns not found for a direct get from the wrong organization and does not return the row (0.506625ms)
+  ✔ denies a direct call when the session has no organization (0.983417ms)
+  ✔ does not leak another tenant through search (0.621584ms)
+  ✔ does not leak another tenant through aggregates, the note list, or recipient suggestions (0.356542ms)
+✔ delivery tenant and role isolation (22.264417ms)
+▶ delivery note list bound
+  ✔ returns only the newest 25 tenant notes (10.29925ms)
+✔ delivery note list bound (10.737792ms)
+▶ Delivery permission lookup follows the canonical delegation rule
+  ✔ direct valid grants still work (1.362542ms)
+  ✔ an ended direct grant confers nothing (0.226666ms)
+  ✔ delivery scopes stay non-delegable, even from an active holder (0.661625ms)
+  ✔ a delegable scope from an active holder is conferred (0.202625ms)
+  ✔ revoked, suspended-delegator and no-longer-held delegations confer nothing (0.294541ms)
+✔ Delivery permission lookup follows the canonical delegation rule (3.712959ms)
+▶ prisma delivery store — transaction port
+  ✔ runs the callback on the transaction client, not the root client (1.372625ms)
+  ✔ does not open a second transaction for a nested call (0.2265ms)
+  ✔ rolls back and rethrows when the callback throws (1.215333ms)
+  ✔ fails closed instead of silently running without a transaction (0.18ms)
+  ✔ takes the order row lock through the transaction client with FOR UPDATE on os_orders (0.323875ms)
+  ✔ refuses to take the lock outside a transaction (0.117292ms)
+✔ prisma delivery store — transaction port (3.963458ms)
+▶ prisma delivery store — guarded reversal
+  ✔ reverses an issued note exactly once and reports the loser (2.176291ms)
+✔ prisma delivery store — guarded reversal (2.24725ms)
+▶ prisma delivery store — dispatch ledger rows
+  ✔ returns unbounded, tenant-scoped rows including reversed notes and linked exits (1.473791ms)
+✔ prisma delivery store — dispatch ledger rows (1.544042ms)
+▶ ADR 0003 over the prisma store — cumulative dispatch is atomic
+  ✔ takes the order lock before reading the order inside the same transaction (0.481625ms)
+  ✔ rejects the excess dispatch and still allows the partial one (0.837458ms)
+  ✔ lets exactly one of two concurrent notes through (0.479167ms)
+  ✔ lets exactly one of two concurrent salidas through (2.07275ms)
+  ✔ does not double count a linked salida, and a reversal restores the quantity (1.371417ms)
+✔ ADR 0003 over the prisma store — cumulative dispatch is atomic (5.361208ms)
+▶ D3 over the prisma store — all-or-nothing and single-winner
+  ✔ rolls the whole command back when a later write fails (0.368083ms)
+  ✔ lets exactly one of two concurrent corrections win (0.469459ms)
+  ✔ Pedido timeline still derives from persisted rows on the hosted store (fallback intact) (8.276667ms)
+✔ D3 over the prisma store — all-or-nothing and single-winner (9.199375ms)
+▶ ADR 0003 cumulative dispatch — delivery notes
+  ✔ allows partial dispatches that add up to exactly the order quantity (3.703875ms)
+  ✔ rejects a note that would push the cumulative total past the order line (0.855833ms)
+  ✔ rejects any further dispatch once the order line is fully dispatched (0.447333ms)
+  ✔ carries a machine-readable reason so callers can tell it from a generic validation error (0.3895ms)
+✔ ADR 0003 cumulative dispatch — delivery notes (5.95625ms)
+▶ ADR 0003 cumulative dispatch — warehouse exits
+  ✔ allows partial exits and rejects the one that exceeds the order line (1.165125ms)
+✔ ADR 0003 cumulative dispatch — warehouse exits (1.22225ms)
+▶ ADR 0003 — no double counting between nota, salida, and receipt
+  ✔ does not count a salida linked to a nota on top of that nota (0.542334ms)
+  ✔ still bounds the salida ledger on its own (0.588208ms)
+  ✔ recording receipt does not consume dispatchable quantity (ADR 0003: receipt must not count again) (1.049667ms)
+  ✔ still lets a receipt be recorded after the line is fully dispatched (0.495459ms)
+✔ ADR 0003 — no double counting between nota, salida, and receipt (2.802ms)
+▶ ADR 0003 — authorized, audited reversal restores dispatchable quantity
+  ✔ rejects excess, then accepts it after the note is reversed (2.499959ms)
+  ✔ does not let the reversal row itself double-restore quantity (0.435417ms)
+  ✔ excludes a salida linked to a reversed nota, but keeps an unlinked salida counted (0.779416ms)
+  ✔ a recorded receipt alone never restores quantity (a return needs a reversal, not a receipt) (0.460959ms)
+✔ ADR 0003 — authorized, audited reversal restores dispatchable quantity (4.253708ms)
+▶ ADR 0003 — current confirmed order quantity governs
+  ✔ blocks further dispatch when the order line was revised below what is already dispatched (0.247ms)
+  ✔ allows additional dispatch after the order line is revised upward (0.419625ms)
+✔ ADR 0003 — current confirmed order quantity governs (0.721417ms)
+▶ ADR 0003 — concurrent dispatch is enforced atomically
+  ✔ lets exactly one of two concurrent notes through when together they exceed the line (0.256792ms)
+  ✔ lets exactly one of two concurrent salidas through when together they exceed the line (0.263666ms)
+  ✔ lets two concurrent partial notes through when they fit (0.407208ms)
+✔ ADR 0003 — concurrent dispatch is enforced atomically (0.988833ms)
+▶ ADR 0003 — historical over-delivery is reported, never rewritten
+  ✔ reports the over-delivered order and line without changing any stored row (0.860542ms)
+  ✔ blocks further dispatch on an already over-delivered order (0.249625ms)
+  ✔ does not report an order that is within its quantity (0.361375ms)
+  ✔ exposes the per-line dispatch balance for an order (0.522333ms)
+✔ ADR 0003 — historical over-delivery is reported, never rewritten (2.158417ms)
+▶ S11 delivery replay authorization
+  ✔ replays the same actor and same request without a second note (6.749667ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.875291ms)
+  ✔ denies the original actor once the delivery scope is removed (0.509583ms)
+  ✔ denies the original actor once suspended (0.442208ms)
+  ✔ never returns one company result to another company using the same key (0.703125ms)
+  ✔ V2 §10: the same actor sending a different payload on the same key gets CONFLICT (0.429125ms)
+  ✔ V2 §10: a legacy completed row is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.124583ms)
+  ✔ turns concurrent duplicates into one note: same actor replays, another actor gets CONFLICT (0.417084ms)
+✔ S11 delivery replay authorization (10.866084ms)
+▶ delivery create retry
+  ✔ replays nota, salida, and entrega on the same key and allows a later key (7.198875ms)
+  ✔ does not insert when the same key is already claimed (0.706416ms)
+✔ delivery create retry (8.811875ms)
+▶ D3 — a command that fails part-way leaves nothing behind
+  ✔ rolls back the nota row when its lines cannot be written (3.66525ms)
+  ✔ rolls back the salida and its outbound note when the outbound lines cannot be written (0.985541ms)
+  ✔ rolls back the entrega and the note link when evidence cannot be written (2.056417ms)
+  ✔ keeps the original note issued when the reversal row cannot be written (0.773333ms)
+  ✔ does not leave an original reversed with a missing reversal when reversal lines fail (0.533166ms)
+✔ D3 — a command that fails part-way leaves nothing behind (8.68175ms)
+▶ D3 — retry with the same idempotency key after a failed command
+  ✔ re-runs cleanly and creates exactly one nota (no orphaned first attempt) (1.715708ms)
+  ✔ a retry after a failed salida does not double-dispatch (ADR 0003 quantity stays correct) (1.858625ms)
+  ✔ still replays a successful command on the same key without re-running it (1.067ms)
+  ✔ keeps a validation failure retryable with a corrected payload on the same key (1.025959ms)
+✔ D3 — retry with the same idempotency key after a failed command (5.94775ms)
+▶ D3 — corrections are single-winner under concurrency
+  ✔ lets exactly one of two concurrent corrections reverse a note and create one reversal (0.953083ms)
+  ✔ a single correction still succeeds and a second sequential one is refused (0.437708ms)
+  ✔ a receipt racing a correction can never resurrect a reversed note (2.120667ms)
+✔ D3 — corrections are single-winner under concurrency (3.6095ms)
+▶ D3 — the Pedido timeline is unchanged by the transactional wrapper
+  ✔ still records events for committed commands and none for rolled-back ones (1.063125ms)
+✔ D3 — the Pedido timeline is unchanged by the transactional wrapper (1.112416ms)
+▶ delivery writes prove the session organization before insert
+  ✔ does not treat the memory store as tenant proof and marks the live write unproven (1.72225ms)
+  ✔ does not insert a warehouse exit or delivery for a foreign order id (2.758792ms)
+  ✔ does not mutate when an id-only lookup returns another organization (0.624292ms)
+  ✔ does not let receive or commercial.team.read record an exit, a delivery, or evidence (0.547042ms)
+  ✔ does not let delivery.record authorize a warehouse exit or allocate finished goods (3.646542ms)
+✔ delivery writes prove the session organization before insert (10.131416ms)
+▶ ADR 0003 summarizeCommittedDispatch
+  ✔ counts issued notes and excludes reversed ones (reversal restores quantity) (0.911375ms)
+  ✔ keeps note and exit ledgers separate so a linked salida is not added to its nota (0.106125ms)
+  ✔ excludes an exit linked to a reversed note and keeps an unlinked exit (0.076916ms)
+  ✔ keeps counting an exit whose linked note is unknown (blocking is the safe direction) (0.065041ms)
+✔ ADR 0003 summarizeCommittedDispatch (1.711375ms)
+▶ ADR 0003 assertCumulativeDispatchWithinOrder
+  ✔ accepts a request that fills the remaining quantity exactly (0.256334ms)
+  ✔ rejects a request that exceeds the remaining quantity and says which line (0.226666ms)
+  ✔ checks the ledger it is asked about, not the other one (0.087375ms)
+✔ ADR 0003 assertCumulativeDispatchWithinOrder (0.672666ms)
+▶ ADR 0003 balance and over-delivery report
+  ✔ computes remaining per ledger and clamps at zero (0.149667ms)
+  ✔ lists only lines past the order quantity (0.105625ms)
+  ✔ is empty when nothing is over (0.113791ms)
+  ✔ does nothing for an order with no known lines (0.072416ms)
+✔ ADR 0003 balance and over-delivery report (0.576542ms)
+▶ createPrismaDeliveryStore
+  ✔ marks customer delivery and warehouse exit as prisma_port with outbound registered (0.797ms)
+  ✔ persists customer delivery without auto-creating a nota; CreateNota creates provisional note (6.571167ms)
+  ✔ does not invent a note number and refuses silent create-before-delivery helper (0.51025ms)
+  ✔ treats a foreign order as not_found without leaking org-b and does not insert (0.2895ms)
+  ✔ does not let warehouse.outbound.record alone authorize customer delivery (0.197625ms)
+  ✔ persists partial and multiple warehouse exits as nota_de_salida without inventing a number (0.935208ms)
+  ✔ denies warehouse exit without outbound scope and does not mutate or invent delivery (0.244125ms)
+  ✔ treats a foreign order warehouse exit as not_found without leaking org-b (0.2155ms)
+✔ createPrismaDeliveryStore (10.531416ms)
+ℹ tests 111
+ℹ suites 28
+ℹ pass 111
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+exit=0

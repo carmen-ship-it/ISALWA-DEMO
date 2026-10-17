@@ -36,6 +36,7 @@ import { normalizeAuthEmail } from './auth-email';
 import type { OsWorkforceStore } from './os-workforce-store';
 import { runProviderSideEffectWithRetry } from './provider-side-effects';
 import { collectTerminationImpact } from './termination-impact';
+import { parseRevokeAdditionalRoleKeys, planRoleChange } from './role-change-plan';
 
 export type CommandResult = {
   commandId: string;
@@ -835,27 +836,57 @@ export class WorkforceCommandService {
     const memberId = String(payload.memberId);
     const roleKey = String(payload.roleKey);
     const effectiveAt = notBackdated(payload.effectiveAt, ctx.effectiveAt);
+    const revokeAdditionalRoleKeys = parseRevokeAdditionalRoleKeys(payload.revokeAdditionalRoleKeys);
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
     await this.assertRoleKeyAssignable(ctx, roleKey, memberId, store);
-    await this.assertReachWithinGrantor(ctx, memberId, { roleKeys: [roleKey] }, store);
-
-    // Primary-role replacement: ends every active assignment, including
-    // additional permissions. Additive grants use GrantAdditionalRole.
-    await store.endActiveRoleAssignments(memberId, effectiveAt);
-    await store.insertRoleAssignment({
-      id: createId(),
-      organizationId: ctx.organizationId,
+    const assignments = await store.listRoleAssignmentsForMember(memberId, ctx.organizationId);
+    const plan = planRoleChange({
       memberId,
+      assignments,
       roleKey,
-      effectiveAt,
-      endedAt: null,
+      revokeAdditionalRoleKeys,
+      asOf: ctx.effectiveAt,
     });
+    if (plan.revokedAdditionalRoleKeys.length > 0) {
+      await this.authorize(ctx, 'EndAdditionalRole', ctx.organizationId, store);
+    }
+    // Preserved additional grants count toward the resulting reach like any other.
+    await this.assertReachWithinGrantor(
+      ctx,
+      memberId,
+      { roleKeys: [roleKey, ...plan.preservedAdditionalRoleKeys] },
+      store,
+    );
+
+    // Replaces the primary role only. Additional permissions stay unless the
+    // request names them for revocation.
+    for (const key of [...plan.endedPrimaryRoleKeys, ...plan.revokedAdditionalRoleKeys]) {
+      await store.endActiveRoleAssignmentsForKey(ctx.organizationId, memberId, key, effectiveAt);
+    }
+    const keptAsHeld =
+      !plan.endedPrimaryRoleKeys.includes(roleKey) &&
+      assignments.some((row) => row.memberId === memberId && row.roleKey === roleKey && row.endedAt === null);
+    if (!keptAsHeld) {
+      await store.insertRoleAssignment({
+        id: createId(),
+        organizationId: ctx.organizationId,
+        memberId,
+        roleKey,
+        effectiveAt,
+        endedAt: null,
+      });
+    }
 
     return this.emit(ctx, 'member.role.changed', 'organization_member', memberId, store, {
       memberId,
       roleKey,
       effectiveAt: effectiveAt.toISOString(),
+      endedPrimaryRoleKeys: plan.endedPrimaryRoleKeys,
+      preservedAdditionalRoleKeys: plan.preservedAdditionalRoleKeys,
+      revokedAdditionalRoleKeys: plan.revokedAdditionalRoleKeys,
+      scopesGained: plan.scopesGained,
+      scopesLost: plan.scopesLost,
     });
   }
 
@@ -1043,6 +1074,28 @@ export class WorkforceCommandService {
     return this.emit(ctx, 'delegation.revoked', 'delegation', delegationId, store, { delegationId });
   }
 
+  /**
+   * Suspension and termination permanently end delegations issued by or granted
+   * to the member, in the lifecycle transaction. Reinstatement never revives
+   * them; access needs a fresh authorized grant. Use-time checks already deny
+   * while the member is inactive, so a failure here cannot leave access.
+   */
+  private async endDelegationsForLifecycle(
+    ctx: RequestContext,
+    memberId: string,
+    store: OsWorkforceStore,
+  ): Promise<string[]> {
+    const open = await store.listUnexpiredDelegationsInvolvingMember(
+      ctx.organizationId,
+      memberId,
+      ctx.effectiveAt,
+    );
+    for (const delegation of open) {
+      await store.revokeDelegation(delegation.id, ctx.effectiveAt);
+    }
+    return open.map((delegation) => delegation.id).sort();
+  }
+
   private async suspendMember(
     ctx: RequestContext,
     payload: Record<string, unknown>,
@@ -1068,6 +1121,7 @@ export class WorkforceCommandService {
       accessStatus: 'suspended',
       version: member.version + 1,
     });
+    const endedDelegationIds = await this.endDelegationsForLifecycle(ctx, memberId, store);
 
     // Sessions are person-wide; suspending here must not sign the person out of
     // another organization. Suspended access is enforced on every request.
@@ -1081,7 +1135,10 @@ export class WorkforceCommandService {
       this.scheduleProviderRevokeSessions(postCommit, memberId, auth.providerSubject);
     }
 
-    return this.emit(ctx, 'member.suspended', 'organization_member', memberId, store, { memberId });
+    return this.emit(ctx, 'member.suspended', 'organization_member', memberId, store, {
+      memberId,
+      endedDelegationIds,
+    });
   }
 
   private async terminateMember(
@@ -1112,6 +1169,7 @@ export class WorkforceCommandService {
       employmentEndedAt: ctx.effectiveAt,
       version: member.version + 1,
     });
+    const endedDelegationIds = await this.endDelegationsForLifecycle(ctx, memberId, store);
 
     // Membership access above is revoked and enforced on every request. The
     // login itself is person-wide, so leave it alone when another organization
@@ -1133,7 +1191,7 @@ export class WorkforceCommandService {
     const reasonRaw = payload.reason;
     const reason =
       typeof reasonRaw === 'string' && reasonRaw.trim().length > 0 ? reasonRaw.trim() : undefined;
-    const emitPayload: Record<string, unknown> = { memberId };
+    const emitPayload: Record<string, unknown> = { memberId, endedDelegationIds };
     if (reason !== undefined) {
       emitPayload.reason = reason;
     }

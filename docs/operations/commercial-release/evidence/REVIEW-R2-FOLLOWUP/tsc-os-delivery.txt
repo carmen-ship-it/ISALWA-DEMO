@@ -1,0 +1,2 @@
+# typecheck: tsc-os-delivery.txt
+exit=0

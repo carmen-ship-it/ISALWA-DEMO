@@ -96,6 +96,7 @@ describeHttp('Review R2 delegation standing over HTTP (disposable Postgres)', ()
     m.delegate = await seedMember('delegate', ['sales_rep']);
     m.delegator2 = await seedMember('delegator2', ['people.admin']);
     m.delegate2 = await seedMember('delegate2', ['sales_rep']);
+    m.delegate3 = await seedMember('delegate3', ['sales_rep']);
     m.worker = await seedMember('worker', ['sales_rep']);
     for (const code of ['VEN', 'ADM']) {
       const id = createId();
@@ -122,7 +123,7 @@ describeHttp('Review R2 delegation standing over HTTP (disposable Postgres)', ()
     assert.equal(replay.status, 201, 'same actor, same payload replays while authorized');
   });
 
-  it('suspending the delegator stops the delegate: read, new command and replay; row unchanged', async () => {
+  it('suspending the delegator stops the delegate (read, new command, replay) and ends the delegation in the same transaction', async () => {
     const rowBefore = await delegationRow(state.delegationId);
     const suspended = await command('admin', 'SuspendMember', { memberId: m.delegator!.member.id });
     assert.equal(suspended.status, 201, JSON.stringify(suspended.body));
@@ -137,15 +138,49 @@ describeHttp('Review R2 delegation standing over HTTP (disposable Postgres)', ()
     });
     assert.equal(assignment?.departmentId, departments[0]);
 
-    assert.deepEqual(await delegationRow(state.delegationId), rowBefore, 'history preserved: no revocation written');
+    const rowAfter = await delegationRow(state.delegationId);
+    assert.ok(rowAfter.revokedAt, 'suspension ends the delegation permanently');
+    assert.deepEqual({ ...rowAfter, revokedAt: null }, rowBefore, 'history preserved: only revokedAt is written');
+    const event = await prisma().osBusinessEvent.findFirstOrThrow({
+      where: { organizationId: org.id, eventType: 'member.suspended', primaryEntityId: m.delegator!.member.id },
+    });
+    assert.deepEqual((event.payloadJson as Record<string, unknown>).endedDelegationIds, [state.delegationId]);
   });
 
-  it('documents current reinstatement behavior: if the delegator becomes active again, the unexpired delegation applies again', async () => {
-    // No product command reinstates a suspended member (rehire creates a new membership,
-    // so the old delegation never follows it). This simulates an out-of-band status
-    // change only to pin the use-time rule; it is a recorded owner decision, not a feature.
+  it('reinstatement does not revive the old delegation (read and replay stay denied); a fresh authorized grant is required', async () => {
+    // No product command reinstates a suspended member (rehire creates a new membership).
+    // An out-of-band status change still must not revive delegated access.
     await prisma().osOrganizationMember.update({ where: { id: m.delegator!.member.id }, data: { accessStatus: 'active' } });
-    assert.equal(await listMembers('delegate'), 200);
+    assert.equal(await listMembers('delegate'), 403);
+    const replay = await command('delegate', 'ChangeDepartment', state.replayBody, state.replayKey);
+    assert.equal(replay.status, 403);
+    state.delegationId = await delegate('delegator', 'delegate');
+    assert.equal(await listMembers('delegate'), 200, 'fresh grant works');
+  });
+
+  it('suspending a delegate ends delegations granted to them; their reinstatement restores nothing', async () => {
+    const id = await delegate('delegator2', 'delegate3');
+    assert.equal(await listMembers('delegate3'), 200);
+    const suspended = await command('admin', 'SuspendMember', { memberId: m.delegate3!.member.id });
+    assert.equal(suspended.status, 201, JSON.stringify(suspended.body));
+    assert.ok((await delegationRow(id)).revokedAt);
+    await prisma().osOrganizationMember.update({ where: { id: m.delegate3!.member.id }, data: { accessStatus: 'active' } });
+    assert.equal(await listMembers('delegate3'), 403);
+  });
+
+  it('future-dated delegations from a suspended member are ended too', async () => {
+    const granted = await command('delegator2', 'GrantDelegation', {
+      delegateMemberId: m.delegate2!.member.id,
+      scopes: ['people.admin'],
+      startsAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+      expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+    });
+    assert.equal(granted.status, 201, JSON.stringify(granted.body));
+    const id = String((granted.body.data as Record<string, unknown>).delegationId);
+    const suspended = await command('admin', 'SuspendMember', { memberId: m.delegator2!.member.id });
+    assert.equal(suspended.status, 201, JSON.stringify(suspended.body));
+    assert.ok((await delegationRow(id)).revokedAt);
+    await prisma().osOrganizationMember.update({ where: { id: m.delegator2!.member.id }, data: { accessStatus: 'active' } });
   });
 
   it('the delegator losing the scope stops the delegate', async () => {
@@ -163,5 +198,24 @@ describeHttp('Review R2 delegation standing over HTTP (disposable Postgres)', ()
     assert.equal(revoked.status, 201);
     assert.equal(await listMembers('delegate2'), 403);
     assert.ok((await delegationRow(id)).revokedAt);
+  });
+
+  it('termination ends delegations the open-delegation gate does not see (future-dated) and records them', async () => {
+    m.leaver = await seedMember('leaver', ['people.admin']);
+    const granted = await command('leaver', 'GrantDelegation', {
+      delegateMemberId: m.delegate2!.member.id,
+      scopes: ['people.admin'],
+      startsAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+      expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+    });
+    assert.equal(granted.status, 201, JSON.stringify(granted.body));
+    const id = String((granted.body.data as Record<string, unknown>).delegationId);
+    const terminated = await command('admin', 'TerminateMember', { memberId: m.leaver!.member.id });
+    assert.equal(terminated.status, 201, JSON.stringify(terminated.body));
+    assert.ok((await delegationRow(id)).revokedAt);
+    const audit = await prisma().osBusinessEvent.findFirstOrThrow({
+      where: { organizationId: org.id, eventType: 'member.terminated', primaryEntityId: m.leaver!.member.id },
+    });
+    assert.deepEqual((audit.payloadJson as Record<string, unknown>).endedDelegationIds, [id]);
   });
 });

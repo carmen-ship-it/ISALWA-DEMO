@@ -1,0 +1,34 @@
+# mutation: bootstrap-accepts-any-commercial-scope
+## diff
+--- a/packages/os-database/src/ops/initial-commercial-bootstrap.ts
++++ b/packages/os-database/src/ops/initial-commercial-bootstrap.ts
+@@ -139,7 +139,7 @@
+   const proposalKey = request.proposal as BootstrapProposalKey;
+   const proposal = BOOTSTRAP_PROPOSALS[proposalKey];
+   const proposalScopes: readonly string[] = proposal.scopes;
+-  const outside = scopes.filter((scope) => !BOOTSTRAP_SCOPE_ALLOWLIST.includes(scope) || !proposalScopes.includes(scope));
++  const outside = scopes.filter((scope) => !(ADDITIONAL_ASSIGNABLE_SCOPE_KEYS as readonly string[]).includes(scope));
+   if (outside.length > 0) throw new BootstrapRefused('SCOPE_NOT_ALLOWED', outside.join(','));
+   if (request.range !== proposal.range) {
+     throw new BootstrapRefused('RANGE_MISMATCH', `${request.proposal} has range ${proposal.range}`);
+## result (expected: tests fail)
+packages/os-database: exit=1
+▶ bootstrap proposals (21:33 §4)
+  ✔ no proposal grants every commercial scope; each is a small allowlisted set whose range matches its scopes (0.370875ms)
+✔ bootstrap proposals (21:33 §4) (0.7755ms)
+▶ initial commercial bootstrap (disposable Postgres, synthetic identities)
+  ✔ dry run shows current versus proposed grants and writes nothing (868.813625ms)
+  ✔ executes only the reviewed plan, in one transaction, with event, outbox and audit (26.648708ms)
+  ✔ is idempotent: the same plan again applies nothing and writes no second record (19.415708ms)
+  ✔ cannot be reused as a bypass once a scope has a holder, for another member or another run (16.559458ms)
+  ✔ two concurrent executions of the same plan produce one set of grants and one audit record (16.361792ms)
+  ✖ refuses wrong tenant, foreign member, ambiguous or mismatched identity, inactive member and non-allowlisted scopes (19.908167ms)
+  ✔ a team-range proposal is planned without organization-wide scopes (13.751625ms)
+  ✔ is not exported from the package and not imported by any app (145.289667ms)
+✖ initial commercial bootstrap (disposable Postgres, synthetic identities) (1128.631291ms)
+ℹ tests 9
+ℹ pass 8
+ℹ fail 1
+✖ failing tests:
+✖ refuses wrong tenant, foreign member, ambiguous or mismatched identity, inactive member and non-allowlisted scopes (19.908167ms)
+## source restored: True

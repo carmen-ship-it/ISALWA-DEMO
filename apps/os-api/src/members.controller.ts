@@ -13,6 +13,8 @@ import { ListMembersQuerySchema } from '@isalwa/os-contracts';
 import {
   collectMemberAccessHistory,
   collectTerminationImpact,
+  parseRevokeAdditionalRoleKeys,
+  planRoleChange,
   type OsWorkforceStore,
 } from '@isalwa/os-workforce';
 import {
@@ -131,6 +133,36 @@ export class MembersController {
         memberId,
         ctx.effectiveAt,
       );
+    } catch (err) {
+      throw toHttp(err);
+    }
+  }
+
+  /** Effective permission changes of a ChangeRole, for confirmation before submitting. */
+  @Get(':memberId/role-change-preview')
+  async getRoleChangePreview(
+    @Param('memberId') memberId: string,
+    @Query('roleKey') roleKey: string | undefined,
+    @Query('revoke') revoke: string | undefined,
+    @Req() req: Request,
+  ) {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const ctx = await buildQueryContext(session, this.workforceStore);
+      assertQueryScope(ctx, 'people.admin');
+      assertQueryTenantResource(ctx, ctx.organizationId);
+      const member = await this.workforceStore.getMemberInOrg(ctx.organizationId, memberId);
+      if (!member) throw new Error('NOT_FOUND');
+      if (!roleKey?.trim()) throw new Error('VALIDATION_FAILED');
+      return planRoleChange({
+        memberId,
+        assignments: await this.workforceStore.listRoleAssignmentsForMember(memberId, ctx.organizationId),
+        roleKey: roleKey.trim(),
+        revokeAdditionalRoleKeys: parseRevokeAdditionalRoleKeys(
+          revoke?.trim() ? revoke.split(',').map((key) => key.trim()) : undefined,
+        ),
+        asOf: ctx.effectiveAt,
+      });
     } catch (err) {
       throw toHttp(err);
     }

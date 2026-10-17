@@ -1,0 +1,2 @@
+# typecheck: tsc-os-workforce.txt
+exit=0

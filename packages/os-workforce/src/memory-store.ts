@@ -273,6 +273,20 @@ export class MemoryOsStore implements OsWorkforceStore {
     );
   }
 
+  async listUnexpiredDelegationsInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<DelegationRecord[]> {
+    return this.delegations.filter(
+      (d) =>
+        d.organizationId === organizationId &&
+        (d.delegatorMemberId === memberId || d.delegateMemberId === memberId) &&
+        d.revokedAt === null &&
+        d.expiresAt > asOf,
+    );
+  }
+
   async listActiveCustomerCoverageInvolvingMember(
     organizationId: string,
     memberId: string,

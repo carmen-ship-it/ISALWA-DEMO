@@ -5,12 +5,28 @@ import { join } from 'node:path';
 import { createId } from '@isalwa/ts-utils';
 import { getOsPrisma, PrismaOsWorkforceStore } from '../index';
 import * as packageIndex from '../index';
+import { ADDITIONAL_ASSIGNABLE_SCOPE_KEYS } from '@isalwa/os-contracts';
 import {
+  BOOTSTRAP_PROPOSALS,
   BootstrapRefused,
+  ORGANIZATION_RANGE_SCOPES,
   executeInitialCommercialBootstrap,
   planInitialCommercialBootstrap,
   type BootstrapRequest,
 } from './initial-commercial-bootstrap';
+
+describe('bootstrap proposals (21:33 §4)', () => {
+  it('no proposal grants every commercial scope; each is a small allowlisted set whose range matches its scopes', () => {
+    for (const [key, proposal] of Object.entries(BOOTSTRAP_PROPOSALS)) {
+      const scopes: readonly string[] = proposal.scopes;
+      assert.ok(scopes.length <= 3, key);
+      assert.ok(scopes.every((scope) => (ADDITIONAL_ASSIGNABLE_SCOPE_KEYS as readonly string[]).includes(scope)), key);
+      const orgWide = scopes.some((scope) => ORGANIZATION_RANGE_SCOPES.includes(scope));
+      assert.equal(proposal.range === 'organization', orgWide, key);
+      assert.equal(scopes.includes('commercial.assignment.org'), false, key);
+    }
+  });
+});
 
 /** Synthetic organizations and identities only. Nothing here touches a real person. */
 const describePrisma = process.env.OS_DATABASE_URL ? describe : describe.skip;
@@ -34,6 +50,8 @@ describePrisma('initial commercial bootstrap (disposable Postgres, synthetic ide
       organizationSlug: slug,
       memberId: target.member.id,
       memberEmail: email.toUpperCase(),
+      proposal: 'commercial_manager',
+      range: 'organization',
       scopes: SCOPES,
       approvalReference: 'SYNTHETIC-APPROVAL-1',
       operator: 'synthetic-operator',
@@ -64,7 +82,7 @@ describePrisma('initial commercial bootstrap (disposable Postgres, synthetic ide
     const { org, request, target } = await fixture();
     const plan = await planInitialCommercialBootstrap(prisma(), request);
     await assert.rejects(
-      () => executeInitialCommercialBootstrap(prisma(), { ...request, scopes: [...SCOPES, 'commercial.assignment.org'] }, plan.planHash),
+      () => executeInitialCommercialBootstrap(prisma(), { ...request, scopes: SCOPES.slice(0, 2) }, plan.planHash),
       refusedWith('PLAN_HASH_MISMATCH'),
     );
     const result = await executeInitialCommercialBootstrap(prisma(), request, plan.planHash);
@@ -126,6 +144,14 @@ describePrisma('initial commercial bootstrap (disposable Postgres, synthetic ide
       ['SCOPE_NOT_ALLOWED', { ...a.request, scopes: ['system.admin'] }],
       ['INVALID_INPUT', { ...a.request, approvalReference: ' ' }],
       ['INVALID_INPUT', { ...a.request, scopes: [] }],
+      ['INVALID_INPUT', { ...a.request, proposal: '' }],
+      ['INVALID_INPUT', { ...a.request, range: '' }],
+      ['INVALID_INPUT', { ...a.request, proposal: 'all' }],
+      ['INVALID_INPUT', { ...a.request, scopes: undefined as unknown as string[] }],
+      ['SCOPE_NOT_ALLOWED', { ...a.request, scopes: [...ADDITIONAL_ASSIGNABLE_SCOPE_KEYS] }],
+      ['SCOPE_NOT_ALLOWED', { ...a.request, scopes: ['commercial.assignment.org'] }],
+      ['SCOPE_NOT_ALLOWED', { ...a.request, proposal: 'team_manager', range: 'team', scopes: ['commercial.org.read'] }],
+      ['RANGE_MISMATCH', { ...a.request, range: 'team' }],
     ];
     for (const [reason, request] of cases) {
       await assert.rejects(() => planInitialCommercialBootstrap(prisma(), request), refusedWith(reason), reason);
@@ -144,6 +170,19 @@ describePrisma('initial commercial bootstrap (disposable Postgres, synthetic ide
     await prisma().osOrganizationMember.update({ where: { id: a.target.member.id }, data: { accessStatus: 'suspended' } });
     await assert.rejects(() => planInitialCommercialBootstrap(prisma(), a.request), refusedWith('MEMBER_NOT_ACTIVE'));
     assert.equal(await auditRows(a.org.id), 0);
+  });
+
+  it('a team-range proposal is planned without organization-wide scopes', async () => {
+    const { request } = await fixture();
+    const plan = await planInitialCommercialBootstrap(prisma(), {
+      ...request,
+      proposal: 'team_manager',
+      range: 'team',
+      scopes: ['commercial.team.read', 'commercial.work.manage'],
+    });
+    assert.deepEqual([plan.proposal, plan.range, plan.proposedScopes], ['team_manager', 'team', ['commercial.team.read', 'commercial.work.manage']]);
+    const orgPlan = await planInitialCommercialBootstrap(prisma(), request);
+    assert.notEqual(plan.planHash, orgPlan.planHash);
   });
 
   it('is not exported from the package and not imported by any app', () => {

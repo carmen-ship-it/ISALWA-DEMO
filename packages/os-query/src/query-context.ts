@@ -4,6 +4,7 @@ import {
   assertMemberActive,
   assertTenantMatch,
   computeEffectiveScopes,
+  delegationConfersScope,
   memberHasScope,
   type MemberAccessSnapshot,
 } from '@isalwa/os-domain';
@@ -79,11 +80,7 @@ export async function buildQueryContext(
   );
 
   const delegatedApproverFor = delegations
-    .filter((d) => {
-      if (d.revokedAt) return false;
-      if (d.startsAt > session.effectiveAt || d.expiresAt <= session.effectiveAt) return false;
-      return d.scopes.includes('approval.act');
-    })
+    .filter((d) => delegationConfersScope(d, 'approval.act', session.effectiveAt))
     .map((d) => d.delegatorMemberId);
 
   const auth: QueryAuthSnapshot = {

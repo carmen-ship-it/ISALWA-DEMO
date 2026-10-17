@@ -1,0 +1,29 @@
+# mutation: os-query-approver-ignores-standing
+## diff
+--- a/packages/os-query/src/query-context.ts
++++ b/packages/os-query/src/query-context.ts
+@@ -80,7 +80,7 @@
+   );
+ 
+   const delegatedApproverFor = delegations
+-    .filter((d) => delegationConfersScope(d, 'approval.act', session.effectiveAt))
++    .filter((d) => (d.scopes as string[]).includes('approval.act') && d.revokedAt == null && d.startsAt <= session.effectiveAt && session.effectiveAt < d.expiresAt)
+     .map((d) => d.delegatorMemberId);
+ 
+   const auth: QueryAuthSnapshot = {
+## result (expected: tests fail)
+packages/os-query: exit=1
+▶ Query approval delegation follows the canonical rule
+  ✔ a valid delegation from an active approval.act holder grants approval read (0.953291ms)
+  ✔ revoked delegation: no approval read (0.091917ms)
+  ✖ suspended delegator: no approval read (1.309084ms)
+  ✖ delegator no longer holds approval.act: no approval read (0.249833ms)
+  ✔ direct valid grants still work (org admin reads the approval without any delegation) (0.111166ms)
+✖ Query approval delegation follows the canonical rule (3.231167ms)
+ℹ tests 5
+ℹ pass 3
+ℹ fail 2
+✖ failing tests:
+✖ suspended delegator: no approval read (1.309084ms)
+✖ delegator no longer holds approval.act: no approval read (0.249833ms)
+## source restored: True

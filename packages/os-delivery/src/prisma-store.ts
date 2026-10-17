@@ -5,6 +5,7 @@
  */
 
 import type { DeliverySubjectType, DispatchLedgerRows } from '@isalwa/os-contracts';
+import { computeEffectiveScopes, type DelegatorStanding } from '@isalwa/os-domain';
 import { createId } from '@isalwa/ts-utils';
 import type {
   DeliveryIdempotencyRecord,
@@ -75,6 +76,12 @@ type DelegationRow = {
   startsAt: Date | string;
   expiresAt: Date | string;
   revokedAt: Date | string | null;
+  delegatorMemberId?: string;
+  delegator?: {
+    organizationId: string;
+    accessStatus: string;
+    roleAssignments: Array<RoleRow & { organizationId: string }>;
+  } | null;
 };
 
 type ExitRow = {
@@ -267,12 +274,37 @@ function asDate(value: string): Date {
   return new Date(value);
 }
 
-function activeAt(effectiveAt: Date | string, endedAt: Date | string | null, asOf: Date): boolean {
-  const start = effectiveAt instanceof Date ? effectiveAt : new Date(effectiveAt);
-  if (start > asOf) return false;
-  if (endedAt == null) return true;
-  const end = endedAt instanceof Date ? endedAt : new Date(endedAt);
-  return end > asOf;
+function toDate(value: Date | string): Date {
+  return value instanceof Date ? value : new Date(value);
+}
+
+/** Same shape as os-database DELEGATOR_STANDING_INCLUDE (structural port). */
+const DELIVERY_DELEGATOR_STANDING_INCLUDE = {
+  delegator: {
+    select: {
+      organizationId: true,
+      accessStatus: true,
+      roleAssignments: { select: { organizationId: true, roleKey: true, effectiveAt: true, endedAt: true } },
+    },
+  },
+} as const;
+
+function delegatorStanding(
+  delegator: DelegationRow['delegator'],
+  organizationId: string,
+): DelegatorStanding | undefined {
+  if (!delegator) return undefined;
+  return {
+    organizationId: delegator.organizationId,
+    accessStatus: delegator.accessStatus,
+    roleAssignments: delegator.roleAssignments
+      .filter((r) => r.organizationId === organizationId)
+      .map((r) => ({
+        roleKey: r.roleKey,
+        effectiveAt: toDate(r.effectiveAt),
+        endedAt: r.endedAt == null ? null : toDate(r.endedAt),
+      })),
+  };
 }
 
 function scopesFromJson(value: unknown): string[] {
@@ -556,33 +588,36 @@ function buildPrismaDeliveryStore(prisma: DeliveryPrismaPort, scoped: boolean): 
       const roles = await prisma.osRoleAssignment.findMany({
         where: { organizationId, memberId },
       });
-      const scopes = new Set<string>();
-      for (const role of roles) {
-        if (activeAt(role.effectiveAt, role.endedAt, asOf)) scopes.add(role.roleKey);
-      }
-      if (prisma.osDelegation) {
-        const delegations = await prisma.osDelegation.findMany({
-          where: { organizationId, delegateMemberId: memberId },
-        });
-        for (const delegation of delegations) {
-          if (delegation.revokedAt) continue;
-          const starts =
-            delegation.startsAt instanceof Date
-              ? delegation.startsAt
-              : new Date(delegation.startsAt);
-          const expires =
-            delegation.expiresAt instanceof Date
-              ? delegation.expiresAt
-              : new Date(delegation.expiresAt);
-          if (starts > asOf || expires <= asOf) continue;
-          for (const scope of scopesFromJson(delegation.scopesJson)) scopes.add(scope);
-        }
-      }
+      const delegations = prisma.osDelegation
+        ? await prisma.osDelegation.findMany({
+            where: { organizationId, delegateMemberId: memberId },
+            include: DELIVERY_DELEGATOR_STANDING_INCLUDE,
+          })
+        : [];
+      // Canonical current-authority rule: only delegable scopes, only while the
+      // delegator is active in this org and still holds the scope.
+      const scopes = computeEffectiveScopes(
+        roles.map((role) => ({
+          roleKey: role.roleKey,
+          effectiveAt: toDate(role.effectiveAt),
+          endedAt: role.endedAt == null ? null : toDate(role.endedAt),
+        })),
+        delegations.map((delegation) => ({
+          scopes: scopesFromJson(delegation.scopesJson),
+          startsAt: toDate(delegation.startsAt),
+          expiresAt: toDate(delegation.expiresAt),
+          revokedAt: delegation.revokedAt == null ? null : toDate(delegation.revokedAt),
+          delegatorMemberId: delegation.delegatorMemberId ?? '',
+          organizationId,
+          delegator: delegatorStanding(delegation.delegator, organizationId),
+        })),
+        asOf,
+      );
       const snapshot: MemberSnapshot = {
         id: member.id,
         organizationId: member.organizationId,
         accessStatus: member.accessStatus,
-        grantedScopes: [...scopes],
+        grantedScopes: scopes,
       };
       return snapshot;
     },

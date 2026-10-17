@@ -8,6 +8,7 @@ import { mapWorkforceCommandError } from '@/lib/workforce/command-errors';
 import type { CommandActionResult } from '@/lib/workforce/command-types';
 import { buildInviteMemberPayload } from '@/lib/workforce/invite';
 import { equipoHref, inviteMemberHref, memberHref } from '@/lib/workforce/navigation';
+import { readRevokeAdditionalRoleKeys, type RoleChangePreview } from '@/lib/workforce/role-change';
 
 async function runWorkforceCommand(
   command: Parameters<typeof mapWorkforceCommandError>[0],
@@ -75,11 +76,29 @@ export async function changeRoleAction(formData: FormData): Promise<CommandActio
   if (!memberId || !roleKey) {
     return { ok: false, error: 'Seleccione un rol.' };
   }
+  const revokeAdditionalRoleKeys = readRevokeAdditionalRoleKeys(formData);
+  const payload = revokeAdditionalRoleKeys.length > 0 ? { memberId, roleKey, revokeAdditionalRoleKeys } : { memberId, roleKey };
   const result = await runWorkforceCommand('ChangeRole', (client) =>
-    client.executeWorkforceCommand('ChangeRole', { memberId, roleKey }, createId()).then((r) => r.data),
+    client.executeWorkforceCommand('ChangeRole', payload, createId()).then((r) => r.data),
   );
   if (result.ok) revalidateMember(memberId);
   return result;
+}
+
+/** Effective permission changes shown before ChangeRole is confirmed. */
+export async function previewRoleChangeAction(
+  memberId: string,
+  roleKey: string,
+  revokeAdditionalRoleKeys: string[],
+): Promise<{ ok: true; preview: RoleChangePreview } | { ok: false; error: string }> {
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
+  try {
+    const preview = await createOsApiClient(auth).previewRoleChange(memberId, roleKey, revokeAdditionalRoleKeys);
+    return { ok: true, preview };
+  } catch (err) {
+    return { ok: false, error: mapWorkforceCommandError('ChangeRole', err) };
+  }
 }
 
 export async function grantAdditionalRoleAction(formData: FormData): Promise<CommandActionResult> {
