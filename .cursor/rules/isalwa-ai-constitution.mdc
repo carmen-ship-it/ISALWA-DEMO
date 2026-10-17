@@ -38,6 +38,10 @@ Search first: `MetricCard`, `Panel`, `ExperienceHeader`, `Chip`, `Button`, `Time
 
 If it exists → **reuse**. Do not build another.
 
+## Project memory
+
+Start with `docs/project-memory/START_HERE.md`. It points to the authoritative plan, decision matrix and checkpoint; retrieve only the sections relevant to your task.
+
 ## Definition of done
 
 Consistent UI · mobile works · a11y preserved · no duplicated components · no dead code · docs updated · types pass · build passes · behavior unchanged.
