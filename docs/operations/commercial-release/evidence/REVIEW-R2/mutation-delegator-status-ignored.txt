@@ -1,0 +1,35 @@
+# mutation: delegator-status-ignored
+# file: packages/os-domain/src/authorization.ts
+# diff:
+--- before
++++ mutated
+@@ -74,7 +74,7 @@
+   if (d.startsAt > asOf || d.expiresAt <= asOf) return false;
+   if (!isDelegableScope(scope) || !d.scopes.includes(scope)) return false;
+   const delegator = d.delegator;
+-  if (!delegator || delegator.accessStatus !== 'active') return false;
++  if (!delegator) return false;
+   if (d.organizationId && delegator.organizationId !== d.organizationId) return false;
+   return delegator.roleAssignments.some(
+     (r) => r.roleKey === scope && isAssignmentActive(r.effectiveAt, r.endedAt, asOf),
+
+# result (allowlisted test-result lines only):
+  ✔ people.admin alone cannot grant commercial scopes to another member or to themselves (403, no rows) (165.792208ms)
+  ✔ a grantor cannot grant to themselves even what they already hold (20.8505ms)
+  ✔ before provisioning, the candidate cannot edit or quote the customer (26.55025ms)
+  ✔ an authorized grantor provisions a manager with edit, work and team range together (119.519833ms)
+  ✔ the provisioned manager edits and quotes the team customer over HTTP; ownership is unchanged (29.181083ms)
+  ✔ the read-only manager stays read-only (403, no writes) (21.276083ms)
+  ✔ ChangeManager cannot extend a manager over someone outside the grantor reach (403, no rows) (111.011125ms)
+  ✔ the provisioned manager cannot pass on what they were given without holding grant authority (7.36925ms)
+✔ Review R1 grant provisioning over HTTP (disposable Postgres) (869.301625ms)
+  ✔ an active delegation from an active holder works for reads and commands (146.276ms)
+  ✖ suspending the delegator stops the delegate: read, new command and replay; row unchanged (44.205541ms)
+  ✔ documents current reinstatement behavior: if the delegator becomes active again, the unexpired delegation applies again (8.401875ms)
+  ✔ the delegator losing the scope stops the delegate (18.531208ms)
+  ✔ revocation stops the delegate (38.1575ms)
+✖ Review R2 delegation standing over HTTP (disposable Postgres) (440.400834ms)
+ℹ pass 12
+ℹ fail 1
+✖ failing tests:
+✖ suspending the delegator stops the delegate: read, new command and replay; row unchanged (44.205541ms)

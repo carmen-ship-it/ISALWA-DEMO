@@ -66,7 +66,8 @@ async function harness() {
     memberId,
     providerSubject: 'subject:ana@isalwa.bo',
   });
-  return { store, svc, org, admin, peopleOnly, memberId };
+  const adminCtxAt = new Date('2026-09-14T12:00:00Z');
+  return { store, svc, org, admin, peopleOnly, memberId, adminCtxAt };
 }
 
 async function activeKeys(store: MemoryOsStore, memberId: string, asOf: Date): Promise<string[]> {
@@ -369,6 +370,92 @@ describe('Grant provisioning escalation (F03/F04)', () => {
       /VALIDATION_FAILED/,
     );
     const ok = await svc.execute('ChangeManager', adminCtx, { memberId, managerMemberId: peopleOnly.member.id });
+    assert.ok(ok.data);
+  });
+});
+
+describe('Grant and team range stay within the grantor (20:39 §2)', () => {
+  async function teamHarness() {
+    const h = await harness();
+    const { store, svc, org } = h;
+    const member = async (name: string, scopes: readonly string[]) => {
+      const seeded = await store.seedAdminMember(org.id, `${name}@isalwa.bo`, name, 'T');
+      const rows = await store.listRoleAssignmentsForMember(seeded.member.id);
+      for (const row of rows) await store.endActiveRoleAssignments(row.memberId, new Date('2020-01-01'));
+      await seedScopes(store, org.id, seeded.member.id, scopes);
+      return seeded;
+    };
+    const reportTo = async (memberId: string, managerMemberId: string) =>
+      store.insertManagerAssignment({
+        id: createId(),
+        organizationId: org.id,
+        memberId,
+        managerMemberId,
+        effectiveAt: new Date('2020-01-01'),
+        endedAt: null,
+      });
+    const teamLead = await member('teamlead', ['people.admin', 'commercial.team.read', 'commercial.customer.edit', 'commercial.work.manage']);
+    const lead = await member('lead', ['commercial.team.read', 'commercial.customer.edit']);
+    const editor = await member('editor', ['commercial.customer.edit']);
+    const seller = await member('seller', ['commercial.customer.create']);
+    const ownReport = await member('ownreport', ['commercial.customer.create']);
+    const clerk = await member('clerk', []);
+    await reportTo(ownReport.member.id, teamLead.member.id);
+    const as = (who: { member: { id: string }; person: { id: string }; auth: { id: string } }) =>
+      ctx(org.id, who.member.id, who.person.id, who.auth.id);
+    return { ...h, svc, teamLead, lead, editor, seller, ownReport, clerk, as };
+  }
+
+  it('people.admin alone cannot put someone under a manager who holds team range', async () => {
+    const t = await teamHarness();
+    await assert.rejects(
+      () => t.svc.execute('ChangeManager', t.as(t.peopleOnly), { memberId: t.seller.member.id, managerMemberId: t.lead.member.id }),
+      /PERMISSION_DENIED/,
+    );
+    assert.equal((await t.store.listActiveDirectReportAssignments(t.org.id, t.lead.member.id, t.adminCtxAt)).length, 0);
+  });
+
+  it('people.admin alone may still assign a manager who holds no commercial range', async () => {
+    const t = await teamHarness();
+    const ok = await t.svc.execute('ChangeManager', t.as(t.peopleOnly), { memberId: t.seller.member.id, managerMemberId: t.clerk.member.id });
+    assert.ok(ok.data);
+  });
+
+  it('a team-range grantor cannot extend a lead over someone outside their own team', async () => {
+    const t = await teamHarness();
+    await assert.rejects(
+      () => t.svc.execute('ChangeManager', t.as(t.teamLead), { memberId: t.seller.member.id, managerMemberId: t.lead.member.id }),
+      /PERMISSION_DENIED/,
+    );
+    const inside = await t.svc.execute('ChangeManager', t.as(t.teamLead), {
+      memberId: t.ownReport.member.id,
+      managerMemberId: t.lead.member.id,
+    });
+    assert.ok(inside.data, 'within the grantor team (their direct report) the same change is allowed');
+  });
+
+  it('an org-range grantor can extend a lead over anyone', async () => {
+    const t = await teamHarness();
+    const ok = await t.svc.execute('ChangeManager', t.as(t.admin), { memberId: t.seller.member.id, managerMemberId: t.lead.member.id });
+    assert.ok(ok.data);
+  });
+
+  it('granting org range to an editor needs org-wide edit authority, not just commercial.org.read', async () => {
+    const t = await teamHarness();
+    const readerOnly = await t.store.seedAdminMember(t.org.id, 'reader@isalwa.bo', 'Reader', 'T');
+    await seedScopes(t.store, t.org.id, readerOnly.member.id, ['commercial.org.read']);
+    await assert.rejects(
+      () =>
+        t.svc.execute('GrantAdditionalRole', t.as(readerOnly), {
+          memberId: t.editor.member.id,
+          roleKey: 'commercial.org.read',
+        }),
+      /PERMISSION_DENIED/,
+    );
+    const ok = await t.svc.execute('GrantAdditionalRole', t.as(t.admin), {
+      memberId: t.editor.member.id,
+      roleKey: 'commercial.org.read',
+    });
     assert.ok(ok.data);
   });
 });

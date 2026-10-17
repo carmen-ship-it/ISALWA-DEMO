@@ -6,12 +6,24 @@ export type EffectiveRoleAssignment = {
   endedAt: Date | null;
 };
 
+/**
+ * The delegator as they stand now, read with the delegation. A delegation passes on
+ * only what its delegator could still do: without this standing it confers nothing.
+ */
+export type DelegatorStanding = {
+  organizationId: string;
+  accessStatus: string;
+  roleAssignments: EffectiveRoleAssignment[];
+};
+
 export type EffectiveDelegation = {
   scopes: string[];
   startsAt: Date;
   expiresAt: Date;
   revokedAt: Date | null;
   delegatorMemberId: string;
+  organizationId?: string;
+  delegator?: DelegatorStanding;
 };
 
 export type MemberAccessSnapshot = {
@@ -43,13 +55,30 @@ export function computeEffectiveScopes(
     }
   }
   for (const d of delegations) {
-    if (d.revokedAt) continue;
-    if (d.startsAt > asOf || d.expiresAt <= asOf) continue;
     for (const s of d.scopes) {
-      if (isDelegableScope(s)) scopes.add(s);
+      if (delegationConfersScope(d, s, asOf)) scopes.add(s);
     }
   }
   return [...scopes];
+}
+
+/**
+ * F10: a delegation confers a scope only while it is within its window and not
+ * revoked, the delegator is an active member of the delegation's organization, and
+ * the delegator independently holds that scope by their own role assignment at
+ * asOf. Evaluated at use time, so suspension or loss of the scope stops it at once;
+ * the delegation row itself is never rewritten.
+ */
+export function delegationConfersScope(d: EffectiveDelegation, scope: string, asOf: Date): boolean {
+  if (d.revokedAt) return false;
+  if (d.startsAt > asOf || d.expiresAt <= asOf) return false;
+  if (!isDelegableScope(scope) || !d.scopes.includes(scope)) return false;
+  const delegator = d.delegator;
+  if (!delegator || delegator.accessStatus !== 'active') return false;
+  if (d.organizationId && delegator.organizationId !== d.organizationId) return false;
+  return delegator.roleAssignments.some(
+    (r) => r.roleKey === scope && isAssignmentActive(r.effectiveAt, r.endedAt, asOf),
+  );
 }
 
 export function memberHasScope(snapshot: MemberAccessSnapshot, scope: AdminScopeKey): boolean {

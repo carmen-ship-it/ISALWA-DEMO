@@ -1,3 +1,4 @@
+import { DELEGATOR_STANDING_INCLUDE, toDelegatorStanding } from './delegator-standing';
 import { createId } from '@isalwa/ts-utils';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type { OsWorkStore } from '@isalwa/os-work';
@@ -89,6 +90,7 @@ export class PrismaOsWorkStore implements OsWorkStore {
       where: organizationId
         ? { delegateMemberId: memberId, organizationId }
         : { delegateMemberId: memberId },
+      include: DELEGATOR_STANDING_INCLUDE,
     });
     return rows.map((d) => ({
       delegatorMemberId: d.delegatorMemberId,
@@ -96,6 +98,8 @@ export class PrismaOsWorkStore implements OsWorkStore {
       startsAt: d.startsAt,
       expiresAt: d.expiresAt,
       revokedAt: d.revokedAt,
+      organizationId: d.organizationId,
+      delegator: toDelegatorStanding(d.delegator),
     }));
   }
 

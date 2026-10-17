@@ -1,3 +1,4 @@
+import type { DelegatorStanding } from '@isalwa/os-domain';
 export type OrganizationRecord = {
   id: string;
   legalName: string;
@@ -78,6 +79,8 @@ export type DelegationRecord = {
   startsAt: Date;
   expiresAt: Date;
   revokedAt: Date | null;
+  /** Delegator's current standing; without it the delegation confers nothing (F10). */
+  delegator?: DelegatorStanding;
 };
 
 export type WorkItemRecord = {

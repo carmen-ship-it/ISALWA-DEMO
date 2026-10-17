@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { VIEWPORT_MAX_PX, VIEWPORT_MIN_PX } from '../a11y/breakpoints.ts';
+import { VIEWPORT_MAX_PX, VIEWPORT_MIN_PX } from '../a11y/breakpoints';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 

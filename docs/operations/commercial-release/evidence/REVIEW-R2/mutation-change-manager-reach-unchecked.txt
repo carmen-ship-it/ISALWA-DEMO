@@ -1,0 +1,35 @@
+# mutation: change-manager-reach-unchecked
+# file: packages/os-workforce/src/workforce-command-service.ts
+# diff:
+--- before
++++ mutated
+@@ -974,7 +974,7 @@
+     if (managerMemberId === ctx.actorMemberId) throw new Error('PERMISSION_DENIED');
+     const effectiveAt = notBackdated(payload.effectiveAt, ctx.effectiveAt);
+     // The new manager gains team range over this member under any commercial scope they hold.
+-    await this.assertReachWithinGrantor(ctx, managerMemberId, { addDirectReport: memberId }, store);
++
+ 
+     await store.endActiveManagerAssignments(memberId, effectiveAt);
+     await store.insertManagerAssignment({
+
+# result (allowlisted test-result lines only):
+  ✔ people.admin alone cannot grant commercial scopes to another member or to themselves (403, no rows) (100.49825ms)
+  ✔ a grantor cannot grant to themselves even what they already hold (6.597ms)
+  ✔ before provisioning, the candidate cannot edit or quote the customer (15.497375ms)
+  ✔ an authorized grantor provisions a manager with edit, work and team range together (68.312917ms)
+  ✔ the provisioned manager edits and quotes the team customer over HTTP; ownership is unchanged (23.075458ms)
+  ✔ the read-only manager stays read-only (403, no writes) (12.656666ms)
+  ✖ ChangeManager cannot extend a manager over someone outside the grantor reach (403, no rows) (12.7195ms)
+  ✔ the provisioned manager cannot pass on what they were given without holding grant authority (9.151625ms)
+✖ Review R1 grant provisioning over HTTP (disposable Postgres) (510.991084ms)
+  ✔ an active delegation from an active holder works for reads and commands (80.9335ms)
+  ✔ suspending the delegator stops the delegate: read, new command and replay; row unchanged (33.327167ms)
+  ✔ documents current reinstatement behavior: if the delegator becomes active again, the unexpired delegation applies again (6.789667ms)
+  ✔ the delegator losing the scope stops the delegate (17.142416ms)
+  ✔ revocation stops the delegate (43.205708ms)
+✔ Review R2 delegation standing over HTTP (disposable Postgres) (299.946208ms)
+ℹ pass 12
+ℹ fail 1
+✖ failing tests:
+✖ ChangeManager cannot extend a manager over someone outside the grantor reach (403, no rows) (12.7195ms)

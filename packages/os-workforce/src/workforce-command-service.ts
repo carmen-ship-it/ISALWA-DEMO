@@ -7,6 +7,8 @@ import {
   isCommandReservedScope,
   isDelegableScope,
   isRecognizedPermissionScope,
+  commercialReachKeys,
+  reachBeyondGrantor,
   roleKeysThatConferAuthority,
 } from '@isalwa/os-contracts';
 import {
@@ -88,6 +90,8 @@ export class WorkforceCommandService {
         expiresAt: d.expiresAt,
         revokedAt: d.revokedAt,
         delegatorMemberId: d.delegatorMemberId,
+        organizationId: d.organizationId,
+        delegator: d.delegator,
       })),
       asOf,
     );
@@ -205,6 +209,37 @@ export class WorkforceCommandService {
     });
     if (!snap || !memberHasGrantedScope(snap, roleKey)) throw new Error('PERMISSION_DENIED');
     void store;
+  }
+
+  /**
+   * Holding a scope does not authorize handing out wider resource range. A grant, a
+   * role change or a manager change must not give the target any commercial reach
+   * (action x org/direct report/intake) that the grantor does not hold by their own
+   * role assignments and direct reports. Reductions are not checked.
+   */
+  private async assertReachWithinGrantor(
+    ctx: RequestContext,
+    targetMemberId: string,
+    change: { roleKeys?: readonly string[]; addDirectReport?: string },
+    store: OsWorkforceStore,
+  ): Promise<void> {
+    const asOf = ctx.effectiveAt;
+    const reportsOf = async (memberId: string) =>
+      (await store.listActiveDirectReportAssignments(ctx.organizationId, memberId, asOf)).map((row) => row.memberId);
+    const ownScopes = async (memberId: string) =>
+      computeEffectiveScopes(await store.listRoleAssignmentsForMember(memberId, ctx.organizationId), [], asOf);
+
+    const targetScopes = await ownScopes(targetMemberId);
+    const targetReports = await reportsOf(targetMemberId);
+    const before = commercialReachKeys(targetScopes, targetReports);
+    const after = commercialReachKeys(
+      change.roleKeys ?? targetScopes,
+      change.addDirectReport ? [...targetReports, change.addDirectReport] : targetReports,
+    );
+    const grantor = await this.snapshot(ctx.organizationId, ctx.actorMemberId, asOf, { delegations: false });
+    if (!grantor || grantor.accessStatus !== 'active') throw new Error('PERMISSION_DENIED');
+    const grantorReach = commercialReachKeys(grantor.roleKeys, await reportsOf(ctx.actorMemberId));
+    if (reachBeyondGrantor(before, after, grantorReach).length > 0) throw new Error('PERMISSION_DENIED');
   }
 
   /**
@@ -803,6 +838,7 @@ export class WorkforceCommandService {
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
     await this.assertRoleKeyAssignable(ctx, roleKey, memberId, store);
+    await this.assertReachWithinGrantor(ctx, memberId, { roleKeys: [roleKey] }, store);
 
     // Primary-role replacement: ends every active assignment, including
     // additional permissions. Additive grants use GrantAdditionalRole.
@@ -837,6 +873,17 @@ export class WorkforceCommandService {
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
     await this.assertRoleKeyAssignable(ctx, roleKey, memberId, store);
+    await this.assertReachWithinGrantor(
+      ctx,
+      memberId,
+      {
+        roleKeys: [
+          ...computeEffectiveScopes(await store.listRoleAssignmentsForMember(memberId, ctx.organizationId), [], ctx.effectiveAt),
+          roleKey,
+        ],
+      },
+      store,
+    );
 
     const existing = (
       await store.listRoleAssignmentsForMember(memberId, ctx.organizationId)
@@ -926,6 +973,8 @@ export class WorkforceCommandService {
     // A manager assignment is team range; appointing yourself would confer range on yourself.
     if (managerMemberId === ctx.actorMemberId) throw new Error('PERMISSION_DENIED');
     const effectiveAt = notBackdated(payload.effectiveAt, ctx.effectiveAt);
+    // The new manager gains team range over this member under any commercial scope they hold.
+    await this.assertReachWithinGrantor(ctx, managerMemberId, { addDirectReport: memberId }, store);
 
     await store.endActiveManagerAssignments(memberId, effectiveAt);
     await store.insertManagerAssignment({

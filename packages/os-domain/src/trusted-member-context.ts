@@ -1,3 +1,4 @@
+import type { DelegatorStanding } from './authorization';
 import { scopeImplies, scopesGrantedByCargoOrTitle } from '@isalwa/os-contracts';
 import { computeEffectiveScopes } from './authorization';
 
@@ -72,6 +73,7 @@ export type TrustedDelegation = {
   expiresAt: Date;
   revokedAt: Date | null;
   delegatorMemberId: string;
+  delegator?: DelegatorStanding;
 };
 
 /** Store reads already used by the workforce membership path. Not a second auth system. */
@@ -233,6 +235,8 @@ export async function resolveTrustedMemberContext(
         expiresAt: row.expiresAt,
         revokedAt: row.revokedAt,
         delegatorMemberId: row.delegatorMemberId,
+        organizationId: row.organizationId,
+        delegator: row.delegator,
       })),
       asOf,
     ),

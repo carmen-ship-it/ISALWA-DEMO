@@ -19,7 +19,7 @@ Status values: **ALREADY FIXED** (fixed after the reviewed snapshot, with eviden
 | F07 commitments readable tenant-wide | 2bdc81a | `apps/os-api/src/commitments.controller.ts:107–189`: list by org/party/owner and detail use `resolveSession` + `getCommitmentInOrg` only; no visibility filter | CONFIRMED OPEN | §4 | T02-delta (reads) | pending: HTTP+PG list/detail/by-owner/by-party/count, 404 for unknowable |
 | F08 payment contract granularity / range / exception | 2bdc81a | not implemented (T07 not started) | PLAN | §6 (component-level verification, derived summary states, bounded accounting access, exception as separate decision) | T07 | mapping first (REUSE_MAP §13.6) |
 | F09 hard-coded tenant selection; Journey switches org | 2bdc81a [AR; reviewer's direct read was blocked] | `apps/os-web/components/demo/owner-demo-provider.tsx` mount effect calls `saveOwnerEffectiveCompanyCookie(companyForDemoDataMode(mode))` for every user, `openStory` sets demo mode; `apps/os-web/lib/auth/actions.ts` `getServerOsAuthContext` maps cookie/header → `organizationIdForCompany` → `QA_REAL_ORGANIZATION_ID` / `QA_SYNTH_ORGANIZATION_ID` (`lib/qa/constants.ts`) | CONFIRMED OPEN (verified directly in current source) | §7 | Tenant-selection correction (pulled forward; T10/T11 keeps full demo removal) | pending: unit + server-side rejection of tampered/stale selection; browser check |
-| F10 delegation survives suspended delegator | 2bdc81a | `os-domain/src/authorization.ts:33–53` `computeEffectiveScopes` ignores delegator status/holding; `work-command-service.ts:546–556` same for approval delegation | CONFIRMED OPEN | §4 ("expired/revoked delegations lose effective access"; delegator must be active and hold the scope) | T02-delta | pending |
+| F10 delegation survives suspended delegator | 2bdc81a | `os-domain/src/authorization.ts:33–53` `computeEffectiveScopes` ignores delegator status/holding; `work-command-service.ts:546–556` same for approval delegation | REPAIRED (R2) | §4 ("expired/revoked delegations lose effective access"; delegator must be active and hold the scope) | T02-delta | `receipts/REVIEW-R2.md` §1; HTTP+PG `review-r2-delegation-standing.http.test.ts` 5/5; mutations `delegator-status-ignored`, `delegator-possession-ignored`. Reinstatement behavior documented; reserved owner decision |
 | F10 authorship read | 2bdc81a | `os-query/src/work/work-auth.ts:26` creator reads work forever | CONFIRMED OPEN (work items) | §4, §2 (authorship is not authority) | T02-delta | pending |
 | F11 people.admin sees all work/approvals | 2bdc81a | `os-query/src/work/work-auth.ts:6–8,24,35,47,57` `isOrgAdmin` = people.admin → all work and approvals | CONFIRMED OPEN | §4 | T02-delta | pending |
 | F12 steward oracle / archive bypass | 2bdc81a | `7f9286f`: restricted lookup `GET /v1/master-data/parties` (REUSE_MAP §12.3). Still: `os-party/src/customer-authority.ts` returns early when `memberHasScope(snap, required)` for archive/reactivate (steward passes) | PARTLY FIXED | §2 (no master_data.admin commercial bypass) | T03 (archive/reactivate, remaining scope) | part: `7f9286f`; pending |
@@ -48,7 +48,7 @@ Status values: **ALREADY FIXED** (fixed after the reviewed snapshot, with eviden
 - Reviewer's direct read of three web files was rejected in their session (REVIEW_SCOPE §8). This builder read the same files in current source without rejection; F09 is now verified at `0667eb6`.
 - Catalog PDFs (`CatalogoVitriCompleto2026.pdf`, `Vitri2026.2027.pdf`) and the August 2026 price matrix: supplied to Carmen's ChatGPT workspace per owner; not present on this Mac. Transfer dependency. No substitute is fabricated.
 - Hosted grants (staging/production): not inspected (staging access forbidden in this lane). UNVERIFIED.
-- Initial provisioning (R1): under independent possession the first holder of each commercial scope needs an out-of-band, owner-approved, audited action or seed. Not created; no auto-grants. DEPENDENCY.
+- Initial provisioning (R1/R2): procedure PREPARED and tested with synthetic identities (`receipts/REVIEW-R2.md` §3); execution needs owner-named member, approval reference and separate authorization. Earlier note: under independent possession the first holder of each commercial scope needs an out-of-band, owner-approved, audited action or seed. Not created; no auto-grants. DEPENDENCY.
 - Real configuration still missing: numeric prices, live phone setup, named role holders, published hours, payment destinations. Development uses clearly synthetic fixtures only.
 
 ## Progress log
@@ -58,3 +58,14 @@ Updated as each bounded task closes; see `REUSE_MAP.md` §13.8 for the task orde
 | Task | Commit | Findings | Result |
 |---|---|---|---|
 | R1 grant provisioning | see `COMMERCIAL_RELEASE_CHECKPOINT.md` | F03, F04 | REPAIRED; IMPLEMENTED + TESTED locally (unit, disposable PG, local HTTP). Also found and fixed: os-query build break from `7f9286f`, 3 os-web tests broken since `1d20081` (`receipts/REVIEW-R1.md` §6) |
+| R2 effective delegation + grant/team range + bootstrap procedure | see `COMMERCIAL_RELEASE_CHECKPOINT.md` | F10 (delegation); 20:39 §1–§4 | F10 delegation REPAIRED; grant/ChangeManager range bounded by grantor reach; bootstrap PREPARED (not executed); os-web TS5097 repaired. IMPLEMENTED + TESTED locally. F10 authorship read stays open (task 4) |
+
+## Transfer blocker (20:39 §5)
+
+`evidence/REVIEW-R1/run-os-{database,web,workforce,api}.log.txt` and every commit from `e7d8d98` on: **UNREVIEWED — NOT FOR TRANSFER**. Record, hashes, blocked action and review proposal: `evidence/REVIEW-R1/UNREVIEWED-NOT-FOR-TRANSFER.md`. Earlier raw logs (T00–T03, other R1 logs) were never scanned; include them in the same review.
+
+## Reserved owner decisions
+
+- Delegation after a suspended delegator is reinstated out of band: currently applies again if unexpired and unrevoked (use-time rule). Alternative: revoke outgoing delegations on suspension.
+- Initial provisioning: member, scope list (full or narrow) and approval reference (`receipts/REVIEW-R2.md` §3).
+- Carried: D5 peer attending, D7 order cancel, F06 `quote.work` scope.

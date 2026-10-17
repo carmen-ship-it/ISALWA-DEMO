@@ -1,0 +1,42 @@
+# unit/integration suite: packages/os-import
+  ✔ passes the session organization into role and delegation reads (1.659292ms)
+✔ import auth queries (2.828292ms)
+  ✔ normalizes BO mobile digit strings and excel numbers (0.454167ms)
+  ✔ splits separated mobiles and does not concatenate them (1.177875ms)
+✔ normalizeBoliviaPhone (2.081709ms)
+  ✔ extracts coords from explicit Maps URLs offline (0.238166ms)
+  ✔ treats short maps.app.goo.gl as provenance-only (0.062417ms)
+  ✔ skips invalid GPS without rejecting customer validity upstream (0.069583ms)
+  ✔ parses a plain comma in a Maps query (0.149792ms)
+  ✔ decodes %2C and %2c before coordinate extraction and keeps the original URL (0.14375ms)
+  ✔ does not accept malformed or out-of-range coordinates (0.344375ms)
+  ✔ keeps short maps.app.goo.gl provenance-only even if the path contains %2C (0.087833ms)
+✔ parseMapsUrl (1.272083ms)
+  ✔ exact commercial-name + phone → MATCH (0.229ms)
+  ✔ exact phone-only → POSSIBLE_DUPLICATE (0.095417ms)
+  ✔ name+phone MATCH when both agree (0.090167ms)
+  ✔ conflicting name vs phone parties → REQUIRES_REVIEW (0.079166ms)
+  ✔ intra-batch duplicate commercial names (0.104583ms)
+  ✔ invalid GPS skipped but customer still CREATE (0.103083ms)
+  ✔ staff rows are person candidates never CREATE (0.124292ms)
+✔ matching (0.925333ms)
+  ✔ builds receipt shape/counts without PII in errors (0.162875ms)
+  ✔ execute gate defaults disabled (0.041417ms)
+✔ dry-run receipt (0.234834ms)
+  ✔ replays the same actor and request without a second write (8.341708ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.902ms)
+  ✔ denies the original actor once its required scope (master_data.admin) has ended (0.656625ms)
+  ✔ keeps another company out: the same key there runs its own command (0.929041ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.52525ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.423084ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.125875ms)
+  ✔ claim-first: concurrent duplicates write once; the in-flight duplicate and another actor get CONFLICT; a later retry replays (0.8515ms)
+  ✔ claim-first: a failed run releases the claim so the same key can run again (0.470208ms)
+✔ S11 import replay authorization (13.835625ms)
+ℹ tests 28
+ℹ suites 6
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0

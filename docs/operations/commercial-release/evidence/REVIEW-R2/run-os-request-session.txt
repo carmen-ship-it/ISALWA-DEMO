@@ -1,0 +1,13 @@
+# unit/integration suite: packages/os-request-session
+  ✔ documents that the organization header is a selector, not authority (0.341583ms)
+  ✔ uses the only eligible membership and ignores client scopes (0.529ms)
+  ✔ selects a proven membership and rejects a foreign selector (0.203958ms)
+  ✔ fails closed when several memberships have no selector (0.108167ms)
+✔ canonical request session (2.641084ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0

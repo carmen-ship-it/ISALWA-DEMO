@@ -43,6 +43,8 @@ function approvalStore(input: {
   quote?: CommercialApprovalSubjectRecord | null;
   order?: CommercialApprovalSubjectRecord | null;
   delegateFor?: string | null;
+  delegatorStatus?: string;
+  delegatorRoleKeys?: string[];
 }) {
   const approvals: ApprovalRequestRecord[] = [];
   const events: string[] = [];
@@ -72,6 +74,16 @@ function approvalStore(input: {
           expiresAt: new Date('2027-01-01'),
           revokedAt: null,
           delegatorMemberId: input.delegateFor,
+          organizationId: ORG,
+          delegator: {
+            organizationId: ORG,
+            accessStatus: input.delegatorStatus ?? 'active',
+            roleAssignments: (input.delegatorRoleKeys ?? ['approval.act']).map((roleKey) => ({
+              roleKey,
+              effectiveAt: new Date('2026-01-01'),
+              endedAt: null,
+            })),
+          },
         },
       ];
     },
@@ -204,6 +216,24 @@ describe('manual commercial approval commands', () => {
     assert.equal(decided.data.decision, 'approved');
     assert.equal(store.events.includes('order.created'), false);
     assert.equal(store.events.includes('approval.approved'), true);
+  });
+
+  it('F10: the delegate cannot decide once the approver is suspended or no longer holds approval.act', async () => {
+    for (const variant of [{ delegatorStatus: 'suspended' }, { delegatorRoleKeys: [] as string[] }]) {
+      const store = approvalStore({ delegateFor: APPROVER, order: subject({ status: 'open' }), ...variant });
+      const service = new WorkCommandService(store as unknown as OsWorkStore);
+      const requested = await service.execute('RequestApproval', ctx(OWNER), {
+        approverMemberId: APPROVER,
+        subjectType: 'order',
+        subjectId: 'subject-1',
+      });
+      await assert.rejects(
+        () => service.execute('Approve', ctx(DELEGATE), { approvalRequestId: String(requested.data.approvalRequestId) }),
+        /PERMISSION_DENIED/,
+        JSON.stringify(variant),
+      );
+      assert.equal(store.events.includes('approval.approved'), false);
+    }
   });
 
   it('records rejection without rewriting the commercial subject', async () => {

@@ -76,6 +76,8 @@ export class CommitmentStoreAdapter implements CommandStoreInterface {
     );
     return delegations.map((d) => ({
       delegatorMemberId: d.delegatorMemberId,
+      organizationId: d.organizationId,
+      delegator: d.delegator,
       scopes: d.scopes,
       startsAt: d.startsAt,
       expiresAt: d.expiresAt,

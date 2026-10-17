@@ -1,0 +1,36 @@
+# unit/integration suite: packages/os-work
+  ✔ passes the session organization into role and delegation reads (1.325875ms)
+  ✔ does not treat a foreign delegation as approval authority and emits no success (0.326875ms)
+✔ work auth queries (2.161458ms)
+  ✔ accepts a submitted quote and an open order in the same tenant (0.476041ms)
+  ✔ denies a cross-tenant or unknown subject id (0.280666ms)
+  ✔ denies an invalid subject type and ineligible lifecycle (0.148333ms)
+✔ quote and order approval subjects (1.380208ms)
+  ✔ lets the subject owner request approval and does not create an order (3.267917ms)
+  ✔ denies an unauthorized request, including people.admin who does not own the subject (0.263083ms)
+  ✔ lets the approver or an active delegate decide, and denies everyone else (1.025166ms)
+  ✔ F10: the delegate cannot decide once the approver is suspended or no longer holds approval.act (1.105875ms)
+  ✔ records rejection without rewriting the commercial subject (2.011583ms)
+  ✔ lets the current approver escalate to an explicitly selected Gerencia member (1.073542ms)
+  ✔ does not call CreateOrder from the approval decision path (0.309292ms)
+✔ manual commercial approval commands (9.361666ms)
+  ✔ returns the same pending approval when two requests race (4.127542ms)
+  ✔ returns the same open department review and allows another after complete (1.188958ms)
+✔ open request claims (5.807209ms)
+  ✔ does not spend the open-request claim key on the business event (3.101666ms)
+  ✔ allows a new request after the previous one is decided (1.169875ms)
+  ✔ keeps each concurrent command on its own idempotency key (9.000959ms)
+  ✔ still replays an identical in-flight request instead of opening a second one (0.493083ms)
+  ✔ does not replay a stored result to a different member (0.52925ms)
+  ✔ does not replay a stored result after the original member is suspended (0.348334ms)
+✔ re-requesting a review after it is resolved (15.210792ms)
+  ✔ denies ReassignWork without people.admin (1.230584ms)
+  ✔ appends ownership history without rewriting prior attribution (2.39175ms)
+✔ ReassignWork attribution (4.083042ms)
+ℹ tests 22
+ℹ suites 6
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0

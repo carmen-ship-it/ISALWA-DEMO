@@ -32,6 +32,14 @@ function delegationRow(organizationId: string, delegatorMemberId: string) {
     startsAt: new Date('2026-01-01T00:00:00.000Z'),
     expiresAt: new Date('2027-01-01T00:00:00.000Z'),
     revokedAt: null,
+    // Shape of DELEGATOR_STANDING_INCLUDE (F10).
+    delegator: {
+      organizationId,
+      accessStatus: 'active',
+      roleAssignments: [
+        { organizationId, roleKey: 'approval.act', effectiveAt: new Date('2020-01-01T00:00:00.000Z'), endedAt: null },
+      ],
+    },
   };
 }
 

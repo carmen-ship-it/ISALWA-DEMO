@@ -1,3 +1,4 @@
+import type { DelegatorStanding } from '@isalwa/os-domain';
 import type { LocationStatus, PartyKind, PartyRoleKey, PartyStatus } from '@isalwa/os-contracts';
 
 export type PartyRecord = {
@@ -133,10 +134,14 @@ export type RoleAssignmentRecord = {
 };
 
 export type DelegationRecord = {
+  delegatorMemberId?: string;
   scopes: string[];
   startsAt: Date;
   expiresAt: Date;
   revokedAt: Date | null;
+  organizationId?: string;
+  /** Delegator's current standing; without it the delegation confers nothing (F10). */
+  delegator?: DelegatorStanding;
 };
 
 export type IdempotencyRecord = {

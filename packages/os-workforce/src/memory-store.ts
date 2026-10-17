@@ -152,11 +152,26 @@ export class MemoryOsStore implements OsWorkforceStore {
     delegateMemberId: string,
     organizationId?: string,
   ): Promise<DelegationRecord[]> {
-    return this.delegations.filter(
-      (d) =>
-        d.delegateMemberId === delegateMemberId &&
-        (organizationId === undefined || d.organizationId === organizationId),
-    );
+    return this.delegations
+      .filter(
+        (d) =>
+          d.delegateMemberId === delegateMemberId &&
+          (organizationId === undefined || d.organizationId === organizationId),
+      )
+      .map((d) => {
+        const delegator = this.members.find((m) => m.id === d.delegatorMemberId);
+        if (!delegator) return { ...d, delegator: undefined };
+        return {
+          ...d,
+          delegator: {
+            organizationId: delegator.organizationId,
+            accessStatus: delegator.accessStatus,
+            roleAssignments: this.roleAssignments
+              .filter((r) => r.memberId === delegator.id && r.organizationId === delegator.organizationId)
+              .map((r) => ({ roleKey: r.roleKey, effectiveAt: r.effectiveAt, endedAt: r.endedAt })),
+          },
+        };
+      });
   }
 
   async listOpenWorkItemsForMember(

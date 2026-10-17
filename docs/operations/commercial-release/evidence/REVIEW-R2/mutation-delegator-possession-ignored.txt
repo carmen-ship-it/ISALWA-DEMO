@@ -1,0 +1,35 @@
+# mutation: delegator-possession-ignored
+# file: packages/os-domain/src/authorization.ts
+# diff:
+--- before
++++ mutated
+@@ -76,7 +76,7 @@
+   const delegator = d.delegator;
+   if (!delegator || delegator.accessStatus !== 'active') return false;
+   if (d.organizationId && delegator.organizationId !== d.organizationId) return false;
+-  return delegator.roleAssignments.some(
++  return true || delegator.roleAssignments.some(
+     (r) => r.roleKey === scope && isAssignmentActive(r.effectiveAt, r.endedAt, asOf),
+   );
+ }
+
+# result (allowlisted test-result lines only):
+  ✔ people.admin alone cannot grant commercial scopes to another member or to themselves (403, no rows) (126.095833ms)
+  ✔ a grantor cannot grant to themselves even what they already hold (22.122084ms)
+  ✔ before provisioning, the candidate cannot edit or quote the customer (16.370584ms)
+  ✔ an authorized grantor provisions a manager with edit, work and team range together (68.238458ms)
+  ✔ the provisioned manager edits and quotes the team customer over HTTP; ownership is unchanged (20.142333ms)
+  ✔ the read-only manager stays read-only (403, no writes) (14.875125ms)
+  ✔ ChangeManager cannot extend a manager over someone outside the grantor reach (403, no rows) (21.229667ms)
+  ✔ the provisioned manager cannot pass on what they were given without holding grant authority (7.483958ms)
+✔ Review R1 grant provisioning over HTTP (disposable Postgres) (555.563ms)
+  ✔ an active delegation from an active holder works for reads and commands (97.309583ms)
+  ✔ suspending the delegator stops the delegate: read, new command and replay; row unchanged (35.963958ms)
+  ✔ documents current reinstatement behavior: if the delegator becomes active again, the unexpired delegation applies again (7.066459ms)
+  ✖ the delegator losing the scope stops the delegate (21.0845ms)
+  ✔ revocation stops the delegate (28.281459ms)
+✖ Review R2 delegation standing over HTTP (disposable Postgres) (392.035917ms)
+ℹ pass 12
+ℹ fail 1
+✖ failing tests:
+✖ the delegator losing the scope stops the delegate (21.0845ms)

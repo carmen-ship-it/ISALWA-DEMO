@@ -111,7 +111,9 @@ describeHttp('Review R1 grant provisioning over HTTP (disposable Postgres)', () 
     store = moduleRef.get(OS_STORE);
     org = await store.seedOrganization('R1 Org', `r1-${createId()}`);
     m.rrhh = await seedMember('rrhh', ['people.admin']);
-    m.grantor = await seedMember('grantor', ['people.admin', ...MANAGER_SCOPES]);
+    // Org range (Gerencia-like): a grantor may only hand out reach it holds itself.
+    m.grantor = await seedMember('grantor', ['people.admin', 'commercial.org.read', ...MANAGER_SCOPES]);
+    m.teamGrantor = await seedMember('teamGrantor', ['people.admin', ...MANAGER_SCOPES]);
     m.seller = await seedMember('seller', ['commercial.customer.create', 'commercial.quote.convert.own']);
     m.seller2 = await seedMember('seller2', ['commercial.customer.create']);
     m.candidate = await seedMember('candidate', ['sales_manager']);
@@ -220,6 +222,21 @@ describeHttp('Review R1 grant provisioning over HTTP (disposable Postgres)', () 
     assert.deepEqual([quote.status, quote.body], DENIED);
     assert.equal((await prisma().osParty.findUniqueOrThrow({ where: { id: state.readPartyId } })).version, party.version);
     assert.equal(await prisma().osQuote.count({ where: { organizationId: org.id } }), quotesBefore);
+  });
+
+  it('ChangeManager cannot extend a manager over someone outside the grantor reach (403, no rows)', async () => {
+    const before = await writes();
+    for (const who of ['rrhh', 'teamGrantor']) {
+      const reply = await command(who, 'ChangeManager', {
+        memberId: m.seller2!.member.id,
+        managerMemberId: m.candidate!.member.id,
+      });
+      assert.deepEqual([reply.status, reply.body], DENIED, who);
+    }
+    assert.deepEqual(await writes(), before);
+    const party = await prisma().osParty.findUniqueOrThrow({ where: { id: state.readPartyId } });
+    const edit = await command('candidate', 'UpdateParty', { partyId: state.readPartyId, displayName: 'x', expectedVersion: party.version });
+    assert.notEqual(edit.status, 201, 'candidate still has no reach over seller2');
   });
 
   it('the provisioned manager cannot pass on what they were given without holding grant authority', async () => {

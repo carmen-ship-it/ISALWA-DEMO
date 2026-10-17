@@ -1,0 +1,34 @@
+# unit/integration suite: packages/os-commitment
+    ✔ creates a commitment for the current member (3.178584ms)
+    ✔ rejects if actor is not a member (0.372625ms)
+    ✔ rejects if party does not exist (0.222209ms)
+  ✔ CreateEmployeeCommitment (4.137458ms)
+    ✔ marks a commitment as fulfilled by owner (0.86075ms)
+    ✔ rejects fulfillment by non-owner (0.478334ms)
+  ✔ FulfillCommitment (1.432ms)
+    ✔ marks a commitment as cancelled by owner (0.578542ms)
+  ✔ CancelCommitment (0.633125ms)
+    ✔ allows owner to reassign commitment (0.755917ms)
+    ✔ rejects reassignment by non-owner (no people.admin fallback) (0.643333ms)
+  ✔ ReassignCommitmentOwner (1.513084ms)
+    ✔ CreateCustomerReportedCommitment creates commitment without payment status (0.444084ms)
+  ✔ customer_reported origin does NOT imply payment confirmed (0.492125ms)
+    ✔ derives state from dueAt and Bolivia calendar day (12.218ms)
+  ✔ overdue derivation (12.272917ms)
+✔ CommitmentCommandService (20.829792ms)
+  ✔ replays the same actor and request without a second commitment (5.027083ms)
+  ✔ gives a different member CONFLICT without the stored body or a new write (0.802917ms)
+  ✔ denies the original actor after suspension (0.469708ms)
+  ✔ keeps another company out: same key there runs its own command and never sees org-a (0.715ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.380042ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.359208ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.103833ms)
+  ✔ turns concurrent duplicates into one commitment; another actor in the race gets CONFLICT (0.956542ms)
+✔ S11 commitment replay authorization (9.409625ms)
+ℹ tests 18
+ℹ suites 8
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0

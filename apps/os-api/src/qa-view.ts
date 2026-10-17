@@ -86,6 +86,8 @@ export async function applyQaViewIfPresent(
       expiresAt: d.expiresAt,
       revokedAt: d.revokedAt,
       delegatorMemberId: d.delegatorMemberId,
+      organizationId: d.organizationId,
+      delegator: d.delegator,
     })),
     session.effectiveAt,
   );

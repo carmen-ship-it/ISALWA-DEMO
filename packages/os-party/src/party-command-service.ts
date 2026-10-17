@@ -61,7 +61,9 @@ export class PartyCommandService {
         startsAt: d.startsAt,
         expiresAt: d.expiresAt,
         revokedAt: d.revokedAt,
-        delegatorMemberId: '',
+        delegatorMemberId: d.delegatorMemberId ?? '',
+        organizationId: d.organizationId,
+        delegator: d.delegator,
       })),
       asOf,
     );

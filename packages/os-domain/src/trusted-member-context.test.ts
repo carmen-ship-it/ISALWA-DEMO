@@ -244,6 +244,11 @@ describe('resolveTrustedMemberContext', () => {
             expiresAt: FUTURE,
             revokedAt: null,
             delegatorMemberId: 'mem-mgr',
+            delegator: {
+              organizationId: ORG,
+              accessStatus: 'active',
+              roleAssignments: [{ roleKey: APPROVAL_ACT_SCOPE, effectiveAt: PAST, endedAt: null }],
+            },
           },
           {
             delegateMemberId: 'mem-a',

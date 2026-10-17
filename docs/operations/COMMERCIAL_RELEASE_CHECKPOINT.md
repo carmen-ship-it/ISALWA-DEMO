@@ -9,12 +9,15 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | T02 | LOCAL_COMPLETE (customer visibility boundary + operational reads + shared rate limit; tested fake + disposable PG + local HTTP; NOT INDEPENDENTLY REVIEWED) | `f76751d` | `commercial-release/receipts/T02.md` |
 | T03 | IN_PROGRESS (part 1 `3183c36`; part 2 `1d20081`; part 3 `7f9286f`; not complete) | `receipts/T03.md` (partial) | `commercial-release/evidence/T03/part2/` (run4), `part3/` (run5 all green, HTTP + Postgres, 2 mutation checks) |
 | R1 (review: grant provisioning F03/F04) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 2 mutation checks; NOT INDEPENDENTLY REVIEWED) | see git log `fix(workforce): R1` | `commercial-release/receipts/REVIEW-R1.md` |
+| R2 (review: effective delegation F10, grant/team range, bootstrap procedure) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 3 mutation checks; NOT INDEPENDENTLY REVIEWED; bootstrap PREPARED, NOT EXECUTED) | see git log `fix(authz): R2` | `commercial-release/receipts/REVIEW-R2.md` |
 
 ## Last confirmed step
 
 T02 committed: shared customer-visibility predicate (search/detail/contacts/locations/timeline/conversations), duplicate-counterpart redaction, HTTP+PG proof for the 8 remaining operational GETs (ledger pending = 0), Postgres-shared rate limit (`os_rate_limit_buckets`, migration 34) for search/commands/invitations.
 
 ## Next command
+
+R2 done (20:03 §13.8 #2, 20:39 §1–§4): delegations confer only while the delegator is active and still holds the scope (reads, commands, replays, approval decisions); grants and ChangeManager cannot give reach beyond the grantor's own; initial provisioning procedure prepared and tested with synthetic identities only (execution needs owner-named member + approval); os-web TS5097 repaired. Next: R3 tenant selection (F09).
 
 R1 done (20:03 §3): `GrantAdditionalRole` requires independent possession and denies self-target; `ChangeManager` denies self-appointment and backdating; `ChangeRole` denies backdating; commercial action scopes are assignable together by a grantor who holds them. Initial holders per scope are an owner dependency. Next: R2 effective delegation (F10), then R3 tenant selection (F09), per `REUSE_MAP.md` §13.8.
 
@@ -30,8 +33,10 @@ Recorded in `commercial-release/REUSE_MAP.md` §11. Remove the sample-data demo 
 
 ## Open blockers
 
+**TRANSFER/PUSH BLOCKER (20:39 §5):** four R1 evidence logs and every commit from `e7d8d98` on are UNREVIEWED — NOT FOR TRANSFER (`commercial-release/evidence/REVIEW-R1/UNREVIEWED-NOT-FOR-TRANSFER.md`). No push, upload, archive or sharing of this branch until resolved through an authorized review. Local development continues.
+
 None for local work. External dependencies (§14) recorded per task when reached.
 
 ## Known pre-existing failures (not T01/T02)
 
-6 delegation tests (5 os-database integration, 1 os-api HTTP) fail with PERMISSION_DENIED because their fixtures delegate scopes the delegator does not hold by own role (rule from `6b29ab3`). os-web tsc TS5097 in `lib/mobile/mobile-390-proof.test.ts`. os-query `query-context.tenant.test.ts` (expects `sales_rep` in roleKeys). Schema drift baseline vs migrations in ~40 older tables (`evidence/T02/schema-drift-baseline.txt`). Owner: engineering, separate repair task.
+(Historical, now passing: os-database 299/0 and os-api 223/0 in R2.) 6 delegation tests (5 os-database integration, 1 os-api HTTP) failed with PERMISSION_DENIED because their fixtures delegate scopes the delegator does not hold by own role (rule from `6b29ab3`). os-web tsc TS5097 in `lib/mobile/mobile-390-proof.test.ts`: repaired in R2. Legacy `apps/api` `canonical-session.bootstrap.test.ts` source-text assertion fails (outside os-api graph; separate repair). os-query `query-context.tenant.test.ts` (expects `sales_rep` in roleKeys). Schema drift baseline vs migrations in ~40 older tables (`evidence/T02/schema-drift-baseline.txt`). Owner: engineering, separate repair task.

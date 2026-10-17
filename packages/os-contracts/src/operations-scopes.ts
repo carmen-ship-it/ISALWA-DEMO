@@ -747,6 +747,53 @@ export function resolveAccountAssignmentAuthority(input: {
 }
 
 /**
+ * Commercial resource reach as explicit keys, from the same rules as canActOnCustomer,
+ * canManageCustomerAccountWork, canKnowCustomer and resolveAccountAssignmentAuthority:
+ * `<action>:org` for org range, `<action>:member:<id>` for a direct report under team
+ * range, `reassign:intake` for unowned accounts. Used to check that a grant or a
+ * manager change gives nobody reach the grantor does not hold (review R1/R2, 20:39 §2).
+ */
+const RANGED_COMMERCIAL_ACTIONS: ReadonlyArray<readonly [string, string | null]> = [
+  ['read', null],
+  ['edit', COMMERCIAL_CUSTOMER_EDIT_SCOPE],
+  ['archive', COMMERCIAL_CUSTOMER_ARCHIVE_SCOPE],
+  ['reactivate', COMMERCIAL_CUSTOMER_REACTIVATE_SCOPE],
+  ['manage', COMMERCIAL_WORK_MANAGE_SCOPE],
+];
+
+export function commercialReachKeys(
+  grantedScopes: readonly string[],
+  directReportMemberIds: readonly string[],
+): Set<string> {
+  const keys = new Set<string>();
+  const org = hasExplicitScope(grantedScopes, COMMERCIAL_ORG_READ_SCOPE);
+  const team = hasExplicitScope(grantedScopes, COMMERCIAL_TEAM_READ_SCOPE);
+  const addRange = (action: string) => {
+    if (org) keys.add(`${action}:org`);
+    if (team) for (const id of directReportMemberIds) keys.add(`${action}:member:${id}`);
+  };
+  for (const [action, scope] of RANGED_COMMERCIAL_ACTIONS) {
+    if (scope === null || hasExplicitScope(grantedScopes, scope)) addRange(action);
+  }
+  if (hasExplicitScope(grantedScopes, COMMERCIAL_ACCOUNT_REASSIGN_SCOPE)) {
+    if (hasExplicitScope(grantedScopes, COMMERCIAL_ASSIGNMENT_ORG_SCOPE)) keys.add('reassign:org');
+    if (hasExplicitScope(grantedScopes, COMMERCIAL_INTAKE_ASSIGN_SCOPE)) keys.add('reassign:intake');
+    if (team) for (const id of directReportMemberIds) keys.add(`reassign:member:${id}`);
+  }
+  return keys;
+}
+
+/** Reach keys gained by the change that the grantor's own reach does not include. */
+export function reachBeyondGrantor(
+  before: ReadonlySet<string>,
+  after: ReadonlySet<string>,
+  grantor: ReadonlySet<string>,
+): string[] {
+  const gained = [...after].filter((key) => !before.has(key));
+  return gained.filter((key) => !grantor.has(key) && !grantor.has(`${key.split(':')[0]}:org`));
+}
+
+/**
  * Whether the actor may know this customer exists (T02 non-disclosure). When false,
  * a command must answer exactly as for a missing or foreign id. When true but the
  * action is not allowed, PERMISSION_DENIED is the honest answer.

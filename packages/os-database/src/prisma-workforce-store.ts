@@ -1,3 +1,4 @@
+import { DELEGATOR_STANDING_INCLUDE, toDelegatorStanding } from './delegator-standing';
 import { createId } from '@isalwa/ts-utils';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import {
@@ -200,6 +201,7 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
   ): Promise<DelegationRecord[]> {
     const rows = await this.db().osDelegation.findMany({
       where: organizationId ? { delegateMemberId, organizationId } : { delegateMemberId },
+      include: DELEGATOR_STANDING_INCLUDE,
     });
     return rows.map((d) => ({
       id: d.id,
@@ -210,6 +212,7 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
       startsAt: d.startsAt,
       expiresAt: d.expiresAt,
       revokedAt: d.revokedAt,
+      delegator: toDelegatorStanding(d.delegator),
     }));
   }
 

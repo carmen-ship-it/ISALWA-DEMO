@@ -1,0 +1,24 @@
+# unit/integration suite: packages/os-events
+  ✔ passes the session organization into role and delegation reads and does not recover (1.023042ms)
+✔ outbox recovery auth queries (1.418333ms)
+  ✔ applies the consumer on restart when the process died before the consumer wrote anything (3.341416ms)
+  ✔ re-delivers when the process died after the consumer wrote but before completion was recorded (0.367166ms)
+  ✔ does not re-deliver, and still publishes, when the process died after completion was recorded (0.344917ms)
+  ✔ after one consumer completed and another died, redelivers only the one that never completed (0.363333ms)
+  ✔ never publishes while a consumer has not applied, across repeated crashes (0.41ms)
+  ✔ retries, instead of treating the consumer as done, when recording completion fails for any other reason (0.244667ms)
+  ✔ retries, instead of skipping the consumer, when the completion lookup fails (0.245583ms)
+✔ OsOutboxWorker crash recovery (no cleanup code runs) (5.850041ms)
+  ✔ graceful stop waits for in-flight tick (32.607333ms)
+✔ OutboxWorkerHost (33.155791ms)
+  ✔ publishes pending messages (3.791792ms)
+  ✔ redelivers to a consumer that failed, instead of publishing the message unprojected (0.436ms)
+  ✔ does not let one message duplicate publish another message that never delivered (0.433125ms)
+✔ OsOutboxWorker (5.161083ms)
+ℹ tests 12
+ℹ suites 4
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0

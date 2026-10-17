@@ -178,6 +178,8 @@ export class MemoryController {
           expiresAt: d.expiresAt,
           revokedAt: d.revokedAt,
           delegatorMemberId: d.delegatorMemberId,
+          organizationId: d.organizationId,
+          delegator: d.delegator,
         })),
         asOf,
       ),

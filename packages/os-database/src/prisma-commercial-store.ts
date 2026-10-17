@@ -1,3 +1,4 @@
+import { DELEGATOR_STANDING_INCLUDE, toDelegatorStanding } from './delegator-standing';
 import { coverageActionsFromStored } from '@isalwa/os-contracts';
 import { createId } from '@isalwa/ts-utils';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
@@ -93,6 +94,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
   ): Promise<DelegationRecord[]> {
     const rows = await this.db().osDelegation.findMany({
       where: organizationId ? { delegateMemberId: memberId, organizationId } : { delegateMemberId: memberId },
+      include: DELEGATOR_STANDING_INCLUDE,
     });
     return rows.map((d) => ({
       delegatorMemberId: d.delegatorMemberId,
@@ -100,6 +102,8 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
       startsAt: d.startsAt,
       expiresAt: d.expiresAt ?? new Date('2099-01-01T00:00:00Z'),
       revokedAt: d.revokedAt,
+      organizationId: d.organizationId,
+      delegator: toDelegatorStanding(d.delegator),
     }));
   }
 

@@ -1,3 +1,4 @@
+import { DELEGATOR_STANDING_INCLUDE, toDelegatorStanding } from './delegator-standing';
 import { createId } from '@isalwa/ts-utils';
 import { COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE, type CustomerCoverageGrant, coverageActionsFromStored } from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
@@ -105,12 +106,16 @@ export class PrismaOsPartyStore implements OsPartyStore {
       where: organizationId
         ? { delegateMemberId: memberId, organizationId }
         : { delegateMemberId: memberId },
+      include: DELEGATOR_STANDING_INCLUDE,
     });
     return rows.map((d) => ({
+      delegatorMemberId: d.delegatorMemberId,
       scopes: d.scopesJson as string[],
       startsAt: d.startsAt,
       expiresAt: d.expiresAt,
       revokedAt: d.revokedAt,
+      organizationId: d.organizationId,
+      delegator: toDelegatorStanding(d.delegator),
     }));
   }
 

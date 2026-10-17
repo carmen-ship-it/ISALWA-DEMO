@@ -1,3 +1,4 @@
+import type { DelegatorStanding } from '@isalwa/os-domain';
 import type { RequestContext } from '@isalwa/os-contracts';
 import {
   assertMemberActive,
@@ -43,6 +44,8 @@ export type WorkforceAuthReader = {
       expiresAt: Date;
       revokedAt: Date | null;
       delegatorMemberId: string;
+      organizationId?: string;
+      delegator?: DelegatorStanding;
     }>
   >;
 };
@@ -69,6 +72,8 @@ export async function buildQueryContext(
       expiresAt: d.expiresAt,
       revokedAt: d.revokedAt,
       delegatorMemberId: d.delegatorMemberId,
+      organizationId: d.organizationId,
+      delegator: d.delegator,
     })),
     session.effectiveAt,
   );

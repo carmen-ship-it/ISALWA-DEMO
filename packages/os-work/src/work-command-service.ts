@@ -9,6 +9,7 @@ import {
   assertMemberActive,
   assertTenantMatch,
   computeEffectiveScopes,
+  delegationConfersScope,
   memberHasScope,
   type MemberAccessSnapshot,
 } from '@isalwa/os-domain';
@@ -67,6 +68,8 @@ export class WorkCommandService {
           expiresAt: d.expiresAt,
           revokedAt: d.revokedAt,
           delegatorMemberId: d.delegatorMemberId,
+          organizationId: d.organizationId,
+          delegator: d.delegator,
         })),
         asOf,
       ),
@@ -545,14 +548,11 @@ export class WorkCommandService {
   ): Promise<boolean> {
     if (ctx.actorMemberId === approverMemberId) return true;
     const delegations = await store.listDelegationsForDelegate(ctx.actorMemberId, ctx.organizationId);
-    for (const d of delegations) {
-      if (d.revokedAt) continue;
-      if (d.startsAt > ctx.effectiveAt || d.expiresAt <= ctx.effectiveAt) continue;
-      if (d.delegatorMemberId === approverMemberId && d.scopes.includes('approval.act')) {
-        return true;
-      }
-    }
-    return false;
+    return delegations.some(
+      (d) =>
+        d.delegatorMemberId === approverMemberId &&
+        delegationConfersScope(d, 'approval.act', ctx.effectiveAt),
+    );
   }
 
   private async decideApproval(
