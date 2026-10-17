@@ -174,7 +174,7 @@ describePrisma('party timeline work + approval prisma integration (Step 16.1B)',
   }
 
   it('projects work lifecycle events for party-subject work', async () => {
-    const { org, partyId, ownerCtx, owner, requesterCtx } = await seedFixture();
+    const { org, partyId, ownerCtx, owner, requester, requesterCtx } = await seedFixture();
 
     const created = await workSvc.execute('CreateWorkItem', ownerCtx, {
       title: 'Party-linked work',
@@ -196,12 +196,13 @@ describePrisma('party timeline work + approval prisma integration (Step 16.1B)',
     await prisma.osRoleAssignment.create({
       data: { id: createId(), organizationId: org.id, memberId: manager.member.id, roleKey: 'commercial.org.read', effectiveAt: new Date('2020-01-01') },
     });
+    // The target must already be able to work this customer: the account owner can.
     await workSvc.execute('ReassignWork', ctx(org.id, manager.member.id, manager.person.id, manager.auth.id), {
       workItemId,
-      newOwnerMemberId: owner.member.id,
-      reason: 'stay',
+      newOwnerMemberId: requester.member.id,
+      reason: 'handover to account owner',
     });
-    await workSvc.execute('CompleteWork', ownerCtx, { workItemId });
+    await workSvc.execute('CompleteWork', requesterCtx, { workItemId });
     await drainTimelineOutbox(org.id);
 
     const queryCtx = await buildQueryContext(requesterCtx, workforceStore);

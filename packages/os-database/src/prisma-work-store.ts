@@ -1,3 +1,8 @@
+import {
+  COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE,
+  coverageActionsFromStored,
+  type CustomerCoverageGrant,
+} from '@isalwa/os-contracts';
 import { DELEGATOR_STANDING_INCLUDE, toDelegatorStanding } from './delegator-standing';
 import { createId } from '@isalwa/ts-utils';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
@@ -128,6 +133,36 @@ export class PrismaOsWorkStore implements OsWorkStore {
       select: { id: true },
     });
     return Boolean(row);
+  }
+
+  async listActiveCustomerCoverageForMember(
+    organizationId: string,
+    memberId: string,
+    customerPartyId: string,
+    asOf: Date,
+  ): Promise<CustomerCoverageGrant[]> {
+    const rows = await this.db().osCustomerCoverageGrant.findMany({
+      where: {
+        organizationId,
+        actingAdvisorMemberId: memberId,
+        customerPartyId,
+        grantType: COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE,
+        revokedAt: null,
+        startsAt: { lte: asOf },
+        OR: [{ endsAt: null }, { endsAt: { gt: asOf } }],
+      },
+    });
+    return rows.map((row) => ({
+      grantType: COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE,
+      organizationId: row.organizationId,
+      customerPartyId: row.customerPartyId,
+      primaryOwnerMemberId: row.primaryOwnerMemberId,
+      actingAdvisorMemberId: row.actingAdvisorMemberId,
+      coveredActions: coverageActionsFromStored(row.coveredActions),
+      startsAt: row.startsAt,
+      endsAt: row.endsAt,
+      revokedAt: row.revokedAt,
+    }));
   }
 
   async partyExistsInOrg(organizationId: string, partyId: string): Promise<boolean> {

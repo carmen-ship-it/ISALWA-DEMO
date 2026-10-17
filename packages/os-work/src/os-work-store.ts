@@ -1,3 +1,4 @@
+import type { CustomerCoverageGrant } from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type {
   ApprovalRequestRecord,
@@ -31,6 +32,13 @@ export interface OsWorkStore {
     subjectId: string,
   ): Promise<{ partyId: string; ownerMemberId: string | null } | null>;
   isDirectReport(organizationId: string, managerMemberId: string, memberId: string, asOf: Date): Promise<boolean>;
+  /** Unrevoked coverage grants where the member is the acting advisor for this customer, active at asOf. */
+  listActiveCustomerCoverageForMember(
+    organizationId: string,
+    memberId: string,
+    customerPartyId: string,
+    asOf: Date,
+  ): Promise<CustomerCoverageGrant[]>;
   getQuoteApprovalSubject(
     organizationId: string,
     quoteId: string,

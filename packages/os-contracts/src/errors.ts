@@ -8,6 +8,8 @@ export const OS_ERROR_CODES = [
   'GOVERNANCE_REQUIRED',
   'CAPABILITY_LOCKED',
   'VALIDATION_FAILED',
+  /** The target lacks access needed to perform the work (e.g. ReassignWork to a member who cannot work the customer). */
+  'TARGET_PREREQUISITE_MISSING',
   'CONFLICT',
   'IDEMPOTENCY_REPLAY',
   'NOT_FOUND',

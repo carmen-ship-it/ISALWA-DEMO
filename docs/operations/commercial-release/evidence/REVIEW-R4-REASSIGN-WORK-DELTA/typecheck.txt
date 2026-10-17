@@ -1,0 +1,6 @@
+typecheck os-contracts exit 0
+typecheck os-work exit 0
+typecheck os-query exit 0
+typecheck os-database exit 0
+typecheck os-api exit 0
+typecheck os-web exit 0

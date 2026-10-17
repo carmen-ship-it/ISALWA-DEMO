@@ -1,7 +1,11 @@
 import { OsApiError } from '@/lib/api/os-api-errors';
 
+export const TARGET_PREREQUISITE_MISSING_COPY =
+  'La persona elegida todavía no puede atender a este cliente. Asígnele primero la cuenta o una cobertura que incluya el trabajo comercial, y vuelva a intentarlo.';
+
 export function mapCommandError(err: unknown): string {
   if (err instanceof OsApiError) {
+    if (err.code === 'TARGET_PREREQUISITE_MISSING') return TARGET_PREREQUISITE_MISSING_COPY;
     switch (err.kind) {
       case 'unauthorized':
         return 'Su sesión venció. Vuelva a iniciar sesión.';

@@ -67,3 +67,44 @@ Evidence: `evidence/REVIEW-R4-REASSIGN-WORK/`.
 - Admin panel copy (`reassign-work-panel.tsx`) does not yet say that customer and purchasing work is handed off by commercial managers; the panel just lists fewer items. Copy change left for the UI pass (T10), not done here.
 - `commercial_account` subjects resolve through `osCommercialAccount.id`; an account without an owner refuses customer reassignment.
 - Browser verification: UNPROVEN. Independent review: pending.
+
+## 6. Addendum: contract correction (23:47 §A, decision B12)
+
+State: IMPLEMENTED + LOCALLY TESTED (unit, disposable Postgres, local HTTP). NOT INDEPENDENTLY REVIEWED. BROWSER CHECK UNPROVEN. Mutation evidence INCOMPLETE (see below). Supersedes the "production/warehouse prep reviews are general" interpretation in §1 and §5.
+
+Behavior:
+- **Domain from explicit signals only** (`classifyWorkForReassignment`):
+  - source markers written at creation: `[[order-prep:<department>:…]]`, `[[production-update:…]]`, `[[production-next:…]]`, `[[compras-result:…]]`;
+  - the fixed production next-action title (`PRODUCTION_NEXT_ACTION_TITLE_PREFIX`);
+  - the subject relationship.
+  - New classes `production`, `warehouse`, `unknown`. Conflicting markers, an unrecognized marker or an unrecognized subject type → `unknown`, which fails closed.
+  - `general` is now only subject `organization_member` or an unlinked task with no marker.
+- **Production, warehouse and purchasing reassignment is disabled** (`WORK_REASSIGNMENT_PENDING_AUTHORITY`), pending a bounded authority definition. This is an incomplete workflow, not a permanent refusal. people.admin is no longer a universal operational reassignment permission.
+- **Target prerequisite for customer work** (`canPerformCustomerWork`): the target must already be able to work this customer. That means the account owner, an active coverage grant covering `commercial.work`, or manager work authority with range. Assignment grants nothing. Otherwise the command returns `TARGET_PREREQUISITE_MISSING` (HTTP 400) and changes nothing. New store read: `listActiveCustomerCoverageForMember`.
+- **Production next-action tasks** (`os-web lib/postsale/expected-date-work.ts`) now carry `productionNextActionMarker(orderId)`, so new tasks classify as production by marker. Older tasks are recognized by the fixed title.
+- **Admin panel copy** (`reassign-work-panel.tsx`): commercial work is reassigned from commercial management. Production, Almacén and Compras work is coordinated with each area, and its reassignment is not available yet. The empty state reads "No hay trabajo para reasignar desde aquí…". os-web maps `TARGET_PREREQUISITE_MISSING` to actionable Spanish copy.
+
+Test changed to the decided policy (not weakened): `os-database party-timeline-work-approval-prisma.integration.test.ts` reassigned party work to a member holding only people.admin. That is now correctly refused (`TARGET_PREREQUISITE_MISSING`). The fixture now hands the work to the account owner, who then completes it, and the timeline assertions are unchanged.
+
+Checks (evidence `evidence/REVIEW-R4-REASSIGN-WORK-DELTA/`, allowlisted lines only; tested sources in `tested-source-manifest.sha256`):
+
+| Check | Result |
+|---|---|
+| Build (`@isalwa/os-api^...`) | exit 0 |
+| HTTP + PG `review-r4-reassign-work.http.test.ts` | 8/8 |
+| os-contracts `work-reassignment.test.ts` (new) | 4/4 |
+| os-contracts suite | 185/185 |
+| os-work suite | 22/22 |
+| os-query suite | 82/82 |
+| os-database suite | 303/303 after the fixture correction. Before it: 302/303 (the expected refusal). The first targeted run after the correction failed once with no captured detail; the next 3 runs passed 7/7 |
+| os-api suite | 267/267 serial (`--test-concurrency=1`). The default-concurrency package script gave 265/267, with failures in party timeline and party search from shared-database ordering, not reassignment |
+| os-web suite | 1300/1300 |
+| Typecheck os-contracts / os-work / os-query / os-database / os-api / os-web | exit 0 each |
+| Mutations | **INCOMPLETE.** The run aborted and left one mutated line, which was restored and hash-verified. Not re-run and not used as acceptance evidence (`mutations.txt`) |
+
+Limitations, recorded as open:
+- The domain workflow is incomplete: production, warehouse and purchasing reassignment is disabled until a bounded authority definition exists.
+- The commercial reassignment UI is missing. Commercial managers have no product surface for ReassignWork on customer work yet; only the HTTP command exists.
+- A coverage arrangement is not created by the command. The target must already hold coverage; the command never grants it.
+- Mutation evidence is INCOMPLETE. A safer, inspectable method (reviewable patch files applied to a disposable copy) needs the normal approval process.
+- The os-api package script runs its tests in parallel against one shared disposable database, which is order-sensitive. The established serial command is what counts as evidence. Separate repair.

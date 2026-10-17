@@ -1,0 +1,9 @@
+✖ party timeline work + approval prisma integration (Step 16.1B) (542.021791ms)
+ℹ tests 303
+ℹ pass 302
+ℹ fail 1
+✖ failing tests:
+✖ projects work lifecycle events for party-subject work (60.504ms)
+exit 1
+# before the fixture correction: TARGET_PREREQUISITE_MISSING (target held only people.admin; correct per B12)
+# after correction: first targeted run 6/7 (detail not captured), then 3/3 runs 7/7, then full suite 303/303

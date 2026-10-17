@@ -128,6 +128,7 @@ describe('production expected date → Work/Attention', () => {
     assert.equal(typeof result.work.payload.dueAt, 'string');
     assert.match(String(result.work.payload.title), /P-100/);
     assert.match(String(result.work.payload.description), /Esperar esmaltado/);
+    assert.match(String(result.work.payload.description), /\[\[production-next:ord-1\]\]/);
   });
 
   it('fails closed on missing Pedido/customer/product or invalid date', () => {

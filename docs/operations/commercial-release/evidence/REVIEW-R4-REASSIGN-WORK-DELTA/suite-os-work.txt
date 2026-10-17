@@ -1,0 +1,37 @@
+  ✔ passes the session organization into role and delegation reads (3.504375ms)
+  ✔ does not treat a foreign delegation as approval authority and emits no success (0.520125ms)
+✔ work auth queries (4.667917ms)
+  ✔ accepts a submitted quote and an open order in the same tenant (1.215666ms)
+  ✔ denies a cross-tenant or unknown subject id (0.996792ms)
+  ✔ denies an invalid subject type and ineligible lifecycle (2.379917ms)
+✔ quote and order approval subjects (5.918834ms)
+  ✔ lets the subject owner request approval and does not create an order (10.1935ms)
+  ✔ denies an unauthorized request, including people.admin who does not own the subject (0.3645ms)
+  ✔ lets the approver or an active delegate decide, and denies everyone else (6.311417ms)
+  ✔ F10: the delegate cannot decide once the approver is suspended or no longer holds approval.act (7.145833ms)
+  ✔ records rejection without rewriting the commercial subject (14.033209ms)
+  ✔ lets the current approver escalate to an explicitly selected Gerencia member (7.22375ms)
+  ✔ does not call CreateOrder from the approval decision path (0.943ms)
+✔ manual commercial approval commands (50.908417ms)
+  ✔ returns the same pending approval when two requests race (16.394583ms)
+  ✔ returns the same open department review and allows another after complete (4.731208ms)
+✔ open request claims (21.734ms)
+  ✔ does not spend the open-request claim key on the business event (11.155542ms)
+  ✔ allows a new request after the previous one is decided (1.82975ms)
+  ✔ keeps each concurrent command on its own idempotency key (19.229125ms)
+  ✔ still replays an identical in-flight request instead of opening a second one (26.959333ms)
+  ✔ does not replay a stored result to a different member (3.868875ms)
+  ✔ does not replay a stored result after the original member is suspended (1.54475ms)
+✔ re-requesting a review after it is resolved (65.933917ms)
+  ✔ denies ReassignWork without people.admin (3.706041ms)
+  ✔ appends ownership history without rewriting prior attribution (5.6225ms)
+✔ ReassignWork attribution (10.383667ms)
+ℹ tests 22
+ℹ suites 6
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 499.326
+exit 0

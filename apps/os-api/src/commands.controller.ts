@@ -86,7 +86,7 @@ function mapError(err: unknown): HttpException {
           ? HttpStatus.NOT_FOUND
           : code === 'IMPORT_DISABLED'
             ? HttpStatus.FORBIDDEN
-          : code === 'VALIDATION_FAILED' || code === 'CONFLICT'
+          : code === 'VALIDATION_FAILED' || code === 'CONFLICT' || code === 'TARGET_PREREQUISITE_MISSING'
             ? HttpStatus.BAD_REQUEST
             : HttpStatus.INTERNAL_SERVER_ERROR;
   return new HttpException({ code }, status);

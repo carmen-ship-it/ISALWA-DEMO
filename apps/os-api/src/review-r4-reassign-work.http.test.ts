@@ -10,11 +10,13 @@ import { getOsPrisma } from '@isalwa/os-database';
 import { createId } from '@isalwa/ts-utils';
 
 /**
- * R4 23:27 §1: ReassignWork needs current authority over the work and the specific
- * permission for its class. people.admin alone moves only general (workforce) work;
- * customer work needs commercial.work.manage plus range; purchasing prep reviews are not
- * reassignable. Refused attempts change nothing. Real Nest app, disposable Postgres,
- * synthetic members.
+ * R4 23:27 §1 + 23:47 §A: ReassignWork needs current authority over the work and the
+ * permission for its domain. people.admin alone moves only general (workforce) work;
+ * customer work needs commercial.work.manage plus range and a target who can already work
+ * that customer; production, warehouse and purchasing work (identified by explicit source
+ * markers even when the subject is a customer) have no reassignment authority yet;
+ * unknown work fails closed. Refused attempts change nothing. Real Nest app, disposable
+ * Postgres, synthetic members.
  */
 const describeHttp = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
@@ -96,6 +98,23 @@ describeHttp('R4 ReassignWork authority over HTTP (disposable Postgres)', () => 
     };
   }
 
+  async function grantCoverage(advisor: string, coveredActions: string[]): Promise<string> {
+    const id = createId();
+    await prisma().osCustomerCoverageGrant.create({
+      data: {
+        id,
+        organizationId: org.id,
+        customerPartyId: partyId,
+        primaryOwnerMemberId: m.seller!.member.id,
+        actingAdvisorMemberId: m[advisor]!.member.id,
+        coveredActions,
+        startsAt: new Date('2020-01-01'),
+        recordedAt: new Date('2020-01-01'),
+      },
+    });
+    return id;
+  }
+
   async function refusedWithoutMutation(who: string, workItemId: string, target: string, status: number) {
     const before = await footprint(workItemId);
     const res = await command(who, 'ReassignWork', { workItemId, newOwnerMemberId: target });
@@ -139,8 +158,17 @@ describeHttp('R4 ReassignWork authority over HTTP (disposable Postgres)', () => 
     await createWork('customer', { title: 'R4 customer follow-up', subjectType: 'party', subjectId: partyId });
     await createWork('linked', { title: 'R4 linked to customer work', subjectType: 'work_item', subjectId: w.customer });
     await createWork('purchasing', { title: 'R4 compras', description: '[[order-prep:purchasing:ORD-R4]]' });
+    const onCustomer = { subjectType: 'party', subjectId: partyId };
+    await createWork('purchasingParty', { title: 'COMPRAS', description: 'Revise abastecimiento.\n[[order-prep:purchasing:ORD-R4P]]', ...onCustomer });
+    await createWork('production', { title: 'PRODUCCIÓN', description: 'Revise el pedido.\n[[order-prep:production:ORD-R4D]]', ...onCustomer });
+    await createWork('warehouse', { title: 'ALMACÉN', description: 'Revise evidencia.\n[[order-prep:warehouse:ORD-R4W]]', ...onCustomer });
+    await createWork('productionUpdate', { title: 'Actualización de producción', description: '[[production-update:ORD-R4U]]', ...onCustomer });
+    await createWork('productionNext', { title: 'Producción · próxima acción: P-R4 · Vidrio', description: 'Pedido: P-R4 (ORD-R4)', ...onCustomer });
+    await createWork('comprasResult', { title: 'Resultado de Compras', description: '[[compras-result:ORD-R4C]]', ...onCustomer });
+    await createWork('unknownMarker', { title: 'R4 unknown source', description: '[[mystery-source:1]]' });
     await createWork('general', { title: 'R4 general handover' });
     await createWork('general2', { title: 'R4 general stays' });
+    await createWork('memberSubject', { title: 'R4 onboarding task', subjectType: 'organization_member', subjectId: m.seller2!.member.id });
     await runner.runOnce();
     await runner.runOnce();
   });
@@ -149,10 +177,12 @@ describeHttp('R4 ReassignWork authority over HTTP (disposable Postgres)', () => 
     await app.close();
   });
 
-  it('people.admin alone cannot move customer, linked-customer or purchasing work: missing-id answer, no ownership, event, outbox, audit or notification', async () => {
+  const DOMAIN_ON_CUSTOMER = ['purchasingParty', 'production', 'warehouse', 'productionUpdate', 'productionNext', 'comprasResult'];
+
+  it('people.admin alone cannot move customer, linked-customer, production, warehouse, purchasing or unknown work: missing-id answer, no ownership, event, outbox, audit or notification', async () => {
     const missing = await command('admin', 'ReassignWork', { workItemId: createId(), newOwnerMemberId: m.outsider!.member.id });
     assert.equal(missing.status, 404);
-    for (const key of ['customer', 'linked', 'purchasing']) {
+    for (const key of ['customer', 'linked', 'purchasing', ...DOMAIN_ON_CUSTOMER, 'unknownMarker']) {
       const res = await refusedWithoutMutation('admin', w[key]!, m.outsider!.member.id, 404);
       assert.deepEqual(res.body, missing.body, key);
     }
@@ -167,6 +197,15 @@ describeHttp('R4 ReassignWork authority over HTTP (disposable Postgres)', () => 
     await refusedWithoutMutation('jefe', w.general!, m.seller2!.member.id, 404);
   });
 
+  it('domain work on a customer is not commercial work: commercial managers and Compras cannot move production, warehouse or purchasing items (authority pending), without trace', async () => {
+    for (const key of DOMAIN_ON_CUSTOMER) {
+      await refusedWithoutMutation('gerente', w[key]!, m.outsider!.member.id, 404);
+      await refusedWithoutMutation('jefe', w[key]!, m.seller2!.member.id, 404);
+    }
+    await refusedWithoutMutation('compras', w.purchasingParty!, m.compras!.member.id, 404);
+    await refusedWithoutMutation('compras', w.comprasResult!, m.compras!.member.id, 404);
+  });
+
   it('target validation: other tenant, suspended (even a direct report), unknown and outside the team range are refused without mutation', async () => {
     for (const target of [m.foreign!.member.id, m.suspended!.member.id, createId(), m.outsider!.member.id]) {
       await refusedWithoutMutation('jefe', w.customer!, target, 400);
@@ -177,7 +216,23 @@ describeHttp('R4 ReassignWork authority over HTTP (disposable Postgres)', () => 
     }
   });
 
-  it('commercial.work.manage with team range moves customer work to a direct report; the target gains no customer access', async () => {
+  it('customer work is never assigned to someone who cannot work the customer: the manager gets TARGET_PREREQUISITE_MISSING, nothing changes, no access is granted', async () => {
+    const team = await refusedWithoutMutation('jefe', w.customer!, m.seller2!.member.id, 400);
+    assert.equal(team.body.code, 'TARGET_PREREQUISITE_MISSING');
+    const orgRange = await refusedWithoutMutation('gerente', w.customer!, m.outsider!.member.id, 400);
+    assert.equal(orgRange.body.code, 'TARGET_PREREQUISITE_MISSING');
+    const readOnly = await refusedWithoutMutation('gerente', w.customer!, m.jefeReadOnly!.member.id, 400);
+    assert.equal(readOnly.body.code, 'TARGET_PREREQUISITE_MISSING', 'read scope over the owner is not enough to work the customer');
+    await grantCoverage('outsider', ['customer.edit']);
+    const dataOnly = await refusedWithoutMutation('gerente', w.customer!, m.outsider!.member.id, 400);
+    assert.equal(dataOnly.body.code, 'TARGET_PREREQUISITE_MISSING', 'data-only coverage does not cover commercial work');
+    const linked = await refusedWithoutMutation('gerente', w.linked!, m.outsider!.member.id, 400);
+    assert.equal(linked.body.code, 'TARGET_PREREQUISITE_MISSING');
+    assert.equal((await get('seller2', `/parties/${partyId}`)).status, 404);
+  });
+
+  it('commercial.work.manage with team range moves customer work to a direct report who holds commercial-work coverage; access comes from coverage, not from the assignment', async () => {
+    const coverageId = await grantCoverage('seller2', ['commercial.work']);
     const before = await footprint(w.customer!);
     const moved = await command('jefe', 'ReassignWork', { workItemId: w.customer, newOwnerMemberId: m.seller2!.member.id });
     assert.equal(moved.status, 201, JSON.stringify(moved.body));
@@ -187,22 +242,27 @@ describeHttp('R4 ReassignWork authority over HTTP (disposable Postgres)', () => 
     assert.equal(after.events, before.events + 1);
     await runner.runOnce();
     await runner.runOnce();
-    assert.equal((await get('seller2', `/parties/${partyId}`)).status, 404, 'work assignment does not grant customer access');
+    assert.equal((await get('seller2', `/parties/${partyId}`)).status, 200);
+    await prisma().osCustomerCoverageGrant.update({ where: { id: coverageId }, data: { revokedAt: new Date() } });
+    assert.equal((await get('seller2', `/parties/${partyId}`)).status, 404, 'owning the work does not keep customer access');
     assert.equal((await get('seller2', `/work-items/${w.customer}`)).status, 200);
   });
 
-  it('commercial.work.manage with organization range moves customer work to any active member; linked work follows its referenced class', async () => {
+  it('commercial.work.manage with organization range moves customer and linked work to an active member with commercial-work coverage', async () => {
+    await grantCoverage('outsider', ['commercial.work']);
     const moved = await command('gerente', 'ReassignWork', { workItemId: w.customer, newOwnerMemberId: m.outsider!.member.id });
     assert.equal(moved.status, 201, JSON.stringify(moved.body));
     const linked = await command('gerente', 'ReassignWork', { workItemId: w.linked, newOwnerMemberId: m.outsider!.member.id });
     assert.equal(linked.status, 201, JSON.stringify(linked.body));
   });
 
-  it('workforce continuity is preserved: people.admin lists and moves only the member\'s general work', async () => {
+  it('workforce continuity is preserved: people.admin lists and moves only the member\'s general work (unlinked tasks and team-member tasks)', async () => {
     const listed = await get('admin', `/work-items?status=open&ownerMemberId=${m.seller!.member.id}&limit=100`);
     assert.equal(listed.status, 200);
     const ids = (listed.body.items as Array<{ workItemId: string }>).map((item) => item.workItemId).sort();
-    assert.deepEqual(ids, [w.general!, w.general2!].sort());
+    assert.deepEqual(ids, [w.general!, w.general2!, w.memberSubject!].sort());
+    const member = await command('admin', 'ReassignWork', { workItemId: w.memberSubject, newOwnerMemberId: m.seller2!.member.id });
+    assert.equal(member.status, 201, JSON.stringify(member.body));
     const moved = await command('admin', 'ReassignWork', { workItemId: w.general, newOwnerMemberId: m.seller2!.member.id });
     assert.equal(moved.status, 201, JSON.stringify(moved.body));
     assert.equal((await footprint(w.general!)).owner, m.seller2!.member.id);

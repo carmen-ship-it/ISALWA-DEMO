@@ -1,0 +1,16 @@
+5f7545cf63007894b627196bd68c0d5595e272ecaabfbd0526068214ab007c78  apps/os-api/src/commands.controller.ts
+42f10c4cfbeddefd66dcf463a03b1f3c0f853bc3121924c8975b4fc18f001979  apps/os-api/src/review-r4-reassign-work.http.test.ts
+81ac9e6bef95dc90152884a2c50fe6c8d87bb9656495dddc196b4b955e268ea8  apps/os-web/components/admin/reassign-work-panel.tsx
+07288f0b6ba48437f8a966c75afcef9f1224534a844949743c8e8d026235acc1  apps/os-web/lib/api/os-api-errors.ts
+f1a837b0ee9438dba441fb3902099558440d0bc29f607d9580530e15fc0fe4a6  apps/os-web/lib/commercial/command-errors.ts
+9185166d4e2fd6fd9032897487c2cc3e19e5c26f2db6fd6a2416ce84e40784af  apps/os-web/lib/postsale/expected-date-work.ts
+4fb54208e71d64234994feb7408c9dd43a24f4d07bfbf51445f1bdb92e336790  apps/os-web/lib/postsale/postsale.test.ts
+74d351beacbc375e6272ca4bc48759006ca2ce1415b29e716375aad7e17126f0  apps/os-web/lib/work/reassign-work-admin.test.ts
+a0c0699e459fb7bcb166204544ebc8b6649e815ebe8aa12f3820bfef2d6bb369  packages/os-contracts/src/errors.ts
+45cc5a7a1c5544be02d2293d8bd1eb834b0f5ba91c7e554a9bd3e1f461286a48  packages/os-contracts/src/operations-scopes.ts
+5370b7acf4a9490da58f74be5e886a2853b9833259ce8ed20b9dd6c28d45634d  packages/os-contracts/src/work-reassignment.test.ts
+67781fcc81f0f19612dbe7864ff88de5073d877a19f544d393c0843ef690527d  packages/os-contracts/src/work-reassignment.ts
+f9bc5e6193319b345f4028b0aeb1f88a0891abcf5bfb73a908b82722108bfcc0  packages/os-database/src/party-timeline-work-approval-prisma.integration.test.ts
+57cc73b788ba517b96f5ea767ec96f49b3e1ee6f572b92422a10d872cc9b1c73  packages/os-database/src/prisma-work-store.ts
+b87ad1ad95a3b46009a05d860f6f792e5a4d4120c67fdbdc9d82d1aea4238bd4  packages/os-work/src/os-work-store.ts
+6526c90b0d51366fea5add30ec9420fa62fe9b7ce756c69f5acd6d4541bb9d7d  packages/os-work/src/work-command-service.ts

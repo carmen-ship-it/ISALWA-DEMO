@@ -4,6 +4,7 @@ import {
   COMMAND_REQUIRED_SCOPES,
   COMMERCIAL_ORG_READ_SCOPE,
   canManageCustomerAccountWork,
+  canPerformCustomerWork,
   canRecordPurchasing,
   canRequestCommercialSubjectApproval,
   classifyWorkForReassignment,
@@ -354,20 +355,24 @@ export class WorkCommandService {
   }
 
   /**
-   * Reassignment authority by work class (classifyWorkForReassignment): customer work needs
+   * Reassignment authority by work domain (classifyWorkForReassignment): customer work needs
    * commercial.work.manage plus current range over the account; general work is workforce
-   * continuity (people.admin); purchasing prep reviews are not reassignable. null = none.
+   * administration (people.admin); production, warehouse and purchasing work have no
+   * reassignment authority defined yet; unknown work fails closed. null = none.
    */
   private async reassignmentAuthority(
     ctx: RequestContext,
     snap: MemberAccessSnapshot,
     work: WorkItemRecord,
     store: OsWorkStore,
-  ): Promise<{ kind: 'customer'; range: 'org' | 'team' } | { kind: 'general' } | null> {
+  ): Promise<
+    | { kind: 'customer'; range: 'org' | 'team'; partyId: string; accountOwnerMemberId: string }
+    | { kind: 'general' }
+    | null
+  > {
     let subject: WorkItemRecord = work;
     for (let depth = 0; depth < 3; depth++) {
       const workClass = classifyWorkForReassignment(subject);
-      if (workClass === 'purchasing') return null;
       if (workClass === 'general') return memberHasScope(snap, 'people.admin') ? { kind: 'general' } : null;
       if (workClass === 'customer') {
         const account = await store.getCustomerAccountForWorkSubject(ctx.organizationId, subject.subjectType!, subject.subjectId!);
@@ -385,8 +390,14 @@ export class WorkCommandService {
           ownerIsDirectReportOfActor,
         });
         if (!allowed) return null;
-        return { kind: 'customer', range: grantedScopes.includes(COMMERCIAL_ORG_READ_SCOPE) ? 'org' : 'team' };
+        return {
+          kind: 'customer',
+          range: grantedScopes.includes(COMMERCIAL_ORG_READ_SCOPE) ? 'org' : 'team',
+          partyId: account.partyId,
+          accountOwnerMemberId: account.ownerMemberId,
+        };
       }
+      if (workClass !== 'linked') return null;
       const referenced = subject.subjectId ? await store.getWorkItemInOrg(ctx.organizationId, subject.subjectId) : null;
       if (!referenced) return null;
       subject = referenced;
@@ -419,6 +430,31 @@ export class WorkCommandService {
       !(await store.isDirectReport(ctx.organizationId, ctx.actorMemberId, newOwnerMemberId, ctx.effectiveAt))
     ) {
       throw new Error('VALIDATION_FAILED');
+    }
+    if (authority.kind === 'customer') {
+      // The target must already be able to work this customer; assignment grants nothing.
+      const targetSnap = await this.snapshotInOrg(ctx.organizationId, newOwnerMemberId, ctx.effectiveAt);
+      const owner = authority.accountOwnerMemberId;
+      const usable =
+        !!targetSnap &&
+        canPerformCustomerWork({
+          memberId: newOwnerMemberId,
+          organizationId: ctx.organizationId,
+          customerPartyId: authority.partyId,
+          grantedScopes: [...targetSnap.roleKeys, ...targetSnap.delegatedScopes],
+          accountOwnerMemberId: owner,
+          ownerIsDirectReportOfMember:
+            owner !== newOwnerMemberId &&
+            (await store.isDirectReport(ctx.organizationId, newOwnerMemberId, owner, ctx.effectiveAt)),
+          coverageGrants: await store.listActiveCustomerCoverageForMember(
+            ctx.organizationId,
+            newOwnerMemberId,
+            authority.partyId,
+            ctx.effectiveAt,
+          ),
+          asOf: ctx.effectiveAt,
+        });
+      if (!usable) throw new Error('TARGET_PREREQUISITE_MISSING');
     }
 
     const before = { ownerMemberId: work.ownerMemberId };

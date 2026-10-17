@@ -25,6 +25,12 @@ type ReassignWorkPanelProps = {
 
 const initial = { error: null as string | null, success: null as string | null };
 
+const REASSIGN_PANEL_SCOPE_COPY = {
+  commercial: 'El trabajo comercial se reasigna desde la gestión comercial.',
+  operations:
+    'El trabajo de Producción, Almacén y Compras se coordina con cada área; su reasignación todavía no está disponible.',
+} as const;
+
 export function ReassignWorkPanel({ fromMemberId, fromMemberName, items }: ReassignWorkPanelProps) {
   const router = useRouter();
   const [selected, setSelected] = useState<Record<string, boolean>>(() =>
@@ -62,10 +68,12 @@ export function ReassignWorkPanel({ fromMemberId, fromMemberName, items }: Reass
         Trabajo abierto a nombre de {fromMemberName}. Reasígnelo antes de finalizar la relación. El
         historial de cada trabajo se conserva.
       </p>
+      <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{REASSIGN_PANEL_SCOPE_COPY.commercial}</p>
+      <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{REASSIGN_PANEL_SCOPE_COPY.operations}</p>
 
       {items.length === 0 ? (
         <p className="mt-6 text-sm text-[var(--isalwa-slate)]">
-          No hay trabajo abierto a nombre de esta persona.
+          No hay trabajo para reasignar desde aquí a nombre de esta persona.
         </p>
       ) : (
         <>

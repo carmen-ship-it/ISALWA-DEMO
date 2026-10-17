@@ -59,6 +59,22 @@ describe('Wave A ReassignWork admin surface', () => {
     assert.doesNotMatch(panel, /['"]ReassignWork['"]/);
   });
 
+  it('tells administrators where commercial and operational work is handed off (23:47 §A)', () => {
+    const panel = source('components/admin/reassign-work-panel.tsx');
+    assert.match(panel, /El trabajo comercial se reasigna desde la gestión comercial\./);
+    assert.match(panel, /Producción, Almacén y Compras se coordina con cada área; su reasignación todavía no está disponible\./);
+    assert.match(panel, /No hay trabajo para reasignar desde aquí/);
+    assert.doesNotMatch(panel, /No hay trabajo abierto a nombre de esta persona/);
+  });
+
+  it('names the missing prerequisite when customer work cannot go to the chosen person', async () => {
+    const { mapCommandError, TARGET_PREREQUISITE_MISSING_COPY } = await import('@/lib/commercial/command-errors');
+    const { OsApiError } = await import('@/lib/api/os-api-errors');
+    const err = new OsApiError({ kind: 'validation', status: 400, code: 'TARGET_PREREQUISITE_MISSING', message: 'x' });
+    assert.equal(mapCommandError(err), TARGET_PREREQUISITE_MISSING_COPY);
+    assert.match(TARGET_PREREQUISITE_MISSING_COPY, /cobertura/);
+  });
+
   it('shows reassign surface for active and suspended members only', () => {
     assert.equal(memberAdminVisibility(sampleActiveMember, 'admin-1').reassignWork, true);
     assert.equal(memberAdminVisibility(sampleSuspendedMember, 'admin-1').reassignWork, true);

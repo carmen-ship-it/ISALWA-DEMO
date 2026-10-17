@@ -21,6 +21,7 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | R4 review status (22:29 decision 5) | RECORDED (docs only): `RE-REVIEW_R3_R2F.md` findings and placement in `REVIEW_RECONCILIATION.md`; review was source-level, not runtime | see git log `docs(review): R4 re-review status` | `commercial-release/REVIEW_RECONCILIATION.md` § Re-review R3 / R2 follow-up |
 | R4 read gaps part A: work + approvals (F10 authorship, F11; 20:03 §4) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 8 mutation checks; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN). Part B (F07 commitments) next | see git log `fix(authz): R4 work and approval reads` | `commercial-release/receipts/REVIEW-R4-WORK-READS.md` |
 | R4 part B repair 1: ReassignWork authority by work class (23:27 §1, REQUIRED) | LOCAL_COMPLETE (unit + disposable PG + local HTTP with no-trace checks, 9 mutation checks; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN) | see git log `fix(authz): R4 ReassignWork` | `commercial-release/receipts/REVIEW-R4-REASSIGN-WORK.md` |
+| R4 part B repair 1 correction: ReassignWork domains + target prerequisite (23:47 §A, B12) | LOCAL_COMPLETE (unit + disposable PG + local HTTP 8/8; full suites green; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN; MUTATION EVIDENCE INCOMPLETE). Production/warehouse/purchasing reassignment disabled pending bounded authority (incomplete workflow); commercial reassignment UI missing | see git log `fix(authz): R4 ReassignWork domains` | `commercial-release/receipts/REVIEW-R4-REASSIGN-WORK.md` §6 |
 | R4 part B repair 2: `organization_member` approvals subject policy (23:27 §2, REQUIRED) | OPEN — security gap kept open until proven repaired | — | — |
 | R4 part B repair 3: F07 commitments across list/detail/related paths (23:27 §3, REQUIRED) | OPEN — security gap kept open until proven repaired | — | — |
 
@@ -66,6 +67,11 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `0d3e30a69b5dc6e53eecb0b110af2c30ba8f5e0b` | `e509ecad18ec469247c2e3ed2da55f0e9977dde6` | R4 re-review status (22:29 decision 5, docs only) | this writer |
 | `a1ed5870f97533d825a01f7bbb895919c3ae4485` | `de390eec0093324718dd5c1c86679c94fa5430e9` | R4 read gaps part A (F10 authorship, F11) | this writer; not reviewed |
 | `36e1d10abdbd6cee3042436bfab5a3df1a6c5616` | `bfa1b3952ca1166a4f747c698c0ae406262773c9` | R4 part B repair 1 ReassignWork (23:27 §1) | this writer; not reviewed |
+| `ce71f9ae370c4437b82ef12f1a7aae6d0e42edc7` | `657408ff031f181f2c0b033a82653210fe5ef2d3` | Lanes setup A/B (23:39, docs only) | this writer |
+| `f763db8d64d74400e0bd2af3d627cf1548eefcfb` | `b7edf3f8ac4ba480c6112bf38ee71c3181538487` | Project-memory archive (00:51, docs only) | this writer; not reviewed |
+| `a8a94495df901b7be594da75f51ccc6502f5b9bd` | `7c76c3d5e1a5b5a6d39273a7c9ef85952d0b9be5` | Project memory: mixed-chat review, deletion candidates, `preserve_chats.py` for review (docs/tooling only) | this writer; script under Claude's review, not run |
+| `950ea9c7811728d598468ed1e8546cd3fe6654d2` | `6eccf08c667e928d048e5632e91a427a8241256d` | Project memory: backup destination decision (docs only) | this writer |
+| `13c8a5d10da9d79a6e69e0d2e796ac0a8364610d` | `83e9ff2ae3dcf02345847951a728205f5b849316` | Project memory: deletion hold, preservation checkpoint (01:25, docs only) | this writer |
 
 ## Open blockers
 

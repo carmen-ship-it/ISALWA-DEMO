@@ -43,6 +43,7 @@ const CODE_KIND: Partial<Record<OsErrorCode, OsApiFailureKind>> = {
   GOVERNANCE_REQUIRED: 'forbidden',
   CAPABILITY_LOCKED: 'locked',
   VALIDATION_FAILED: 'validation',
+  TARGET_PREREQUISITE_MISSING: 'validation',
   NOT_FOUND: 'not_found',
   CONFLICT: 'conflict',
   IDEMPOTENCY_REPLAY: 'conflict',

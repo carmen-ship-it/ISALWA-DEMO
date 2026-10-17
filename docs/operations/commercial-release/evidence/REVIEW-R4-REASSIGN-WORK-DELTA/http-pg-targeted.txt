@@ -1,0 +1,18 @@
+  ✔ people.admin alone cannot move customer, linked-customer, production, warehouse, purchasing or unknown work: missing-id answer, no ownership, event, outbox, audit or notification (87.092416ms)
+  ✔ out-of-scope actors are refused without mutation: team.read without work.manage, unrelated members, Compras on purchasing; the owner gets 403 (56.172709ms)
+  ✔ domain work on a customer is not commercial work: commercial managers and Compras cannot move production, warehouse or purchasing items (authority pending), without trace (136.266209ms)
+  ✔ target validation: other tenant, suspended (even a direct report), unknown and outside the team range are refused without mutation (100.787625ms)
+  ✔ customer work is never assigned to someone who cannot work the customer: the manager gets TARGET_PREREQUISITE_MISSING, nothing changes, no access is granted (88.619333ms)
+  ✔ commercial.work.manage with team range moves customer work to a direct report who holds commercial-work coverage; access comes from coverage, not from the assignment (95.430375ms)
+  ✔ commercial.work.manage with organization range moves customer and linked work to an active member with commercial-work coverage (45.526084ms)
+  ✔ workforce continuity is preserved: people.admin lists and moves only the member's general work (unlinked tasks and team-member tasks) (28.018916ms)
+✔ R4 ReassignWork authority over HTTP (disposable Postgres) (1297.415083ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2137.602708
+exit 0

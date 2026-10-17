@@ -4,11 +4,15 @@
  * Does not invent reminder intervals or a parallel attention type.
  */
 
-import { CreateWorkItemPayloadSchema } from '@isalwa/os-contracts';
+import {
+  CreateWorkItemPayloadSchema,
+  PRODUCTION_NEXT_ACTION_TITLE_PREFIX,
+  productionNextActionMarker,
+} from '@isalwa/os-contracts';
 import { dueAtInputToIso } from '@/lib/work/follow-up';
 
 export const PRODUCTION_EXPECTED_DATE_COPY = {
-  titlePrefix: 'Producción · próxima acción',
+  titlePrefix: PRODUCTION_NEXT_ACTION_TITLE_PREFIX,
   titleRequired: 'Escriba la anotación operativa.',
   dueInvalid: 'La fecha esperada no es válida.',
   identityMissing: 'No se pudo identificar su usuario.',
@@ -75,6 +79,7 @@ export function buildProductionExpectedDateWork(
     descriptionParts.push(`Línea del pedido (contexto): ${input.orderLineId.trim()}`);
   }
   descriptionParts.push(`Pedido: ${input.orderLabel} (${orderId})`);
+  descriptionParts.push(productionNextActionMarker(orderId));
 
   const payload: Record<string, unknown> = {
     title,

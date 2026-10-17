@@ -1,0 +1,14 @@
+  ✔ domain markers win over a customer subject (0.571375ms)
+  ✔ subjects decide only when no marker is present (0.116708ms)
+  ✔ unknown or ambiguous fails closed (0.07625ms)
+  ✔ production, warehouse and purchasing are recorded as pending an authority definition (0.441375ms)
+✔ classifyWorkForReassignment (R4 23:47 §A) (1.882875ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 87.378125
+exit 0

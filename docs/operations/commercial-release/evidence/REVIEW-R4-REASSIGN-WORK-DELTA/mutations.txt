@@ -1,0 +1,4 @@
+Mutation evidence for this delta: INCOMPLETE.
+The 2026-10-17 run (/tmp/r4a-mutate.py) aborted midway and left packages/os-contracts/src/operations-scopes.ts mutated (line action: 'commercial.work', removed).
+Restored from the pre-run backup; all 4 sources match /tmp/r4a-pre.sha (shasum -c OK).
+Not re-run and not used as acceptance evidence. A safer, inspectable method (reviewable patch files applied to a disposable copy) needs the normal approval process.

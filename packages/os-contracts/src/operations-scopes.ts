@@ -677,6 +677,50 @@ export function canManageCustomerAccountWork(input: {
 }
 
 /**
+ * Whether a member can carry out commercial work on this customer once it is assigned
+ * to them (ReassignWork target, 23:47 §A): the current account owner, an active coverage
+ * grant for this account that covers `commercial.work`, or manager work authority
+ * (canManageCustomerAccountWork). Read scopes alone are not enough, and assignment
+ * never grants access.
+ */
+export function canPerformCustomerWork(input: {
+  memberId: string;
+  organizationId: string;
+  customerPartyId: string;
+  grantedScopes: readonly string[];
+  accountOwnerMemberId: string | null;
+  ownerIsDirectReportOfMember: boolean;
+  coverageGrants: readonly CustomerCoverageGrant[];
+  asOf: Date;
+}): boolean {
+  if (!input.memberId || !input.organizationId || !input.customerPartyId) return false;
+  const owner = input.accountOwnerMemberId;
+  if (!owner) return false;
+  if (owner === input.memberId) return true;
+  if (
+    continueCoveredCustomerWorkflow({
+      actorMemberId: input.memberId,
+      organizationId: input.organizationId,
+      customerPartyId: input.customerPartyId,
+      primaryOwnerMemberId: owner,
+      grants: input.coverageGrants,
+      asOf: input.asOf,
+      action: 'commercial.work',
+    }).allowed
+  ) {
+    return true;
+  }
+  return canManageCustomerAccountWork({
+    actorMemberId: input.memberId,
+    organizationId: input.organizationId,
+    customerPartyId: input.customerPartyId,
+    grantedScopes: input.grantedScopes,
+    accountOwnerMemberId: owner,
+    ownerIsDirectReportOfActor: input.ownerIsDirectReportOfMember,
+  });
+}
+
+/**
  * Quote → Pedido by a covering advisor (T03, 2026-10-16 19:30; supersedes
  * BR-CNV-02 "coverage never converts"). All must hold: an active grant for this
  * account and its current owner that explicitly covers quote.convert; the
