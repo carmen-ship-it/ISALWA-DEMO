@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button, cx } from '@isalwa/ui';
 import { useOwnerDemo } from '@/components/demo/owner-demo-provider';
-import { samePathQueryNavigation } from '@/lib/demo/preserve-data-mode';
+import { samePathQueryNavigation } from '@/lib/navigation/same-path-navigation';
 import {
   STORY_MODE_STEPS,
   STORY_MODE_TITLE,

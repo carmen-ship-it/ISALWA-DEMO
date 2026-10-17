@@ -8,7 +8,7 @@ import { StaleProjectionBanner } from '@/components/work/stale-projection-banner
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
+import { presentHumanCopy } from '@/lib/copy/human-facing-copy';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import {
   formatDueDate,

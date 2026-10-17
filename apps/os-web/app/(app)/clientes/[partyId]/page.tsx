@@ -32,7 +32,7 @@ import { loadCliente360 } from '@/lib/cliente/load-cliente-360';
 import { buildCliente360Intelligence } from '@/lib/cliente/client-intelligence';
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
 import { parseCliente360Tab } from '@/lib/cliente/nav-sections';
-import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
+import { presentHumanCopy } from '@/lib/copy/human-facing-copy';
 import { LIST_SCALE_PREVIEW_DEFAULT, LIST_SCALE_PREVIEW_LARGE } from '@/lib/ui/list-scaling';
 import { newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';

@@ -7,10 +7,10 @@ import {
   SUGGESTION_CARD_COPY,
   SUGGESTION_TYPE_LABEL,
   buildRecommendedReplyView,
-  demoRecommendedReplyFor,
-  demoSuggestionRuleIds,
+  recommendedReplyFor,
+  suggestionRuleIds,
   draftContainsOverpromise,
-  matchDemoSuggestionRules,
+  matchSuggestionRules,
   nextMondayIso,
 } from './smart-context';
 
@@ -18,7 +18,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 
 describe('deterministic demo suggestion rules', () => {
   it('matches quantity 20 opportunity phrase and marks demo', () => {
-    const hits = matchDemoSuggestionRules({
+    const hits = matchSuggestionRules({
       messageText: 'Necesito cotizar 20 unidades para una obra nueva.',
     });
     assert.equal(hits.length, 1);
@@ -29,7 +29,7 @@ describe('deterministic demo suggestion rules', () => {
   });
 
   it('matches Q-DEMO-001 acceptance without auto-convert', () => {
-    const hits = matchDemoSuggestionRules({
+    const hits = matchSuggestionRules({
       messageText: 'Perfecto, aceptamos la cotización Q-DEMO-001.',
     });
     assert.equal(hits[0]?.type, 'possible_acceptance');
@@ -39,7 +39,7 @@ describe('deterministic demo suggestion rules', () => {
   });
 
   it('matches 3 piezas quebradas as possible issue', () => {
-    const hits = matchDemoSuggestionRules({
+    const hits = matchSuggestionRules({
       messageText: 'Nos llegaron 3 piezas quebradas.',
     });
     assert.equal(hits[0]?.type, 'possible_issue');
@@ -47,7 +47,7 @@ describe('deterministic demo suggestion rules', () => {
   });
 
   it('matches Llámame el lunes follow-up with next Monday proposal', () => {
-    const hits = matchDemoSuggestionRules({
+    const hits = matchSuggestionRules({
       messageText: 'Llámame el lunes.',
       messageAt: '2026-09-16T15:00:00.000Z', // Wednesday
     });
@@ -58,21 +58,21 @@ describe('deterministic demo suggestion rules', () => {
 
   it('matches commitment and product/delivery questions', () => {
     assert.equal(
-      matchDemoSuggestionRules({ messageText: 'Yo les confirmo mañana.' })[0]?.type,
+      matchSuggestionRules({ messageText: 'Yo les confirmo mañana.' })[0]?.type,
       'possible_commitment',
     );
     assert.equal(
-      matchDemoSuggestionRules({ messageText: '¿Tienen este producto en 6 mm?' })[0]?.type,
+      matchSuggestionRules({ messageText: '¿Tienen este producto en 6 mm?' })[0]?.type,
       'product_question',
     );
     assert.equal(
-      matchDemoSuggestionRules({ messageText: '¿Cuándo llega nuestro pedido?' })[0]?.type,
+      matchSuggestionRules({ messageText: '¿Cuándo llega nuestro pedido?' })[0]?.type,
       'delivery_question',
     );
   });
 
   it('covers owned demo rule ids', () => {
-    const ids = demoSuggestionRuleIds();
+    const ids = suggestionRuleIds();
     assert.ok(ids.includes('demo-opportunity-qty-20'));
     assert.ok(ids.includes('demo-acceptance-q-demo-001'));
     assert.ok(ids.includes('demo-issue-broken-pieces'));
@@ -81,7 +81,7 @@ describe('deterministic demo suggestion rules', () => {
   });
 
   it('matches MADERAS-style pedido follow-up without delivery-when phrasing', () => {
-    const hits = matchDemoSuggestionRules({
+    const hits = matchSuggestionRules({
       messageText: 'Buenos días. Confirmamos el pedido de sanitarios para el depósito Oriente. Gracias.',
     });
     assert.equal(hits[0]?.type, 'possible_follow_up');
@@ -131,7 +131,7 @@ describe('recommended reply panel', () => {
   it('blocks overpromise drafts and provides courteous demo replies', () => {
     assert.equal(draftContainsOverpromise('mañana llega seguro'), true);
     assert.equal(draftContainsOverpromise('Voy a confirmar la fecha.'), false);
-    const product = demoRecommendedReplyFor('product_6mm_catalog_no_stock');
+    const product = recommendedReplyFor('product_6mm_catalog_no_stock');
     assert.match(product.body, /Déjeme confirmar disponibilidad/);
     assert.equal(product.certainty, 'pending');
   });

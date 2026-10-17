@@ -7,7 +7,7 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { withExplicitDataMode } from '@/lib/demo/preserve-data-mode';
-import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
+import { presentHumanCopy } from '@/lib/copy/human-facing-copy';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';

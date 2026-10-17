@@ -17,18 +17,18 @@ export {
 } from './suggestion-types';
 
 export {
-  demoSuggestionRuleIds,
-  matchDemoSuggestionRules,
+  suggestionRuleIds,
+  matchSuggestionRules,
   nextMondayIso,
-  type DemoSuggestionMatchInput,
-} from './demo-suggestion-rules';
+  type SuggestionMatchInput,
+} from './suggestion-rules';
 
 export {
   OVERPROMISE_PATTERNS,
   PREFERRED_UNCERTAINTY,
   RECOMMENDED_REPLY_COPY,
   buildRecommendedReplyView,
-  demoRecommendedReplyFor,
+  recommendedReplyFor,
   draftContainsOverpromise,
   type RecommendedReplyDraftInput,
   type RecommendedReplyView,

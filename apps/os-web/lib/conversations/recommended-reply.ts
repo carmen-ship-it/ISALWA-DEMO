@@ -62,8 +62,8 @@ export function draftContainsOverpromise(body: string): boolean {
   return OVERPROMISE_PATTERNS.some((re) => re.test(body));
 }
 
-/** Courteous Spanish drafts for demo product / delivery questions — never auto-send. */
-export function demoRecommendedReplyFor(
+/** Courteous Spanish drafts for product / delivery questions — never auto-send. */
+export function recommendedReplyFor(
   kind: 'product_6mm_catalog_no_stock' | 'product_6mm_absent' | 'delivery_unknown',
 ): { certainty: CertaintyState; body: string; badges: ('confirmed' | 'pending')[] } {
   if (kind === 'product_6mm_catalog_no_stock') {
