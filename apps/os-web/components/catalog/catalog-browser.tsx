@@ -1,79 +1,32 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import {
-  Chip,
-  ContextDrawer,
-  EmptyState,
-  Panel,
-  SearchField,
-  Skeleton,
-  StatusPill,
-} from '@isalwa/ui';
-import {
-  catalogSurface,
-  labeledPriceContexts,
-  productHasSourcedPrice,
-  type CatalogCard,
-} from '../../../../packages/os-catalog/src/browse';
-
-const CATEGORY_LABEL: Record<string, string> = {
-  sanitarios: 'Sanitarios',
-  tanques: 'Tanques',
-  lavamanos: 'Lavamanos',
-  urinarios: 'Urinarios',
-};
-
-const REVIEW_LABEL: Record<string, string> = {
-  spec_page: 'Ficha en página',
-  dimensions_unspecified: 'Medidas no impresas',
-  named_only: 'Solo nombre en página',
-  comparison_row_only: 'Solo fila comparativa',
-};
-
-type SourcedEntry = {
-  productId: string;
-  context: 'Showroom' | 'Más de 10 unidades' | 'Calidad Segunda' | 'Viajes';
-  amountCentavos: string;
-  currency: 'BOB';
-};
+import { Chip, EmptyState, Panel, SearchField, StatusPill } from '@isalwa/ui';
+import { catalogSurface } from '../../../../packages/os-catalog/src/browse';
+import type {
+  CatalogProductCard,
+  FieldSource,
+  PriceDisplay,
+} from '../../../../packages/os-catalog/src/presentation';
+import type { ProductCategory } from '../../../../packages/os-contracts/src/product-catalog';
+import { CATALOG_COPY } from '@/lib/catalog/copy';
+import { formatBobDisplay } from '@/lib/experience/format';
 
 type CatalogBrowserProps = {
-  status: 'loading' | 'ready' | 'denied';
-  products: CatalogCard[];
-  priceEntries: SourcedEntry[];
+  cards: CatalogProductCard[];
+  categories: Array<{ key: ProductCategory; label: string }>;
 };
 
-export function CatalogBrowser({ status, products, priceEntries }: CatalogBrowserProps) {
+export function CatalogBrowser({ cards, categories }: CatalogBrowserProps) {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string | null>(null);
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [activeOnly, setActiveOnly] = useState(true);
 
   const surface = useMemo(
-    () => catalogSurface({ status, products, query, category }),
-    [category, products, query, status],
+    () => catalogSurface({ status: 'ready', products: cards, query, category, activeOnly }),
+    [activeOnly, cards, category, query],
   );
-  const open = products.find((product) => product.id === openId) ?? null;
-  const categories = [...new Set(products.map((product) => product.category))];
-
-  if (surface.state === 'denied') {
-    return (
-      <EmptyState
-        title="Sin permiso"
-        description="No tiene permiso para ver productos de esta empresa."
-      />
-    );
-  }
-
-  if (surface.state === 'loading') {
-    return (
-      <div className="space-y-3" aria-busy="true" aria-live="polite">
-        <p className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">Cargando productos…</p>
-        <Skeleton h={72} rounded="panel" />
-        <Skeleton h={72} rounded="panel" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
@@ -81,173 +34,111 @@ export function CatalogBrowser({ status, products, priceEntries }: CatalogBrowse
         id="productos-buscar"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder="Buscar por nombre, categoría o detalle técnico"
-        aria-label="Buscar productos"
+        placeholder={CATALOG_COPY.searchPlaceholder}
+        aria-label={CATALOG_COPY.searchLabel}
         autoComplete="off"
       />
 
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por categoría">
+      <div className="flex flex-wrap gap-2" role="group" aria-label={CATALOG_COPY.categoryGroupLabel}>
         <Chip active={category == null} onClick={() => setCategory(null)}>
-          Todas
+          {CATALOG_COPY.allCategories}
         </Chip>
         {categories.map((item) => (
-          <Chip key={item} active={category === item} onClick={() => setCategory(item)}>
-            {CATEGORY_LABEL[item] ?? item}
+          <Chip key={item.key} active={category === item.key} onClick={() => setCategory(item.key)}>
+            {item.label}
           </Chip>
         ))}
+        <Chip active={activeOnly} onClick={() => setActiveOnly((value) => !value)}>
+          {CATALOG_COPY.activeOnly}
+        </Chip>
       </div>
 
       {surface.state === 'empty' ? (
-        <EmptyState
-          title="Sin productos"
-          description="Todavía no hay productos en esta vista. No se inventan."
-        />
+        <EmptyState title={CATALOG_COPY.emptyTitle} description={CATALOG_COPY.emptyDescription} />
       ) : null}
 
       {surface.state === 'no-match' ? (
-        <EmptyState
-          title="Sin coincidencias"
-          description="Ningún producto coincide con la búsqueda."
-        />
+        <EmptyState title={CATALOG_COPY.noMatchTitle} description={CATALOG_COPY.noMatchDescription} />
       ) : null}
 
       {surface.state === 'ready' ? (
-        <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2">
-          {surface.items.map((product) => (
-            <li key={product.id}>
-              <Panel className="h-full overflow-hidden p-0 hover:bg-[var(--isalwa-teal-100)]">
-                <div className="bg-[var(--isalwa-teal-100)] px-4 py-3">
-                  <p className="text-[var(--isalwa-text-md)] font-semibold text-[var(--isalwa-kiln)]">
-                    {product.name}
-                  </p>
-                  <p className="mt-1 inline-flex rounded-[var(--isalwa-radius-control)] bg-[var(--isalwa-sky)] px-2 py-0.5 text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-kiln)] uppercase">
-                    {CATEGORY_LABEL[product.category] ?? product.category}
-                  </p>
-                </div>
-                <div className="flex items-start justify-between gap-3 px-4 py-3">
-                  <ProductCardExceptions productId={product.id} entries={priceEntries} />
-                </div>
-                <div className="px-4 pb-4">
-                  <button
-                    type="button"
-                    className="inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)]"
-                    onClick={() => setOpenId(product.id)}
-                  >
-                    Ver ficha
-                  </button>
-                </div>
-              </Panel>
+        <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2 xl:grid-cols-3">
+          {surface.items.map((card) => (
+            <li key={card.id}>
+              <CatalogProductCardView card={card} />
             </li>
           ))}
         </ul>
       ) : null}
-
-      <ContextDrawer
-        open={open != null}
-        title={open?.name ?? 'Producto'}
-        onClose={() => setOpenId(null)}
-      >
-        {open ? (
-          <ProductQuickView product={open} entries={priceEntries} />
-        ) : null}
-      </ContextDrawer>
     </div>
   );
 }
 
-function ProductCardExceptions({
-  productId,
-  entries,
-}: {
-  productId: string;
-  entries: SourcedEntry[];
-}) {
-  const sourced = productHasSourcedPrice(entries, productId);
+function CatalogProductCardView({ card }: { card: CatalogProductCard }) {
   return (
-    <div className="flex shrink-0 flex-col items-end gap-1.5">
-      <StatusPill tone="sky">Sin código comercial</StatusPill>
-      {!sourced ? (
-        <StatusPill tone="muted">Precio no disponible</StatusPill>
-      ) : (
-        <StatusPill tone="manual">Precio con origen</StatusPill>
-      )}
-    </div>
-  );
-}
-
-function ProductQuickView({
-  product,
-  entries,
-}: {
-  product: CatalogCard;
-  entries: SourcedEntry[];
-}) {
-  const contexts = labeledPriceContexts(entries, product.id);
-  return (
-    <div className="space-y-4">
-      <StatusPill tone={product.reviewStatus === 'spec_page' ? 'info' : 'warning'}>
-        {REVIEW_LABEL[product.reviewStatus] ?? product.reviewStatus}
-      </StatusPill>
-      {product.description ? (
-        <p className="text-[var(--isalwa-text-sm)] leading-relaxed text-[var(--isalwa-slate)]">
-          {product.description}
-        </p>
+    <Panel className="flex h-full flex-col overflow-hidden p-0">
+      {card.approvedImage ? (
+        // eslint-disable-next-line @next/next/no-img-element -- approved image URLs are not known at build time
+        <img
+          src={card.approvedImage.src}
+          alt={card.approvedImage.alt}
+          className="aspect-[4/3] w-full object-cover"
+        />
       ) : null}
-      <div>
-        <p className="isalwa-section-label">Precio de origen</p>
-        {productHasSourcedPrice(entries, product.id) ? (
-          <ul className="mt-2 m-0 list-none space-y-2 p-0">
-            {contexts
-              .filter((item) => item.amountCentavos)
-              .map((item) => (
-                <li key={item.context}>
-                  <p className="font-medium text-[var(--isalwa-kiln)]">{item.context}</p>
-                  <p className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">{item.meaning}</p>
-                </li>
-              ))}
-          </ul>
-        ) : (
-          <div className="mt-2 space-y-2">
-            <p className="text-[var(--isalwa-text-sm)] leading-relaxed text-[var(--isalwa-slate)]">
-              Precio no disponible. Hay contextos, pero sin monto con origen.
-            </p>
-            <ul className="m-0 list-none space-y-2 p-0">
-              {contexts.map((item) => (
-                <li key={item.context}>
-                  <p className="font-medium text-[var(--isalwa-kiln)]">{item.context}</p>
-                  <p className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">{item.meaning}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+      <div className="bg-[var(--isalwa-teal-100)] px-4 py-3">
+        <h3 className="m-0 text-[var(--isalwa-text-md)] font-semibold text-[var(--isalwa-kiln)]">
+          {card.name}
+        </h3>
+        <p className="mt-1 inline-flex rounded-[var(--isalwa-radius-control)] bg-[var(--isalwa-sky)] px-2 py-0.5 text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-kiln)] uppercase">
+          {card.categoryLabel}
+        </p>
       </div>
-      <details className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-3">
-        <summary className="cursor-pointer text-[var(--isalwa-text-sm)] font-medium text-[var(--isalwa-kiln)]">
-          Detalle técnico
-        </summary>
-        {product.attributeValues.length === 0 ? (
-          <p className="mt-2 text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">
-            No hay medidas impresas en la ficha.
-          </p>
-        ) : (
-          <ul className="mt-2 m-0 list-none space-y-1 p-0">
-            {product.attributeValues.map((value) => (
-              <li key={value} className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">
-                {value}
-              </li>
-            ))}
-          </ul>
-        )}
-      </details>
-    </div>
+      <div className="flex flex-1 flex-col gap-2 px-4 py-3">
+        <p className="m-0 text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">{card.variantsLabel}</p>
+        <CatalogPrice display={card.priceDisplay} />
+        {card.pendingFieldCount > 0 ? (
+          <StatusPill tone="warning">{CATALOG_COPY.pendingFields(card.pendingFieldCount)}</StatusPill>
+        ) : null}
+        <p className="m-0 mt-auto text-[var(--isalwa-text-xs)] text-[var(--isalwa-slate)]">
+          {CATALOG_COPY.sourceLabel}: {summarizeSources(card.nameSources)}
+        </p>
+      </div>
+      <div className="px-4 pb-4">
+        <Link
+          href={card.href}
+          className="inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--isalwa-glaze)]"
+          aria-label={`Ver ficha: ${card.name}`}
+        >
+          Ver ficha
+        </Link>
+      </div>
+    </Panel>
   );
 }
 
-function formatFixtureCentavos(centavos: string | null): string {
-  if (!centavos || !/^\d+$/.test(centavos)) return '—';
-  const value = BigInt(centavos);
-  const whole = value / BigInt(100);
-  const frac = (value % BigInt(100)).toString().padStart(2, '0');
-  return `Bs. ${whole.toString()},${frac}`;
+export function CatalogPrice({ display }: { display: PriceDisplay }) {
+  if (display.kind === 'to_confirm') {
+    return <StatusPill tone="muted">{display.label}</StatusPill>;
+  }
+  return (
+    <ul className="m-0 list-none space-y-1 p-0">
+      {display.entries.map((entry) => (
+        <li key={`${entry.priceListId}-${entry.context}`} className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-kiln)]">
+          <span className="font-semibold">{formatBobDisplay(entry.amountCentavos)}</span> · {entry.context}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function summarizeSources(sources: FieldSource[]): string {
+  const pages = new Map<string, number[]>();
+  for (const source of sources) {
+    if (source.page === null) continue;
+    pages.set(source.document, [...(pages.get(source.document) ?? []), source.page]);
+  }
+  if (pages.size === 0) return sources[0] ? sources[0].document : '—';
+  return [...pages.entries()]
+    .map(([document, list]) => `${document} p. ${[...new Set(list)].sort((a, b) => a - b).join(', ')}`)
+    .join(' · ');
 }
