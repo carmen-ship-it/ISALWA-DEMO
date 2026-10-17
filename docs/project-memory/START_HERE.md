@@ -31,6 +31,8 @@ Bounded archive so old chats can eventually be deleted without losing unique inf
 | `chats/CHAT_INDEX.csv` | One row per ISALWA parent chat (metadata only) |
 | `chats/USER_TURN_COVERAGE.csv` | Each user turn: preserved verbatim or not, and where |
 | `chats/DELETION_READINESS.csv`, `chats/DELETION_READINESS.md` | Chat-by-chat deletion readiness with the reason and the preservation locators |
+| `chats/FINAL_DELETION_LIST.md` | The current approved list: chat → preservation location → backup proof → unresolved |
+| `tools/preserve_chats.py` | Builds the sanitized per-chat bundle outside the repo (not yet run: awaiting review) |
 | `chats/OUT_OF_SCOPE_CHATS.csv` | Chats where CCA or Rose content dominates: not ISALWA memory, no judgement made here (`ddd43714` is mixed and needs separate review) |
 | `tools/` | Read-only, inspectable generators for the CSVs and the verbatim extract |
 

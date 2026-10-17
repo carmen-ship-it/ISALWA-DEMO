@@ -1,4 +1,4 @@
-# CURRENT STATE — snapshot 2026-10-17 01:xx (UTC-4)
+# CURRENT STATE — snapshot 2026-10-17 01:4x (UTC-4)
 
 **Summary, dated.** The authority for task state is `docs/operations/COMMERCIAL_RELEASE_CHECKPOINT.md`. If this file disagrees with it, the checkpoint wins. Update this snapshot at each integration point rather than appending history; history goes in `history/`.
 
@@ -22,6 +22,21 @@
 ## Open, in dependency order (summary of the integrator queue)
 
 ReassignWork delta → NEW-R4-1 supplier reads → F07 commitments → S11 replay revalidation → `organization_member` approvals → NEW-R4-2 coverage-purpose reads → NEW-R4-3 timeline/detail consistency → B2 suspension not blocked by open work → B4 reactivation regrant review → B1 advisor provisioning → remaining T03 → T04 onward. Lane A browser acceptance (isolated disposable DB/API, lane ports, the existing `/login` "Entrar (desarrollo)" mechanism) is pending.
+
+## Resume checkpoint for application work (set 2026-10-17 01:4x)
+
+After Carmen deletes the approved chats (`chats/FINAL_DELETION_LIST.md`), resume in this chat. Do not repeat setup:
+1. Verify `/Users/carmen/projects/isalwa-wt-v1-repairs` is on `ct3/v1-repairs` at the archive HEAD. Check that the ReassignWork files listed above are still the only uncommitted application changes. Lanes A and B are untouched.
+2. ReassignWork delta: full suites (os-contracts, os-work, os-query, os-database, os-api, os-web), typechecks and the build. Then the evidence folder `evidence/REVIEW-R4-REASSIGN-WORK-DELTA/`, a receipt addendum with the limitations (domain workflow incomplete, commercial reassignment UI missing, coverage arrangement not in the command, mutation evidence INCOMPLETE), the ledger row for `ce71f9a…`/`657408ff…`, the checkpoint and reconciliation updates, a commit, and READY FOR INDEPENDENT REVIEW. Don't re-run `/tmp/r4a-mutate.py`.
+3. Lane A browser plan `docs/operations/commercial-release/browser/LANE-A-CATALOG-BROWSER.md` (not yet written):
+   - disposable database created from `isalwa_t01_disposable` on 54329;
+   - os-api on 127.0.0.1:4210, os-web on 3210;
+   - the existing `/login` development button;
+   - cursor-ide-browser with mobile emulation.
+   Write the plan first, then execute it.
+4. Then the queue above.
+
+Parked preservation lane: bundle build and off-Mac backup (`chats/DELETION_READINESS.md` § 2026-10-17). Resume it only when the script is approved and Carmen names a destination.
 
 ## Proof state
 

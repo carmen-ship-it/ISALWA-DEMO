@@ -63,6 +63,44 @@ Most are one-prompt worker chats from September: **97 chats are blocked by exact
 4. **Decide attachment storage** (`../attachments/INDEX.csv`). The screenshots in the Cursor asset folders are Mac-local only.
 5. Carmen confirms each deletion batch.
 
+## 2026-10-17 01:18 preservation pass
+
+**Mixed chats, inspected by content (not mention counts).**
+
+| Chat | Content | Decision |
+|---|---|---|
+| `845e00e2`, `952c2a84` | SalesCore (CCA) prompts | CCA work; not ISALWA |
+| `9e2e53d4`, `df2b3bce` | CCA host disk cleanup | CCA work; not ISALWA |
+| `cb60318b` | CCA Command Center, server inventory | CCA work; not ISALWA |
+| `1047892c` | Rose request (CCA) | CCA work; not ISALWA |
+| `41fc9c81` | Supabase alerts and security fixes, messages for Rose | CCA work; not ISALWA |
+| `9a403376` | AuditOS / AuditEngine handoffs from Rose | CCA work; not ISALWA |
+| `d5f09651` | CCA enterprise operating-system audit | CCA work; not ISALWA |
+| `ddd43714` | 2026-10-01 Mac disk recovery, both companies | Mixed. ISALWA turns at lines 46, 53, 55, 59, 72, 76 (preservation to GitHub; "ISALWA IS A PERSONAL PROJECT NOT CCA.. I HAVE MY OWN GITBHUB FOR THAT..") are queued for excerpting. Not deletable from the ISALWA side |
+| `69935342` | Cursor operating environment, Twin OS / CCA Galaxy | Mixed. ISALWA-relevant turns at lines 191 and 221 (portfolios not shared) are queued for excerpting. Not deletable from the ISALWA side |
+
+**Screenshots reviewed one by one (19 local).** 18 are cleared for a sanitized backup: product, Architect and Cursor UI, demo addresses, masked passwords. Excluded: `assets/Captura_de_pantalla_2026-09-16_a_la_s__14.29.19-144441da-….png`, which shows staging customer names with phone numbers. Its chat, `999b2346`, therefore stays blocked. The customer XLS (`DATOS_CLIENTES_ISA_2026-09-14.xls`) stays out of any backup because it contains personal data. Files that are only named, or only referenced by local path, don't block deletion: the XLS, the Vitri PDFs and the generated PDFs were never content held inside a chat. They are listed as unresolved items.
+
+**Preservation tool.** `../tools/preserve_chats.py` writes a sanitized bundle outside the repo with one file per chat:
+- every unique user turn, verbatim;
+- the agent's final reply to each turn;
+- each subagent's task and final report;
+- the SHA-256 of every original;
+- the counted redactions: keys, tokens, credentials, emails, phone numbers, public IP addresses.
+
+It also writes the mixed-chat excerpts, copies the 18 cleared screenshots and writes `MANIFEST.sha256`. Volume: about 964 prompts in 147 chats plus 497 subagent transcripts, roughly 11 MB of text.
+
+**BLOCKED LANE: bundle build and off-Mac backup.**
+- Blocker type: SECURITY_GATE. Auto-review rejected the first run with: "Executing an unread repository script with external destination bundle variables and redaction find/grep checks cannot be auto-run without inspecting the script file first." Not retried, not worked around.
+- Destination finding: `carmen-ship-it/ISALWA-DEMO` is **PUBLIC** (`gh repo view`: `"visibility":"PUBLIC"`). It must not receive chat memory. That includes the `preserve/*` branches already pushed there.
+- The Dropbox connector accepts inline UTF-8 text only, at most 5 MB per call, with no byte upload. The Dropbox desktop client is not installed.
+- Unblock requirement:
+  - a reviewer inspects `tools/preserve_chats.py` at the commit that adds it and approves running it;
+  - Carmen names the backup destination. The proposal is a new private repository under her ISALWA GitHub account, holding one unrelated commit with only the bundle and none of the restricted branch history.
+- Then: run the tool, re-run `index_chats.py` with the bundle counted as a preservation source, push the bundle, verify the remote manifest hash, and re-issue the list.
+
+**Final deletion list for this pass:** `FINAL_DELETION_LIST.md`.
+
 ## Missing material that no chat deletion may lose
 
 See `../CURRENT_STATE.md` § Missing material. In particular, the 2026-10-16 23:57 and 2026-10-17 00:08 messages survive only partially; `../history/2026-10-live-only-messages.md` has what remains.
