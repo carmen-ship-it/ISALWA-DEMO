@@ -101,6 +101,7 @@ describeHttp('Review R2 follow-up: ChangeRole preserves additional grants (dispo
   it('preview shows primary replacement with additional grants preserved, and the command does exactly that', async () => {
     const shown = await preview('admin', m.target!.member.id, 'account_manager');
     assert.equal(shown.status, 200, JSON.stringify(shown.body));
+    assert.equal(shown.body.allowed, true);
     assert.deepEqual(
       {
         newPrimaryRoleKey: shown.body.newPrimaryRoleKey,
@@ -151,7 +152,10 @@ describeHttp('Review R2 follow-up: ChangeRole preserves additional grants (dispo
   it('revoking a grant the member does not hold is rejected with no change', async () => {
     const before = await openRoleKeys(m.target2!.member.id);
     const shown = await preview('admin', m.target2!.member.id, 'sales_rep', ['commercial.org.read']);
-    assert.equal(shown.status, 400, JSON.stringify(shown.body));
+    // 22:29 decision 4: the preview reports the refusal instead of failing.
+    assert.equal(shown.status, 200, JSON.stringify(shown.body));
+    assert.deepEqual([shown.body.allowed, shown.body.refusal], [false, 'revoke_not_held']);
+    assert.equal(shown.body.scopesGained, undefined, 'no plan for a refused change');
     const changed = await command('admin', 'ChangeRole', {
       memberId: m.target2!.member.id,
       roleKey: 'sales_rep',
@@ -172,6 +176,40 @@ describeHttp('Review R2 follow-up: ChangeRole preserves additional grants (dispo
     const byRep = await command('rep', 'ChangeRole', { memberId: m.target!.member.id, roleKey: 'sales_rep' });
     assert.deepEqual([byRep.status, byRep.body], [403, { code: 'PERMISSION_DENIED' }]);
     assert.deepEqual(await openRoleKeys(m.target!.member.id), before);
+  });
+
+  it('22:29 decision 4: the preview applies the command rules; each refusal matches the command and writes nothing', async () => {
+    m.holder = m.holder ?? (await seedMember('holder', ['people.admin', 'commercial.team.read']));
+    const before = await openRoleKeys(m.target!.member.id);
+    const cases: Array<[string, string, string, number]> = [
+      ['admin', 'commercial.org.read', 'scope_not_held', 403],
+      ['admin', 'master_data.admin', 'scope_not_held', 403],
+      ['holder', 'commercial.team.read', 'commercial_scope_not_primary', 400],
+      ['admin', 'not a role!', 'role_invalid', 400],
+    ];
+    for (const [who, roleKey, refusal, status] of cases) {
+      const shown = await preview(who, m.target!.member.id, roleKey);
+      assert.equal(shown.status, 200, `${roleKey}: ${JSON.stringify(shown.body)}`);
+      assert.deepEqual([shown.body.allowed, shown.body.refusal], [false, refusal], roleKey);
+      const run = await command(who, 'ChangeRole', { memberId: m.target!.member.id, roleKey });
+      assert.equal(run.status, status, `${roleKey}: ${JSON.stringify(run.body)}`);
+    }
+    assert.deepEqual(await openRoleKeys(m.target!.member.id), before);
+  });
+
+  it('22:29 decision 4: an allowed preview grants nothing; execution re-checks current authority', async () => {
+    m.admin2 = await seedMember('admin2', ['people.admin']);
+    const shown = await preview('admin2', m.rep!.member.id, 'account_manager');
+    assert.equal(shown.status, 200);
+    assert.equal(shown.body.allowed, true);
+    await prisma().osRoleAssignment.updateMany({
+      where: { memberId: m.admin2!.member.id, roleKey: 'people.admin', endedAt: null },
+      data: { endedAt: new Date(Date.now() - 1000) },
+    });
+    const before = await openRoleKeys(m.rep!.member.id);
+    const run = await command('admin2', 'ChangeRole', { memberId: m.rep!.member.id, roleKey: 'account_manager' });
+    assert.deepEqual([run.status, run.body], [403, { code: 'PERMISSION_DENIED' }]);
+    assert.deepEqual(await openRoleKeys(m.rep!.member.id), before);
   });
 
   it('the preview needs people.admin and stays inside the selected organization', async () => {

@@ -5,7 +5,7 @@ import { CommandSubmitButton } from '@/components/commercial/command-submit-butt
 import { previewRoleChangeAction } from '@/lib/workforce/actions';
 import type { SelectOption } from '@/lib/workforce/admin-options';
 import { formatRoleKey, formatRoleKeys } from '@/lib/workforce/labels';
-import type { RoleChangePreview } from '@/lib/workforce/role-change';
+import { roleChangeRefusalMessage, type RoleChangePreview } from '@/lib/workforce/role-change';
 
 /**
  * ChangeRole with the effective permission changes shown before submitting.
@@ -51,7 +51,9 @@ export function RoleChangeForm({
     };
   }, [memberId, roleKey, revoke, requestKey]);
 
-  const ready = preview !== null && loadedKey === requestKey;
+  const loaded = preview !== null && loadedKey === requestKey;
+  const plan = loaded && preview.allowed ? preview : null;
+  const refusal = loaded && !preview.allowed ? roleChangeRefusalMessage(preview.refusal) : null;
 
   return (
     <form action={action} className="mt-3 space-y-4">
@@ -111,34 +113,39 @@ export function RoleChangeForm({
       >
         <p className="isalwa-section-label">Cambios de permisos</p>
         {error ? <p className="mt-1 text-[var(--isalwa-danger)]">{error}</p> : null}
-        {!error && !ready ? <p className="mt-1 text-[var(--isalwa-slate)]">Calculando cambios…</p> : null}
-        {ready && preview ? (
+        {!error && !loaded ? <p className="mt-1 text-[var(--isalwa-slate)]">Calculando cambios…</p> : null}
+        {refusal ? (
+          <p className="mt-1 text-[var(--isalwa-danger)]" data-role-change-refusal>
+            No se puede hacer este cambio: {refusal}
+          </p>
+        ) : null}
+        {plan ? (
           <dl className="mt-2 grid gap-1 text-[var(--isalwa-kiln)]">
             <div>
               <dt className="inline text-[var(--isalwa-slate)]">Rol que termina: </dt>
-              <dd className="inline">{preview.endedPrimaryRoleKeys.length ? formatRoleKeys(preview.endedPrimaryRoleKeys) : 'Ninguno'}</dd>
+              <dd className="inline">{plan.endedPrimaryRoleKeys.length ? formatRoleKeys(plan.endedPrimaryRoleKeys) : 'Ninguno'}</dd>
             </div>
             <div>
               <dt className="inline text-[var(--isalwa-slate)]">Permisos adicionales que se mantienen: </dt>
-              <dd className="inline">{preview.preservedAdditionalRoleKeys.length ? formatRoleKeys(preview.preservedAdditionalRoleKeys) : 'Ninguno'}</dd>
+              <dd className="inline">{plan.preservedAdditionalRoleKeys.length ? formatRoleKeys(plan.preservedAdditionalRoleKeys) : 'Ninguno'}</dd>
             </div>
             <div>
               <dt className="inline text-[var(--isalwa-slate)]">Permisos adicionales que se retiran: </dt>
-              <dd className="inline">{preview.revokedAdditionalRoleKeys.length ? formatRoleKeys(preview.revokedAdditionalRoleKeys) : 'Ninguno'}</dd>
+              <dd className="inline">{plan.revokedAdditionalRoleKeys.length ? formatRoleKeys(plan.revokedAdditionalRoleKeys) : 'Ninguno'}</dd>
             </div>
             <div>
               <dt className="inline text-[var(--isalwa-slate)]">Permisos que gana: </dt>
-              <dd className="inline">{preview.scopesGained.length ? formatRoleKeys(preview.scopesGained) : 'Ninguno'}</dd>
+              <dd className="inline">{plan.scopesGained.length ? formatRoleKeys(plan.scopesGained) : 'Ninguno'}</dd>
             </div>
             <div>
               <dt className="inline text-[var(--isalwa-slate)]">Permisos que pierde: </dt>
-              <dd className="inline">{preview.scopesLost.length ? formatRoleKeys(preview.scopesLost) : 'Ninguno'}</dd>
+              <dd className="inline">{plan.scopesLost.length ? formatRoleKeys(plan.scopesLost) : 'Ninguno'}</dd>
             </div>
           </dl>
         ) : null}
       </div>
 
-      <CommandSubmitButton label="Confirmar cambio de rol principal" variant="secondary" disabled={!ready} />
+      <CommandSubmitButton label="Confirmar cambio de rol principal" variant="secondary" disabled={plan === null} />
     </form>
   );
 }

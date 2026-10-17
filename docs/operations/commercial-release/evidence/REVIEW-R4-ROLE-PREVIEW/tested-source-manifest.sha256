@@ -1,0 +1,7 @@
+8686b57131b593322fb92315c0ca8e35dde13afece326f4898f9881ce685f227  apps/os-api/src/members.controller.ts
+bb7569127bd8728524e85d733c1ac480a704dd869e33951c1c874ec810da7698  apps/os-api/src/review-r2b-role-change.http.test.ts
+f8343c3713e2b18536d5315a49e8a570e6acf57876fd65083141675c86219370  apps/os-web/components/admin/role-change-form.tsx
+c65b1c6307b7d17d67376685017d4722afa99e9a70b1f9e0dea11fb8bd4d1eb6  apps/os-web/lib/workforce/role-change.test.ts
+bb615bd3ae037cbb785d58242e08d0ae96b3dc972d2ec83b691dc25bfc6cb8be  apps/os-web/lib/workforce/role-change.ts
+73729c0fdf69cb2843e7a7855b583b414ee6a7b8186d2a31005051d29b5b2d90  packages/os-workforce/src/role-change-plan.ts
+378ce6fd6413ca18d737c135f37349ff1f453a7492f0d395b23f8134c49941b8  packages/os-workforce/src/workforce-command-service.ts

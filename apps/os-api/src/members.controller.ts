@@ -13,9 +13,8 @@ import { ListMembersQuerySchema } from '@isalwa/os-contracts';
 import {
   collectMemberAccessHistory,
   collectTerminationImpact,
-  parseRevokeAdditionalRoleKeys,
-  planRoleChange,
   type OsWorkforceStore,
+  type WorkforceCommandService,
 } from '@isalwa/os-workforce';
 import {
   assertQueryScope,
@@ -25,7 +24,7 @@ import {
   type MemberQueryService,
 } from '@isalwa/os-query';
 import { resolveSession } from './os-session';
-import { OS_MEMBER_QUERY_SERVICE, OS_STORE } from './os-store.module';
+import { OS_COMMAND_SERVICE, OS_MEMBER_QUERY_SERVICE, OS_STORE } from './os-store.module';
 
 function toHttp(err: unknown): HttpException {
   if (err instanceof HttpException) return err;
@@ -50,6 +49,7 @@ export class MembersController {
   constructor(
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
     @Inject(OS_MEMBER_QUERY_SERVICE) private readonly memberQuery: MemberQueryService,
+    @Inject(OS_COMMAND_SERVICE) private readonly workforceCommands: WorkforceCommandService,
   ) {}
 
   @Get()
@@ -138,7 +138,11 @@ export class MembersController {
     }
   }
 
-  /** Effective permission changes of a ChangeRole, for confirmation before submitting. */
+  /**
+   * Effective permission changes of a ChangeRole, for confirmation before
+   * submitting, evaluated with the same rules as the command. A change the actor
+   * cannot make returns `allowed: false` and the refusal, never the plan.
+   */
   @Get(':memberId/role-change-preview')
   async getRoleChangePreview(
     @Param('memberId') memberId: string,
@@ -154,14 +158,10 @@ export class MembersController {
       const member = await this.workforceStore.getMemberInOrg(ctx.organizationId, memberId);
       if (!member) throw new Error('NOT_FOUND');
       if (!roleKey?.trim()) throw new Error('VALIDATION_FAILED');
-      return planRoleChange({
+      return await this.workforceCommands.previewRoleChange(session, {
         memberId,
-        assignments: await this.workforceStore.listRoleAssignmentsForMember(memberId, ctx.organizationId),
         roleKey: roleKey.trim(),
-        revokeAdditionalRoleKeys: parseRevokeAdditionalRoleKeys(
-          revoke?.trim() ? revoke.split(',').map((key) => key.trim()) : undefined,
-        ),
-        asOf: ctx.effectiveAt,
+        revokeAdditionalRoleKeys: revoke?.trim() ? revoke.split(',').map((key) => key.trim()) : undefined,
       });
     } catch (err) {
       throw toHttp(err);

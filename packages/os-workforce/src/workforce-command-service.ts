@@ -36,7 +36,14 @@ import { normalizeAuthEmail } from './auth-email';
 import type { OsWorkforceStore } from './os-workforce-store';
 import { runProviderSideEffectWithRetry } from './provider-side-effects';
 import { collectTerminationImpact } from './termination-impact';
-import { parseRevokeAdditionalRoleKeys, planRoleChange } from './role-change-plan';
+import {
+  parseRevokeAdditionalRoleKeys,
+  planRoleChange,
+  RoleChangeRefused,
+  type RoleChangePlan,
+  type RoleChangePreviewResult,
+  type RoleChangeRefusal,
+} from './role-change-plan';
 
 export type CommandResult = {
   commandId: string;
@@ -850,37 +857,84 @@ export class WorkforceCommandService {
     });
   }
 
+  /**
+   * Every rule ChangeRole applies before writing, shared with the preview so a
+   * predictable refusal is shown before confirmation. The command re-runs it in
+   * its own transaction, so the preview grants nothing.
+   */
+  private async authorizeRoleChange(
+    ctx: RequestContext,
+    input: { memberId: string; roleKey: string; revokeAdditionalRoleKeys: unknown },
+    store: OsWorkforceStore,
+    validateRequest: () => void = () => {},
+  ): Promise<RoleChangePlan> {
+    const refuse = async <T>(refusal: RoleChangeRefusal, check: () => Promise<T>): Promise<T> => {
+      try {
+        return await check();
+      } catch (err) {
+        const code = err instanceof Error ? err.message : '';
+        if (code === 'PERMISSION_DENIED' || code === 'VALIDATION_FAILED') throw new RoleChangeRefused(code, refusal);
+        throw err;
+      }
+    };
+    await refuse('not_authorized', () => this.authorize(ctx, 'ChangeRole', ctx.organizationId, store));
+    validateRequest();
+    const revokeAdditionalRoleKeys = parseRevokeAdditionalRoleKeys(input.revokeAdditionalRoleKeys);
+    const member = await store.getMemberInOrg(ctx.organizationId, input.memberId);
+    if (!member) throw new Error('NOT_FOUND');
+    const kind = classifyRoleKey(input.roleKey);
+    await refuse(kind === 'reserved' ? 'role_reserved' : kind === 'invalid' ? 'role_invalid' : 'scope_not_held', () =>
+      this.assertRoleKeyAssignable(ctx, input.roleKey, input.memberId, store),
+    );
+    const plan = planRoleChange({
+      memberId: input.memberId,
+      assignments: await store.listRoleAssignmentsForMember(input.memberId, ctx.organizationId),
+      roleKey: input.roleKey,
+      revokeAdditionalRoleKeys,
+      asOf: ctx.effectiveAt,
+    });
+    if (plan.revokedAdditionalRoleKeys.length > 0) {
+      await refuse('cannot_end_additional', () => this.authorize(ctx, 'EndAdditionalRole', ctx.organizationId, store));
+    }
+    // Preserved additional grants count toward the resulting reach like any other.
+    await refuse('reach_beyond_grantor', () =>
+      this.assertReachWithinGrantor(
+        ctx,
+        input.memberId,
+        { roleKeys: [input.roleKey, ...plan.preservedAdditionalRoleKeys] },
+        store,
+      ),
+    );
+    return plan;
+  }
+
+  /** Read-only: the plan ChangeRole would apply, or the reason it would be refused. */
+  async previewRoleChange(
+    ctx: RequestContext,
+    input: { memberId: string; roleKey: string; revokeAdditionalRoleKeys: unknown },
+  ): Promise<RoleChangePreviewResult> {
+    try {
+      return { allowed: true, ...(await this.authorizeRoleChange(ctx, input, this.store)) };
+    } catch (err) {
+      if (!(err instanceof RoleChangeRefused)) throw err;
+      return { allowed: false, memberId: input.memberId, newPrimaryRoleKey: input.roleKey, refusal: err.refusal };
+    }
+  }
+
   private async changeRole(
     ctx: RequestContext,
     payload: Record<string, unknown>,
     store: OsWorkforceStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'ChangeRole', ctx.organizationId, store);
     const memberId = String(payload.memberId);
     const roleKey = String(payload.roleKey);
-    const effectiveAt = notBackdated(payload.effectiveAt, ctx.effectiveAt);
-    const revokeAdditionalRoleKeys = parseRevokeAdditionalRoleKeys(payload.revokeAdditionalRoleKeys);
-    const member = await store.getMemberInOrg(ctx.organizationId, memberId);
-    if (!member) throw new Error('NOT_FOUND');
-    await this.assertRoleKeyAssignable(ctx, roleKey, memberId, store);
-    const assignments = await store.listRoleAssignmentsForMember(memberId, ctx.organizationId);
-    const plan = planRoleChange({
-      memberId,
-      assignments,
-      roleKey,
-      revokeAdditionalRoleKeys,
-      asOf: ctx.effectiveAt,
-    });
-    if (plan.revokedAdditionalRoleKeys.length > 0) {
-      await this.authorize(ctx, 'EndAdditionalRole', ctx.organizationId, store);
-    }
-    // Preserved additional grants count toward the resulting reach like any other.
-    await this.assertReachWithinGrantor(
+    const plan = await this.authorizeRoleChange(
       ctx,
-      memberId,
-      { roleKeys: [roleKey, ...plan.preservedAdditionalRoleKeys] },
+      { memberId, roleKey, revokeAdditionalRoleKeys: payload.revokeAdditionalRoleKeys },
       store,
+      () => notBackdated(payload.effectiveAt, ctx.effectiveAt),
     );
+    const effectiveAt = notBackdated(payload.effectiveAt, ctx.effectiveAt);
 
     // Replaces the primary role only. Additional permissions stay unless the
     // request names them for revocation.

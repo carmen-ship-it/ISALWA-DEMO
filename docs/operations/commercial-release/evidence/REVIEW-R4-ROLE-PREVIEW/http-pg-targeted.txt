@@ -1,0 +1,8 @@
+  ✔ preview shows primary replacement with additional grants preserved, and the command does exactly that (93.962041ms)
+  ✔ explicit revocation ends only the named additional grant, and the preview lists the lost scope first (39.135917ms)
+  ✔ revoking a grant the member does not hold is rejected with no change (18.11125ms)
+  ✔ no unauthorized expansion: a commercial or admin scope the actor lacks, or a non-admin actor, are all refused (20.632875ms)
+  ✔ 22:29 decision 4: the preview applies the command rules; each refusal matches the command and writes nothing (58.747542ms)
+  ✔ 22:29 decision 4: an allowed preview grants nothing; execution re-checks current authority (17.204125ms)
+  ✔ the preview needs people.admin and stays inside the selected organization (10.218583ms)
+✔ Review R2 follow-up: ChangeRole preserves additional grants (disposable Postgres) (602.959958ms)

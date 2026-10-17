@@ -22,6 +22,31 @@ export type RoleChangePlan = {
   scopesLost: string[];
 };
 
+/** Why a role change would be refused; the preview shows it and disables confirmation. */
+export type RoleChangeRefusal =
+  | 'not_authorized'
+  | 'role_reserved'
+  | 'role_invalid'
+  | 'scope_not_held'
+  | 'commercial_scope_not_primary'
+  | 'revoke_not_held'
+  | 'cannot_end_additional'
+  | 'reach_beyond_grantor';
+
+/** Carries the refusal; `message` stays the error code the command already returns. */
+export class RoleChangeRefused extends Error {
+  constructor(
+    code: 'PERMISSION_DENIED' | 'VALIDATION_FAILED',
+    readonly refusal: RoleChangeRefusal,
+  ) {
+    super(code);
+  }
+}
+
+export type RoleChangePreviewResult =
+  | ({ allowed: true } & RoleChangePlan)
+  | { allowed: false; memberId: string; newPrimaryRoleKey: string; refusal: RoleChangeRefusal };
+
 function unique(keys: readonly string[]): string[] {
   return [...new Set(keys)].sort();
 }
@@ -41,12 +66,16 @@ export function planRoleChange(input: {
   revokeAdditionalRoleKeys: readonly string[];
   asOf: Date;
 }): RoleChangePlan {
-  if (isAdditionalAssignableScope(input.roleKey)) throw new Error('VALIDATION_FAILED');
+  if (isAdditionalAssignableScope(input.roleKey)) {
+    throw new RoleChangeRefused('VALIDATION_FAILED', 'commercial_scope_not_primary');
+  }
   const open = input.assignments.filter((row) => row.memberId === input.memberId && row.endedAt === null);
   const openPrimary = unique(open.filter((row) => !isAdditionalAssignableScope(row.roleKey)).map((row) => row.roleKey));
   const openAdditional = unique(open.filter((row) => isAdditionalAssignableScope(row.roleKey)).map((row) => row.roleKey));
   for (const key of input.revokeAdditionalRoleKeys) {
-    if (!openAdditional.includes(key) || key === input.roleKey) throw new Error('VALIDATION_FAILED');
+    if (!openAdditional.includes(key) || key === input.roleKey) {
+      throw new RoleChangeRefused('VALIDATION_FAILED', 'revoke_not_held');
+    }
   }
   const revoked = unique(input.revokeAdditionalRoleKeys);
   const preserved = openAdditional.filter((key) => !revoked.includes(key) && key !== input.roleKey);
