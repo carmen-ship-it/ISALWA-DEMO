@@ -130,15 +130,16 @@ describe('workforce adversarial access (Wave A agent 7)', () => {
     assert.match(systemAdminSrc, /return held\.length > 0 && held === required/);
   });
 
-  it('blocks TerminateMember when open work remains', async () => {
+  it('23:47 §B2: open work does not keep a terminated member\'s access; the work stays, unresolved', async () => {
     const store = new MemoryOsStore();
     const auth = new LocalAuthProviderPort();
     const svc = new WorkforceCommandService(store, auth);
     const org = await store.seedOrganization('ISALWA', 'isalwa');
     const admin = await store.seedAdminMember(org.id, 'admin@isalwa.bo', 'Admin', 'User');
     const worker = await seedActiveMember(store, org.id, 'worker@isalwa.bo', ['sales_rep']);
+    const workId = createId();
     store.workItems.push({
-      id: createId(),
+      id: workId,
       organizationId: org.id,
       ownerMemberId: worker,
       title: 'Open task',
@@ -146,9 +147,10 @@ describe('workforce adversarial access (Wave A agent 7)', () => {
       version: 0,
     });
 
-    await assert.rejects(
-      svc.execute('TerminateMember', ctx(org.id, admin.member.id), { memberId: worker }),
-      /VALIDATION_FAILED/,
-    );
+    const result = await svc.execute('TerminateMember', ctx(org.id, admin.member.id), { memberId: worker });
+    assert.equal((await store.getMember(worker))?.accessStatus, 'revoked');
+    assert.equal(store.workItems[0]?.ownerMemberId, worker);
+    assert.equal(store.workItems[0]?.status, 'open');
+    assert.deepEqual(result.data.unresolvedOwnership, [{ key: 'open_work', count: 1, ids: [workId] }]);
   });
 });

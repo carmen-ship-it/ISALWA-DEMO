@@ -128,7 +128,7 @@ describePrisma('suspend member / open work lifecycle (Step 14.5)', () => {
     assert.ok(event);
   });
 
-  it('blocks suspend while open work remains owned', async () => {
+  it('23:47 §B2: suspends while open work remains owned; the work stays open with its owner and history', async () => {
     const { org, admin, worker } = await seedFixture();
     const cAdmin = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
     const created = await workSvc.execute('CreateWorkItem', cAdmin, {
@@ -137,16 +137,13 @@ describePrisma('suspend member / open work lifecycle (Step 14.5)', () => {
     });
     const workItemId = String(created.data.workItemId);
 
-    await assert.rejects(
-      () => workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id }),
-      (err: Error) => err.message === 'VALIDATION_FAILED',
-    );
+    await workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id });
 
     const work = await workStore.getWorkItemInOrg(org.id, workItemId);
     assert.equal(work?.status, 'open');
     assert.equal(work?.ownerMemberId, worker.member.id);
     const member = await workforceStore.getMember(worker.member.id);
-    assert.equal(member?.accessStatus, 'active');
+    assert.equal(member?.accessStatus, 'suspended');
     const history = await prisma.osWorkItemOwnershipHistory.count({
       where: { workItemId },
     });
@@ -274,15 +271,11 @@ describePrisma('suspend member / open work lifecycle (Step 14.5)', () => {
       ownerMemberId: worker.member.id,
     });
     const workItemId = String(created.data.workItemId);
-    await assert.rejects(
-      () => workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id }),
-      (err: Error) => err.message === 'VALIDATION_FAILED',
-    );
+    await workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id });
     await workSvc.execute('ReassignWork', cAdmin, {
       workItemId,
       newOwnerMemberId: successor.member.id,
     });
-    await workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id });
     const work = await workStore.getWorkItemInOrg(org.id, workItemId);
     assert.equal(work?.ownerMemberId, successor.member.id);
     assert.equal(

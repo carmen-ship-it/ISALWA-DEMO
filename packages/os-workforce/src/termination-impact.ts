@@ -203,15 +203,14 @@ export async function collectTerminationImpact(
   ];
 
   const endedByLifecycle = new Set<string>(LIFECYCLE_ENDED_CATEGORY_KEYS);
-  const totalBlockingCount = categories
+  const unresolvedCount = categories
     .filter((c) => !endedByLifecycle.has(c.key))
     .reduce((sum, c) => sum + c.count, 0);
 
   return {
     memberId,
     organizationId,
-    canTerminate: totalBlockingCount === 0,
-    totalBlockingCount,
+    unresolvedCount,
     categories,
   };
 }

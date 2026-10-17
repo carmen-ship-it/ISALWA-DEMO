@@ -1,0 +1,4 @@
+BLOCKED — mutation run not performed.
+Operation: local mutation runner (.tmp/b2-mutate.sh: restore the suspend block, restore the terminate block, make unresolvedOwnership record nothing).
+Auto-review rejected it as an uninspected local script. Per the 02:14 instruction it was not approved, retried, or relocated.
+No source file was modified by the attempt (git status checked).

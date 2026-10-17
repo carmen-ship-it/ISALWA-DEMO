@@ -78,7 +78,7 @@ describe('Wave A ReassignWork admin surface', () => {
   it('shows reassign surface for active and suspended members only', () => {
     assert.equal(memberAdminVisibility(sampleActiveMember, 'admin-1').reassignWork, true);
     assert.equal(memberAdminVisibility(sampleSuspendedMember, 'admin-1').reassignWork, true);
-    assert.equal(memberAdminVisibility(sampleTerminatedMember, 'admin-1').reassignWork, false);
+    assert.equal(memberAdminVisibility(sampleTerminatedMember, 'admin-1').reassignWork, true);
     const invited = memberAdminVisibility(
       { ...sampleActiveMember, accessStatus: 'invited' },
       'admin-1',
@@ -86,9 +86,12 @@ describe('Wave A ReassignWork admin surface', () => {
     assert.equal(invited.reassignWork, false);
   });
 
-  it('points terminate open-work hint at the local Trabajo activo section', () => {
+  it('23:47 §B2: suspend and terminate never wait for open work; the note points at the local Responsabilidades section', () => {
     const panel = source('components/admin/member-admin-actions-panel.tsx');
-    assert.match(panel, /#trabajo-activo/);
+    assert.match(panel, /#responsabilidades/);
     assert.doesNotMatch(panel, /href="\/trabajo"/);
+    assert.doesNotMatch(panel, /terminationBlocked|suspendBlocked/);
+    const page = source('app/(app)/administracion/equipo/[memberId]/page.tsx');
+    assert.doesNotMatch(page, /canTerminate|hasSuspendActionableWork/);
   });
 });

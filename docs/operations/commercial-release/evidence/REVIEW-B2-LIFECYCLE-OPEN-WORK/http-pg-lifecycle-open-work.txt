@@ -1,0 +1,13 @@
+  ✔ suspension proceeds with open work: access ends at once, ownership is untouched and recorded as unresolved (33.556917ms)
+  ✔ the unresolved ownership stays visible to people.admin and to the manager in range, and can be reassigned (60.09625ms)
+  ✔ termination proceeds with open work: access and login identity end at once; no replacement keeps access (50.0265ms)
+✔ B2 suspension and termination with open work over HTTP (disposable Postgres) (522.375125ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1195.157291
+exit 0

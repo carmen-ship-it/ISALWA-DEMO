@@ -315,7 +315,7 @@ describePrisma('workforce admin mutation API readiness (Step 14.7)', () => {
     );
   });
 
-  it('TerminateMember blocked with open work; succeeds after reassignment', async () => {
+  it('23:47 §B2: TerminateMember with open work revokes access and credentials at once; the work is reassigned afterwards', async () => {
     const { org, admin, worker } = await seedAdminOrg();
     const successor = await store.seedScopedAdminMember(
       org.id,
@@ -331,21 +331,17 @@ describePrisma('workforce admin mutation API readiness (Step 14.7)', () => {
     });
     const workItemId = String(created.data.workItemId);
 
-    await assert.rejects(
-      () => svc.execute('TerminateMember', cAdmin, { memberId: worker.member.id }),
-      (err: Error) => err.message === 'VALIDATION_FAILED',
-    );
-
-    await workSvc.execute('ReassignWork', cAdmin, {
-      workItemId,
-      newOwnerMemberId: successor.member.id,
-    });
     const revokeBefore = auth.credentialRevokeCalls.length;
     await svc.execute('TerminateMember', cAdmin, { memberId: worker.member.id });
     assert.equal(auth.credentialRevokeCalls.length, revokeBefore + 1);
     const member = await store.getMember(worker.member.id);
     assert.equal(member?.accessStatus, 'revoked');
     assert.equal(member?.employmentStatus, 'terminated');
+
+    await workSvc.execute('ReassignWork', cAdmin, {
+      workItemId,
+      newOwnerMemberId: successor.member.id,
+    });
   });
 
   it('GrantDelegation and RevokeDelegation are atomic with audit/outbox', async () => {

@@ -1,0 +1,5 @@
+os-web: tsx --test lib/**/*.test.ts components/**/*.test.ts
+ℹ tests 1300
+ℹ pass 1300
+ℹ fail 0
+exit 0

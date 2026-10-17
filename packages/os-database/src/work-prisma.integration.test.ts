@@ -219,7 +219,7 @@ describePrisma('work prisma integration', () => {
     assert.equal(approval?.decisionByMemberId, delegate.member.id);
   });
 
-  it('blocks termination when open work remains; succeeds after reassignment', async () => {
+  it('23:47 §B2: termination proceeds with open work, which stays open and can be reassigned afterwards', async () => {
     const org = await workforceStore.seedOrganization('Term Org', `term-${Date.now()}`);
     const admin = await workforceStore.seedScopedAdminMember(
       org.id,
@@ -249,18 +249,17 @@ describePrisma('work prisma integration', () => {
     });
     const workItemId = String(created.data.workItemId);
 
-    await assert.rejects(
-      () =>
-        workforceSvc.execute('TerminateMember', cAdmin, { memberId: doomed.member.id }),
-      (err: Error) => err.message === 'VALIDATION_FAILED',
+    await workforceSvc.execute('TerminateMember', cAdmin, { memberId: doomed.member.id });
+    assert.equal((await workforceStore.getMember(doomed.member.id))?.accessStatus, 'revoked');
+    assert.deepEqual(
+      (await workStore.listOpenWorkItemsForMember(org.id, doomed.member.id)).map((w) => w.id),
+      [workItemId],
     );
 
     await workSvc.execute('ReassignWork', cAdmin, {
       workItemId,
       newOwnerMemberId: successor.member.id,
     });
-
-    await workforceSvc.execute('TerminateMember', cAdmin, { memberId: doomed.member.id });
     const open = await workStore.listOpenWorkItemsForMember(org.id, doomed.member.id);
     assert.equal(open.length, 0);
   });

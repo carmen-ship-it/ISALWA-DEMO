@@ -184,7 +184,7 @@ describeHttp('os-api workforce admin mutation HTTP (Step 14.7)', () => {
     assert.equal(err.code, 'ACCESS_REVOKED');
   });
 
-  it('POST TerminateMember blocked with open work returns VALIDATION_FAILED', async () => {
+  it('23:47 §B2: POST TerminateMember with open work revokes access and keeps the work open and owned', async () => {
     const doomed = await store.seedAdminMember(
       org.id,
       `doom-${Date.now()}@o.bo`,
@@ -197,13 +197,16 @@ describeHttp('os-api workforce admin mutation HTTP (Step 14.7)', () => {
       ownerMemberId: doomed.member.id,
     });
     assert.equal(work.status, 201);
+    const workItemId = String(((await work.json()) as { data: { workItemId: string } }).data.workItemId);
 
     const term = await postCommand(baseUrl, adminH, 'TerminateMember', {
       memberId: doomed.member.id,
     });
-    assert.equal(term.status, 400);
-    const body = (await term.json()) as { code: string };
-    assert.equal(body.code, 'VALIDATION_FAILED');
+    assert.equal(term.status, 201);
+    const member = await store.getMemberInOrg(org.id, doomed.member.id);
+    assert.equal(member?.accessStatus, 'revoked');
+    const item = await getOsPrisma()!.osWorkItem.findUniqueOrThrow({ where: { id: workItemId } });
+    assert.deepEqual([item.ownerMemberId, item.status], [doomed.member.id, 'open']);
   });
 
   it('POST ActivateMember on terminated member rejected (J-13)', async () => {

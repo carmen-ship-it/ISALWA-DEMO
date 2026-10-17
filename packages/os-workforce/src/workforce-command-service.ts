@@ -2,7 +2,7 @@ import type { WorkforceCommandName, RequestContext } from '@isalwa/os-contracts'
 import {
   COMMAND_REQUIRED_SCOPES,
   classifyRoleKey,
-  hasSuspendActionableWork,
+  unresolvedOwnership,
   isAdditionalAssignableScope,
   isCommandReservedScope,
   isDelegableScope,
@@ -1226,15 +1226,14 @@ export class WorkforceCommandService {
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
 
+    // Open ownership never delays suspension; it is recorded and stays for reassignment.
     const impact = await collectTerminationImpact(
       store,
       ctx.organizationId,
       memberId,
       ctx.effectiveAt,
     );
-    if (hasSuspendActionableWork(impact.categories)) {
-      throw new Error('VALIDATION_FAILED');
-    }
+    const unresolved = unresolvedOwnership(impact.categories);
 
     await store.updateMember(memberId, {
       accessStatus: 'suspended',
@@ -1261,6 +1260,7 @@ export class WorkforceCommandService {
       endedDelegationIds,
       endedCustomerCoverage,
       unresolvedCustomerPartyIds,
+      unresolvedOwnership: unresolved,
     });
   }
 
@@ -1276,16 +1276,14 @@ export class WorkforceCommandService {
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
 
+    // Open ownership never delays termination; it is recorded and stays for reassignment.
     const impact = await collectTerminationImpact(
       store,
       ctx.organizationId,
       memberId,
       ctx.effectiveAt,
     );
-    if (!impact.canTerminate) {
-      // Same client-facing code as open-work gate; details via GET termination-impact.
-      throw new Error('VALIDATION_FAILED');
-    }
+    const unresolved = unresolvedOwnership(impact.categories);
 
     await store.updateMember(memberId, {
       accessStatus: 'revoked',
@@ -1322,6 +1320,7 @@ export class WorkforceCommandService {
       endedDelegationIds,
       endedCustomerCoverage,
       unresolvedCustomerPartyIds,
+      unresolvedOwnership: unresolved,
     };
     if (reason !== undefined) {
       emitPayload.reason = reason;

@@ -179,23 +179,9 @@ describePrisma('workforce prisma integration', () => {
       asOf,
     );
     assert.equal(activeDelegations.length, 1);
+    assert.ok(grant.data.delegationId);
 
-    await assert.rejects(
-      () =>
-        svc.execute(
-          'TerminateMember',
-          ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
-          { memberId },
-        ),
-      (err: Error) => err.message === 'VALIDATION_FAILED',
-    );
-
-    await svc.execute(
-      'RevokeDelegation',
-      ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
-      { delegationId: grant.data.delegationId as string },
-    );
-
+    // 23:47 §B2: an active delegation does not delay termination; it ends with it.
     await svc.execute(
       'TerminateMember',
       ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
@@ -204,6 +190,7 @@ describePrisma('workforce prisma integration', () => {
 
     const terminated = await store.getMember(memberId);
     assert.equal(terminated?.accessStatus, 'revoked');
+    assert.equal((await store.listActiveDelegationsInvolvingMember(org.id, memberId, asOf)).length, 0);
     const person = await store.getPerson(personId);
     assert.ok(person);
 

@@ -7,7 +7,10 @@ export type MemberAdminVisibility = {
   terminate: boolean;
   delegation: boolean;
   requestEmailChange: boolean;
-  /** Open-work reassignment (ReassignWork) for continuity before terminate/suspend. */
+  /**
+   * Reassignment of what the member still owns. Stays available after suspension and
+   * termination: those never wait for open work (23:47 §B2), so this is where it is picked up.
+   */
   reassignWork: boolean;
 };
 
@@ -36,6 +39,6 @@ export function memberAdminVisibility(
       Boolean(actorMemberId) &&
       summary.memberId === actorMemberId &&
       active,
-    reassignWork: (active || suspended) && !terminated && !invited,
+    reassignWork: !invited,
   };
 }

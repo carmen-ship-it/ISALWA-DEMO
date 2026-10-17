@@ -1,0 +1,9 @@
+5bcdbc220595a38adfb7a97a695e4418c3dd64183429cfcf0bc523ffcf67dc8f  packages/os-contracts/src/queries.ts
+f593b8c5bc6335a43c53091d5fc7505b6621e93f2237459ce6d8a06b97fc08d2  packages/os-workforce/src/workforce-command-service.ts
+28f5e3343c3352c457131058df8b0fd097abdc8a46aa0a9746d4ea81dde6944f  packages/os-workforce/src/termination-impact.ts
+2817aa2191a0d56b8b83683cd4fefbcdc4a08bba855cf951018c91cb7efaedc9  apps/os-web/lib/workforce/lifecycle-ui.ts
+b97efdfd6a4d1203553435b0ca7690c40af5afbeeaf6c31911c27dfa1e74ac41  apps/os-web/lib/workforce/command-errors.ts
+8ec82f2d8481a83cf675bb2c4da7270da660b74a83cf6fe4662f5d6b5b401c84  apps/os-web/components/admin/termination-impact-panel.tsx
+afbf50515cdaa3f16311adbe20c364f7cae92a343260dc23be79fe6033b5cf09  apps/os-web/components/admin/member-admin-actions-panel.tsx
+4f81b553ac094fc7f76b36dad2293182623537ca93a4280938866f7c457a5c06  apps/os-web/app/(app)/administracion/equipo/[memberId]/page.tsx
+2ef397c3055ce02b1fc1610d302d87bea6bdce83fe315e30677d13a004c1b872  apps/os-api/src/review-b2-lifecycle-open-work.http.test.ts

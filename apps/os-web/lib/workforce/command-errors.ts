@@ -1,9 +1,5 @@
 import { OsApiError } from '@/lib/api/os-api-errors';
-import { SUSPEND_BLOCKED_MESSAGE } from '@isalwa/os-contracts';
 import type { PeopleV1InviteCommand, Ui2bWorkforceCommand } from '@/lib/workforce/command-types';
-
-const OPEN_WORK_TERMINATE_MESSAGE =
-  'No puedes finalizar este acceso todavía. Esta persona todavía tiene responsabilidades activas que deben reasignarse.';
 
 const GENERIC_ERROR = 'Ocurrió un error. Intente de nuevo.';
 
@@ -56,12 +52,6 @@ export function mapWorkforceCommandError(
       case 'not_found':
         return 'No se encontró el registro. Actualice la página e intente de nuevo.';
       case 'validation':
-        if (command === 'TerminateMember') {
-          return OPEN_WORK_TERMINATE_MESSAGE;
-        }
-        if (command === 'SuspendMember') {
-          return SUSPEND_BLOCKED_MESSAGE;
-        }
         if (command === 'ActivateMember') {
           return 'No se puede reactivar este acceso. Verifique el estado del empleado.';
         }
@@ -78,4 +68,3 @@ export function mapWorkforceCommandError(
   return GENERIC_ERROR;
 }
 
-export { OPEN_WORK_TERMINATE_MESSAGE, SUSPEND_BLOCKED_MESSAGE };

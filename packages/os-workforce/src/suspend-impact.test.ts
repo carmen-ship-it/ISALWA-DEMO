@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createId } from '@isalwa/ts-utils';
 import type { RequestContext } from '@isalwa/os-contracts';
-import { SUSPEND_BLOCKED_MESSAGE } from '@isalwa/os-contracts';
+import { UNRESOLVED_OWNERSHIP_MESSAGE } from '@isalwa/os-contracts';
 import { LocalAuthProviderPort } from './auth-provider';
 import { MemoryOsStore } from './memory-store';
 import { WorkforceCommandService } from './workforce-command-service';
@@ -46,7 +46,7 @@ async function seed(store: MemoryOsStore, orgId: string, email: string, roleKeys
 }
 
 describe('suspend impact', () => {
-  it('blocks suspension while open work remains and does not reassign it', async () => {
+  it('23:47 §B2: suspends at once while open work remains, keeps the work and its owner, and records it as unresolved', async () => {
     const store = new MemoryOsStore();
     const svc = new WorkforceCommandService(store, new LocalAuthProviderPort());
     const org = await store.seedOrganization('Demo', 'demo');
@@ -62,16 +62,14 @@ describe('suspend impact', () => {
       version: 0,
     });
 
-    await assert.rejects(
-      () => svc.execute('SuspendMember', ctx(org.id, admin), { memberId: worker }),
-      (err: Error) => err.message === 'VALIDATION_FAILED',
-    );
+    const result = await svc.execute('SuspendMember', ctx(org.id, admin), { memberId: worker });
 
     const member = await store.getMember(worker);
-    assert.equal(member?.accessStatus, 'active');
+    assert.equal(member?.accessStatus, 'suspended');
     assert.equal(store.workItems[0]?.ownerMemberId, worker);
     assert.equal(store.workItems[0]?.status, 'open');
-    assert.equal(SUSPEND_BLOCKED_MESSAGE.includes('trabajo abierto asignado'), true);
+    assert.deepEqual(result.data.unresolvedOwnership, [{ key: 'open_work', count: 1, ids: [workId] }]);
+    assert.equal(UNRESOLVED_OWNERSHIP_MESSAGE.includes('reasigne'), true);
   });
 
   it('suspends a member with no actionable ownership', async () => {

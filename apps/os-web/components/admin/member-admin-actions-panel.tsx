@@ -23,7 +23,6 @@ import { RoleChangeForm } from '@/components/admin/role-change-form';
 import type { SelectOption } from '@/lib/workforce/admin-options';
 import { DELEGATION_SCOPE_OPTIONS } from '@/lib/workforce/admin-options';
 import type { MemberAdminVisibility } from '@/lib/workforce/lifecycle-ui';
-import { OPEN_WORK_TERMINATE_MESSAGE, SUSPEND_BLOCKED_MESSAGE } from '@/lib/workforce/command-errors';
 import { ADDITIONAL_ASSIGNABLE_SCOPE_KEYS } from '@isalwa/os-contracts';
 import { formatRoleKey, formatRoleKeys, isAdditionalAssignableScope, splitRoleKeys } from '@/lib/workforce/labels';
 
@@ -32,13 +31,24 @@ type MemberAdminActionsPanelProps = {
   visibility: MemberAdminVisibility;
   departments: SelectOption[];
   roles: SelectOption[];
-  /** When true, Finalizar remains disabled until responsibilities are cleared. */
-  terminationBlocked?: boolean;
-  /** When true, Suspender stays disabled until actionable ownership is cleared. */
-  suspendBlocked?: boolean;
+  /** Items the member still owns; shown as a note, never a block (23:47 §B2). */
+  unresolvedCount?: number;
 };
 
 const initial = { error: null as string | null, success: null as string | null };
+
+function UnresolvedNote({ count }: { count: number }) {
+  return (
+    <p className="mt-3 text-sm text-[var(--isalwa-kiln)]" data-unresolved-ownership="note">
+      {count === 1 ? 'Queda 1 pendiente' : `Quedan ${count} pendientes`} a su nombre. El acceso termina
+      igual; los pendientes siguen en{' '}
+      <a href="#responsabilidades" className="font-medium text-[var(--isalwa-glaze)] hover:underline">
+        Responsabilidades
+      </a>{' '}
+      para reasignarlos. El historial se conserva.
+    </p>
+  );
+}
 
 function defaultDelegationExpiry(): string {
   const date = new Date();
@@ -69,8 +79,7 @@ export function MemberAdminActionsPanel({
   visibility,
   departments,
   roles,
-  terminationBlocked = false,
-  suspendBlocked = false,
+  unresolvedCount = 0,
 }: MemberAdminActionsPanelProps) {
   const [terminateConfirm, setTerminateConfirm] = useState(false);
   const [suspendConfirm, setSuspendConfirm] = useState(false);
@@ -124,8 +133,6 @@ export function MemberAdminActionsPanel({
     initial,
   );
 
-  const showResponsibilityHint =
-    terminationBlocked || terminateState.error === OPEN_WORK_TERMINATE_MESSAGE;
   const { primary, additional } = splitRoleKeys(summary.roleKeys);
   const primaryRoleOptions = roles.filter((option) => !isAdditionalAssignableScope(option.value));
   const additionalToAdd = ADDITIONAL_ASSIGNABLE_SCOPE_KEYS.filter(
@@ -301,13 +308,9 @@ export function MemberAdminActionsPanel({
             <div className="mt-4">
               <h3 className="isalwa-section-label">Suspender acceso</h3>
               <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                La suspensión bloquea el inicio de sesión. No reasigna trabajo ni cambia el historial.
+                La suspensión bloquea el inicio de sesión de inmediato. No reasigna trabajo ni cambia el historial.
               </p>
-              {suspendBlocked ? (
-                <p className="mt-3 text-sm font-medium text-[var(--isalwa-kiln)]" data-suspend-impact="blocked">
-                  {SUSPEND_BLOCKED_MESSAGE}
-                </p>
-              ) : null}
+              {unresolvedCount > 0 ? <UnresolvedNote count={unresolvedCount} /> : null}
               <FormFeedback error={suspendState.error} success={suspendState.success} />
               <form action={suspendAction} className="mt-4 space-y-4">
                 <input type="hidden" name="memberId" value={memberId} />
@@ -333,7 +336,7 @@ export function MemberAdminActionsPanel({
                 <CommandSubmitButton
                   label="Suspender acceso"
                   variant="danger"
-                  disabled={!suspendConfirm || suspendBlocked}
+                  disabled={!suspendConfirm}
                 />
               </form>
             </div>
@@ -360,26 +363,7 @@ export function MemberAdminActionsPanel({
                 Acción permanente: revoca el acceso y finaliza la relación laboral en el sistema.
               </p>
               <FormFeedback error={terminateState.error} success={terminateState.success} />
-              {showResponsibilityHint ? (
-                <p className="mt-3 text-sm text-[var(--isalwa-kiln)]">
-                  {OPEN_WORK_TERMINATE_MESSAGE}{' '}
-                  <a
-                    href="#responsabilidades"
-                    className="font-medium text-[var(--isalwa-glaze)] hover:underline"
-                  >
-                    Ver responsabilidades
-                  </a>
-                  {' '}
-                  y{' '}
-                  <a
-                    href="#trabajo-activo"
-                    className="font-medium text-[var(--isalwa-glaze)] hover:underline"
-                  >
-                    trabajo activo
-                  </a>
-                  . El historial se conserva.
-                </p>
-              ) : null}
+              {unresolvedCount > 0 ? <UnresolvedNote count={unresolvedCount} /> : null}
               <form action={terminateAction} className="mt-4 space-y-4">
                 <input type="hidden" name="memberId" value={memberId} />
                 <input type="hidden" name="confirmTerminate" value={terminateConfirm ? 'true' : 'false'} />
@@ -391,7 +375,6 @@ export function MemberAdminActionsPanel({
                     id="terminate-reason"
                     name="reason"
                     className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2"
-                    disabled={terminationBlocked}
                   />
                 </div>
                 <label className="flex items-start gap-2 text-sm text-[var(--isalwa-kiln)]">
@@ -400,14 +383,13 @@ export function MemberAdminActionsPanel({
                     checked={terminateConfirm}
                     onChange={(e) => setTerminateConfirm(e.target.checked)}
                     className="mt-1"
-                    disabled={terminationBlocked}
                   />
                   Confirmo que deseo finalizar la relación laboral de esta persona.
                 </label>
                 <CommandSubmitButton
                   label="Finalizar relación"
                   variant="danger"
-                  disabled={terminationBlocked || !terminateConfirm}
+                  disabled={!terminateConfirm}
                 />
               </form>
             </div>

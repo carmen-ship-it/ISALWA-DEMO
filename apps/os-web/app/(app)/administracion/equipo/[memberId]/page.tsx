@@ -26,7 +26,6 @@ import {
   memberDisplayName,
 } from '@/lib/workforce/labels';
 import { memberAdminVisibility } from '@/lib/workforce/lifecycle-ui';
-import { hasSuspendActionableWork } from '@isalwa/os-contracts';
 import { buildDirectoryLabelMap, directoryMemberLabel } from '@/lib/workforce/member-labels';
 import { equipoHref, memberHref } from '@/lib/workforce/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
@@ -133,7 +132,7 @@ export default async function MemberDetailPage({ params }: MemberDetailPageProps
       }
     }
 
-    if (visibility.terminate) {
+    if (visibility.terminate || visibility.reassignWork) {
       try {
         terminationImpact = await client.getTerminationImpact(memberId);
       } catch {
@@ -283,14 +282,7 @@ export default async function MemberDetailPage({ params }: MemberDetailPageProps
               visibility={visibility}
               departments={adminOptions.departments}
               roles={adminOptions.roles}
-              terminationBlocked={
-                terminationImpact != null ? !terminationImpact.canTerminate : false
-              }
-              suspendBlocked={
-                terminationImpact != null
-                  ? hasSuspendActionableWork(terminationImpact.categories)
-                  : false
-              }
+              unresolvedCount={terminationImpact?.unresolvedCount ?? 0}
             />
           </div>
         ) : null}

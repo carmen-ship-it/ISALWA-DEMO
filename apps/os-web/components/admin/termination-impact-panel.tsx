@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { PageSection } from '@isalwa/ui';
 import type { TerminationImpactCategoryKey } from '@isalwa/os-contracts';
-import { SUSPEND_BLOCKED_MESSAGE, hasSuspendActionableWork } from '@isalwa/os-contracts';
+import { LIFECYCLE_ENDED_CATEGORY_KEYS, UNRESOLVED_OWNERSHIP_MESSAGE } from '@isalwa/os-contracts';
 import type { TerminationImpactResponse } from '@/lib/workforce/types';
 
 type TerminationImpactPanelProps = {
@@ -33,13 +33,13 @@ const RESOLUTION_HINTS: Partial<
   },
   active_quotes: {
     text:
-      'No hay reasignación de cotizaciones en el producto. Mientras la cotización no esté cancelada, no se puede finalizar el acceso. Abra la cotización desde',
+      'No hay reasignación de cotizaciones en el producto: la cotización sigue a nombre de esta persona hasta que se cancele o se cambie el responsable de la cuenta. Abra la cotización desde',
     hash: 'continuidad-comercial',
     linkLabel: 'Continuidad comercial',
   },
   active_orders: {
     text:
-      'No hay reasignación de pedidos en el producto. Mientras el pedido siga abierto, no se puede finalizar el acceso. Abra el pedido desde',
+      'No hay reasignación de pedidos en el producto: el pedido sigue a nombre de esta persona y se atiende con los comandos del pedido. Abra el pedido desde',
     hash: 'continuidad-comercial',
     linkLabel: 'Continuidad comercial',
   },
@@ -55,7 +55,8 @@ const RESOLUTION_HINTS: Partial<
     linkLabel: 'Organización',
   },
   active_delegations: {
-    text: 'Revoca las delegaciones activas (otorgadas o recibidas) en',
+    text:
+      'No impide suspender ni finalizar el acceso: las delegaciones otorgadas o recibidas terminan en ese momento y quedan en el historial. Detalle en',
     hash: 'continuidad-delegaciones',
     linkLabel: 'Delegaciones',
   },
@@ -73,42 +74,43 @@ const RESOLUTION_HINTS: Partial<
   },
 };
 
+const ENDED_BY_LIFECYCLE = new Set<string>(LIFECYCLE_ENDED_CATEGORY_KEYS);
+
 /**
- * Read-only continuity summary before Finalizar acceso.
+ * Continuity summary for the member: what they still own, kept for reassignment. Nothing
+ * here blocks suspension or termination (23:47 §B2).
  * Spanish labels only — no event keys or command names.
  */
 export function TerminationImpactPanel({ impact, memberName }: TerminationImpactPanelProps) {
-  const blocking = impact.categories.filter((c) => c.count > 0);
+  const shown = impact.categories.filter((c) => c.count > 0);
 
   return (
     <PageSection card className="p-8" id="responsabilidades">
       <h2 className="text-lg font-medium text-[var(--isalwa-kiln)]">Responsabilidades</h2>
       <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-        Antes de finalizar el acceso de {memberName}, revise lo que todavía requiere una persona
-        responsable.
+        Lo que {memberName} todavía tiene a su cargo y requiere una persona responsable.
       </p>
-      {hasSuspendActionableWork(impact.categories) ? (
-        <p className="mt-4 text-sm font-medium text-[var(--isalwa-kiln)]" data-suspend-impact="visible">
-          {SUSPEND_BLOCKED_MESSAGE}
-        </p>
-      ) : null}
 
-      {impact.canTerminate ? (
+      {shown.length === 0 ? (
         <p className="mt-6 text-sm text-[var(--isalwa-slate)]">
-          No hay responsabilidades activas que bloqueen la finalización.
+          No hay responsabilidades pendientes de reasignar.
         </p>
       ) : (
         <>
-          <p className="mt-6 text-sm font-medium text-[var(--isalwa-kiln)]">
-            No puedes finalizar este acceso todavía. Esta persona todavía tiene responsabilidades
-            activas que deben reasignarse.
-          </p>
+          {impact.unresolvedCount > 0 ? (
+            <p className="mt-6 text-sm font-medium text-[var(--isalwa-kiln)]" data-unresolved-ownership="visible">
+              {UNRESOLVED_OWNERSHIP_MESSAGE}
+            </p>
+          ) : null}
           <ul className="mt-4 space-y-4">
-            {blocking.map((category) => (
+            {shown.map((category) => (
               <li key={category.key} className="border-t border-[var(--isalwa-mist)] pt-4">
                 <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
                   {category.label}
                   <span className="ml-2 tabular-nums text-[var(--isalwa-slate)]">{category.count}</span>
+                  {ENDED_BY_LIFECYCLE.has(category.key) ? (
+                    <span className="ml-2 text-[var(--isalwa-slate)]">· termina con la suspensión o finalización</span>
+                  ) : null}
                 </p>
                 {category.items.length > 0 ? (
                   <ul className="mt-2 space-y-1 text-sm text-[var(--isalwa-slate)]">

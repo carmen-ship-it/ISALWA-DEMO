@@ -56,33 +56,33 @@ describe('termination preflight fail-closed', () => {
     assert.equal(isQuoteOwnershipReleased('closed'), false);
   });
 
-  it('blocks TerminateMember on commercial account ownership', async () => {
+  it('23:47 §B2: TerminateMember with commercial account ownership revokes access at once and records the account as unresolved', async () => {
     const store = new MemoryOsStore();
     const auth = new LocalAuthProviderPort();
     const svc = new WorkforceCommandService(store, auth);
     const org = await store.seedOrganization('ISALWA', 'isalwa');
     const { admin, memberId } = await seedActiveMember(store, svc, org.id);
 
+    const accountId = createId();
     store.commercialAccounts.push({
-      id: createId(),
+      id: accountId,
       organizationId: org.id,
       partyId: createId(),
       ownerMemberId: memberId,
       status: 'active',
     });
 
-    await assert.rejects(
-      () =>
-        svc.execute(
-          'TerminateMember',
-          ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
-          { memberId },
-        ),
-      /VALIDATION_FAILED/,
+    const result = await svc.execute(
+      'TerminateMember',
+      ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+      { memberId },
     );
+    assert.equal((await store.getMember(memberId))?.accessStatus, 'revoked');
+    assert.equal(store.commercialAccounts[0]?.ownerMemberId, memberId, 'history kept: nothing is reassigned silently');
+    assert.deepEqual(result.data.unresolvedOwnership, [{ key: 'commercial_accounts', count: 1, ids: [accountId] }]);
   });
 
-  it('blocks on open opportunity, blocking quote, open order, pending approval', async () => {
+  it('23:47 §B2: opportunity, quote, order and pending approval are counted as unresolved, never as blockers', async () => {
     const store = new MemoryOsStore();
     const auth = new LocalAuthProviderPort();
     const svc = new WorkforceCommandService(store, auth);
@@ -98,9 +98,8 @@ describe('termination preflight fail-closed', () => {
       status: 'open',
     });
     let impact = await collectTerminationImpact(store, org.id, memberId, asOf);
-    assert.equal(impact.canTerminate, false);
+    assert.equal(impact.unresolvedCount, 1);
     assert.ok(impact.categories.find((c) => c.key === 'open_opportunities')!.count === 1);
-    store.opportunities = [];
 
     store.quotes.push({
       id: createId(),
@@ -110,12 +109,11 @@ describe('termination preflight fail-closed', () => {
       status: 'draft',
     });
     impact = await collectTerminationImpact(store, org.id, memberId, asOf);
-    assert.equal(impact.canTerminate, false);
+    assert.equal(impact.unresolvedCount, 2);
     const quotesCat = impact.categories.find((c) => c.key === 'active_quotes')!;
     assert.equal(quotesCat.count, 1);
     assert.ok(quotesCat.foundationGaps?.[0]?.includes('AssignQuoteOwner'));
     assert.equal(quotesCat.label, 'Cotizaciones activas');
-    store.quotes = [];
 
     store.orders.push({
       id: createId(),
@@ -124,17 +122,6 @@ describe('termination preflight fail-closed', () => {
       orderNumber: 'O-1',
       status: 'open',
     });
-    await assert.rejects(
-      () =>
-        svc.execute(
-          'TerminateMember',
-          ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
-          { memberId },
-        ),
-      /VALIDATION_FAILED/,
-    );
-    store.orders = [];
-
     store.approvalRequests.push({
       id: createId(),
       organizationId: org.id,
@@ -143,18 +130,17 @@ describe('termination preflight fail-closed', () => {
       subjectId: createId(),
       status: 'pending',
     });
-    await assert.rejects(
-      () =>
-        svc.execute(
-          'TerminateMember',
-          ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
-          { memberId },
-        ),
-      /VALIDATION_FAILED/,
+    const result = await svc.execute(
+      'TerminateMember',
+      ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+      { memberId },
     );
+    assert.equal((await store.getMember(memberId))?.accessStatus, 'revoked');
+    const keys = (result.data.unresolvedOwnership as Array<{ key: string }>).map((entry) => entry.key).sort();
+    assert.deepEqual(keys, ['active_orders', 'active_quotes', 'open_opportunities', 'pending_approvals']);
   });
 
-  it('blocks on direct reports and active delegations from or to member', async () => {
+  it('23:47 §B2: direct reports stay unresolved; delegations end with the lifecycle and are not unresolved', async () => {
     const store = new MemoryOsStore();
     const auth = new LocalAuthProviderPort();
     const svc = new WorkforceCommandService(store, auth);
@@ -171,15 +157,8 @@ describe('termination preflight fail-closed', () => {
       effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
       endedAt: null,
     });
-    await assert.rejects(
-      () =>
-        svc.execute(
-          'TerminateMember',
-          ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
-          { memberId },
-        ),
-      /VALIDATION_FAILED/,
-    );
+    let impact = await collectTerminationImpact(store, org.id, memberId, asOf);
+    assert.equal(impact.unresolvedCount, 1);
     store.managerAssignments = [];
 
     store.delegations.push({
@@ -192,10 +171,6 @@ describe('termination preflight fail-closed', () => {
       expiresAt: new Date('2027-01-01T00:00:00.000Z'),
       revokedAt: null,
     });
-    let impact = await collectTerminationImpact(store, org.id, memberId, asOf);
-    assert.equal(impact.categories.find((c) => c.key === 'active_delegations')!.count, 1);
-    store.delegations = [];
-
     store.delegations.push({
       id: createId(),
       organizationId: org.id,
@@ -207,8 +182,25 @@ describe('termination preflight fail-closed', () => {
       revokedAt: null,
     });
     impact = await collectTerminationImpact(store, org.id, memberId, asOf);
-    assert.equal(impact.canTerminate, false);
-    assert.equal(impact.categories.find((c) => c.key === 'active_delegations')!.count, 1);
+    assert.equal(impact.categories.find((c) => c.key === 'active_delegations')!.count, 2);
+    assert.equal(impact.unresolvedCount, 0, 'delegations are shown but end with the lifecycle');
+
+    store.managerAssignments.push({
+      id: createId(),
+      organizationId: org.id,
+      memberId: report.member.id,
+      managerMemberId: memberId,
+      effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
+      endedAt: null,
+    });
+    const result = await svc.execute(
+      'TerminateMember',
+      ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+      { memberId },
+    );
+    assert.equal((await store.getMember(memberId))?.accessStatus, 'revoked');
+    assert.deepEqual((result.data.unresolvedOwnership as Array<{ key: string }>).map((entry) => entry.key), ['direct_reports']);
+    assert.equal(store.delegations.every((d) => d.revokedAt !== null), true);
   });
 
   it('ignores cancelled quotes, cancelled orders, expired/revoked delegations', async () => {
@@ -255,8 +247,7 @@ describe('termination preflight fail-closed', () => {
     });
 
     const impact = await collectTerminationImpact(store, org.id, memberId, asOf);
-    assert.equal(impact.canTerminate, true);
-    assert.equal(impact.totalBlockingCount, 0);
+    assert.equal(impact.unresolvedCount, 0);
 
     await svc.execute(
       'TerminateMember',
@@ -309,7 +300,7 @@ describe('termination preflight fail-closed', () => {
     });
 
     const impact = await collectTerminationImpact(store, org.id, memberId, asOf);
-    assert.equal(impact.canTerminate, true, 'coverage is shown but does not block');
+    assert.equal(impact.unresolvedCount, 0, 'coverage is shown but does not block');
     const primary = impact.categories.find((c) => c.key === 'primary_customer_coverage')!;
     assert.equal(primary.count, 1);
     assert.equal(primary.label, 'Clientes bajo su responsabilidad');
@@ -359,7 +350,7 @@ describe('termination preflight fail-closed', () => {
 
     const impact = await collectTerminationImpact(store, org.id, memberId, now);
     assert.equal(impact.categories.find((c) => c.key === 'acting_customer_coverage')!.count, 1);
-    assert.equal(impact.canTerminate, true);
+    assert.equal(impact.unresolvedCount, 0);
 
     await svc.execute('SuspendMember', ctx(org.id, admin.member.id, admin.person.id, admin.auth.id), { memberId });
     assert.ok(active.revokedAt && future.revokedAt, 'current and future-dated coverage ended');
@@ -401,7 +392,7 @@ describe('termination preflight fail-closed', () => {
     });
 
     const impact = await collectTerminationImpact(store, org.id, memberId, asOf);
-    assert.equal(impact.canTerminate, true);
+    assert.equal(impact.unresolvedCount, 0);
     assert.equal(impact.categories.find((c) => c.key === 'primary_customer_coverage')!.count, 0);
   });
 });

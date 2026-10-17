@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { OsApiError } from '@/lib/api/os-api-errors';
-import { mapWorkforceCommandError, OPEN_WORK_TERMINATE_MESSAGE } from '@/lib/workforce/command-errors';
+import { mapWorkforceCommandError } from '@/lib/workforce/command-errors';
 import {
   UI_2B_WORKFORCE_COMMANDS,
   WORKFORCE_COMMANDS_BLOCKED_IN_UI,
@@ -65,7 +65,7 @@ describe('UI-2B lifecycle visibility', () => {
     assert.equal(v.reactivate, false);
     assert.equal(v.terminate, false);
     assert.equal(v.delegation, false);
-    assert.equal(v.reassignWork, false);
+    assert.equal(v.reassignWork, true, 'leftover ownership stays reassignable after termination');
   });
 
   it('shows email change request only for self on active member', () => {
@@ -102,12 +102,14 @@ describe('UI-2B error mapping', () => {
     assert.match(msg, /permiso/i);
   });
 
-  it('maps TerminateMember validation to open-work UX', () => {
-    const msg = mapWorkforceCommandError(
-      'TerminateMember',
-      new OsApiError({ kind: 'validation', status: 400, code: 'VALIDATION_FAILED', message: '' }),
-    );
-    assert.equal(msg, OPEN_WORK_TERMINATE_MESSAGE);
+  it('does not describe TerminateMember or SuspendMember validation as open work (23:47 §B2)', () => {
+    for (const command of ['TerminateMember', 'SuspendMember'] as const) {
+      const msg = mapWorkforceCommandError(
+        command,
+        new OsApiError({ kind: 'validation', status: 400, code: 'VALIDATION_FAILED', message: '' }),
+      );
+      assert.doesNotMatch(msg, /trabajo abierto|responsabilidades activas/i, command);
+    }
   });
 
   it('maps ChangeRole validation generically', () => {

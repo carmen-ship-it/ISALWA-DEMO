@@ -376,38 +376,38 @@ export const TERMINATION_IMPACT_CATEGORY_KEYS = [
 export type TerminationImpactCategoryKey = (typeof TERMINATION_IMPACT_CATEGORY_KEYS)[number];
 
 /**
- * Ownership that blocks SuspendMember. Direct reports and delegations stay
- * terminate-only; suspend does not reassign anything.
- */
-export const SUSPEND_ACTIONABLE_CATEGORY_KEYS = [
-  'open_work',
-  'pending_approvals',
-  'commercial_accounts',
-  'open_opportunities',
-  'active_quotes',
-  'active_orders',
-  'owned_issues',
-  'open_commitments',
-] as const satisfies readonly TerminationImpactCategoryKey[];
-
-/**
- * Shown in the impact, but never block suspension or termination: the
- * lifecycle command ends these grants in the same transaction (history kept)
- * and records who is responsible afterwards, or that nobody is.
+ * Nothing in the impact blocks SuspendMember or TerminateMember (23:47 §B2): access ends
+ * at once, history is kept, and a missing replacement never preserves access.
+ *
+ * These grants end in the lifecycle transaction itself (history kept), recording who is
+ * responsible afterwards, or that nobody is.
  */
 export const LIFECYCLE_ENDED_CATEGORY_KEYS = [
   'primary_customer_coverage',
   'acting_customer_coverage',
+  'active_delegations',
 ] as const satisfies readonly TerminationImpactCategoryKey[];
 
-export const SUSPEND_BLOCKED_MESSAGE =
-  'No puede suspender a esta persona mientras tenga trabajo abierto asignado. Reasigne o resuelva estos pendientes primero.';
+export const UNRESOLVED_OWNERSHIP_MESSAGE =
+  'Suspender o finalizar el acceso no espera a estos pendientes: quedan sin responsable activo, con su historial, y siguen aquí para que quien corresponda los reasigne.';
 
-export function hasSuspendActionableWork(
-  categories: ReadonlyArray<{ key: string; count: number }>,
-): boolean {
-  const keys = new Set<string>(SUSPEND_ACTIONABLE_CATEGORY_KEYS);
-  return categories.some((category) => keys.has(category.key) && category.count > 0);
+/** Per-category id lists recorded on the lifecycle event are capped; `count` stays exact. */
+export const UNRESOLVED_OWNERSHIP_ID_LIMIT = 100;
+
+export type UnresolvedOwnershipEntry = { key: TerminationImpactCategoryKey; count: number; ids: string[] };
+
+/** What the member still owns that the lifecycle command does not end itself. */
+export function unresolvedOwnership(
+  categories: ReadonlyArray<{ key: TerminationImpactCategoryKey; count: number; items: ReadonlyArray<{ id: string }> }>,
+): UnresolvedOwnershipEntry[] {
+  const ended = new Set<string>(LIFECYCLE_ENDED_CATEGORY_KEYS);
+  return categories
+    .filter((category) => !ended.has(category.key) && category.count > 0)
+    .map((category) => ({
+      key: category.key,
+      count: category.count,
+      ids: category.items.slice(0, UNRESOLVED_OWNERSHIP_ID_LIMIT).map((item) => item.id),
+    }));
 }
 
 export const TerminationImpactItemSchema = z.object({
@@ -431,8 +431,8 @@ export type TerminationImpactCategory = z.infer<typeof TerminationImpactCategory
 export const TerminationImpactReadModelSchema = z.object({
   memberId: z.string(),
   organizationId: z.string(),
-  canTerminate: z.boolean(),
-  totalBlockingCount: z.number().int().nonnegative(),
+  /** Items the member still owns that suspension or termination leaves for reassignment. */
+  unresolvedCount: z.number().int().nonnegative(),
   categories: z.array(TerminationImpactCategorySchema),
 });
 
