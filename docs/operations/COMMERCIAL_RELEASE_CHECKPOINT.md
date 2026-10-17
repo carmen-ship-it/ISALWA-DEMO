@@ -1,6 +1,6 @@
 # Commercial Release V2 — Checkpoint
 
-Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) + Addendum A1 `docs/product/COMMERCIAL_INTERACTIONS_A1.md` (SHA256 `f24cab99…0261871`) + Addendum A2 `docs/product/COMMERCIAL_SELF_SERVICE_A2.md` (SHA256 `1b16dd90…7e9d67869`). Deltas per task: `commercial-release/REUSE_MAP.md` §9 (A1), §10 (A2). Writer: `/Users/carmen/projects/isalwa-wt-v1-repairs`, branch `ct3/v1-repairs`. One writer, one task.
+Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) + Addendum A1 `docs/product/COMMERCIAL_INTERACTIONS_A1.md` (SHA256 `f24cab99…0261871`) + Addendum A2 `docs/product/COMMERCIAL_SELF_SERVICE_A2.md` (SHA256 `1b16dd90…7e9d67869`). Deltas per task: `commercial-release/REUSE_MAP.md` §9 (A1), §10 (A2). Writer: `/Users/carmen/projects/isalwa-wt-v1-repairs`, branch `ct3/v1-repairs`. One writer per isolated worktree (amended 2026-10-16 23:39); this worktree is the sole integrator. Lanes: `commercial-release/LANES.md`.
 
 | Task | State | Commit | Receipt |
 |---|---|---|---|
@@ -65,6 +65,7 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `71d048af81de90af4dcb381e80830dd41307f209` | `b02f18bf6a17cf9785e35c65483444c3599d287e` | R4 multi-holder provisioning plan (22:29 decision 2) | this writer; not reviewed; not executed |
 | `0d3e30a69b5dc6e53eecb0b110af2c30ba8f5e0b` | `e509ecad18ec469247c2e3ed2da55f0e9977dde6` | R4 re-review status (22:29 decision 5, docs only) | this writer |
 | `a1ed5870f97533d825a01f7bbb895919c3ae4485` | `de390eec0093324718dd5c1c86679c94fa5430e9` | R4 read gaps part A (F10 authorship, F11) | this writer; not reviewed |
+| `36e1d10abdbd6cee3042436bfab5a3df1a6c5616` | `bfa1b3952ca1166a4f747c698c0ae406262773c9` | R4 part B repair 1 ReassignWork (23:27 §1) | this writer; not reviewed |
 
 ## Open blockers
 
