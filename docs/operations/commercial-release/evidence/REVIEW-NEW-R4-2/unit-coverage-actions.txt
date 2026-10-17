@@ -1,0 +1,15 @@
+  ✔ keeps master-data reads under a data-only grant (0.583584ms)
+  ✔ refuses commercial reads under a data-only grant (0.159958ms)
+  ✔ hides customer-linked work, approvals and commitments under a data-only grant (0.424ms)
+  ✔ keeps them under commercial.work coverage (0.176708ms)
+  ✔ keeps them under quote.convert coverage (0.121625ms)
+✔ coverage action on customer-linked reads (NEW-R4-2) (1.976334ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 134.527583
+exit 0

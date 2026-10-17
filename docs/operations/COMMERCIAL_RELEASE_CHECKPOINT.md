@@ -27,6 +27,7 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | R4 part B repair 2: `organization_member` approvals subject policy (23:27 §2, REQUIRED) | LOCAL_COMPLETE (unit 6/6, HTTP+PG 8/8, os-query 105, os-api serial 278, mutation caught; NOT INDEPENDENTLY REVIEWED; no browser surface). Approver/delegate; requester only while holding people.admin; linked-work readers | see git log `fix(authz): organization_member approvals` | `commercial-release/receipts/REVIEW-ORG-MEMBER-APPROVALS.md` |
 | R4 part B repair 3: F07 commitments across list/detail/related paths (23:27 §3, REQUIRED) | LOCAL_COMPLETE (unit 10/10, HTTP+PG 4/4, AI 2/2, os-query 99, os-commitment 18, os-api serial 273, 3 mutations caught; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN). List, detail, AI summaries and create guarded; issue.manage only on non-customer commitments | see git log `fix(authz): F07` | `commercial-release/receipts/REVIEW-F07.md` |
 | S11 resource-level replay recheck (RE-REVIEW_R4_QUEUE §2.3, §9, P2) | LOCAL_COMPLETE (HTTP+PG 4/4 new + lifecycle 4/4 with pinned gap flipped to 404, unit issue 9 / commitment 9 / commercial 8, os-api serial 277, 5 mutations caught; NOT INDEPENDENTLY REVIEWED). Commercial/issue/commitment/work complete-cancel-decide recheck the record; ReassignWork/EscalateApproval command-level only (documented) | see git log `fix(authz): S11 replay` | `commercial-release/receipts/REVIEW-S11-RESOURCE.md` |
+| NEW-R4-2: coverage reads of customer-linked work/approvals/commitments need a commercial coverage action | LOCALLY TESTED (unit 5/5, HTTP+PG 4/4, os-query 110, os-api serial 282, mutation caught; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN). Data-only coverage keeps master data; commercial.work or quote.convert needed for work, approvals, commitments, commercial records and timeline entries. BUSINESS_DECISION_REQUIRED: what data-only coverage may read | see git log `fix(authz): NEW-R4-2` | `commercial-release/receipts/REVIEW-NEW-R4-2.md` |
 
 ## Last confirmed step
 
@@ -83,6 +84,7 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `165034af44c5df4a13fc4bca7e818c5dbf6357cb` | `7bad5030f14737c64a11c871b5c5f0c7ad2b4c60` | NEW-R4-1: non-customer party subjects not readable through customer scope (unit 7/7, HTTP+PG 7/7, os-api serial 268) | this writer |
 | `3bc2bd5ae3e0ee471aa3736a69affa48b0de276f` | `d718005046ae744fe25e53fd8cc796f51f68e609` | F07: commitment list/detail/AI/create guarded by responsibility, customer or manager scope (unit 10/10, HTTP+PG 4/4, os-api serial 273) | this writer |
 | `8c8839927581409dee059835a378eb42b927b980` | `cff0d40dcf3f1f69debc7aad09b2fbac7a20b661` | S11 resource-level replay recheck: commercial, issue, commitment, work complete/cancel/decide (HTTP+PG 4/4 + lifecycle 4/4, os-api serial 277) | this writer |
+| `34ff9fea2735dc44d4b8322589d00b902c6e4745` | `e5c878e2856a76d38b0a4ce59efe7bec50544b36` | `organization_member` approvals: approver/delegate, requester only while holding people.admin (unit 6/6, HTTP+PG 8/8, os-api serial 278) | this writer |
 
 ## Open blockers
 

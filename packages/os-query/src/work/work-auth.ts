@@ -3,7 +3,12 @@ import type { MemberAccessSnapshot } from '@isalwa/os-domain';
 import type { QueryContext } from '../query-context';
 import type { DirectReportLookup } from '../leadership/direct-reports';
 import { canReadOwnedRecord } from '../leadership/leadership-visibility';
-import { canReadCustomer, isCustomerBoundParty, type CustomerVisibilityLookup } from '../party/customer-visibility';
+import {
+  canReadCustomer,
+  COMMERCIAL_COVERAGE_READ_ACTIONS,
+  isCustomerBoundParty,
+  type CustomerVisibilityLookup,
+} from '../party/customer-visibility';
 import type { OsProjectionStorePort, StoredApprovalReadModel, StoredWorkReadModel } from '../projection-store-port';
 
 /**
@@ -39,7 +44,13 @@ async function customerOfSubjectReadable(input: {
   if (!partyId) return false;
   const facts = await customer.getCustomerFacts(ctx.organizationId, partyId, ctx.effectiveAt ?? new Date());
   if (!facts || !isCustomerBoundParty(facts)) return false;
-  return canReadCustomer({ ctx, partyId, lookup: customer, directReports: input.lookup });
+  return canReadCustomer({
+    ctx,
+    partyId,
+    lookup: customer,
+    directReports: input.lookup,
+    coverageActions: COMMERCIAL_COVERAGE_READ_ACTIONS,
+  });
 }
 
 function authGrantedScopes(auth: MemberAccessSnapshot): string[] {

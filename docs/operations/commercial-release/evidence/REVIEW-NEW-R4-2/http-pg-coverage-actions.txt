@@ -1,0 +1,14 @@
+  ✔ data-only coverage keeps the customer record but gets the missing-id answer on its work, approval and commitment (73.445417ms)
+  ✔ data-only coverage reads the timeline without the owner's work, approval or commitment entries (17.859834ms)
+  ✔ commercial.work coverage keeps the work, approval and commitment reads (67.831375ms)
+  ✔ the owner and the approver are unaffected (31.288584ms)
+✔ NEW-R4-2 coverage action on customer-linked reads over HTTP (disposable Postgres) (484.737667ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 971.11675
+exit 0

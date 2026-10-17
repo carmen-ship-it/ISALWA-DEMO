@@ -1,0 +1,6 @@
+== M1 coverageApplies ignores the required coverage actions (any active grant reads commercial records, work, approvals, commitments)
+unit ℹ pass 3
+unit ℹ fail 2
+http ℹ pass 2
+http ℹ fail 2
+restored sha256 42e4091d283db9d5dc9989e9cd43939f67c17c6f3f977bb5723b67b8cbad6981

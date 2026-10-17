@@ -1,4 +1,8 @@
-import { coveredAccountOwner, type CustomerVisibilityLookup } from '../party/customer-visibility';
+import {
+  COMMERCIAL_COVERAGE_READ_ACTIONS,
+  coveredAccountOwner,
+  type CustomerVisibilityLookup,
+} from '../party/customer-visibility';
 import { toOrderLineReadModel, type OrderLineRecord } from '@isalwa/os-commercial';
 import type {
   ListOpportunitiesQuery,
@@ -179,6 +183,7 @@ export class CommercialQueryService {
       ctx,
       partyId: model.partyId,
       lookup: this.deps.customerVisibility,
+      coverageActions: COMMERCIAL_COVERAGE_READ_ACTIONS,
     });
     return covered !== null && covered === model.ownerMemberId;
   }

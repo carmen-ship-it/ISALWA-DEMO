@@ -1,0 +1,7 @@
+42e4091d283db9d5dc9989e9cd43939f67c17c6f3f977bb5723b67b8cbad6981  packages/os-query/src/party/customer-visibility.ts
+0648f8028e2759d53c8cb541e637504db665a993a98e2f501695b2cd03ee21b4  packages/os-query/src/work/work-auth.ts
+8c4026e3d38c488a6bbccbd1e91a16c3874a88bcdda55c254bea46d21dce3c1e  packages/os-query/src/commitment/commitment-auth.ts
+c3fb9d9750cfdad7a5e3607cbb0e205f89009ad155459530583f61551b7a99e3  packages/os-query/src/commercial/commercial-query-service.ts
+bf9b6141a6036c07249720508e367e53eae541726153d7d719852062cee55961  packages/os-query/src/party/party-timeline-query-service.ts
+29b03d21d64d0c6c93341a874dffa9d66b4cbf8e86301860a9db500544ebb6e6  packages/os-query/src/party/customer-visibility.coverage-actions.test.ts
+ff1a453b194bedab355d1e072fa76ba1a0cd7da9c292ba8bba458476614c219e  apps/os-api/src/review-r4-coverage-actions.http.test.ts

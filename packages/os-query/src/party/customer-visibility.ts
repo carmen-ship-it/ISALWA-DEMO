@@ -1,5 +1,6 @@
 import {
   continueCoveredCustomerWorkflow,
+  type CustomerCoverageAction,
   type CustomerCoverageGrant,
 } from '@isalwa/os-contracts';
 import type { DirectReportLookup } from '../leadership/direct-reports';
@@ -17,7 +18,14 @@ import type { QueryContext } from '../query-context';
  * - a commercial.org.read holder.
  *
  * Membership alone, people.admin alone, and having entered a record do not grant it.
+ *
+ * Coverage reads the customer's master data under any active grant. Commercial records,
+ * work, approvals and commitments reached through coverage need a grant that covers
+ * commercial work (NEW-R4-2): a data-only grant (customer.edit) does not read them.
  */
+
+/** Coverage actions that read the covered owner's commercial records, work and approvals. */
+export const COMMERCIAL_COVERAGE_READ_ACTIONS: readonly CustomerCoverageAction[] = ['commercial.work', 'quote.convert'];
 
 export type CustomerVisibilityFacts = {
   organizationId: string;
@@ -88,20 +96,26 @@ async function directReportsFor(
   return reports.filter((id) => id && id !== ctx.auth.memberId);
 }
 
+/** Without `actions`, any active grant applies (master-data read); otherwise one of them must be covered. */
 function coverageApplies(
   ctx: QueryContext,
   facts: CustomerVisibilityFacts,
   grants: readonly CustomerCoverageGrant[],
+  actions?: readonly CustomerCoverageAction[],
 ): boolean {
-  if (!facts.accountOwnerMemberId) return false;
-  return continueCoveredCustomerWorkflow({
-    actorMemberId: ctx.auth.memberId,
-    organizationId: ctx.organizationId,
-    customerPartyId: facts.partyId,
-    primaryOwnerMemberId: facts.accountOwnerMemberId,
-    grants,
-    asOf: asOfFor(ctx),
-  }).allowed;
+  const primaryOwnerMemberId = facts.accountOwnerMemberId;
+  if (!primaryOwnerMemberId) return false;
+  const applies = (action?: CustomerCoverageAction) =>
+    continueCoveredCustomerWorkflow({
+      actorMemberId: ctx.auth.memberId,
+      organizationId: ctx.organizationId,
+      customerPartyId: facts.partyId,
+      primaryOwnerMemberId,
+      grants,
+      asOf: asOfFor(ctx),
+      action,
+    }).allowed;
+  return actions ? actions.some((action) => applies(action)) : applies();
 }
 
 /**
@@ -113,13 +127,14 @@ export async function coveredAccountOwner(input: {
   ctx: QueryContext;
   partyId: string;
   lookup: CustomerVisibilityLookup;
+  coverageActions?: readonly CustomerCoverageAction[];
 }): Promise<string | null> {
   const { ctx, lookup } = input;
   if (ctx.auth.accessStatus !== 'active') return null;
   const facts = await lookup.getCustomerFacts(ctx.organizationId, input.partyId, asOfFor(ctx));
   if (!facts || facts.organizationId !== ctx.organizationId) return null;
   const grants = await lookup.listActiveCoverageForAdvisor(ctx.organizationId, ctx.auth.memberId, asOfFor(ctx));
-  return coverageApplies(ctx, facts, grants) ? facts.accountOwnerMemberId : null;
+  return coverageApplies(ctx, facts, grants, input.coverageActions) ? facts.accountOwnerMemberId : null;
 }
 
 /** Party ids the actor may read, or the whole tenant for commercial.org.read. */
@@ -156,6 +171,7 @@ export function customerFactsReadable(input: {
   facts: CustomerVisibilityFacts;
   directReportMemberIds: readonly string[];
   coverageGrants: readonly CustomerCoverageGrant[];
+  coverageActions?: readonly CustomerCoverageAction[];
 }): boolean {
   const { ctx, facts } = input;
   if (facts.organizationId !== ctx.organizationId) return false;
@@ -164,7 +180,7 @@ export function customerFactsReadable(input: {
   if (hasCommercialOrgRead(ctx.auth)) return true;
   const owner = facts.accountOwnerMemberId;
   if (owner && owner === ctx.auth.memberId) return true;
-  if (coverageApplies(ctx, facts, input.coverageGrants)) return true;
+  if (coverageApplies(ctx, facts, input.coverageGrants, input.coverageActions)) return true;
   return (
     !!owner &&
     hasCommercialTeamRead(ctx.auth) &&
@@ -178,6 +194,8 @@ export async function canReadCustomer(input: {
   partyId: string;
   lookup: CustomerVisibilityLookup;
   directReports: DirectReportLookup | null;
+  /** Set for commercial records, work, approvals and commitments; unset for master data. */
+  coverageActions?: readonly CustomerCoverageAction[];
 }): Promise<boolean> {
   const { ctx, lookup } = input;
   const facts = await lookup.getCustomerFacts(ctx.organizationId, input.partyId, asOfFor(ctx));
@@ -193,6 +211,7 @@ export async function canReadCustomer(input: {
     facts,
     directReportMemberIds: await directReportsFor(ctx, input.directReports),
     coverageGrants: grants,
+    coverageActions: input.coverageActions,
   });
 }
 

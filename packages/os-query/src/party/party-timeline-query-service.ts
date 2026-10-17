@@ -7,7 +7,12 @@ import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
 import type { OsProjectionStorePort, StoredPartyTimelineEntry } from '../projection-store-port';
 import { canReadApproval, canReadWork, canViewApproval, canViewWork } from '../work/work-auth';
-import { canReadCustomer, coveredAccountOwner, type CustomerVisibilityLookup } from './customer-visibility';
+import {
+  canReadCustomer,
+  COMMERCIAL_COVERAGE_READ_ACTIONS,
+  coveredAccountOwner,
+  type CustomerVisibilityLookup,
+} from './customer-visibility';
 
 export type PartyTimelineQueryServiceDeps = {
   projectionStore: OsProjectionStorePort;
@@ -283,7 +288,12 @@ export class PartyTimelineQueryService {
       ctx,
       this.deps.projectionStore,
       this.deps.directReports ?? null,
-      await coveredAccountOwner({ ctx, partyId, lookup: this.deps.customerVisibility }),
+      await coveredAccountOwner({
+        ctx,
+        partyId,
+        lookup: this.deps.customerVisibility,
+        coverageActions: COMMERCIAL_COVERAGE_READ_ACTIONS,
+      }),
       this.deps.customerVisibility,
     );
     const allowed = await Promise.all(items.map((item) => visibility.canSee(item)));

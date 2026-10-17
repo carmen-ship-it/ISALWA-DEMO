@@ -3,6 +3,7 @@ import type { DirectReportLookup } from '../leadership/direct-reports';
 import { canReadOwnedRecord } from '../leadership/leadership-visibility';
 import {
   canReadCustomer,
+  COMMERCIAL_COVERAGE_READ_ACTIONS,
   isCustomerBoundParty,
   type CustomerVisibilityFacts,
   type CustomerVisibilityLookup,
@@ -49,7 +50,13 @@ export async function canLinkCommitmentParty(
   const facts = await lookup.getCustomerFacts(ctx.organizationId, partyId, ctx.effectiveAt ?? new Date());
   if (!facts) return false;
   if (!isCustomerBoundParty(facts)) return true;
-  return canReadCustomer({ ctx, partyId, lookup, directReports: deps.directReports });
+  return canReadCustomer({
+    ctx,
+    partyId,
+    lookup,
+    directReports: deps.directReports,
+    coverageActions: COMMERCIAL_COVERAGE_READ_ACTIONS,
+  });
 }
 
 /** Memoized per-request reader, so list filtering looks each party up once. */
@@ -78,7 +85,13 @@ export class CommitmentReadAuthorizer {
     if (!lookup) return Promise.resolve(false);
     let cached = this.customers.get(partyId);
     if (!cached) {
-      cached = canReadCustomer({ ctx: this.ctx, partyId, lookup, directReports: this.deps.directReports });
+      cached = canReadCustomer({
+        ctx: this.ctx,
+        partyId,
+        lookup,
+        directReports: this.deps.directReports,
+        coverageActions: COMMERCIAL_COVERAGE_READ_ACTIONS,
+      });
       this.customers.set(partyId, cached);
     }
     return cached;
