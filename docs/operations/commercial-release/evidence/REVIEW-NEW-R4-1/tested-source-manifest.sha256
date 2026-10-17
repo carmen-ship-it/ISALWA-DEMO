@@ -1,0 +1,4 @@
+bde10a58ec29d76be23edd4b879a827c40de7b9f4209f3efcc4d621524e05c15  packages/os-query/src/work/work-auth.ts
+0ece34117f7a40685b43d4eeaebfffb36814adfd0d1915e567a14d063fe464ee  packages/os-query/src/work/work-auth.party-subject.test.ts
+50b204cf6a8321cd4e3e27cd21a3760ad9191ef23a70b1c04ad272534aa34726  apps/os-api/src/review-r4-work-reads.http.test.ts
+cd79704b176dfe3c2bf85b5a49349c842b8395a846cec39db613c8eef9b04418  packages/os-query/src/party/customer-visibility.ts

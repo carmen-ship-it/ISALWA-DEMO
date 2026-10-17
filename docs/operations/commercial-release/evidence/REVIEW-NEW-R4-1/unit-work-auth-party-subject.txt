@@ -1,0 +1,16 @@
+  ✔ does not open supplier-subject work to an unrelated member (0.597459ms)
+  ✔ does not open supplier-subject approvals to an unrelated member (0.167708ms)
+  ✔ keeps the owner and the approver on supplier subjects (0.07775ms)
+  ✔ keeps Compras on open purchasing prep reviews about a supplier (0.140584ms)
+  ✔ still reads customer-subject work through customer scope (0.296166ms)
+  ✔ keeps unclassified parties inside the customer boundary (fail closed) (0.127208ms)
+  ✔ treats a missing party as unreadable (0.072667ms)
+✔ work and approval reads on party subjects (NEW-R4-1) (2.001834ms)
+ℹ tests 7
+ℹ suites 1
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 125.271

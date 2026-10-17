@@ -190,6 +190,54 @@ describeHttp('R4 work and approval reads over HTTP (disposable Postgres)', () =>
     }
   });
 
+  it('non-customer party subjects (NEW-R4-1): supplier work and approvals stay with owner, approver and managerial scope; other members get 404 and no timeline entry', async () => {
+    const supplier = createId();
+    await prisma().osParty.create({ data: { id: supplier, organizationId: org.id, partyKind: 'organization', displayName: 'R4 Synth Proveedor' } });
+    await prisma().osPartyRoleAssignment.create({
+      data: { id: createId(), organizationId: org.id, partyId: supplier, roleKey: 'supplier', effectiveAt: new Date('2020-01-01') },
+    });
+    const created = await command('admin', 'CreateWorkItem', {
+      title: 'R4 supplier follow-up',
+      ownerMemberId: m.owner!.member.id,
+      subjectType: 'party',
+      subjectId: supplier,
+    });
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    const workId = String(created.body.data!.workItemId);
+    const requested = await command('owner', 'RequestApproval', {
+      approverMemberId: m.approver!.member.id,
+      subjectType: 'party',
+      subjectId: supplier,
+    });
+    assert.equal(requested.status, 201, JSON.stringify(requested.body));
+    const approvalId = String(requested.body.data!.approvalRequestId);
+    await runner.runOnce();
+    await runner.runOnce();
+
+    for (const who of ['owner', 'jefe', 'gerente']) assert.equal((await get(who, `/work-items/${workId}`)).status, 200, who);
+    assert.equal((await get('approver', `/approvals/${approvalId}`)).status, 200, 'approver');
+
+    const missingWork = await get('outsider', `/work-items/${createId()}`);
+    const missingApproval = await get('outsider', `/approvals/${createId()}`);
+    for (const who of ['outsider', 'otherJefe', 'admin']) {
+      const work = await get(who, `/work-items/${workId}`);
+      assert.deepEqual([work.status, work.body], [missingWork.status, missingWork.body], `work ${who}`);
+    }
+    // Commercial scope (org.read) and authorship (the requester) do not read a supplier approval.
+    for (const who of ['outsider', 'otherJefe', 'admin', 'gerente', 'owner']) {
+      const approval = await get(who, `/approvals/${approvalId}`);
+      assert.deepEqual([approval.status, approval.body], [missingApproval.status, missingApproval.body], `approval ${who}`);
+    }
+
+    // The supplier's own record stays open to members; only the work about it is withheld.
+    const outsiderTimeline = await get('outsider', `/parties/${supplier}/timeline`);
+    assert.equal(outsiderTimeline.status, 200);
+    assert.equal(JSON.stringify(outsiderTimeline.body).includes(workId), false);
+    const ownerTimeline = await get('owner', `/parties/${supplier}/timeline`);
+    assert.equal(ownerTimeline.status, 200);
+    assert.equal(JSON.stringify(ownerTimeline.body).includes(workId), true);
+  });
+
   it('authorship is not authority: after the quote and the work move to another owner, the original requester loses both reads', async () => {
     await prisma().osQuote.update({ where: { id: ids.quote }, data: { ownerMemberId: m.outsider!.member.id } });
     const reassigned = await command('admin', 'ReassignWork', { workItemId: ids.work, newOwnerMemberId: m.outsider!.member.id });

@@ -1,0 +1,2 @@
+os-query tsc exit=0
+os-api tsc exit=0

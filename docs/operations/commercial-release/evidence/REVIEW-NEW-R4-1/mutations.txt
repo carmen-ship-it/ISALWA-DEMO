@@ -1,0 +1,4 @@
+Method: guard removed in the editor (work-auth.ts: '!facts || !isCustomerBoundParty(facts)' -> '!facts'), test run, guard restored; restore verified by git diff and re-run.
+unit work-auth.party-subject.test.ts with guard removed: pass 4 fail 3 (supplier work outsider, supplier approval outsider, purchasing prep outsider) -> CAUGHT
+http review-r4-work-reads.http.test.ts with guard removed (os-query rebuilt): pass 6 fail 1 ('work outsider') -> CAUGHT
+restored: unit 7/7, http 7/7

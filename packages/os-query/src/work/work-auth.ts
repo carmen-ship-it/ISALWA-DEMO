@@ -3,7 +3,7 @@ import type { MemberAccessSnapshot } from '@isalwa/os-domain';
 import type { QueryContext } from '../query-context';
 import type { DirectReportLookup } from '../leadership/direct-reports';
 import { canReadOwnedRecord } from '../leadership/leadership-visibility';
-import { canReadCustomer, type CustomerVisibilityLookup } from '../party/customer-visibility';
+import { canReadCustomer, isCustomerBoundParty, type CustomerVisibilityLookup } from '../party/customer-visibility';
 import type { OsProjectionStorePort, StoredApprovalReadModel, StoredWorkReadModel } from '../projection-store-port';
 
 /**
@@ -12,6 +12,10 @@ import type { OsProjectionStorePort, StoredApprovalReadModel, StoredWorkReadMode
  * delegation still confers approval.act), operational authority (Compras on open
  * purchasing prep reviews), or explicit managerial read scope via canReadOwnedRecord.
  * Membership, people.admin and authorship authorize nothing.
+ *
+ * The customer branch applies only to customer-bound parties. Work and approvals about a
+ * non-customer party (supplier, vendor) are not readable through it, even though that
+ * party's master data stays open to members.
  */
 
 /** Without a customer lookup, customer-linked reads fail closed. */
@@ -33,6 +37,8 @@ async function customerOfSubjectReadable(input: {
         ? ((await customer.partyIdForCommercialAccount?.(ctx.organizationId, subjectId)) ?? null)
         : null;
   if (!partyId) return false;
+  const facts = await customer.getCustomerFacts(ctx.organizationId, partyId, ctx.effectiveAt ?? new Date());
+  if (!facts || !isCustomerBoundParty(facts)) return false;
   return canReadCustomer({ ctx, partyId, lookup: customer, directReports: input.lookup });
 }
 
