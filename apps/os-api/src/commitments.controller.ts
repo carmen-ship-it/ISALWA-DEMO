@@ -12,8 +12,19 @@ import type { Request } from 'express';
 import { deriveCommitmentState, type CommitmentRecord, type CommitmentState } from '@isalwa/os-contracts';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import type { PrismaOsCommitmentStore } from '@isalwa/os-database';
+import {
+  buildQueryContext,
+  CommitmentReadAuthorizer,
+  type CustomerVisibilityLookup,
+  type MemberQueryStorePort,
+} from '@isalwa/os-query';
 import { resolveSession } from './os-session';
-import { OS_STORE, OS_COMMITMENT_STORE } from './os-store.module';
+import {
+  OS_STORE,
+  OS_COMMITMENT_STORE,
+  OS_CUSTOMER_VISIBILITY,
+  OS_MEMBER_QUERY_STORE,
+} from './os-store.module';
 
 type CommitmentSummary = {
   id: string;
@@ -102,7 +113,18 @@ export class CommitmentsController {
   constructor(
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
     @Inject(OS_COMMITMENT_STORE) private readonly commitmentStore: PrismaOsCommitmentStore,
+    @Inject(OS_MEMBER_QUERY_STORE) private readonly directReports: MemberQueryStorePort,
+    @Inject(OS_CUSTOMER_VISIBILITY) private readonly customerVisibility: CustomerVisibilityLookup,
   ) {}
+
+  private async authorizer(req: Request): Promise<CommitmentReadAuthorizer> {
+    const session = await resolveSession(req, this.workforceStore);
+    const ctx = await buildQueryContext(session, this.workforceStore);
+    return new CommitmentReadAuthorizer(ctx, {
+      directReports: this.directReports,
+      customerVisibility: this.customerVisibility,
+    });
+  }
 
   @Get()
   async listCommitments(
@@ -144,6 +166,7 @@ export class CommitmentsController {
       if (lifecycle) {
         records = records.filter((r) => r.lifecycle === lifecycle);
       }
+      records = await (await this.authorizer(req)).filter(records);
 
       // Stable newest-first page for desk navigation.
       records = [...records].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -179,7 +202,7 @@ export class CommitmentsController {
         session.organizationId,
         commitmentId,
       );
-      if (!record) {
+      if (!record || !(await (await this.authorizer(req)).canRead(record))) {
         throw new Error('NOT_FOUND');
       }
       return toSummary(dbToContract(record), new Date());

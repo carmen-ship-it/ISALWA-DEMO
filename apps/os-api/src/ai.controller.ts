@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Optional,
   Post,
   Req,
 } from '@nestjs/common';
@@ -20,8 +21,20 @@ import {
   type MemberAccessSnapshot,
 } from '@isalwa/os-domain';
 import { buildAuditEntry, buildBusinessEvent, buildOutboxForEvent } from '@isalwa/os-events';
+import {
+  CommitmentReadAuthorizer,
+  type CustomerVisibilityLookup,
+  type MemberQueryStorePort,
+  type QueryContext,
+} from '@isalwa/os-query';
 import { resolveSession } from './os-session';
-import { OS_STORE, OS_ISSUE_STORE, OS_COMMITMENT_STORE } from './os-store.module';
+import {
+  OS_STORE,
+  OS_ISSUE_STORE,
+  OS_COMMITMENT_STORE,
+  OS_CUSTOMER_VISIBILITY,
+  OS_MEMBER_QUERY_STORE,
+} from './os-store.module';
 import {
   buildAuthorizedAssistPacket,
   toCommandIssue,
@@ -86,6 +99,8 @@ export class AiController {
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
     @Inject(OS_ISSUE_STORE) private readonly issueStore: OsIssueStore,
     @Inject(OS_COMMITMENT_STORE) private readonly commitmentStore: PrismaOsCommitmentStore,
+    @Optional() @Inject(OS_MEMBER_QUERY_STORE) private readonly directReports: MemberQueryStorePort | null = null,
+    @Optional() @Inject(OS_CUSTOMER_VISIBILITY) private readonly customerVisibility: CustomerVisibilityLookup | null = null,
   ) {}
 
   /** Test seam — never call from product code. */
@@ -242,6 +257,7 @@ export class AiController {
         },
         subjectType,
         subjectId,
+        readCtx: { ...session, auth: { ...snap, delegatedApproverFor: [] } } as QueryContext,
       });
 
       if (!packet) {
@@ -347,13 +363,18 @@ export class AiController {
     };
     subjectType: string;
     subjectId: string;
+    readCtx: QueryContext;
   }) {
     if (input.feature === 'summarizeCommitments') {
-      const commitments = await this.loadCommitmentsForSubject(
+      const loaded = await this.loadCommitmentsForSubject(
         input.actor.organizationId,
         input.subjectType,
         input.subjectId,
       );
+      const commitments = await new CommitmentReadAuthorizer(input.readCtx, {
+        directReports: this.directReports,
+        customerVisibility: this.customerVisibility,
+      }).filter(loaded);
       return buildAuthorizedAssistPacket({
         actor: input.actor,
         subjectType: input.subjectType,

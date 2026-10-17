@@ -1,0 +1,8 @@
+  ✔ detail: owner, manager in range and org.read read a customer commitment; another advisor, an unrelated manager, issue.manage, people.admin and another tenant get the missing-id 404 (58.826583ms)
+  ✔ list: another advisor sees nothing of A's customer commitment by org, by owner or by party; the manager in range does (246.205042ms)
+  ✔ issue.manage keeps non-customer commitments; unrelated members do not read them (35.9595ms)
+  ✔ create: a customer the actor cannot read answers like a missing party; a supplier party stays linkable (56.882625ms)
+✔ F07 commitment reads over HTTP (disposable Postgres) (653.171417ms)
+ℹ tests 4
+ℹ pass 4
+ℹ fail 0

@@ -1,0 +1,9 @@
+7e5580c42bf21beb597e9e766811c4ef58530380b2f6c8456027b5fdcf06f5bc  packages/os-query/src/commitment/commitment-auth.ts
+d86c6e0e79aa6f69fa31eb4a9c0acb2c6c48e26305bbd0b6f0cd013334590d2b  packages/os-query/src/commitment/commitment-auth.test.ts
+ae4b54c1896a2043341cbc8a9f80ec0312dbc596e9f38268f74e2d93deb95526  packages/os-query/src/index.ts
+1a25d095d0f0f9c1d1174dea762ddc9ab34c1aa51838ff5a1a13f29fbf0bbd4a  packages/os-commitment/src/commitment-command-service.ts
+6bbb21f5d27fedf8f547d13be68fd646be22943ba858978c6c41ce2c9da35a75  apps/os-api/src/commitments.controller.ts
+83aef01a5ae89df30c4e3b6f113e1d9979289729e661c44227b6a3370c6b23de  apps/os-api/src/ai.controller.ts
+92e882406343079e5a97ae69f044cebf20c09d3ad3757ed769249cc7566fb017  apps/os-api/src/ai.controller.test.ts
+7bed0186e15afd41dc6867237b21cc54d78c75be41a6e91b880770df4ecfd805  apps/os-api/src/os-store.module.ts
+8f9b012e309a27206faef9672cae0fbde73df053dabd23d0013a011b3f8936a9  apps/os-api/src/review-f07-commitment-reads.http.test.ts

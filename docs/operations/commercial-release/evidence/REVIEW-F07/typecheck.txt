@@ -1,0 +1,3 @@
+tsc packages/os-query exit=0
+tsc packages/os-commitment exit=0
+tsc apps/os-api exit=0

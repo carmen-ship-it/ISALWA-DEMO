@@ -40,6 +40,8 @@ import {
   PartyProjectionConsumer,
   PartyQueryService,
   type CustomerVisibilityLookup,
+  buildQueryContext,
+  canLinkCommitmentParty,
   ProjectionRunner,
   WorkProjectionConsumer,
   WorkQueryService,
@@ -337,15 +339,28 @@ function createMemberQueryStore(): MemberQueryStorePort {
         prismaCommitmentStore: PrismaOsCommitmentStore,
         workforceStore: OsWorkforceStore,
         partyStore: OsPartyStore,
+        customerVisibility: CustomerVisibilityLookup,
+        directReports: MemberQueryStorePort,
       ) => {
         const adapter = new CommitmentStoreAdapter(
           prismaCommitmentStore,
           workforceStore,
           partyStore,
         );
-        return new CommitmentCommandService(adapter);
+        return new CommitmentCommandService(adapter, async (ctx, partyId) =>
+          canLinkCommitmentParty(await buildQueryContext(ctx, workforceStore), partyId, {
+            customerVisibility,
+            directReports,
+          }),
+        );
       },
-      inject: [OS_COMMITMENT_STORE, OS_STORE, OS_PARTY_STORE],
+      inject: [
+        OS_COMMITMENT_STORE,
+        OS_STORE,
+        OS_PARTY_STORE,
+        OS_CUSTOMER_VISIBILITY,
+        OS_MEMBER_QUERY_STORE,
+      ],
     },
     {
       provide: OS_ISSUE_COMMAND_SERVICE,

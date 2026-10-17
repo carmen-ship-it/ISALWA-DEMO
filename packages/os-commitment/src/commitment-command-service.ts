@@ -47,8 +47,17 @@ export type CommandResult = {
  * - ReassignCommitmentOwner = member_active AND (actor === current owner)
  *   No people.admin fallback. Future: commitment.manage scope.
  */
+/**
+ * Whether the actor may link a commitment to this party (F07). A false answer is
+ * reported as NOT_FOUND, the same as a party that does not exist.
+ */
+export type CommitmentPartyLinkGuard = (ctx: RequestContext, partyId: string) => Promise<boolean>;
+
 export class CommitmentCommandService {
-  constructor(private readonly store: OsCommitmentStore) {}
+  constructor(
+    private readonly store: OsCommitmentStore,
+    private readonly canLinkParty: CommitmentPartyLinkGuard | null = null,
+  ) {}
 
   private async snapshotInOrg(
     organizationId: string,
@@ -318,6 +327,7 @@ export class CommitmentCommandService {
     if (partyId) {
       const partyExists = await store.partyExistsInOrg(ctx.organizationId, partyId);
       if (!partyExists) throw new Error('NOT_FOUND');
+      if (this.canLinkParty && !(await this.canLinkParty(ctx, partyId))) throw new Error('NOT_FOUND');
     }
 
     const subjectType = payload.relatedSubjectType ? String(payload.relatedSubjectType) : null;

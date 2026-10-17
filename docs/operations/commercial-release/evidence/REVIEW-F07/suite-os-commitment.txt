@@ -1,0 +1,4 @@
+os-commitment ℹ tests 18
+os-commitment ℹ pass 18
+os-commitment ℹ fail 0
+os-commitment exit=0

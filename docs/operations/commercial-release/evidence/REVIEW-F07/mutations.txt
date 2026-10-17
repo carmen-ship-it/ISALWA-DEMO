@@ -1,0 +1,25 @@
+== M1 list filter removed
+unit ℹ pass 10
+unit ℹ fail 0
+http ℹ pass 3
+http ℹ fail 1
+ai ℹ pass 1
+ai ℹ fail 0
+restored sha256 6bbb21f5d27fedf8f547d13be68fd646be22943ba858978c6c41ce2c9da35a75
+== M2 issue.manage reads customer commitments
+unit ℹ pass 9
+unit ℹ fail 1
+http ℹ pass 2
+http ℹ fail 2
+ai ℹ pass 0
+ai ℹ fail 1
+restored sha256 7e5580c42bf21beb597e9e766811c4ef58530380b2f6c8456027b5fdcf06f5bc
+== M3 create guard removed
+unit ℹ pass 10
+unit ℹ fail 0
+http ℹ pass 3
+http ℹ fail 1
+ai ℹ pass 1
+ai ℹ fail 0
+restored sha256 1a25d095d0f0f9c1d1174dea762ddc9ab34c1aa51838ff5a1a13f29fbf0bbd4a
+done

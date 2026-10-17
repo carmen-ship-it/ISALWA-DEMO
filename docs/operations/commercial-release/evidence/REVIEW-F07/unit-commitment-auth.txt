@@ -1,0 +1,15 @@
+  ✔ hides a customer commitment from another advisor in the same tenant (0.684917ms)
+  ✔ keeps the owner, the manager in range and org.read on a customer commitment (0.111542ms)
+  ✔ does not open customer commitments to a manager out of range (0.097125ms)
+  ✔ limits issue.manage to non-customer commitments (0.164041ms)
+  ✔ denies another tenant even with org.read (0.070333ms)
+  ✔ fails closed on a party link when visibility facts are unavailable (0.0815ms)
+  ✔ filters a list to the readable commitments (0.484291ms)
+✔ commitment reads (F07) (2.218666ms)
+  ✔ refuses a customer the actor cannot read (0.142334ms)
+  ✔ allows the account owner and a non-customer party (0.090125ms)
+  ✔ refuses an unknown party (0.085375ms)
+✔ commitment party links on create (F07) (0.447542ms)
+ℹ tests 10
+ℹ pass 10
+ℹ fail 0

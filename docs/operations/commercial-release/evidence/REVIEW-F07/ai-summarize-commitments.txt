@@ -1,0 +1,6 @@
+  ✔ summarize_commitments uses authorized commitment evidence only (4.161292ms)
+  ✔ summarize_commitments keeps issue.manage away from another advisor's customer commitments (F07) (3.1445ms)
+✔ AiController assist (7.910375ms)
+ℹ tests 2
+ℹ pass 2
+ℹ fail 0

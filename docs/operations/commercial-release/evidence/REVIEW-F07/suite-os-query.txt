@@ -1,0 +1,4 @@
+os-query ℹ tests 99
+os-query ℹ pass 99
+os-query ℹ fail 0
+os-query exit=0

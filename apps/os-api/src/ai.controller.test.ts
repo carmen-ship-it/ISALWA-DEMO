@@ -586,6 +586,81 @@ describe('AiController assist', () => {
     assert.ok(result.evidenceRefs.every((ref) => ref.type === 'commitment' && ref.id === 'cmt-1'));
   });
 
+  it('summarize_commitments keeps issue.manage away from another advisor\'s customer commitments (F07)', async () => {
+    process.env.AI_ENABLED = 'true';
+    const provider = new TrackingAiProvider();
+    const workforceStore = {
+      async findAuthIdentityById() {
+        return auth();
+      },
+      async findAuthIdentityByProviderSubject() {
+        return auth();
+      },
+      async listMembersForPerson() {
+        return [member()];
+      },
+      async getMemberInOrg() {
+        return member();
+      },
+      async listRoleAssignmentsForMember() {
+        return [
+          { id: 'ra-1', organizationId: ORG, memberId: 'mem-a', roleKey: 'issue.manage', effectiveAt: PAST, endedAt: null },
+        ] as unknown as RoleAssignmentRecord[];
+      },
+      async listDelegationsForDelegate() {
+        return [];
+      },
+      async appendEventAndAudit() {},
+    };
+    const commitmentStore = {
+      async listCommitmentsByParty() {
+        return [
+          { id: 'cmt-own', organizationId: ORG, ownerMemberId: 'mem-a', partyId: 'party-cust', text: 'PROPIO_VISIBLE', lifecycle: 'open' },
+          { id: 'cmt-other', organizationId: ORG, ownerMemberId: 'mem-other', partyId: 'party-cust', text: 'SECRET_CUSTOMER_PROMISE', lifecycle: 'open' },
+        ];
+      },
+      async getCommitmentInOrg() {
+        return null;
+      },
+    };
+    const customerVisibility = {
+      async getCustomerFacts(org: string, partyId: string) {
+        return org === ORG && partyId === 'party-cust'
+          ? { organizationId: ORG, partyId, hasCommercialAccount: true, accountOwnerMemberId: 'mem-other', activeRoleKeys: ['customer'] }
+          : null;
+      },
+      async listCustomerFacts() {
+        return [];
+      },
+      async listPartyIdsOwnedBy() {
+        return [];
+      },
+      async listActiveCoverageForAdvisor() {
+        return [];
+      },
+    };
+
+    const controller = new AiController(
+      workforceStore as never,
+      {} as never,
+      commitmentStore as never,
+      { async listDirectReportMemberIds() { return []; } } as never,
+      customerVisibility as never,
+    );
+    controller.replaceAiProviderForTest(provider);
+    const result = await withDevAuth(() =>
+      controller.assist(
+        request({ 'x-os-auth-identity-id': 'auth-1', 'x-os-person-id': 'person-1' }),
+        { feature: 'summarize_commitments', subjectType: 'party', subjectId: 'party-cust' },
+      ),
+    );
+
+    const joined = provider.lastInput!.facts.join(' ');
+    assert.match(joined, /PROPIO_VISIBLE/);
+    assert.equal(joined.includes('SECRET_CUSTOMER_PROMISE'), false);
+    assert.ok(result.evidenceRefs.every((ref) => ref.id !== 'cmt-other'));
+  });
+
   it('returns AI_UNAVAILABLE when live provider is blocked before auth', async () => {
     process.env.AI_ENABLED = 'true';
     process.env.AI_PROVIDER = 'openai';
