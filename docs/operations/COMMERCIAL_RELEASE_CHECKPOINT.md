@@ -16,6 +16,7 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | R4 reactivation (22:29 decision 1: ActivateMember does not revive previous-lifecycle authority) | LOCAL_COMPLETE (unit + disposable PG + local HTTP incl. concurrency and rollback, 3 mutation checks; NOT INDEPENDENTLY REVIEWED) | see git log `fix(authz): R4 reactivation` | `commercial-release/receipts/REVIEW-R4-REACTIVATION.md` |
 | R4 role-change preview (22:29 decision 4: same rules as execution) | LOCAL_COMPLETE (local HTTP + PG, os-web unit, 2 mutation checks; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN) | see git log `fix(authz): R4 role-change preview` | `commercial-release/receipts/REVIEW-R4-ROLE-PREVIEW.md` |
 | R4 Journey neutrality (22:29 decision 3) | LOCAL_COMPLETE (os-web unit, 3 mutation checks; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN) | see git log `fix(web): R4 Journey neutral` | `commercial-release/receipts/REVIEW-R4-JOURNEY.md` |
+| R4 lifecycle revival backfill proposal (22:20 §3) | LOCAL_COMPLETE as dry-run tooling (disposable PG, 3 mutation checks; NOT INDEPENDENTLY REVIEWED; NOT EXECUTED — release dependency, needs owner authorization + reviewed plan hash) | see git log `feat(ops): R4 lifecycle revival backfill` | `commercial-release/receipts/REVIEW-R4-BACKFILL-DRYRUN.md` |
 
 ## Last confirmed step
 
@@ -53,6 +54,7 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `3520dfe16e9d2f2e97e84cb9b7545d40f7b02570` | `ce8df60e7296ab2357bb05e6e5379269163beb50` | R4 corrections (22:20 §1–§2) | this writer; not reviewed |
 | `0316531b0575749383f409f18729d476caa70700` | `99c2decd659a6d0941a67b43e384e7aa5b7cf316` | R4 reactivation (22:29 decision 1) | this writer; not reviewed |
 | `a8a3307260cb4d2ca29d75acff296ff9359255f0` | `8845378fabc4dc33884445ba363d8130c32981d9` | R4 role-change preview (22:29 decision 4) | this writer; not reviewed |
+| `da6c7e4c801673891e47942aa8e2eb6302224fe1` | `70b467a682a4623dedeaab7bef37c509ebc7d264` | R4 Journey neutrality (22:29 decision 3) | this writer; not reviewed |
 
 ## Open blockers
 

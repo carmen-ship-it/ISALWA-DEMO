@@ -1,0 +1,3 @@
+M1 coverage granted during a suspension is ended too: ℹ fail 2
+M2 already-revoked delegations re-planned: ℹ fail 2
+M3 execution ignores the reviewed plan hash: ℹ fail 1

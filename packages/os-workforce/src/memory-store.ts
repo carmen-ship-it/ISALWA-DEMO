@@ -500,7 +500,7 @@ export class MemoryOsStore implements OsWorkforceStore {
 
   async revokeDelegation(delegationId: string, revokedAt: Date): Promise<void> {
     const d = this.delegations.find((x) => x.id === delegationId);
-    if (d) d.revokedAt = revokedAt;
+    if (d && d.revokedAt === null) d.revokedAt = revokedAt;
   }
 
   async appendEventAndAudit(

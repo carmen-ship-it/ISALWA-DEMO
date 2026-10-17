@@ -819,8 +819,8 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
   }
 
   async revokeDelegation(delegationId: string, revokedAt: Date): Promise<void> {
-    await this.db().osDelegation.update({
-      where: { id: delegationId },
+    await this.db().osDelegation.updateMany({
+      where: { id: delegationId, revokedAt: null },
       data: { revokedAt },
     });
   }

@@ -1,0 +1,5 @@
+  ✔ dry run lists exactly what current lifecycle rules would have ended, lists review items, and writes nothing (73.268542ms)
+  ✔ executes only the reviewed plan: sets revokedAt on planned rows only, keeps history, records event and audit (41.010041ms)
+  ✔ refuses missing inputs and a wrong tenant (16.1475ms)
+  ✔ is not exported from the package and not imported by any app (132.828792ms)
+✔ lifecycle revival backfill (disposable Postgres, synthetic data, 22:20 §3) (265.535167ms)

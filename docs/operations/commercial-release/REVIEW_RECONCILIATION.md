@@ -65,6 +65,7 @@ Updated as each bounded task closes; see `REUSE_MAP.md` §13.8 for the task orde
 | R4 reactivation (22:29 decision 1) | see `COMMERCIAL_RELEASE_CHECKPOINT.md` | F10 lifecycle (`RE-REVIEW_R3_R2F.md` §4) | ActivateMember on a suspended member ends delegations issued/received (future-dated too) and received coverage in the activation transaction, incl. members suspended before `ce74648`; member row lock serializes lifecycle vs GrantDelegation; grants to suspended members refused. IMPLEMENTED + TESTED locally (`receipts/REVIEW-R4-REACTIVATION.md`). Backfill stays a separate dry-run/activation dependency |
 | R4 role-change preview (22:29 decision 4) | see `COMMERCIAL_RELEASE_CHECKPOINT.md` | F04 residual (`RE-REVIEW_R3_R2F.md` §5 P3) | Preview and ChangeRole share one authorization step; a predictable refusal returns `allowed:false` + reason (no plan) and the form disables confirmation; execution re-checks. IMPLEMENTED + TESTED locally (`receipts/REVIEW-R4-ROLE-PREVIEW.md`); browser UNPROVEN |
 | R4 Journey neutrality (22:29 decision 3) | see `COMMERCIAL_RELEASE_CHECKPOINT.md` | F09 Journey residuals (`RE-REVIEW_R3_R2F.md` §2.2 items 1–2) | Overlay heading "Recorrido de ISALWA", no "DEMO · ficticio" badge; steps link generic product pages only (no seeded records/PDFs, no tenant or data-mode parameter). IMPLEMENTED + TESTED locally (`receipts/REVIEW-R4-JOURNEY.md`); browser UNPROVEN. Gate and demo filter stay for T10/T11; content for T20 |
+| R4 lifecycle revival backfill (22:20 §3) | see `COMMERCIAL_RELEASE_CHECKPOINT.md` | F10 lifecycle residual (pre-repair rows) | Dry-run planner + hash-bound executor + CLI for delegations/coverage that could revive for previously suspended or revoked members; legacy ChangeRole commercial rows and undated suspended-owner coverage listed for review only. IMPLEMENTED + TESTED on disposable PG. NOT EXECUTED anywhere; release dependency (`receipts/REVIEW-R4-BACKFILL-DRYRUN.md`) |
 
 ## Transfer blocker (20:39 §5)
 
@@ -72,6 +73,6 @@ Updated as each bounded task closes; see `REUSE_MAP.md` §13.8 for the task orde
 
 ## Reserved owner decisions
 
-- Delegation after reinstatement: DECIDED 21:33 §2 — suspension/termination end delegations issued by and granted to the member; reinstatement needs a fresh grant. Residual: members suspended before this change are not backfilled (needs authorization).
+- Delegation after reinstatement: DECIDED 21:33 §2 — suspension/termination end delegations issued by and granted to the member; reinstatement needs a fresh grant. Residual: members suspended before this change are not backfilled; dry-run proposal ready (`receipts/REVIEW-R4-BACKFILL-DRYRUN.md`), execution needs authorization.
 - Initial provisioning: member, one minimal proposal + range + scope subset, and approval reference (`receipts/REVIEW-R2-FOLLOWUP.md` §4; no all-scopes option).
 - Carried: D5 peer attending, D7 order cancel, F06 `quote.work` scope.

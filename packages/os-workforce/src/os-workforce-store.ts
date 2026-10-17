@@ -206,6 +206,7 @@ export interface OsWorkforceStore {
   ): Promise<string[]>;
   endActiveManagerAssignments(memberId: string, endedAt: Date): Promise<void>;
   updateWorkItemOwner(workItemId: string, newOwnerMemberId: string, version: number): Promise<void>;
+  /** Sets revokedAt only if still unrevoked, so the first revocation time is kept. */
   revokeDelegation(delegationId: string, revokedAt: Date): Promise<void>;
 
   appendEventAndAudit(
