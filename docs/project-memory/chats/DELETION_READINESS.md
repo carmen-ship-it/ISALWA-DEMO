@@ -100,7 +100,7 @@ It also writes the mixed-chat excerpts, copies the 18 cleared screenshots and wr
 - 2026-10-17 01:5x — Carmen chose the destination: "New private repository under my ISALWA GitHub account (carmen-ship-it)". The script review is still outstanding.
 - Then: run the tool, re-run `index_chats.py` with the bundle counted as a preservation source, push the bundle, verify the remote manifest hash, and re-issue the list.
 
-**Final deletion list for this pass:** `FINAL_DELETION_LIST.md`.
+**Deletion candidates (HOLD, none cleared until the private backup is verified):** `FINAL_DELETION_LIST.md`.
 
 ## Missing material that no chat deletion may lose
 

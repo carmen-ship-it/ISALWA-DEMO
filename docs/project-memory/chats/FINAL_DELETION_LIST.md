@@ -1,8 +1,10 @@
-# Final chat deletion list — 2026-10-17
+# Chat deletion candidates — 2026-10-17
 
-Approved scope: delete only through Cursor's normal interface, by Carmen. No agent deletes chats or edits Cursor's chat database.
+**HOLD: no chat is cleared for deletion.** Per Carmen at 2026-10-17 01:25: "Hold chat deletion until the standalone private backup has been created and its contents verified. The two listed chats are candidates, not yet cleared under our backup requirement." The final list is issued only after the private backup exists and its remote contents have been verified against `MANIFEST.sha256`.
 
-## Deletable
+Deletion happens only through Cursor's normal interface, by Carmen. No agent deletes chats or edits Cursor's chat database.
+
+## Candidates (not cleared)
 
 | Chat ID / title | Preservation location | Backup proof | Unresolved |
 |---|---|---|---|

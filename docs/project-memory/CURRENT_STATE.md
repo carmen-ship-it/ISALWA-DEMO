@@ -25,7 +25,7 @@ ReassignWork delta → NEW-R4-1 supplier reads → F07 commitments → S11 repla
 
 ## Resume checkpoint for application work (set 2026-10-17 01:4x)
 
-After Carmen deletes the approved chats (`chats/FINAL_DELETION_LIST.md`), resume in this chat. Do not repeat setup:
+Chat deletion is not a prerequisite. Application work resumes now (2026-10-17 01:25), in parallel with the parked preservation lane. Do not repeat setup:
 1. Verify `/Users/carmen/projects/isalwa-wt-v1-repairs` is on `ct3/v1-repairs` at the archive HEAD. Check that the ReassignWork files listed above are still the only uncommitted application changes. Lanes A and B are untouched.
 2. ReassignWork delta: full suites (os-contracts, os-work, os-query, os-database, os-api, os-web), typechecks and the build. Then the evidence folder `evidence/REVIEW-R4-REASSIGN-WORK-DELTA/`, a receipt addendum with the limitations (domain workflow incomplete, commercial reassignment UI missing, coverage arrangement not in the command, mutation evidence INCOMPLETE), the ledger row for `ce71f9a…`/`657408ff…`, the checkpoint and reconciliation updates, a commit, and READY FOR INDEPENDENT REVIEW. Don't re-run `/tmp/r4a-mutate.py`.
 3. Lane A browser plan `docs/operations/commercial-release/browser/LANE-A-CATALOG-BROWSER.md` (not yet written):
@@ -36,7 +36,22 @@ After Carmen deletes the approved chats (`chats/FINAL_DELETION_LIST.md`), resume
    Write the plan first, then execute it.
 4. Then the queue above.
 
-Parked preservation lane: bundle build and off-Mac backup (`chats/DELETION_READINESS.md` § 2026-10-17). Resume it only when the script is approved and Carmen names a destination.
+### Preservation lane checkpoint (parked: awaiting Claude's review of `tools/preserve_chats.py`)
+
+Destination authorized by Carmen: a new private repository under her ISALWA GitHub account (`carmen-ship-it`). It holds one standalone commit with the bundle only. Order:
+1. Address Claude's findings in `tools/preserve_chats.py`, in place. Commit the reviewed version.
+2. Submit exactly that reviewed operation through the normal security gate. If it is rejected, don't relocate the script, rename it, split it up or otherwise bypass the rejection. Record the rejection and stay parked.
+3. Build the bundle at `/Users/carmen/projects/isalwa-handoff/PROJECT_MEMORY_BUNDLE_20261017/`.
+4. **Sanitization check on the actual files, before upload.** Scan every bundle file for:
+   - secrets: keys, tokens, credential URLs, `.env` content, private keys;
+   - contact data: emails, phone numbers;
+   - restricted material: R1 logs, the `INDEPENDENT_REVIEW_20261016-192946` content, anything from commits on or after `e7d8d98`;
+   - CCA/Rose content outside the two mixed-chat excerpt files.
+   Fix or exclude every hit, then record the scan commands and results. A standalone commit prevents history transfer; it does not prove the files are sanitized.
+5. Re-run `index_chats.py` with the bundle counted as a preservation source.
+6. Create the private repository. Confirm `visibility: PRIVATE` before pushing. Push one standalone commit.
+7. Verify the remote contents against `MANIFEST.sha256`: fresh clone, re-hash every file, zero mismatches.
+8. Issue the final deletion list (chat → preservation location → backup proof → unresolved). Until then `chats/FINAL_DELETION_LIST.md` lists candidates only.
 
 ## Proof state
 
