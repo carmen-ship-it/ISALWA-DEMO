@@ -1,0 +1,5 @@
+  ✔ only a steward gets a lookup; a non-steward makes no request (0.828417ms)
+  ✔ digits search by NIT, words by name; too short searches nothing (0.27025ms)
+  ✔ selected record shows fiscal identity; a missing id says not found (0.153208ms)
+  ✔ result links keep the search term (0.089042ms)
+✔ T03 data-steward lookup (customer screens) (1.849459ms)

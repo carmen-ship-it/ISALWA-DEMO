@@ -4,6 +4,27 @@ import type {
   ProjectionFreshness,
 } from '@isalwa/os-contracts';
 
+/** Data-steward lookup (`/v1/master-data/parties`): identity fields only, no owner, phone or contacts. */
+export type MasterDataPartySummary = {
+  partyId: string;
+  partyKind: string;
+  displayName: string;
+  legalName: string | null;
+  status: string;
+  activeRoleKeys: string[];
+  mergedIntoPartyId: string | null;
+};
+
+export type MasterDataPartySearchResponse = {
+  items: MasterDataPartySummary[];
+  meta: { nextCursor: string | null; limit: number; hasMore: boolean };
+};
+
+export type MasterDataPartyDetailResponse = MasterDataPartySummary & {
+  version: number;
+  fiscalIdentities: Array<{ nit: string; razonSocial: string | null; effectiveAt: string; endedAt: string | null }>;
+};
+
 export type PartySearchResponse = {
   items: PartySummaryReadModel[];
   meta: PaginatedMeta;

@@ -1,0 +1,5 @@
+af81309c716589b00d67841de82d4f53cec357e8aec08ecdc71b333373d8cd8f  apps/os-web/lib/party/types.ts
+c06f8aedb3bc41fba2c261581f22b65bd3c9b949ec84ecddb3849aed26755f6d  apps/os-web/lib/api/os-api-client.ts
+7f0ea7280de159d8d94e7db4391dbed336e921533a655f56077657662c556416  apps/os-web/lib/party/master-data-lookup.ts
+9eb244a20ddddbf481fcd04610b22ed18be08e41431b0b1306dc96cd6cf861af  apps/os-web/lib/party/master-data-lookup.test.ts
+94c52889754b99f4b2f962f4793417fccc8a82c2cc7d5340d635fe338997f46d  apps/os-web/components/party/master-data-lookup-panel.tsx

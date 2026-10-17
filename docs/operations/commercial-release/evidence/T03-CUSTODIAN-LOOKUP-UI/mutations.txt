@@ -1,0 +1,15 @@
+7f0ea7280de159d8d94e7db4391dbed336e921533a655f56077657662c556416  apps/os-web/lib/party/master-data-lookup.ts
+M1 steward gate removed
+0
+ℹ pass 3 ℹ fail 1 
+M2 403 not treated as non-steward
+0
+ℹ pass 3 ℹ fail 1 
+M3 NIT never detected (always name search)
+1
+ℹ pass 3 ℹ fail 1 
+M4 missing selected id rethrown
+0
+ℹ pass 3 ℹ fail 1 
+restored:
+7f0ea7280de159d8d94e7db4391dbed336e921533a655f56077657662c556416  apps/os-web/lib/party/master-data-lookup.ts
