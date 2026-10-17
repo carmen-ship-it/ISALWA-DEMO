@@ -1,0 +1,4 @@
+packages/os-contracts tsc --noEmit: exit 0
+packages/os-commercial tsc --noEmit: exit 0
+apps/os-api tsc --noEmit: exit 0
+apps/os-web tsc --noEmit: exit 0

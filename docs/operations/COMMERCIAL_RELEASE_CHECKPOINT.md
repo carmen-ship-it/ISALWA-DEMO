@@ -96,6 +96,7 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `1577ebc47414bedb82f5b9654f48aacf3dc7194f` | `4546c98fcd9a48c07f39f41a6a0481d27297abfa` | B4: reactivation ends previous role authority; regrant via ChangeRole/GrantAdditionalRole (unit 8/8, HTTP+PG 3/3, os-api serial 292, os-database 303, 3 mutations caught) | this writer; not reviewed |
 | `bc1410ae7527a24a29578cfbe827bcf08b06db08` | `01d9e9501bd302d02597c0b400015944c4435d93` | B1: advisor proposal (own range) + governed ongoing onboarding (plan 9/9, HTTP+PG 3/3, os-api serial 295, os-database 305, 4 mutations caught) | this writer; not reviewed |
 | `9bbe9391c9c6b34fb8795aff9b5030cadd718a3d` | `84e34930f356720de6c8bd9ec5d2f8d92606e0ad` | NEW-B1-D1: unreadable opportunity/quote/PDF/order detail answers the exact missing-id 404 (HTTP+PG 2/2, os-query 114, os-api serial 297, os-database 305, 3 mutations caught) | this writer; not reviewed |
+| `0264f28dcc8897173e03472e4fe50acff50440a9` | `98802809f59583dc9534f9e96bee54817a556095` | Docs: ledger row for `9bbe939`; queue points to remaining T03 | this writer; not reviewed |
 
 ## Open blockers
 

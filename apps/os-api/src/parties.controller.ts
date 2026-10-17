@@ -16,6 +16,7 @@ import {
   ListPartyTimelineQuerySchema,
   resolveAccountAssignmentAuthority,
   SearchPartiesQuerySchema,
+  grantableCoverageActionsFor,
 } from '@isalwa/os-contracts';
 import type { OsPartyStore } from '@isalwa/os-party';
 import type { OsCommercialStore } from '@isalwa/os-commercial';
@@ -65,7 +66,7 @@ export class PartiesController {
     asOf: Date,
     grantedScopes: string[],
     ownerMemberId: string | null,
-  ): Promise<{ canReassignOwner: boolean; canManageCoverage: boolean }> {
+  ): Promise<{ canReassignOwner: boolean; canManageCoverage: boolean; grantableCoverageActions: string[] }> {
     const authority = resolveAccountAssignmentAuthority({
       grantedScopes,
       currentOwnerMemberId: ownerMemberId,
@@ -74,9 +75,11 @@ export class PartiesController {
         : false,
       actorLeadsTarget: true,
     });
+    const canManageCoverage = authority !== null && ownerMemberId !== null && canGrantCustomerCoverage(grantedScopes);
     return {
       canReassignOwner: authority !== null && canReassignCommercialAccountOwner(grantedScopes),
-      canManageCoverage: authority !== null && ownerMemberId !== null && canGrantCustomerCoverage(grantedScopes),
+      canManageCoverage,
+      grantableCoverageActions: canManageCoverage ? grantableCoverageActionsFor(grantedScopes) : [],
     };
   }
 
@@ -286,6 +289,7 @@ export class PartiesController {
             startsAt: coverageRows[0].startsAt.toISOString(),
             endsAt: coverageRows[0].endsAt?.toISOString() ?? null,
             recordedByMemberId: coverageRows[0].recordedByMemberId,
+            coveredActions: [...coverageRows[0].coveredActions],
           }
         : null;
       return {

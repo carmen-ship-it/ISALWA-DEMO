@@ -1,0 +1,20 @@
+ea1e6262b38c0495c1e4629531f7b67ba1308c3a913d5d33ff69584f456eac99  packages/os-contracts/src/operations-scopes.ts
+7f008b9c9655414eceb633e080e23b8702aa35c0a025d5d186dde9287cb16386  apps/os-api/src/parties.controller.ts
+c582627c2079ce7a55808d9de9b264b8f3664128faf7271901d299f6521daefa  apps/os-web/lib/commercial/coverage-actions.ts
+M1 grantor scope ignored in grantableCoverageActionsFor
+1
+build=0 web: ℹ pass 2 ℹ fail 1 http: ℹ pass 8 ℹ fail 5 
+build=0 
+M2 offer not gated on canManageCoverage
+1
+http: ℹ pass 12 ℹ fail 1 
+M3 activeCoverage.coveredActions dropped
+0
+http: ℹ pass 12 ℹ fail 1 
+M4 empty selection defaults to commercial.work
+1
+web: ℹ pass 2 ℹ fail 1 
+restored:
+ea1e6262b38c0495c1e4629531f7b67ba1308c3a913d5d33ff69584f456eac99  packages/os-contracts/src/operations-scopes.ts
+7f008b9c9655414eceb633e080e23b8702aa35c0a025d5d186dde9287cb16386  apps/os-api/src/parties.controller.ts
+c582627c2079ce7a55808d9de9b264b8f3664128faf7271901d299f6521daefa  apps/os-web/lib/commercial/coverage-actions.ts

@@ -1,0 +1,5 @@
+  ✔ offers each viewer exactly the coverage actions they may delegate; the owner gets none (83.573625ms)
+  ✔ the server refuses anything outside the offer and stores nothing (44.18875ms)
+  ✔ the active coverage shows the actions it covers to the viewer (30.024958ms)
+✔ T03 coverage action choice over HTTP (disposable Postgres) (297.941791ms)
+  ✔ coverage converts only with explicit quote.convert plus the advisor's own permission (T03 19:30) (165.17975ms)

@@ -9,6 +9,7 @@ import {
   grantCustomerCoverageAction,
   revokeCustomerCoverageAction,
 } from '@/lib/commercial/actions';
+import { coverageActionChoices, formatCoverageActions } from '@/lib/commercial/coverage-actions';
 
 export type ActiveCoverageDisplay = {
   grantId: string;
@@ -17,6 +18,7 @@ export type ActiveCoverageDisplay = {
   assignedByLabel: string | null;
   startsAtLabel: string;
   note: string | null;
+  coveredActions?: string[];
 };
 
 type TemporaryCoveragePanelProps = {
@@ -26,6 +28,8 @@ type TemporaryCoveragePanelProps = {
   canonicalOwnerMemberId: string;
   canManageCoverage: boolean;
   activeCoverage: ActiveCoverageDisplay | null;
+  /** From the server; without it only "continuar oportunidades y cotizaciones" is offered. */
+  grantableActions?: string[];
 };
 
 export function TemporaryCoveragePanel({
@@ -35,7 +39,9 @@ export function TemporaryCoveragePanel({
   canonicalOwnerMemberId,
   canManageCoverage,
   activeCoverage,
+  grantableActions,
 }: TemporaryCoveragePanelProps) {
+  const choices = coverageActionChoices(grantableActions);
   const router = useRouter();
   const [grantState, grantAction] = useActionState(
     async (_prev: { error?: string; success?: string } | null, formData: FormData) => {
@@ -71,7 +77,8 @@ export function TemporaryCoveragePanel({
         Responsable canónico: <span className="text-[var(--isalwa-kiln)]">{canonicalOwnerLabel}</span>
       </p>
       <p className="text-xs text-[var(--isalwa-slate)]">
-        El apoyo no cambia el responsable ni autoriza convertir cotizaciones a pedido.
+        El apoyo no cambia el responsable. Solo cubre las acciones elegidas, y quien apoya necesita
+        además su propio permiso para cada una.
       </p>
 
       {activeCoverage ? (
@@ -82,6 +89,9 @@ export function TemporaryCoveragePanel({
           <p className="text-[var(--isalwa-slate)]">
             Asignado{activeCoverage.assignedByLabel ? ` por ${activeCoverage.assignedByLabel}` : ''} ·{' '}
             {activeCoverage.startsAtLabel}
+          </p>
+          <p className="text-[var(--isalwa-slate)]" data-coverage-actions="active">
+            Cubre: {formatCoverageActions(activeCoverage.coveredActions)}
           </p>
           {activeCoverage.note ? (
             <p className="text-[var(--isalwa-slate)]">Nota: {activeCoverage.note}</p>
@@ -111,6 +121,26 @@ export function TemporaryCoveragePanel({
               placeholder="Buscar miembro activo de la empresa"
             />
           </div>
+          <fieldset>
+            <legend className="block text-sm text-[var(--isalwa-slate)]">Qué cubre el apoyo</legend>
+            <div className="mt-1 space-y-2">
+              {choices.map((choice) => (
+                <label key={choice.action} className="flex items-start gap-2 text-sm text-[var(--isalwa-kiln)]">
+                  <input
+                    type="checkbox"
+                    name="coveredActions"
+                    value={choice.action}
+                    defaultChecked={choice.action === 'commercial.work'}
+                    className="mt-1"
+                  />
+                  <span>
+                    {choice.label}
+                    <span className="block text-xs text-[var(--isalwa-slate)]">{choice.hint}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
           <div>
             <label htmlFor="coverage-note" className="block text-sm text-[var(--isalwa-slate)]">
               Motivo (opcional)

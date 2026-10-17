@@ -61,6 +61,8 @@ export type PartyDetailResponse = {
   commercialAuthority?: {
     canReassignOwner: boolean;
     canManageCoverage?: boolean;
+    /** Actions this viewer may put on a new coverage grant. */
+    grantableCoverageActions?: string[];
   };
   activeCoverage?: {
     grantId: string;
@@ -69,6 +71,7 @@ export type PartyDetailResponse = {
     startsAt: string;
     endsAt: string | null;
     recordedByMemberId: string | null;
+    coveredActions?: string[];
   } | null;
 };
 

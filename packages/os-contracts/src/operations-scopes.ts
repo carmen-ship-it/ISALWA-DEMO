@@ -430,6 +430,14 @@ export const COVERAGE_ACTION_GRANTOR_SCOPE: Record<CustomerCoverageAction, strin
   'customer.reactivate': COMMERCIAL_CUSTOMER_REACTIVATE_SCOPE,
 };
 
+/** Grantable actions this grantor may put on a coverage grant (same rule as GrantCustomerCoverage). */
+export function grantableCoverageActionsFor(grantorScopes: readonly string[]): CustomerCoverageAction[] {
+  return GRANTABLE_COVERAGE_ACTIONS.filter((action) => {
+    const needed = COVERAGE_ACTION_GRANTOR_SCOPE[action];
+    return needed === null || grantorScopes.includes(needed);
+  });
+}
+
 /** Grants recorded before actions were explicit carried only the commercial-work meaning. */
 export const LEGACY_COVERAGE_ACTIONS: readonly CustomerCoverageAction[] = ['commercial.work'];
 

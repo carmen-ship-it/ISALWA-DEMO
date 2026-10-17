@@ -8,7 +8,7 @@ import {
   canConvertCoveredQuote,
   canKnowCustomer,
   canManageCustomerAccountWork,
-  COVERAGE_ACTION_GRANTOR_SCOPE,
+  grantableCoverageActionsFor,
   resolveAccountAssignmentAuthority,
   canWorkCustomerAccount,
   COMMERCIAL_ORDER_CONVERT_SCOPE,
@@ -1519,11 +1519,8 @@ export class CommercialCommandService {
     );
     await this.assignmentAuthority(ctx, store, snap, account, actingAdvisorMemberId);
     // A grantor delegates only what they are authorized to do themselves.
-    const grantorScopes = [...snap.roleKeys, ...snap.delegatedScopes];
-    for (const action of requestedActions as Array<keyof typeof COVERAGE_ACTION_GRANTOR_SCOPE>) {
-      const needed = COVERAGE_ACTION_GRANTOR_SCOPE[action];
-      if (needed && !grantorScopes.includes(needed)) throw new Error('PERMISSION_DENIED');
-    }
+    const delegable: readonly string[] = grantableCoverageActionsFor([...snap.roleKeys, ...snap.delegatedScopes]);
+    if (!requestedActions.every((action) => delegable.includes(action))) throw new Error('PERMISSION_DENIED');
     if (account.status !== 'active') throw new Error('VALIDATION_FAILED');
     if (!account.ownerMemberId) throw new Error('VALIDATION_FAILED');
 

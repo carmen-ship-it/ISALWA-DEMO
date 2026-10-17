@@ -1,0 +1,4 @@
+  ✔ offers only what the server says the viewer may grant; default is commercial work only (0.847833ms)
+  ✔ grantor rule: edit needs commercial.customer.edit, conversion needs commercial.order.convert (0.118708ms)
+  ✔ parses form values without defaulting upward and labels stored actions (0.137291ms)
+✔ T03 coverage action choice ("Apoyo temporal") (1.683542ms)

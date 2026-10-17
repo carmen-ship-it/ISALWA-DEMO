@@ -12,6 +12,7 @@ import { approvalHref } from '@/lib/work/navigation';
 import { partyHref } from '@/lib/party/navigation';
 import { parseBobInputToCentavos, parseQuantityInput } from '@/lib/commercial/parse-money-input';
 import { resolveAddQuoteLineDraft } from '@/lib/commercial/product-picker';
+import { parseCoverageActions } from '@/lib/commercial/coverage-actions';
 import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 import { redirectKeepingDataMode } from '@/lib/demo/redirect-data-mode';
 
@@ -576,6 +577,10 @@ export async function grantCustomerCoverageAction(
   if (!commercialAccountId || !actingAdvisorMemberId) {
     return { ok: false, error: 'Seleccione quién apoyará temporalmente.' };
   }
+  const coveredActions = parseCoverageActions(formData.getAll('coveredActions'));
+  if (coveredActions.length === 0) {
+    return { ok: false, error: 'Elija al menos una acción que cubra el apoyo.' };
+  }
 
   const result = await runCommand((client) =>
     client
@@ -584,6 +589,7 @@ export async function grantCustomerCoverageAction(
         {
           commercialAccountId,
           actingAdvisorMemberId,
+          coveredActions,
           note: note || undefined,
         },
         createId(),

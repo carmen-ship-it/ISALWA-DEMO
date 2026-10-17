@@ -1,0 +1,1 @@
+pnpm --filter @isalwa/os-api^... --filter !@isalwa/database run build: exit 0
