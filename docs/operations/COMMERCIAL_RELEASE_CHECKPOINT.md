@@ -8,12 +8,15 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | T01 | LOCAL_COMPLETE (tested fake + disposable PG + local HTTP; NOT INDEPENDENTLY REVIEWED) | `1d69341` | `commercial-release/receipts/T01.md` |
 | T02 | LOCAL_COMPLETE (customer visibility boundary + operational reads + shared rate limit; tested fake + disposable PG + local HTTP; NOT INDEPENDENTLY REVIEWED) | `f76751d` | `commercial-release/receipts/T02.md` |
 | T03 | IN_PROGRESS (part 1 `3183c36`; part 2 `1d20081`; part 3 `7f9286f`; not complete) | `receipts/T03.md` (partial) | `commercial-release/evidence/T03/part2/` (run4), `part3/` (run5 all green, HTTP + Postgres, 2 mutation checks) |
+| R1 (review: grant provisioning F03/F04) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 2 mutation checks; NOT INDEPENDENTLY REVIEWED) | see git log `fix(workforce): R1` | `commercial-release/receipts/REVIEW-R1.md` |
 
 ## Last confirmed step
 
 T02 committed: shared customer-visibility predicate (search/detail/contacts/locations/timeline/conversations), duplicate-counterpart redaction, HTTP+PG proof for the 8 remaining operational GETs (ledger pending = 0), Postgres-shared rate limit (`os_rate_limit_buckets`, migration 34) for search/commands/invitations.
 
 ## Next command
+
+R1 done (20:03 §3): `GrantAdditionalRole` requires independent possession and denies self-target; `ChangeManager` denies self-appointment and backdating; `ChangeRole` denies backdating; commercial action scopes are assignable together by a grantor who holds them. Initial holders per scope are an owner dependency. Next: R2 effective delegation (F10), then R3 tenant selection (F09), per `REUSE_MAP.md` §13.8.
 
 T03 part 3 done (owner decisions 2026-10-16 19:30, authoritative record `REUSE_MAP.md` §12): coverage converts only with explicit `quote.convert` + the advisor's own conversion permission (BR-CNV-02 refined; grantor delegates only what it holds); reassign/coverage administration need `commercial.account.reassign` AND reach (team, new `commercial.assignment.org`, new `commercial.intake.assign`; `org.read` is not reach); reassignment ends coverage and keeps record ownership; data-steward lookup `GET /v1/master-data/parties`. Migration impact on staging/fixture grants in §12.6 (not changed; hosted grants UNVERIFIED). Payments authorization PENDING T07. Delegation/date failure accounting in `receipts/T03.md` §12. Open: new owner cannot `convert.own` the previous owner's submitted quote (recorded).
 

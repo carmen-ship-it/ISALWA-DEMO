@@ -138,6 +138,7 @@ describe('role homes', () => {
       customerPartyId: 'party-2',
       primaryOwnerMemberId: PEER,
       actingAdvisorMemberId: ACTOR,
+      coveredActions: ['commercial.work'],
       startsAt: new Date('2026-06-01T00:00:00.000Z'),
     });
     assert.ok(grant);

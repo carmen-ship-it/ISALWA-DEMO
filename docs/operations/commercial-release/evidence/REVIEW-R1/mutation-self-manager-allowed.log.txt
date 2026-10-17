@@ -1,0 +1,17 @@
+# mutation: self-manager-allowed
+# diff:
+927d926
+<     if (managerMemberId === ctx.actorMemberId) throw new Error('PERMISSION_DENIED');
+# result:
+  ✖ people.admin alone cannot grant commercial scopes to another member or to themselves (403, no rows) (113.074417ms)
+  ✔ a grantor cannot grant to themselves even what they already hold (6.2595ms)
+  ✔ before provisioning, the candidate cannot edit or quote the customer (14.148375ms)
+  ✔ an authorized grantor provisions a manager with edit, work and team range together (42.138875ms)
+  ✔ the provisioned manager edits and quotes the team customer over HTTP; ownership is unchanged (18.078958ms)
+  ✔ the read-only manager stays read-only (403, no writes) (11.920125ms)
+  ✔ the provisioned manager cannot pass on what they were given without holding grant authority (5.15225ms)
+✖ Review R1 grant provisioning over HTTP (disposable Postgres) (380.540375ms)
+ℹ pass 6
+ℹ fail 1
+✖ failing tests:
+✖ people.admin alone cannot grant commercial scopes to another member or to themselves (403, no rows) (113.074417ms)

@@ -83,6 +83,22 @@ export function formatRoleKey(roleKey: string): string {
       return 'Convertir cotizaciones a pedidos';
     case 'commercial.account.reassign':
       return 'Reasignar responsable de cliente';
+    case 'commercial.quote.convert.own':
+      return 'Convertir cotizaciones propias';
+    case 'commercial.customer.create':
+      return 'Registrar clientes';
+    case 'commercial.customer.edit':
+      return 'Editar datos de clientes';
+    case 'commercial.customer.archive':
+      return 'Archivar clientes';
+    case 'commercial.customer.reactivate':
+      return 'Reactivar clientes';
+    case 'commercial.work.manage':
+      return 'Continuar trabajo comercial del equipo';
+    case 'commercial.assignment.org':
+      return 'Asignar clientes en toda la empresa';
+    case 'commercial.intake.assign':
+      return 'Asignar clientes sin responsable';
     default:
       return 'Rol del sistema';
   }

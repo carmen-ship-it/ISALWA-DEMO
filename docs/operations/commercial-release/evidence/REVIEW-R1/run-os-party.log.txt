@@ -1,0 +1,60 @@
+▶ party and location auth queries
+  ✔ scopes role and delegation reads by the session organization before denying (1.756333ms)
+✔ party and location auth queries (2.160708ms)
+▶ party bound-list — locations
+  ✔ 0/1/25/26 hasMore, default limit 25, no totals (1.206334ms)
+  ✔ puts active/current locations on the first page ahead of newer inactive rows (0.151917ms)
+  ✔ lists remainder after cursor without inventing totals (0.2015ms)
+✔ party bound-list — locations (2.0165ms)
+▶ party bound-list — contacts
+  ✔ getParty-shaped first page is bounded at 25; list remainder returns the 26th (0.210416ms)
+  ✔ round-trips cursors (0.578542ms)
+✔ party bound-list — contacts (0.876291ms)
+▶ S11 location replay authorization
+  ✔ replays the same actor and request without a second write (4.129208ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.725917ms)
+  ✔ denies the original actor once its required scope (master_data.admin) has ended (0.469125ms)
+  ✔ keeps another company out: the same key there runs its own command (0.668458ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.380833ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.400209ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.129333ms)
+  ✔ turns concurrent duplicates into one write; another actor in the race gets CONFLICT (1.792542ms)
+✔ S11 location replay authorization (9.286375ms)
+▶ S11 party replay authorization
+  ✔ replays the same actor and request without a second write (4.089167ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.716625ms)
+  ✔ denies the original actor once its required scope (master_data.admin) has ended (0.449917ms)
+  ✔ keeps another company out: the same key there runs its own command (0.683667ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.387708ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.359708ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.11525ms)
+  ✔ turns concurrent duplicates into one write; another actor in the race gets CONFLICT (1.132917ms)
+✔ S11 party replay authorization (8.525542ms)
+▶ T03 Registrar cliente: seller path
+  ✔ creates the customer, account ownership, contact and location in one command (3.710542ms)
+  ✔ accepts "Sin teléfono disponible" instead of a phone, and refuses neither (0.834875ms)
+  ✔ keeps the seller path bounded: no fiscal/legal data, no other role, no other owner (0.932958ms)
+  ✔ denies a member with neither commercial.customer.create nor master_data.admin (0.526667ms)
+✔ T03 Registrar cliente: seller path (6.594042ms)
+▶ T03 Registrar cliente: shared phone and duplicates
+  ✔ asks for a reason when the phone already appears, without naming the matches (0.188833ms)
+  ✔ registers another customer on a shared phone with a reason and queues review, never merging (0.954583ms)
+✔ T03 Registrar cliente: shared phone and duplicates (1.244958ms)
+▶ T03 Registrar cliente: steward is not an owner
+  ✔ lets master_data.admin create a customer with no implicit owner (0.780583ms)
+  ✔ does not let the steward self-assign ownership; assignment needs reassign plus org or intake assignment scope (0.99375ms)
+✔ T03 Registrar cliente: steward is not an owner (1.91725ms)
+▶ T03 customer commands: non-disclosure
+  ✔ answers nonexistent, foreign-tenant and inaccessible customers identically (1.030333ms)
+  ✔ lets a team lead with commercial.customer.edit edit without owning or covering, recording the actor (0.615792ms)
+  ✔ keeps team.read / org.read read-only and denies managers outside the team (0.3205ms)
+  ✔ gives PERMISSION_DENIED when the caller may know the customer but lacks the action (0.409167ms)
+✔ T03 customer commands: non-disclosure (2.482541ms)
+ℹ tests 34
+ℹ suites 9
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 633.893792

@@ -144,10 +144,20 @@ describePrisma('workforce prisma integration', () => {
       ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
       { memberId, roleKey: 'sales_manager' },
     );
+    await assert.rejects(
+      () =>
+        svc.execute('ChangeManager', ctx(org.id, admin.member.id, admin.person.id, admin.auth.id), {
+          memberId,
+          managerMemberId: admin.member.id,
+        }),
+      /PERMISSION_DENIED/,
+      'an administrator cannot appoint themselves manager',
+    );
+    const lead = await store.seedAdminMember(org.id, `lead-${createId().slice(0, 6)}@life.bo`, 'Lead', 'User');
     await svc.execute(
       'ChangeManager',
       ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
-      { memberId, managerMemberId: admin.member.id },
+      { memberId, managerMemberId: lead.member.id },
     );
     const grant = await svc.execute(
       'GrantDelegation',

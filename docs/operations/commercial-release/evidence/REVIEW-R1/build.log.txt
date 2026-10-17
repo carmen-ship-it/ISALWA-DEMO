@@ -1,0 +1,42 @@
+Scope: 18 of 39 workspace projects
+packages/os-contracts build$ tsc -p tsconfig.json
+packages/ts-utils build$ tsc -p tsconfig.json
+packages/os-read-fulfillment build$ tsc -p tsconfig.json
+packages/ts-utils build: Done
+packages/os-read-fulfillment build: Done
+packages/os-contracts build: Done
+packages/os-domain build$ tsc -p tsconfig.json
+packages/os-finished-goods build$ tsc -p tsconfig.json
+packages/providers build$ tsc -p tsconfig.json
+packages/os-domain build: Done
+packages/os-finished-goods build: Done
+packages/providers build: Done
+packages/os-events build$ tsc -p tsconfig.json
+packages/os-request-session build$ tsc -p tsconfig.json
+packages/os-request-session build: Done
+packages/os-events build: Done
+packages/os-work build$ tsc -p tsconfig.json
+packages/os-party build$ tsc -p tsconfig.json
+packages/os-commercial build$ tsc -p tsconfig.json
+packages/os-commitment build$ tsc -p tsconfig.json
+packages/os-commitment build: Done
+packages/os-workforce build$ tsc -p tsconfig.json
+packages/os-commercial build: Done
+packages/os-delivery build$ tsc -p tsconfig.json
+packages/os-work build: Done
+packages/os-issue build$ tsc -p tsconfig.json
+packages/os-party build: Done
+packages/os-delivery build: Done
+packages/os-issue build: Done
+packages/os-workforce build: Done
+packages/os-import build$ tsc -p tsconfig.json
+packages/os-query build$ tsc -p tsconfig.json
+packages/os-import build: Done
+packages/os-query build: Done
+packages/os-database build$ prisma generate && tsc -p tsconfig.json && rm -rf dist/generated && cp -R src/generated dist/generated
+packages/os-database build: Prisma schema loaded from prisma/schema.prisma
+packages/os-database build: ✔ Generated Prisma Client (v6.19.3) to ./src/generated/client in 420ms
+packages/os-database build: Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+packages/os-database build: Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+packages/os-database build: Done
+build=0

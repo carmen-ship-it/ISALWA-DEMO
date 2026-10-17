@@ -1,7 +1,11 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { createId } from '@isalwa/ts-utils';
-import { GrantAdditionalRolePayloadSchema, type RequestContext } from '@isalwa/os-contracts';
+import {
+  ADDITIONAL_ASSIGNABLE_SCOPE_KEYS,
+  GrantAdditionalRolePayloadSchema,
+  type RequestContext,
+} from '@isalwa/os-contracts';
 import { memberHasScope } from '@isalwa/os-domain';
 import { LocalAuthProviderPort } from './auth-provider';
 import { MemoryOsStore } from './memory-store';
@@ -23,11 +27,30 @@ function ctx(
   };
 }
 
+async function seedScopes(store: MemoryOsStore, orgId: string, memberId: string, roleKeys: readonly string[]) {
+  for (const roleKey of roleKeys) {
+    await store.insertRoleAssignment({
+      id: createId(),
+      organizationId: orgId,
+      memberId,
+      roleKey,
+      effectiveAt: new Date('2020-01-01'),
+      endedAt: null,
+    });
+  }
+}
+
+/**
+ * `admin` is a synthetic grantor that independently holds every grantable
+ * scope, as the possession rule requires. `peopleOnly` holds only people.admin.
+ */
 async function harness() {
   const store = new MemoryOsStore();
   const svc = new WorkforceCommandService(store, new LocalAuthProviderPort());
   const org = await store.seedOrganization('ISALWA S.R.L.', 'isalwa');
   const admin = await store.seedAdminMember(org.id, 'admin@isalwa.bo', 'Admin', 'User');
+  await seedScopes(store, org.id, admin.member.id, ADDITIONAL_ASSIGNABLE_SCOPE_KEYS);
+  const peopleOnly = await store.seedAdminMember(org.id, 'rrhh@isalwa.bo', 'Rrhh', 'User');
   const invited = await svc.execute(
     'InviteMember',
     ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
@@ -43,7 +66,7 @@ async function harness() {
     memberId,
     providerSubject: 'subject:ana@isalwa.bo',
   });
-  return { store, svc, org, admin, memberId };
+  return { store, svc, org, admin, peopleOnly, memberId };
 }
 
 async function activeKeys(store: MemoryOsStore, memberId: string, asOf: Date): Promise<string[]> {
@@ -183,19 +206,19 @@ describe('GrantAdditionalRole / EndAdditionalRole', () => {
   });
 
   it('does not give people.admin the commercial capability being assigned', async () => {
-    const { store, svc, org, admin, memberId } = await harness();
-    const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
-    await svc.execute('GrantAdditionalRole', adminCtx, {
-      memberId,
-      roleKey: 'commercial.order.convert',
-    });
-    const adminKeys = await activeKeys(store, admin.member.id, adminCtx.effectiveAt);
+    const { store, svc, org, peopleOnly, memberId } = await harness();
+    const adminCtx = ctx(org.id, peopleOnly.member.id, peopleOnly.person.id, peopleOnly.auth.id);
+    await assert.rejects(
+      () => svc.execute('GrantAdditionalRole', adminCtx, { memberId, roleKey: 'commercial.order.convert' }),
+      /PERMISSION_DENIED/,
+    );
+    const adminKeys = await activeKeys(store, peopleOnly.member.id, adminCtx.effectiveAt);
     assert.ok(adminKeys.includes('people.admin'));
     assert.equal(adminKeys.includes('commercial.order.convert'), false);
     assert.equal(
       memberHasScope(
         {
-          memberId: admin.member.id,
+          memberId: peopleOnly.member.id,
           organizationId: org.id,
           accessStatus: 'active',
           roleKeys: adminKeys,
@@ -259,5 +282,93 @@ describe('GrantAdditionalRole / EndAdditionalRole', () => {
     await svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'sales_manager' });
     const keys = await activeKeys(store, memberId, adminCtx.effectiveAt);
     assert.deepEqual(keys, ['sales_manager']);
+  });
+});
+
+describe('Grant provisioning escalation (F03/F04)', () => {
+  it('denies a people administrator granting a commercial scope they do not hold, to anyone', async () => {
+    const { store, svc, org, peopleOnly, memberId } = await harness();
+    const rrhh = ctx(org.id, peopleOnly.member.id, peopleOnly.person.id, peopleOnly.auth.id);
+    const eventsBefore = store.businessEvents.length;
+    for (const roleKey of ADDITIONAL_ASSIGNABLE_SCOPE_KEYS) {
+      for (const target of [memberId, peopleOnly.member.id]) {
+        await assert.rejects(
+          () => svc.execute('GrantAdditionalRole', rrhh, { memberId: target, roleKey }),
+          /PERMISSION_DENIED/,
+          `${roleKey} -> ${target === memberId ? 'other' : 'self'}`,
+        );
+      }
+      await assert.rejects(
+        () => svc.execute('ChangeRole', rrhh, { memberId, roleKey }),
+        /PERMISSION_DENIED/,
+        `ChangeRole ${roleKey}`,
+      );
+    }
+    assert.equal(store.businessEvents.length, eventsBefore);
+    const rrhhKeys = await activeKeys(store, peopleOnly.member.id, rrhh.effectiveAt);
+    assert.deepEqual(rrhhKeys, ['people.admin']);
+    const targetKeys = await activeKeys(store, memberId, rrhh.effectiveAt);
+    assert.deepEqual(targetKeys, ['sales_rep']);
+  });
+
+  it('denies granting to yourself even a scope you already hold', async () => {
+    const { store, svc, org, admin } = await harness();
+    const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    const before = (await store.listRoleAssignmentsForMember(admin.member.id)).length;
+    await assert.rejects(
+      () =>
+        svc.execute('GrantAdditionalRole', adminCtx, {
+          memberId: admin.member.id,
+          roleKey: 'commercial.work.manage',
+        }),
+      /PERMISSION_DENIED/,
+    );
+    assert.equal((await store.listRoleAssignmentsForMember(admin.member.id)).length, before);
+  });
+
+  it('lets a grantor who holds them provision a manager with edit, work and range scopes together', async () => {
+    const { store, svc, org, admin, memberId } = await harness();
+    const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    for (const roleKey of ['commercial.team.read', 'commercial.customer.edit', 'commercial.work.manage'] as const) {
+      await svc.execute('GrantAdditionalRole', adminCtx, { memberId, roleKey });
+    }
+    const keys = await activeKeys(store, memberId, adminCtx.effectiveAt);
+    assert.deepEqual(
+      [...keys].sort(),
+      ['commercial.customer.edit', 'commercial.team.read', 'commercial.work.manage', 'sales_rep'],
+    );
+  });
+
+  it('denies appointing yourself as manager, a member as their own manager, and backdated changes', async () => {
+    const { svc, org, admin, peopleOnly, memberId } = await harness();
+    const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    await assert.rejects(
+      () => svc.execute('ChangeManager', adminCtx, { memberId, managerMemberId: admin.member.id }),
+      /PERMISSION_DENIED/,
+    );
+    await assert.rejects(
+      () => svc.execute('ChangeManager', adminCtx, { memberId, managerMemberId: memberId }),
+      /VALIDATION_FAILED/,
+    );
+    await assert.rejects(
+      () =>
+        svc.execute('ChangeManager', adminCtx, {
+          memberId,
+          managerMemberId: peopleOnly.member.id,
+          effectiveAt: '2026-01-01T00:00:00.000Z',
+        }),
+      /VALIDATION_FAILED/,
+    );
+    await assert.rejects(
+      () =>
+        svc.execute('ChangeRole', adminCtx, {
+          memberId,
+          roleKey: 'commercial.team.read',
+          effectiveAt: '2026-01-01T00:00:00.000Z',
+        }),
+      /VALIDATION_FAILED/,
+    );
+    const ok = await svc.execute('ChangeManager', adminCtx, { memberId, managerMemberId: peopleOnly.member.id });
+    assert.ok(ok.data);
   });
 });

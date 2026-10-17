@@ -1,0 +1,12 @@
+3ca655c6801f9c68e4911cf8fc697c96c4b4d42ed2f5d9c965a1fae5316ef260  apps/os-web/lib/operations/pedido-access.test.ts
+3deaa8deee25c7b726a259abdf7d18bd5280755772b251e554ce5aa1dbd48c93  apps/os-web/lib/operations/pedido-case.test.ts
+68fb167a4f0ba1fc7e2334b00228ca560ee92f92fd64c0334fa67d622ea52c21  apps/os-web/lib/roles/role-homes.test.ts
+75c9ed7088a336db3761cf43dce5a7331b24e86d5b029a06196610a389a35813  apps/os-web/lib/workforce/labels.ts
+26d845b1b6514664ad5e5a391bd2de4c6d376cbf81375a66ad7fb484b09dfa13  packages/os-contracts/src/grant-scopes.test.ts
+73c160ad0ab887bbeb8fa8db0feb422b44f46ec43a2597e995c2ec6551c0f818  packages/os-contracts/src/scopes.ts
+132bfa2d777713a6008b91ca7ec0092d7eb420370d5d654be46327da8dfb2bf4  packages/os-database/src/workforce-admin-mutation-api.integration.test.ts
+80acc6ec59deba9b05cec6e55b6a480b3376aec6517fe3eadbf61b9d59f90ffb  packages/os-database/src/workforce-prisma.integration.test.ts
+44f91f0162e2b1d186b5bdc6666e232ffd90c2313baba040af377bc0850f366c  packages/os-query/src/party/party-query-service.test.ts
+426f2aec88e376f424718749e73a7aff03990bb084e237eaff5e2e6356d0333b  packages/os-workforce/src/additional-role.test.ts
+e37d8c689dacfa20b613660f5a86d4503508d7a877ee5eba575e78526a8e510a  packages/os-workforce/src/workforce-command-service.ts
+7db1c0d9a295d26fc8e1e6e3686210bf79862784f7eb0098a4f481cf98eb265d  apps/os-api/src/review-r1-grant-provisioning.http.test.ts

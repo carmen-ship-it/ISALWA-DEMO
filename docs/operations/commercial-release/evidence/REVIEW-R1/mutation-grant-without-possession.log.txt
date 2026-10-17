@@ -1,0 +1,17 @@
+# mutation: grant-without-possession (GrantAdditionalRole without assertRoleKeyAssignable)
+# diff:
+839d838
+<     await this.assertRoleKeyAssignable(ctx, roleKey, memberId, store);
+# result:
+  ✖ people.admin alone cannot grant commercial scopes to another member or to themselves (403, no rows) (18.860042ms)
+  ✔ a grantor cannot grant to themselves even what they already hold (10.626083ms)
+  ✔ before provisioning, the candidate cannot edit or quote the customer (19.212042ms)
+  ✔ an authorized grantor provisions a manager with edit, work and team range together (59.83875ms)
+  ✔ the provisioned manager edits and quotes the team customer over HTTP; ownership is unchanged (21.644375ms)
+  ✔ the read-only manager stays read-only (403, no writes) (23.513375ms)
+  ✔ the provisioned manager cannot pass on what they were given without holding grant authority (5.832208ms)
+✖ Review R1 grant provisioning over HTTP (disposable Postgres) (395.48925ms)
+ℹ pass 6
+ℹ fail 1
+✖ failing tests:
+✖ people.admin alone cannot grant commercial scopes to another member or to themselves (403, no rows) (18.860042ms)

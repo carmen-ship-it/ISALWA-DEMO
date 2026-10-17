@@ -151,6 +151,7 @@ describe('pedido operating view', () => {
       customerPartyId: 'party-1',
       primaryOwnerMemberId: 'ana',
       actingAdvisorMemberId: 'bruno',
+      coveredActions: ['commercial.work'],
       startsAt: new Date('2026-09-01T00:00:00.000Z'),
     });
     assert.ok(grant);

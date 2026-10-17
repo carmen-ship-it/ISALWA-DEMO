@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import {
   ADDITIONAL_ASSIGNABLE_SCOPE_KEYS,
   ADMIN_SCOPE_KEYS,
+  COMMERCIAL_ACTION_ASSIGNABLE_SCOPE_KEYS,
   COMMERCIAL_AUTHORITY_SCOPE_KEYS,
   COMMERCIAL_READ_SCOPE_KEYS,
   DELEGABLE_SCOPE_KEYS,
@@ -10,6 +11,13 @@ import {
 } from './scopes';
 import {
   COMMAND_RESERVED_SCOPE_KEYS,
+  COMMERCIAL_ASSIGNMENT_ORG_SCOPE,
+  COMMERCIAL_CUSTOMER_ARCHIVE_SCOPE,
+  COMMERCIAL_CUSTOMER_CREATE_SCOPE,
+  COMMERCIAL_CUSTOMER_EDIT_SCOPE,
+  COMMERCIAL_CUSTOMER_REACTIVATE_SCOPE,
+  COMMERCIAL_INTAKE_ASSIGN_SCOPE,
+  COMMERCIAL_WORK_MANAGE_SCOPE,
   OPERATIONS_ACCESS_SCOPE_KEYS,
   RECOGNIZED_PERMISSION_SCOPE_KEYS,
   TECHNICAL_ADMIN_SCOPE_KEYS,
@@ -152,5 +160,31 @@ describe('roleKeysThatConferAuthority', () => {
       'system.admin',
       'qa.access',
     ]);
+  });
+});
+
+describe('additional assignable scopes', () => {
+  it('mirror the authoritative commercial action scope constants exactly', () => {
+    assert.deepEqual(
+      [...COMMERCIAL_ACTION_ASSIGNABLE_SCOPE_KEYS].sort(),
+      [
+        COMMERCIAL_ASSIGNMENT_ORG_SCOPE,
+        COMMERCIAL_CUSTOMER_ARCHIVE_SCOPE,
+        COMMERCIAL_CUSTOMER_CREATE_SCOPE,
+        COMMERCIAL_CUSTOMER_EDIT_SCOPE,
+        COMMERCIAL_CUSTOMER_REACTIVATE_SCOPE,
+        COMMERCIAL_INTAKE_ASSIGN_SCOPE,
+        COMMERCIAL_WORK_MANAGE_SCOPE,
+      ].sort(),
+    );
+  });
+
+  it('never include an admin, technical, reserved or delegable-only scope', () => {
+    for (const key of ADDITIONAL_ASSIGNABLE_SCOPE_KEYS) {
+      assert.equal(classifyRoleKey(key), 'scope', key);
+      assert.equal((ADMIN_SCOPE_KEYS as readonly string[]).includes(key), false, key);
+      assert.equal((TECHNICAL_ADMIN_SCOPE_KEYS as readonly string[]).includes(key), false, key);
+      assert.equal(isDelegableScope(key), false, key);
+    }
   });
 });

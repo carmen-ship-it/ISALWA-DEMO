@@ -114,6 +114,7 @@ const store: PedidoAccessStore = {
       customerPartyId: 'party-local',
       primaryOwnerMemberId: 'ana',
       actingAdvisorMemberId: 'bruno',
+      coveredActions: ['commercial.work'],
       startsAt: new Date('2026-09-01T00:00:00.000Z'),
     })!,
   ],

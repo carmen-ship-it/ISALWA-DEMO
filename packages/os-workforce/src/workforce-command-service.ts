@@ -799,7 +799,7 @@ export class WorkforceCommandService {
     await this.authorize(ctx, 'ChangeRole', ctx.organizationId, store);
     const memberId = String(payload.memberId);
     const roleKey = String(payload.roleKey);
-    const effectiveAt = payload.effectiveAt ? new Date(String(payload.effectiveAt)) : ctx.effectiveAt;
+    const effectiveAt = notBackdated(payload.effectiveAt, ctx.effectiveAt);
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
     await this.assertRoleKeyAssignable(ctx, roleKey, memberId, store);
@@ -832,8 +832,11 @@ export class WorkforceCommandService {
     const memberId = String(payload.memberId);
     const roleKey = String(payload.roleKey);
     if (!isAdditionalAssignableScope(roleKey)) throw new Error('VALIDATION_FAILED');
+    // Granting to yourself only ever adds authority.
+    if (memberId === ctx.actorMemberId) throw new Error('PERMISSION_DENIED');
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
+    await this.assertRoleKeyAssignable(ctx, roleKey, memberId, store);
 
     const existing = (
       await store.listRoleAssignmentsForMember(memberId, ctx.organizationId)
@@ -915,11 +918,14 @@ export class WorkforceCommandService {
     await this.authorize(ctx, 'ChangeManager', ctx.organizationId, store);
     const memberId = String(payload.memberId);
     const managerMemberId = String(payload.managerMemberId);
-    const effectiveAt = payload.effectiveAt ? new Date(String(payload.effectiveAt)) : ctx.effectiveAt;
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
     const manager = await store.getMemberInOrg(ctx.organizationId, managerMemberId);
     if (!manager) throw new Error('NOT_FOUND');
+    if (managerMemberId === memberId) throw new Error('VALIDATION_FAILED');
+    // A manager assignment is team range; appointing yourself would confer range on yourself.
+    if (managerMemberId === ctx.actorMemberId) throw new Error('PERMISSION_DENIED');
+    const effectiveAt = notBackdated(payload.effectiveAt, ctx.effectiveAt);
 
     await store.endActiveManagerAssignments(memberId, effectiveAt);
     await store.insertManagerAssignment({
@@ -1154,4 +1160,15 @@ export class WorkforceCommandService {
       inviteRef: invite.inviteRef,
     });
   }
+}
+
+/**
+ * Grants and team assignments start now or later. A past effectiveAt would
+ * retroactively widen authority; corrections need their own audited command.
+ */
+function notBackdated(raw: unknown, now: Date): Date {
+  if (raw == null || raw === '') return now;
+  const at = new Date(String(raw));
+  if (Number.isNaN(at.getTime()) || at < now) throw new Error('VALIDATION_FAILED');
+  return at;
 }

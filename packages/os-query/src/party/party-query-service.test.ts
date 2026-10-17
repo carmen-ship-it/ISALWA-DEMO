@@ -193,7 +193,7 @@ describe('master-data lookup (T03 2026-10-16 19:30)', () => {
 
   it('lets master_data.admin find customers by name without commercial read or contact fields', async () => {
     const seen: Array<{ partyIds?: string[] } | undefined> = [];
-    const result = await service(seen).searchMasterDataParties(memCtx(['master_data.admin']), { q: 'ferreteria' });
+    const result = await service(seen).searchMasterDataParties(memCtx(['master_data.admin']), { q: 'ferreteria', limit: 20 });
     assert.deepEqual(seen, [undefined], 'org-wide lookup, not the commercial visibility filter');
     assert.deepEqual(result.items.map((i) => i.partyId), ['p1']);
     assert.deepEqual(Object.keys(result.items[0]!).sort(), [
@@ -209,14 +209,14 @@ describe('master-data lookup (T03 2026-10-16 19:30)', () => {
 
   it('does not match on contact names, phones or emails', async () => {
     for (const q of ['juan', '70011122', 'juan@norte.bo', 'ana']) {
-      const result = await service().searchMasterDataParties(memCtx(['master_data.admin']), { q });
+      const result = await service().searchMasterDataParties(memCtx(['master_data.admin']), { q, limit: 20 });
       assert.deepEqual(result.items, [], q);
     }
   });
 
   it('refuses callers without master_data.admin, including commercial readers', async () => {
     for (const roles of [[], ['commercial.org.read'], ['people.admin']]) {
-      await assert.rejects(() => service().searchMasterDataParties(memCtx(roles), { q: 'ferreteria' }), roles.join(','));
+      await assert.rejects(() => service().searchMasterDataParties(memCtx(roles), { q: 'ferreteria', limit: 20 }), roles.join(','));
     }
   });
 });

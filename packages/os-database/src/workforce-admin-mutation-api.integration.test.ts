@@ -215,14 +215,25 @@ describePrisma('workforce admin mutation API readiness (Step 14.7)', () => {
   it('ChangeManager succeeds for same-org manager', async () => {
     const { org, admin, worker } = await seedAdminOrg();
     const session = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    const lead = await store.seedAdminMember(org.id, `lead-${Date.now()}@o.bo`, 'Le', 'Ad');
     await svc.execute('ChangeManager', session, {
       memberId: worker.member.id,
-      managerMemberId: admin.member.id,
+      managerMemberId: lead.member.id,
     });
     const mgr = await prisma.osManagerAssignment.findFirst({
       where: { memberId: worker.member.id, endedAt: null },
     });
-    assert.equal(mgr?.managerMemberId, admin.member.id);
+    assert.equal(mgr?.managerMemberId, lead.member.id);
+  });
+
+  it('ChangeManager denies appointing yourself and writes nothing', async () => {
+    const { org, admin, worker } = await seedAdminOrg();
+    const session = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    await assert.rejects(
+      () => svc.execute('ChangeManager', session, { memberId: worker.member.id, managerMemberId: admin.member.id }),
+      (err: Error) => err.message === 'PERMISSION_DENIED',
+    );
+    assert.equal(await prisma.osManagerAssignment.count({ where: { memberId: worker.member.id } }), 0);
   });
 
   it('ChangeManager rejects cross-tenant manager target member', async () => {

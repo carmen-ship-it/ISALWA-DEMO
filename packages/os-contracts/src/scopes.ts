@@ -40,14 +40,31 @@ export const COMMERCIAL_ACCOUNT_REASSIGN_SCOPE: CommercialAuthorityScopeKey =
   'commercial.account.reassign';
 
 /**
+ * Commercial action scopes that may coexist with a member's other grants
+ * (customer data, in-range work, assignment reach). Same strings as the
+ * constants in operations-scopes.ts, which imports this module.
+ */
+export const COMMERCIAL_ACTION_ASSIGNABLE_SCOPE_KEYS = [
+  'commercial.customer.create',
+  'commercial.customer.edit',
+  'commercial.customer.archive',
+  'commercial.customer.reactivate',
+  'commercial.work.manage',
+  'commercial.assignment.org',
+  'commercial.intake.assign',
+] as const;
+
+/**
  * Explicit additional assignments. GrantAdditionalRole may add one of these
  * without ending other active role assignments. Not inferred from Cargo,
  * title, department, or another member's permissions. people.admin may
- * administer the assignment and does not receive the capability by doing so.
+ * administer the assignment and does not receive the capability by doing so;
+ * the grantor must hold the scope in their own right and cannot grant to self.
  */
 export const ADDITIONAL_ASSIGNABLE_SCOPE_KEYS = [
   ...COMMERCIAL_READ_SCOPE_KEYS,
   ...COMMERCIAL_AUTHORITY_SCOPE_KEYS,
+  ...COMMERCIAL_ACTION_ASSIGNABLE_SCOPE_KEYS,
 ] as const;
 
 export type AdditionalAssignableScopeKey = (typeof ADDITIONAL_ASSIGNABLE_SCOPE_KEYS)[number];
