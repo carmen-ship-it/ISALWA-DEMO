@@ -17,6 +17,7 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | R4 role-change preview (22:29 decision 4: same rules as execution) | LOCAL_COMPLETE (local HTTP + PG, os-web unit, 2 mutation checks; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN) | see git log `fix(authz): R4 role-change preview` | `commercial-release/receipts/REVIEW-R4-ROLE-PREVIEW.md` |
 | R4 Journey neutrality (22:29 decision 3) | LOCAL_COMPLETE (os-web unit, 3 mutation checks; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN) | see git log `fix(web): R4 Journey neutral` | `commercial-release/receipts/REVIEW-R4-JOURNEY.md` |
 | R4 lifecycle revival backfill proposal (22:20 §3) | LOCAL_COMPLETE as dry-run tooling (disposable PG, 3 mutation checks; NOT INDEPENDENTLY REVIEWED; NOT EXECUTED — release dependency, needs owner authorization + reviewed plan hash) | see git log `feat(ops): R4 lifecycle revival backfill` | `commercial-release/receipts/REVIEW-R4-BACKFILL-DRYRUN.md` |
+| R4 multi-holder provisioning plan (22:29 decision 2) | LOCAL_COMPLETE (disposable PG, synthetic Jefe/Gerencia roster, 6/7 mutation checks; NOT INDEPENDENTLY REVIEWED; NOT EXECUTED) | see git log `feat(ops): R4 multi-holder provisioning plan` | `commercial-release/receipts/REVIEW-R4-BOOTSTRAP-PLAN.md` |
 
 ## Last confirmed step
 
@@ -55,6 +56,7 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `0316531b0575749383f409f18729d476caa70700` | `99c2decd659a6d0941a67b43e384e7aa5b7cf316` | R4 reactivation (22:29 decision 1) | this writer; not reviewed |
 | `a8a3307260cb4d2ca29d75acff296ff9359255f0` | `8845378fabc4dc33884445ba363d8130c32981d9` | R4 role-change preview (22:29 decision 4) | this writer; not reviewed |
 | `da6c7e4c801673891e47942aa8e2eb6302224fe1` | `70b467a682a4623dedeaab7bef37c509ebc7d264` | R4 Journey neutrality (22:29 decision 3) | this writer; not reviewed |
+| `cc47c6823b925e7d583eaac4b553bc1a576f46c6` | `02f86487e7c843a2361c7f99c614c1be2ac8baac` | R4 lifecycle revival backfill proposal (22:20 §3) | this writer; not reviewed; not executed |
 
 ## Open blockers
 

@@ -13,10 +13,11 @@ import {
  *   node --import tsx src/ops/bootstrap-cli.ts <request.json>                     # dry run
  *   node --import tsx src/ops/bootstrap-cli.ts <request.json> --execute <planHash> # apply
  *
- * The request file names the organization (id + slug), the existing member (id + email),
- * the proposal (see BOOTSTRAP_PROPOSALS), its range, the scopes, the owner approval
- * reference, the operator and the reason. Nothing is filled in by default. Output is the
- * plan or result only; no connection string or environment value is printed.
+ * The request file names the organization (id + slug), every initial holder (existing
+ * member id + email, proposal from BOOTSTRAP_PROPOSALS, its range, the scopes, and for
+ * team range the exact current direct reports), the owner approval reference, the operator
+ * and the reason. Nothing is filled in by default. Output is the plan or result only; no
+ * connection string or environment value is printed.
  */
 async function main(): Promise<number> {
   const [file, flag, planHash] = process.argv.slice(2);

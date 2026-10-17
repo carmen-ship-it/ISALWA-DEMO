@@ -1,0 +1,3 @@
+e43712266daf5d0c742b0917ec9510eb8f53a0f449b1d3b549ebcd2c0c360e4e  packages/os-database/src/ops/initial-commercial-bootstrap.ts
+4b3fe0137251402a0334bad58cdf2ff0be75c64529224c18ba2fcfcec12f8a6f  packages/os-database/src/ops/initial-commercial-bootstrap.integration.test.ts
+de3e60ebb8e60e0ffe242796316418e168637caebd0e527dc74149d026eca8b7  packages/os-database/src/ops/bootstrap-cli.ts

@@ -6,20 +6,24 @@ import type { OsPrismaClient } from '../client';
 import { PrismaOsWorkforceStore } from '../prisma-workforce-store';
 
 /**
- * Initial commercial provisioning (owner approval 2026-10-16 20:39 §1, preparation only).
+ * Initial commercial provisioning plan (owner approval 2026-10-16 20:39 §1; 22:29 decision 2).
  *
  * Under independent possession nobody can grant a commercial scope that nobody holds.
- * This procedure gives the first holder of each such scope to one existing, active,
- * unambiguously identified member, once per scope per organization:
- * - dry run by default; execution needs the exact plan hash the dry run printed;
- * - the request names a role-specific proposal, its range and a subset of its scopes;
- *   there is no default proposal, person or scope list;
- * - refuses wrong tenant, ambiguous or inactive identity, scopes outside the named
- *   proposal, organization-wide scopes without range `organization`, and any scope
- *   that an active member already holds (then GrantAdditionalRole applies);
- * - one transaction; role assignment ids are `bootstrap:<org>:<scope>`, so a scope can be
- *   bootstrapped at most once per organization, concurrent runs included;
- * - writes one business event, outbox row and audit row naming the operator and approval.
+ * One explicit, owner-approved plan names every initial holder and their minimal grants,
+ * so no single person needs people.admin plus commercial authority to finish the roster:
+ * - first-time establishment: a scope in the plan that no active member holds and that no
+ *   earlier plan bootstrapped in this organization;
+ * - distribution: the same scope to other holders named in the same plan, same transaction;
+ * - anything after the plan is applied goes through the governed application commands
+ *   (GrantAdditionalRole etc.). A scope held outside the plan refuses the whole plan.
+ *
+ * Validation covers the complete plan before any write: tenant, each holder's identity and
+ * standing, proposal/range/scope bounds, manager-relationship prerequisites for team-range
+ * holders (the exact current direct reports must be listed), and current holding state.
+ * Dry run by default; execution needs the exact plan hash. One transaction; role ids are
+ * deterministic, so concurrent or repeated runs cannot add a second set. One business
+ * event, outbox row and audit row per applied plan. No default proposal, person, scope
+ * or recipient; no all-scopes proposal.
  *
  * Internal operations module: not exported from the package index, not reachable from
  * os-api (a test enforces it). It creates no identity, password or session.
@@ -28,10 +32,9 @@ import { PrismaOsWorkforceStore } from '../prisma-workforce-store';
 export type BootstrapRange = 'team' | 'organization';
 
 /**
- * Minimal role-specific proposals for owner approval (21:33 §4). There is no
- * all-scopes proposal and no default: a request names one proposal, its range and
- * a subset of its scopes. Scopes outside every proposal stay ungrantable until a
- * later approved change adds a proposal for them.
+ * Minimal role-specific proposals for owner approval (21:33 §4). A holder names one
+ * proposal, its range and a subset of its scopes. Scopes outside every proposal stay
+ * ungrantable until a later approved change adds a proposal for them.
  */
 export const BOOTSTRAP_PROPOSALS = {
   team_manager: {
@@ -61,27 +64,41 @@ export const BOOTSTRAP_SCOPE_ALLOWLIST: readonly string[] = [
   ...new Set(Object.values(BOOTSTRAP_PROPOSALS).flatMap((proposal) => proposal.scopes)),
 ].filter((scope) => (ADDITIONAL_ASSIGNABLE_SCOPE_KEYS as readonly string[]).includes(scope));
 
-export type BootstrapRequest = {
-  organizationId: string;
-  organizationSlug: string;
+export type BootstrapHolderRequest = {
   memberId: string;
   memberEmail: string;
   proposal: string;
   range: string;
   scopes: readonly string[];
+  /** Required for range `team`: the holder's exact current direct reports (set ChangeManager first). */
+  directReportIds?: readonly string[];
+};
+
+export type BootstrapRequest = {
+  organizationId: string;
+  organizationSlug: string;
+  holders: readonly BootstrapHolderRequest[];
   approvalReference: string;
   operator: string;
   reason: string;
 };
 
-export type BootstrapPlan = {
-  organization: { id: string; slug: string };
-  member: { id: string };
+export type BootstrapGrantKind = 'establish' | 'distribute';
+
+export type BootstrapHolderPlan = {
+  memberId: string;
   proposal: BootstrapProposalKey;
   range: BootstrapRange;
+  directReportIds: string[];
   currentScopes: string[];
-  proposedScopes: string[];
-  alreadyAppliedScopes: string[];
+  grants: Array<{ scope: string; kind: BootstrapGrantKind; assignmentId: string }>;
+};
+
+export type BootstrapPlan = {
+  organization: { id: string; slug: string };
+  holders: BootstrapHolderPlan[];
+  establishedScopes: string[];
+  alreadyApplied: boolean;
   planHash: string;
 };
 
@@ -94,7 +111,8 @@ export type BootstrapRefusal =
   | 'MEMBER_NOT_ACTIVE'
   | 'IDENTITY_MISMATCH'
   | 'IDENTITY_AMBIGUOUS'
-  | 'SCOPE_ALREADY_HELD'
+  | 'PREREQUISITE_NOT_MET'
+  | 'SCOPE_HELD_OUTSIDE_PLAN'
   | 'PLAN_HASH_MISMATCH';
 
 export class BootstrapRefused extends Error {
@@ -103,20 +121,84 @@ export class BootstrapRefused extends Error {
   }
 }
 
-const bootstrapAssignmentId = (organizationId: string, scope: string) => `bootstrap:${organizationId}:${scope}`;
+const BOOTSTRAP_ID_PREFIX = 'bootstrap:';
+
+/** The establishing holder keeps the single-scope id, so two plans cannot both establish a scope. */
+function bootstrapAssignmentId(organizationId: string, scope: string, memberId: string, kind: BootstrapGrantKind): string {
+  return kind === 'establish'
+    ? `${BOOTSTRAP_ID_PREFIX}${organizationId}:${scope}`
+    : `${BOOTSTRAP_ID_PREFIX}${organizationId}:${scope}:${memberId}`;
+}
 
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function planHashOf(request: BootstrapRequest, scopes: readonly string[]): string {
+const nonEmpty = (value: unknown): value is string => typeof value === 'string' && value.trim() !== '';
+
+type NormalizedHolder = {
+  memberId: string;
+  memberEmail: string;
+  proposal: BootstrapProposalKey;
+  range: BootstrapRange;
+  scopes: string[];
+  directReportIds: string[];
+};
+
+function normalizeHolder(holder: BootstrapHolderRequest): NormalizedHolder {
+  if (!holder || typeof holder !== 'object') throw new BootstrapRefused('INVALID_INPUT', 'holder must be an object');
+  if (![holder.memberId, holder.memberEmail, holder.proposal, holder.range].every(nonEmpty)) {
+    throw new BootstrapRefused('INVALID_INPUT', 'every holder field is required and explicit');
+  }
+  if (!Array.isArray(holder.scopes)) throw new BootstrapRefused('INVALID_INPUT', 'scopes must be listed explicitly');
+  const scopes = [...new Set(holder.scopes)].sort();
+  if (scopes.length === 0) throw new BootstrapRefused('INVALID_INPUT', `no scopes requested for ${holder.memberId}`);
+  if (!Object.prototype.hasOwnProperty.call(BOOTSTRAP_PROPOSALS, holder.proposal)) {
+    throw new BootstrapRefused('INVALID_INPUT', 'unknown proposal');
+  }
+  const proposalKey = holder.proposal as BootstrapProposalKey;
+  const proposal = BOOTSTRAP_PROPOSALS[proposalKey];
+  const proposalScopes: readonly string[] = proposal.scopes;
+  const outside = scopes.filter((scope) => !BOOTSTRAP_SCOPE_ALLOWLIST.includes(scope) || !proposalScopes.includes(scope));
+  if (outside.length > 0) throw new BootstrapRefused('SCOPE_NOT_ALLOWED', outside.join(','));
+  if (holder.range !== proposal.range) {
+    throw new BootstrapRefused('RANGE_MISMATCH', `${holder.proposal} has range ${proposal.range}`);
+  }
+  const orgWide = scopes.filter((scope) => ORGANIZATION_RANGE_SCOPES.includes(scope));
+  if (orgWide.length > 0 && holder.range !== 'organization') {
+    throw new BootstrapRefused('RANGE_MISMATCH', `${orgWide.join(',')} needs range organization`);
+  }
+  let directReportIds: string[] = [];
+  if (holder.directReportIds !== undefined) {
+    if (!Array.isArray(holder.directReportIds) || !holder.directReportIds.every(nonEmpty)) {
+      throw new BootstrapRefused('INVALID_INPUT', 'directReportIds must list member ids');
+    }
+    directReportIds = [...new Set(holder.directReportIds)].sort();
+  }
+  if (proposal.range === 'team' && directReportIds.length === 0) {
+    throw new BootstrapRefused('PREREQUISITE_NOT_MET', `${holder.memberId}: team range needs its direct reports set and listed first`);
+  }
+  return {
+    memberId: holder.memberId,
+    memberEmail: normalizeEmail(holder.memberEmail),
+    proposal: proposalKey,
+    range: proposal.range,
+    scopes,
+    directReportIds,
+  };
+}
+
+function planHashOf(organizationId: string, holders: readonly NormalizedHolder[], approvalReference: string): string {
   const canonical = JSON.stringify({
-    organizationId: request.organizationId,
-    memberId: request.memberId,
-    proposal: request.proposal,
-    range: request.range,
-    scopes: [...scopes].sort(),
-    approvalReference: request.approvalReference.trim(),
+    organizationId,
+    holders: holders.map((holder) => ({
+      memberId: holder.memberId,
+      proposal: holder.proposal,
+      range: holder.range,
+      scopes: holder.scopes,
+      directReportIds: holder.directReportIds,
+    })),
+    approvalReference: approvalReference.trim(),
   });
   return createHash('sha256').update(canonical).digest('hex');
 }
@@ -126,93 +208,110 @@ export async function planInitialCommercialBootstrap(
   request: BootstrapRequest,
   asOf: Date = new Date(),
 ): Promise<BootstrapPlan> {
-  const fields = [request.organizationId, request.organizationSlug, request.memberId, request.memberEmail, request.proposal, request.range, request.approvalReference, request.operator, request.reason];
-  if (fields.some((value) => typeof value !== 'string' || value.trim() === '')) {
+  if (![request.organizationId, request.organizationSlug, request.approvalReference, request.operator, request.reason].every(nonEmpty)) {
     throw new BootstrapRefused('INVALID_INPUT', 'every input is required and explicit');
   }
-  if (!Array.isArray(request.scopes)) throw new BootstrapRefused('INVALID_INPUT', 'scopes must be listed explicitly');
-  const scopes = [...new Set(request.scopes)];
-  if (scopes.length === 0) throw new BootstrapRefused('INVALID_INPUT', 'no scopes requested');
-  if (!Object.prototype.hasOwnProperty.call(BOOTSTRAP_PROPOSALS, request.proposal)) {
-    throw new BootstrapRefused('INVALID_INPUT', 'unknown proposal');
+  if (!Array.isArray(request.holders) || request.holders.length === 0) {
+    throw new BootstrapRefused('INVALID_INPUT', 'the plan must name its holders');
   }
-  const proposalKey = request.proposal as BootstrapProposalKey;
-  const proposal = BOOTSTRAP_PROPOSALS[proposalKey];
-  const proposalScopes: readonly string[] = proposal.scopes;
-  const outside = scopes.filter((scope) => !BOOTSTRAP_SCOPE_ALLOWLIST.includes(scope) || !proposalScopes.includes(scope));
-  if (outside.length > 0) throw new BootstrapRefused('SCOPE_NOT_ALLOWED', outside.join(','));
-  if (request.range !== proposal.range) {
-    throw new BootstrapRefused('RANGE_MISMATCH', `${request.proposal} has range ${proposal.range}`);
-  }
-  const orgWide = scopes.filter((scope) => ORGANIZATION_RANGE_SCOPES.includes(scope));
-  if (orgWide.length > 0 && request.range !== 'organization') {
-    throw new BootstrapRefused('RANGE_MISMATCH', `${orgWide.join(',')} needs range organization`);
+  const holders = request.holders.map(normalizeHolder).sort((a, b) => a.memberId.localeCompare(b.memberId));
+  if (new Set(holders.map((holder) => holder.memberId)).size !== holders.length) {
+    throw new BootstrapRefused('INVALID_INPUT', 'each holder appears once with one proposal');
   }
 
   const org = await prisma.osOrganization.findUnique({ where: { id: request.organizationId } });
   if (!org || org.slug !== request.organizationSlug) {
     throw new BootstrapRefused('WRONG_TENANT', 'organization id and slug do not name the same organization');
   }
-  const member = await prisma.osOrganizationMember.findFirst({
-    where: { id: request.memberId, organizationId: org.id },
-  });
-  if (!member) throw new BootstrapRefused('MEMBER_NOT_FOUND', 'member is not in this organization');
-  if (member.accessStatus !== 'active') throw new BootstrapRefused('MEMBER_NOT_ACTIVE', member.accessStatus);
 
-  const email = normalizeEmail(request.memberEmail);
-  const identities = await prisma.osAuthIdentity.findMany({
-    where: { status: 'active', email: { equals: email, mode: 'insensitive' } },
-    select: { personId: true },
-  });
-  const personsWithEmail = new Set(identities.map((row) => row.personId));
-  if (!personsWithEmail.has(member.personId)) {
-    throw new BootstrapRefused('IDENTITY_MISMATCH', 'email is not an active identity of this member');
+  const holderStates: Array<{ holder: NormalizedHolder; currentScopes: string[] }> = [];
+  for (const holder of holders) {
+    const member = await prisma.osOrganizationMember.findFirst({ where: { id: holder.memberId, organizationId: org.id } });
+    if (!member) throw new BootstrapRefused('MEMBER_NOT_FOUND', `${holder.memberId} is not in this organization`);
+    if (member.accessStatus !== 'active') throw new BootstrapRefused('MEMBER_NOT_ACTIVE', `${holder.memberId}: ${member.accessStatus}`);
+
+    const identities = await prisma.osAuthIdentity.findMany({
+      where: { status: 'active', email: { equals: holder.memberEmail, mode: 'insensitive' } },
+      select: { personId: true },
+    });
+    const personsWithEmail = new Set(identities.map((row) => row.personId));
+    if (!personsWithEmail.has(member.personId)) {
+      throw new BootstrapRefused('IDENTITY_MISMATCH', `${holder.memberId}: email is not an active identity of this member`);
+    }
+    const sameEmailMembers = await prisma.osOrganizationMember.count({
+      where: { organizationId: org.id, accessStatus: 'active', personId: { in: [...personsWithEmail] } },
+    });
+    if (personsWithEmail.size !== 1 || sameEmailMembers !== 1) {
+      throw new BootstrapRefused('IDENTITY_AMBIGUOUS', `${holder.memberId}: email resolves to more than one person or membership`);
+    }
+
+    if (holder.directReportIds.length > 0) {
+      const reports = await prisma.osManagerAssignment.findMany({
+        where: {
+          organizationId: org.id,
+          managerMemberId: holder.memberId,
+          effectiveAt: { lte: asOf },
+          OR: [{ endedAt: null }, { endedAt: { gt: asOf } }],
+        },
+        select: { memberId: true },
+      });
+      const current = [...new Set(reports.map((row) => row.memberId))].sort();
+      if (JSON.stringify(current) !== JSON.stringify(holder.directReportIds)) {
+        throw new BootstrapRefused('PREREQUISITE_NOT_MET', `${holder.memberId}: listed direct reports differ from current manager relationships`);
+      }
+    }
+
+    const roles = await prisma.osRoleAssignment.findMany({ where: { organizationId: org.id, memberId: member.id } });
+    holderStates.push({ holder, currentScopes: computeEffectiveScopes(roles, [], asOf).sort() });
   }
-  const sameEmailMembers = await prisma.osOrganizationMember.count({
-    where: { organizationId: org.id, accessStatus: 'active', personId: { in: [...personsWithEmail] } },
-  });
-  if (personsWithEmail.size !== 1 || sameEmailMembers !== 1) {
-    throw new BootstrapRefused('IDENTITY_AMBIGUOUS', 'email resolves to more than one person or membership');
-  }
 
-  const roles = await prisma.osRoleAssignment.findMany({ where: { organizationId: org.id, memberId: member.id } });
-  const currentScopes = computeEffectiveScopes(roles, [], asOf).sort();
-  const alreadyAppliedScopes = scopes
-    .filter((scope) =>
-      roles.some((row) => row.id === bootstrapAssignmentId(org.id, scope) && row.roleKey === scope && row.endedAt === null),
-    )
-    .sort();
-  const proposedScopes = scopes.filter((scope) => !alreadyAppliedScopes.includes(scope)).sort();
+  const planScopes = [...new Set(holders.flatMap((holder) => holder.scopes))].sort();
+  const plannedHolders: BootstrapHolderPlan[] = holderStates.map(({ holder, currentScopes }) => ({
+    memberId: holder.memberId,
+    proposal: holder.proposal,
+    range: holder.range,
+    directReportIds: holder.directReportIds,
+    currentScopes,
+    grants: holder.scopes.map((scope) => {
+      const establisher = holders.find((candidate) => candidate.scopes.includes(scope))!;
+      const kind: BootstrapGrantKind = establisher.memberId === holder.memberId ? 'establish' : 'distribute';
+      return { scope, kind, assignmentId: bootstrapAssignmentId(org.id, scope, holder.memberId, kind) };
+    }),
+  }));
+  const expectedIds = new Set(plannedHolders.flatMap((holder) => holder.grants.map((grant) => grant.assignmentId)));
 
-  for (const scope of proposedScopes) {
-    const holders = await prisma.osRoleAssignment.findMany({
+  const existingBootstrapIds = new Set<string>();
+  for (const scope of planScopes) {
+    const outsideHolders = await prisma.osRoleAssignment.count({
       where: {
         organizationId: org.id,
         roleKey: scope,
+        NOT: { id: { startsWith: BOOTSTRAP_ID_PREFIX } },
         effectiveAt: { lte: asOf },
         OR: [{ endedAt: null }, { endedAt: { gt: asOf } }],
         member: { accessStatus: 'active' },
       },
+    });
+    if (outsideHolders > 0) {
+      throw new BootstrapRefused('SCOPE_HELD_OUTSIDE_PLAN', `${scope} already has an active holder; use GrantAdditionalRole`);
+    }
+    const bootstrapped = await prisma.osRoleAssignment.findMany({
+      where: { organizationId: org.id, roleKey: scope, id: { startsWith: BOOTSTRAP_ID_PREFIX } },
       select: { id: true },
     });
-    if (holders.length > 0) {
-      throw new BootstrapRefused('SCOPE_ALREADY_HELD', `${scope} already has an active holder; use GrantAdditionalRole`);
-    }
-    const prior = await prisma.osRoleAssignment.findUnique({ where: { id: bootstrapAssignmentId(org.id, scope) } });
-    if (prior) {
-      throw new BootstrapRefused('SCOPE_ALREADY_HELD', `${scope} was bootstrapped before in this organization`);
-    }
+    for (const row of bootstrapped) existingBootstrapIds.add(row.id);
+  }
+  const alreadyApplied = existingBootstrapIds.size > 0;
+  if (alreadyApplied && (existingBootstrapIds.size !== expectedIds.size || [...expectedIds].some((id) => !existingBootstrapIds.has(id)))) {
+    throw new BootstrapRefused('SCOPE_HELD_OUTSIDE_PLAN', 'a scope in this plan was bootstrapped by a different plan; use GrantAdditionalRole');
   }
 
   return {
     organization: { id: org.id, slug: org.slug },
-    member: { id: member.id },
-    proposal: proposalKey,
-    range: proposal.range,
-    currentScopes,
-    proposedScopes,
-    alreadyAppliedScopes,
-    planHash: planHashOf(request, scopes),
+    holders: plannedHolders,
+    establishedScopes: planScopes,
+    alreadyApplied,
+    planHash: planHashOf(org.id, holders, request.approvalReference),
   };
 }
 
@@ -221,37 +320,46 @@ export async function executeInitialCommercialBootstrap(
   request: BootstrapRequest,
   confirmPlanHash: string,
   asOf: Date = new Date(),
-): Promise<{ applied: string[]; alreadyApplied: string[]; eventId: string | null }> {
+): Promise<{ applied: Array<{ memberId: string; scopes: string[] }>; alreadyApplied: boolean; eventId: string | null }> {
   const plan = await planInitialCommercialBootstrap(prisma, request, asOf);
   if (confirmPlanHash !== plan.planHash) {
     throw new BootstrapRefused('PLAN_HASH_MISMATCH', 'execute only the plan that was reviewed');
   }
-  if (plan.proposedScopes.length === 0) {
-    return { applied: [], alreadyApplied: plan.alreadyAppliedScopes, eventId: null };
-  }
+  if (plan.alreadyApplied) return { applied: [], alreadyApplied: true, eventId: null };
+
   const store = new PrismaOsWorkforceStore(prisma);
   const correlationId = `bootstrap:${plan.planHash.slice(0, 16)}`;
   return store.runInTransaction(async (tx) => {
-    const member = await tx.getMemberInOrg(plan.organization.id, plan.member.id);
-    if (!member || member.accessStatus !== 'active') {
-      throw new BootstrapRefused('MEMBER_NOT_ACTIVE', 'member changed during execution');
+    for (const holder of plan.holders) {
+      await tx.lockMemberForUpdate(plan.organization.id, holder.memberId);
+      const member = await tx.getMemberInOrg(plan.organization.id, holder.memberId);
+      if (!member || member.accessStatus !== 'active') {
+        throw new BootstrapRefused('MEMBER_NOT_ACTIVE', `${holder.memberId} changed during execution`);
+      }
     }
-    for (const scope of plan.proposedScopes) {
-      // Primary-key collision aborts the whole transaction if another run got here first.
-      await tx.insertRoleAssignment({
-        id: bootstrapAssignmentId(plan.organization.id, scope),
-        organizationId: plan.organization.id,
-        memberId: plan.member.id,
-        roleKey: scope,
-        effectiveAt: asOf,
-        endedAt: null,
-      });
+    for (const holder of plan.holders) {
+      for (const grant of holder.grants) {
+        // A primary-key collision aborts the whole plan if another run got here first.
+        await tx.insertRoleAssignment({
+          id: grant.assignmentId,
+          organizationId: plan.organization.id,
+          memberId: holder.memberId,
+          roleKey: grant.scope,
+          effectiveAt: asOf,
+          endedAt: null,
+        });
+      }
     }
+    const applied = plan.holders.map((holder) => ({ memberId: holder.memberId, scopes: holder.grants.map((grant) => grant.scope) }));
     const payload = {
-      memberId: plan.member.id,
-      roleKeys: plan.proposedScopes,
-      proposal: plan.proposal,
-      range: plan.range,
+      holders: plan.holders.map((holder) => ({
+        memberId: holder.memberId,
+        proposal: holder.proposal,
+        range: holder.range,
+        directReportIds: holder.directReportIds,
+        grants: holder.grants.map(({ scope, kind }) => ({ scope, kind })),
+      })),
+      establishedScopes: plan.establishedScopes,
       planHash: plan.planHash,
       approvalReference: request.approvalReference.trim(),
       operator: request.operator.trim(),
@@ -259,12 +367,12 @@ export async function executeInitialCommercialBootstrap(
     };
     const event = buildBusinessEvent({
       organizationId: plan.organization.id,
-      eventType: 'member.bootstrap_grant.applied',
+      eventType: 'organization.bootstrap_plan.applied',
       occurredAt: asOf,
       actorMemberId: null,
       authorizationContext: { procedure: 'initial-commercial-bootstrap', approvalReference: payload.approvalReference, operator: payload.operator },
-      primaryEntityType: 'organization_member',
-      primaryEntityId: plan.member.id,
+      primaryEntityType: 'organization',
+      primaryEntityId: plan.organization.id,
       payload,
       correlationId,
       capabilityKey: 'workforce',
@@ -273,14 +381,21 @@ export async function executeInitialCommercialBootstrap(
     const audit = buildAuditEntry(
       plan.organization.id,
       null,
-      'member.bootstrap_grant.applied',
-      'organization_member',
-      plan.member.id,
+      'organization.bootstrap_plan.applied',
+      'organization',
+      plan.organization.id,
       correlationId,
-      { roleKeys: plan.currentScopes },
-      { ...payload, grantedRoleKeys: payload.roleKeys, roleKeys: [...new Set([...plan.currentScopes, ...plan.proposedScopes])].sort() },
+      { holders: plan.holders.map((holder) => ({ memberId: holder.memberId, roleKeys: holder.currentScopes })) },
+      {
+        ...payload,
+        holders: plan.holders.map((holder) => ({
+          memberId: holder.memberId,
+          grantedRoleKeys: holder.grants.map((grant) => grant.scope),
+          roleKeys: [...new Set([...holder.currentScopes, ...holder.grants.map((grant) => grant.scope)])].sort(),
+        })),
+      },
     );
     await tx.appendEventAndAudit(event, buildOutboxForEvent(event), audit);
-    return { applied: plan.proposedScopes, alreadyApplied: plan.alreadyAppliedScopes, eventId: event.id };
+    return { applied, alreadyApplied: false, eventId: event.id };
   });
 }

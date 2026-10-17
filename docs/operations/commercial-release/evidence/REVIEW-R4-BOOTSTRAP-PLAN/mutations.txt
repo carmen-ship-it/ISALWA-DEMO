@@ -1,0 +1,7 @@
+M1 every holder 'establishes' (no distribution within the plan): ℹ fail 3
+M2 scope held outside the plan ignored: ℹ fail 1
+M3 a different plan may add to bootstrapped scopes: ℹ fail 1
+M4 listed direct reports not compared with manager relationships: ℹ fail 1
+M5 team range allowed without manager prerequisites: ℹ fail 1
+M6 hash depends on listing order: ℹ fail 1
+M7 execution does not recheck holder standing: ℹ fail 0
