@@ -39,8 +39,8 @@ export function WalkthroughHelpPanel() {
             Recorrido completo de evaluación
           </h3>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-            Único recorrido guiado multi-paso. Usa Recorrido completo con datos DEMO · ficticios y rutas
-            normales del producto.
+            Único recorrido guiado multi-paso (Recorrido de ISALWA). Abre las páginas normales del
+            producto con la empresa y los permisos actuales; no cambia de empresa ni de datos.
           </p>
           <div className="mt-4">
             <Button type="button" variant="primary" size="sm" onClick={openStory}>

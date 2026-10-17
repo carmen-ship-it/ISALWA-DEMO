@@ -7,7 +7,6 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import seededIds from '@/lib/demo/seeded-ids.json';
 import { STORY_MODE_STEPS } from '@/lib/demo/story-mode-steps';
-import { setDemoSeedIdMapForTests, type DemoSeedIdMap } from '@/lib/demo/owner-demo-registry';
 
 describe('PF-4 demo uses same PDF implementation', () => {
   it('seeded hrefHints point at product /api/quotes|delivery-notes/.../pdf routes', () => {
@@ -26,31 +25,9 @@ describe('PF-4 demo uses same PDF implementation', () => {
     assert.doesNotMatch(hints.deliveryNotePdf ?? '', /demo-only|static|\.pdf\.html/);
   });
 
-  it('Story Mode PDF CTAs resolve to the same route family', () => {
-    const map: DemoSeedIdMap = {
-      organizationId: '01M2JKF77TXMJNDTKNCYNHH9G5',
-      REAL_SEVEN_MUTATED: 'NO',
-      storyModePrimaryPartyId: 'party-maderas',
-      clients: [
-        {
-          key: 'maderas_oriente',
-          partyId: 'party-maderas',
-          opportunityId: 'opp-1',
-          quoteId: 'quote-1',
-          quoteNumber: 'Q-000002',
-          orderId: 'order-1',
-          deliveryNoteId: 'note-1',
-          finishedGoodsReceiptId: 'fg-1',
-          followUpWorkId: 'work-1',
-          orderPrepWorkId: 'work-2',
-          commitmentId: 'commit-1',
-        },
-      ],
-    };
-    setDemoSeedIdMapForTests(map);
-    assert.equal(STORY_MODE_STEPS[5]!.hrefFor(map), '/api/quotes/quote-1/pdf');
-    assert.equal(STORY_MODE_STEPS[13]!.hrefFor(map), '/api/delivery-notes/note-1/pdf');
-    setDemoSeedIdMapForTests(null);
+  it('the Journey links no seeded PDF; its PDF steps open the generic list pages (22:29 decision 3)', () => {
+    assert.equal(STORY_MODE_STEPS[5]!.href, '/cotizaciones');
+    assert.equal(STORY_MODE_STEPS[13]!.href, '/entregas');
   });
 
   it('web PDF routes proxy to os-api client (no static demo PDF)', () => {

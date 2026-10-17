@@ -5,9 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button, cx } from '@isalwa/ui';
 import { useOwnerDemo } from '@/components/demo/owner-demo-provider';
-import { DEMO_FICTITIOUS_BADGE } from '@/lib/demo/owner-demo-identity';
 import { samePathQueryNavigation } from '@/lib/demo/preserve-data-mode';
-import { loadDemoSeedIdMap } from '@/lib/demo/owner-demo-registry';
 import {
   STORY_MODE_STEPS,
   STORY_MODE_TITLE,
@@ -32,12 +30,11 @@ const STEP_TONES = {
   },
 } as const;
 
-/** Full-screen Story Mode overlay — Recorrido completo de ISALWA. */
+/** Full-screen guided presentation — Recorrido de ISALWA. */
 export function OwnerStoryMode() {
   const { storyOpen, closeStory, canUseOwnerDemo } = useOwnerDemo();
   const router = useRouter();
   const [current, setCurrent] = useState(1);
-  const ids = loadDemoSeedIdMap();
 
   useEffect(() => {
     if (!storyOpen) setCurrent(1);
@@ -55,7 +52,7 @@ export function OwnerStoryMode() {
   if (!canUseOwnerDemo || !storyOpen) return null;
 
   const step = STORY_MODE_STEPS[current - 1];
-  const href = step?.hrefFor(ids) ?? null;
+  const href = step?.href ?? null;
 
   return (
     <div
@@ -67,7 +64,7 @@ export function OwnerStoryMode() {
       <div className="mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-[var(--isalwa-radius-panel)] bg-[var(--isalwa-white)] shadow-[var(--isalwa-shadow-elevated)]">
         <header className="border-b border-[var(--isalwa-mist)] px-4 py-3 sm:px-6">
           <p className="text-[10px] font-bold tracking-[0.14em] text-[#2C8C88] uppercase">
-            {DEMO_FICTITIOUS_BADGE}
+            Recorrido guiado
           </p>
           <h2 className="mt-1 font-[family-name:var(--isalwa-font-display)] text-xl text-[var(--isalwa-kiln)] italic sm:text-2xl">
             {STORY_MODE_TITLE}
@@ -161,11 +158,7 @@ export function OwnerStoryMode() {
                     {step.ctaLabel}
                   </Button>
                 </Link>
-              ) : (
-                <p className="text-sm text-[var(--isalwa-slate)]">
-                  Aplique el seed DEMO en SYNTH para vincular este paso a un registro real.
-                </p>
-              )}
+              ) : null}
             </div>
           ) : null}
         </div>

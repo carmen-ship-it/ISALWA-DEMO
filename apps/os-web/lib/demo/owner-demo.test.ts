@@ -3,6 +3,8 @@
  */
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   DEMO_DATA_MODE_COOKIE,
   DEMO_DATA_MODE_STORAGE_KEY,
@@ -16,11 +18,11 @@ import {
 } from './owner-demo-identity';
 import {
   STORY_MODE_STEPS,
+  STORY_MODE_TITLE,
   isStoryPdfApiHref,
   storyStepState,
   withStoryDemoDatos,
 } from './story-mode-steps';
-import { setDemoSeedIdMapForTests, type DemoSeedIdMap } from './owner-demo-registry';
 
 describe('owner-demo identity', () => {
   it('detects DEMO prefix and Q-DEMO numbers', () => {
@@ -112,50 +114,24 @@ describe('story mode steps', () => {
     assert.equal(isStoryPdfApiHref('/clientes/x'), false);
   });
 
-  it('builds CTAs from seeded ids when present', () => {
-    const map: DemoSeedIdMap = {
-      organizationId: '01M2JKF77TXMJNDTKNCYNHH9G5',
-      REAL_SEVEN_MUTATED: 'NO',
-      storyModePrimaryPartyId: 'party-maderas',
-      clients: [
-        {
-          key: 'maderas_oriente',
-          partyId: 'party-maderas',
-          opportunityId: 'opp-1',
-          quoteId: 'quote-1',
-          quoteNumber: 'Q-000010',
-          orderId: 'order-1',
-          deliveryNoteId: 'note-1',
-          finishedGoodsReceiptId: 'fg-1',
-          followUpWorkId: 'work-1',
-          orderPrepWorkId: 'work-2',
-          commitmentId: 'commit-1',
-        },
-      ],
-    };
-    setDemoSeedIdMapForTests(map);
+  it('Journey steps link to generic product pages only: no seeded records, PDFs, tenant or data mode (22:29 decision 3)', () => {
     assert.equal(STORY_MODE_STEPS.length, 20);
     for (const step of STORY_MODE_STEPS) {
-      const href = step.hrefFor(map);
-      assert.ok(href, `step ${step.step} should resolve with seeded ids`);
-      // F09: the Journey never changes organization or data mode.
-      assert.doesNotMatch(href, /[?&]datos=/, `step ${step.step} href`);
+      assert.match(step.href, /^\/[a-z-]+(\?lente=gerencia)?$/, `step ${step.step} href ${step.href}`);
+      assert.doesNotMatch(step.href, /[?&](datos|empresa|org|organizationId)=/, `step ${step.step}`);
+      assert.equal(isStoryPdfApiHref(step.href), false, `step ${step.step}`);
+      assert.doesNotMatch(`${step.title} ${step.whatHappened} ${step.whatIsalwaRecorded} ${step.ctaLabel}`, /DEMO|MADERAS|demo/);
     }
-    assert.equal(STORY_MODE_STEPS[5]!.hrefFor(map), '/api/quotes/quote-1/pdf');
-    assert.equal(STORY_MODE_STEPS[13]!.hrefFor(map), '/api/delivery-notes/note-1/pdf');
-    assert.match(STORY_MODE_STEPS[1]!.hrefFor(map) ?? '', /\/clientes\/party-maderas/);
-    assert.match(STORY_MODE_STEPS[9]!.hrefFor(map) ?? '', /\/pedidos\/order-1/);
-    assert.equal(STORY_MODE_STEPS[18]!.hrefFor(map), '/inicio');
-    assert.equal(STORY_MODE_STEPS[19]!.hrefFor(map), '/inicio?lente=gerencia');
-    setDemoSeedIdMapForTests(null);
+    assert.equal(STORY_MODE_STEPS[0]!.href, '/conversaciones');
+    assert.equal(STORY_MODE_STEPS[5]!.href, '/cotizaciones');
+    assert.equal(STORY_MODE_STEPS[13]!.href, '/entregas');
+    assert.equal(STORY_MODE_STEPS[19]!.href, '/inicio?lente=gerencia');
   });
 
-  it('page fallbacks carry no data mode when seed ids are missing', () => {
-    assert.equal(STORY_MODE_STEPS.length, 20);
-    assert.equal(STORY_MODE_STEPS[0]!.hrefFor(null), '/conversaciones');
-    assert.equal(STORY_MODE_STEPS[2]!.hrefFor(null), '/oportunidades');
-    assert.equal(STORY_MODE_STEPS[7]!.hrefFor(null), '/inicio');
-    assert.equal(STORY_MODE_STEPS[5]!.hrefFor(null), null);
-    assert.equal(STORY_MODE_STEPS[13]!.hrefFor(null), null);
+  it('the overlay has a neutral heading, no fictitious-data badge and no seed fallback', () => {
+    assert.equal(STORY_MODE_TITLE, 'Recorrido de ISALWA');
+    const overlay = readFileSync(join(process.cwd(), 'components/demo/owner-story-mode.tsx'), 'utf8');
+    assert.doesNotMatch(overlay, /DEMO_FICTITIOUS_BADGE|loadDemoSeedIdMap|seed DEMO|SYNTH/);
+    assert.doesNotMatch(overlay, /setDataMode|organizationId|saveDemoDataMode/);
   });
 });

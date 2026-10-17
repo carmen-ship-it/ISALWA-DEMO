@@ -1,0 +1,3 @@
+M1 overlay shows the fictitious-data badge again: ℹ fail 1
+M2 a step links a seeded record: ℹ fail 1
+M3 a step selects demo mode: ℹ fail 1
