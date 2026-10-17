@@ -467,7 +467,7 @@ describePrisma('work prisma integration', () => {
     assert.equal(work?.title, 'Succeed Second');
   });
 
-  it('ReassignWork still requires people.admin; non-admin scopes are denied', async () => {
+  it('ReassignWork of general work by a member without workforce authority is answered as missing and changes nothing', async () => {
     const org = await workforceStore.seedOrganization('Tx Auth Work', `txaw-${Date.now()}`);
     const admin = await workforceStore.seedScopedAdminMember(
       org.id,
@@ -542,9 +542,10 @@ describePrisma('work prisma integration', () => {
           ctx(org.id, memberId, personId, authId),
           { workItemId, newOwnerMemberId: next.member.id, reason: 'denied' },
         ),
-      (err: Error) => err.message === 'PERMISSION_DENIED',
+      (err: Error) => err.message === 'NOT_FOUND',
     );
     const work = await workStore.getWorkItemInOrg(org.id, workItemId);
     assert.equal(work?.ownerMemberId, owner.member.id);
+    assert.equal(await prisma.osWorkItemOwnershipHistory.count({ where: { workItemId, changedByMemberId: memberId } }), 0);
   });
 });

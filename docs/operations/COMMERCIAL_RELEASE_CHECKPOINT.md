@@ -20,6 +20,9 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | R4 multi-holder provisioning plan (22:29 decision 2) | LOCAL_COMPLETE (disposable PG, synthetic Jefe/Gerencia roster, 6/7 mutation checks; NOT INDEPENDENTLY REVIEWED; NOT EXECUTED) | see git log `feat(ops): R4 multi-holder provisioning plan` | `commercial-release/receipts/REVIEW-R4-BOOTSTRAP-PLAN.md` |
 | R4 review status (22:29 decision 5) | RECORDED (docs only): `RE-REVIEW_R3_R2F.md` findings and placement in `REVIEW_RECONCILIATION.md`; review was source-level, not runtime | see git log `docs(review): R4 re-review status` | `commercial-release/REVIEW_RECONCILIATION.md` § Re-review R3 / R2 follow-up |
 | R4 read gaps part A: work + approvals (F10 authorship, F11; 20:03 §4) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 8 mutation checks; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN). Part B (F07 commitments) next | see git log `fix(authz): R4 work and approval reads` | `commercial-release/receipts/REVIEW-R4-WORK-READS.md` |
+| R4 part B repair 1: ReassignWork authority by work class (23:27 §1, REQUIRED) | LOCAL_COMPLETE (unit + disposable PG + local HTTP with no-trace checks, 9 mutation checks; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN) | see git log `fix(authz): R4 ReassignWork` | `commercial-release/receipts/REVIEW-R4-REASSIGN-WORK.md` |
+| R4 part B repair 2: `organization_member` approvals subject policy (23:27 §2, REQUIRED) | OPEN — security gap kept open until proven repaired | — | — |
+| R4 part B repair 3: F07 commitments across list/detail/related paths (23:27 §3, REQUIRED) | OPEN — security gap kept open until proven repaired | — | — |
 
 ## Last confirmed step
 
@@ -61,6 +64,7 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `cc47c6823b925e7d583eaac4b553bc1a576f46c6` | `02f86487e7c843a2361c7f99c614c1be2ac8baac` | R4 lifecycle revival backfill proposal (22:20 §3) | this writer; not reviewed; not executed |
 | `71d048af81de90af4dcb381e80830dd41307f209` | `b02f18bf6a17cf9785e35c65483444c3599d287e` | R4 multi-holder provisioning plan (22:29 decision 2) | this writer; not reviewed; not executed |
 | `0d3e30a69b5dc6e53eecb0b110af2c30ba8f5e0b` | `e509ecad18ec469247c2e3ed2da55f0e9977dde6` | R4 re-review status (22:29 decision 5, docs only) | this writer |
+| `a1ed5870f97533d825a01f7bbb895919c3ae4485` | `de390eec0093324718dd5c1c86679c94fa5430e9` | R4 read gaps part A (F10 authorship, F11) | this writer; not reviewed |
 
 ## Open blockers
 

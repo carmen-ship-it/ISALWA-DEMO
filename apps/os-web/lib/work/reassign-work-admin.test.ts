@@ -19,8 +19,8 @@ function source(relativePath: string): string {
 }
 
 describe('Wave A ReassignWork admin surface', () => {
-  it('keeps ReassignWork scoped to people.admin', () => {
-    assert.equal(COMMAND_REQUIRED_SCOPES.ReassignWork, 'people.admin');
+  it('keeps ReassignWork authority by work class (people.admin only for general work, checked in reassignWork)', () => {
+    assert.equal(COMMAND_REQUIRED_SCOPES.ReassignWork, 'member_active');
     assert.deepEqual(ADMIN_REASSIGN_WORK_COMMANDS, ['ReassignWork']);
     assert.equal(ADMIN_REASSIGN_WORK_COMMAND, 'ReassignWork');
   });

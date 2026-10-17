@@ -131,7 +131,8 @@ export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_act
   RehireMember: 'people.admin',
   RetryAuthProviderSync: 'people.admin',
   CreateWorkItem: 'member_active',
-  ReassignWork: 'people.admin',
+  /** Authority depends on the work class; checked in WorkCommandService.reassignWork. */
+  ReassignWork: 'member_active',
   CompleteWork: 'member_active',
   CancelWorkItem: 'member_active',
   RequestApproval: 'member_active',

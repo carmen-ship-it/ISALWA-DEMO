@@ -103,6 +103,33 @@ export class PrismaOsWorkStore implements OsWorkStore {
     }));
   }
 
+  async getCustomerAccountForWorkSubject(
+    organizationId: string,
+    subjectType: string,
+    subjectId: string,
+  ): Promise<{ partyId: string; ownerMemberId: string | null } | null> {
+    if (subjectType !== 'party' && subjectType !== 'commercial_account') return null;
+    const account = await this.db().osCommercialAccount.findFirst({
+      where: subjectType === 'party' ? { organizationId, partyId: subjectId } : { organizationId, id: subjectId },
+      select: { partyId: true, ownerMemberId: true },
+    });
+    return account ? { partyId: account.partyId, ownerMemberId: account.ownerMemberId } : null;
+  }
+
+  async isDirectReport(organizationId: string, managerMemberId: string, memberId: string, asOf: Date): Promise<boolean> {
+    const row = await this.db().osManagerAssignment.findFirst({
+      where: {
+        organizationId,
+        managerMemberId,
+        memberId,
+        effectiveAt: { lte: asOf },
+        OR: [{ endedAt: null }, { endedAt: { gt: asOf } }],
+      },
+      select: { id: true },
+    });
+    return Boolean(row);
+  }
+
   async partyExistsInOrg(organizationId: string, partyId: string): Promise<boolean> {
     const row = await this.db().osParty.findFirst({
       where: { id: partyId, organizationId, status: { not: 'merged' } },

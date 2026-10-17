@@ -39,6 +39,12 @@ describe('work auth queries', () => {
       async findIdempotency() {
         return null;
       },
+      async getWorkItemInOrg(organizationId: string, workItemId: string) {
+        calls.push({ method: 'work', organizationId });
+        return organizationId === ORG && workItemId === 'work-1'
+          ? { id: 'work-1', organizationId: ORG, ownerMemberId: ACTOR, status: 'open', subjectType: null, subjectId: null, title: 'General', description: null, version: 1 }
+          : null;
+      },
       async runInTransaction(fn: (next: OsWorkStore) => Promise<unknown>) {
         return fn(store as unknown as OsWorkStore);
       },
@@ -53,6 +59,7 @@ describe('work auth queries', () => {
     assert.deepEqual(calls, [
       { method: 'roles', organizationId: ORG },
       { method: 'delegations', organizationId: ORG },
+      { method: 'work', organizationId: ORG },
     ]);
   });
 

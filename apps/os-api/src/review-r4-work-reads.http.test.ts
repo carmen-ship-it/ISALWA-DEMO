@@ -136,9 +136,12 @@ describeHttp('R4 work and approval reads over HTTP (disposable Postgres)', () =>
     }
   });
 
-  it('work list: people.admin cannot list another owner and its default list does not include work it only created', async () => {
+  it('work list: people.admin lists another owner only for general-work continuity and its default list does not include work it only created', async () => {
+    // Workforce continuity (R4 23:27 §1): only the member's general work, which people.admin may hand off.
     const filtered = await get('admin', `/work-items?ownerMemberId=${m.owner!.member.id}`);
-    assert.equal(filtered.status, 403);
+    assert.equal(filtered.status, 200);
+    assert.deepEqual((filtered.body.items as Array<{ workItemId: string }>).map((item) => item.workItemId), [ids.work]);
+    assert.equal((await get('jefe', `/work-items?ownerMemberId=${m.outsider!.member.id}`)).status, 403);
     const own = await get('admin', '/work-items');
     assert.equal(own.status, 200);
     assert.equal((own.body.items as Array<{ workItemId: string }>).some((item) => item.workItemId === ids.work), false);

@@ -2,8 +2,11 @@ import type { WorkCommandName, RequestContext } from '@isalwa/os-contracts';
 import {
   ApprovalRequestContextSchema,
   COMMAND_REQUIRED_SCOPES,
+  COMMERCIAL_ORG_READ_SCOPE,
+  canManageCustomerAccountWork,
   canRecordPurchasing,
   canRequestCommercialSubjectApproval,
+  classifyWorkForReassignment,
 } from '@isalwa/os-contracts';
 import {
   assertMemberActive,
@@ -350,17 +353,73 @@ export class WorkCommandService {
     });
   }
 
+  /**
+   * Reassignment authority by work class (classifyWorkForReassignment): customer work needs
+   * commercial.work.manage plus current range over the account; general work is workforce
+   * continuity (people.admin); purchasing prep reviews are not reassignable. null = none.
+   */
+  private async reassignmentAuthority(
+    ctx: RequestContext,
+    snap: MemberAccessSnapshot,
+    work: WorkItemRecord,
+    store: OsWorkStore,
+  ): Promise<{ kind: 'customer'; range: 'org' | 'team' } | { kind: 'general' } | null> {
+    let subject: WorkItemRecord = work;
+    for (let depth = 0; depth < 3; depth++) {
+      const workClass = classifyWorkForReassignment(subject);
+      if (workClass === 'purchasing') return null;
+      if (workClass === 'general') return memberHasScope(snap, 'people.admin') ? { kind: 'general' } : null;
+      if (workClass === 'customer') {
+        const account = await store.getCustomerAccountForWorkSubject(ctx.organizationId, subject.subjectType!, subject.subjectId!);
+        if (!account?.ownerMemberId) return null;
+        const grantedScopes = [...snap.roleKeys, ...snap.delegatedScopes];
+        const ownerIsDirectReportOfActor =
+          account.ownerMemberId !== ctx.actorMemberId &&
+          (await store.isDirectReport(ctx.organizationId, ctx.actorMemberId, account.ownerMemberId, ctx.effectiveAt));
+        const allowed = canManageCustomerAccountWork({
+          actorMemberId: ctx.actorMemberId,
+          organizationId: ctx.organizationId,
+          customerPartyId: account.partyId,
+          grantedScopes,
+          accountOwnerMemberId: account.ownerMemberId,
+          ownerIsDirectReportOfActor,
+        });
+        if (!allowed) return null;
+        return { kind: 'customer', range: grantedScopes.includes(COMMERCIAL_ORG_READ_SCOPE) ? 'org' : 'team' };
+      }
+      const referenced = subject.subjectId ? await store.getWorkItemInOrg(ctx.organizationId, subject.subjectId) : null;
+      if (!referenced) return null;
+      subject = referenced;
+    }
+    return null;
+  }
+
   private async reassignWork(
     ctx: RequestContext,
     payload: Record<string, unknown>,
     store: OsWorkStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'ReassignWork', ctx.organizationId);
+    const snap = await this.authorize(ctx, 'ReassignWork', ctx.organizationId);
     const workItemId = String(payload.workItemId);
     const newOwnerMemberId = String(payload.newOwnerMemberId);
+    const found = await store.getWorkItemInOrg(ctx.organizationId, workItemId);
+    if (!found) throw new Error('NOT_FOUND');
+    const authority = await this.reassignmentAuthority(ctx, snap, found, store);
+    if (!authority) {
+      // Only the current owner already knows the item; everyone else gets the missing-id answer.
+      throw new Error(found.ownerMemberId === ctx.actorMemberId ? 'PERMISSION_DENIED' : 'NOT_FOUND');
+    }
     const work = await this.requireOpenWork(store, ctx.organizationId, workItemId);
     const newOwner = await store.getMemberInOrg(ctx.organizationId, newOwnerMemberId);
     if (!newOwner || newOwner.accessStatus !== 'active') throw new Error('VALIDATION_FAILED');
+    if (
+      authority.kind === 'customer' &&
+      authority.range === 'team' &&
+      newOwnerMemberId !== ctx.actorMemberId &&
+      !(await store.isDirectReport(ctx.organizationId, ctx.actorMemberId, newOwnerMemberId, ctx.effectiveAt))
+    ) {
+      throw new Error('VALIDATION_FAILED');
+    }
 
     const before = { ownerMemberId: work.ownerMemberId };
     await store.updateWorkItem(

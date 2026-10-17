@@ -1,0 +1,9 @@
+M1 purchasing prep becomes reassignable as general work: ℹ fail 2
+M2 people.admin moves customer work again: ℹ fail 2
+M3 unreadable work answers 403 (discloses existence): ℹ fail 2
+M4 suspended target accepted: ℹ fail 1
+M5 team range target not limited to direct reports: ℹ fail 1
+M6 commercial read scope without commercial.work.manage suffices: ℹ fail 1
+M7 linked work treated as general instead of following the referenced item: ℹ fail 2
+M8 team range treated as org range: ℹ fail 1
+M9 continuity list returns every work class: ℹ fail 1

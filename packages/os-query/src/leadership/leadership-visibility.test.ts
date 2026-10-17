@@ -315,7 +315,8 @@ describe('pilot leadership visibility', () => {
       assert.equal((ADMIN_SCOPE_KEYS as readonly string[]).includes(scope), false);
       assert.equal(Object.values(COMMAND_REQUIRED_SCOPES).includes(scope as never), false);
     }
-    assert.equal(COMMAND_REQUIRED_SCOPES.ReassignWork, 'people.admin');
+    // R4 23:27 §1: authority depends on the work class (checked in reassignWork), not people.admin alone.
+    assert.equal(COMMAND_REQUIRED_SCOPES.ReassignWork, 'member_active');
     assert.equal(COMMAND_REQUIRED_SCOPES.Approve, 'member_active');
     assert.equal(COMMAND_REQUIRED_SCOPES.CreateOrder, 'member_active');
     assert.equal(COMMAND_REQUIRED_SCOPES.AssignOpportunityOwner, 'member_active');

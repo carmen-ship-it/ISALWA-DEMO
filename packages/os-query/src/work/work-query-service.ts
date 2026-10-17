@@ -5,7 +5,8 @@ import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
 import type { OsProjectionStorePort, StoredWorkReadModel } from '../projection-store-port';
 import { assertWorkListScope, canReadWork, canViewWork, isOpenPurchasingPrepReview } from './work-auth';
-import { canRecordPurchasing } from '@isalwa/os-contracts';
+import { canRecordPurchasing, classifyWorkForReassignment } from '@isalwa/os-contracts';
+import { memberHasScope } from '@isalwa/os-domain';
 import type { DirectReportLookup } from '../leadership/direct-reports';
 import type { CustomerVisibilityLookup } from '../party/customer-visibility';
 import {
@@ -74,7 +75,15 @@ export class WorkQueryService {
           lookup: this.deps.directReports ?? null,
         })
       : null;
-    const ownerMemberId = scope ? undefined : assertWorkListScope(ctx, query.ownerMemberId);
+    // Workforce continuity: people.admin lists another member's open general work only, so it
+    // can be handed over (ReassignWork applies the same class rule). Customer, purchasing and
+    // linked work stay with their commercial/department authority.
+    const continuity =
+      !scope &&
+      Boolean(query.ownerMemberId) &&
+      query.ownerMemberId !== ctx.auth.memberId &&
+      memberHasScope(ctx.auth, 'people.admin');
+    const ownerMemberId = scope ? undefined : continuity ? query.ownerMemberId : assertWorkListScope(ctx, query.ownerMemberId);
     const ownerFilter = scope ? toStoreOwnerFilter(scope) : { ownerMemberId };
 
     if ('empty' in ownerFilter) {
@@ -115,6 +124,7 @@ export class WorkQueryService {
     let purchasingPrepExtras: typeof items = [];
     if (
       !scope &&
+      !continuity &&
       !query.overdue &&
       (query.status ?? 'open') === 'open' &&
       canRecordPurchasing([...ctx.auth.roleKeys, ...ctx.auth.delegatedScopes])
@@ -142,6 +152,7 @@ export class WorkQueryService {
     const visible = merged.filter((item) => {
       if (item.organizationId !== ctx.organizationId) return false;
       if (scope) return ownerInReadScope(item.ownerMemberId, scope);
+      if (continuity) return item.ownerMemberId === ownerMemberId && classifyWorkForReassignment(item) === 'general';
       return canViewWork(ctx, item);
     });
     const freshness = await this.deps.projectionStore.getFreshness(

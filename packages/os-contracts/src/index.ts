@@ -12,6 +12,7 @@ export * from './import-types';
 export * from './import-events';
 export * from './import-commands';
 export * from './work-events';
+export * from './work-reassignment';
 export * from './work-commands';
 export * from './commercial-events';
 export * from './commercial-commands';

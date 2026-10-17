@@ -24,6 +24,13 @@ export interface OsWorkStore {
   ): Promise<DelegationRecord[]>;
 
   partyExistsInOrg(organizationId: string, partyId: string): Promise<boolean>;
+  /** Customer account behind a party / commercial_account work subject in this organization, or null. */
+  getCustomerAccountForWorkSubject(
+    organizationId: string,
+    subjectType: string,
+    subjectId: string,
+  ): Promise<{ partyId: string; ownerMemberId: string | null } | null>;
+  isDirectReport(organizationId: string, managerMemberId: string, memberId: string, asOf: Date): Promise<boolean>;
   getQuoteApprovalSubject(
     organizationId: string,
     quoteId: string,

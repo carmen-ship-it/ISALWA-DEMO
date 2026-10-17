@@ -1,0 +1,14 @@
+3d1340e20105b4ac4adee338115c2c0e7f4c62fcd2d9d9195440891759ba0c9f  apps/os-api/src/review-r4-reassign-work.http.test.ts
+be41ba038a09d5b23685afa07bbb1e9aead463ebe7fcca31b0260913a2e864f2  apps/os-api/src/review-r4-work-reads.http.test.ts
+a463178c7472a1178ba4f3044eb89d446ce1d4734c064fafed1e2d606de0ba48  apps/os-web/lib/work/reassign-work-admin.test.ts
+648e435af593491432b5866d83f0ac6192ddaa8d9499c973b8af3c51b0d48a35  packages/os-contracts/src/index.ts
+8ade4d12f9b84e924493bbfd5c915389e7be5721f780f35939ca09a5a76acf7f  packages/os-contracts/src/scopes.ts
+cdc674bbd50048b281d83baa02cb930ff19723d76ac9aa2e54c2ea5c7b256752  packages/os-contracts/src/work-reassignment.ts
+bc6ade89edf14470b5477d2d828dad23383711efa4fe49eca7fd958a14bf5de8  packages/os-database/src/party-timeline-work-approval-prisma.integration.test.ts
+8f8308874e2dfa7746cba0c668dd726ac256a3e3b2cf6a54ffea7f1ee05d7b51  packages/os-database/src/prisma-work-store.ts
+e499d2e408ae015dc27d0d03b320a8216a696ff270b62a47d56d740ba9251859  packages/os-database/src/work-prisma.integration.test.ts
+063031cb6d558416cd5e2ed51c149e2baefb1ceb50260a05bb9a49f4b8edf10a  packages/os-query/src/leadership/leadership-visibility.test.ts
+42d9344c4508bc7988dc1adc021fcf8d5cdd557cbbdb5c42d907cf3ca1a83226  packages/os-query/src/work/work-query-service.ts
+b273bfe38485a6574190ca5dc151d2f147215f43a2d96f8b35ba251c8e975de4  packages/os-work/src/auth-query-tenant.test.ts
+53af2b040f100d2f76cc782052f292ad76e03c72f410446e1225b46b5439bd79  packages/os-work/src/os-work-store.ts
+a16ae4e63837bc0c9de764b59e5bc985bf4f5cd5024b12e0c32a2cb333bce118  packages/os-work/src/work-command-service.ts

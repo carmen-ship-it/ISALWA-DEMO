@@ -185,7 +185,18 @@ describePrisma('party timeline work + approval prisma integration (Step 16.1B)',
     const workItemId = String(created.data.workItemId);
     await drainTimelineOutbox(org.id);
 
-    await workSvc.execute('ReassignWork', ownerCtx, {
+    // Customer work moves only with commercial.work.manage plus range (R4 23:27 §1).
+    const manager = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `mgr-${createId()}@watl.bo`,
+      'Com',
+      'Manager',
+      'commercial.work.manage',
+    );
+    await prisma.osRoleAssignment.create({
+      data: { id: createId(), organizationId: org.id, memberId: manager.member.id, roleKey: 'commercial.org.read', effectiveAt: new Date('2020-01-01') },
+    });
+    await workSvc.execute('ReassignWork', ctx(org.id, manager.member.id, manager.person.id, manager.auth.id), {
       workItemId,
       newOwnerMemberId: owner.member.id,
       reason: 'stay',
