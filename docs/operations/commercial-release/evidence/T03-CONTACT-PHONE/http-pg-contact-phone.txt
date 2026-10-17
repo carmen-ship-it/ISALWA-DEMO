@@ -1,0 +1,7 @@
+  ✔ refuses incomplete or empty changes and writes nothing (83.693542ms)
+  ✔ only someone who may edit this customer changes the number; others get the usual answers (33.666125ms)
+  ✔ changes the number with reason and verification; WhatsApp on the same number follows; history keeps both (24.429708ms)
+  ✔ retires the number: it leaves the contact and the duplicate check; retiring again is refused (45.627416ms)
+  ✔ the general contact edit cannot set or change an existing contact's number (29.005833ms)
+  ✔ the customer timeline shows masked numbers only (83.6575ms)
+✔ T03 contact phone change and retirement over HTTP (disposable Postgres) (435.579291ms)

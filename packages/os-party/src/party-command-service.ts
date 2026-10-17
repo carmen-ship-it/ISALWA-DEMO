@@ -1,7 +1,10 @@
 import {
   COMMERCIAL_CUSTOMER_CREATE_SCOPE,
+  CONTACT_PHONE_CHANGE_REASONS,
+  CONTACT_PHONE_VERIFICATION_METHODS,
   MASTER_DATA_ADMIN_SCOPE,
   partyChangeNeedsReason,
+  type ContactPhoneChangeReason,
   resolveAccountAssignmentAuthority,
   type PartyChangeKind,
   type PartyCommandName,
@@ -182,6 +185,12 @@ export class PartyCommandService {
         break;
       case 'UpdateContact':
         result = await this.updateContact(ctx, payload, store);
+        break;
+      case 'ChangeContactPhone':
+        result = await this.changeContactPhone(ctx, payload, store);
+        break;
+      case 'RetireContactPhone':
+        result = await this.retireContactPhone(ctx, payload, store);
         break;
       case 'UpdateFiscalIdentity':
         result = await this.updateFiscalIdentity(ctx, payload, store);
@@ -680,6 +689,8 @@ export class PartyCommandService {
       : null;
     // Authority was checked on organizationPartyId; a contact of another party is not reachable through it.
     if (existing && existing.organizationPartyId !== organizationPartyId) throw new Error('NOT_FOUND');
+    // A2 §58: an existing number changes only through ChangeContactPhone / RetireContactPhone.
+    if (existing && phone !== existing.phone) throw new Error('VALIDATION_FAILED');
 
     if (existing) {
       await store.updateContact(
@@ -714,6 +725,130 @@ export class PartyCommandService {
       phone,
       whatsapp,
     });
+  }
+
+  /** The customer's active contact for a phone command, with the reason rules shared by change and retire. */
+  private async contactForPhoneCommand(
+    ctx: RequestContext,
+    command: 'ChangeContactPhone' | 'RetireContactPhone',
+    payload: Record<string, unknown>,
+    store: OsPartyStore,
+  ) {
+    const partyId = String(payload.partyId);
+    await this.authorize(ctx, command, ctx.organizationId, partyId, store);
+    await this.requireActiveParty(store, ctx.organizationId, partyId);
+    const contact = await store.getContactInOrg(ctx.organizationId, String(payload.contactId));
+    if (!contact || contact.organizationPartyId !== partyId) throw new Error('NOT_FOUND');
+    if (contact.status !== 'active') throw new Error('VALIDATION_FAILED');
+    const reason = String(payload.reason) as ContactPhoneChangeReason;
+    if (!(CONTACT_PHONE_CHANGE_REASONS as readonly string[]).includes(reason)) throw new Error('VALIDATION_FAILED');
+    const reasonNote = typeof payload.reasonNote === 'string' ? payload.reasonNote.trim() : '';
+    if (reason === 'other' && !reasonNote) throw new Error('VALIDATION_FAILED');
+    return { partyId, contact, reason, reasonNote: reasonNote || null, expectedVersion: Number(payload.expectedVersion) };
+  }
+
+  private async changeContactPhone(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsPartyStore,
+  ): Promise<CommandResult> {
+    const { partyId, contact, reason, reasonNote, expectedVersion } = await this.contactForPhoneCommand(
+      ctx,
+      'ChangeContactPhone',
+      payload,
+      store,
+    );
+    const verificationMethod = String(payload.verificationMethod);
+    if (!(CONTACT_PHONE_VERIFICATION_METHODS as readonly string[]).includes(verificationMethod)) {
+      throw new Error('VALIDATION_FAILED');
+    }
+    const phone = normalizeBoliviaPhone(String(payload.newPhone));
+    if (!/^\+\d{8,15}$/.test(phone) || phone === contact.phone) throw new Error('VALIDATION_FAILED');
+    const whatsappFollows = Boolean(contact.phone) && contact.whatsapp === contact.phone;
+    const version = contact.version + 1;
+    await store.updateContact(
+      contact.id,
+      {
+        phone,
+        ...(whatsappFollows ? { whatsapp: phone } : {}),
+        phoneRetiredAt: null,
+        phoneRetiredReason: null,
+        version,
+      },
+      expectedVersion,
+    );
+    const evidenceNote = typeof payload.evidenceNote === 'string' ? payload.evidenceNote.trim() || null : null;
+    return this.emit(
+      ctx,
+      store,
+      'contact.phone.changed',
+      'contact',
+      contact.id,
+      {
+        partyId,
+        contactId: contact.id,
+        previousPhone: contact.phone,
+        phone,
+        previousPhoneMasked: maskPhone(contact.phone),
+        phoneMasked: maskPhone(phone),
+        whatsappFollows,
+        reason,
+        reasonNote,
+        verificationMethod,
+        evidenceNote,
+        version,
+      },
+      'contact.phone.changed',
+      { phone: contact.phone, whatsapp: contact.whatsapp },
+      { phone, whatsapp: whatsappFollows ? phone : contact.whatsapp },
+    );
+  }
+
+  private async retireContactPhone(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsPartyStore,
+  ): Promise<CommandResult> {
+    const { partyId, contact, reason, reasonNote, expectedVersion } = await this.contactForPhoneCommand(
+      ctx,
+      'RetireContactPhone',
+      payload,
+      store,
+    );
+    if (!contact.phone) throw new Error('VALIDATION_FAILED');
+    const whatsappFollows = contact.whatsapp === contact.phone;
+    const version = contact.version + 1;
+    await store.updateContact(
+      contact.id,
+      {
+        phone: null,
+        ...(whatsappFollows ? { whatsapp: null } : {}),
+        phoneRetiredAt: ctx.effectiveAt,
+        phoneRetiredReason: reason,
+        version,
+      },
+      expectedVersion,
+    );
+    return this.emit(
+      ctx,
+      store,
+      'contact.phone.retired',
+      'contact',
+      contact.id,
+      {
+        partyId,
+        contactId: contact.id,
+        retiredPhone: contact.phone,
+        retiredPhoneMasked: maskPhone(contact.phone),
+        whatsappFollows,
+        reason,
+        reasonNote,
+        version,
+      },
+      'contact.phone.retired',
+      { phone: contact.phone, whatsapp: contact.whatsapp },
+      { phone: null, whatsapp: whatsappFollows ? null : contact.whatsapp },
+    );
   }
 
   private async updateFiscalIdentity(
@@ -937,4 +1072,11 @@ export class PartyCommandService {
       targetPartyId: request.targetPartyId,
     });
   }
+}
+
+/** Timeline-safe form of a number: only the last three digits. */
+function maskPhone(phone: string | null): string | null {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, '');
+  return digits.length >= 3 ? `•••${digits.slice(-3)}` : '•••';
 }

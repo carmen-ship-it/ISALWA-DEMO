@@ -1,0 +1,17 @@
+54f8d9f657a5cb234b1caaa9058d99a8cd92b10ec4379741ec7b7c2cd59b730e  packages/os-contracts/src/party-commands.ts
+f929d6e788f85e6e13bea8198568844b6e352350d80ab8a319286969aa27172d  packages/os-contracts/src/party-events.ts
+76efb91ed52fb3ac92c5bf34d2f13950a195f2389b57bf9e07b102b2d5c0ffc8  packages/os-contracts/src/scopes.ts
+6dd9d809b3b22f5990d4fc2c74375c05ccbbf66f80ba75b58eb8ba8045390010  packages/os-party/src/customer-authority.ts
+916cae6f96b768c3e18e1d7fc48a5cc3656af2fe6f6bba18e8cc1976262effb9  packages/os-party/src/store-types.ts
+27341953614f4bfe67f1e8c639c96f26aac7ab564076c35516d7e6c8587d34cb  packages/os-party/src/os-party-store.ts
+b2689d7cca0e9f9b8661aca7f26a73e3f1d02c55213e8b900fd0d98cddd4040c  packages/os-party/src/party-command-service.ts
+aa97636736c30136981bed8856dbed994b12fdabe215ca792cd4a03bfaf1d2ea  packages/os-database/src/prisma-party-store.ts
+a3488add03b6e2edf385be87e6597005d54668323ea3f7fd9244710cac262dd5  packages/os-query/src/party/party-timeline-facts.ts
+1cf84a7bf202b2b229919db26f5459404b416435a97dc963d626c762e9ef22d8  apps/os-api/src/t03-contact-phone.http.test.ts
+bdab2db21dfcdb524cc5abc7b89f5920205a7060273ca4033b0144f5aa7cc654  apps/os-web/lib/party/contact-phone.ts
+3b55698dc05421d20721c52703940ce1bbb4751ef5935da90b008d4b51b97265  apps/os-web/lib/party/contact-phone.test.ts
+e35dc38750076a56bbfe5c0f627226f70e1e29c0e4c7b1ab3bc4875570cf556e  apps/os-web/lib/party/actions.ts
+637719948337e9423aaccba77adba5137e21dd53897af4cefaf08ad704e31273  apps/os-web/lib/party/customer-self-service.ts
+a77331d806cf9c860757b01400dcc8e19c53035e06a13619cd8334e3beaedccd  apps/os-web/lib/party/customer-self-service.test.ts
+235eacca317ec721595816b99c80146ef0ea15181fa221d400659b3d56238b31  apps/os-web/lib/commercial/timeline-labels.ts
+47add3c79731a6e2809ff8c7d4372739eaa3097e85616b56848b435fd66f249c  apps/os-web/components/party/customer-edit-forms.tsx

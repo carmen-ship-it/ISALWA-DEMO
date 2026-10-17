@@ -21,6 +21,7 @@ import {
   partyEditReasonError,
   preserveProvenanceUrl,
 } from '@/lib/party/customer-self-service';
+import { buildChangeContactPhonePayload, buildRetireContactPhonePayload } from '@/lib/party/contact-phone';
 import { clientesSearchHref, partyHref } from '@/lib/party/navigation';
 import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 import { redirectKeepingDataMode } from '@/lib/demo/redirect-data-mode';
@@ -168,6 +169,49 @@ export async function updateContactAction(formData: FormData): Promise<CommandAc
   try {
     const result = await session.client.executePartyCommand('UpdateContact', payload, createId());
     revalidateCustomer(organizationPartyId);
+    return { ok: true, data: result.data };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+function phoneFormInput(formData: FormData) {
+  return {
+    partyId: String(formData.get('partyId') ?? '').trim(),
+    contactId: String(formData.get('contactId') ?? '').trim(),
+    expectedVersion: Number(formData.get('expectedVersion')),
+    reason: String(formData.get('reason') ?? ''),
+    reasonNote: String(formData.get('reasonNote') ?? ''),
+  };
+}
+
+export async function changeContactPhoneAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildChangeContactPhonePayload({
+    ...phoneFormInput(formData),
+    newPhone: String(formData.get('newPhone') ?? ''),
+    verificationMethod: String(formData.get('verificationMethod') ?? ''),
+    evidenceNote: String(formData.get('evidenceNote') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await adminClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executePartyCommand('ChangeContactPhone', built.payload, createId());
+    revalidateCustomer(String(built.payload.partyId));
+    return { ok: true, data: result.data };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+export async function retireContactPhoneAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildRetireContactPhonePayload(phoneFormInput(formData));
+  if (!built.ok) return built;
+  const session = await adminClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executePartyCommand('RetireContactPhone', built.payload, createId());
+    revalidateCustomer(String(built.payload.partyId));
     return { ok: true, data: result.data };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };

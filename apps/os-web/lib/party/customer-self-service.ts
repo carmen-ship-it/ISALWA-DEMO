@@ -15,6 +15,8 @@ export const CUSTOMER_SELF_SERVICE_COMMANDS = [
   'CreateParty',
   'UpdateParty',
   'UpdateContact',
+  'ChangeContactPhone',
+  'RetireContactPhone',
   'CreateLocation',
   'UpdateLocation',
   'DeactivateLocation',

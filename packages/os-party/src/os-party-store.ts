@@ -84,6 +84,8 @@ export interface OsPartyStore {
         | 'personPartyId'
         | 'status'
         | 'version'
+        | 'phoneRetiredAt'
+        | 'phoneRetiredReason'
       >
     >,
     expectedVersion: number,

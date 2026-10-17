@@ -24,6 +24,18 @@ const TIMELINE_FACT_ALLOWLIST: Record<string, readonly string[]> = {
   'party.merged': ['partyId', 'survivorPartyId'],
   'party.merge.rejected': ['partyId', 'targetPartyId'],
   'contact.updated': ['contactId', 'organizationPartyId', 'givenName', 'familyName'],
+  // Masked numbers only; full numbers stay in the event payload and audit.
+  'contact.phone.changed': [
+    'partyId',
+    'contactId',
+    'previousPhoneMasked',
+    'phoneMasked',
+    'reason',
+    'reasonNote',
+    'verificationMethod',
+    'version',
+  ],
+  'contact.phone.retired': ['partyId', 'contactId', 'retiredPhoneMasked', 'reason', 'reasonNote', 'version'],
   'opportunity.created': ['opportunityId', 'title', 'stage', 'status', 'partyId'],
   'opportunity.updated': ['opportunityId', 'title', 'stage', 'status', 'partyId'],
   'opportunity.stage_changed': ['opportunityId', 'previousStage', 'stage'],

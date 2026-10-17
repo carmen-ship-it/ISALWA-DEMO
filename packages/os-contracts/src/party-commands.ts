@@ -9,6 +9,8 @@ export const PARTY_COMMAND_NAMES = [
   'AssignPartyRole',
   'EndPartyRole',
   'UpdateContact',
+  'ChangeContactPhone',
+  'RetireContactPhone',
   'UpdateFiscalIdentity',
   'CreateLead',
   'ResolveLead',
@@ -98,6 +100,36 @@ export const UpdateContactPayloadSchema = z.object({
   personPartyId: z.string().optional(),
 });
 
+/** A2 §58. A new sender saying "soy X" is never a verification method. */
+export const CONTACT_PHONE_CHANGE_REASONS = ['number_changed', 'entry_error', 'no_longer_belongs', 'other'] as const;
+export const CONTACT_PHONE_VERIFICATION_METHODS = [
+  'known_contact_confirmation',
+  'in_person',
+  'previously_verified_channel',
+  'owner_review',
+] as const;
+export type ContactPhoneChangeReason = (typeof CONTACT_PHONE_CHANGE_REASONS)[number];
+
+const contactPhoneTarget = {
+  partyId: z.string().min(1),
+  contactId: z.string().min(1),
+  expectedVersion: z.number().int().nonnegative(),
+  reason: z.enum(CONTACT_PHONE_CHANGE_REASONS),
+  /** Required when reason is `other`. */
+  reasonNote: z.string().trim().min(1).max(500).optional(),
+};
+
+export const ChangeContactPhonePayloadSchema = z.object({
+  ...contactPhoneTarget,
+  newPhone: z.string().trim().min(1).max(32),
+  verificationMethod: z.enum(CONTACT_PHONE_VERIFICATION_METHODS),
+  /** No personal documents by default (A2 §58). */
+  evidenceNote: z.string().trim().min(1).max(500).optional(),
+});
+
+/** A2 §66: a retired number leaves follow-ups and default selection; the person and contact stay. */
+export const RetireContactPhonePayloadSchema = z.object(contactPhoneTarget);
+
 export const UpdateFiscalIdentityPayloadSchema = z.object({
   partyId: z.string().min(1),
   nit: z.string().min(1),
@@ -141,6 +173,8 @@ export const PARTY_COMMAND_PAYLOAD_SCHEMAS: Record<PartyCommandName, z.ZodTypeAn
   AssignPartyRole: AssignPartyRolePayloadSchema,
   EndPartyRole: EndPartyRolePayloadSchema,
   UpdateContact: UpdateContactPayloadSchema,
+  ChangeContactPhone: ChangeContactPhonePayloadSchema,
+  RetireContactPhone: RetireContactPhonePayloadSchema,
   UpdateFiscalIdentity: UpdateFiscalIdentityPayloadSchema,
   CreateLead: CreateLeadPayloadSchema,
   ResolveLead: ResolveLeadPayloadSchema,

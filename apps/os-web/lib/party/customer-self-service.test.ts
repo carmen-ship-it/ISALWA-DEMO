@@ -49,6 +49,8 @@ describe('customer self-service authority', () => {
       'CreateParty',
       'UpdateParty',
       'UpdateContact',
+      'ChangeContactPhone',
+      'RetireContactPhone',
       'CreateLocation',
       'UpdateLocation',
       'DeactivateLocation',

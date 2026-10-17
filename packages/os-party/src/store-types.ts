@@ -51,6 +51,8 @@ export type ContactRecord = {
   title: string | null;
   status: string;
   version: number;
+  phoneRetiredAt?: Date | null;
+  phoneRetiredReason?: string | null;
 };
 
 export type FiscalIdentityRecord = {

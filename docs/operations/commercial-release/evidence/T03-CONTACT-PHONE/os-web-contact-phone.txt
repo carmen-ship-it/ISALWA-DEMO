@@ -1,0 +1,4 @@
+  ✔ needs a reason, a note for Otro, a new number and a human verification method (0.937667ms)
+  ✔ builds trimmed payloads without empty optional notes (0.179709ms)
+  ✔ history shows masked numbers with reason and verification wording (0.1665ms)
+✔ T03 contact phone change and retirement (A2 §58, §66) (2.479958ms)

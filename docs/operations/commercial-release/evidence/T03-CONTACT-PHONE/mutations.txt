@@ -1,0 +1,27 @@
+b2689d7cca0e9f9b8661aca7f26a73e3f1d02c55213e8b900fd0d98cddd4040c  packages/os-party/src/party-command-service.ts
+a3488add03b6e2edf385be87e6597005d54668323ea3f7fd9244710cac262dd5  packages/os-query/src/party/party-timeline-facts.ts
+bdab2db21dfcdb524cc5abc7b89f5920205a7060273ca4033b0144f5aa7cc654  apps/os-web/lib/party/contact-phone.ts
+M1 UpdateContact phone lock removed
+0
+build-os-party=0 http: ℹ pass 5 ℹ fail 1 
+M2 retire keeps the number
+0
+build-os-party=0 http: ℹ pass 4 ℹ fail 2 
+M3 note for Otro not required
+0
+build-os-party=0 http: ℹ pass 2 ℹ fail 4 
+M4 WhatsApp does not follow the number
+1
+build-os-party=0 http: ℹ pass 4 ℹ fail 2 
+build-os-party=0 
+M5 full number exposed in timeline facts
+1
+build-os-query=0 http: ℹ pass 5 ℹ fail 1 
+build-os-query=0 
+M6 web verification method not required
+1
+web: ℹ pass 2 ℹ fail 1 
+restored:
+b2689d7cca0e9f9b8661aca7f26a73e3f1d02c55213e8b900fd0d98cddd4040c  packages/os-party/src/party-command-service.ts
+a3488add03b6e2edf385be87e6597005d54668323ea3f7fd9244710cac262dd5  packages/os-query/src/party/party-timeline-facts.ts
+bdab2db21dfcdb524cc5abc7b89f5920205a7060273ca4033b0144f5aa7cc654  apps/os-web/lib/party/contact-phone.ts

@@ -4,7 +4,13 @@ import { useRouter } from 'next/navigation';
 import { useActionState, useState } from 'react';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
-import { updateContactAction, updateCustomerAction } from '@/lib/party/actions';
+import {
+  changeContactPhoneAction,
+  retireContactPhoneAction,
+  updateContactAction,
+  updateCustomerAction,
+} from '@/lib/party/actions';
+import { CONTACT_PHONE_REASON_OPTIONS, CONTACT_PHONE_VERIFICATION_OPTIONS } from '@/lib/party/contact-phone';
 import { PARTY_CHANGE_KIND_OPTIONS } from '@/lib/party/customer-self-service';
 import type { PartyDetailResponse } from '@/lib/party/types';
 
@@ -193,8 +199,15 @@ function ContactFieldsForm({
               id={`${idPrefix}-phone`}
               name="phone"
               defaultValue={contact?.phone ?? ''}
+              readOnly={Boolean(contact)}
+              aria-describedby={contact ? `${idPrefix}-phone-hint` : undefined}
               className={fieldClass}
             />
+            {contact ? (
+              <p id={`${idPrefix}-phone-hint`} className="mt-1 text-xs text-[var(--isalwa-slate)]">
+                Para cambiar o retirar el número use “Cambiar o retirar teléfono”.
+              </p>
+            ) : null}
           </div>
           <div>
             <label htmlFor={`${idPrefix}-whatsapp`} className="isalwa-section-label">
@@ -221,6 +234,120 @@ function ContactFieldsForm({
         </div>
         <CommandSubmitButton label={contact ? 'Guardar contacto' : 'Agregar contacto'} />
       </form>
+      {contact ? <ContactPhoneForms partyId={organizationPartyId} contact={contact} /> : null}
+    </details>
+  );
+}
+
+type PhoneFormState = { error?: string; success?: string } | null;
+
+function ContactPhoneForms({
+  partyId,
+  contact,
+}: {
+  partyId: string;
+  contact: PartyDetailResponse['contacts'][number];
+}) {
+  const router = useRouter();
+  const [changeState, changeAction] = useActionState(async (_prev: PhoneFormState, formData: FormData) => {
+    const result = await changeContactPhoneAction(formData);
+    if (!result.ok) return { error: result.error };
+    router.refresh();
+    return { success: 'Número actualizado. El anterior queda en el historial.' };
+  }, null);
+  const [retireState, retireAction] = useActionState(async (_prev: PhoneFormState, formData: FormData) => {
+    const result = await retireContactPhoneAction(formData);
+    if (!result.ok) return { error: result.error };
+    router.refresh();
+    return { success: 'Número retirado. Ya no se usa para seguimientos.' };
+  }, null);
+  const idPrefix = `contact-${contact.id}-phone`;
+  const hidden = (
+    <>
+      <input type="hidden" name="partyId" value={partyId} />
+      <input type="hidden" name="contactId" value={contact.id} />
+      <input type="hidden" name="expectedVersion" value={contact.version} />
+    </>
+  );
+  const reasonFields = (prefix: string) => (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label htmlFor={`${prefix}-reason`} className="isalwa-section-label">
+          Motivo
+        </label>
+        <select id={`${prefix}-reason`} name="reason" required defaultValue="" className={fieldClass}>
+          <option value="" disabled>
+            Elija el motivo
+          </option>
+          {CONTACT_PHONE_REASON_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor={`${prefix}-reason-note`} className="isalwa-section-label">
+          Detalle del motivo
+        </label>
+        <input id={`${prefix}-reason-note`} name="reasonNote" maxLength={500} placeholder="Obligatorio si elige Otro" className={fieldClass} />
+      </div>
+    </div>
+  );
+
+  return (
+    <details className="mt-4 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-4">
+      <summary className="cursor-pointer text-sm font-medium text-[var(--isalwa-kiln)]">Cambiar o retirar teléfono</summary>
+      <form action={changeAction} className="mt-4 space-y-4">
+        <FormFeedback error={changeState?.error} success={changeState?.success} />
+        {hidden}
+        <p className="text-sm text-[var(--isalwa-slate)]">Número actual: {contact.phone ?? 'Sin número'}</p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor={`${idPrefix}-new`} className="isalwa-section-label">
+              Número nuevo
+            </label>
+            <input id={`${idPrefix}-new`} name="newPhone" required inputMode="tel" maxLength={32} className={fieldClass} />
+          </div>
+          <div>
+            <label htmlFor={`${idPrefix}-method`} className="isalwa-section-label">
+              Cómo se verificó
+            </label>
+            <select id={`${idPrefix}-method`} name="verificationMethod" required defaultValue="" className={fieldClass}>
+              <option value="" disabled>
+                Elija el método
+              </option>
+              {CONTACT_PHONE_VERIFICATION_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        {reasonFields(`${idPrefix}-change`)}
+        <div>
+          <label htmlFor={`${idPrefix}-evidence`} className="isalwa-section-label">
+            Nota de verificación (opcional)
+          </label>
+          <input id={`${idPrefix}-evidence`} name="evidenceNote" maxLength={500} className={fieldClass} />
+          <p className="mt-1 text-xs text-[var(--isalwa-slate)]">
+            No adjunte documentos personales. Un mensaje nuevo que dice “soy el contacto” no verifica el número.
+          </p>
+        </div>
+        <CommandSubmitButton label="Cambiar número" variant="secondary" />
+      </form>
+      {contact.phone ? (
+        <form action={retireAction} className="mt-6 space-y-4 border-t border-[var(--isalwa-mist)] pt-4">
+          <FormFeedback error={retireState?.error} success={retireState?.success} />
+          {hidden}
+          <p className="text-sm text-[var(--isalwa-slate)]">
+            Retirar deja el contacto y su historial, y saca el número de seguimientos y de la selección por defecto.
+          </p>
+          {reasonFields(`${idPrefix}-retire`)}
+          <CommandSubmitButton label="Retirar número" variant="secondary" />
+        </form>
+      ) : null}
     </details>
   );
 }

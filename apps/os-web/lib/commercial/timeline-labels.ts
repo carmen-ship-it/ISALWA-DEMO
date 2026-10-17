@@ -2,6 +2,7 @@ import type { PartyTimelineEntryReadModel, PartyTimelineFacts } from '@isalwa/os
 import { formatRecordStatus, formatStage, presentStage, formatOpportunityStatus } from './labels';
 import { formatOptionalCentavos } from './money';
 import { quoteManualSendHistoryLabel } from './quote-manual-send';
+import { CONTACT_PHONE_REASON_LABELS, CONTACT_PHONE_VERIFICATION_LABELS } from '@/lib/party/contact-phone';
 
 const EVENT_LABELS: Record<string, string> = {
   'party.created': 'Cliente registrado',
@@ -16,6 +17,8 @@ const EVENT_LABELS: Record<string, string> = {
   'party.merged': 'Registro fusionado',
   'party.merge.rejected': 'Fusión rechazada',
   'contact.updated': 'Contacto actualizado',
+  'contact.phone.changed': 'Teléfono de contacto cambiado',
+  'contact.phone.retired': 'Teléfono de contacto retirado',
   'opportunity.created': 'Oportunidad creada',
   'opportunity.updated': 'Oportunidad actualizada',
   'opportunity.stage_changed': 'Etapa de oportunidad cambiada',
@@ -187,8 +190,24 @@ export function partyUpdateSummary(facts: PartyTimelineFacts): string {
   return parts.join(' · ');
 }
 
+/** Phone history line: masked numbers only, with the A2 §58 reason and verification wording. */
+export function contactPhoneSummary(eventType: string, facts: PartyTimelineFacts): string {
+  const parts: string[] =
+    eventType === 'contact.phone.retired'
+      ? [`Número retirado: ${factText(facts.retiredPhoneMasked)}`]
+      : [`Número: ${factText(facts.previousPhoneMasked)} → ${factText(facts.phoneMasked)}`];
+  const reason = typeof facts.reason === 'string' ? CONTACT_PHONE_REASON_LABELS[facts.reason] : undefined;
+  if (reason) parts.push(`Motivo: ${reason}${typeof facts.reasonNote === 'string' && facts.reasonNote ? ` (${facts.reasonNote})` : ''}`);
+  const method = typeof facts.verificationMethod === 'string' ? CONTACT_PHONE_VERIFICATION_LABELS[facts.verificationMethod] : undefined;
+  if (method) parts.push(`Verificación: ${method}`);
+  return parts.join(' · ');
+}
+
 export function timelineEntrySummary(entry: PartyTimelineEntryReadModel): string {
   if (entry.eventType === 'party.updated') return partyUpdateSummary(entry.facts);
+  if (entry.eventType === 'contact.phone.changed' || entry.eventType === 'contact.phone.retired') {
+    return contactPhoneSummary(entry.eventType, entry.facts);
+  }
   if (entry.eventType === 'quote.send_recorded') {
     const parts = [timelineEventLabel(entry.eventType, entry.facts)];
     if (typeof entry.facts.quoteNumber === 'string' && entry.facts.quoteNumber) {

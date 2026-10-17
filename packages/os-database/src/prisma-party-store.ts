@@ -337,6 +337,8 @@ export class PrismaOsPartyStore implements OsPartyStore {
         | 'personPartyId'
         | 'status'
         | 'version'
+        | 'phoneRetiredAt'
+        | 'phoneRetiredReason'
       >
     >,
     expectedVersion: number,
@@ -894,6 +896,8 @@ function mapContact(row: {
   title: string | null;
   status: string;
   version: number;
+  phoneRetiredAt?: Date | null;
+  phoneRetiredReason?: string | null;
 }): ContactRecord {
   return {
     id: row.id,
@@ -908,6 +912,8 @@ function mapContact(row: {
     title: row.title,
     status: row.status,
     version: row.version,
+    phoneRetiredAt: row.phoneRetiredAt ?? null,
+    phoneRetiredReason: row.phoneRetiredReason ?? null,
   };
 }
 

@@ -146,6 +146,8 @@ export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_act
   AssignPartyRole: 'master_data.admin',
   EndPartyRole: 'master_data.admin',
   UpdateContact: 'master_data.admin',
+  ChangeContactPhone: 'master_data.admin',
+  RetireContactPhone: 'master_data.admin',
   UpdateFiscalIdentity: 'fiscal.admin',
   CreateLead: 'master_data.admin',
   ResolveLead: 'master_data.admin',

@@ -14,6 +14,8 @@ import type { OsPartyStore } from './os-party-store';
 export const CUSTOMER_COMMAND_ACTION: Partial<Record<string, CustomerLifecycleAction>> = {
   UpdateParty: 'edit',
   UpdateContact: 'edit',
+  ChangeContactPhone: 'edit',
+  RetireContactPhone: 'edit',
   CreateLocation: 'edit',
   UpdateLocation: 'edit',
   DeactivateLocation: 'edit',
