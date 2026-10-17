@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button, cx } from '@isalwa/ui';
-import { useOwnerDemo } from '@/components/demo/owner-demo-provider';
+import { useJourney } from '@/components/journey/journey-provider';
 import { samePathQueryNavigation } from '@/lib/navigation/same-path-navigation';
 import {
   STORY_MODE_STEPS,
   STORY_MODE_TITLE,
   storyStepState,
-} from '@/lib/demo/story-mode-steps';
+} from '@/lib/journey/story-steps';
 
 const STEP_TONES = {
   completed: {
@@ -32,7 +32,7 @@ const STEP_TONES = {
 
 /** Full-screen guided presentation — Recorrido de ISALWA. */
 export function OwnerStoryMode() {
-  const { storyOpen, closeStory, canUseOwnerDemo } = useOwnerDemo();
+  const { storyOpen, closeStory, canOpenJourney } = useJourney();
   const router = useRouter();
   const [current, setCurrent] = useState(1);
 
@@ -49,7 +49,7 @@ export function OwnerStoryMode() {
     return () => window.removeEventListener('keydown', onKey);
   }, [storyOpen, closeStory]);
 
-  if (!canUseOwnerDemo || !storyOpen) return null;
+  if (!canOpenJourney || !storyOpen) return null;
 
   const step = STORY_MODE_STEPS[current - 1];
   const href = step?.href ?? null;

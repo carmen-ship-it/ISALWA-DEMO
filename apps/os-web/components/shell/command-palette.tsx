@@ -40,7 +40,6 @@ import {
   type PaletteItem,
   type PalettePick,
 } from '@/lib/shell/command-palette';
-import { hrefWithClientDataMode } from '@/lib/demo/preserve-data-mode';
 import { useRolePreview } from '@/components/shell/role-preview-provider';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
@@ -391,7 +390,7 @@ export function CommandPalette({
       window.localStorage.setItem(storageKey, JSON.stringify(stored));
     }
     close();
-    router.push(hrefWithClientDataMode(item.href));
+    router.push(item.href);
   }
 
   function onKeyDown(event: React.KeyboardEvent) {
@@ -540,7 +539,7 @@ export function CommandPalette({
               {savedNote}
             </p>
           ) : null}
-          {mode === 'coverage' ? <CoverageSummaryPanel onNavigate={(href) => { close(); router.push(hrefWithClientDataMode(href)); }} /> : null}
+          {mode === 'coverage' ? <CoverageSummaryPanel onNavigate={(href) => { close(); router.push(href); }} /> : null}
           {mode === 'changed' && changedStatus === 'loading' ? (
             <p className="px-3 py-4 text-sm text-[var(--isalwa-slate)]" role="status">Consultando el historial…</p>
           ) : null}
@@ -557,7 +556,7 @@ export function CommandPalette({
               partial={changed.partial}
               onNavigate={(href) => {
                 close();
-                router.push(hrefWithClientDataMode(href));
+                router.push(href);
               }}
             />
           ) : null}

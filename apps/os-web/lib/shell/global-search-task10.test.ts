@@ -179,7 +179,7 @@ describe('Task 10 — global search depth', () => {
     assert.match(search, /resolvePartyLabels/);
     assert.doesNotMatch(search, /people\.admin/);
 
-    assert.match(ui, /hrefWithClientDataMode/);
+    assert.doesNotMatch(ui, /hrefWithClientDataMode|datos=/);
     assert.match(ui, /paletteHasLiveEntityHits\(remote\)/);
     assert.match(ui, /No encontramos resultados para/);
     assert.match(ui, /Buscando…/);

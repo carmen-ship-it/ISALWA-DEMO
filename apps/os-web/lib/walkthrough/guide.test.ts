@@ -305,8 +305,7 @@ describe('modo guiado', () => {
     assert.doesNotMatch(shell, /IntroCoach|MicroTourCoach/);
     assert.doesNotMatch(appShell, /<GuidePanel/);
     assert.match(appShell, /OwnerStoryMode/);
-    assert.match(appShell, /DemoFictitiousBanner/);
-    assert.match(appShell, /DemoDataFilterToggle/);
+    assert.doesNotMatch(appShell, /DemoFictitiousBanner|DemoDataFilterToggle/);
     assert.doesNotMatch(copy, /show: 'Mostrar recorrido'/);
     assert.match(copy, /show: 'Ver recorrido completo'/);
     assert.match(shell, /Recorrido completo/);

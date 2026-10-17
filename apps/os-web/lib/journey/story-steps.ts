@@ -3,8 +3,8 @@
  *
  * Neutral by design (re-review R3/R2F decision 3): steps link to generic
  * product pages the person's own permissions govern, never to seeded
- * synthetic records, and no step selects an organization or data mode. The
- * walkthrough content is rewritten in T20; demo removal is T10/T11.
+ * records, and no step selects an organization. The walkthrough content is
+ * rewritten in T20.
  */
 
 export const STORY_MODE_TITLE = 'Recorrido de ISALWA' as const;
@@ -23,18 +23,6 @@ export type StoryModeStep = {
 export function isStoryPdfApiHref(href: string): boolean {
   const pathOnly = href.split('?')[0] ?? href;
   return pathOnly.startsWith('/api/') && pathOnly.endsWith('/pdf');
-}
-
-/**
- * Append `datos=demo` to an app-page href when the person chose Demo themselves
- * (shell navigation only; not used by the Journey). Leaves null and raw PDF API
- * hrefs unchanged.
- */
-export function withStoryDemoDatos(href: string | null): string | null {
-  if (href == null) return null;
-  if (isStoryPdfApiHref(href)) return href;
-  if (/(?:^|[?&])datos=/.test(href)) return href;
-  return href.includes('?') ? `${href}&datos=demo` : `${href}?datos=demo`;
 }
 
 export const STORY_MODE_STEPS: readonly StoryModeStep[] = [

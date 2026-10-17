@@ -18,15 +18,13 @@ import { RolePreviewBanner } from '@/components/shell/role-preview-banner';
 import { RolePreviewDesktopControl } from '@/components/shell/role-preview-desktop-control';
 import { RolePreviewMenu } from '@/components/shell/role-preview-menu';
 import { canUseRolePreview } from '@/lib/role-preview/access';
-import { OwnerDemoProvider, useOwnerDemo } from '@/components/demo/owner-demo-provider';
-import { withStoryDemoDatos } from '@/lib/demo/story-mode-steps';
-import { DemoFictitiousBanner } from '@/components/demo/demo-fictitious-banner';
-import { DemoDataFilterToggle } from '@/components/demo/demo-data-filter-toggle';
-import { OwnerStoryMode } from '@/components/demo/owner-story-mode';
-import { VerEjemploCompletoButton } from '@/components/demo/ver-ejemplo-completo-button';
+import { JourneyProvider } from '@/components/journey/journey-provider';
+import { OwnerStoryMode } from '@/components/journey/owner-story-mode';
+import { VerEjemploCompletoButton } from '@/components/journey/ver-ejemplo-completo-button';
 import { signOutAction } from '@/lib/auth/actions';
 import { t } from '@/lib/i18n/es';
 import { loadUiPreferences, saveUiPreferences } from '@/lib/shell/ui-preferences';
+import { clearRetiredDataModeStorage } from '@/lib/navigation/retired-data-mode';
 
 const ShellIdentityContext = createContext<string | null>(null);
 
@@ -35,11 +33,9 @@ export function useShellGivenName(): string | null {
 }
 
 function ShellBrandHomeLink({ collapsed }: { collapsed: boolean }) {
-  const { dataMode } = useOwnerDemo();
-  const href = dataMode === 'demo' ? (withStoryDemoDatos('/inicio') ?? '/inicio') : '/inicio';
   return (
     <Link
-      href={href}
+      href="/inicio"
       className="block rounded-[var(--isalwa-radius-control)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
       title={t('app.name')}
     >
@@ -112,6 +108,7 @@ export function AppShell({
     const prefs = loadUiPreferences(window.localStorage);
     setSidebarCollapsed(prefs.sidebarCollapsed);
     setPrefsReady(true);
+    clearRetiredDataModeStorage(window.localStorage);
   }, []);
 
   function persistSidebarCollapsed(next: boolean) {
@@ -197,7 +194,7 @@ export function AppShell({
       grantedScopes={grantedScopes}
       asesorOptions={asesorOptions}
     >
-    <OwnerDemoProvider canUseOwnerDemo={showRolePreview}>
+    <JourneyProvider canOpenJourney={showRolePreview}>
     <ShellIdentityContext.Provider value={givenName}>
       <div
         className={cx(
@@ -294,7 +291,6 @@ export function AppShell({
                       setPaletteOpen(true);
                     }}
                   />
-                  {showRolePreview ? <DemoDataFilterToggle /> : null}
                   {showRolePreview ? <VerEjemploCompletoButton /> : null}
                   <RolePreviewDesktopControl grantedScopes={grantedScopes} />
                   {notificationSlot}
@@ -303,7 +299,6 @@ export function AppShell({
               </header>
 
               <RolePreviewBanner />
-              <DemoFictitiousBanner />
             </ShellChromeBar>
 
             <OwnerStoryMode />
@@ -399,7 +394,7 @@ export function AppShell({
         </div>
       </div>
     </ShellIdentityContext.Provider>
-    </OwnerDemoProvider>
+    </JourneyProvider>
     </RolePreviewProvider>
   );
 }

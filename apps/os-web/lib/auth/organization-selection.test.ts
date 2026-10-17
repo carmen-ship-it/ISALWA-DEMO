@@ -59,11 +59,9 @@ describe('Review R3 organization selection (F09)', () => {
   });
 
   it('the Journey never changes organization or data mode', () => {
-    const provider = source('components/demo/owner-demo-provider.tsx');
+    const provider = source('components/journey/journey-provider.tsx');
     const openStory = provider.slice(provider.indexOf('const openStory'), provider.indexOf('const closeStory'));
     assert.doesNotMatch(openStory, /setDataMode|datos|company/i);
-    assert.doesNotMatch(provider, /storyRequested \|\|/);
-    assert.doesNotMatch(provider, /Company/);
-    assert.doesNotMatch(source('components/demo/inicio-owner-demo-card.tsx'), /datos=/);
+    assert.doesNotMatch(provider, /dataMode|datos|cookie|Company|organizationId/);
   });
 });

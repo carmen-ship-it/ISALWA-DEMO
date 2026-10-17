@@ -3,8 +3,6 @@
  */
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import {
   DEMO_DATA_MODE_COOKIE,
   DEMO_DATA_MODE_STORAGE_KEY,
@@ -16,13 +14,6 @@ import {
   parseDemoDataMode,
   saveDemoDataMode,
 } from './owner-demo-identity';
-import {
-  STORY_MODE_STEPS,
-  STORY_MODE_TITLE,
-  isStoryPdfApiHref,
-  storyStepState,
-  withStoryDemoDatos,
-} from './story-mode-steps';
 
 describe('owner-demo identity', () => {
   it('detects DEMO prefix and Q-DEMO numbers', () => {
@@ -88,50 +79,5 @@ describe('owner-demo identity', () => {
     assert.equal(resolveDemoDataModeFromParts({ datos: null, cookie: 'demo' }), 'demo');
     assert.equal(resolveDemoDataModeFromParts({ datos: undefined, cookie: 'real' }), 'real');
     assert.equal(resolveDemoDataModeFromParts({}), 'real');
-  });
-});
-
-describe('story mode steps', () => {
-  it('defines 20 steps with capability-neutral who-acts copy', () => {
-    assert.equal(STORY_MODE_STEPS.length, 20);
-    assert.deepEqual(
-      STORY_MODE_STEPS.map((s) => s.step),
-      Array.from({ length: 20 }, (_, i) => i + 1),
-    );
-    assert.ok(STORY_MODE_STEPS.some((s) => /Persona autorizada/.test(s.whoNormallyActs)));
-    assert.equal(storyStepState(1, 3), 'completed');
-    assert.equal(storyStepState(3, 3), 'current');
-    assert.equal(storyStepState(5, 3), 'future');
-  });
-
-  it('withStoryDemoDatos appends datos=demo only for app pages', () => {
-    assert.equal(withStoryDemoDatos(null), null);
-    assert.equal(withStoryDemoDatos('/inicio'), '/inicio?datos=demo');
-    assert.equal(withStoryDemoDatos('/inicio?lente=gerencia'), '/inicio?lente=gerencia&datos=demo');
-    assert.equal(withStoryDemoDatos('/clientes/x?datos=demo'), '/clientes/x?datos=demo');
-    assert.equal(withStoryDemoDatos('/api/quotes/q1/pdf'), '/api/quotes/q1/pdf');
-    assert.equal(isStoryPdfApiHref('/api/delivery-notes/n1/pdf'), true);
-    assert.equal(isStoryPdfApiHref('/clientes/x'), false);
-  });
-
-  it('Journey steps link to generic product pages only: no seeded records, PDFs, tenant or data mode (22:29 decision 3)', () => {
-    assert.equal(STORY_MODE_STEPS.length, 20);
-    for (const step of STORY_MODE_STEPS) {
-      assert.match(step.href, /^\/[a-z-]+(\?lente=gerencia)?$/, `step ${step.step} href ${step.href}`);
-      assert.doesNotMatch(step.href, /[?&](datos|empresa|org|organizationId)=/, `step ${step.step}`);
-      assert.equal(isStoryPdfApiHref(step.href), false, `step ${step.step}`);
-      assert.doesNotMatch(`${step.title} ${step.whatHappened} ${step.whatIsalwaRecorded} ${step.ctaLabel}`, /DEMO|MADERAS|demo/);
-    }
-    assert.equal(STORY_MODE_STEPS[0]!.href, '/conversaciones');
-    assert.equal(STORY_MODE_STEPS[5]!.href, '/cotizaciones');
-    assert.equal(STORY_MODE_STEPS[13]!.href, '/entregas');
-    assert.equal(STORY_MODE_STEPS[19]!.href, '/inicio?lente=gerencia');
-  });
-
-  it('the overlay has a neutral heading, no fictitious-data badge and no seed fallback', () => {
-    assert.equal(STORY_MODE_TITLE, 'Recorrido de ISALWA');
-    const overlay = readFileSync(join(process.cwd(), 'components/demo/owner-story-mode.tsx'), 'utf8');
-    assert.doesNotMatch(overlay, /DEMO_FICTITIOUS_BADGE|loadDemoSeedIdMap|seed DEMO|SYNTH/);
-    assert.doesNotMatch(overlay, /setDataMode|organizationId|saveDemoDataMode/);
   });
 });

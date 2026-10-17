@@ -3,7 +3,7 @@
 import { Button, Panel } from '@isalwa/ui';
 import { GUIDE_CHROME, INTRO_COPY } from '@/lib/walkthrough/copy';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
-import { useOwnerDemo } from '@/components/demo/owner-demo-provider';
+import { useJourney } from '@/components/journey/journey-provider';
 import { useGuide } from './guide-provider';
 import { LearningModeToggle } from './learning-mode-toggle';
 
@@ -13,7 +13,7 @@ import { LearningModeToggle } from './learning-mode-toggle';
  */
 export function WalkthroughHelpPanel() {
   const api = useGuide();
-  const { canUseOwnerDemo, openStory } = useOwnerDemo();
+  const { canOpenJourney, openStory } = useJourney();
 
   return (
     <Panel padded className="mb-8 space-y-6" data-guide-replay="ayuda">
@@ -33,7 +33,7 @@ export function WalkthroughHelpPanel() {
         </div>
       </div>
 
-      {canUseOwnerDemo ? (
+      {canOpenJourney ? (
         <div className="border-t border-[var(--isalwa-mist)] pt-6">
           <h3 className="text-sm font-medium text-[var(--isalwa-kiln)]">
             Recorrido completo de evaluación

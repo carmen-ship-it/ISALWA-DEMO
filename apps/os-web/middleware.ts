@@ -3,8 +3,7 @@ import { DEFAULT_POST_LOGIN, OS_DEV_SESSION_COOKIE, PUBLIC_PATHS } from '@/lib/a
 import { getOsAuthMode, isSupabaseConfigured } from '@/lib/auth/config';
 import { decodeDevSession } from '@/lib/auth/dev-session';
 import { updateSupabaseSession } from '@/lib/auth/supabase/middleware';
-import { DEMO_DATA_MODE_COOKIE } from '@/lib/demo/owner-demo-identity';
-import { DATA_MODE_REQUEST_HEADER, explicitDataMode } from '@/lib/demo/preserve-data-mode';
+import { expireRetiredDataModeCookies } from '@/lib/navigation/retired-data-mode';
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
@@ -39,15 +38,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Pin explicit ?datos= onto this request before the session response is built,
-  // so the first RSC paint uses the URL data mode instead of the previous cookie.
-  // Data mode filters within the selected organization; it never selects one.
-  const datos = explicitDataMode(request.nextUrl.searchParams.get('datos'));
-  if (datos) {
-    request.cookies.set(DEMO_DATA_MODE_COOKIE, datos);
-    request.headers.set(DATA_MODE_REQUEST_HEADER, datos);
-  }
-
   const { ok, response } = await hasSession(request);
 
   if (isPublicPath(pathname)) {
@@ -66,13 +56,7 @@ export async function middleware(request: NextRequest) {
     return applyPrivateNoStore(NextResponse.redirect(loginUrl));
   }
 
-  if (datos) {
-    response.cookies.set(DEMO_DATA_MODE_COOKIE, datos, {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 30,
-      sameSite: 'lax',
-    });
-  }
+  expireRetiredDataModeCookies(request.cookies, response.cookies);
 
   return applyPrivateNoStore(response);
 }
