@@ -72,6 +72,8 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `a8a94495df901b7be594da75f51ccc6502f5b9bd` | `7c76c3d5e1a5b5a6d39273a7c9ef85952d0b9be5` | Project memory: mixed-chat review, deletion candidates, `preserve_chats.py` for review (docs/tooling only) | this writer; script under Claude's review, not run |
 | `950ea9c7811728d598468ed1e8546cd3fe6654d2` | `6eccf08c667e928d048e5632e91a427a8241256d` | Project memory: backup destination decision (docs only) | this writer |
 | `13c8a5d10da9d79a6e69e0d2e796ac0a8364610d` | `83e9ff2ae3dcf02345847951a728205f5b849316` | Project memory: deletion hold, preservation checkpoint (01:25, docs only) | this writer |
+| `2dc2745b5f99981997eb66f3c038a594cf1c15b8` | `1d255e464337691da5df1de95a02d79dadf7f278` | R4 part B repair 1 correction: ReassignWork domains + target prerequisite (23:47 §A) | this writer; not reviewed; mutation evidence INCOMPLETE |
+| `93e5c0dd0797bffeed2d19faf5483f260496d067` | `83040cb99e594c29beb70841a2ca28612276aeba` | Lanes: lane A source check, pre-integration requirements; lane B interim audience (docs only) | this writer |
 
 ## Open blockers
 

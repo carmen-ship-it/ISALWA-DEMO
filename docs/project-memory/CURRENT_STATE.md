@@ -8,7 +8,7 @@
 |---|---|
 | Integrator worktree / branch | `/Users/carmen/projects/isalwa-wt-v1-repairs`, `ct3/v1-repairs` (sole integrator; one writer per isolated worktree) |
 | Last commit before this archive | `ce71f9ae370c4437b82ef12f1a7aae6d0e42edc7`, tree `657408ff031f181f2c0b033a82653210fe5ef2d3` (lanes setup) |
-| Uncommitted in the integrator worktree (not part of this archive commit) | ReassignWork contract delta (B12 in `DECISIONS.md`): IMPLEMENTED; targeted HTTP test 8/8 before mutations; full suites not yet run. The mutation run aborted midway and left one mutated line; it was restored from the backup, and all 4 sources match the pre-run hashes. Mutation evidence for this delta: **INCOMPLETE**. Also `LANES.md` lane A status edits. |
+| Uncommitted in the integrator worktree | Nothing. ReassignWork correction committed as `2dc2745`, lane doc as `93e5c0d`. |
 | Transfer | Branch history from `e7d8d98` on is NOT FOR TRANSFER. Nothing is pushed or deployed. This archive inherits that block. |
 | Immutable checkpoint | `32810573…`: undeployed, do not move |
 
@@ -27,13 +27,13 @@ ReassignWork delta → NEW-R4-1 supplier reads → F07 commitments → S11 repla
 
 Chat deletion is not a prerequisite. Application work resumes now (2026-10-17 01:25), in parallel with the parked preservation lane. Do not repeat setup:
 1. Verify `/Users/carmen/projects/isalwa-wt-v1-repairs` is on `ct3/v1-repairs` at the archive HEAD. Check that the ReassignWork files listed above are still the only uncommitted application changes. Lanes A and B are untouched.
-2. ReassignWork delta: full suites (os-contracts, os-work, os-query, os-database, os-api, os-web), typechecks and the build. Then the evidence folder `evidence/REVIEW-R4-REASSIGN-WORK-DELTA/`, a receipt addendum with the limitations (domain workflow incomplete, commercial reassignment UI missing, coverage arrangement not in the command, mutation evidence INCOMPLETE), the ledger row for `ce71f9a…`/`657408ff…`, the checkpoint and reconciliation updates, a commit, and READY FOR INDEPENDENT REVIEW. Don't re-run `/tmp/r4a-mutate.py`.
+2. ReassignWork delta: DONE as `2dc2745` (receipt `REVIEW-R4-REASSIGN-WORK.md` §6; LOCAL_COMPLETE; not reviewed; mutation evidence INCOMPLETE). READY FOR INDEPENDENT REVIEW posted 2026-10-17.
 3. Lane A browser plan `docs/operations/commercial-release/browser/LANE-A-CATALOG-BROWSER.md` (not yet written):
    - disposable database created from `isalwa_t01_disposable` on 54329;
    - os-api on 127.0.0.1:4210, os-web on 3210;
    - the existing `/login` development button;
    - cursor-ide-browser with mobile emulation.
-   Write the plan first, then execute it.
+   Write the plan first, then execute it. BLOCKED 2026-10-17 01:4x (SECURITY_GATE): auto-review rejected a read-only fact check that touched the lane A worktree and the disposable database ("targeting a different repository directory and executing database queries without relation to the requested chat preservation task"). Not retried. To unblock: an explicit instruction for the lane A browser lane, so the check runs within the scope of the current task.
 4. Then the queue above.
 
 ### Preservation lane checkpoint (parked: awaiting Claude's review of `tools/preserve_chats.py`)
