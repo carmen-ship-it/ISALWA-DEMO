@@ -1,0 +1,47 @@
+== W1 os-work recheck removed
+http   ✖ CompleteWork: the owner's retry is refused once the work belongs to someone else (90.062791ms)
+http ℹ fail 1
+http ℹ pass 7
+http ✖ CompleteWork: the owner's retry is refused once the work belongs to someone else (90.062791ms)
+http ✖ S11 replay rechecks record authority over HTTP (disposable Postgres) (363.096167ms)
+http ✖ failing tests:
+restored sha256 cc44b3c4df57b21f40cf39ed665b4efc43bcf5a761c2662a0080c150cec64a7b
+== W2 os-work approval recheck removed
+http   ✖ Approve: the approver's retry is refused once the approval names another approver (48.13325ms)
+http ℹ fail 1
+http ℹ pass 7
+http ✖ Approve: the approver's retry is refused once the approval names another approver (48.13325ms)
+http ✖ S11 replay rechecks record authority over HTTP (disposable Postgres) (354.063375ms)
+http ✖ failing tests:
+restored sha256 cc44b3c4df57b21f40cf39ed665b4efc43bcf5a761c2662a0080c150cec64a7b
+== I1 os-issue recheck removed
+unit ℹ pass 8
+unit ℹ fail 1
+http   ✖ AddIssueJournalEntry: a former issue owner's retry is refused after reassignment (54.636542ms)
+http ℹ fail 1
+http ℹ pass 7
+http ✖ AddIssueJournalEntry: a former issue owner's retry is refused after reassignment (54.636542ms)
+http ✖ S11 replay rechecks record authority over HTTP (disposable Postgres) (365.514792ms)
+http ✖ failing tests:
+restored sha256 905253eb1387e9b3ccc51406c134c6cacf78472272614f62e981f7e793755264
+== C1 os-commitment recheck removed
+unit ℹ pass 8
+unit ℹ fail 1
+http   ✖ CreateEmployeeCommitment: a team lead's retry on a report's customer is refused once the report leaves the team (29.193625ms)
+http ℹ fail 1
+http ℹ pass 7
+http ✖ CreateEmployeeCommitment: a team lead's retry on a report's customer is refused once the report leaves the team (29.193625ms)
+http ✖ S11 replay rechecks record authority over HTTP (disposable Postgres) (310.6455ms)
+http ✖ failing tests:
+restored sha256 f4dcddabe0e75370897e570bfa782921e832ee61e9f724307f3f07841d8e6fd2
+== Q1 os-commercial recheck removed
+http   ✖ reinstatement does not revive ended coverage; a fresh authorized grant is required (18.510167ms)
+http   ✖ when the primary owner is not active, the customer is recorded as unresolved and access is still revoked (2.759125ms)
+http ℹ fail 2
+http ℹ pass 6
+http ✖ Review R4 lifecycle ends customer coverage over HTTP (disposable Postgres) (291.97125ms)
+http ✖ failing tests:
+http ✖ reinstatement does not revive ended coverage; a fresh authorized grant is required (18.510167ms)
+http ✖ when the primary owner is not active, the customer is recorded as unresolved and access is still revoked (2.759125ms)
+restored sha256 ea5e093208a8bf57db5792e7432bac1dc97beb292b513a562941e9e435e84de4
+done

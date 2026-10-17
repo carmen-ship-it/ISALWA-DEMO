@@ -1,0 +1,16 @@
+os-work ℹ tests 22
+os-work ℹ pass 22
+os-work ℹ fail 0
+os-work exit=0
+os-issue ℹ tests 94
+os-issue ℹ pass 94
+os-issue ℹ fail 0
+os-issue exit=0
+os-commitment ℹ tests 19
+os-commitment ℹ pass 19
+os-commitment ℹ fail 0
+os-commitment exit=0
+os-commercial ℹ tests 101
+os-commercial ℹ pass 101
+os-commercial ℹ fail 0
+os-commercial exit=0

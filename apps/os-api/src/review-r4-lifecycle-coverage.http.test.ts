@@ -164,12 +164,10 @@ describeHttp('Review R4 lifecycle ends customer coverage over HTTP (disposable P
     const noCoverage = await command('helper', 'CreateQuote', { partyId: state.partyId });
     assert.deepEqual([noCoverage.status, noCoverage.body], [404, { code: 'NOT_FOUND' }]);
     assert.equal(await read('helper', `/parties/${state.partyId}`), 404, 'no read through ended coverage');
-    // Known S11 gap (receipt §1): replay re-checks the command permission, not
-    // resource authority, so the same actor gets back their own earlier result.
-    // Pinned here so a fix shows up as a deliberate expectation change.
+    // S11 resource recheck: the replay answers like a fresh command once the customer is unknowable.
     const quotesBefore = await prisma().osQuote.count({ where: { organizationId: org.id } });
     const replay = await command('helper', 'CreateQuote', { partyId: state.partyId }, state.replayKey);
-    assert.equal(replay.status, 201);
+    assert.deepEqual([replay.status, replay.body], [404, { code: 'NOT_FOUND' }]);
     assert.equal(await prisma().osQuote.count({ where: { organizationId: org.id } }), quotesBefore, 'replay writes nothing');
     assert.deepEqual(await openCoverage(m.helper!.member.id), []);
 

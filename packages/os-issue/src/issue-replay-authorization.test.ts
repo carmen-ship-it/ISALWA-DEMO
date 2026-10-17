@@ -104,12 +104,33 @@ function ctx(actorMemberId: string, organizationId = 'org-a'): RequestContext {
 const SINCE = new Date('2026-01-01T00:00:00.000Z');
 
 function setup() {
-  const t = makeStore({});
+  const issue = {
+    id: 'issue-1',
+    organizationId: 'org-a',
+    title: 'Prensa 2',
+    description: 'La prensa 2 hace ruido',
+    status: 'in_progress',
+    reportedByMemberId: 'mem-a',
+    ownerMemberId: null as string | null,
+    confirmedCause: null,
+    resolution: null,
+    outcome: null,
+    reportedAt: SINCE,
+    triagedAt: null,
+    progressStartedAt: null,
+    resolvedAt: null,
+    closedAt: null,
+    reopenedAt: null,
+    version: 1,
+  };
+  const t = makeStore({
+    getIssueInOrg: (async (organizationId: string) => (organizationId === 'org-a' ? issue : null)) as never,
+  });
   t.members.set('mem-a', { id: 'mem-a', organizationId: 'org-a', accessStatus: 'active' });
   t.members.set('mem-b', { id: 'mem-b', organizationId: 'org-a', accessStatus: 'active' });
   t.members.set('mem-x', { id: 'mem-x', organizationId: 'org-x', accessStatus: 'active' });
 
-  return { ...t, service: new IssueCommandService(t.store as never) };
+  return { ...t, issue, service: new IssueCommandService(t.store as never) };
 }
 
 const COMMAND = 'ReportIssue' as const;
@@ -162,6 +183,25 @@ describe('S11 issue replay authorization', () => {
     assert.ok(t.writes.some((w) => w.organizationId === 'org-x'));
     assert.ok(t.idempotency.has('org-a:shared'));
     assert.ok(t.idempotency.has('org-x:shared'));
+  });
+
+  it('refuses a replay once the actor is no longer a participant in the issue (resource recheck)', async () => {
+    const t = setup();
+    t.issue.reportedByMemberId = 'mem-r';
+    t.issue.ownerMemberId = 'mem-a';
+    const journal = { issueId: 'issue-1', entryType: 'observation', content: 'Revisé la prensa', expectedVersion: 1 };
+    await t.service.execute('AddIssueJournalEntry', ctx('mem-a'), journal, 'kj');
+    const before = effects(t);
+    t.issue.ownerMemberId = 'mem-b';
+    await assert.rejects(
+      t.service.execute('AddIssueJournalEntry', ctx('mem-a'), journal, 'kj'),
+      (err: Error) => err.message === 'PERMISSION_DENIED',
+    );
+    await assert.rejects(
+      t.service.execute('AddIssueJournalEntry', ctx('mem-b'), journal, 'kj'),
+      (err: Error) => err.message === 'CONFLICT',
+    );
+    assert.equal(effects(t), before);
   });
 
   it('V2 §10: same actor, same key, different payload is CONFLICT without the stored body', async () => {

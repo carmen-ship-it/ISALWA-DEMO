@@ -132,7 +132,8 @@ export class IssueCommandService {
    * S11: authorize the current actor for this command, then return the stored
    * result only for the same actor, command, and payload. Any mismatch is
    * CONFLICT without the stored body; a row without that binding is
-   * REPLAY_REVIEW_REQUIRED and is not re-run.
+   * REPLAY_REVIEW_REQUIRED and is not re-run. The actor must still be a
+   * participant in the issue the command acted on, as a fresh command requires.
    */
   private async acceptedReplay(
     ctx: RequestContext,
@@ -140,8 +141,14 @@ export class IssueCommandService {
     payload: Record<string, unknown>,
     stored: Record<string, unknown>,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, command, ctx.organizationId);
-    return openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
+    const snap = await this.authorize(ctx, command, ctx.organizationId);
+    const result = openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
+    const issueId = [payload.issueId, result.data?.issueId].find(
+      (value): value is string => typeof value === 'string' && value.length > 0,
+    );
+    if (!issueId) throw new Error('NOT_FOUND');
+    this.assertIssueParticipant(snap, ctx, await this.requireIssue(this.store, ctx.organizationId, issueId));
+    return result;
   }
 
   /** A concurrent request with the same key won the insert: replay its result under the same rules. */

@@ -1,0 +1,29 @@
+  ✔ replays the same actor and request without a second write (7.216958ms)
+  ✔ gives a different member of the same company CONFLICT without the stored body (0.903ms)
+  ✔ denies the original actor once suspended (this command needs member_active only) (0.442375ms)
+  ✔ keeps another company out: the same key there runs its own command (0.698833ms)
+  ✔ refuses a replay once the actor is no longer a participant in the issue (resource recheck) (0.566125ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.421833ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.418ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.143584ms)
+  ✔ turns concurrent duplicates into one write; another actor in the race gets CONFLICT (1.089333ms)
+✔ S11 issue replay authorization (12.692416ms)
+ℹ tests 9
+ℹ pass 9
+ℹ fail 0
+  ✔ replays the same actor and request without a second commitment (4.4305ms)
+  ✔ refuses a replay on a customer the actor can no longer see, unless they own the commitment (resource recheck) (2.986458ms)
+  ✔ gives a different member CONFLICT without the stored body or a new write (0.87475ms)
+  ✔ denies the original actor after suspension (0.682875ms)
+  ✔ keeps another company out: same key there runs its own command and never sees org-a (0.680708ms)
+  ✔ V2 §10: same actor, same key, different payload is CONFLICT without the stored body (0.455416ms)
+  ✔ V2 §10: same actor and payload under a different command name is CONFLICT (0.412375ms)
+  ✔ V2 §10: a legacy row (no S11 binding) is neither replayed nor re-run: REPLAY_REVIEW_REQUIRED (0.116125ms)
+  ✔ turns concurrent duplicates into one commitment; another actor in the race gets CONFLICT (1.359417ms)
+✔ S11 commitment replay authorization (13.077ms)
+ℹ tests 9
+ℹ pass 9
+ℹ fail 0
+ℹ tests 8
+ℹ pass 8
+ℹ fail 0

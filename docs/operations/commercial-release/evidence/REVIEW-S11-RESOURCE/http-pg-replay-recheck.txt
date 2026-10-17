@@ -1,0 +1,13 @@
+  ✔ suspension is not blocked by coverage; it ends current and future-dated coverage and stops read, command and replay (117.4955ms)
+  ✔ reinstatement does not revive ended coverage; a fresh authorized grant is required (61.4175ms)
+  ✔ termination is not blocked by future-dated coverage and ends it (83.148459ms)
+  ✔ when the primary owner is not active, the customer is recorded as unresolved and access is still revoked (101.493333ms)
+✔ Review R4 lifecycle ends customer coverage over HTTP (disposable Postgres) (848.518917ms)
+  ✔ CompleteWork: the owner's retry is refused once the work belongs to someone else (128.766292ms)
+  ✔ Approve: the approver's retry is refused once the approval names another approver (65.048375ms)
+  ✔ AddIssueJournalEntry: a former issue owner's retry is refused after reassignment (79.37225ms)
+  ✔ CreateEmployeeCommitment: a team lead's retry on a report's customer is refused once the report leaves the team (56.469791ms)
+✔ S11 replay rechecks record authority over HTTP (disposable Postgres) (885.668542ms)
+ℹ tests 8
+ℹ pass 8
+ℹ fail 0

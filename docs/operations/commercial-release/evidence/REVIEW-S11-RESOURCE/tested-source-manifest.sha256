@@ -1,0 +1,8 @@
+cc44b3c4df57b21f40cf39ed665b4efc43bcf5a761c2662a0080c150cec64a7b  packages/os-work/src/work-command-service.ts
+905253eb1387e9b3ccc51406c134c6cacf78472272614f62e981f7e793755264  packages/os-issue/src/issue-command-service.ts
+f6bef12faec4cddde26fa424bf06b83fc614bfcdb45b2d603e4c66d2481ea497  packages/os-issue/src/issue-replay-authorization.test.ts
+f4dcddabe0e75370897e570bfa782921e832ee61e9f724307f3f07841d8e6fd2  packages/os-commitment/src/commitment-command-service.ts
+21124ac6df6eb548ac850d62440420daf74af9d7b46e97b969b3217feb0007aa  packages/os-commitment/src/commitment-replay-authorization.test.ts
+ea5e093208a8bf57db5792e7432bac1dc97beb292b513a562941e9e435e84de4  packages/os-commercial/src/commercial-command-service.ts
+f1381033e5ca7f8751e691c32ebb5d6600ca076360c6584b5175301f882def96  apps/os-api/src/s11-resource-recheck.http.test.ts
+9b0055a0f188bfb80bb3a044de7da5ed83b4136ab7d30ca6e5ad3ad33dcf4eb7  apps/os-api/src/review-r4-lifecycle-coverage.http.test.ts

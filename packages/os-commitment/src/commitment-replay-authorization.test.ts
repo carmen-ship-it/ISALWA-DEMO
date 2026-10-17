@@ -40,6 +40,9 @@ function makeStore() {
     async insertCommitment(record: Record<string, unknown>) {
       commitments.push(record);
     },
+    async getCommitmentInOrg(organizationId: string, commitmentId: string) {
+      return commitments.find((c) => c.organizationId === organizationId && c.id === commitmentId) ?? null;
+    },
     async appendEventAndAudit(event: unknown) {
       events.push(event);
     },
@@ -83,12 +86,12 @@ function ctx(actorMemberId: string, organizationId = 'org-a'): RequestContext {
   };
 }
 
-function setup() {
+function setup(canLinkParty: ((ctx: RequestContext, partyId: string) => Promise<boolean>) | null = null) {
   const s = makeStore();
   s.members.set('mem-a', { id: 'mem-a', organizationId: 'org-a', accessStatus: 'active' });
   s.members.set('mem-b', { id: 'mem-b', organizationId: 'org-a', accessStatus: 'active' });
   s.members.set('mem-x', { id: 'mem-x', organizationId: 'org-x', accessStatus: 'active' });
-  return { ...s, service: new CommitmentCommandService(s.store) };
+  return { ...s, service: new CommitmentCommandService(s.store, canLinkParty) };
 }
 
 const create = (text = 'Llamar al cliente') => ({ text });
@@ -102,6 +105,22 @@ describe('S11 commitment replay authorization', () => {
     assert.equal('actorMemberId' in again, false);
     assert.equal(t.commitments.length, 1);
     assert.equal(t.events.length, 1);
+  });
+
+  it('refuses a replay on a customer the actor can no longer see, unless they own the commitment (resource recheck)', async () => {
+    let visible = true;
+    const t = setup(async () => visible);
+    const forB = { text: 'Enviar muestra', partyId: 'cust-1', ownerMemberId: 'mem-b' };
+    const forA = { text: 'Llamar', partyId: 'cust-1' };
+    await t.service.execute('CreateEmployeeCommitment', ctx('mem-a'), forB, 'kb');
+    const own = await t.service.execute('CreateEmployeeCommitment', ctx('mem-a'), forA, 'ka');
+    visible = false;
+    await assert.rejects(
+      t.service.execute('CreateEmployeeCommitment', ctx('mem-a'), forB, 'kb'),
+      (err: Error) => err.message === 'NOT_FOUND',
+    );
+    assert.deepEqual(await t.service.execute('CreateEmployeeCommitment', ctx('mem-a'), forA, 'ka'), own);
+    assert.equal(t.commitments.length, 2);
   });
 
   it('gives a different member CONFLICT without the stored body or a new write', async () => {

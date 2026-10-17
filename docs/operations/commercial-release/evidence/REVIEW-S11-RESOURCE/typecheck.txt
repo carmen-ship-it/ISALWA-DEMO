@@ -1,0 +1,5 @@
+tsc packages/os-work exit=0
+tsc packages/os-issue exit=0
+tsc packages/os-commitment exit=0
+tsc packages/os-commercial exit=0
+tsc apps/os-api exit=0

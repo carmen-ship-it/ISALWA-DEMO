@@ -106,7 +106,9 @@ export class CommitmentCommandService {
    * S11: authorize the current actor for this command, then return the stored
    * result only for the same actor, command, and payload. Any mismatch is
    * CONFLICT without the stored body; a row without that binding is
-   * REPLAY_REVIEW_REQUIRED and is not re-run.
+   * REPLAY_REVIEW_REQUIRED and is not re-run. When the commitment is linked to
+   * a party, the actor must still own it or be allowed to link that party
+   * (F07); otherwise NOT_FOUND, as for a party they cannot see.
    */
   private async acceptedReplay(
     ctx: RequestContext,
@@ -115,7 +117,21 @@ export class CommitmentCommandService {
     stored: Record<string, unknown>,
   ): Promise<CommandResult> {
     await this.authorize(ctx, command, ctx.organizationId);
-    return openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
+    const result = openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
+    const commitmentId = [payload.commitmentId, result.data?.commitmentId].find(
+      (value): value is string => typeof value === 'string' && value.length > 0,
+    );
+    const commitment = commitmentId ? await this.store.getCommitmentInOrg(ctx.organizationId, commitmentId) : null;
+    if (!commitment) throw new Error('NOT_FOUND');
+    if (
+      commitment.partyId &&
+      commitment.ownerMemberId !== ctx.actorMemberId &&
+      this.canLinkParty &&
+      !(await this.canLinkParty(ctx, commitment.partyId))
+    ) {
+      throw new Error('NOT_FOUND');
+    }
+    return result;
   }
 
   /** A concurrent request with the same key won the insert: replay its result under the same rules. */

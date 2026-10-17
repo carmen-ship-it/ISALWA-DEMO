@@ -26,6 +26,7 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | Lane A catalog local browser check (01:36 §C) | LOCAL BROWSER CHECK, PARTIAL PASS with findings (synthetic admin, isolated tree/DB/ports; Playwright MCP because Cursor's built-in browser could not reach local ports). Lane A findings F1 accent-sensitive search, F2 repository paths shown as sources, F3 no price statement on ficha; shell findings F4 hydration mismatch, F5 clipped mobile top bar. Role-specific access UNPROVEN. NOT HOSTED, NOT OWNER ACCEPTED | lane A `18a0f0c` (run at `c872470`, code identical) | `commercial-release/browser/LANE-A-CATALOG-BROWSER.md` |
 | R4 part B repair 2: `organization_member` approvals subject policy (23:27 §2, REQUIRED) | OPEN — security gap kept open until proven repaired | — | — |
 | R4 part B repair 3: F07 commitments across list/detail/related paths (23:27 §3, REQUIRED) | LOCAL_COMPLETE (unit 10/10, HTTP+PG 4/4, AI 2/2, os-query 99, os-commitment 18, os-api serial 273, 3 mutations caught; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN). List, detail, AI summaries and create guarded; issue.manage only on non-customer commitments | see git log `fix(authz): F07` | `commercial-release/receipts/REVIEW-F07.md` |
+| S11 resource-level replay recheck (RE-REVIEW_R4_QUEUE §2.3, §9, P2) | LOCAL_COMPLETE (HTTP+PG 4/4 new + lifecycle 4/4 with pinned gap flipped to 404, unit issue 9 / commitment 9 / commercial 8, os-api serial 277, 5 mutations caught; NOT INDEPENDENTLY REVIEWED). Commercial/issue/commitment/work complete-cancel-decide recheck the record; ReassignWork/EscalateApproval command-level only (documented) | see git log `fix(authz): S11 replay` | `commercial-release/receipts/REVIEW-S11-RESOURCE.md` |
 
 ## Last confirmed step
 
@@ -80,6 +81,7 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `fe70b97bfced5c3b271f53498734b5fa6e6ee401` | `bd382fcc19efa7b89002889eef12e21d48171623` | Project memory: `preserve_chats.py` corrections per security review (blob `66566f75…`, sha256 `26b1053c…b3d1`), synthetic tests 19/19 (tooling only; not run over real sources) | this writer; awaiting Claude's focused re-review |
 | `a5f71d523a8e2afe1376ed8a354ce6a014899b26` | `e9d3866302b8071ee971b717620248213a0ab34c` | 2dc2745 limitations + parallel-failure repro; lane A local browser check (docs only) | this writer |
 | `165034af44c5df4a13fc4bca7e818c5dbf6357cb` | `7bad5030f14737c64a11c871b5c5f0c7ad2b4c60` | NEW-R4-1: non-customer party subjects not readable through customer scope (unit 7/7, HTTP+PG 7/7, os-api serial 268) | this writer |
+| `3bc2bd5ae3e0ee471aa3736a69affa48b0de276f` | `d718005046ae744fe25e53fd8cc796f51f68e609` | F07: commitment list/detail/AI/create guarded by responsibility, customer or manager scope (unit 10/10, HTTP+PG 4/4, os-api serial 273) | this writer |
 
 ## Open blockers
 

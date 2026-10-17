@@ -103,6 +103,11 @@ export class WorkCommandService {
    * one who guesses the key or hits the same open-request claim, gets CONFLICT
    * and never sees the stored body. A row without the S11 binding is
    * REPLAY_REVIEW_REQUIRED and is not re-run.
+   *
+   * Complete/cancel and approval decisions also recheck the actor against the
+   * record, as a fresh command would. ReassignWork and EscalateApproval hand the
+   * record to someone else, so the actor's own retry would fail that check;
+   * they keep the command-level check only.
    */
   private async acceptedReplay(
     ctx: RequestContext,
@@ -110,8 +115,27 @@ export class WorkCommandService {
     payload: Record<string, unknown>,
     stored: Record<string, unknown>,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, command, ctx.organizationId);
-    return openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
+    const snap = await this.authorize(ctx, command, ctx.organizationId);
+    const result = openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
+    if (command === 'CompleteWork' || command === 'CancelWorkItem') {
+      const work = await this.store.getWorkItemInOrg(ctx.organizationId, String(payload.workItemId));
+      if (!work) throw new Error('NOT_FOUND');
+      if (
+        work.ownerMemberId !== ctx.actorMemberId &&
+        !this.memberHasAdminScope(snap) &&
+        !(command === 'CompleteWork' && this.canCompletePurchasingPrepReview(snap, work))
+      ) {
+        throw new Error('PERMISSION_DENIED');
+      }
+    }
+    if (command === 'Approve' || command === 'Reject') {
+      const approval = await this.store.getApprovalRequest(ctx.organizationId, String(payload.approvalRequestId));
+      if (!approval) throw new Error('NOT_FOUND');
+      if (!(await this.canDecideApproval(ctx, this.store, approval.approverMemberId))) {
+        throw new Error('PERMISSION_DENIED');
+      }
+    }
+    return result;
   }
 
   private memberHasAdminScope(snap: MemberAccessSnapshot): boolean {

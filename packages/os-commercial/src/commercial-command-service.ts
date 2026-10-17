@@ -107,7 +107,9 @@ export class CommercialCommandService {
    * S11: authorize the current actor for this command, then return the stored
    * result only for the same actor, command, and payload. Any mismatch is
    * CONFLICT without the stored body; a row without that binding is
-   * REPLAY_REVIEW_REQUIRED and is not re-run.
+   * REPLAY_REVIEW_REQUIRED and is not re-run. The actor must still be able to
+   * know the customer the command acted on; otherwise NOT_FOUND, as a fresh
+   * command would answer.
    */
   private async acceptedReplay(
     ctx: RequestContext,
@@ -115,8 +117,51 @@ export class CommercialCommandService {
     payload: Record<string, unknown>,
     stored: Record<string, unknown>,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, command, ctx.organizationId);
-    return openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
+    const snap = await this.authorize(ctx, command, ctx.organizationId);
+    const result = openReplay<CommandResult>(stored, replayBinding(ctx.actorMemberId, command, payload));
+    const partyId =
+      (await this.replayCustomerPartyId(ctx.organizationId, payload)) ??
+      (await this.replayCustomerPartyId(ctx.organizationId, result.data ?? {}));
+    if (!partyId || !(await this.customerAccess(ctx, this.store, snap, partyId)).knowable) {
+      throw new Error('NOT_FOUND');
+    }
+    return result;
+  }
+
+  /** Customer a commercial command or its stored result refers to; null when none is resolvable. */
+  private async replayCustomerPartyId(
+    organizationId: string,
+    source: Record<string, unknown>,
+  ): Promise<string | null> {
+    const id = (key: string) => (typeof source[key] === 'string' && source[key] ? String(source[key]) : null);
+    const quoteParty = async (quoteId: string) =>
+      (await this.store.getQuoteInOrg(organizationId, quoteId))?.partyId ?? null;
+    if (id('partyId')) return id('partyId');
+    if (id('opportunityId')) {
+      const opportunity = await this.store.getOpportunityInOrg(organizationId, id('opportunityId')!);
+      if (opportunity) return opportunity.partyId;
+    }
+    if (id('quoteId')) {
+      const party = await quoteParty(id('quoteId')!);
+      if (party) return party;
+    }
+    if (id('quoteLineId')) {
+      const line = await this.store.getQuoteLineInOrg(organizationId, id('quoteLineId')!);
+      if (line) return quoteParty(line.quoteId);
+    }
+    if (id('orderId')) {
+      const order = await this.store.getOrderInOrg(organizationId, id('orderId')!);
+      if (order) return order.partyId;
+    }
+    if (id('commercialAccountId')) {
+      const account = await this.store.getCommercialAccountInOrg(organizationId, id('commercialAccountId')!);
+      if (account) return account.partyId;
+    }
+    if (id('grantId')) {
+      const grant = await this.store.getCustomerCoverageGrantInOrg(organizationId, id('grantId')!);
+      if (grant) return grant.customerPartyId;
+    }
+    return null;
   }
 
   /** A concurrent request with the same key won the insert: replay its result under the same rules. */
