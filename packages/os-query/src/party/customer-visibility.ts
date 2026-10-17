@@ -138,6 +138,27 @@ export async function coveredAccountOwner(input: {
 }
 
 /** Party ids the actor may read, or the whole tenant for commercial.org.read. */
+/**
+ * The covered account owner's own record (quote, order, opportunity) on a customer the
+ * actor covers for commercial work. Shared by commercial detail, approvals and work so
+ * the timeline and detail answer the same (NEW-R4-3).
+ */
+export async function coveredOwnerRecordReadable(input: {
+  ctx: QueryContext;
+  record: { organizationId: string; ownerMemberId: string; partyId: string };
+  lookup: CustomerVisibilityLookup | null;
+}): Promise<boolean> {
+  const { ctx, record, lookup } = input;
+  if (!lookup || record.organizationId !== ctx.organizationId) return false;
+  const covered = await coveredAccountOwner({
+    ctx,
+    partyId: record.partyId,
+    lookup,
+    coverageActions: COMMERCIAL_COVERAGE_READ_ACTIONS,
+  });
+  return covered !== null && covered === record.ownerMemberId;
+}
+
 export async function resolveCustomerReadScope(input: {
   ctx: QueryContext;
   lookup: CustomerVisibilityLookup;

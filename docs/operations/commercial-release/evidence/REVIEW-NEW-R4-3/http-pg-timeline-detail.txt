@@ -1,0 +1,14 @@
+  ✔ the owner sees the quote, its approval and its work in the timeline and in detail (29.262625ms)
+  ✔ commercial.work coverage: every approval and work entry the timeline shows opens in detail, and the quote approvals list answers (48.218667ms)
+  ✔ commercial.work coverage on a quote without approvals: the approvals list answers empty, as the owner's does (34.09175ms)
+  ✔ data-only coverage and an unrelated member: neither timeline nor detail (102.176666ms)
+✔ NEW-R4-3 timeline and detail agree under coverage over HTTP (disposable Postgres) (600.54475ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1242.832083
+exit 0

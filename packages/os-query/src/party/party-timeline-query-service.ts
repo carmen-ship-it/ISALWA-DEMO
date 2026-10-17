@@ -6,7 +6,7 @@ import type { QueryContext } from '../query-context';
 import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
 import type { OsProjectionStorePort, StoredPartyTimelineEntry } from '../projection-store-port';
-import { canReadApproval, canReadWork, canViewApproval, canViewWork } from '../work/work-auth';
+import { canReadApproval, canReadWork } from '../work/work-auth';
 import {
   canReadCustomer,
   COMMERCIAL_COVERAGE_READ_ACTIONS,
@@ -209,9 +209,7 @@ class TimelineVisibility {
       this.store.getWorkReadModel(this.ctx.organizationId, workItemId),
     );
     if (!work) return false;
-    // canReadWork (as WorkQueryService.getWorkSummary), plus customer coverage through canReadOwner.
-    if (canViewWork(this.ctx, work)) return true;
-    if (await this.canReadOwner(work.organizationId, work.ownerMemberId)) return true;
+    // Exactly the detail rule (WorkQueryService.getWorkSummary), coverage included.
     return canReadWork({ ctx: this.ctx, work, lookup: this.lookup, customer: this.customer });
   }
 
@@ -220,13 +218,7 @@ class TimelineVisibility {
       this.store.getApprovalReadModel(this.ctx.organizationId, approvalRequestId),
     );
     if (!approval) return false;
-    // Same rule as canReadApproval, plus customer coverage through canReadOwner.
-    if (canViewApproval(this.ctx, approval)) return true;
-    if (approval.subjectType === 'quote' || approval.subjectType === 'order') {
-      if (await this.commercialRecordReadable(approval.subjectType, approval.subjectId)) return true;
-    }
-    if (approval.workItemId && (await this.workReadable(approval.workItemId))) return true;
-    if (approval.subjectType === 'work_item' && (await this.workReadable(approval.subjectId))) return true;
+    // Exactly the detail rule (ApprovalQueryService.getApproval), coverage included.
     return canReadApproval({ ctx: this.ctx, approval, sources: this.store, lookup: this.lookup, customer: this.customer });
   }
 }

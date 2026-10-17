@@ -6,6 +6,7 @@ import { canReadOwnedRecord } from '../leadership/leadership-visibility';
 import {
   canReadCustomer,
   COMMERCIAL_COVERAGE_READ_ACTIONS,
+  coveredOwnerRecordReadable,
   isCustomerBoundParty,
   type CustomerVisibilityLookup,
 } from '../party/customer-visibility';
@@ -125,14 +126,18 @@ export async function canReadApproval(input: {
   const { ctx, approval, sources, lookup, customer } = input;
   if (canViewApproval(ctx, approval)) return true;
   if (approval.organizationId !== ctx.organizationId) return false;
-  if (approval.subjectType === 'quote' || approval.subjectType === 'order') {
-    const subject =
-      approval.subjectType === 'quote'
-        ? await sources.getQuoteReadModel(ctx.organizationId, approval.subjectId)
-        : await sources.getOrderReadModel(ctx.organizationId, approval.subjectId);
-    if (subject && (await canReadOwnedRecord({ ctx, organizationId: subject.organizationId, ownerMemberId: subject.ownerMemberId, lookup }))) {
+  // Quote and order approvals follow the subject's detail rule: owner or range, or coverage.
+  const subject =
+    approval.subjectType === 'quote'
+      ? await sources.getQuoteReadModel(ctx.organizationId, approval.subjectId)
+      : approval.subjectType === 'order'
+        ? await sources.getOrderReadModel(ctx.organizationId, approval.subjectId)
+        : null;
+  if (subject) {
+    if (await canReadOwnedRecord({ ctx, organizationId: subject.organizationId, ownerMemberId: subject.ownerMemberId, lookup })) {
       return true;
     }
+    if (await coveredOwnerRecordReadable({ ctx, record: subject, lookup: customer })) return true;
   }
   if (approval.subjectType === 'party' && (await customerOfSubjectReadable({ ctx, subjectType: 'party', subjectId: approval.subjectId, customer, lookup }))) {
     return true;

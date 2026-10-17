@@ -1,0 +1,7 @@
+95383d9314d8307001707533c9d07dbd376758d86c7b1249a48c3408872cd1d2  packages/os-query/src/party/customer-visibility.ts
+0d99e04a656ff6b0b3682f61432586678533d3c4a56c74205ae286f7356f33a0  packages/os-query/src/work/work-auth.ts
+1b194fcdc0b2010430dfb8b50341ed3f5dd892fa19840e29597eb8f3448c34e5  packages/os-query/src/work/approval-query-service.ts
+e9fb6abc709368d199af4d94da14accc97a95319a20db25e04991e3134bca4d8  packages/os-query/src/commercial/commercial-query-service.ts
+bbd4385e0a948fd4561921907736f6ebf793f587c46315c678f30df441586ca2  packages/os-query/src/party/party-timeline-query-service.ts
+4b9cc9d61808f68464922c84bd1b9dd06d56292ff09eb3023582098b91d6fc35  packages/os-query/src/work/work-auth.quote-coverage.test.ts
+c9df3983b69faf508ca0ef32de4fc692c3478f707ca717e2e89dab581ba84f61  apps/os-api/src/review-r4-timeline-detail.http.test.ts

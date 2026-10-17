@@ -1,8 +1,4 @@
-import {
-  COMMERCIAL_COVERAGE_READ_ACTIONS,
-  coveredAccountOwner,
-  type CustomerVisibilityLookup,
-} from '../party/customer-visibility';
+import { coveredOwnerRecordReadable, type CustomerVisibilityLookup } from '../party/customer-visibility';
 import { toOrderLineReadModel, type OrderLineRecord } from '@isalwa/os-commercial';
 import type {
   ListOpportunitiesQuery,
@@ -178,14 +174,7 @@ export class CommercialQueryService {
       lookup: this.lookup(),
     });
     if (ownerRead) return true;
-    if (!this.deps.customerVisibility || model.organizationId !== ctx.organizationId) return false;
-    const covered = await coveredAccountOwner({
-      ctx,
-      partyId: model.partyId,
-      lookup: this.deps.customerVisibility,
-      coverageActions: COMMERCIAL_COVERAGE_READ_ACTIONS,
-    });
-    return covered !== null && covered === model.ownerMemberId;
+    return coveredOwnerRecordReadable({ ctx, record: model, lookup: this.deps.customerVisibility ?? null });
   }
 
   private async freshness(organizationId: string) {

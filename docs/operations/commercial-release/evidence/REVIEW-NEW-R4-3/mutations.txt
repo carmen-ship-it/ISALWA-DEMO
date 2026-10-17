@@ -1,0 +1,18 @@
+== M1 canReadApproval quote/order branch without coverage
+unit ℹ pass 3
+unit ℹ fail 1
+http ℹ pass 3
+http ℹ fail 1
+restored ok sha256 0d99e04a656ff6b0b3682f61432586678533d3c4a56c74205ae286f7356f33a0
+== M2 listSubjectApprovals canSeeAll without coverage
+unit ℹ pass 4
+unit ℹ fail 0
+http ℹ pass 3
+http ℹ fail 1
+restored ok sha256 1b194fcdc0b2010430dfb8b50341ed3f5dd892fa19840e29597eb8f3448c34e5
+== M3 coveredOwnerRecordReadable ignores the record owner
+unit ℹ pass 3
+unit ℹ fail 1
+http ℹ pass 4
+http ℹ fail 0
+restored ok sha256 95383d9314d8307001707533c9d07dbd376758d86c7b1249a48c3408872cd1d2

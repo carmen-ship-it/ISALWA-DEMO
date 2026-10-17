@@ -1,0 +1,20 @@
+== os-query
+ℹ tests 114
+ℹ pass 114
+ℹ fail 0
+== os-commercial
+ℹ tests 101
+ℹ pass 101
+ℹ fail 0
+== os-commitment
+ℹ tests 19
+ℹ pass 19
+ℹ fail 0
+== os-work
+ℹ tests 22
+ℹ pass 22
+ℹ fail 0
+== os-issue
+ℹ tests 94
+ℹ pass 94
+ℹ fail 0

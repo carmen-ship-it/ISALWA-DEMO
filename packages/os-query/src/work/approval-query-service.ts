@@ -6,7 +6,7 @@ import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
 import type { OsProjectionStorePort, StoredApprovalReadModel } from '../projection-store-port';
 import type { DirectReportLookup } from '../leadership/direct-reports';
-import type { CustomerVisibilityLookup } from '../party/customer-visibility';
+import { coveredOwnerRecordReadable, type CustomerVisibilityLookup } from '../party/customer-visibility';
 import { canReadOwnedRecord } from '../leadership/leadership-visibility';
 import { assertApprovalListScope, canActAsApproverDelegate, canReadApproval, canViewApproval } from './work-auth';
 
@@ -105,12 +105,15 @@ export class ApprovalQueryService {
     if (!subject) throw new Error('NOT_FOUND');
 
     const lookup = this.deps.directReports ?? null;
-    const canSeeAll = await canReadOwnedRecord({
-      ctx,
-      organizationId: subject.organizationId,
-      ownerMemberId: subject.ownerMemberId,
-      lookup,
-    });
+    // Same rule as quote/order detail: owner or range, or the covered owner's record.
+    const canSeeAll =
+      (await canReadOwnedRecord({
+        ctx,
+        organizationId: subject.organizationId,
+        ownerMemberId: subject.ownerMemberId,
+        lookup,
+      })) ||
+      (await coveredOwnerRecordReadable({ ctx, record: subject, lookup: this.deps.customerVisibility ?? null }));
 
     const rows = await this.deps.workStore.listApprovalsForSubject(
       ctx.organizationId,

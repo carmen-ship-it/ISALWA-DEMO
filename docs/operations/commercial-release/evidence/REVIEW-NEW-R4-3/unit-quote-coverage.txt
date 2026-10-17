@@ -1,0 +1,14 @@
+  ✔ commercial.work coverage reads approvals on the covered owner's quote and order (0.762042ms)
+  ✔ does not reach a quote owned by someone other than the covered owner (0.118083ms)
+  ✔ data-only coverage, no lookup and an unrelated member are refused (0.164958ms)
+  ✔ keeps the subject owner (0.071167ms)
+✔ quote and order approvals under coverage (NEW-R4-3) (1.61575ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 150.269208
+exit 0

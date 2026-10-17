@@ -1,0 +1,2 @@
+os-query tsc --noEmit: exit 0
+os-api tsc --noEmit: exit 0
