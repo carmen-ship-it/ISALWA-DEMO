@@ -409,6 +409,15 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
     return this.listCoverageInvolvingMember(organizationId, memberId, asOf, false);
   }
 
+  async lockMemberForUpdate(organizationId: string, memberId: string): Promise<void> {
+    if (!this.tx) throw new Error('TRANSACTION_REQUIRED');
+    await this.tx.$queryRaw`
+      SELECT id FROM os_organization_members
+      WHERE id = ${memberId} AND organization_id = ${organizationId}
+      FOR UPDATE
+    `;
+  }
+
   async revokeCustomerCoverageGrant(grantId: string, revokedAt: Date): Promise<void> {
     await this.db().osCustomerCoverageGrant.updateMany({
       where: { id: grantId, revokedAt: null },

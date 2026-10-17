@@ -127,6 +127,12 @@ export interface OsWorkforceStore {
   /** Ends a coverage grant by setting revokedAt; the row is kept as history. */
   revokeCustomerCoverageGrant(grantId: string, revokedAt: Date): Promise<void>;
   /**
+   * Row-locks the member until the surrounding transaction ends, so lifecycle
+   * transitions and grants to that member are serialized. Call it before
+   * reading the member's status.
+   */
+  lockMemberForUpdate(organizationId: string, memberId: string): Promise<void>;
+  /**
    * Issues owned by the member that are not closed or resolved.
    * Used for termination continuity check.
    */

@@ -686,6 +686,7 @@ export class WorkforceCommandService {
   ): Promise<CommandResult> {
     const memberId = String(payload.memberId);
     const providerSubject = String(payload.providerSubject);
+    await store.lockMemberForUpdate(ctx.organizationId, memberId);
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
 
@@ -719,12 +720,21 @@ export class WorkforceCommandService {
       }
     }
 
+    const reinstated = member.accessStatus === 'suspended';
     await store.updateMember(memberId, {
       accessStatus: 'active',
       employmentStatus: 'active',
       employmentStartedAt: ctx.effectiveAt,
       version: member.version + 1,
     });
+    // Authority from the previous lifecycle never carries into the new one,
+    // including members suspended before suspension ended it.
+    const endedDelegationIds = reinstated
+      ? await this.endDelegationsForLifecycle(ctx, memberId, store)
+      : [];
+    const endedCustomerCoverage = reinstated
+      ? await this.endCustomerCoverageForLifecycle(ctx, memberId, store, 'received')
+      : [];
 
     if (auth) {
       await store.updateAuthIdentity(auth.id, {
@@ -737,6 +747,7 @@ export class WorkforceCommandService {
     return this.emit(ctx, 'member.activated', 'organization_member', memberId, store, {
       memberId,
       providerSubject,
+      ...(reinstated ? { endedDelegationIds, endedCustomerCoverage } : {}),
     });
   }
 
@@ -1045,8 +1056,14 @@ export class WorkforceCommandService {
     const expiresAt = new Date(String(payload.expiresAt));
     if (expiresAt <= ctx.effectiveAt) throw new Error('VALIDATION_FAILED');
     const startsAt = payload.startsAt ? new Date(String(payload.startsAt)) : ctx.effectiveAt;
+    await store.lockMemberForUpdate(ctx.organizationId, delegateMemberId);
     const delegate = await store.getMemberInOrg(ctx.organizationId, delegateMemberId);
     if (!delegate) throw new Error('NOT_FOUND');
+    // Reinstatement ends every delegation held from the previous lifecycle, so
+    // granting to a suspended or removed member would create one that never applies.
+    if (delegate.accessStatus === 'suspended' || delegate.accessStatus === 'revoked') {
+      throw new Error('VALIDATION_FAILED');
+    }
 
     const delegationId = createId();
     await store.insertDelegation({
@@ -1110,17 +1127,19 @@ export class WorkforceCommandService {
    * never revive; coverage after reinstatement needs a fresh authorized grant.
    * Responsibility returns to the primary owner only when that owner is
    * another active member; otherwise it is recorded as unresolved.
+   * Reinstatement ends only received coverage: coverage issued for a suspended
+   * owner's customers may be granted during the suspension and confers
+   * nothing on the owner.
    */
   private async endCustomerCoverageForLifecycle(
     ctx: RequestContext,
     memberId: string,
     store: OsWorkforceStore,
+    which: 'issued_and_received' | 'received' = 'issued_and_received',
   ): Promise<EndedCustomerCoverage[]> {
-    const rows = await store.listUnendedCustomerCoverageInvolvingMember(
-      ctx.organizationId,
-      memberId,
-      ctx.effectiveAt,
-    );
+    const rows = (
+      await store.listUnendedCustomerCoverageInvolvingMember(ctx.organizationId, memberId, ctx.effectiveAt)
+    ).filter((row) => which === 'issued_and_received' || row.actingAdvisorMemberId === memberId);
     const ended = new Map<string, EndedCustomerCoverage>();
     for (const row of rows) {
       if (ended.has(row.id)) continue;
@@ -1149,6 +1168,7 @@ export class WorkforceCommandService {
   ): Promise<CommandResult> {
     await this.authorize(ctx, 'SuspendMember', ctx.organizationId, store);
     const memberId = String(payload.memberId);
+    await store.lockMemberForUpdate(ctx.organizationId, memberId);
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
 
@@ -1198,6 +1218,7 @@ export class WorkforceCommandService {
   ): Promise<CommandResult> {
     await this.authorize(ctx, 'TerminateMember', ctx.organizationId, store);
     const memberId = String(payload.memberId);
+    await store.lockMemberForUpdate(ctx.organizationId, memberId);
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
 

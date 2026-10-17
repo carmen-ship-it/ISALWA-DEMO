@@ -303,6 +303,8 @@ export class MemoryOsStore implements OsWorkforceStore {
     return this.coverageInvolvingMember(organizationId, memberId, asOf, false);
   }
 
+  async lockMemberForUpdate(): Promise<void> {}
+
   async revokeCustomerCoverageGrant(grantId: string, revokedAt: Date): Promise<void> {
     for (const grant of this.customerCoverageGrants) {
       if (grant.id === grantId && grant.revokedAt === null) grant.revokedAt = revokedAt;

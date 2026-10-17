@@ -148,8 +148,8 @@ describeHttp('Review R2 delegation standing over HTTP (disposable Postgres)', ()
   });
 
   it('reinstatement does not revive the old delegation (read and replay stay denied); a fresh authorized grant is required', async () => {
-    // No product command reinstates a suspended member (rehire creates a new membership).
-    // An out-of-band status change still must not revive delegated access.
+    // Out-of-band status change; the ActivateMember path is covered in
+    // review-r4-reactivation.http.test.ts.
     await prisma().osOrganizationMember.update({ where: { id: m.delegator!.member.id }, data: { accessStatus: 'active' } });
     assert.equal(await listMembers('delegate'), 403);
     const replay = await command('delegate', 'ChangeDepartment', state.replayBody, state.replayKey);

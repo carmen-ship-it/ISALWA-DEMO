@@ -1,0 +1,6 @@
+  ✔ a member suspended before ce74648 keeps nothing on reactivation: delegations issued/received (current and future) and received coverage end; rows kept (6.922584ms)
+  ✔ a fresh authorized grant after reactivation works (1.75725ms)
+  ✔ repeated activation of an active member is refused and does not touch legitimate delegations (1.1095ms)
+  ✔ first activation of an invited member does not end delegations granted to them while invited (3.282959ms)
+  ✔ GrantDelegation to a suspended member is refused and writes nothing (0.869542ms)
+✔ ActivateMember ends authority from the previous lifecycle (14.603375ms)
