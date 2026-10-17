@@ -5,7 +5,10 @@ import type { QueryContext } from '../query-context';
 import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
 import type { OsProjectionStorePort, StoredApprovalReadModel } from '../projection-store-port';
-import { assertApprovalListScope, canActAsApproverDelegate, canViewApproval } from './work-auth';
+import type { DirectReportLookup } from '../leadership/direct-reports';
+import type { CustomerVisibilityLookup } from '../party/customer-visibility';
+import { canReadOwnedRecord } from '../leadership/leadership-visibility';
+import { assertApprovalListScope, canActAsApproverDelegate, canReadApproval, canViewApproval } from './work-auth';
 
 function toApprovalSummary(model: StoredApprovalReadModel): ApprovalSummaryReadModel {
   return {
@@ -28,6 +31,10 @@ export type ApprovalQueryServiceDeps = {
   projectionStore: OsProjectionStorePort;
   encodeCursor: (approvalRequestId: string) => string;
   workStore?: OsWorkStore;
+  /** Managerial reads (commercial.team.read). Missing lookup fails closed. */
+  directReports?: DirectReportLookup | null;
+  /** Customer-linked approvals and work. Missing lookup fails closed. */
+  customerVisibility?: CustomerVisibilityLookup | null;
 };
 
 export type SubjectApprovalItem = ApprovalSummaryReadModel & {
@@ -97,20 +104,26 @@ export class ApprovalQueryService {
         : await this.deps.workStore.getOrderApprovalSubject(ctx.organizationId, subjectId);
     if (!subject) throw new Error('NOT_FOUND');
 
-    const canSeeAll =
-      subject.ownerMemberId === ctx.auth.memberId ||
-      ctx.auth.roleKeys.includes('people.admin') ||
-      ctx.auth.roleKeys.includes('commercial.team.read') ||
-      ctx.auth.roleKeys.includes('commercial.org.read');
+    const lookup = this.deps.directReports ?? null;
+    const canSeeAll = await canReadOwnedRecord({
+      ctx,
+      organizationId: subject.organizationId,
+      ownerMemberId: subject.ownerMemberId,
+      lookup,
+    });
 
     const rows = await this.deps.workStore.listApprovalsForSubject(
       ctx.organizationId,
       subjectType,
       subjectId,
     );
-    const visible = rows.filter((row) => {
-      if (canSeeAll) return true;
-      return canViewApproval(ctx, {
+    const visible: typeof rows = [];
+    for (const row of rows) {
+      if (canSeeAll) {
+        visible.push(row);
+        continue;
+      }
+      const approval: StoredApprovalReadModel = {
         approvalRequestId: row.id,
         organizationId: row.organizationId,
         workItemId: row.workItemId,
@@ -126,10 +139,12 @@ export class ApprovalQueryService {
         lastEventId: null,
         lastOccurredAt: null,
         updatedAt: row.decidedAt ?? new Date(0),
-      });
-    });
-    if (!canSeeAll && visible.length === 0 && rows.length > 0) {
-      throw new Error('PERMISSION_DENIED');
+      };
+      const customer = this.deps.customerVisibility ?? null;
+      if (await canReadApproval({ ctx, approval, sources: this.deps.projectionStore, lookup, customer })) visible.push(row);
+    }
+    if (!canSeeAll && visible.length === 0) {
+      throw new Error('NOT_FOUND');
     }
 
     const sorted = [...visible].sort((a, b) => {
@@ -176,7 +191,14 @@ export class ApprovalQueryService {
       approvalRequestId,
     );
     if (!model) throw new Error('NOT_FOUND');
-    if (!canViewApproval(ctx, model)) throw new Error('PERMISSION_DENIED');
+    const readable = await canReadApproval({
+      ctx,
+      approval: model,
+      sources: this.deps.projectionStore,
+      lookup: this.deps.directReports ?? null,
+      customer: this.deps.customerVisibility ?? null,
+    });
+    if (!readable) throw new Error('NOT_FOUND');
     const freshness = await this.deps.projectionStore.getFreshness(
       ctx.organizationId,
       OS_PROJECTION_CONSUMER_KEYS.workSummary,

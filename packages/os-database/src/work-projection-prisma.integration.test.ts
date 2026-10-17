@@ -403,7 +403,7 @@ describePrisma('work projection prisma integration (Step 15.1)', () => {
     );
     await assert.rejects(
       () => workQuery.getWorkSummary(outsiderCtx, workId),
-      (err: Error) => err.message === 'PERMISSION_DENIED',
+      (err: Error) => err.message === 'NOT_FOUND',
     );
 
     const maliciousFilterCtx = await buildQueryContext(

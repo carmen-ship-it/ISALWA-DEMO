@@ -531,7 +531,7 @@ describe('pilot leadership visibility', () => {
     ]);
     await assert.rejects(
       () => service.getWorkSummary(jefe, 'w-other'),
-      (err: Error) => err.message === 'PERMISSION_DENIED',
+      (err: Error) => err.message === 'NOT_FOUND',
     );
 
     assert.throws(

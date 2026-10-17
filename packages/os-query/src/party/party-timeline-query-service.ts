@@ -6,7 +6,7 @@ import type { QueryContext } from '../query-context';
 import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
 import type { OsProjectionStorePort, StoredPartyTimelineEntry } from '../projection-store-port';
-import { canViewApproval, canViewWork } from '../work/work-auth';
+import { canReadApproval, canReadWork, canViewApproval, canViewWork } from '../work/work-auth';
 import { canReadCustomer, coveredAccountOwner, type CustomerVisibilityLookup } from './customer-visibility';
 
 export type PartyTimelineQueryServiceDeps = {
@@ -103,6 +103,7 @@ class TimelineVisibility {
     lookup: DirectReportLookup | null,
     /** Account owner of this party when the actor holds active coverage on it. */
     private readonly coveredOwnerMemberId: string | null = null,
+    private readonly customer: CustomerVisibilityLookup | null = null,
   ) {
     // canReadOwnedRecord loads direct reports per call; memoize per request.
     this.lookup = lookup
@@ -203,11 +204,10 @@ class TimelineVisibility {
       this.store.getWorkReadModel(this.ctx.organizationId, workItemId),
     );
     if (!work) return false;
-    // Same predicate as WorkQueryService.getWorkSummary.
-    return (
-      canViewWork(this.ctx, work) ||
-      (await this.canReadOwner(work.organizationId, work.ownerMemberId))
-    );
+    // canReadWork (as WorkQueryService.getWorkSummary), plus customer coverage through canReadOwner.
+    if (canViewWork(this.ctx, work)) return true;
+    if (await this.canReadOwner(work.organizationId, work.ownerMemberId)) return true;
+    return canReadWork({ ctx: this.ctx, work, lookup: this.lookup, customer: this.customer });
   }
 
   private async approvalReadable(approvalRequestId: string): Promise<boolean> {
@@ -215,14 +215,14 @@ class TimelineVisibility {
       this.store.getApprovalReadModel(this.ctx.organizationId, approvalRequestId),
     );
     if (!approval) return false;
-    // Same predicate as ApprovalQueryService.getApproval ...
+    // Same rule as canReadApproval, plus customer coverage through canReadOwner.
     if (canViewApproval(this.ctx, approval)) return true;
-    // ... plus the owner/leadership of the quote or order being approved, matching
-    // ApprovalQueryService.listSubjectApprovals.
     if (approval.subjectType === 'quote' || approval.subjectType === 'order') {
-      return this.commercialRecordReadable(approval.subjectType, approval.subjectId);
+      if (await this.commercialRecordReadable(approval.subjectType, approval.subjectId)) return true;
     }
-    return false;
+    if (approval.workItemId && (await this.workReadable(approval.workItemId))) return true;
+    if (approval.subjectType === 'work_item' && (await this.workReadable(approval.subjectId))) return true;
+    return canReadApproval({ ctx: this.ctx, approval, sources: this.store, lookup: this.lookup, customer: this.customer });
   }
 }
 
@@ -284,6 +284,7 @@ export class PartyTimelineQueryService {
       this.deps.projectionStore,
       this.deps.directReports ?? null,
       await coveredAccountOwner({ ctx, partyId, lookup: this.deps.customerVisibility }),
+      this.deps.customerVisibility,
     );
     const allowed = await Promise.all(items.map((item) => visibility.canSee(item)));
     const visible = items.filter((_, index) => allowed[index]);

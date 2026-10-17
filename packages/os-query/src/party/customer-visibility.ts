@@ -42,6 +42,8 @@ export interface CustomerVisibilityLookup {
   ): Promise<CustomerVisibilityFacts[]>;
   /** Party ids whose commercial account is currently owned by one of these members. */
   listPartyIdsOwnedBy(organizationId: string, ownerMemberIds: readonly string[]): Promise<string[]>;
+  /** Party of a commercial account in this organization, or null. Absent: account-linked records fail closed. */
+  partyIdForCommercialAccount?(organizationId: string, commercialAccountId: string): Promise<string | null>;
   /** Active coverage grants where this member is the acting advisor. */
   listActiveCoverageForAdvisor(
     organizationId: string,

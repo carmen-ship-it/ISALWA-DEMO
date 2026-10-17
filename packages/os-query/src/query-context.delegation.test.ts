@@ -88,8 +88,8 @@ describe('Query approval delegation follows the canonical rule', () => {
     assert.deepEqual([r.approverFor, r.canView], [[], false]);
   });
 
-  it('direct valid grants still work (org admin reads the approval without any delegation)', async () => {
+  it('people.admin alone does not read the approval (20:03 §4, F11)', async () => {
     const r = await view(['people.admin'], []);
-    assert.deepEqual([r.approverFor, r.canView], [[], true]);
+    assert.deepEqual([r.approverFor, r.canView], [[], false]);
   });
 });

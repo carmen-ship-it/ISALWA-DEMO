@@ -246,7 +246,7 @@ describeHttp('os-api query runtime (Step 15.1)', () => {
     assert.equal(res.status, 403);
   });
 
-  it('guessed work ID from another member returns forbidden over HTTP', async () => {
+  it('guessed work ID from another member returns not found over HTTP (non-disclosure, 20:03 §4)', async () => {
     const ctx = {
       organizationId: org.id,
       actorMemberId: admin.member.id,
@@ -275,7 +275,7 @@ describeHttp('os-api query runtime (Step 15.1)', () => {
     const res = await fetch(`${baseUrl}/v1/work-items/${workItemId}`, {
       headers: sessionHeaders(org.id, outsider.member, outsider.person, outsider.auth),
     });
-    assert.equal(res.status, 403);
+    assert.equal(res.status, 404);
 
     void adminB;
   });

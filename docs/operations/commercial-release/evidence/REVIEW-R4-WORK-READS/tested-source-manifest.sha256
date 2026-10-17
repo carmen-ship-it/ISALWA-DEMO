@@ -1,0 +1,12 @@
+f2c0a24e56252db6c034fcde05b47091738a0ea3d15a3a4269f99cab34e8d350  apps/os-api/src/os-store.module.ts
+95ec7b78270ec43bfc20dd77fad41cf7ebf096a1ab6b728c5a573d62ce36ea18  apps/os-api/src/query-runtime.test.ts
+e7883c1c02267e68e41ee57bb1c86baf384063ce1e5e7aded933bf587d8ef5d2  apps/os-api/src/review-r4-work-reads.http.test.ts
+6d9008b7515a834d73435e8c1751028262e7ff7c319c51d8b706b675a8105e2c  packages/os-database/src/prisma-customer-visibility.ts
+3857375fb81a524c3d6bda044157790813ea0ed11171f341d8042eec2d2c6bd6  packages/os-database/src/work-projection-prisma.integration.test.ts
+3e67c0d59609e7478fed46bfd4823303933190c1333d96f465fe22166114dca5  packages/os-query/src/leadership/leadership-visibility.test.ts
+cd79704b176dfe3c2bf85b5a49349c842b8395a846cec39db613c8eef9b04418  packages/os-query/src/party/customer-visibility.ts
+18829afc78d379d0c792b1a7809a0aff619ec6a4d530ec8c8d50967aff5ed638  packages/os-query/src/party/party-timeline-query-service.ts
+f82fdbcd3d320d7f92225116c0b46652e8c413875875b07a99c7e3b77b52d7ad  packages/os-query/src/query-context.delegation.test.ts
+503cc87a4b6d715f2901ea394cf66c760d34709a115a2b9be7eeebdd100df5a7  packages/os-query/src/work/approval-query-service.ts
+3956a390fef5ce1978f893e044b9cfeb24e129fbf91caa787a074e703eda679e  packages/os-query/src/work/work-auth.ts
+f3d73323cb22f0157950e7dd5eb64c1e2a02b658a63c6768455bb8b07c1d27fc  packages/os-query/src/work/work-query-service.ts

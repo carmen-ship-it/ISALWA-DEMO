@@ -380,23 +380,35 @@ function createMemberQueryStore(): MemberQueryStorePort {
     },
     {
       provide: OS_WORK_QUERY_SERVICE,
-      useFactory: (projectionStore: OsProjectionStorePort, memberQueryStore: MemberQueryStorePort) =>
+      useFactory: (
+        projectionStore: OsProjectionStorePort,
+        memberQueryStore: MemberQueryStorePort,
+        customerVisibility: CustomerVisibilityLookup,
+      ) =>
         new WorkQueryService({
           projectionStore,
           encodeCursor: encodeWorkSearchCursor,
           directReports: memberQueryStore,
+          customerVisibility,
         }),
-      inject: [OS_PROJECTION_STORE, OS_MEMBER_QUERY_STORE],
+      inject: [OS_PROJECTION_STORE, OS_MEMBER_QUERY_STORE, OS_CUSTOMER_VISIBILITY],
     },
     {
       provide: OS_APPROVAL_QUERY_SERVICE,
-      useFactory: (projectionStore: OsProjectionStorePort, workStore: OsWorkStore) =>
+      useFactory: (
+        projectionStore: OsProjectionStorePort,
+        workStore: OsWorkStore,
+        memberQueryStore: MemberQueryStorePort,
+        customerVisibility: CustomerVisibilityLookup,
+      ) =>
         new ApprovalQueryService({
           projectionStore,
           encodeCursor: encodeApprovalCursor,
           workStore,
+          directReports: memberQueryStore,
+          customerVisibility,
         }),
-      inject: [OS_PROJECTION_STORE, OS_WORK_STORE],
+      inject: [OS_PROJECTION_STORE, OS_WORK_STORE, OS_MEMBER_QUERY_STORE, OS_CUSTOMER_VISIBILITY],
     },
     {
       provide: OS_ATTENTION_QUERY_SERVICE,

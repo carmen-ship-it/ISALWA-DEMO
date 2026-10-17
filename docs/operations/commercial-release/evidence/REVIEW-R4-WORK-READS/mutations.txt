@@ -1,0 +1,8 @@
+M1 people.admin reads all work again: ℹ fail 3
+M2 creator reads work again (authorship): ℹ fail 3
+M3 any team.read sees every subject approval: ℹ fail 1
+M4 requester reads every approval (authorship): ℹ fail 1
+M5 unreadable work detail discloses existence (403): ℹ fail 3
+M6 people.admin lists other approvers again: ℹ fail 1
+M7 customer scope ignored for customer-linked work: ℹ fail 1
+M8 commercial account id used as party id: ℹ fail 1

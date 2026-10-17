@@ -9,6 +9,14 @@ import type { OsPrismaClient } from './client';
 export class PrismaCustomerVisibilityLookup implements CustomerVisibilityLookup {
   constructor(private readonly prisma: OsPrismaClient) {}
 
+  async partyIdForCommercialAccount(organizationId: string, commercialAccountId: string): Promise<string | null> {
+    const account = await this.prisma.osCommercialAccount.findFirst({
+      where: { id: commercialAccountId, organizationId },
+      select: { partyId: true },
+    });
+    return account?.partyId ?? null;
+  }
+
   async getCustomerFacts(
     organizationId: string,
     partyId: string,

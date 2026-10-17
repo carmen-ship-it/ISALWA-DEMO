@@ -4,12 +4,12 @@ import type { QueryContext } from '../query-context';
 import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
 import type { OsProjectionStorePort, StoredWorkReadModel } from '../projection-store-port';
-import { assertWorkListScope, canViewWork, isOpenPurchasingPrepReview } from './work-auth';
+import { assertWorkListScope, canReadWork, canViewWork, isOpenPurchasingPrepReview } from './work-auth';
 import { canRecordPurchasing } from '@isalwa/os-contracts';
 import type { DirectReportLookup } from '../leadership/direct-reports';
+import type { CustomerVisibilityLookup } from '../party/customer-visibility';
 import {
   FOLLOW_UP_WORK_SUBJECT_TYPES,
-  canReadOwnedRecord,
   ownerInReadScope,
   resolveOwnerReadScope,
   toStoreOwnerFilter,
@@ -42,6 +42,8 @@ export type WorkQueryServiceDeps = {
   encodeCursor: (title: string, workItemId: string) => string;
   /** Required for visibility=team. Missing lookup fails closed. */
   directReports?: DirectReportLookup | null;
+  /** Customer-linked work (party / commercial_account subjects). Missing lookup fails closed. */
+  customerVisibility?: CustomerVisibilityLookup | null;
 };
 
 export class WorkQueryService {
@@ -162,15 +164,13 @@ export class WorkQueryService {
     assertQueryScope(ctx, 'member_active');
     const model = await this.deps.projectionStore.getWorkReadModel(ctx.organizationId, workItemId);
     if (!model) throw new Error('NOT_FOUND');
-    const allowed =
-      canViewWork(ctx, model) ||
-      (await canReadOwnedRecord({
-        ctx,
-        organizationId: model.organizationId,
-        ownerMemberId: model.ownerMemberId,
-        lookup: this.deps.directReports ?? null,
-      }));
-    if (!allowed) throw new Error('PERMISSION_DENIED');
+    const allowed = await canReadWork({
+      ctx,
+      work: model,
+      lookup: this.deps.directReports ?? null,
+      customer: this.deps.customerVisibility ?? null,
+    });
+    if (!allowed) throw new Error('NOT_FOUND');
     const freshness = await this.deps.projectionStore.getFreshness(
       ctx.organizationId,
       OS_PROJECTION_CONSUMER_KEYS.workSummary,
