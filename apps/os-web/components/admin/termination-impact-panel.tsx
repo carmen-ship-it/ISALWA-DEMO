@@ -61,13 +61,13 @@ const RESOLUTION_HINTS: Partial<
   },
   primary_customer_coverage: {
     text:
-      'No hay reasignación de cobertura de clientes en el producto. Mientras esta persona siga como responsable principal de un cliente, no se puede finalizar el acceso. Eso requiere quien administra la cobertura comercial — no se concede desde administración de personas. Enlaces en',
+      'No impide suspender ni finalizar el acceso: la cobertura que esta persona otorgó termina en ese momento y queda en el historial. Esos clientes quedan registrados como pendientes de asignar hasta que quien administra la cartera los reasigne. Enlaces en',
     hash: 'continuidad-comercial',
     linkLabel: 'Continuidad comercial',
   },
   acting_customer_coverage: {
     text:
-      'No hay revocación de cobertura temporal en pantalla. Mientras la cobertura temporal siga activa, no se puede finalizar el acceso. Pida a quien administra la cobertura comercial que la finalice. Enlaces en',
+      'No impide suspender ni finalizar el acceso: la cobertura temporal termina en ese momento (también la programada) y el cliente vuelve a su responsable principal si sigue activo; si no, queda pendiente de asignar. Al reactivar a la persona no se restablece: hace falta un nuevo apoyo autorizado. Enlaces en',
     hash: 'continuidad-comercial',
     linkLabel: 'Continuidad comercial',
   },

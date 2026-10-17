@@ -209,6 +209,11 @@ export function MemberAdminActionsPanel({
               <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
                 Se agregan al rol principal. No lo reemplazan y no se infieren del cargo.
               </p>
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]" data-additional-role-persistence>
+                Son permanentes: se mantienen aunque cambie el rol principal y solo terminan si alguien
+                autorizado los retira de forma explícita. Solo puede otorgarlos quien ya tiene ese
+                permiso por su propio rol, no por una delegación.
+              </p>
               <FormFeedback error={grantRoleState.error} success={grantRoleState.success} />
               <FormFeedback error={endRoleState.error} success={endRoleState.success} />
               {additional.length > 0 ? (

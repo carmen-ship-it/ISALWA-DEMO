@@ -1,6 +1,7 @@
-import type {
-  TerminationImpactCategoryKey,
-  TerminationImpactReadModel,
+import {
+  LIFECYCLE_ENDED_CATEGORY_KEYS,
+  type TerminationImpactCategoryKey,
+  type TerminationImpactReadModel,
 } from '@isalwa/os-contracts';
 import type { OsWorkforceStore } from './os-workforce-store';
 
@@ -57,7 +58,7 @@ const CATEGORY_LABELS: Record<TerminationImpactCategoryKey, string> = {
 };
 
 const COVERAGE_FOUNDATION_GAP =
-  'FOUNDATION_GAP: No governed Grant/Revoke/ReplaceCustomerCoverage command — terminate blocks on active coverage; resolution UI/command not productized.';
+  'Suspender o dar de baja termina esta cobertura (queda en el historial). Si no queda un responsable activo, el cliente queda registrado como pendiente de asignar.';
 
 /** Quote statuses that release ownership for terminate (product has no "closed" quote status). */
 export function isQuoteOwnershipReleased(status: string): boolean {
@@ -201,7 +202,10 @@ export async function collectTerminationImpact(
     ),
   ];
 
-  const totalBlockingCount = categories.reduce((sum, c) => sum + c.count, 0);
+  const endedByLifecycle = new Set<string>(LIFECYCLE_ENDED_CATEGORY_KEYS);
+  const totalBlockingCount = categories
+    .filter((c) => !endedByLifecycle.has(c.key))
+    .reduce((sum, c) => sum + c.count, 0);
 
   return {
     memberId,

@@ -111,9 +111,9 @@ export function CommercialContinuityPanel({
             Clientes bajo su responsabilidad
           </p>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-            No hay reasignación de cobertura de clientes en el producto. Mientras esta persona siga
-            como responsable principal, no se puede finalizar el acceso. Quien administra la
-            cobertura comercial debe resolverlo — administración de personas no concede ese permiso.
+            No impide suspender ni finalizar el acceso. La cobertura que otorgó termina en ese
+            momento y queda en el historial; esos clientes quedan pendientes de asignar hasta que
+            quien administra la cartera los reasigne.
           </p>
           <ul className="mt-3 space-y-2 text-sm text-[var(--isalwa-slate)]">
             {primaryCoverage.slice(0, 8).map((item) => (
@@ -130,8 +130,8 @@ export function CommercialContinuityPanel({
         <div className="mt-8 border-t border-[var(--isalwa-mist)] pt-6">
           <p className="text-sm font-medium text-[var(--isalwa-kiln)]">Cobertura temporal activa</p>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-            No hay revocación de cobertura temporal en pantalla. Mientras siga activa, no se puede
-            finalizar el acceso. Pida a quien administra la cobertura comercial que la finalice.
+            No impide suspender ni finalizar el acceso. La cobertura temporal termina en ese momento
+            (también la programada) y no se restablece al reactivar a la persona.
           </p>
           <ul className="mt-3 space-y-2 text-sm text-[var(--isalwa-slate)]">
             {actingCoverage.slice(0, 8).map((item) => (

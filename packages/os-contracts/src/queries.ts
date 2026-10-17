@@ -386,10 +386,18 @@ export const SUSPEND_ACTIONABLE_CATEGORY_KEYS = [
   'open_opportunities',
   'active_quotes',
   'active_orders',
-  'primary_customer_coverage',
-  'acting_customer_coverage',
   'owned_issues',
   'open_commitments',
+] as const satisfies readonly TerminationImpactCategoryKey[];
+
+/**
+ * Shown in the impact, but never block suspension or termination: the
+ * lifecycle command ends these grants in the same transaction (history kept)
+ * and records who is responsible afterwards, or that nobody is.
+ */
+export const LIFECYCLE_ENDED_CATEGORY_KEYS = [
+  'primary_customer_coverage',
+  'acting_customer_coverage',
 ] as const satisfies readonly TerminationImpactCategoryKey[];
 
 export const SUSPEND_BLOCKED_MESSAGE =

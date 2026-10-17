@@ -1,0 +1,16 @@
+b80d64744f18d9c50020d7e6a97473c8b497ed251b5d812a7d2508d2f91880d0  apps/os-api/src/review-r1-grant-provisioning.http.test.ts
+2e9a6cbf9437739a3d99c4747cc15d0d2dbfedbb990c6abf5eb103527a877af5  apps/os-web/components/admin/commercial-continuity-panel.tsx
+0d35c5d7dd8e9555dca866b3b45700ea007c5a1b362c75928cefc58753151b85  apps/os-web/components/admin/member-admin-actions-panel.tsx
+fd9a743bf6372a985680db11072607883829c2a01f56c3dd0dfd8803a36163e0  apps/os-web/components/admin/termination-impact-panel.tsx
+d66febc8b380a1bb955cca59cf24e99ff073aadff4fafbd912309aa2dad7b9b4  apps/os-web/lib/commercial/admin-continuity.test.ts
+d605353e94daf52ef641f2ea7c5d2959e37b0076c18ba3ea597293ec052f5e64  packages/os-contracts/src/queries.ts
+06fa061af55af9276afbc89f96280760db2978df8f6b7b886ee92b9b3cc872a4  packages/os-database/src/prisma-workforce-store.ts
+419a61872e7ba50c6ac38de4cca24fe8c755d098c10f0f916a6be75774068faa  packages/os-workforce/src/additional-role.test.ts
+bc06ef9866c22493a0de727f8ca7702bd59a0940c6337f45e4cbfa39127f3ad1  packages/os-workforce/src/memory-store.ts
+03f6cf6aa77080ded8ffccc04911f6506cc2dd04db6c1c1da97d09d9f2fb6204  packages/os-workforce/src/os-workforce-store.ts
+ec00ffbc1a0234486fe8282e5961964daabe42af72ecc75fe3ea5484e2f11ed4  packages/os-workforce/src/role-change-plan.ts
+443f1e11ae2f7aa72a1846c4e25065abcdd71aa101eef771c1d0a030d37322cd  packages/os-workforce/src/termination-impact.ts
+b62aca6fdf6ed56a2a154445c8ae1d2dad166b11f96127781b31586525eaf915  packages/os-workforce/src/termination-preflight.test.ts
+c49ea9894231d0e9bf56adec777b246cc966102f665b737fe8985a4729700c5a  packages/os-workforce/src/workforce-command-service.ts
+7d16b3a0a01246561dd543bd821b8950e1ffd6165a1a50d4c1ac9d1ad8293fb5  apps/os-api/src/review-r4-lifecycle-coverage.http.test.ts
+862b353637208accab18bed4951ac762f6f27f1e676789426dcf4644605f31bc  apps/os-api/src/review-r4-persistent-grant.http.test.ts

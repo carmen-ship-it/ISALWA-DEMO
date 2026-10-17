@@ -292,11 +292,34 @@ export class MemoryOsStore implements OsWorkforceStore {
     memberId: string,
     asOf: Date,
   ): Promise<ActiveCustomerCoverageRecord[]> {
+    return this.coverageInvolvingMember(organizationId, memberId, asOf, true);
+  }
+
+  async listUnendedCustomerCoverageInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<ActiveCustomerCoverageRecord[]> {
+    return this.coverageInvolvingMember(organizationId, memberId, asOf, false);
+  }
+
+  async revokeCustomerCoverageGrant(grantId: string, revokedAt: Date): Promise<void> {
+    for (const grant of this.customerCoverageGrants) {
+      if (grant.id === grantId && grant.revokedAt === null) grant.revokedAt = revokedAt;
+    }
+  }
+
+  private coverageInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+    startedOnly: boolean,
+  ): ActiveCustomerCoverageRecord[] {
     const active = this.customerCoverageGrants.filter(
       (g) =>
         g.organizationId === organizationId &&
         g.revokedAt === null &&
-        g.startsAt <= asOf &&
+        (!startedOnly || g.startsAt <= asOf) &&
         (g.endsAt === null || g.endsAt > asOf) &&
         (g.primaryOwnerMemberId === memberId || g.actingAdvisorMemberId === memberId),
     );

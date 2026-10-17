@@ -284,7 +284,7 @@ describe('termination preflight fail-closed', () => {
     }
   });
 
-  it('blocks TerminateMember on active primary customer coverage', async () => {
+  it('22:20 §1: TerminateMember is not blocked by coverage the member issued; it ends it and records the customer as unresolved', async () => {
     const store = new MemoryOsStore();
     const auth = new LocalAuthProviderPort();
     const svc = new WorkforceCommandService(store, auth);
@@ -293,9 +293,10 @@ describe('termination preflight fail-closed', () => {
     const other = await store.seedAdminMember(org.id, 'other@isalwa.bo', 'Other', 'User');
     const asOf = new Date('2026-06-01T12:00:00.000Z');
     const partyId = createId();
+    const grantId = createId();
 
     store.customerCoverageGrants.push({
-      id: createId(),
+      id: grantId,
       organizationId: org.id,
       customerPartyId: partyId,
       customerDisplayName: 'Cliente Cobertura',
@@ -308,96 +309,72 @@ describe('termination preflight fail-closed', () => {
     });
 
     const impact = await collectTerminationImpact(store, org.id, memberId, asOf);
-    assert.equal(impact.canTerminate, false);
+    assert.equal(impact.canTerminate, true, 'coverage is shown but does not block');
     const primary = impact.categories.find((c) => c.key === 'primary_customer_coverage')!;
     assert.equal(primary.count, 1);
     assert.equal(primary.label, 'Clientes bajo su responsabilidad');
     assert.match(primary.items[0]!.summary, /Responsable principal · Cliente Cobertura/);
-    assert.ok(primary.foundationGaps?.[0]?.includes('FOUNDATION_GAP'));
+    assert.match(primary.foundationGaps?.[0] ?? '', /termina esta cobertura/);
 
-    await assert.rejects(
-      () =>
-        svc.execute(
-          'TerminateMember',
-          ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
-          { memberId },
-        ),
-      /VALIDATION_FAILED/,
-    );
+    await svc.execute('TerminateMember', ctx(org.id, admin.member.id, admin.person.id, admin.auth.id), { memberId });
+    const grant = store.customerCoverageGrants.find((g) => g.id === grantId)!;
+    assert.ok(grant.revokedAt, 'ended, row kept as history');
+    const payload = store.businessEvents.find((e) => e.eventType === 'member.terminated')!.payload as Record<string, unknown>;
+    assert.deepEqual(payload.endedCustomerCoverage, [
+      { grantId, customerPartyId: partyId, memberRole: 'primary_owner', responsibleMemberId: null },
+    ]);
+    assert.deepEqual(payload.unresolvedCustomerPartyIds, [partyId]);
   });
 
-  it('blocks on active acting coverage; expired and revoked do not block', async () => {
+  it('22:20 §1: SuspendMember ends received coverage (current and future-dated), returns it to the active owner, leaves ended rows alone, and nothing revives on reinstatement', async () => {
     const store = new MemoryOsStore();
     const auth = new LocalAuthProviderPort();
     const svc = new WorkforceCommandService(store, auth);
     const org = await store.seedOrganization('ISALWA', 'isalwa');
     const { admin, memberId } = await seedActiveMember(store, svc, org.id);
     const other = await store.seedAdminMember(org.id, 'other2@isalwa.bo', 'Other', 'Two');
-    const asOf = new Date('2026-06-01T12:00:00.000Z');
+    const now = new Date('2026-06-01T12:00:00.000Z');
+    const day = 24 * 3600 * 1000;
+    const grant = (name: string, startsAt: Date, endsAt: Date | null, revokedAt: Date | null) => {
+      const row = {
+        id: createId(),
+        organizationId: org.id,
+        customerPartyId: createId(),
+        customerDisplayName: name,
+        primaryOwnerMemberId: other.member.id,
+        actingAdvisorMemberId: memberId,
+        role: 'acting' as const,
+        startsAt,
+        endsAt,
+        revokedAt,
+      };
+      store.customerCoverageGrants.push(row);
+      return row;
+    };
+    const active = grant('Temporal Activo', new Date(now.getTime() - 30 * day), null, null);
+    const future = grant('Futuro', new Date(now.getTime() + 5 * day), new Date(now.getTime() + 20 * day), null);
+    const expired = grant('Expirado', new Date(now.getTime() - 90 * day), new Date(now.getTime() - 60 * day), null);
+    const earlierRevocation = new Date(now.getTime() - 10 * day);
+    const revoked = grant('Revocado', new Date(now.getTime() - 30 * day), null, earlierRevocation);
 
-    store.customerCoverageGrants.push({
-      id: createId(),
-      organizationId: org.id,
-      customerPartyId: createId(),
-      customerDisplayName: 'Temporal Activo',
-      primaryOwnerMemberId: other.member.id,
-      actingAdvisorMemberId: memberId,
-      role: 'acting',
-      startsAt: new Date('2026-01-01T00:00:00.000Z'),
-      endsAt: null,
-      revokedAt: null,
-    });
-    store.customerCoverageGrants.push({
-      id: createId(),
-      organizationId: org.id,
-      customerPartyId: createId(),
-      customerDisplayName: 'Expirado',
-      primaryOwnerMemberId: other.member.id,
-      actingAdvisorMemberId: memberId,
-      role: 'acting',
-      startsAt: new Date('2025-01-01T00:00:00.000Z'),
-      endsAt: new Date('2025-12-01T00:00:00.000Z'),
-      revokedAt: null,
-    });
-    store.customerCoverageGrants.push({
-      id: createId(),
-      organizationId: org.id,
-      customerPartyId: createId(),
-      customerDisplayName: 'Revocado',
-      primaryOwnerMemberId: other.member.id,
-      actingAdvisorMemberId: memberId,
-      role: 'acting',
-      startsAt: new Date('2026-01-01T00:00:00.000Z'),
-      endsAt: null,
-      revokedAt: new Date('2026-02-01T00:00:00.000Z'),
-    });
-
-    let impact = await collectTerminationImpact(store, org.id, memberId, asOf);
-    assert.equal(impact.canTerminate, false);
-    const acting = impact.categories.find((c) => c.key === 'acting_customer_coverage')!;
-    assert.equal(acting.count, 1);
-    assert.equal(acting.label, 'Cobertura temporal activa');
-    assert.match(acting.items[0]!.summary, /Cobertura temporal · Temporal Activo/);
-
-    // Clear active grant only — expired/revoked remain but must not block.
-    store.customerCoverageGrants = store.customerCoverageGrants.filter(
-      (g) => g.customerDisplayName !== 'Temporal Activo',
-    );
-    impact = await collectTerminationImpact(store, org.id, memberId, asOf);
+    const impact = await collectTerminationImpact(store, org.id, memberId, now);
+    assert.equal(impact.categories.find((c) => c.key === 'acting_customer_coverage')!.count, 1);
     assert.equal(impact.canTerminate, true);
-    assert.equal(impact.categories.find((c) => c.key === 'acting_customer_coverage')!.count, 0);
 
-    await svc.execute(
-      'TerminateMember',
-      ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
-      { memberId, reason: 'Cobertura resuelta' },
-    );
-    const terminated = store.businessEvents.find((e) => e.eventType === 'member.terminated');
-    assert.ok(terminated);
-    assert.equal(
-      (terminated!.payload as { reason?: string } | undefined)?.reason,
-      'Cobertura resuelta',
-    );
+    await svc.execute('SuspendMember', ctx(org.id, admin.member.id, admin.person.id, admin.auth.id), { memberId });
+    assert.ok(active.revokedAt && future.revokedAt, 'current and future-dated coverage ended');
+    assert.equal(expired.revokedAt, null, 'already-ended row untouched');
+    assert.equal(revoked.revokedAt, earlierRevocation, 'earlier revocation kept');
+    const payload = store.businessEvents.find((e) => e.eventType === 'member.suspended')!.payload as Record<string, unknown>;
+    const ended = payload.endedCustomerCoverage as Array<Record<string, unknown>>;
+    assert.deepEqual(ended.map((e) => e.grantId).sort(), [active.id, future.id].sort());
+    assert.ok(ended.every((e) => e.memberRole === 'acting_advisor' && e.responsibleMemberId === other.member.id));
+    assert.deepEqual(payload.unresolvedCustomerPartyIds, []);
+
+    const member = store.members.find((m) => m.id === memberId)!;
+    member.accessStatus = 'active';
+    const later = new Date(now.getTime() + 10 * day);
+    assert.deepEqual(await store.listActiveCustomerCoverageInvolvingMember(org.id, memberId, later), [], 'no coverage revives after reinstatement');
   });
 
   it('excludes cross-tenant customer coverage from termination impact', async () => {

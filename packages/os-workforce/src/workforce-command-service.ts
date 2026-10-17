@@ -53,6 +53,18 @@ type ScheduledProviderEffect = {
   run: () => Promise<void>;
 };
 
+type EndedCustomerCoverage = {
+  grantId: string;
+  customerPartyId: string;
+  memberRole: 'primary_owner' | 'acting_advisor';
+  /** Active primary owner who keeps the customer, or null when nobody does. */
+  responsibleMemberId: string | null;
+};
+
+function unresolvedCustomers(ended: readonly EndedCustomerCoverage[]): string[] {
+  return [...new Set(ended.filter((e) => e.responsibleMemberId === null).map((e) => e.customerPartyId))].sort();
+}
+
 export class WorkforceCommandService {
   constructor(
     private readonly store: OsWorkforceStore,
@@ -864,19 +876,14 @@ export class WorkforceCommandService {
     for (const key of [...plan.endedPrimaryRoleKeys, ...plan.revokedAdditionalRoleKeys]) {
       await store.endActiveRoleAssignmentsForKey(ctx.organizationId, memberId, key, effectiveAt);
     }
-    const keptAsHeld =
-      !plan.endedPrimaryRoleKeys.includes(roleKey) &&
-      assignments.some((row) => row.memberId === memberId && row.roleKey === roleKey && row.endedAt === null);
-    if (!keptAsHeld) {
-      await store.insertRoleAssignment({
-        id: createId(),
-        organizationId: ctx.organizationId,
-        memberId,
-        roleKey,
-        effectiveAt,
-        endedAt: null,
-      });
-    }
+    await store.insertRoleAssignment({
+      id: createId(),
+      organizationId: ctx.organizationId,
+      memberId,
+      roleKey,
+      effectiveAt,
+      endedAt: null,
+    });
 
     return this.emit(ctx, 'member.role.changed', 'organization_member', memberId, store, {
       memberId,
@@ -1096,6 +1103,44 @@ export class WorkforceCommandService {
     return open.map((delegation) => delegation.id).sort();
   }
 
+  /**
+   * Suspension and termination end every unended customer coverage grant the
+   * member issued (primary owner) or received (acting advisor), future-dated
+   * ones included, in the lifecycle transaction. Rows are kept as history and
+   * never revive; coverage after reinstatement needs a fresh authorized grant.
+   * Responsibility returns to the primary owner only when that owner is
+   * another active member; otherwise it is recorded as unresolved.
+   */
+  private async endCustomerCoverageForLifecycle(
+    ctx: RequestContext,
+    memberId: string,
+    store: OsWorkforceStore,
+  ): Promise<EndedCustomerCoverage[]> {
+    const rows = await store.listUnendedCustomerCoverageInvolvingMember(
+      ctx.organizationId,
+      memberId,
+      ctx.effectiveAt,
+    );
+    const ended = new Map<string, EndedCustomerCoverage>();
+    for (const row of rows) {
+      if (ended.has(row.id)) continue;
+      const issued = row.primaryOwnerMemberId === memberId;
+      let responsibleMemberId: string | null = null;
+      if (!issued) {
+        const owner = await store.getMemberInOrg(ctx.organizationId, row.primaryOwnerMemberId);
+        if (owner && owner.accessStatus === 'active') responsibleMemberId = owner.id;
+      }
+      await store.revokeCustomerCoverageGrant(row.id, ctx.effectiveAt);
+      ended.set(row.id, {
+        grantId: row.id,
+        customerPartyId: row.customerPartyId,
+        memberRole: issued ? 'primary_owner' : 'acting_advisor',
+        responsibleMemberId,
+      });
+    }
+    return [...ended.values()].sort((a, b) => a.grantId.localeCompare(b.grantId));
+  }
+
   private async suspendMember(
     ctx: RequestContext,
     payload: Record<string, unknown>,
@@ -1122,6 +1167,8 @@ export class WorkforceCommandService {
       version: member.version + 1,
     });
     const endedDelegationIds = await this.endDelegationsForLifecycle(ctx, memberId, store);
+    const endedCustomerCoverage = await this.endCustomerCoverageForLifecycle(ctx, memberId, store);
+    const unresolvedCustomerPartyIds = unresolvedCustomers(endedCustomerCoverage);
 
     // Sessions are person-wide; suspending here must not sign the person out of
     // another organization. Suspended access is enforced on every request.
@@ -1138,6 +1185,8 @@ export class WorkforceCommandService {
     return this.emit(ctx, 'member.suspended', 'organization_member', memberId, store, {
       memberId,
       endedDelegationIds,
+      endedCustomerCoverage,
+      unresolvedCustomerPartyIds,
     });
   }
 
@@ -1170,6 +1219,8 @@ export class WorkforceCommandService {
       version: member.version + 1,
     });
     const endedDelegationIds = await this.endDelegationsForLifecycle(ctx, memberId, store);
+    const endedCustomerCoverage = await this.endCustomerCoverageForLifecycle(ctx, memberId, store);
+    const unresolvedCustomerPartyIds = unresolvedCustomers(endedCustomerCoverage);
 
     // Membership access above is revoked and enforced on every request. The
     // login itself is person-wide, so leave it alone when another organization
@@ -1191,7 +1242,12 @@ export class WorkforceCommandService {
     const reasonRaw = payload.reason;
     const reason =
       typeof reasonRaw === 'string' && reasonRaw.trim().length > 0 ? reasonRaw.trim() : undefined;
-    const emitPayload: Record<string, unknown> = { memberId, endedDelegationIds };
+    const emitPayload: Record<string, unknown> = {
+      memberId,
+      endedDelegationIds,
+      endedCustomerCoverage,
+      unresolvedCustomerPartyIds,
+    };
     if (reason !== undefined) {
       emitPayload.reason = reason;
     }

@@ -316,20 +316,72 @@ describe('ChangeRole replaces the primary role only (21:33 §3)', () => {
     assert.deepEqual(await activeKeys(store, memberId, adminCtx.effectiveAt), ['sales_rep']);
   });
 
-  it('a held scope may still be given as the new role (R1 path); an already-held one keeps its row and cannot also be revoked', async () => {
+  it('22:20 §2: a role change never creates a persistent extra grant; the new role must be primary', async () => {
     const { store, svc, org, admin, memberId } = await harness();
     const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
-    await svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'commercial.team.read' });
-    assert.deepEqual(await activeKeys(store, memberId, adminCtx.effectiveAt), ['commercial.team.read']);
-
-    await svc.execute('GrantAdditionalRole', adminCtx, { memberId, roleKey: 'commercial.org.read' });
+    const before = (await store.listRoleAssignmentsForMember(memberId)).map((row) => ({ ...row }));
     await assert.rejects(
-      () => svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'commercial.org.read', revokeAdditionalRoleKeys: ['commercial.org.read'] }),
+      () => svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'commercial.team.read' }),
       /VALIDATION_FAILED/,
+      'even a holder with people.admin cannot make a commercial scope "primary"',
     );
-    await svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'commercial.org.read' });
-    const open = (await store.listRoleAssignmentsForMember(memberId)).filter((row) => row.endedAt === null);
-    assert.deepEqual(open.map((row) => row.roleKey).sort(), ['commercial.org.read', 'commercial.team.read'], 'one row per key, no duplicate');
+    assert.deepEqual(await store.listRoleAssignmentsForMember(memberId), before, 'nothing changed');
+    assert.throws(
+      () => planRoleChange({ memberId, assignments: before, roleKey: 'commercial.team.read', revokeAdditionalRoleKeys: [], asOf: adminCtx.effectiveAt }),
+      /VALIDATION_FAILED/,
+      'the preview refuses the same request',
+    );
+  });
+
+  it('22:20 §2: a duplicate grant is a no-op; persistence comes only from an explicit GrantAdditionalRole', async () => {
+    const { store, svc, org, admin, memberId } = await harness();
+    const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    const first = await svc.execute('GrantAdditionalRole', adminCtx, { memberId, roleKey: 'commercial.org.read' });
+    const events = store.businessEvents.length;
+    const again = await svc.execute('GrantAdditionalRole', adminCtx, { memberId, roleKey: 'commercial.org.read' });
+    assert.equal(again.data.alreadyAssigned, true);
+    assert.equal(again.data.assignmentId, first.data.assignmentId);
+    assert.equal(store.businessEvents.length, events, 'no second grant event');
+    const open = (await store.listRoleAssignmentsForMember(memberId)).filter((row) => row.endedAt === null && row.roleKey === 'commercial.org.read');
+    assert.equal(open.length, 1, 'one row per key');
+    await svc.execute('ChangeRole', adminCtx, { memberId, roleKey: 'sales_manager' });
+    assert.deepEqual((await activeKeys(store, memberId, adminCtx.effectiveAt)).sort(), ['commercial.org.read', 'sales_manager'], 'the explicit grant survives');
+  });
+
+  it('22:20 §2: temporary (delegated) or primary permissions cannot be turned into a persistent extra grant', async () => {
+    const { store, svc, org, admin, peopleOnly, memberId } = await harness();
+    const adminCtx = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    await svc.execute('GrantDelegation', adminCtx, {
+      delegateMemberId: memberId,
+      scopes: ['people.admin'],
+      expiresAt: new Date('2099-01-01T00:00:00Z').toISOString(),
+    });
+    const delegateCtx = ctx(org.id, memberId, '', '');
+    const peopleOnlyId = peopleOnly.member.id;
+    const before = (await store.listRoleAssignmentsForMember(peopleOnlyId)).length;
+    await assert.rejects(
+      () => svc.execute('GrantAdditionalRole', delegateCtx, { memberId: peopleOnlyId, roleKey: 'commercial.team.read' }),
+      /PERMISSION_DENIED/,
+      'delegated people.admin does not count as holding a scope to grant',
+    );
+    await assert.rejects(
+      () => svc.execute('GrantAdditionalRole', adminCtx, { memberId, roleKey: 'people.admin' }),
+      /VALIDATION_FAILED/,
+      'a delegable/primary scope is never an additional grant',
+    );
+    await assert.rejects(
+      () => svc.execute('GrantAdditionalRole', adminCtx, { memberId: peopleOnlyId, roleKey: 'people.admin' }),
+      /VALIDATION_FAILED/,
+      'a primary role cannot be duplicated as a persistent extra grant',
+    );
+    const rrhh = ctx(org.id, peopleOnlyId, peopleOnly.person.id, peopleOnly.auth.id);
+    await assert.rejects(
+      () => svc.execute('GrantAdditionalRole', rrhh, { memberId, roleKey: 'commercial.team.read' }),
+      /PERMISSION_DENIED/,
+      'people.admin without the scope cannot grant it',
+    );
+    assert.equal((await store.listRoleAssignmentsForMember(peopleOnlyId)).length, before);
+    assert.deepEqual((await activeKeys(store, memberId, adminCtx.effectiveAt)).sort(), ['sales_rep']);
   });
 
   it('preserving extra grants does not let a grantor expand privileges: a primary the grantor lacks is denied', async () => {

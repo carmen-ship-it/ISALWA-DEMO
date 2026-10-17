@@ -6,8 +6,9 @@ import type { RoleAssignmentRecord } from './store-types';
  * What ChangeRole will do, computed once for both the confirmation preview and
  * the command. The primary role is every open assignment whose key is not an
  * additional-assignable scope; additional permissions (GrantAdditionalRole)
- * survive unless the request names them for revocation. A held scope may still be
- * given as the new role (R1 path); if it is already held, that row is kept.
+ * survive unless the request names them for revocation. The new role must be a
+ * primary role: an additional-assignable scope becomes persistent only through
+ * an explicit GrantAdditionalRole, never as a side effect of a role change.
  */
 export type RoleChangePlan = {
   memberId: string;
@@ -40,6 +41,7 @@ export function planRoleChange(input: {
   revokeAdditionalRoleKeys: readonly string[];
   asOf: Date;
 }): RoleChangePlan {
+  if (isAdditionalAssignableScope(input.roleKey)) throw new Error('VALIDATION_FAILED');
   const open = input.assignments.filter((row) => row.memberId === input.memberId && row.endedAt === null);
   const openPrimary = unique(open.filter((row) => !isAdditionalAssignableScope(row.roleKey)).map((row) => row.roleKey));
   const openAdditional = unique(open.filter((row) => isAdditionalAssignableScope(row.roleKey)).map((row) => row.roleKey));

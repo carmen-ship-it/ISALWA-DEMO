@@ -118,6 +118,14 @@ export interface OsWorkforceStore {
     memberId: string,
     asOf: Date,
   ): Promise<ActiveCustomerCoverageRecord[]>;
+  /** Unrevoked coverage not yet ended, current or future-dated, issued or received by the member. */
+  listUnendedCustomerCoverageInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<ActiveCustomerCoverageRecord[]>;
+  /** Ends a coverage grant by setting revokedAt; the row is kept as history. */
+  revokeCustomerCoverageGrant(grantId: string, revokedAt: Date): Promise<void>;
   /**
    * Issues owned by the member that are not closed or resolved.
    * Used for termination continuity check.

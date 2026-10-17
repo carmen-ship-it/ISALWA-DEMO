@@ -12,6 +12,7 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 | R2 (review: effective delegation F10, grant/team range, bootstrap procedure) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 3 mutation checks; NOT INDEPENDENTLY REVIEWED; bootstrap PREPARED, NOT EXECUTED) | see git log `fix(authz): R2` | `commercial-release/receipts/REVIEW-R2.md` |
 | R3 (review: tenant selection F09) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 3 mutation checks; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN) | see git log `fix(tenancy): R3` | `commercial-release/receipts/REVIEW-R3.md` |
 | R2 follow-up (21:33: delegation enforcement, suspension lifecycle, ChangeRole, bootstrap) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 5 mutation checks; NOT INDEPENDENTLY REVIEWED; preview BROWSER CHECK UNPROVEN; bootstrap PREPARED, NOT EXECUTED) | see git log `fix(authz): R2 follow-up` | `commercial-release/receipts/REVIEW-R2-FOLLOWUP.md` |
+| R4 corrections (22:20 §1–§2: lifecycle ends coverage; persistent grants explicit only) | LOCAL_COMPLETE (unit + disposable PG + local HTTP, 3 mutation checks; NOT INDEPENDENTLY REVIEWED; BROWSER CHECK UNPROVEN) | see git log `fix(authz): R4 corrections` | `commercial-release/receipts/REVIEW-R4-CORRECTIONS.md` |
 
 ## Last confirmed step
 
@@ -36,6 +37,16 @@ T03 remaining after part 1 (`3183c36`: owner/coverage authority on customer + co
 ## Owner decision 2026-10-16 17:58 (demo artifacts)
 
 Recorded in `commercial-release/REUSE_MAP.md` §11. Remove the sample-data demo view (A: `os-web` `?datos=demo` SYNTH data mode) in T10/T11 after separating shared code; preserve the guided presentation (B: Story Mode "Recorrido completo de ISALWA" + `lib/walkthrough` + `lib/guidance`) and update it in T20. Nothing removed yet. Owner clarification 18:04 recorded in §11.0: keep the top "Recorrido" Journey tab (update in T20); remove the full-app teacher/demo data mode (switch, banner, state, routing, SYNTH switch, substitutions) in T10/T11; keep real pages and records.
+
+## Commit ledger (full SHA, tree)
+
+A commit cannot record its own SHA; each one is added by the next commit.
+
+| Commit | Tree | Task | Writer / review |
+|---|---|---|---|
+| `41bdb2eac02d8b2ae5adb2d4883debd806264d34` | `4fae0e9d5fac6a5477570b0770119dfafaf9e3fe` | R2 | this writer; re-reviewed at source level (`RE-REVIEW_R1_R2.md`) |
+| `78003ff5a3a498ca2d38371462b9cb671d8a7e58` | `43c7f2ef2da16db42a237c5fcdf39281d8837ab9` | R3 (F09) | this writer; re-reviewed at source level, not runtime (`RE-REVIEW_R3_R2F.md`) |
+| `ce7464831cac67d03344361151c2df536d3d7d56` | `f718ab993502e41e73408cd7955f05cac4e72adf` | R2 follow-up | committed by a second agent in this worktree (cross-lane collision, nothing lost); not verified alone by this writer, its tests pass as part of later runs; re-reviewed at source level, not runtime (`RE-REVIEW_R3_R2F.md`) |
 
 ## Open blockers
 

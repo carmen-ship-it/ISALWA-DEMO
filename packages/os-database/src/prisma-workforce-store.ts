@@ -398,12 +398,36 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
     memberId: string,
     asOf: Date,
   ): Promise<ActiveCustomerCoverageRecord[]> {
+    return this.listCoverageInvolvingMember(organizationId, memberId, asOf, true);
+  }
+
+  async listUnendedCustomerCoverageInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<ActiveCustomerCoverageRecord[]> {
+    return this.listCoverageInvolvingMember(organizationId, memberId, asOf, false);
+  }
+
+  async revokeCustomerCoverageGrant(grantId: string, revokedAt: Date): Promise<void> {
+    await this.db().osCustomerCoverageGrant.updateMany({
+      where: { id: grantId, revokedAt: null },
+      data: { revokedAt },
+    });
+  }
+
+  private async listCoverageInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+    startedOnly: boolean,
+  ): Promise<ActiveCustomerCoverageRecord[]> {
     const rows = await this.db().osCustomerCoverageGrant.findMany({
       where: {
         organizationId,
         grantType: 'commercial.customer.coverage',
         revokedAt: null,
-        startsAt: { lte: asOf },
+        ...(startedOnly ? { startsAt: { lte: asOf } } : {}),
         OR: [{ endsAt: null }, { endsAt: { gt: asOf } }],
         AND: [
           {

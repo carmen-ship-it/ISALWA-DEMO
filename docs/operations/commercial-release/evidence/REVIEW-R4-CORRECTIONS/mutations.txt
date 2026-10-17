@@ -1,0 +1,3 @@
+M1 lifecycle does not end coverage: ℹ fail 2
+M2 shared role-change rule accepts additional-assignable key: ℹ fail 1
+M3 coverage counted as blocking again: ℹ fail 2

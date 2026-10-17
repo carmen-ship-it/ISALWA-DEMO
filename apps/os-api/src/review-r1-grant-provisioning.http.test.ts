@@ -177,8 +177,16 @@ describeHttp('Review R1 grant provisioning over HTTP (disposable Postgres)', () 
     assert.equal(team.status, 201, JSON.stringify(team.body));
     assert.deepEqual(await activeKeys('candidate'), [...MANAGER_SCOPES, 'sales_manager'].sort());
 
-    // Equivalent path: ChangeRole to a held scope, here read-only range.
-    const readRole = await command('grantor', 'ChangeRole', {
+    // 22:20 §2: a role change never creates a persistent extra grant. Read-only
+    // range is given only by an explicit GrantAdditionalRole.
+    const keysBefore = await activeKeys('readCandidate');
+    const asRole = await command('grantor', 'ChangeRole', {
+      memberId: m.readCandidate!.member.id,
+      roleKey: 'commercial.team.read',
+    });
+    assert.deepEqual([asRole.status, asRole.body], [400, { code: 'VALIDATION_FAILED' }]);
+    assert.deepEqual(await activeKeys('readCandidate'), keysBefore, 'refused role change wrote nothing');
+    const readRole = await command('grantor', 'GrantAdditionalRole', {
       memberId: m.readCandidate!.member.id,
       roleKey: 'commercial.team.read',
     });
@@ -188,7 +196,7 @@ describeHttp('Review R1 grant provisioning over HTTP (disposable Postgres)', () 
       managerMemberId: m.readCandidate!.member.id,
     });
     assert.equal(readTeam.status, 201);
-    assert.deepEqual(await activeKeys('readCandidate'), ['commercial.team.read']);
+    assert.deepEqual(await activeKeys('readCandidate'), [...keysBefore, 'commercial.team.read'].sort());
   });
 
   it('the provisioned manager edits and quotes the team customer over HTTP; ownership is unchanged', async () => {
