@@ -97,6 +97,7 @@ It also writes the mixed-chat excerpts, copies the 18 cleared screenshots and wr
 - Unblock requirement:
   - a reviewer inspects `tools/preserve_chats.py` at the commit that adds it and approves running it;
   - Carmen names the backup destination. The proposal is a new private repository under her ISALWA GitHub account, holding one unrelated commit with only the bundle and none of the restricted branch history.
+- 2026-10-17 01:5x — Carmen chose the destination: "New private repository under my ISALWA GitHub account (carmen-ship-it)". The script review is still outstanding.
 - Then: run the tool, re-run `index_chats.py` with the bundle counted as a preservation source, push the bundle, verify the remote manifest hash, and re-issue the list.
 
 **Final deletion list for this pass:** `FINAL_DELETION_LIST.md`.
