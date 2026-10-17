@@ -97,7 +97,7 @@ Checks (evidence `evidence/REVIEW-R4-REASSIGN-WORK-DELTA/`, allowlisted lines on
 | os-work suite | 22/22 |
 | os-query suite | 82/82 |
 | os-database suite | 303/303 after the fixture correction. Before it: 302/303 (the expected refusal). The first targeted run after the correction failed once with no captured detail; the next 3 runs passed 7/7 |
-| os-api suite | 267/267 serial (`--test-concurrency=1`). The default-concurrency package script gave 265/267, with failures in party timeline and party search from shared-database ordering, not reassignment |
+| os-api suite | 267/267 serial (`--test-concurrency=1`). The default-concurrency package script (`pnpm test`) **fails intermittently, and the cause is not established**. See §6.1 |
 | os-web suite | 1300/1300 |
 | Typecheck os-contracts / os-work / os-query / os-database / os-api / os-web | exit 0 each |
 | Mutations | **INCOMPLETE.** The run aborted and left one mutated line, which was restored and hash-verified. Not re-run and not used as acceptance evidence (`mutations.txt`) |
@@ -107,4 +107,26 @@ Limitations, recorded as open:
 - The commercial reassignment UI is missing. Commercial managers have no product surface for ReassignWork on customer work yet; only the HTTP command exists.
 - A coverage arrangement is not created by the command. The target must already hold coverage; the command never grants it.
 - Mutation evidence is INCOMPLETE. A safer, inspectable method (reviewable patch files applied to a disposable copy) needs the normal approval process.
-- The os-api package script runs its tests in parallel against one shared disposable database, which is order-sensitive. The established serial command is what counts as evidence. Separate repair.
+- The os-api default-parallel suite fails intermittently and the cause is not established (§6.1). The established serial command is documented below; it does not explain or excuse the parallel failures.
+- The os-database targeted run failed once (6/7) with no captured detail. That failure remains unexplained.
+- No manager reassignment screen exists, and there is no browser proof.
+
+Status: **locally tested with limitations, not fully verified.** Not independently reviewed. Production, warehouse and purchasing reassignment is an incomplete workflow, not a completed feature, even though it fails closed.
+
+### 6.1 Default-parallel os-api failures (01:36 §A)
+
+Established serial command (evidence of record): `cd apps/os-api && OS_DATABASE_URL=<disposable> node --import tsx --test --test-concurrency=1 "src/**/*.test.ts"`.
+
+Raw output is kept locally and is not in the repository: `/Users/carmen/projects/isalwa-evidence/r4a-2dc2745-repro/` (`raw-2dc2745/` for the original logs, `SHA256SUMS`). All runs below used isolated disposable databases cloned from `isalwa_t01_disposable` and the same code as `2dc2745` (later commits are docs only).
+
+| Run | Result | Failing test(s) |
+|---|---|---|
+| Original (2dc2745 suite run) | 265/267 | `commercial-runtime.test.ts` "GET party timeline returns authorized entries without raw payload"; `query-runtime.test.ts` "GET /v1/parties returns projected search results over HTTP" |
+| Repro attempts 1–2 | **no result.** Both were killed when their launching shell call ended (logs stop mid-run); they are not test outcomes | n/a |
+| Repro attempt 3, run 1 (`isalwa_r4a_repro3_disposable`) | 266/267 | `query-runtime.test.ts:208` "GET /v1/work-items and /v1/approvals and /v1/attention over HTTP" |
+| Repro attempt 3, run 2 | 267/267 | none |
+| os-database timeline file ×3 (attempt 3) | 7/7 each | none |
+| Baseline at parent `13c8a5d` (before 2dc2745), run 1, separate tree and `isalwa_r4a_baseline_disposable` | 264/265 | `rate-limit` "a concurrent burst is cut at exactly the limit" |
+| Baseline run 2 | 265/265 | none |
+
+What this shows: the default-parallel failure reproduces intermittently, and the failing test differs between runs. **It also occurs before 2dc2745** (baseline 1 of 2 runs). That is evidence the flakiness was not introduced by this change, but it does not establish the cause. Shared-database ordering is a hypothesis, not a finding. Reruns were bounded as listed; there was no rerun-until-green.

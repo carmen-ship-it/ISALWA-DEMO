@@ -73,7 +73,7 @@ Before integration: Claude targeted review of exactly `18a0f0c`; the `automaticA
 
 Remaining T05 items (assigned, integrator-owned, not built by lane A): DB-backed catalog (`OsCatalogProduct`, aliases), approved price lists (`OsPriceList`/`OsPriceEntry`), knowledge publication and AI published-only filtering through `automaticAnswerFields`, "Agregar a cotización", "Compartir catálogo", navigation entry.
 
-UI acceptance additionally requires browser verification: list, detail, search/filter, alias redirects, breadcrumbs, pending-source labels, access control, mobile layout. The plan is `browser/LANE-A-CATALOG-BROWSER.md`: isolated disposable database and API, lane ports, and the existing `/login` "Entrar (desarrollo)" mechanism; no production targets, shared sessions or auth bypass. Status: **PENDING**.
+UI acceptance additionally requires browser verification: list, detail, search/filter, alias redirects, breadcrumbs, pending-source labels, access control, mobile layout. The plan is `browser/LANE-A-CATALOG-BROWSER.md`: isolated disposable database and API, lane ports, and the existing `/login` "Entrar (desarrollo)" mechanism; no production targets, shared sessions or auth bypass. Status (2026-10-17 01:52): **LOCAL BROWSER CHECK, PARTIAL PASS with findings.** All listed checks pass locally with a synthetic admin. Findings: F1 accent-sensitive search; F2 internal repository paths shown as sources on the ficha; F3 no price statement on the ficha; F4/F5 are shell issues, not lane A. Role-specific access and the "Solo activos" effect are unproven. Details in `browser/LANE-A-CATALOG-BROWSER.md`. Not hosted, not owner accepted.
 
 ### Lane B
 
