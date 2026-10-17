@@ -31,6 +31,16 @@ describe('retired demo data mode stays retired', () => {
     );
   });
 
+  it('no URL datos value is read or forwarded outside the integrator-owned call sites still listed', () => {
+    assert.deepEqual(offenders(/params\??\.datos|\.get\('datos'\)|name="datos"|'datos'|datos=(demo|real)/).sort(), [
+      'app/(app)/entregas/page.tsx',
+      'components/cliente/cliente-360-nav.tsx',
+      'components/delivery/entrega-operational-write-desk.tsx',
+      'lib/commercial/actions.ts',
+      'lib/lists/ops-collection.ts',
+    ]);
+  });
+
   it('no production file merges conversation or seed fixtures', () => {
     assert.deepEqual(offenders(/__fixtures__|ownerDemoConversationFixtures|seeded-ids\.json|conversations\.json/), []);
   });

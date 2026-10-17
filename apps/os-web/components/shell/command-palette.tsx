@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Search, X } from 'lucide-react';
 import { SearchField } from '@isalwa/ui';
 import { CoverageSummaryPanel } from '@/components/productivity/coverage-summary';
@@ -76,8 +76,6 @@ export function CommandPalette({
 }: CommandPaletteProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const datosMode = searchParams.get('datos');
   const dialogRef = useRef<HTMLDialogElement>(null);
   const searchGenRef = useRef(0);
   const listId = useId();
@@ -239,7 +237,7 @@ export function CommandPalette({
       // Invalidate in-flight work for this effect instance (stale query / close / View As).
       if (searchGenRef.current === gen) searchGenRef.current += 1;
     };
-  }, [changed, datosMode, mode, open, persona, query, subjectMemberId]);
+  }, [changed, mode, open, persona, query, subjectMemberId]);
 
   const items = useMemo(() => {
     const q = query.trim();
