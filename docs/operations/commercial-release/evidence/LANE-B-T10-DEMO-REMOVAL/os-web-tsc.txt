@@ -1,0 +1,4 @@
+command: npx tsc --noEmit -p . (cwd apps/os-web)
+source commit: 3eb31d8684e9f50dd2f9fa5349717a91fdb99aba
+exit: 0
+error TS lines: 0

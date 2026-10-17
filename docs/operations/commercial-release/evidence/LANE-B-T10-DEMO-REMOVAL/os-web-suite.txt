@@ -1,0 +1,12 @@
+command: node --import tsx --test --test-concurrency=1 "lib/**/*.test.ts" "components/**/*.test.ts" "components/**/*.test.tsx" "app/**/*.test.ts" "app/**/*.test.tsx" (cwd apps/os-web)
+source commit: 3eb31d8684e9f50dd2f9fa5349717a91fdb99aba
+exit: 0
+ℹ tests 1296
+ℹ suites 377
+ℹ pass 1296
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 28052.662459
+✖ lines: 0
