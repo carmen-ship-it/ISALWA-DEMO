@@ -1,0 +1,435 @@
+{
+  "schemaVersion": "1",
+  "kind": "preview25_starter21_reconciliation",
+  "reviewedPreviewFile": "packages/os-catalog/preview/vitri-2026-reviewed.json",
+  "reviewedOn": "2026-09-14",
+  "starterListFile": "apps/os-web/lib/commercial/starter-quote-products.ts",
+  "pdfCheck": {
+    "status": "pending",
+    "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+  },
+  "summary": {
+    "starterKeys": 29,
+    "activeStarterKeys": 21,
+    "retiredStarterKeys": 8,
+    "matched": 25,
+    "alias": 3,
+    "unmatched": 1,
+    "pendingContradictions": 2,
+    "catalogCandidates": 25,
+    "candidatesWithoutActiveStarterKey": [
+      "bowl-domino-embutir",
+      "bowl-luma",
+      "set-cadiz",
+      "set-capri",
+      "tanque-milan"
+    ]
+  },
+  "rows": [
+    {
+      "starterKey": "sanitario-capri",
+      "starterName": "Sanitario Capri",
+      "origin": "starter21_active",
+      "outcome": "alias",
+      "canonicalKey": "inodoro-capri",
+      "basis": "El JSON revisado nombra \"Sanitario Capri\" al candidato inodoro-capri (tabla p.7). La clave de la lista inicial queda como alias.",
+      "catalogId": "prd_e17388cd59ee592d6ec5b87c",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "sanitario-cadiz",
+      "starterName": "Sanitario Cadiz",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "sanitario-cadiz",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_464f6af2cfa9f1d6e84fd989",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "sanitario-verso",
+      "starterName": "Sanitario Verso",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "sanitario-verso",
+      "basis": "Misma clave. El JSON revisado imprime \"Sanitario Verso (faldón)\"; la lista inicial omite \"(faldón)\".",
+      "catalogId": "prd_ad07915e9916cce0b04c490f",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "sanitario-alti",
+      "starterName": "Sanitario Alti",
+      "origin": "starter21_active",
+      "outcome": "alias",
+      "canonicalKey": "alti",
+      "basis": "El JSON revisado cita \"Sanitario Alti\" en el índice y tiene el alias \"Sanitario Alti (tanque alto)\" en el candidato alti.",
+      "catalogId": "prd_2f9df2b1284cc48e1015a26d",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "lavamanos-pedestal-capri",
+      "starterName": "Lavamanos con pedestal Capri",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "lavamanos-pedestal-capri",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_047c1abf5507df4e2632bbf9",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "agatha",
+      "starterName": "Agatha",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "agatha",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_7a7df82c03e344bf17a8353c",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "bordda",
+      "starterName": "Bordda",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "bordda",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_acc0ded4dc128f9b12b91bda",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "bari",
+      "starterName": "Bari",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "bari",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_a8c8626db1cd3e6d7ba1a63c",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "bowl-new-cuadrado",
+      "starterName": "Bowl New Cuadrado",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "bowl-new-cuadrado",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_a5ee785d87c4a44e7c2b2b37",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "bowl-ovale",
+      "starterName": "Bowl Ovale",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "bowl-ovale",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_6ad01d906609f47c5a630b6e",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "domino",
+      "starterName": "Domino",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "domino",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_095580a6fe12bf65cb01dfe5",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "kayak",
+      "starterName": "Kayak",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "kayak",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_c671b45ce840e934f058826a",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "solare-blanco",
+      "starterName": "Solare Blanco",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "solare-blanco",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_783a9e61ef96e9153979c21a",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "gris-black",
+      "starterName": "Gris Black",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "gris-black",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_594fa15b627a87fa7f4c0cd7",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "quaza-blanco-satinado",
+      "starterName": "Quaza Blanco Satinado",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "quaza-blanco-satinado",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_b7ce3a53bed71964eb785b3b",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "turin",
+      "starterName": "Turin",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "turin",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_59b5e3fb25b22279b35c2dd5",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "tanque-verso",
+      "starterName": "Tanque Verso",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "tanque-verso",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_560af0cdf785ec3a1accc9fa",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "tanque-capri",
+      "starterName": "Tanque Capri",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "tanque-capri",
+      "basis": "Misma clave y mismo nombre que el candidato revisado.",
+      "catalogId": "prd_cd03698002dad18b5418261c",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "tanque-cadiz",
+      "starterName": "Tanque Cadiz",
+      "origin": "starter21_active",
+      "outcome": "matched",
+      "canonicalKey": "tanque-cadiz",
+      "basis": "Misma clave. El JSON revisado imprime \"Tanque Cádiz\" y tiene el alias \"Tanque Cadiz\".",
+      "catalogId": "prd_d3eb3420a06f27359d1a8da8",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "tanque-alto",
+      "starterName": "Tanque Alto",
+      "origin": "starter21_active",
+      "outcome": "unmatched",
+      "canonicalKey": null,
+      "basis": "Sin coincidencia en el catálogo: el JSON revisado lo registra como no resuelto (solo en el índice, p.3, sin ficha). No se unió con alti ni se crearon medidas.",
+      "catalogId": null,
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "urinario",
+      "starterName": "Urinario",
+      "origin": "starter21_active",
+      "outcome": "alias",
+      "canonicalKey": "urinario-acqua",
+      "basis": "El JSON revisado tiene el alias \"Urinario\" en urinario-acqua: el catálogo 2026 imprime URINARIO sin línea y el otro PDF imprime URINARIO ACQUA con las mismas medidas.",
+      "catalogId": "prd_9ac8b3b3b80b7335ba9c23a2",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "set-capri",
+      "starterName": null,
+      "origin": "starter_retired",
+      "outcome": "matched",
+      "canonicalKey": "set-capri",
+      "basis": "Clave retirada de la lista inicial (sigue guardada en líneas de cotización). Es la clave canónica del candidato revisado.",
+      "catalogId": "prd_cf24a9bf500729fa6f9f7e68",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "inodoro-capri",
+      "starterName": null,
+      "origin": "starter_retired",
+      "outcome": "matched",
+      "canonicalKey": "inodoro-capri",
+      "basis": "Clave retirada de la lista inicial (sigue guardada en líneas de cotización). Es la clave canónica del candidato revisado.",
+      "catalogId": "prd_e17388cd59ee592d6ec5b87c",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "set-cadiz",
+      "starterName": null,
+      "origin": "starter_retired",
+      "outcome": "matched",
+      "canonicalKey": "set-cadiz",
+      "basis": "Clave retirada de la lista inicial (sigue guardada en líneas de cotización). Es la clave canónica del candidato revisado.",
+      "catalogId": "prd_a6d99f780d6e9ba5fd741131",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "alti",
+      "starterName": null,
+      "origin": "starter_retired",
+      "outcome": "matched",
+      "canonicalKey": "alti",
+      "basis": "Clave retirada de la lista inicial (sigue guardada en líneas de cotización). Es la clave canónica del candidato revisado.",
+      "catalogId": "prd_2f9df2b1284cc48e1015a26d",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "tanque-milan",
+      "starterName": null,
+      "origin": "starter_retired",
+      "outcome": "matched",
+      "canonicalKey": "tanque-milan",
+      "basis": "Clave retirada de la lista inicial (sigue guardada en líneas de cotización). Es la clave canónica del candidato revisado.",
+      "catalogId": "prd_4c053929ccb3f8baf122f4a5",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "bowl-domino-embutir",
+      "starterName": null,
+      "origin": "starter_retired",
+      "outcome": "matched",
+      "canonicalKey": "bowl-domino-embutir",
+      "basis": "Clave retirada de la lista inicial (sigue guardada en líneas de cotización). Es la clave canónica del candidato revisado.",
+      "catalogId": "prd_5b08810e48ea47d374daeb88",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "bowl-luma",
+      "starterName": null,
+      "origin": "starter_retired",
+      "outcome": "matched",
+      "canonicalKey": "bowl-luma",
+      "basis": "Clave retirada de la lista inicial (sigue guardada en líneas de cotización). Es la clave canónica del candidato revisado.",
+      "catalogId": "prd_36b2654ccebcf387b1a55fc6",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    },
+    {
+      "starterKey": "urinario-acqua",
+      "starterName": null,
+      "origin": "starter_retired",
+      "outcome": "matched",
+      "canonicalKey": "urinario-acqua",
+      "basis": "Clave retirada de la lista inicial (sigue guardada en líneas de cotización). Es la clave canónica del candidato revisado.",
+      "catalogId": "prd_9ac8b3b3b80b7335ba9c23a2",
+      "pdfCheck": {
+        "status": "pending",
+        "reason": "CatalogoVitriCompleto2026.pdf no está disponible localmente. Se reconcilió contra el JSON revisado; las páginas citadas son las del JSON y no se verificaron de nuevo."
+      }
+    }
+  ],
+  "pendingContradictions": [
+    {
+      "id": "tanque-alto-selectable-without-sheet",
+      "keys": [
+        "tanque-alto"
+      ],
+      "summary": "La lista inicial ofrece \"Tanque Alto\" como producto seleccionable; el JSON revisado solo lo tiene en el índice (p.3) sin ficha ni medidas.",
+      "sources": [
+        "apps/os-web/lib/commercial/starter-quote-products.ts",
+        "packages/os-catalog/preview/vitri-2026-reviewed.json unresolved[Tanque Alto]"
+      ],
+      "resolution": "pending"
+    },
+    {
+      "id": "tanque-alto-vs-alti",
+      "keys": [
+        "tanque-alto",
+        "sanitario-alti",
+        "alti"
+      ],
+      "summary": "El candidato alti tiene el alias \"Sanitario Alti (tanque alto)\" y la lista inicial tiene además una clave tanque-alto aparte. No se decidió si son el mismo producto.",
+      "sources": [
+        "apps/os-web/lib/commercial/starter-quote-products.ts",
+        "packages/os-catalog/preview/vitri-2026-reviewed.json products[alti]"
+      ],
+      "resolution": "pending"
+    }
+  ]
+}

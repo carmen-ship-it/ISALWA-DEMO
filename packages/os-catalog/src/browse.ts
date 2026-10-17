@@ -9,6 +9,7 @@ export type CatalogCard = {
   reviewStatus: string;
   attributeValues: string[];
   aliases: string[];
+  active?: boolean;
 };
 
 export type CatalogSurface =
@@ -18,18 +19,20 @@ export type CatalogSurface =
   | 'no-match'
   | 'ready';
 
-export function catalogSurface(input: {
+export function catalogSurface<T extends CatalogCard>(input: {
   status: 'loading' | 'ready' | 'denied';
-  products: readonly CatalogCard[];
+  products: readonly T[];
   query: string;
   category: string | null;
-}): { state: CatalogSurface; items: CatalogCard[] } {
+  activeOnly?: boolean;
+}): { state: CatalogSurface; items: T[] } {
   if (input.status === 'denied') return { state: 'denied', items: [] };
   if (input.status === 'loading') return { state: 'loading', items: [] };
   if (input.products.length === 0) return { state: 'empty', items: [] };
 
   const needle = input.query.trim().toLowerCase();
   const items = input.products.filter((product) => {
+    if (input.activeOnly && product.active === false) return false;
     if (input.category && product.category !== input.category) return false;
     if (needle.length < 2) return true;
     const haystack = [
