@@ -8,7 +8,6 @@ import {
   prefillFromStarterProduct,
   starterProductByKey,
 } from './starter-quote-products';
-import { demoUnitPriceForMode } from './demo-starter-prices';
 import { quoteNextStep } from './next-step';
 
 const editor = readFileSync(resolve('components/commercial/quote-editor.tsx'), 'utf8');
@@ -46,18 +45,15 @@ describe('Task 8 quote builder usability', () => {
     assert.doesNotMatch(editor, /label="\+ Agregar línea"|label="Agregar a la cotización"/);
   });
 
-  it('does not invent quantity or unit on known-product prefill; demo price stays demo-scoped', () => {
+  it('does not invent quantity, unit or price on known-product prefill', () => {
     const capri = starterProductByKey('sanitario-capri');
     assert.ok(capri);
     const realPrefill = prefillFromStarterProduct(capri);
     assert.equal(realPrefill.quantity, '');
     assert.equal(realPrefill.unit, '');
     assert.equal(realPrefill.unitPrice, '');
-    assert.equal(demoUnitPriceForMode('sanitario-capri', 'real'), null);
-    assert.equal(demoUnitPriceForMode('sanitario-capri', 'demo'), 850);
-    assert.match(picker, /demoPrices \? getDemoUnitPrice\(key\) : null/);
-    assert.match(page, /demoPrices=\{dataMode === 'demo'\}/);
-    assert.match(editor, /demoPrices = false/);
+    assert.match(picker, /prefillFromStarterProduct\(product\)/);
+    assert.doesNotMatch(`${picker}${page}${editor}`, /demoPrices/);
   });
 
   it('requires valid inputs before save and uses idempotent command keys', () => {

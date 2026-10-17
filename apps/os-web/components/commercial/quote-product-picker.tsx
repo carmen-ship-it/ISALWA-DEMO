@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Chip, SearchField, cx } from '@isalwa/ui';
 import { QuantityStepper } from '@/components/commercial/quantity-stepper';
 import { useQuoteBuilderUi } from '@/components/commercial/quote-builder-ui';
-import { DEMO_PRICE_COPY, getDemoUnitPrice } from '@/lib/commercial/demo-starter-prices';
 import { emptyProductSearchPort, SPECIAL_ITEM_LABEL } from '@/lib/commercial/product-picker';
 import { parseBobInputToCentavos, parseQuantityInput } from '@/lib/commercial/parse-money-input';
 import { formatCentavos } from '@/lib/commercial/money';
@@ -36,8 +35,6 @@ type LineMode = 'known' | 'special';
 type QuoteProductPickerProps = {
   organizationId: string;
   searchPort?: typeof emptyProductSearchPort;
-  /** Demo fixture prices. Real must stay false so no synthetic price prefills. */
-  demoPrices?: boolean;
   onReadyChange?: (ready: boolean) => void;
   currency?: string;
 };
@@ -74,7 +71,6 @@ function focusLineEditor() {
 export function QuoteProductPicker({
   organizationId: _organizationId,
   searchPort: _searchPort = emptyProductSearchPort,
-  demoPrices = false,
   onReadyChange,
   currency = 'BOB',
 }: QuoteProductPickerProps) {
@@ -150,8 +146,7 @@ export function QuoteProductPicker({
     setMode('known');
     setEditorOpen(true);
     const product = starterProductByKey(key);
-    const demoUnitPrice = demoPrices ? getDemoUnitPrice(key) : null;
-    applyEntry(product ? prefillFromStarterProduct(product, { demoUnitPrice }) : blankLineEntry());
+    applyEntry(product ? prefillFromStarterProduct(product) : blankLineEntry());
     requestAnimationFrame(() => focusLineEditor());
   }
 
@@ -347,15 +342,7 @@ export function QuoteProductPicker({
               <label htmlFor="new-price" className="isalwa-section-label">
                 {UNIT_PRICE_LABEL} (Bs.)
               </label>
-              {demoPrices && mode === 'known' ? (
-                <p
-                  className="mt-2 rounded-[var(--isalwa-radius-control)] border border-[color-mix(in_srgb,var(--isalwa-warning)_28%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-warning)_10%,white)] px-3 py-2 text-sm leading-relaxed text-[var(--isalwa-kiln)]"
-                  role="note"
-                >
-                  {DEMO_PRICE_COPY}
-                </p>
-              ) : null}
-              {!demoPrices && mode === 'known' ? (
+              {mode === 'known' ? (
                 <p className="mt-1 text-sm leading-relaxed text-[var(--isalwa-slate)]">
                   Escriba el precio unitario. No se toma de un listado de precios.
                 </p>

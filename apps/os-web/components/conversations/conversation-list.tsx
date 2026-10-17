@@ -1,7 +1,6 @@
 'use client';
 
 import { cx, EmptyState, StatusPill } from '@isalwa/ui';
-import { ConversationDemoBadge } from '@/components/conversations/conversation-demo-badge';
 import { CONVERSATIONS_COPY } from '@/lib/conversations/copy';
 import {
   channelLabel,
@@ -101,7 +100,6 @@ export function ConversationList({
                     <span className="min-w-0 break-words text-sm font-medium text-[var(--isalwa-kiln)]">
                       {item.partyLabel}
                     </span>
-                    <ConversationDemoBadge conversation={item} />
                     {attentionBadges(item).map((badge) => (
                       <StatusPill key={badge.key} tone={badge.tone} className="max-w-full truncate">
                         {badge.label}

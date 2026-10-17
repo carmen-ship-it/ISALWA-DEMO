@@ -18,7 +18,7 @@ describe('RC4 Pedidos index single truth', () => {
     const page = readFileSync(resolve('app/(app)/pedidos/page.tsx'), 'utf8');
     assert.match(page, /listOrders/);
     assert.match(page, /visibility:\s*'org'/);
-    assert.match(page, /filterByDemoDataMode/);
+    assert.doesNotMatch(page, /filterByDemoDataMode|resolveDemoDataMode/);
     assert.match(page, /OrderOrgList/);
   });
 

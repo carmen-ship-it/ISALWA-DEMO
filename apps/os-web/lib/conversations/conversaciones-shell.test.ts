@@ -6,7 +6,6 @@ import { fileURLToPath } from 'node:url';
 import { filterNavByAccess, PRIMARY_NAV, FUTURE_NAV, HIDDEN_PRIMARY_NAV_IDS } from '@/lib/navigation/nav-config';
 import { t } from '@/lib/i18n/es';
 import { CONVERSATIONS_COPY } from './copy';
-import { DEMO_WHATSAPP_BADGE, DEMO_WHATSAPP_BANNER } from './model';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -49,15 +48,11 @@ describe('conversaciones route shell', () => {
     assert.doesNotMatch(CONVERSATIONS_COPY.title, /WhatsApp/i);
   });
 
-  it('demo badge never claims live WhatsApp', () => {
-    const badge = readFileSync(
-      join(root, 'components/conversations/conversation-demo-badge.tsx'),
-      'utf8',
-    );
-    assert.match(badge, /DEMO_WHATSAPP_BADGE/);
-    assert.equal(DEMO_WHATSAPP_BADGE, 'DEMO·WHATSAPP');
-    assert.match(DEMO_WHATSAPP_BANNER, /no está conectado/i);
-    assert.doesNotMatch(DEMO_WHATSAPP_BANNER, /conectado y listo|WhatsApp en vivo|canal en vivo conectado/i);
+  it('list and thread carry no sample-data badge or banner', () => {
+    for (const file of ['conversation-list.tsx', 'conversation-thread.tsx']) {
+      const source = readFileSync(join(root, 'components/conversations', file), 'utf8');
+      assert.doesNotMatch(source, /ConversationDemoBadge|ConversationDemoBanner|DEMO·WHATSAPP/, file);
+    }
   });
 
   it('thread has no fake read ticks', () => {
@@ -69,7 +64,7 @@ describe('conversaciones route shell', () => {
     assert.doesNotMatch(thread, /✓✓|read receipt|leído/i);
   });
 
-  it('prefers durable API rows and still merges demo fixtures in demo mode', () => {
+  it('shows only durable API rows: no sample fixtures, no data mode', () => {
     const page = readFileSync(join(root, 'app/(app)/conversaciones/page.tsx'), 'utf8');
     const workspace = readFileSync(
       join(root, 'components/conversations/conversations-workspace.tsx'),
@@ -81,14 +76,8 @@ describe('conversaciones route shell', () => {
     );
     assert.match(page, /listCustomerConversations/);
     assert.match(page, /projectManualConversation/);
-    assert.match(page, /ownerDemoConversationFixtures/);
-    assert.match(page, /dataMode === 'demo' && organizationId/);
+    assert.doesNotMatch(page, /Fixtures|__fixtures__|seeded-ids|dataMode|datos|resolveDemoDataMode/);
     assert.doesNotMatch(page, /durableRows\.length === 0/);
-    assert.match(page, /demoFixtures\.filter\(\(row\) => !durableIds\.has\(row\.id\)\)/);
-    assert.match(
-      page,
-      /Review\/Ignore[\s\S]*suggestion cards remain reachable when only manual threads exist without match phrases/,
-    );
     assert.match(workspace, /attention\.possibleOpportunity|attention\.possibleIssue/);
     assert.match(workspace, /Auto-select first thread/);
     assert.match(panel, /SuggestionCard/);

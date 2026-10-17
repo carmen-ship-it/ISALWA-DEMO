@@ -23,8 +23,6 @@ import type { LocationView } from '@/lib/party/types';
 import { dataHealthFromSummaries } from '@/lib/party/data-health';
 import type { IssueListItem } from '@/lib/issue/types';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
-import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
 import {
@@ -129,7 +127,6 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   const listQuery = parseListQuery(params);
   const panel = parsePanel(listQuery.panel);
   const selectedPartyId = panel?.kind === 'party' ? panel.id : null;
-  const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
@@ -139,21 +136,13 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
 
   const client = createOsApiClient(auth);
   const result = await client.searchParties({ status: 'active', limit: 100 });
-  const allDemoPartyIds = new Set(
-    result.items
-      .filter((item) => isDemoDisplayName(item.displayName || item.legalName))
-      .map((item) => item.partyId),
-  );
-  let parties = filterByDemoDataMode(result.items, dataMode, (item) =>
-    isDemoDisplayName(item.displayName || item.legalName),
-  );
-  parties = filterByCommercialOwner(
+  const parties = filterByCommercialOwner(
     evaluation,
-    parties,
+    result.items,
     (item) => item.commercialOwnerMemberId,
   );
   const model = buildMapDeskViewModel(parties, {
-    partial: dataMode === 'demo' ? false : result.meta.hasMore,
+    partial: result.meta.hasMore,
   });
   const mapEnv = readMapProviderEnv();
   const provider = resolveMapProviderStatus(mapEnv);
@@ -175,23 +164,21 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   ]);
 
   const allowedPartyIds = new Set(parties.map((p) => p.partyId));
-  const inMode = (partyId: string) =>
-    (dataMode === 'demo' ? allDemoPartyIds.has(partyId) : !allDemoPartyIds.has(partyId)) &&
-    allowedPartyIds.has(partyId);
+  const isAllowedParty = (partyId: string) => allowedPartyIds.has(partyId);
   const filteredCommercial = {
-    opportunities: commercialInput.opportunities.filter((o) => inMode(o.partyId)),
-    quotes: commercialInput.quotes.filter((q) => inMode(q.partyId)),
-    orders: commercialInput.orders.filter((o) => inMode(o.partyId)),
-    partial: dataMode === 'demo' ? false : commercialInput.partial,
+    opportunities: commercialInput.opportunities.filter((o) => isAllowedParty(o.partyId)),
+    quotes: commercialInput.quotes.filter((q) => isAllowedParty(q.partyId)),
+    orders: commercialInput.orders.filter((o) => isAllowedParty(o.partyId)),
+    partial: commercialInput.partial,
   };
 
   const attentionItems = (attentionResult.items ?? []).filter((row) => {
-    if (row.subjectType !== 'party' || !row.subjectId) return dataMode !== 'demo';
-    return inMode(row.subjectId);
+    if (row.subjectType !== 'party' || !row.subjectId) return true;
+    return isAllowedParty(row.subjectId);
   });
   const overdueWork = (overdueResult.items ?? []).filter((row) => {
-    if (row.subjectType !== 'party' || !row.subjectId) return dataMode !== 'demo';
-    return inMode(row.subjectId);
+    if (row.subjectType !== 'party' || !row.subjectId) return true;
+    return isAllowedParty(row.subjectId);
   });
   const attentionPartyIds = collectAttentionPartyIds(attentionItems, overdueWork);
   const portfolio = buildMapCommercialPortfolio({
@@ -266,7 +253,6 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         selectedNextAction={selectedHover?.nextAttention ?? null}
         selectedIssueCount={selectedIssueCount}
         selectedLastUpdatedIso={null}
-        dataMode={dataMode}
       />
 
       <PageSection className="mt-8" aria-label="Salud de datos">

@@ -12,8 +12,6 @@ import { cursorPageLinks } from '@/lib/lists/url-state';
 import { bucketCompromisosDesk } from '@/lib/commitments/desk-buckets';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
-import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import {
@@ -35,7 +33,6 @@ export default async function CompromisosPage({
   const params = searchParams ? await searchParams : {};
   const cursor = typeof params.cursor === 'string' ? params.cursor : undefined;
   const trail = typeof params.trail === 'string' ? params.trail : undefined;
-  const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
@@ -77,10 +74,7 @@ export default async function CompromisosPage({
       client,
       raw.map((item) => item.partyId).filter((id): id is string => Boolean(id)),
     );
-    const items = filterByDemoDataMode(raw, dataMode, (item) => {
-      if (item.partyId) return isDemoDisplayName(partyLabel(partyLabels, item.partyId));
-      return /\bDEMO\b|\[is_demo\]/i.test(item.text ?? '');
-    }).filter((item) => !isEngineeringFixtureCopy(item.text));
+    const items = raw.filter((item) => !isEngineeringFixtureCopy(item.text));
     const buckets = bucketCompromisosDesk(items);
     const memberLabels = await resolveMemberLabels(
       client,

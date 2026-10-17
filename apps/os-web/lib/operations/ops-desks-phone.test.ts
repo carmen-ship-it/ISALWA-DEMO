@@ -24,7 +24,7 @@ describe('ops desks phone cards', () => {
     const page = read('app/(app)/almacen/page.tsx');
     assert.match(page, /OperatingScanRow/);
     assert.match(page, /overflow-hidden/);
-    assert.match(page, /hideOnMobile: true/);
+    assert.doesNotMatch(page, /hasFinishedGoodsCitation/);
   });
 
   it('shared scan row keeps ≥44px open CTA on phone', () => {

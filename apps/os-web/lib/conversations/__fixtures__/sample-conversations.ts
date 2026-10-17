@@ -1,16 +1,16 @@
 /**
- * Project CT3-E owner-demo conversation JSON into Conversation models.
- * SYNTH-only fixtures; never claim live WhatsApp.
+ * Test-only: projects the CT3-E sample conversation JSON into Conversation
+ * models so context-panel logic can be exercised. Never imported by app code.
  * Related commercial/ops IDs come from seeded-ids (PF-1 catalog) when provided.
  */
 
-import conversationsFixture from '@/lib/demo/conversations.json';
+import conversationsFixture from './conversations.json';
 import {
   deriveAttention,
   type Conversation,
   type ConversationMessage,
   type ConversationResponsibleHint,
-} from './model';
+} from '../model';
 
 type FixtureRow = {
   clientKey: string;
@@ -23,7 +23,7 @@ type FixtureRow = {
   issueQuantity?: number;
 };
 
-/** Seeded client row shape from apps/os-web/lib/demo/seeded-ids.json (PF-1). */
+/** Seeded client row shape from lib/conversations/__fixtures__/seeded-ids.json (PF-1). */
 export type OwnerDemoSeededClient = {
   key: string;
   partyId: string;

@@ -46,14 +46,6 @@ export const MANUAL_PROVIDER_CAPABILITY: ConversationProviderCapability = {
   channels: ['WHATSAPP', 'PHONE', 'IN_PERSON', 'EMAIL', 'OTHER'],
 };
 
-export const DEMO_PROVIDER_CAPABILITY: ConversationProviderCapability = {
-  providerId: 'demo',
-  live: false,
-  canReceive: false,
-  canSend: false,
-  channels: ['WHATSAPP'],
-};
-
 export function createManualConversationAdapter(
   source: () => readonly Conversation[],
 ): ConversationProviderAdapter {
@@ -75,31 +67,13 @@ export function createManualConversationAdapter(
   };
 }
 
-/** CT3-E injects SYNTH demo threads here. Empty by default. */
-export type ConversationFixtureRegistry = {
-  list(organizationId: string): readonly Conversation[];
-};
-
-let fixtureRegistry: ConversationFixtureRegistry | null = null;
-
-export function registerConversationFixtures(registry: ConversationFixtureRegistry | null): void {
-  fixtureRegistry = registry;
-}
-
-export function listRegisteredConversationFixtures(
-  organizationId: string,
-): readonly Conversation[] {
-  if (!fixtureRegistry) return [];
-  return fixtureRegistry.list(organizationId).filter((item) => item.isDemo);
-}
-
 export function mergeConversationSources(input: {
   organizationId: string;
   recorded: readonly Conversation[];
-  fixtures?: readonly Conversation[];
+  initial?: readonly Conversation[];
 }): Conversation[] {
   const byId = new Map<string, Conversation>();
-  for (const item of input.fixtures ?? listRegisteredConversationFixtures(input.organizationId)) {
+  for (const item of input.initial ?? []) {
     if (item.organizationId !== input.organizationId) continue;
     byId.set(item.id, item);
   }

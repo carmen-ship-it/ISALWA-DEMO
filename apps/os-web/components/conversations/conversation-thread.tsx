@@ -1,7 +1,6 @@
 'use client';
 
 import { EmptyState } from '@isalwa/ui';
-import { ConversationDemoBanner, ConversationDemoBadge } from '@/components/conversations/conversation-demo-badge';
 import { CONVERSATIONS_COPY } from '@/lib/conversations/copy';
 import { channelLabel, type Conversation } from '@/lib/conversations/model';
 
@@ -33,13 +32,11 @@ export function ConversationThread({ conversation }: ConversationThreadProps) {
       <header className="shrink-0 space-y-2 border-b border-[var(--isalwa-mist)] pb-3">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="text-base font-medium text-[var(--isalwa-kiln)]">{conversation.partyLabel}</h2>
-          <ConversationDemoBadge conversation={conversation} />
         </div>
         <p className="text-sm text-[var(--isalwa-slate)]">
           {channelLabel(conversation.channel)}
           {conversation.contactLabel ? ` · ${conversation.contactLabel}` : ''}
         </p>
-        <ConversationDemoBanner conversation={conversation} />
         <p className="text-xs text-[var(--isalwa-slate)]">{CONVERSATIONS_COPY.noReadTicks}</p>
       </header>
       <ul className="mt-4 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">

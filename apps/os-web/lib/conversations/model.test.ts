@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { ManualCustomerConversation } from '@isalwa/os-contracts';
 import {
-  DEMO_WHATSAPP_BADGE,
   filterConversations,
   searchConversations,
   type Conversation,
@@ -97,23 +96,17 @@ describe('conversation model', () => {
     assert.doesNotMatch(items[0]?.detail ?? '', /en vivo|live whatsapp/i);
   });
 
-  it('demo merge keeps DEMO·WHATSAPP identity separate from company-entered records', () => {
+  it('merge keeps server rows and newly recorded rows for the organization only', () => {
     const recorded = projectManualConversation(sampleManual());
-    const demo: Conversation = {
-      ...recorded,
-      id: 'demo-1',
-      isDemo: true,
-      provenance: 'demo_fixture',
-      preview: 'Ejemplo demo',
-    };
+    const server: Conversation = { ...recorded, id: 'server-1', preview: 'Registrada antes' };
+    const otherOrg: Conversation = { ...recorded, id: 'other-1', organizationId: 'org-2' };
     const merged = mergeConversationSources({
       organizationId: 'org-1',
       recorded: [recorded],
-      fixtures: [demo],
+      initial: [server, otherOrg],
     });
-    assert.equal(merged.length, 2);
-    assert.equal(merged.find((item) => item.isDemo)?.id, 'demo-1');
-    assert.equal(DEMO_WHATSAPP_BADGE, 'DEMO·WHATSAPP');
+    assert.deepEqual(merged.map((item) => item.id).sort(), [recorded.id, 'server-1'].sort());
+    assert.equal(merged.some((item) => item.isDemo), false);
   });
 
   it('manual adapter never sends', async () => {

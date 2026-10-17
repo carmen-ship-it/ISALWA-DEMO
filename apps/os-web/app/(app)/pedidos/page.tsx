@@ -20,8 +20,6 @@ import { cursorPageLinks, listHref, parseListQuery, type ListQueryState } from '
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
-import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
@@ -70,7 +68,6 @@ export default async function PedidosPage({ searchParams }: PedidosPageProps) {
   const parsed = parseListQuery(params);
   const status = parseOrderListStatus(parsed.status);
   const listState: ListQueryState = { ...parsed, status };
-  const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
@@ -97,14 +94,10 @@ export default async function PedidosPage({ searchParams }: PedidosPageProps) {
       client,
       result.items.map((item) => item.partyId),
     );
-    const loaded = filterByDemoDataMode(
-      result.items.filter(
-        (item) =>
-          !isEngineeringFixtureCopy(item.orderNumber) &&
-          !isEngineeringFixtureCopy(partyLabel(partyLabels, item.partyId)),
-      ),
-      dataMode,
-      (item) => isDemoDisplayName(partyLabel(partyLabels, item.partyId)),
+    const loaded = result.items.filter(
+      (item) =>
+        !isEngineeringFixtureCopy(item.orderNumber) &&
+        !isEngineeringFixtureCopy(partyLabel(partyLabels, item.partyId)),
     );
     const visible = loaded;
     const hasQuery = Boolean(listState.q);

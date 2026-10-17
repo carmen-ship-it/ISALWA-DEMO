@@ -56,8 +56,8 @@ describe('Task 8 quote builder hosted corrective', () => {
     assert.doesNotMatch(detailActions, /QuotePdfDownloadButton/);
   });
 
-  it('does not claim ISALWA sent externally and keeps demo price boundary', () => {
+  it('does not claim ISALWA sent externally and never prefills demo prices', () => {
     assert.doesNotMatch(docActions, /enviamos por WhatsApp|ISALWA envió/i);
-    assert.match(page, /demoPrices=\{dataMode === 'demo'\}/);
+    assert.doesNotMatch(page, /demoPrices|dataMode/);
   });
 });

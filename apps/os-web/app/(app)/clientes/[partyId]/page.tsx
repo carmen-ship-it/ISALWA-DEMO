@@ -54,7 +54,6 @@ import {
   multiRoleHint,
 } from '@/lib/party/labels';
 import { partyHref, trabajoForPartyHref } from '@/lib/party/navigation';
-import { explicitDataMode, withExplicitDataMode } from '@/lib/demo/preserve-data-mode';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import { reportIssueContextFromParty } from '@/lib/issue/report-context';
@@ -114,7 +113,6 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
   const rawParams = await searchParams;
   const tab = parseCliente360Tab(rawParams.tab);
   const contactosCursor = typeof rawParams.contactosCursor === 'string' ? rawParams.contactosCursor : null;
-  const datosMode = explicitDataMode(typeof rawParams.datos === 'string' ? rawParams.datos : undefined);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
@@ -403,10 +401,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
                   Hay más contactos.{' '}
                   <Link
-                    href={withExplicitDataMode(
-                      `${partyHref(partyId)}?tab=resumen&contactosCursor=${encodeURIComponent(contactsNextCursor)}`,
-                      datosMode,
-                    )}
+                    href={`${partyHref(partyId)}?tab=resumen&contactosCursor=${encodeURIComponent(contactsNextCursor)}`}
                     className={linkClass}
                   >
                     Ver más contactos

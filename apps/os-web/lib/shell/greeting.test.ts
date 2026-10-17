@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, it } from 'node:test';
 import { daypartGreeting, greetingLine, usableGivenName } from './greeting';
@@ -58,33 +58,13 @@ describe('greeting reaches Inicio through the shell', () => {
     assert.doesNotMatch(page, /greetingLine\([^)]*email/);
   });
 
-  it('keeps the executive labels and demo activation copy separate from live totals', () => {
+  it('keeps the executive labels and does not ship demo activation cards', () => {
     const lens = readFileSync(resolve('components/commercial/executive-lens.tsx'), 'utf8');
-    const demo = readFileSync(resolve('components/commercial/demo-preview-cards.tsx'), 'utf8');
 
     assert.match(lens, /Valor cotizado/);
     assert.match(lens, /Valor de pedidos/);
     assert.match(lens, /Oportunidades activas/);
     assert.doesNotMatch(lens, /Ingresos|Revenue|Ventas cobradas/);
-    assert.match(demo, /COBRANZA/);
-    assert.match(demo, /DESPACHOS/);
-    assert.match(demo, /INVENTARIO/);
-    assert.match(demo, /PRODUCCIÓN/);
-    assert.match(demo, /INGRESOS COBRADOS/);
-    assert.match(
-      demo,
-      /Se activará con información real cuando conectemos ISALWA al sistema o fuente donde hoy registran pagos y cobranzas\./,
-    );
-    assert.match(
-      demo,
-      /Se activará con datos reales cuando conectemos ISALWA al sistema de despacho o logística\./,
-    );
-    assert.match(
-      demo,
-      /Se activará cuando conectemos el sistema donde controlan stock y movimientos de almacén\./,
-    );
-    assert.match(demo, /Se activará cuando conectemos la información real de producción\./);
-    assert.match(demo, /Se activará cuando conectemos la fuente oficial de ventas y cobranza\./);
-    assert.doesNotMatch(demo, /href=|onClick|Bs\./);
+    assert.equal(existsSync(resolve('components/commercial/demo-preview-cards.tsx')), false);
   });
 });

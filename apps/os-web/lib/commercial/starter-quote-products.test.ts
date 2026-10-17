@@ -1,13 +1,7 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, it } from 'node:test';
-import {
-  DEMO_PRICE_COPY,
-  DEMO_STARTER_UNIT_PRICES_BOB,
-  demoUnitPriceForMode,
-  getDemoUnitPrice,
-} from './demo-starter-prices';
 import { resolveAddQuoteLineDraft } from './product-picker';
 import {
   KNOWN_PRODUCT_MODE_LABEL,
@@ -93,7 +87,7 @@ describe('starter quote products', () => {
     assert.match(picker, /QuantityStepper/);
   });
 
-  it('prefills identity only and leaves quantity, unit, and price blank unless a demo fixture is passed', () => {
+  it('prefills identity only and leaves quantity, unit, and price blank', () => {
     const capri = starterProductByKey('sanitario-capri');
     const tank = starterProductByKey('tanque-alto');
     assert.ok(capri);
@@ -113,11 +107,7 @@ describe('starter quote products', () => {
     assert.equal(bare.unit, '');
     assert.equal(bare.unitPrice, '');
 
-    const demo = prefillFromStarterProduct(capri, { demoUnitPrice: 850 });
-    assert.equal(demo.unitPrice, '850');
-    assert.equal(demo.quantity, '');
-    assert.equal(demo.unit, '');
-    const edited = { ...demo, unitPrice: '800', quantity: '2', unit: 'unidad' };
+    const edited = { ...described, unitPrice: '800', quantity: '2', unit: 'unidad' };
     assert.equal(edited.unitPrice, '800');
     assert.equal(edited.quantity, '2');
     assert.equal(edited.unit, 'unidad');
@@ -143,7 +133,7 @@ describe('starter quote products', () => {
     assert.equal(resolved.draft.productRef, 'sanitario-capri');
   });
 
-  it('saves a special item without a product selection and without a demo price', () => {
+  it('saves a special item without a product selection and without a prefilled price', () => {
     assert.match(picker, /name="productId"/);
     assert.match(picker, /mode === 'special' \? <input type="hidden" name="productId" value="" \/>/);
     assert.equal(blankLineEntry().unitPrice, '');
@@ -172,23 +162,15 @@ describe('starter quote products', () => {
     assert.equal(starterProductByKey('set-capri'), null);
   });
 
-  it('prefills the 21 demo fixture prices only in demo mode', () => {
-    assert.equal(Object.keys(DEMO_STARTER_UNIT_PRICES_BOB).length, 21);
-    assert.equal(DEMO_PRICE_COPY, 'Precio de demostración. Puede modificarlo.');
-    assert.equal(getDemoUnitPrice('sanitario-capri'), 850);
-    assert.equal(demoUnitPriceForMode('sanitario-capri', 'demo'), 850);
-    assert.equal(demoUnitPriceForMode('sanitario-capri', 'real'), null);
-    assert.equal(demoUnitPriceForMode('urinario', 'real'), null);
+  it('never prefills a sample price: no demo price list, prop or copy remains', () => {
     for (const product of activeStarterQuoteProducts()) {
-      assert.equal(demoUnitPriceForMode(product.key, 'real'), null);
-      assert.equal(typeof demoUnitPriceForMode(product.key, 'demo'), 'number');
+      assert.equal(prefillFromStarterProduct(product).unitPrice, '', product.key);
     }
-    assert.match(picker, /demoPrices \? getDemoUnitPrice\(key\) : null/);
-    assert.match(picker, /DEMO_PRICE_COPY/);
-    assert.match(picker, /demoPrices && mode === 'known'/);
-    assert.match(editor, /demoPrices = false/);
-    assert.match(editor, /demoPrices=\{demoPrices\}/);
-    assert.match(page, /demoPrices=\{dataMode === 'demo'\}/);
+    assert.equal(existsSync(resolve('lib/commercial/demo-starter-prices.ts')), false);
+    for (const source of [picker, editor, page]) {
+      assert.doesNotMatch(source, /demoPrices|getDemoUnitPrice|DEMO_PRICE_COPY|demo-starter-prices|dataMode/);
+    }
+    assert.match(picker, /Escriba el precio unitario\. No se toma de un listado de precios\./);
     assert.doesNotMatch(readFileSync(resolve('lib/commercial/starter-quote-products.ts'), 'utf8'), /850/);
   });
 });

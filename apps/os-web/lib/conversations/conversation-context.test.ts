@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { buildConversationContextView } from './build-context-panel';
-import { ownerDemoConversationFixtures, OWNER_DEMO_CONVERSATION_ORG_ID } from './demo-fixtures';
+import { ownerDemoConversationFixtures, OWNER_DEMO_CONVERSATION_ORG_ID } from './__fixtures__/sample-conversations';
 import { conversationProvenanceView } from './conversation-provenance';
-import seededIds from '@/lib/demo/seeded-ids.json';
+import seededIds from './__fixtures__/seeded-ids.json';
 
 const seededClients = (seededIds.clients ?? []).map((client) => ({
   key: client.key,
