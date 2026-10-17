@@ -1,4 +1,4 @@
-import { canRecordPurchasing } from '@isalwa/os-contracts';
+import { canRecordPurchasing, PEOPLE_ADMIN_SCOPE } from '@isalwa/os-contracts';
 import type { MemberAccessSnapshot } from '@isalwa/os-domain';
 import type { QueryContext } from '../query-context';
 import type { DirectReportLookup } from '../leadership/direct-reports';
@@ -79,7 +79,7 @@ export async function canReadWork(input: {
 }
 
 /** Subjects whose approvals are read through current authority over the subject. */
-const RULED_APPROVAL_SUBJECTS = ['quote', 'order', 'work_item', 'party'] as const;
+const RULED_APPROVAL_SUBJECTS = ['quote', 'order', 'work_item', 'party', 'organization_member'] as const;
 
 function hasSubjectReadRule(subjectType: string): boolean {
   return (RULED_APPROVAL_SUBJECTS as readonly string[]).includes(subjectType);
@@ -88,15 +88,18 @@ function hasSubjectReadRule(subjectType: string): boolean {
 /**
  * Synchronous part of the approval rule. For quote, order, work_item and party subjects
  * the requester reads through current authority over the subject (canReadApproval), not
- * as its author; other subjects keep the requester.
+ * as its author. An organization_member approval carries personnel context: its
+ * requester reads it only while currently holding people.admin (directly or by a
+ * delegation that still confers it). Other subjects keep the requester.
  */
 export function canViewApproval(ctx: QueryContext, approval: StoredApprovalReadModel): boolean {
   if (approval.organizationId !== ctx.organizationId) return false;
   if (canActAsApproverDelegate(ctx, approval.approverMemberId)) return true;
-  if (!hasSubjectReadRule(approval.subjectType) && approval.requestedByMemberId === ctx.auth.memberId) {
-    return true;
+  if (approval.requestedByMemberId !== ctx.auth.memberId) return false;
+  if (approval.subjectType === 'organization_member') {
+    return authGrantedScopes(ctx.auth).includes(PEOPLE_ADMIN_SCOPE);
   }
-  return false;
+  return !hasSubjectReadRule(approval.subjectType);
 }
 
 export type ApprovalReadSources = Pick<OsProjectionStorePort, 'getWorkReadModel' | 'getQuoteReadModel' | 'getOrderReadModel'>;

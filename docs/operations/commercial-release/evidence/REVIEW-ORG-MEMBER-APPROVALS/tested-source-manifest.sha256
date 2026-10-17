@@ -1,0 +1,3 @@
+5ccc31b2606cbb209b71c7e4d96394f242695c321e1740de8837df18fdac5b2d  packages/os-query/src/work/work-auth.ts
+7d74a3da7e4ad412e6db854a5665581ed8dd4cacadb24bc193a51f8e60d755a5  packages/os-query/src/work/work-auth.member-subject.test.ts
+7a08bfc102695d268070edcaede89e4db6387c1f3db434dff2b95fa3b9eda6ef  apps/os-api/src/review-r4-work-reads.http.test.ts

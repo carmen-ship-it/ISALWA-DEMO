@@ -250,4 +250,44 @@ describeHttp('R4 work and approval reads over HTTP (disposable Postgres)', () =>
     assert.equal((await get('outsider', `/work-items/${ids.work}`)).status, 200);
     assert.equal((await get('approver', `/approvals/${ids.approval}`)).status, 200);
   });
+
+  it('organization_member approvals (23:27 §2): the requester reads only while holding people.admin; the approver keeps it; the subject member, managers and other members get the missing-id 404', async () => {
+    const hr = await seedMember('hr', ['people.admin']);
+    m.hr = hr;
+    const requested = await command('hr', 'RequestApproval', {
+      approverMemberId: m.approver!.member.id,
+      subjectType: 'organization_member',
+      subjectId: m.outsider!.member.id,
+    });
+    assert.equal(requested.status, 201, JSON.stringify(requested.body));
+    const byMember = await command('owner', 'RequestApproval', {
+      approverMemberId: m.approver!.member.id,
+      subjectType: 'organization_member',
+      subjectId: m.otherJefe!.member.id,
+    });
+    assert.equal(byMember.status, 201, JSON.stringify(byMember.body));
+    await runner.runOnce();
+    await runner.runOnce();
+    const path = `/approvals/${String(requested.body.data!.approvalRequestId)}`;
+    const memberPath = `/approvals/${String(byMember.body.data!.approvalRequestId)}`;
+
+    assert.equal((await get('hr', path)).status, 200, 'requester with people.admin');
+    assert.equal((await get('approver', path)).status, 200, 'approver');
+    assert.equal((await get('approver', memberPath)).status, 200, 'approver of a member-requested approval');
+    const missing = await get('outsider', `/approvals/${createId()}`);
+    for (const who of ['outsider', 'jefe', 'gerente', 'admin', 'owner']) {
+      const res = await get(who, path);
+      assert.deepEqual([res.status, res.body], [missing.status, missing.body], who);
+    }
+    const ownRequest = await get('owner', memberPath);
+    assert.deepEqual([ownRequest.status, ownRequest.body], [missing.status, missing.body], 'requester without people.admin');
+
+    await prisma().osRoleAssignment.updateMany({
+      where: { organizationId: org.id, memberId: hr.member.id, roleKey: 'people.admin', endedAt: null },
+      data: { endedAt: new Date(Date.now() - 1000) },
+    });
+    const afterLoss = await get('hr', path);
+    assert.deepEqual([afterLoss.status, afterLoss.body], [missing.status, missing.body], 'requester after losing people.admin');
+    assert.equal((await get('approver', path)).status, 200, 'approver unchanged');
+  });
 });

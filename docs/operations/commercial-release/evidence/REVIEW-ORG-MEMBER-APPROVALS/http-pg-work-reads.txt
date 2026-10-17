@@ -1,0 +1,12 @@
+  ✔ work detail: owner, direct manager (team.read) and org.read read it; creator with people.admin, unrelated team.read and outsiders get the same 404 as a missing id (47.220083ms)
+  ✔ work list: people.admin lists another owner only for general-work continuity and its default list does not include work it only created (23.135959ms)
+  ✔ approval detail: approver, requester who still owns the work, and the manager read it; people.admin and outsiders get 404 (51.478167ms)
+  ✔ quote subject approvals: owner, approver and the owner's manager read them; team.read without that report and people.admin get 404 (38.566209ms)
+  ✔ customer scope: work about a customer (party or commercial account subject) is read by that customer's account owner, not by others (165.008292ms)
+  ✔ non-customer party subjects (NEW-R4-1): supplier work and approvals stay with owner, approver and managerial scope; other members get 404 and no timeline entry (184.4995ms)
+  ✔ authorship is not authority: after the quote and the work move to another owner, the original requester loses both reads (75.298667ms)
+  ✔ organization_member approvals (23:27 §2): the requester reads only while holding people.admin; the approver keeps it; the subject member, managers and other members get the missing-id 404 (137.344ms)
+✔ R4 work and approval reads over HTTP (disposable Postgres) (963.916833ms)
+ℹ tests 8
+ℹ pass 8
+ℹ fail 0

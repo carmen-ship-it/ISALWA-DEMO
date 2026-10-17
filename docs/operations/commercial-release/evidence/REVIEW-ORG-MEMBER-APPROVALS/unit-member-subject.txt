@@ -1,0 +1,10 @@
+  ✔ keeps the requester only while they hold people.admin (0.570166ms)
+  ✔ accepts people.admin held through a current delegation (0.087709ms)
+  ✔ keeps the approver and a delegate that may act for the approver (0.072334ms)
+  ✔ does not open the approval to another people.admin, the subject member or another tenant (0.075708ms)
+  ✔ still reads through a linked work item the actor can read, and not otherwise (0.337125ms)
+  ✔ leaves other subject rules unchanged: work_item requesters read through the work, not authorship (0.071709ms)
+✔ organization_member approval reads (23:27 §2) (1.765334ms)
+ℹ tests 6
+ℹ pass 6
+ℹ fail 0
