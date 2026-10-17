@@ -1,0 +1,20 @@
+  ✔ no proposal grants every commercial scope; each is a small allowlisted set whose range matches its scopes (0.394833ms)
+  ✔ the advisor proposal (23:47 §B.1) is own-range: customer registration and own-quote conversion only (0.416541ms)
+✔ bootstrap proposals (21:33 §4) (1.252166ms)
+  ✔ Jefe/Gerencia roster: one plan completes every holder without people.admin, independent of listing order (151.973708ms)
+  ✔ after the plan, further grants go through governed commands: other plans and outside holders are refused (100.786959ms)
+  ✔ validates the complete plan before writing: prerequisites, identities, standing, bounds and tenant (75.141583ms)
+  ✔ execution is bound to the exact reviewed hash (44.761417ms)
+  ✔ concurrent runs: the same plan applies once; two different plans cannot both establish a scope (95.955459ms)
+  ✔ advisor holders: own range, exactly the requested advisor scopes, nothing administrative; bounds refused before writing (52.220417ms)
+  ✔ is not exported from the package and not imported by any app (114.619ms)
+✔ initial commercial provisioning plan (disposable Postgres, synthetic identities, 22:29 decision 2) (637.254917ms)
+ℹ tests 9
+ℹ suites 2
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 873.955708
+exit 0

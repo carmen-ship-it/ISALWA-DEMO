@@ -1,0 +1,5 @@
+os-database serial (disposable PG): osdb exit 0
+ℹ tests 305
+ℹ pass 305
+ℹ fail 0
+Earlier run: 304/305; the one failure was the no-app-import guard tripped by a comment naming the module in the new os-api test; comment reworded.

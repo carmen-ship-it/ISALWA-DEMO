@@ -1,0 +1,13 @@
+M1: advisor proposal gets team range
+  plan test: ℹ pass 7
+  plan test: ℹ fail 2
+M2: advisor proposal also offers commercial.org.read
+  plan test: ℹ pass 6
+  plan test: ℹ fail 3
+M3: own range accepts direct reports
+  plan test: ℹ pass 8
+  plan test: ℹ fail 1
+M4: managers cannot hold advisor scopes (no ongoing grantor)
+  plan test: ℹ pass 7
+  plan test: ℹ fail 2
+restored: sha256 verified (cf1e0882dc9aa0e593610517c14459584c4e35fb22c8db20e7233db102a9090f)

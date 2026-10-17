@@ -29,21 +29,33 @@ import { PrismaOsWorkforceStore } from '../prisma-workforce-store';
  * os-api (a test enforces it). It creates no identity, password or session.
  */
 
-export type BootstrapRange = 'team' | 'organization';
+/** `own`: the holder's own customers and quotes only; no read range, no direct reports. */
+export type BootstrapRange = 'own' | 'team' | 'organization';
 
 /**
  * Minimal role-specific proposals for owner approval (21:33 §4). A holder names one
  * proposal, its range and a subset of its scopes. Scopes outside every proposal stay
  * ungrantable until a later approved change adds a proposal for them.
+ *
+ * The advisor proposal (23:47 §B.1) registers customers and converts the holder's own
+ * submitted quotes; it has no read range, people.admin or organization-wide scope.
+ * Managers may also take the advisor scopes so that, after the plan, they can grant them
+ * to later advisors through GrantAdditionalRole (the grantor must hold what it grants).
  */
+const ADVISOR_SCOPES = ['commercial.customer.create', 'commercial.quote.convert.own'] as const;
+
 export const BOOTSTRAP_PROPOSALS = {
+  advisor: {
+    range: 'own',
+    scopes: ADVISOR_SCOPES,
+  },
   team_manager: {
     range: 'team',
-    scopes: ['commercial.team.read', 'commercial.customer.edit', 'commercial.work.manage'],
+    scopes: ['commercial.team.read', 'commercial.customer.edit', 'commercial.work.manage', ...ADVISOR_SCOPES],
   },
   commercial_manager: {
     range: 'organization',
-    scopes: ['commercial.org.read', 'commercial.customer.edit', 'commercial.work.manage'],
+    scopes: ['commercial.org.read', 'commercial.customer.edit', 'commercial.work.manage', ...ADVISOR_SCOPES],
   },
   customer_data_steward: {
     range: 'team',
@@ -174,6 +186,9 @@ function normalizeHolder(holder: BootstrapHolderRequest): NormalizedHolder {
       throw new BootstrapRefused('INVALID_INPUT', 'directReportIds must list member ids');
     }
     directReportIds = [...new Set(holder.directReportIds)].sort();
+  }
+  if (proposal.range === 'own' && directReportIds.length > 0) {
+    throw new BootstrapRefused('INVALID_INPUT', `${holder.memberId}: range own has no direct reports`);
   }
   if (proposal.range === 'team' && directReportIds.length === 0) {
     throw new BootstrapRefused('PREREQUISITE_NOT_MET', `${holder.memberId}: team range needs its direct reports set and listed first`);

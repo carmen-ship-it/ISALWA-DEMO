@@ -1,0 +1,13 @@
+  ✔ plan advisor: registers a customer, quotes and converts their own submitted quote; holds nothing administrative (197.693083ms)
+  ✔ plan advisor cannot convert or read another advisor’s quote (no team or organization range) (125.476292ms)
+  ✔ ongoing onboarding: RRHH invites with a job title; neither RRHH nor the Gerente alone can grant; RRHH delegates people.admin and the Gerente grants (136.622042ms)
+✔ B1 advisor provisioning and onboarding over HTTP (disposable Postgres) (630.610625ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1260.7
+exit 0

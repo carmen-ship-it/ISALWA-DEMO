@@ -21,12 +21,22 @@ describe('bootstrap proposals (21:33 §4)', () => {
   it('no proposal grants every commercial scope; each is a small allowlisted set whose range matches its scopes', () => {
     for (const [key, proposal] of Object.entries(BOOTSTRAP_PROPOSALS)) {
       const scopes: readonly string[] = proposal.scopes;
-      assert.ok(scopes.length <= 3, key);
+      assert.ok(scopes.length <= 5, key);
       assert.ok(scopes.every((scope) => (ADDITIONAL_ASSIGNABLE_SCOPE_KEYS as readonly string[]).includes(scope)), key);
       const orgWide = scopes.some((scope) => ORGANIZATION_RANGE_SCOPES.includes(scope));
       assert.equal(proposal.range === 'organization', orgWide, key);
-      assert.equal(scopes.includes('commercial.assignment.org'), false, key);
-      assert.equal(scopes.includes('people.admin'), false, key);
+      for (const never of ['commercial.assignment.org', 'commercial.order.convert', 'commercial.account.reassign', 'people.admin']) {
+        assert.equal(scopes.includes(never), false, `${key}: ${never}`);
+      }
+    }
+  });
+
+  it('the advisor proposal (23:47 §B.1) is own-range: customer registration and own-quote conversion only', () => {
+    assert.equal(BOOTSTRAP_PROPOSALS.advisor.range, 'own');
+    assert.deepEqual([...BOOTSTRAP_PROPOSALS.advisor.scopes].sort(), ['commercial.customer.create', 'commercial.quote.convert.own']);
+    for (const key of ['team_manager', 'commercial_manager'] as const) {
+      const scopes: readonly string[] = BOOTSTRAP_PROPOSALS[key].scopes;
+      assert.ok(BOOTSTRAP_PROPOSALS.advisor.scopes.every((scope) => scopes.includes(scope)), `${key} can hold what it later grants to advisors`);
     }
   });
 });
@@ -282,6 +292,49 @@ describePrisma('initial commercial provisioning plan (disposable Postgres, synth
     assert.equal(new Set(rows.map((row) => row.memberId)).size, 1, 'only one plan wrote rows');
     assert.equal(rows.length, MANAGER_SCOPES.length);
     assert.equal(await auditRows(o.org.id), 1);
+  });
+
+  it('advisor holders: own range, exactly the requested advisor scopes, nothing administrative; bounds refused before writing', async () => {
+    const r = await roster();
+    const advisor = (m: typeof r.asesor1, scopes: readonly string[] = ['commercial.customer.create', 'commercial.quote.convert.own']): BootstrapHolderRequest => ({
+      memberId: m.member.id,
+      memberEmail: m.email,
+      proposal: 'advisor',
+      range: 'own',
+      scopes,
+    });
+    const [gA, gB, jefe] = r.request.holders as [BootstrapHolderRequest, BootstrapHolderRequest, BootstrapHolderRequest];
+    const gerenteGrantor = { ...gA, scopes: [...MANAGER_SCOPES, 'commercial.customer.create', 'commercial.quote.convert.own'] };
+    const withAdvisors = (...extra: BootstrapHolderRequest[]): BootstrapRequest => ({ ...r.request, holders: [gerenteGrantor, gB, jefe, ...extra] });
+
+    const cases: Array<[string, BootstrapRequest]> = [
+      ['INVALID_INPUT', withAdvisors({ ...advisor(r.asesor1), directReportIds: [r.asesor2.member.id] })],
+      ['RANGE_MISMATCH', withAdvisors({ ...advisor(r.asesor1), range: 'team' })],
+      ['SCOPE_NOT_ALLOWED', withAdvisors(advisor(r.asesor1, ['commercial.customer.create', 'commercial.org.read']))],
+      ['SCOPE_NOT_ALLOWED', withAdvisors(advisor(r.asesor1, ['commercial.team.read']))],
+      ['SCOPE_NOT_ALLOWED', withAdvisors(advisor(r.asesor1, ['people.admin']))],
+      ['SCOPE_NOT_ALLOWED', withAdvisors(advisor(r.asesor1, ['commercial.order.convert']))],
+    ];
+    for (const [reason, request] of cases) {
+      await assert.rejects(() => planInitialCommercialBootstrap(prisma(), request), refusedWith(reason), reason);
+    }
+    assert.equal((await bootstrapRows(r.org.id)).length, 0);
+
+    const request = withAdvisors(advisor(r.asesor1), advisor(r.asesor2, ['commercial.customer.create']));
+    const plan = await planInitialCommercialBootstrap(prisma(), request);
+    await executeInitialCommercialBootstrap(prisma(), request, plan.planHash);
+    assert.deepEqual(await effectiveScopes(r.org.id, r.asesor1.member.id), ['commercial.customer.create', 'commercial.quote.convert.own']);
+    assert.deepEqual(await effectiveScopes(r.org.id, r.asesor2.member.id), ['commercial.customer.create'], 'a subset is honoured');
+    assert.deepEqual(await effectiveScopes(r.org.id, r.gerenteA.member.id), [...gerenteGrantor.scopes].sort());
+    for (const m of [r.asesor1, r.asesor2]) {
+      const scopes = await effectiveScopes(r.org.id, m.member.id);
+      assert.equal(scopes.some((scope) => scope === 'people.admin' || ORGANIZATION_RANGE_SCOPES.includes(scope) || scope.endsWith('.read')), false);
+    }
+    assert.equal(
+      await prisma().osManagerAssignment.count({ where: { organizationId: r.org.id, managerMemberId: { in: [r.asesor1.member.id, r.asesor2.member.id] } } }),
+      0,
+      'the plan creates no team for an advisor',
+    );
   });
 
   it('is not exported from the package and not imported by any app', () => {

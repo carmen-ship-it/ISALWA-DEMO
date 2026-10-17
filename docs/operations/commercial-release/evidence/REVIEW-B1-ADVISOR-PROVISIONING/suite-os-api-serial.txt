@@ -1,0 +1,5 @@
+os-api serial (disposable PG): osapi exit 0
+ℹ tests 295
+ℹ pass 295
+ℹ fail 0
+Earlier run of the same tree: 294/295, the one failure was request-rate-limit.http.test.ts 'search' (11 s under suite load; 3/3 alone in 0.7 s); unrelated to B1.
