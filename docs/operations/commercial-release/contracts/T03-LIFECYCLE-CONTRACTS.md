@@ -8,7 +8,7 @@ No business-policy conflict found while mapping. Model gaps are recorded per con
 
 | Contract | Command / read | Reuses | State |
 | --- | --- | --- | --- |
-| L1 | `EndContactRelationship`, relationship-end preview, recipient eligibility | `OsContact` (`status`, `relationEndedAt`, `relationEndReason`), endpoint associations, identity reviews, customer `edit` authority | PLANNED |
+| L1 | `EndContactRelationship`, relationship-end preview, recipient eligibility | `OsContact` (`status`, `relationEndedAt`, `relationEndReason`), endpoint associations, identity reviews, customer `edit` authority | STABLE API `15e0e089`; locally tested; review and browser pending |
 | L2 | `SetContactFollowupPreference`, preference read, `followupPermitted` | `OsContactFollowupPreference` (migration `20261016230000`), customer `edit` authority | PLANNED |
 | L3 | `DeactivateParty` / `ReactivateParty` (extended), archive preview | `OsParty.status = 'inactive'` as Archivado, `canActOnCustomer` archive/reactivate | PLANNED |
 | L4 | Correction request on `ReportIssue` / `ResolveIssue` | `os-issue` states, owner, journal, outcome; customer `edit` / `master_data.admin` | PLANNED |
@@ -28,7 +28,7 @@ No business-policy conflict found while mapping. Model gaps are recorded per con
 { partyId, contactId, expectedVersion,
   reason: 'left_company' | 'role_changed' | 'duplicate_contact' | 'other',
   reasonNote?: string (10–500, required when reason = 'other'),
-  endedOn?: YYYY-MM-DD (default: today in America/La_Paz; not in the future; not before the contact's creation date) }
+  endedOn?: YYYY-MM-DD (default: today in America/La_Paz; not in the future. It may predate the contact's registration) }
 ```
 
 - Authority: customer `edit` (same rule as `UpdateContact`, via `CUSTOMER_COMMAND_ACTION`). Hidden customer → `NOT_FOUND`.
@@ -42,7 +42,7 @@ No business-policy conflict found while mapping. Model gaps are recorded per con
   - deletes the contact, the person or the person's other relationships;
   - clears the stored numbers (they remain dated history);
   - changes orders, quotes, issued documents, commitments, payments or other contacts.
-- After ending: `UpdateContact`, `ChangeContactEndpoint`, `RetireContactEndpoint` and `ResolveContactIdentityReview` on that contact → `CONFLICT`.
+- After ending: `UpdateContact` and `EndContactRelationship` on that contact → `CONFLICT`. `ChangeContactEndpoint`, `RetireContactEndpoint` and `ResolveContactIdentityReview` keep their existing refusal of non-active contacts (`VALIDATION_FAILED`).
 
 **Read `GET /v1/parties/:partyId/contacts/:contactId/relationship-end-preview`** (customer `edit` authority; otherwise 403, hidden customer 404). Response:
 

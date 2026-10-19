@@ -1,0 +1,19 @@
+source: 15e0e0891bfd8d99579244f7411e2dde30faa5fb (tree b7630e751f52fe1ede261c911b2fca6eca05d2f0, staged and recorded before the runs); disposable PG port 54329 only
+builds (serial): os-contracts, os-party, os-query, os-database exit 0; os-api tsc exit 0; os-web tsc exit 0
+targeted before commit:
+  t03-contact-relationship-end.http (new): tests 7, pass 7, fail 0
+  contact-recipient (new, os-contracts): tests 6, pass 6, fail 0
+  quote-pdf.service + t03-customer-authority-flags.http + inspection-reads.adversarial: tests 26, pass 26, fail 0
+mutations (each restored, sha256 identical; os-party rebuilt for M15/M17 and after restore):
+  M15 relationship end without ending number associations: pass 5, fail 2
+  M16 quote PDF falls back to the first contact again: pass 4, fail 1
+  M17 relationship end without status inactive: pass 5, fail 2
+milestone on that tree, serial, one run each:
+  os-contracts: tests 198, pass 198, fail 0
+  os-import: tests 32, pass 32, fail 0
+  os-party: tests 38, pass 38, fail 0
+  os-query: tests 115, pass 115, fail 0
+  os-database: tests 311, pass 311, fail 0
+  os-api: tests 335, pass 335, fail 0
+  os-web lib+components: tests 1320, pass 1320, fail 0
+not rerun (no source change): os-domain, os-commercial, os-events, os-commitment and other packages

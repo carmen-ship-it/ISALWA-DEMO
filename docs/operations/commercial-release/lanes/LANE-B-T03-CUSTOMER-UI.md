@@ -37,6 +37,7 @@ The demo-removal candidate `ct3/t10-demo-removal` / `/Users/carmen/projects/isal
    - timeline shows a summary line for `detail: 'summary'` items.
 
 5. **Client import phone review (C9): ASSIGNED, not started.** No import page or os-web import client exists. It starts after the lane's review gate. Dependencies for integrator: the `os-api-client` methods for the C9 commands, and the page placement (inside the existing customer list surface; no new navigation).
+6. **Contact relationship ending (L1): ASSIGNED, not started.** API stable at `15e0e089`: `EndContactRelationship`, `GET …/contacts/:contactId/relationship-end-preview`, flag `canEndContactRelationship`. Show the customer's commitments as the customer's, and the exact copy "Envíos automáticos no configurados."; never show cancellable sends. Former contacts render as former with date and reason (reason note only where the timeline gives it).
 
 ## Allowed files
 

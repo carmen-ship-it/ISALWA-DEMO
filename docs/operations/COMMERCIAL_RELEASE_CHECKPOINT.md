@@ -41,11 +41,11 @@ T02 committed: shared customer-visibility predicate (search/detail/contacts/loca
 ## Next command
 
 T03 review sequence C1–C8 done locally. **Milestone record, corrected:** the post-C8 full runs were *not* green. os-api ran 326/327 at `f4102b42` and os-database 302/305 at `2763c505`; the fixes (`2763c505`, `70617a5e`) had targeted checks only. The first complete green full run is at `39b6a9b8`, after the import phone review: os-contracts 192/192, os-import 32/32, os-party 38/38, os-database 311/311, os-api 327/327, os-web 1320/1320, os-web and os-api tsc clean (`evidence/T03-IMPORT-PHONE-REVIEW/results.txt`). Packages unchanged since their last full run were not rerun. **Independent review queue (not started; Claude paused):**
-- C1 `120012ab`, C4 `bc211fdd`, C3 `f11991fd`, C2 `f41016bf`, C5 `1bed54a3`, C6 `daf5a14f`, C7 `fff7d352`, C8 `f4102b42`, inventory `2763c505`, import follow-up `70617a5e`, import phone review `39b6a9b8`.
+- C1 `120012ab`, C4 `bc211fdd`, C3 `f11991fd`, C2 `f41016bf`, C5 `1bed54a3`, C6 `daf5a14f`, C7 `fff7d352`, C8 `f4102b42`, inventory `2763c505`, import follow-up `70617a5e`, import phone review `39b6a9b8`, L1 relationship ending `15e0e089`.
 - Lane B integration stays gated on that review.
 - Browser verification is pending for every item; the UI components are not wired, so none of these is a completed user workflow.
 
-Next (22:56 §3–§6, authorized): the four remaining T03 contracts are published as PLANNED in `contracts/T03-LIFECYCLE-CONTRACTS.md` (L1 relationship ending, L2 follow-up preferences, L3 archive/reactivation, L4 correction requests); mapping found no business-policy conflict. Implement them one at a time, L1 first; L1 does not wait for T12.
+Next (22:56 §3–§6, authorized): the four remaining T03 contracts are published as PLANNED in `contracts/T03-LIFECYCLE-CONTRACTS.md` (L1 relationship ending, L2 follow-up preferences, L3 archive/reactivation, L4 correction requests); mapping found no business-policy conflict. L1 is implemented and locally tested at `15e0e089` (receipt `receipts/T03-L1-CONTACT-RELATIONSHIP-END.md`). The milestone on that tree was green in one serial run: os-contracts 198, os-import 32, os-party 38, os-query 115, os-database 311, os-api 335, os-web 1320. Next: L2 follow-up preferences, then L3 and L4.
 
 R2 follow-up done (21:33 §1–§6): os-query approval reads and os-delivery permission lookup use the canonical delegation rule; suspension/termination end delegations issued by and granted to the member in the same transaction (reinstatement needs a fresh grant); ChangeRole replaces only the primary role, preserves additional grants unless explicitly revoked, with a preview shown before confirmation; bootstrap limited to three minimal proposals with explicit range. Next: R4 / task 4 read gaps (F07, F10 authorship, F11) with HTTP+PG and 404 non-disclosure.
 
@@ -125,6 +125,8 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `42b91e02` (tree `e9e3d9798aa128325a08aae13f66ba70b0ed2eed`) | | Checkpoint: C1–C8 review queue and milestone results (wording corrected later: the post-C8 runs were not green) | this writer |
 | `39b6a9b8` (tree `e78f594bab9f04c4093ec2e25ba900f5f32a27bb`) | | Import phone review: provenance, counts, masked receipts, reviewer originals, correct/omit decisions atomic with audit, execution gate. New PG suite 6/6, 2 mutations caught; full milestone green (see Next command) | this writer; not reviewed; import UI assigned |
 | `035f39d3` (tree `47a861f8def438a5f6dc5fa02765b5ce5e039536`) | | Docs: import phone review receipt and evidence, C9 contract, Lane B item 5 (import review UI assigned), corrected milestone record | this writer; docs only |
+| `b4c17643` (tree `3f9f6a85c30e0d3947e60917a2b0ff4aa940c901`) | | Docs: T03 lifecycle contracts L1–L4 (PLANNED), mapped onto existing models; no policy conflict | this writer; docs only |
+| `15e0e089` (tree `b7630e751f52fe1ede261c911b2fca6eca05d2f0`) | | L1 contact relationship ending: command, preview, recipient eligibility (T12 hook), PDF fallback fix. HTTP+PG 7/7, contract 6/6, M15–M17 caught; milestone green on this tree | this writer; not reviewed; UI assigned (Lane B item 6) |
 
 ## Open blockers
 
