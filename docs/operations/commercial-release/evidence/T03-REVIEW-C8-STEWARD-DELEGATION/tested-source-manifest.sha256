@@ -4,3 +4,4 @@ bfe91835258125d2909bb433f97655e4ec03b2f75f85d15f05e7fb84ca8d3719  apps/os-api/sr
 11534381be30c84d66447b244073b1616f640c4a585c5f39c9616f3a403a84a7  packages/os-query/src/query-context.ts
 fc1df285530c4a0d94571f1b95cfdb1c7989ae6e105ba5d11acae2f23b6c9359  packages/os-database/src/prisma-workforce-store.ts
 8bffe5a924dd69b7fc0c0a0b3dba1b46c824b64c226a1bb9c268138528496504  packages/os-contracts/src/scopes.ts
+01b25e49ab1b04e2755c18f7ddb7e0e99730b55efdd09884181f8664f8ba9a66  apps/os-api/src/inspection-reads.adversarial.test.ts

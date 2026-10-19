@@ -3,3 +3,6 @@ mutation M10 (delegationConfersScope without the grantor role check; os-domain r
 mutation M11 (delegationConfersScope without the window check; os-domain rebuilt): exit 1, pass 3, fail 1
 os-domain authorization.ts restored from saved copy: sha256 identical; os-domain rebuilt; t03-steward-delegation.http pass 4, fail 0
 no product source changed for C8
+milestone os-api full serial suite at f4102b42 (disposable PG): tests 327, pass 326, fail 1 (exit 1)
+  failing: os-api inspection read inventory — GET /parties/:partyId/contacts/:contactId/endpoints (added in C6) was not classified
+fix: classified AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED; inspection-reads.adversarial targeted rerun pass 16, fail 0
