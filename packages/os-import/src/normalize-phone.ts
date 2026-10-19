@@ -1,6 +1,12 @@
+import { normalizeContactNumber, type ContactPhoneCountry } from '@isalwa/os-contracts';
+
+/** The client spreadsheet holds Bolivian numbers only; the country is declared, never guessed. */
+export const IMPORT_PHONE_COUNTRY: ContactPhoneCountry = 'BO';
+
 /**
  * Normalize Bolivia phone / mobile values for Contact storage and match keys.
- * Accepts Excel numbers (float risk) and digit strings. Never logs the raw value.
+ * Accepts Excel numbers (float risk) and digit strings, then applies the shared contact number rule.
+ * Never logs the raw value.
  */
 export function normalizeBoliviaPhone(raw: string | number | null | undefined): string | null {
   if (raw === null || raw === undefined || raw === '') return null;
@@ -24,12 +30,7 @@ export function normalizeBoliviaPhone(raw: string | number | null | undefined): 
     national = national.replace(/^0+/, '');
   }
 
-  // BO mobiles are typically 8 digits starting with 6/7; landlines vary — keep 7–8 digit nationals.
-  if (national.length < 7 || national.length > 8) {
-    return null;
-  }
-
-  return `+591${national}`;
+  return normalizeContactNumber({ country: IMPORT_PHONE_COUNTRY, number: national });
 }
 
 /** Match key: digits only under +591 country code (no plus). */

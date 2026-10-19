@@ -27,6 +27,7 @@ import type { LocationCommandService, PartyCommandService, OsPartyStore } from '
 import { createId } from '@isalwa/ts-utils';
 import type { OsImportStore } from './import-store';
 import { analyzeRows } from './match';
+import { IMPORT_PHONE_COUNTRY } from './normalize-phone';
 import { normalizeImportRow } from './normalize-row';
 import { buildReceipt, isRealClientImportEnabled } from './receipt';
 import type {
@@ -351,8 +352,10 @@ export class ImportCommandService {
       const commercialName = String(snap.commercialName ?? '');
       const givenName = String(snap.givenName ?? '');
       const familyName = String(snap.familyName ?? '');
-      const phone = snap.phone ? String(snap.phone) : undefined;
-      const whatsapp = snap.whatsapp ? String(snap.whatsapp) : undefined;
+      const phone = snap.phone ? { country: IMPORT_PHONE_COUNTRY, number: String(snap.phone) } : undefined;
+      const whatsapp = snap.whatsapp
+        ? { country: IMPORT_PHONE_COUNTRY, number: String(snap.whatsapp) }
+        : undefined;
       const loc = snap.location as NormalizedCustomerRow['location'] | undefined;
 
       const partyResult = await this.partyCommands.execute(

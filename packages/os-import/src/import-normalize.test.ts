@@ -1,5 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { normalizeContactNumber } from '@isalwa/os-contracts';
 import { normalizeBoliviaPhone, normalizeBoliviaPhones, phoneMatchKey } from './normalize-phone';
 import { parseMapsUrl } from './parse-maps-url';
 import { normalizeImportRow } from './normalize-row';
@@ -15,6 +16,14 @@ describe('normalizeBoliviaPhone', () => {
     assert.equal(normalizeBoliviaPhone('+591 700-12345'), '+59170012345');
     assert.equal(normalizeBoliviaPhone('70012345.0'), '+59170012345');
     assert.equal(phoneMatchKey('+59170012345'), '59170012345');
+  });
+
+  it('applies the shared contact number rule, so execute never meets a number it refuses', () => {
+    assert.equal(normalizeBoliviaPhone('2212345'), null);
+    assert.equal(normalizeBoliviaPhone('80012345'), null);
+    assert.equal(normalizeBoliviaPhone('22123456'), '+59122123456');
+    assert.equal(normalizeContactNumber({ country: 'BO', number: '+59170012345' }), '+59170012345');
+    assert.deepEqual(normalizeBoliviaPhones('2212345/70011111'), ['+59170011111']);
   });
 
   it('splits separated mobiles and does not concatenate them', () => {

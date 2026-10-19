@@ -255,8 +255,8 @@ describePrisma('client import prisma integration', () => {
         organizationPartyId: existingPartyId,
         givenName: 'Pre',
         familyName: 'Exist',
-        phone: '+59170033333',
-        whatsapp: '+59170033333',
+        phone: { country: 'BO', number: '+59170033333' },
+        whatsapp: { country: 'BO', number: '+59170033333' },
       },
       `idem-pre-c-${Date.now()}`,
     );

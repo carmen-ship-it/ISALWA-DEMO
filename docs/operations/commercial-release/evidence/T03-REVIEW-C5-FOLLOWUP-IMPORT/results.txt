@@ -1,0 +1,10 @@
+milestone os-database full serial suite at 2763c505 (disposable PG): tests 305, pass 302, fail 3 (exit 1), all VALIDATION_FAILED
+  failing: import-prisma "execute + location integration + rollback..."; party-prisma "updates contact on organization party"; party-prisma "T03: a seller registers a bounded customer..."
+  migration guard: 37 migration directories vs EXPECTED_MIGRATION_COUNT 35 (staging-wave2-role-fixtures.test asserts equality)
+after fix:
+  staging-wave2-role-fixtures.test: pass 30, fail 0
+  os-import build exit 0; os-import unit suite: pass 29, fail 0
+  party-prisma.integration + import-prisma.integration: pass 23, fail 0
+mutation M12 (import execute passes the phone as a plain string; os-import rebuilt): import-prisma exit 1, pass 5, fail 1
+  restored from saved copy: sha256 identical; os-import rebuilt; import-prisma pass 6, fail 0
+os-web typecheck at 2763c505: exit 0

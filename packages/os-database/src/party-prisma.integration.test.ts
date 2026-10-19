@@ -147,7 +147,7 @@ describePrisma('partygraph prisma integration', () => {
       givenName: 'Juan',
       familyName: 'Perez',
       email: 'juan@example.bo',
-      whatsapp: '+59170000000',
+      whatsapp: { country: 'BO', number: '+59170000000' },
     });
     const contactsPage = await partyStore.listContactsForOrgParty(org.id, partyId);
     assert.equal(contactsPage.items.length, 1);
@@ -548,7 +548,7 @@ describePrisma('partygraph interactive transaction hardening', () => {
       partyKind: 'organization',
       displayName: 'Constructora Andina',
       contact: { givenName: 'Rosa', familyName: 'Quispe' },
-      phone: '71234567',
+      phone: { country: 'BO', number: '71234567' },
       city: 'Santa Cruz de la Sierra',
       department: 'Santa Cruz',
     };
@@ -604,7 +604,7 @@ describePrisma('partygraph interactive transaction hardening', () => {
         svc.execute('CreateParty', sellerCtx, {
           ...customer,
           displayName: 'Con NIT',
-          phone: '72222222',
+          phone: { country: 'BO', number: '72222222' },
           fiscalIdentity: { nit: '123456789', razonSocial: 'Con NIT SRL' },
         }),
       (err: Error) => err.message === 'VALIDATION_FAILED',
@@ -626,7 +626,7 @@ describePrisma('partygraph interactive transaction hardening', () => {
         svc.execute('CreateParty', ctx(org.id, member.member.id, member.person.id, member.auth.id), {
           partyKind: 'organization',
           displayName: 'Denied',
-          phone: '71234567',
+          phone: { country: 'BO', number: '71234567' },
           contact: { givenName: 'Ana' },
         }),
       (err: Error) => err.message === 'PERMISSION_DENIED',
