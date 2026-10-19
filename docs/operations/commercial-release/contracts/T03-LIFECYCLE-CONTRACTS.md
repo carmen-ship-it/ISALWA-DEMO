@@ -10,7 +10,7 @@ No business-policy conflict found while mapping. Model gaps are recorded per con
 | --- | --- | --- | --- |
 | L1 | `EndContactRelationship`, relationship-end preview, recipient eligibility | `OsContact` (`status`, `relationEndedAt`, `relationEndReason`), endpoint associations, identity reviews, customer `edit` authority | STABLE API `15e0e089`; locally tested; review and browser pending |
 | L2 | `SetContactFollowupPreference`, preference read, `followupPermitted` | `OsContactFollowupPreference` (migration `20261016230000`), customer `edit` authority | STABLE API `9e7dc7d5`; locally tested; review and browser pending |
-| L3 | `DeactivateParty` / `ReactivateParty` (extended), archive preview | `OsParty.status = 'inactive'` as Archivado, `canActOnCustomer` archive/reactivate | PLANNED |
+| L3 | `DeactivateParty` / `ReactivateParty` (extended), archive preview | `OsParty.status = 'inactive'` as Archivado, `canActOnCustomer` archive/reactivate | STABLE API `2fefe96d`; locally tested; review and browser pending |
 | L4 | Correction request on `ReportIssue` / `ResolveIssue` | `os-issue` states, owner, journal, outcome; customer `edit` / `master_data.admin` | PLANNED |
 
 ## L1 — Ending a contact's company relationship

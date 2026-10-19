@@ -1,0 +1,21 @@
+source: 2fefe96d88b0e5bff1bbc8482b863b9d14008d95 (tree 373dd4981e962f41cbae4b3d14fc2adc8bd80d31, staged and recorded before the runs); disposable PG port 54329 only
+builds (serial): os-contracts, os-party, os-import, os-query, os-database exit 0; os-api tsc exit 0; os-web tsc exit 0
+targeted before commit:
+  customer-archive (new, os-contracts): tests 3, pass 3, fail 0
+  t03-customer-archive.http (new): tests 6, pass 6, fail 0
+  t03-customer-authority-flags.http with the archive suite (before its timeline case was added): tests 10, pass 10, fail 0
+  import-prisma.integration (new L3 reversal case) + party-prisma + location-prisma integrations: tests 35, pass 35, fail 0
+  os-party unit: tests 38, pass 38, fail 0
+mutations (each restored, sha256 identical; the mutated package rebuilt before the run and after restore):
+  M20 archive without the obligation check: pass 4, fail 2
+  M21 open work items not counted: pass 3, fail 3
+  M22 import reversal without the preflight: pass 6, fail 1
+milestone on that tree, serial, one run each:
+  os-contracts: tests 206, pass 206, fail 0
+  os-import: tests 32, pass 32, fail 0
+  os-party: tests 38, pass 38, fail 0
+  os-query: tests 115, pass 115, fail 0
+  os-database: tests 312, pass 312, fail 0
+  os-api: tests 347, pass 347, fail 0
+  os-web lib+components: tests 1320, pass 1320, fail 0
+not rerun (no source change): os-domain, os-commercial, os-events, os-commitment and other packages
