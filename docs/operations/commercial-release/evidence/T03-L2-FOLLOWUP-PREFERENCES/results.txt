@@ -1,0 +1,17 @@
+source: 9e7dc7d5b3fecac2bb9451d2c66b62ed8e46135a (tree 2db18fb91c8c755dbd27a4c09c679a3d834ddcd9, staged and recorded before the runs); disposable PG port 54329 only
+builds (serial): os-contracts, os-party, os-query, os-database exit 0; os-api tsc exit 0; os-web tsc exit 0
+targeted before commit:
+  followup-preference (new, os-contracts): tests 5, pass 5, fail 0
+  t03-followup-preference.http (new) + t03-customer-authority-flags.http + inspection-reads.adversarial: tests 27, pass 27, fail 0
+mutations (each restored, sha256 identical; os-party and os-database rebuilt for M19 and after restore):
+  M18 shared rule lets a customer message record 'allowed': pass 4, fail 1
+  M19 no version check in service and store: pass 2, fail 4
+milestone on that tree, serial, one run each:
+  os-contracts: tests 203, pass 203, fail 0
+  os-import: tests 32, pass 32, fail 0
+  os-party: tests 38, pass 38, fail 0
+  os-query: tests 115, pass 115, fail 0
+  os-database: tests 311, pass 311, fail 0
+  os-api: tests 341, pass 341, fail 0
+  os-web lib+components: tests 1320, pass 1320, fail 0
+not rerun (no source change): os-domain, os-commercial, os-events, os-commitment and other packages

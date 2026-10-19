@@ -1,0 +1,14 @@
+7da8c288b439943e55d7235baed2d934aad1bdf0cd9f54a772ea7804d61b693d  apps/os-api/src/inspection-reads.adversarial.test.ts
+64bc2a47bf474479deedcb0ceb5c9f755a973451717ec89de23f96953bcdd065  apps/os-api/src/parties.controller.ts
+af203a6256c1d6320dc4d5e4f67980311290ae764cb0a2fc34f175e23477faf9  apps/os-api/src/t03-customer-authority-flags.http.test.ts
+3ef2e0ec401af7ac34711b22138817e1a19b649d9dc6f624abc4858db684c707  apps/os-api/src/t03-followup-preference.http.test.ts
+65e3cb8cc5c74ee5a0c573ba95387c5d85833ceb70a3cb65782eadf30b66895b  apps/os-web/lib/party/types.ts
+0ce7e60a63c966e68ef8360a1e1eae0c0d392f79883c46c51c1793328d5aac7b  packages/os-contracts/src/followup-preference.test.ts
+60e599dfcee66a56eb91b99a5cbc3da48f5f381a3eb3dbf1c5edf41a515270b0  packages/os-contracts/src/party-commands.ts
+5fe2e7e2360d19a4baf39c99fbe40b50e555beffd2ec8e50215ff58ec993a882  packages/os-contracts/src/party-events.ts
+85f8d5dd33b7063dc9c98213b712cf51d780a48d215e6ea6283b7559b8946343  packages/os-contracts/src/scopes.ts
+e65d1f7e8a49e46183faf51e3fc1c3347abbc70b8c7536a60f3a46484cb3f00b  packages/os-database/src/prisma-party-store.ts
+d41956f301100cde6dab604f8d4aff19ea660a0e25a35a5ba7d00688eb276125  packages/os-party/src/customer-authority.ts
+29bec57d053f65be7283f1b461853b982e27edc7dee41aca412cd36157966832  packages/os-party/src/os-party-store.ts
+fba0f46a3e37748b1868f1122d30c0a9a10593e1a4a72d3d98d1018445c779f0  packages/os-party/src/party-command-service.ts
+23c77c136227010668b31289b67fbb4d1eef664e3d4d46139bc573f90ee032ab  packages/os-query/src/party/party-timeline-facts.ts
