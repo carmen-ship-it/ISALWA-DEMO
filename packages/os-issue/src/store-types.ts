@@ -4,6 +4,9 @@ import type {
   IssueReferenceType,
   IssueJournalType,
   IssueRelationType,
+  CorrectionDecision,
+  CorrectionField,
+  CorrectionSource,
 } from '@isalwa/os-contracts';
 
 export type IssueRecord = {
@@ -33,6 +36,7 @@ export type IssueReferenceRecord = {
   referenceType: IssueReferenceType;
   referenceId: string;
   createdAt: Date;
+  createdByMemberId: string;
 };
 
 export type IssueJournalEntryRecord = {
@@ -94,3 +98,27 @@ export type IdempotencyRecord = {
   resultJson: Record<string, unknown>;
   expiresAt: Date;
 };
+
+/** T03 L4: restricted correction record carried by a correction-request issue. */
+export type IssueCorrectionRequestRecord = {
+  issueId: string;
+  organizationId: string;
+  partyId: string;
+  contactId: string | null;
+  locationId: string | null;
+  field: CorrectionField;
+  proposedValue: string;
+  source: CorrectionSource;
+  decision: CorrectionDecision | null;
+  appliedEventId: string | null;
+  decisionReason: string | null;
+  decidedByMemberId: string | null;
+  decidedAt: Date | null;
+  createdAt: Date;
+};
+
+export type IssueCorrectionDecisionPatch = Pick<
+  IssueCorrectionRequestRecord,
+  'decision' | 'appliedEventId' | 'decisionReason' | 'decidedByMemberId' | 'decidedAt'
+>;
+

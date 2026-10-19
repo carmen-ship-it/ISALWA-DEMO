@@ -31,7 +31,8 @@ import { WorkCommandService, type OsWorkStore } from '@isalwa/os-work';
 import { CommercialCommandService, type OsCommercialStore } from '@isalwa/os-commercial';
 import { ImportCommandService, type OsImportStore } from '@isalwa/os-import';
 import { CommitmentCommandService, type OsCommitmentStore } from '@isalwa/os-commitment';
-import { IssueCommandService, type OsIssueStore } from '@isalwa/os-issue';
+import { IssueCommandService, type CorrectionCustomerPort, type OsIssueStore } from '@isalwa/os-issue';
+import { createCorrectionCustomerPort } from './correction-customer-port';
 import type { OsOutboxStorePort } from '@isalwa/os-events';
 import { IssueStoreAdapter } from './issue-store-adapter';
 import { CommitmentStoreAdapter } from './commitment-store-adapter';
@@ -91,6 +92,7 @@ export const OS_COMMITMENT_STORE = Symbol('OS_COMMITMENT_STORE');
 export const OS_COMMITMENT_COMMAND_SERVICE = Symbol('OS_COMMITMENT_COMMAND_SERVICE');
 export const OS_ISSUE_STORE = Symbol('OS_ISSUE_STORE');
 export const OS_ISSUE_COMMAND_SERVICE = Symbol('OS_ISSUE_COMMAND_SERVICE');
+export const OS_CORRECTION_CUSTOMER_PORT = Symbol('OS_CORRECTION_CUSTOMER_PORT');
 export const OS_PRODUCT_FEEDBACK_STORE = Symbol('OS_PRODUCT_FEEDBACK_STORE');
 export const OS_PARTY_QUERY_SERVICE = Symbol('OS_PARTY_QUERY_SERVICE');
 export const OS_CUSTOMER_VISIBILITY = Symbol('OS_CUSTOMER_VISIBILITY');
@@ -367,11 +369,17 @@ function createMemberQueryStore(): MemberQueryStorePort {
       useFactory: (
         prismaIssueStore: PrismaOsIssueStore,
         workforceStore: OsWorkforceStore,
+        correctionCustomers: CorrectionCustomerPort,
       ) => {
         const adapter = new IssueStoreAdapter(prismaIssueStore, workforceStore);
-        return new IssueCommandService(adapter);
+        return new IssueCommandService(adapter, correctionCustomers);
       },
-      inject: [OS_ISSUE_STORE, OS_STORE],
+      inject: [OS_ISSUE_STORE, OS_STORE, OS_CORRECTION_CUSTOMER_PORT],
+    },
+    {
+      provide: OS_CORRECTION_CUSTOMER_PORT,
+      useFactory: (partyStore: OsPartyStore) => createCorrectionCustomerPort(partyStore),
+      inject: [OS_PARTY_STORE],
     },
     { provide: OS_CUSTOMER_VISIBILITY, useFactory: createCustomerVisibilityLookup },
     { provide: OS_RATE_LIMIT_COUNTER, useFactory: createRateLimitCounter },
@@ -582,6 +590,7 @@ function createMemberQueryStore(): MemberQueryStorePort {
   ],
   exports: [
     OS_STORE,
+    OS_CORRECTION_CUSTOMER_PORT,
     OS_PARTY_STORE,
     OS_WORK_STORE,
     OS_PROJECTION_STORE,

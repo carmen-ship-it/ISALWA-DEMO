@@ -2,6 +2,7 @@
  * Store adapter for IssueCommandService.
  * Composes PrismaOsIssueStore (CRUD) + shared auth methods from PrismaOsWorkforceStore.
  */
+import type { CorrectionAppliedEvent } from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type {
   OsIssueStore as CommandStoreInterface,
@@ -14,6 +15,8 @@ import type {
   RoleAssignmentRecord,
   DelegationRecord,
   IdempotencyRecord,
+  IssueCorrectionRequestRecord as CommandCorrectionRecord,
+  IssueCorrectionDecisionPatch,
 } from '@isalwa/os-issue';
 import type {
   PrismaOsIssueStore,
@@ -187,7 +190,7 @@ export class IssueStoreAdapter implements CommandStoreInterface {
       referenceType: ref.referenceType,
       referenceId: ref.referenceId,
       createdAt: ref.createdAt,
-      createdByMemberId: '', // Not tracked in command record
+      createdByMemberId: ref.createdByMemberId,
     });
   }
 
@@ -203,6 +206,7 @@ export class IssueStoreAdapter implements CommandStoreInterface {
       referenceType: r.referenceType as CommandReferenceRecord['referenceType'],
       referenceId: r.referenceId,
       createdAt: r.createdAt,
+      createdByMemberId: r.createdByMemberId,
     }));
   }
 
@@ -318,6 +322,37 @@ export class IssueStoreAdapter implements CommandStoreInterface {
       })),
     ];
     return results;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // T03 L4 correction requests
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  async insertCorrectionRequest(record: CommandCorrectionRecord): Promise<void> {
+    await this.issueStore.insertCorrectionRequest(record);
+  }
+
+  async getCorrectionRequest(
+    organizationId: string,
+    issueId: string,
+  ): Promise<CommandCorrectionRecord | null> {
+    const row = await this.issueStore.getCorrectionRequest(organizationId, issueId);
+    return row as CommandCorrectionRecord | null;
+  }
+
+  async decideCorrectionRequest(
+    organizationId: string,
+    issueId: string,
+    patch: IssueCorrectionDecisionPatch,
+  ): Promise<void> {
+    await this.issueStore.decideCorrectionRequest(organizationId, issueId, patch);
+  }
+
+  async getBusinessEventInOrg(
+    organizationId: string,
+    eventId: string,
+  ): Promise<CorrectionAppliedEvent | null> {
+    return this.issueStore.getBusinessEventInOrg(organizationId, eventId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

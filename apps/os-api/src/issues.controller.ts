@@ -11,7 +11,14 @@ import {
 import type { Request } from 'express';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import type { OsIssueStore, IssueRecord, IssueJournalEntryRecord } from '@isalwa/os-database';
-import type { IssueStatus } from '@isalwa/os-contracts';
+import type {
+  CorrectionDecision,
+  CorrectionField,
+  CorrectionRequestView,
+  CorrectionSource,
+  IssueStatus,
+} from '@isalwa/os-contracts';
+import { correctionAccess, type CorrectionCustomerPort } from '@isalwa/os-issue';
 import {
   computeEffectiveScopes,
   memberHasGrantedScope,
@@ -21,7 +28,7 @@ import {
 import { ISSUE_MANAGE_SCOPE } from '@isalwa/os-contracts';
 import { toIssueDetailResponse } from './issue-detail-response';
 import { resolveSession } from './os-session';
-import { OS_STORE, OS_ISSUE_STORE } from './os-store.module';
+import { OS_STORE, OS_ISSUE_STORE, OS_CORRECTION_CUSTOMER_PORT } from './os-store.module';
 
 type IssueSummary = {
   issueId: string;
@@ -65,6 +72,7 @@ export class IssuesController {
   constructor(
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
     @Inject(OS_ISSUE_STORE) private readonly issueStore: OsIssueStore,
+    @Inject(OS_CORRECTION_CUSTOMER_PORT) private readonly correctionCustomers: CorrectionCustomerPort,
   ) {}
 
   private async getAccessSnapshot(
@@ -346,6 +354,76 @@ export class IssuesController {
           hasMore: jHasMore,
           nextCursor: jHasMore ? String(jOffset + page.length) : null,
           limit: jLimit,
+        },
+      };
+    } catch (err) {
+      throw this.toHttp(err);
+    }
+  }
+
+  /**
+   * T03 L4: the correction request on an issue. Needs issue read access and customer
+   * knowledge (else 404). The proposed value is shown to the reporter, to whoever may apply
+   * the change, and to issue.manage; others get null.
+   */
+  @Get(':issueId/correction')
+  async getIssueCorrection(
+    @Param('issueId') issueId: string,
+    @Req() req: Request,
+  ): Promise<{ correction: CorrectionRequestView }> {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const snap = await this.getAccessSnapshot(
+        session.organizationId,
+        session.actorMemberId,
+        session.effectiveAt,
+      );
+      if (!snap) throw new Error('AUTH_REQUIRED');
+      assertMemberActive(snap);
+
+      const issue = await this.issueStore.getIssueInOrg(session.organizationId, issueId);
+      if (!issue || !this.canReadIssue(snap, issue)) throw new Error('NOT_FOUND');
+      const correction = await this.issueStore.getCorrectionRequest(session.organizationId, issueId);
+      if (!correction) throw new Error('NOT_FOUND');
+
+      const field = correction.field as CorrectionField;
+      const facts = await this.correctionCustomers.customerFacts({
+        organizationId: session.organizationId,
+        partyId: correction.partyId,
+        memberId: snap.memberId,
+        asOf: session.effectiveAt,
+      });
+      const access = correctionAccess({
+        snap,
+        organizationId: session.organizationId,
+        partyId: correction.partyId,
+        field,
+        asOf: session.effectiveAt,
+        facts,
+      });
+      if (!access.known) throw new Error('NOT_FOUND');
+
+      const manage = memberHasGrantedScope(snap, ISSUE_MANAGE_SCOPE);
+      const isOwner = issue.currentOwnerMemberId === snap.memberId;
+      const showValue = access.canApply || manage || issue.reportedByMemberId === snap.memberId;
+      const finished = issue.status === 'resolved' || issue.status === 'closed';
+      const decision = finished ? (correction.decision as CorrectionDecision | null) : null;
+      return {
+        correction: {
+          issueId: issue.id,
+          partyId: correction.partyId,
+          contactId: correction.contactId,
+          locationId: correction.locationId,
+          field,
+          source: correction.source as CorrectionSource,
+          proposedValue: showValue ? correction.proposedValue : null,
+          state: decision ?? (issue.status === 'in_progress' ? 'in_review' : 'pending'),
+          decision,
+          appliedEventId: decision ? correction.appliedEventId : null,
+          decisionReason: decision ? correction.decisionReason : null,
+          decidedByMemberId: decision ? correction.decidedByMemberId : null,
+          decidedAt: decision ? (correction.decidedAt?.toISOString() ?? null) : null,
+          canDecide: !finished && access.canApply && (isOwner || manage),
         },
       };
     } catch (err) {

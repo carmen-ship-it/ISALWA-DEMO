@@ -12,6 +12,7 @@
  */
 
 import { z } from 'zod';
+import { CorrectionDecisionInputSchema, CorrectionRequestInputSchema } from './correction-request';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Status lifecycle
@@ -129,6 +130,8 @@ export const ReportIssuePayloadSchema = z.object({
   description: z.string().min(1),
   title: z.string().min(1).optional(),
   references: z.array(IssueReferenceSchema).optional(),
+  /** T03 L4: makes this issue a correction request for one customer. */
+  correction: CorrectionRequestInputSchema.optional(),
 });
 
 export type ReportIssuePayload = z.infer<typeof ReportIssuePayloadSchema>;
@@ -191,6 +194,8 @@ export const ResolveIssuePayloadSchema = z.object({
   issueId: z.string().min(1),
   resolution: z.string().min(1),
   expectedVersion: z.number().int().nonnegative(),
+  /** T03 L4: required on a correction request, refused on any other issue. */
+  correction: CorrectionDecisionInputSchema.optional(),
 });
 
 export type ResolveIssuePayload = z.infer<typeof ResolveIssuePayloadSchema>;

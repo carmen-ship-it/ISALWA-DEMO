@@ -8,6 +8,8 @@ import {
   COMMAND_REQUIRED_SCOPES,
   ISSUE_MANAGE_SCOPE,
   canTransitionIssue,
+  correctionEventMatches,
+  type CorrectionField,
 } from '@isalwa/os-contracts';
 import {
   ReportIssuePayloadSchema,
@@ -45,6 +47,11 @@ import { createId } from '@isalwa/ts-utils';
 import type { OsIssueStore } from './os-issue-store';
 import { canReadIssue } from './issue-read-policy';
 import type { IssueRecord } from './store-types';
+import {
+  correctionAccess,
+  type CorrectionAccess,
+  type CorrectionCustomerPort,
+} from './correction-authority';
 
 export type CommandResult = {
   commandId: string;
@@ -53,7 +60,39 @@ export type CommandResult = {
 };
 
 export class IssueCommandService {
-  constructor(private readonly store: OsIssueStore) {}
+  /** Without the customer port, correction requests are refused (fail closed). */
+  constructor(
+    private readonly store: OsIssueStore,
+    private readonly correctionCustomers?: CorrectionCustomerPort,
+  ) {}
+
+  private requireCorrectionPort(): CorrectionCustomerPort {
+    if (!this.correctionCustomers) throw new Error('PERMISSION_DENIED');
+    return this.correctionCustomers;
+  }
+
+  /** L4: customer knowledge and apply authority of `snap`'s member for this correction. */
+  private async correctionAccessFor(
+    ctx: RequestContext,
+    snap: MemberAccessSnapshot,
+    partyId: string,
+    field: CorrectionField,
+  ): Promise<CorrectionAccess> {
+    const facts = await this.requireCorrectionPort().customerFacts({
+      organizationId: ctx.organizationId,
+      partyId,
+      memberId: snap.memberId,
+      asOf: ctx.effectiveAt,
+    });
+    return correctionAccess({
+      snap,
+      organizationId: ctx.organizationId,
+      partyId,
+      field,
+      asOf: ctx.effectiveAt,
+      facts,
+    });
+  }
 
   private async snapshotInOrg(
     organizationId: string,
@@ -320,8 +359,25 @@ export class IssueCommandService {
     payload: Record<string, unknown>,
     store: OsIssueStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'ReportIssue', ctx.organizationId);
+    const snap = await this.authorize(ctx, 'ReportIssue', ctx.organizationId);
     const parsed = ReportIssuePayloadSchema.parse(payload);
+    const correction = parsed.correction;
+    let references = parsed.references ?? [];
+    if (correction) {
+      // L4: the reporter must be able to know the customer; contact/location must be its own.
+      const access = await this.correctionAccessFor(ctx, snap, correction.partyId, correction.field);
+      if (!access.known) throw new Error('NOT_FOUND');
+      const belongs = await this.requireCorrectionPort().targetBelongsToParty({
+        organizationId: ctx.organizationId,
+        partyId: correction.partyId,
+        contactId: correction.contactId ?? null,
+        locationId: correction.locationId ?? null,
+      });
+      if (!belongs) throw new Error('NOT_FOUND');
+      if (!references.some((r) => r.referenceType === 'party' && r.referenceId === correction.partyId)) {
+        references = [...references, { referenceType: 'party', referenceId: correction.partyId }];
+      }
+    }
 
     const issueId = createId();
     const issue: IssueRecord = {
@@ -346,8 +402,8 @@ export class IssueCommandService {
     await store.insertIssue(issue);
 
     // Insert references if provided
-    if (parsed.references) {
-      for (const ref of parsed.references) {
+    if (references.length > 0) {
+      for (const ref of references) {
         await store.insertIssueReference({
           id: createId(),
           organizationId: ctx.organizationId,
@@ -355,15 +411,47 @@ export class IssueCommandService {
           referenceType: ref.referenceType,
           referenceId: ref.referenceId,
           createdAt: ctx.effectiveAt,
+          createdByMemberId: ctx.actorMemberId,
         });
       }
     }
 
+    if (correction) {
+      await store.insertCorrectionRequest({
+        issueId,
+        organizationId: ctx.organizationId,
+        partyId: correction.partyId,
+        contactId: correction.contactId ?? null,
+        locationId: correction.locationId ?? null,
+        field: correction.field,
+        proposedValue: correction.proposedValue,
+        source: correction.source,
+        decision: null,
+        appliedEventId: null,
+        decisionReason: null,
+        decidedByMemberId: null,
+        decidedAt: null,
+        createdAt: ctx.effectiveAt,
+      });
+    }
+
+    // The proposed value is restricted: it is kept only in the correction record, never in the event.
     return this.emit(ctx, store, 'issue.reported', 'issue', issueId, {
       issueId,
       title: issue.title,
       description: issue.description,
-      references: parsed.references ?? [],
+      references,
+      ...(correction
+        ? {
+            correction: {
+              partyId: correction.partyId,
+              contactId: correction.contactId ?? null,
+              locationId: correction.locationId ?? null,
+              field: correction.field,
+              source: correction.source,
+            },
+          }
+        : {}),
     });
   }
 
@@ -419,6 +507,15 @@ export class IssueCommandService {
     const newOwner = await store.getMemberInOrg(ctx.organizationId, parsed.ownerMemberId);
     if (!newOwner || newOwner.accessStatus !== 'active') {
       throw new Error('VALIDATION_FAILED');
+    }
+    const correction = await store.getCorrectionRequest(ctx.organizationId, parsed.issueId);
+    if (correction) {
+      // L4: the responsible person must be able to apply the requested change.
+      const ownerSnap = await this.snapshotInOrg(ctx.organizationId, parsed.ownerMemberId, ctx.effectiveAt);
+      const access = ownerSnap
+        ? await this.correctionAccessFor(ctx, ownerSnap, correction.partyId, correction.field)
+        : null;
+      if (!access?.canApply) throw new Error('VALIDATION_FAILED');
     }
 
     const before = { ownerMemberId: issue.ownerMemberId };
@@ -615,28 +712,76 @@ export class IssueCommandService {
       throw new Error('VALIDATION_FAILED');
     }
 
-    const before = { status: issue.status, resolution: issue.resolution };
+    const correction = await store.getCorrectionRequest(ctx.organizationId, parsed.issueId);
+    const decision = parsed.correction;
+    if (!correction && decision) throw new Error('VALIDATION_FAILED');
+    if (correction) {
+      // L4: a correction is decided only by someone who may apply it, and "applied" must cite
+      // the customer event that made the change. The request itself never writes data.
+      if (!decision) throw new Error('VALIDATION_FAILED');
+      const access = await this.correctionAccessFor(ctx, snap, correction.partyId, correction.field);
+      if (!access.canApply) throw new Error('PERMISSION_DENIED');
+      if (decision.decision === 'applied') {
+        const event = await store.getBusinessEventInOrg(ctx.organizationId, decision.appliedEventId!);
+        const matches =
+          event !== null &&
+          correctionEventMatches(
+            {
+              partyId: correction.partyId,
+              contactId: correction.contactId,
+              locationId: correction.locationId,
+              field: correction.field,
+              reportedAt: issue.reportedAt,
+            },
+            event,
+          );
+        if (!matches) throw new Error('VALIDATION_FAILED');
+      }
+      await store.decideCorrectionRequest(ctx.organizationId, parsed.issueId, {
+        decision: decision.decision,
+        appliedEventId: decision.appliedEventId ?? null,
+        decisionReason: decision.reason,
+        decidedByMemberId: ctx.actorMemberId,
+        decidedAt: ctx.effectiveAt,
+      });
+    }
+
+    const before = { status: issue.status, resolution: issue.resolution, outcome: issue.outcome };
     await store.updateIssue(
       parsed.issueId,
       {
         status: 'resolved',
         resolution: parsed.resolution,
         resolvedAt: ctx.effectiveAt,
+        ...(decision ? { outcome: decision.decision } : {}),
         version: issue.version + 1,
       },
       issue.version,
     );
 
+    const correctionFacts = decision
+      ? {
+          correction: {
+            decision: decision.decision,
+            appliedEventId: decision.appliedEventId ?? null,
+            reason: decision.reason,
+          },
+        }
+      : {};
     return this.emit(
       ctx,
       store,
       'issue.resolved',
       'issue',
       parsed.issueId,
-      { issueId: parsed.issueId, resolution: parsed.resolution },
+      { issueId: parsed.issueId, resolution: parsed.resolution, ...correctionFacts },
       'issue.resolved',
       before,
-      { status: 'resolved', resolution: parsed.resolution },
+      {
+        status: 'resolved',
+        resolution: parsed.resolution,
+        ...(decision ? { outcome: decision.decision } : {}),
+      },
     );
   }
 
@@ -651,6 +796,10 @@ export class IssueCommandService {
     const issue = await this.requireIssue(store, ctx.organizationId, parsed.issueId);
     this.assertIssueParticipant(snap, ctx, issue);
     this.assertVersion(parsed.expectedVersion, issue.version);
+    // L4: a correction request's outcome is its recorded decision, set only by ResolveIssue.
+    if (await store.getCorrectionRequest(ctx.organizationId, parsed.issueId)) {
+      throw new Error('VALIDATION_FAILED');
+    }
 
     const before = { outcome: issue.outcome };
     await store.updateIssue(
@@ -722,10 +871,27 @@ export class IssueCommandService {
     this.assertVersion(parsed.expectedVersion, issue.version);
     this.assertTransition(issue.status, 'reopened');
 
+    // L4: a reopened correction request is pending again; the earlier decision stays in the event history.
+    const correction = await store.getCorrectionRequest(ctx.organizationId, parsed.issueId);
+    if (correction) {
+      await store.decideCorrectionRequest(ctx.organizationId, parsed.issueId, {
+        decision: null,
+        appliedEventId: null,
+        decisionReason: null,
+        decidedByMemberId: null,
+        decidedAt: null,
+      });
+    }
+
     const before = { status: issue.status };
     await store.updateIssue(
       parsed.issueId,
-      { status: 'reopened', reopenedAt: ctx.effectiveAt, version: issue.version + 1 },
+      {
+        status: 'reopened',
+        reopenedAt: ctx.effectiveAt,
+        ...(correction ? { outcome: null } : {}),
+        version: issue.version + 1,
+      },
       issue.version,
     );
 

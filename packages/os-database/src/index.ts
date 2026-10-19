@@ -26,6 +26,9 @@ export {
   type IssueRelationRecord,
   type IssueResolutionCycleRecord,
   type IssueOwnershipHistoryRecord,
+  type IssueCorrectionRequestRecord,
+  type IssueCorrectionDecisionPatch,
+  type IssueBusinessEventFacts,
   type OsIssueStore,
 } from './prisma-issue-store';
 export {

@@ -1,3 +1,4 @@
+import type { CorrectionAppliedEvent } from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type {
   IssueRecord,
@@ -9,6 +10,8 @@ import type {
   RoleAssignmentRecord,
   DelegationRecord,
   IdempotencyRecord,
+  IssueCorrectionRequestRecord,
+  IssueCorrectionDecisionPatch,
 } from './store-types';
 
 export interface OsIssueStore {
@@ -67,6 +70,12 @@ export interface OsIssueStore {
   // Relations
   insertIssueRelation(relation: IssueRelationRecord): Promise<void>;
   listIssueRelations(organizationId: string, issueId: string): Promise<IssueRelationRecord[]>;
+
+  // T03 L4 correction requests
+  insertCorrectionRequest(record: IssueCorrectionRequestRecord): Promise<void>;
+  getCorrectionRequest(organizationId: string, issueId: string): Promise<IssueCorrectionRequestRecord | null>;
+  decideCorrectionRequest(organizationId: string, issueId: string, patch: IssueCorrectionDecisionPatch): Promise<void>;
+  getBusinessEventInOrg(organizationId: string, eventId: string): Promise<CorrectionAppliedEvent | null>;
 
   // Events/audit
   appendEventAndAudit(

@@ -10,6 +10,37 @@ import {
 // Record types
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** T03 L4: restricted correction record carried by one issue. */
+export interface IssueCorrectionRequestRecord {
+  issueId: string;
+  organizationId: string;
+  partyId: string;
+  contactId: string | null;
+  locationId: string | null;
+  field: string;
+  proposedValue: string;
+  source: string;
+  decision: string | null;
+  appliedEventId: string | null;
+  decisionReason: string | null;
+  decidedByMemberId: string | null;
+  decidedAt: Date | null;
+  createdAt: Date;
+}
+
+export type IssueCorrectionDecisionPatch = Pick<
+  IssueCorrectionRequestRecord,
+  'decision' | 'appliedEventId' | 'decisionReason' | 'decidedByMemberId' | 'decidedAt'
+>;
+
+export interface IssueBusinessEventFacts {
+  eventType: string;
+  occurredAt: Date;
+  primaryEntityType: string;
+  primaryEntityId: string;
+  payload: Record<string, unknown> | null;
+}
+
 export interface IssueRecord {
   id: string;
   organizationId: string;
@@ -172,6 +203,12 @@ export interface OsIssueStore {
   // Ownership history
   insertOwnershipHistory(record: IssueOwnershipHistoryRecord): Promise<void>;
   listOwnershipHistoryForIssue(issueId: string): Promise<IssueOwnershipHistoryRecord[]>;
+
+  // T03 L4 correction requests
+  insertCorrectionRequest(record: IssueCorrectionRequestRecord): Promise<void>;
+  getCorrectionRequest(organizationId: string, issueId: string): Promise<IssueCorrectionRequestRecord | null>;
+  decideCorrectionRequest(organizationId: string, issueId: string, patch: IssueCorrectionDecisionPatch): Promise<void>;
+  getBusinessEventInOrg(organizationId: string, eventId: string): Promise<IssueBusinessEventFacts | null>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -498,6 +535,57 @@ export class PrismaOsIssueStore implements OsIssueStore {
       orderBy: { changedAt: 'asc' },
     });
     return rows.map(mapOwnershipHistory);
+  }
+
+  async insertCorrectionRequest(record: IssueCorrectionRequestRecord): Promise<void> {
+    await this.db().osIssueCorrectionRequest.create({ data: { ...record } });
+  }
+
+  async getCorrectionRequest(
+    organizationId: string,
+    issueId: string,
+  ): Promise<IssueCorrectionRequestRecord | null> {
+    return this.db().osIssueCorrectionRequest.findFirst({ where: { issueId, organizationId } });
+  }
+
+  async decideCorrectionRequest(
+    organizationId: string,
+    issueId: string,
+    patch: IssueCorrectionDecisionPatch,
+  ): Promise<void> {
+    const result = await this.db().osIssueCorrectionRequest.updateMany({
+      where: { issueId, organizationId },
+      data: patch,
+    });
+    if (result.count !== 1) throw new Error('NOT_FOUND');
+  }
+
+  async getBusinessEventInOrg(
+    organizationId: string,
+    eventId: string,
+  ): Promise<IssueBusinessEventFacts | null> {
+    const row = await this.db().osBusinessEvent.findFirst({
+      where: { id: eventId, organizationId },
+      select: {
+        eventType: true,
+        occurredAt: true,
+        primaryEntityType: true,
+        primaryEntityId: true,
+        payloadJson: true,
+      },
+    });
+    if (!row) return null;
+    const payload =
+      row.payloadJson && typeof row.payloadJson === 'object' && !Array.isArray(row.payloadJson)
+        ? (row.payloadJson as Record<string, unknown>)
+        : null;
+    return {
+      eventType: row.eventType,
+      occurredAt: row.occurredAt,
+      primaryEntityType: row.primaryEntityType,
+      primaryEntityId: row.primaryEntityId,
+      payload,
+    };
   }
 }
 

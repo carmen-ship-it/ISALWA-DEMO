@@ -96,6 +96,7 @@ model OsOrganization {
   customerCoverageGrants             OsCustomerCoverageGrant[]
 
   issues                             OsIssue[]
+  issueCorrectionRequests            OsIssueCorrectionRequest[]
   issueReferences                    OsIssueReference[]
   issueJournalEntries                OsIssueJournalEntry[]
   issueWorkLinks                     OsIssueWorkLink[]
@@ -2164,12 +2165,37 @@ model OsIssue {
   relationsTo        OsIssueRelation[]         @relation("IssueRelationTo")
   resolutionCycles   OsIssueResolutionCycle[]
   ownershipHistory   OsIssueOwnershipHistory[]
+  correctionRequest  OsIssueCorrectionRequest?
 
   @@index([organizationId, status])
   @@index([organizationId, currentOwnerMemberId])
   @@index([organizationId, reportedByMemberId])
   @@index([organizationId, createdAt])
   @@map("os_issues")
+}
+
+/// T03 L4: restricted customer-data correction request carried by one issue. Never writes data itself.
+model OsIssueCorrectionRequest {
+  issueId            String    @id @map("issue_id")
+  organizationId     String    @map("organization_id")
+  partyId            String    @map("party_id")
+  contactId          String?   @map("contact_id")
+  locationId         String?   @map("location_id")
+  field              String
+  proposedValue      String    @map("proposed_value")
+  source             String
+  decision           String?
+  appliedEventId     String?   @map("applied_event_id")
+  decisionReason     String?   @map("decision_reason")
+  decidedByMemberId  String?   @map("decided_by_member_id")
+  decidedAt          DateTime? @map("decided_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  issue        OsIssue        @relation(fields: [issueId], references: [id])
+
+  @@index([organizationId, partyId])
+  @@map("os_issue_correction_requests")
 }
 
 /// External entity reference linked to an issue (order, party, quote, etc.).

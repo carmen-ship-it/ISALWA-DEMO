@@ -4,3 +4,4 @@ export * from './issue-command-service';
 export * from './issue-read-policy';
 export * from './memory-evidence-service';
 export * from './memory-store';
+export * from './correction-authority';

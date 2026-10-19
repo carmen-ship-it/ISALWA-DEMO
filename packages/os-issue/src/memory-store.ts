@@ -2,6 +2,7 @@
  * In-memory store for testing IssueCommandService.
  */
 
+import type { CorrectionAppliedEvent } from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type { OsIssueStore } from './os-issue-store';
 import type {
@@ -14,6 +15,8 @@ import type {
   RoleAssignmentRecord,
   DelegationRecord,
   IdempotencyRecord,
+  IssueCorrectionRequestRecord,
+  IssueCorrectionDecisionPatch,
 } from './store-types';
 
 export class MemoryIssueStore implements OsIssueStore {
@@ -30,6 +33,7 @@ export class MemoryIssueStore implements OsIssueStore {
   readonly outbox: StoredOutboxMessage[] = [];
   readonly audits: StoredAuditLog[] = [];
   readonly workItems = new Set<string>();
+  readonly corrections = new Map<string, IssueCorrectionRequestRecord>();
 
   async runInTransaction<T>(fn: (store: OsIssueStore) => Promise<T>): Promise<T> {
     return fn(this);
@@ -159,6 +163,44 @@ export class MemoryIssueStore implements OsIssueStore {
     return Array.from(this.relations.values()).filter(
       (r) => r.organizationId === organizationId && r.issueId === issueId,
     );
+  }
+
+  async insertCorrectionRequest(record: IssueCorrectionRequestRecord): Promise<void> {
+    if (this.corrections.has(record.issueId)) throw new Error('CONFLICT');
+    this.corrections.set(record.issueId, { ...record });
+  }
+
+  async getCorrectionRequest(
+    organizationId: string,
+    issueId: string,
+  ): Promise<IssueCorrectionRequestRecord | null> {
+    const row = this.corrections.get(issueId);
+    return row && row.organizationId === organizationId ? { ...row } : null;
+  }
+
+  async decideCorrectionRequest(
+    organizationId: string,
+    issueId: string,
+    patch: IssueCorrectionDecisionPatch,
+  ): Promise<void> {
+    const row = this.corrections.get(issueId);
+    if (!row || row.organizationId !== organizationId) throw new Error('NOT_FOUND');
+    this.corrections.set(issueId, { ...row, ...patch });
+  }
+
+  async getBusinessEventInOrg(
+    organizationId: string,
+    eventId: string,
+  ): Promise<CorrectionAppliedEvent | null> {
+    const event = this.events.find((e) => e.id === eventId && e.organizationId === organizationId);
+    if (!event) return null;
+    return {
+      eventType: event.eventType,
+      occurredAt: event.occurredAt,
+      primaryEntityType: event.primaryEntityType,
+      primaryEntityId: event.primaryEntityId,
+      payload: event.payload ?? null,
+    };
   }
 
   async appendEventAndAudit(
