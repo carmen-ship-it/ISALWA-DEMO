@@ -20,3 +20,18 @@ milestone on that tree, serial, one run each:
   os-api: tests 353, pass 353, fail 0
   os-web lib+components: tests 1320, pass 1320, fail 0
 not rerun (no source change): os-domain, os-commercial, os-events, os-commitment and other packages
+
+follow-up: candidate events read
+source: 639c4dc1 (tree ddc9c1cb7ad08bd616c6d4c58a51f80bf66cf75d, staged and recorded before the runs); disposable PG port 54329 only
+environment: the disposable cluster was found shut down (server log: immediate shutdown 00:31, cause not recorded); restarted on port 54329 with LC_ALL=C; the L4 table was present; first targeted run before the restart failed in setup (database unreachable), not counted
+builds (serial): os-contracts, os-database exit 0; os-api tsc exit 0
+targeted before commit:
+  t03-correction-request.http (extended) + inspection-reads.adversarial: tests 22, pass 22, fail 0
+mutations (restored, sha256 identical 20511ccb0e9ebd1c7184f9331bf21d0443149d39cfc9376d1e3c2550aac59d14):
+  M26 candidate list without the event matcher: first attempt pass 6, fail 0 (survived: no decoy event); decoy on another customer's contact added; rerun pass 5, fail 1 (caught)
+milestone on that tree, serial, one run each:
+  os-contracts: tests 209, pass 209, fail 0
+  os-database: tests 312, pass 312, fail 0
+  os-api: tests 353, pass 353, fail 0
+  os-web lib+components: tests 1320, pass 1320, fail 0
+not rerun (no source change; os-contracts change is one added type): os-issue, os-import, os-party, os-query and other packages

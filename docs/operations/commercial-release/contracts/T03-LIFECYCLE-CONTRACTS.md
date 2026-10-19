@@ -11,7 +11,7 @@ No business-policy conflict found while mapping. Model gaps are recorded per con
 | L1 | `EndContactRelationship`, relationship-end preview, recipient eligibility | `OsContact` (`status`, `relationEndedAt`, `relationEndReason`), endpoint associations, identity reviews, customer `edit` authority | STABLE API `15e0e089`; locally tested; review and browser pending |
 | L2 | `SetContactFollowupPreference`, preference read, `followupPermitted` | `OsContactFollowupPreference` (migration `20261016230000`), customer `edit` authority | STABLE API `9e7dc7d5`; locally tested; review and browser pending |
 | L3 | `DeactivateParty` / `ReactivateParty` (extended), archive preview | `OsParty.status = 'inactive'` as Archivado, `canActOnCustomer` archive/reactivate | STABLE API `2fefe96d`; locally tested; review and browser pending |
-| L4 | Correction request on `ReportIssue` / `ResolveIssue` | `os-issue` states, owner, journal, outcome; customer `edit` / `master_data.admin` / `fiscal.admin` | STABLE API `22608eb6`; locally tested; review and browser pending |
+| L4 | Correction request on `ReportIssue` / `ResolveIssue` | `os-issue` states, owner, journal, outcome; customer `edit` / `master_data.admin` / `fiscal.admin` | STABLE API `22608eb6` + candidate events `639c4dc1`; locally tested; review and browser pending |
 
 ## L1 — Ending a contact's company relationship
 
@@ -204,5 +204,6 @@ No second ticket system is introduced.
   - Closing with text alone is refused. The resolver (owner or `issue.manage`) must also be able to apply the change.
   - The outcome is the decision; `RecordIssueOutcome` is refused on a correction. `ReopenIssue` clears the decision and outcome (the event history keeps the earlier decision).
   - Without the customer-authority port, correction commands fail closed.
+  - `GET /v1/issues/:issueId/correction/candidate-events` (`639c4dc1`) lists, newest first and at most 20, the events that would pass this check. It requires apply authority (404 or 403 otherwise) and returns metadata only: `{eventId, eventType, occurredAt, actorMemberId}`.
 - The request never writes customer data itself. The change goes through the normal domain command and its authority.
 - Payments, quotes, orders and issued documents are not correction fields. Those need their own reversal or revision workflows (A2 §4).

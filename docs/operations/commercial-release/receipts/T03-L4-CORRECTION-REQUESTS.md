@@ -47,6 +47,12 @@ The owner must also know the customer. This alignment of `fiscal_identity` with 
 - States: `pending`, `in_review` (issue `in_progress`), `applied`, `rejected`. Decision details appear only once the issue is resolved or closed.
 - `canDecide` is a display hint; the command rechecks.
 
+**Read: `GET /v1/issues/:issueId/correction/candidate-events`** (follow-up commit `639c4dc1`).
+
+- Lists, newest first and at most 20, the customer change events an "applied" decision may cite. It uses the same matcher as `ResolveIssue`.
+- Only for someone who may apply the change: 404 without issue read or customer knowledge, 403 when the customer is known but the change is not theirs.
+- Returns `{eventId, eventType, occurredAt, actorMemberId}` only, with no event payloads.
+
 **Never a bypass.** The request writes no customer data. Payments, quotes, orders and issued documents are not correction fields, and the schema refuses them. Without the customer-authority port, correction commands are refused (fail closed).
 
 **Pre-existing defect fixed.** Over HTTP, `ReportIssue` with any reference failed with 500: the API adapter wrote an empty `createdByMemberId`, which the `os_issue_references_created_by_chk` constraint rejects. References now record the reporting member.
@@ -64,7 +70,7 @@ Recorded in `evidence/T03-L4-CORRECTION-REQUESTS/`:
   - `RecordIssueOutcome` is refused.
 - **New os-issue unit suite (9)** and **new contract unit suite (3).**
 - **Read inventory** classifies the new GET.
-- **Mutations M23–M25:** all caught.
+- **Mutations M23–M25:** all caught. **M26** (candidate list without the matcher) survived the first test, which had no decoy event; after adding another customer's contact change, it is caught.
 - **Milestone on the committed tree:** every listed suite passed in full in one serial run.
 
 ## Limitations
@@ -72,4 +78,5 @@ Recorded in `evidence/T03-L4-CORRECTION-REQUESTS/`:
 - **Authority can change after assignment.** It is checked at assignment and again at resolution. An owner who loses range in between can no longer decide; reassignment is manual.
 - **Event and record are not written atomically.** The issue event goes through the workforce store outside the issue transaction (existing issue pattern, not changed here).
 - **Shared fields.** `display_name` and `legal_name` both cite `party.updated`. The matcher checks the event kind and target, not which attribute changed.
+- **Candidate list window.** The read scans the 200 newest events of the matching kinds since the request, then filters. In a very busy organization an older matching change can fall outside that window; citing its id directly still works.
 - **UI** is assigned to Lane B (item 9) and not started.
