@@ -1,0 +1,6 @@
+os-party (serial): tests 38, pass 38, fail 0
+regressions vs 3129709 service (restored from saved copy, sha256 identical): pass 12, fail 4 (legal-name permission, unchanged legal name, typo without reason, no-op)
+HTTP+PG t03-customer-authority + review-r1-grant-provisioning + t03-contact-phone: run 1 tests 24 pass 23 fail 1 (team-manager edit test; detail not captured); run 2 tests 10/10 alone; run 3 tests 24 pass 24 fail 0
+os-contracts: tests 185, pass 185
+os-web customer-edit-reason: tests 3, pass 3
+tsc os-web: exit 0

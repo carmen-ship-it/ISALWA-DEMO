@@ -286,7 +286,6 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
       partyId: state.partyId,
       displayName: 'Constructora Andina SRL T03',
       expectedVersion: party.version,
-      changeKind: 'correction',
       changeReason: 'Nombre registrado incompleto',
     });
     assert.equal(edit.status, 201);
@@ -303,17 +302,26 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
       orderBy: { createdAt: 'desc' },
     });
     assert.equal(audit.actorMemberId, m.lead!.member.id);
-    assert.deepEqual(audit.beforeJson, { displayName: 'Constructora Andina T03', legalName: null });
+    // Audit holds before/after and version; the event holds the reason; both share the correlation id.
+    assert.deepEqual(audit.beforeJson, { displayName: 'Constructora Andina T03', legalName: null, version: party.version });
+    assert.deepEqual(audit.afterJson, { displayName: 'Constructora Andina SRL T03', legalName: null, version: after.version });
+    assert.equal(audit.correlationId, history.correlationId);
     const recorded = history.payloadJson as Record<string, unknown>;
     assert.deepEqual(
-      [recorded.previousDisplayName, recorded.displayName, recorded.changedFields, recorded.changeKind, recorded.reason, recorded.version, recorded.source],
-      ['Constructora Andina T03', 'Constructora Andina SRL T03', 'displayName', 'correction', 'Nombre registrado incompleto', after.version, 'manual'],
+      [recorded.previousDisplayName, recorded.displayName, recorded.changedFields, recorded.reason, recorded.version, recorded.source, 'changeKind' in recorded],
+      ['Constructora Andina T03', 'Constructora Andina SRL T03', 'displayName', 'Nombre registrado incompleto', after.version, 'manual', false],
     );
+    assert.deepEqual((edit.body.data as Record<string, unknown>).changedFields, ['displayName']);
 
     // A2 §46: a change without a reason is refused and writes nothing.
     const eventsBefore = await prisma().osBusinessEvent.count({ where: { organizationId: orgA.id, eventType: 'party.updated' } });
-    const noReason = await command('lead', 'UpdateParty', { partyId: state.partyId, displayName: 'Sin motivo', expectedVersion: after.version });
-    assert.deepEqual([noReason.status, noReason.body], [400, { code: 'VALIDATION_FAILED' }]);
+    for (const extra of [{}, { changeKind: 'typo' }]) {
+      const noReason = await command('lead', 'UpdateParty', { partyId: state.partyId, displayName: 'Otro Nombre Distinto', expectedVersion: after.version, ...extra });
+      assert.deepEqual([noReason.status, noReason.body], [400, { code: 'VALIDATION_FAILED' }], JSON.stringify(extra));
+    }
+    // Exact no-op: unchanged result, same version, no event; an unchanged legal name needs no steward scope.
+    const noop = await command('lead', 'UpdateParty', { partyId: state.partyId, displayName: 'Constructora Andina SRL T03', legalName: null, expectedVersion: after.version });
+    assert.deepEqual([noop.status, noop.body.data], [201, { partyId: state.partyId, unchanged: true, version: after.version }]);
     assert.equal((await prisma().osParty.findUniqueOrThrow({ where: { id: state.partyId } })).version, after.version);
     assert.equal(await prisma().osBusinessEvent.count({ where: { organizationId: orgA.id, eventType: 'party.updated' } }), eventsBefore);
 
@@ -326,14 +334,14 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
       (item) => item.eventType === 'party.updated' && item.facts.reason === 'Nombre registrado incompleto',
     );
     assert.deepEqual(
-      entry && [entry.facts.previousDisplayName, entry.facts.displayName, entry.facts.changeKind, entry.facts.version],
-      ['Constructora Andina T03', 'Constructora Andina SRL T03', 'correction', after.version],
+      entry && [entry.facts.previousDisplayName, entry.facts.displayName, entry.facts.version],
+      ['Constructora Andina T03', 'Constructora Andina SRL T03', after.version],
     );
 
     const stale = await command('lead', 'UpdateParty', { partyId: state.partyId, displayName: 'x', expectedVersion: party.version, changeReason: 'Prueba' });
     assert.deepEqual([stale.status, stale.body], [400, { code: 'CONFLICT' }]);
     const legal = await command('lead', 'UpdateParty', { partyId: state.partyId, legalName: 'Otra SRL', expectedVersion: after.version, changeReason: 'Prueba' });
-    assert.deepEqual([legal.status, legal.body], [400, { code: 'VALIDATION_FAILED' }]);
+    assert.deepEqual([legal.status, legal.body], [403, { code: 'PERMISSION_DENIED' }]);
 
     const quote = await command('lead', 'CreateQuote', { partyId: state.partyId });
     assert.equal(quote.status, 201);

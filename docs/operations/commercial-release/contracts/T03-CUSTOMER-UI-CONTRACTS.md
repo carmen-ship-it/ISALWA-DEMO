@@ -6,7 +6,7 @@ Source decisions: owner reconciliation of the independent review of `3129709` (2
 
 | Id | Contract | Status |
 |---|---|---|
-| C1 | `UpdateParty` reason, no-op, legal-name handling | PLANNED |
+| C1 | `UpdateParty` reason, no-op, legal-name handling | STABLE (API; see the C1 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`). `canEditLegalName` / `canReadLegalName` come with C3 |
 | C2 | Timeline field-level visibility | PLANNED |
 | C3 | Customer detail authority flags | PLANNED |
 | C4 | Coverage grants (all, bounded, revocable) | PLANNED |

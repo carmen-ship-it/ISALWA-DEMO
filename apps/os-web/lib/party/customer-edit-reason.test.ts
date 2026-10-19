@@ -10,15 +10,12 @@ import {
 const previous = { displayName: 'Andina', legalName: 'Andina SRL' };
 
 describe('T03 customer edit with reason and field history (A2 §46)', () => {
-  it('asks for a reason unless only the name changes as a typo', () => {
+  it('asks for a reason for any name or legal-name change, typos included', () => {
     const base = { previous, displayName: 'Andinaa', legalName: 'Andina SRL', changeReason: '' };
-    assert.equal(partyEditReasonError({ ...base, changeKind: 'update' }), 'Indique el motivo del cambio.');
-    assert.equal(partyEditReasonError({ ...base, changeKind: 'correction' }), 'Indique el motivo del cambio.');
-    assert.equal(partyEditReasonError({ ...base, changeKind: 'typo' }), null);
-    assert.match(
-      partyEditReasonError({ ...base, displayName: 'Andina', legalName: 'Andina S.R.L.', changeKind: 'typo' }) ?? '',
-      /razón social no se corrige como error de escritura/,
-    );
+    for (const changeKind of ['update', 'correction', 'typo'] as const) {
+      assert.equal(partyEditReasonError({ ...base, changeKind }), 'Indique el motivo del cambio.', changeKind);
+    }
+    assert.equal(partyEditReasonError({ ...base, displayName: 'Andina', legalName: 'Andina S.R.L.', changeKind: 'typo' }), 'Indique el motivo del cambio.');
     assert.equal(partyEditReasonError({ ...base, changeKind: 'update', changeReason: 'Cambió de nombre' }), null);
     assert.equal(partyEditReasonError({ ...base, displayName: 'Andina', changeKind: 'update' }), null, 'nothing changed');
   });

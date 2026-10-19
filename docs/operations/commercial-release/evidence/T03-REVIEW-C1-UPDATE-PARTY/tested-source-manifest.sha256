@@ -1,0 +1,7 @@
+416134bb01c54af4a4aa8900392281cdc33dc70b30e3c4b65fa841bfe6226318  packages/os-contracts/src/party-commands.ts
+58f40bedb62d58b7fcdd6879783217359c48ea143267e6415ed6104851ba202c  packages/os-party/src/party-command-service.ts
+ebe78b75d9c1e9f6b55a14e77900615a6b749c62b36a4bc5e05f3ada15c72db2  packages/os-party/src/t03-customer-registration.test.ts
+621f41d559c3762800492dbad7736522011677d5f7ddef944c1c8445c785bc2c  apps/os-api/src/t03-customer-authority.http.test.ts
+6d8aadf7d6fd6f2fcdb6203c6a513cbe0bd3a1a3fb17a557ce77682abe028c66  apps/os-web/lib/party/customer-self-service.ts
+2586025815663704c7ebbd8e5a70c2a33ea7c524b1e8bab568d3c52e05af040b  apps/os-web/lib/party/customer-edit-reason.test.ts
+3c66df46ae1d61690c42c3cfdbba5513371632e9fdc9cf3b18f3dc9d15108055  apps/os-web/components/party/customer-edit-forms.tsx

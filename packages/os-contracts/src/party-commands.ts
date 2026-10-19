@@ -47,7 +47,10 @@ export const CreatePartyPayloadSchema = z.object({
   duplicateReason: z.string().trim().min(1).max(500).optional(),
 });
 
-/** A2 §46: reason required for corrections and updates; optional only for a typo in the commercial name. */
+/**
+ * Change kinds recorded on `party.updated` events before 2026-10-18. Only read to label
+ * history; UpdateParty no longer accepts a kind.
+ */
 export const PARTY_CHANGE_KINDS = ['typo', 'correction', 'update'] as const;
 export type PartyChangeKind = (typeof PARTY_CHANGE_KINDS)[number];
 
@@ -56,16 +59,12 @@ export const UpdatePartyPayloadSchema = z.object({
   displayName: z.string().min(1).optional(),
   legalName: z.string().nullable().optional(),
   expectedVersion: z.number().int().nonnegative(),
-  changeKind: z.enum(PARTY_CHANGE_KINDS).optional(),
   changeReason: z.string().trim().min(1).max(500).optional(),
 });
 
-export function partyChangeNeedsReason(input: {
-  changedFields: readonly string[];
-  changeKind: PartyChangeKind;
-}): boolean {
-  if (input.changedFields.length === 0) return false;
-  return !(input.changeKind === 'typo' && input.changedFields.every((field) => field === 'displayName'));
+/** Owner decision 2026-10-18: any actual name or legal-name change needs a reason, typos included. */
+export function partyChangeNeedsReason(input: { changedFields: readonly string[]; changeKind?: unknown }): boolean {
+  return input.changedFields.length > 0;
 }
 
 export const DeactivatePartyPayloadSchema = z.object({

@@ -6,7 +6,6 @@ import {
   partyChangeNeedsReason,
   type ContactPhoneChangeReason,
   resolveAccountAssignmentAuthority,
-  type PartyChangeKind,
   type PartyCommandName,
   type RequestContext,
 } from '@isalwa/os-contracts';
@@ -14,6 +13,7 @@ import {
   assertMemberActive,
   assertTenantMatch,
   computeEffectiveScopes,
+  memberHasScope,
   type MemberAccessSnapshot,
 } from '@isalwa/os-domain';
 import {
@@ -541,13 +541,6 @@ export class PartyCommandService {
     const snap = await this.authorize(ctx, 'UpdateParty', ctx.organizationId, partyId, store);
     const expectedVersion = Number(payload.expectedVersion);
     const before = await this.requireActiveParty(store, ctx.organizationId, partyId);
-    // Legal/fiscal identity stays data-steward maintenance; commercial edit covers the commercial name.
-    if (
-      payload.legalName !== undefined &&
-      ![...snap.roleKeys, ...snap.delegatedScopes].includes(MASTER_DATA_ADMIN_SCOPE)
-    ) {
-      throw new Error('VALIDATION_FAILED');
-    }
     const displayName = payload.displayName !== undefined ? String(payload.displayName) : before.displayName;
     const legalName =
       payload.legalName !== undefined
@@ -559,14 +552,26 @@ export class PartyCommandService {
       ...(displayName !== before.displayName ? ['displayName'] : []),
       ...((legalName ?? null) !== (before.legalName ?? null) ? ['legalName'] : []),
     ];
-    const changeKind = (payload.changeKind as PartyChangeKind | undefined) ?? 'update';
+    // Legal/fiscal identity stays data-steward maintenance; an omitted or unchanged legal name needs no such authority.
+    if (changedFields.includes('legalName') && !memberHasScope(snap, MASTER_DATA_ADMIN_SCOPE)) {
+      throw new Error('PERMISSION_DENIED');
+    }
+    if (expectedVersion !== before.version) throw new Error('CONFLICT');
+    if (changedFields.length === 0) {
+      return {
+        commandId: createId(),
+        correlationId: ctx.correlationId,
+        data: { partyId, unchanged: true, version: before.version },
+      };
+    }
     const reason = typeof payload.changeReason === 'string' ? payload.changeReason.trim() : '';
-    if (partyChangeNeedsReason({ changedFields, changeKind }) && !reason) throw new Error('VALIDATION_FAILED');
+    if (partyChangeNeedsReason({ changedFields }) && !reason) throw new Error('VALIDATION_FAILED');
     const version = before.version + 1;
 
     await store.updateParty(partyId, { displayName, legalName, version }, expectedVersion);
 
-    return this.emit(
+    // The event carries the reason; the audit row carries before/after and the version. Both share the correlation id.
+    const result = await this.emit(
       ctx,
       store,
       'party.updated',
@@ -579,15 +584,18 @@ export class PartyCommandService {
         previousDisplayName: before.displayName,
         previousLegalName: before.legalName ?? null,
         changedFields: changedFields.join(','),
-        changeKind,
-        reason: reason || null,
+        reason,
         version,
         source: 'manual',
       },
       'party.updated',
-      { displayName: before.displayName, legalName: before.legalName },
-      { displayName, legalName },
+      { displayName: before.displayName, legalName: before.legalName, version: before.version },
+      { displayName, legalName, version },
     );
+    return {
+      ...result,
+      data: { eventId: result.data.eventId, partyId, unchanged: false, version, changedFields },
+    };
   }
 
   private async deactivateParty(

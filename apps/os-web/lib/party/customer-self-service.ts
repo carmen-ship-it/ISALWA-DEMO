@@ -189,10 +189,8 @@ export function partyEditReasonError(input: {
     ...(input.displayName.trim() !== input.previous.displayName ? ['displayName'] : []),
     ...((input.legalName?.trim() || null) !== (input.previous.legalName || null) ? ['legalName'] : []),
   ];
-  if (!partyChangeNeedsReason({ changedFields, changeKind: input.changeKind }) || input.changeReason.trim()) return null;
-  return changedFields.includes('legalName') && input.changeKind === 'typo'
-    ? 'La razón social no se corrige como error de escritura. Indique el motivo del cambio.'
-    : 'Indique el motivo del cambio.';
+  if (!partyChangeNeedsReason({ changedFields }) || input.changeReason.trim()) return null;
+  return 'Indique el motivo del cambio.';
 }
 
 export function buildUpdatePartyPayload(input: {

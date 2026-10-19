@@ -113,7 +113,7 @@ function PartyFieldsForm({ party }: { party: PartyDetailResponse['party'] }) {
           </label>
           <textarea id="edit-change-reason" name="changeReason" rows={2} maxLength={500} className={fieldClass} />
           <p className="mt-1 text-xs text-[var(--isalwa-slate)]">
-            Obligatorio salvo un error de escritura en el nombre. Queda en el historial con el valor anterior y el nuevo.
+            Indique el motivo de cualquier cambio de nombre o razón social, incluso un error de escritura. Queda en el historial con el valor anterior y el nuevo.
           </p>
         </div>
         <CommandSubmitButton label="Guardar cliente" />

@@ -337,19 +337,36 @@ describe('T03 customer commands: non-disclosure', () => {
     );
     const legal = harness({ scopes: { [MANAGER]: ['commercial.team.read', 'commercial.customer.edit'] }, existingParties: [customer], leadsOwner: [MANAGER] });
     assert.equal(
-      await outcome(() => legal.party.execute('UpdateParty', ctx(MANAGER), { partyId: 'party-1', legalName: 'Otra SRL', expectedVersion: 0 })),
-      'VALIDATION_FAILED',
+      await outcome(() => legal.party.execute('UpdateParty', ctx(MANAGER), { partyId: 'party-1', legalName: 'Otra SRL', expectedVersion: 0, changeReason: 'r' })),
+      'PERMISSION_DENIED',
     );
+    assert.deepEqual([legal.rows.party!.length, legal.rows.event!.length], [0, 0]);
   });
 
-  it('edits record kind, reason, old and new values and version; reason required except a name typo (A2 §46)', async () => {
+  it('an omitted or unchanged legal name needs no legal-name authority (review P5)', async () => {
     const editor = () =>
       harness({ scopes: { [MANAGER]: ['commercial.team.read', 'commercial.customer.edit'] }, existingParties: [customer], leadsOwner: [MANAGER] });
-    for (const changeKind of [undefined, 'update', 'correction']) {
+    for (const extra of [{}, { legalName: null }]) {
+      const t = editor();
+      const result = await t.party.execute('UpdateParty', ctx(MANAGER), {
+        partyId: 'party-1',
+        displayName: 'Andina',
+        expectedVersion: 0,
+        changeReason: 'Nombre comercial actual',
+        ...extra,
+      });
+      assert.deepEqual(result.data.changedFields, ['displayName'], JSON.stringify(extra));
+    }
+  });
+
+  it('any name change needs a reason, typos included; old and new values, reason and version are recorded (A2 §46, review P5)', async () => {
+    const editor = () =>
+      harness({ scopes: { [MANAGER]: ['commercial.team.read', 'commercial.customer.edit'] }, existingParties: [customer], leadsOwner: [MANAGER] });
+    for (const changeKind of [undefined, 'update', 'correction', 'typo']) {
       const t = editor();
       assert.equal(
         await outcome(() =>
-          t.party.execute('UpdateParty', ctx(MANAGER), { partyId: 'party-1', displayName: 'Andina', expectedVersion: 0, ...(changeKind ? { changeKind } : {}) }),
+          t.party.execute('UpdateParty', ctx(MANAGER), { partyId: 'party-1', displayName: 'Cliente Totalmente Distinto', expectedVersion: 0, ...(changeKind ? { changeKind } : {}) }),
         ),
         'VALIDATION_FAILED',
         String(changeKind),
@@ -357,34 +374,34 @@ describe('T03 customer commands: non-disclosure', () => {
       assert.deepEqual([t.rows.party!.length, t.rows.event!.length], [0, 0]);
     }
 
-    const typo = editor();
-    await typo.party.execute('UpdateParty', ctx(MANAGER), { partyId: 'party-1', displayName: 'Clientes', expectedVersion: 0, changeKind: 'typo' });
-    const typoPayload = (typo.rows.event![0] as { payload: Record<string, unknown> }).payload;
-    assert.deepEqual(
-      [typoPayload.previousDisplayName, typoPayload.displayName, typoPayload.changedFields, typoPayload.changeKind, typoPayload.reason],
-      ['Cliente', 'Clientes', 'displayName', 'typo', null],
-    );
-
     const corrected = editor();
-    await corrected.party.execute('UpdateParty', ctx(MANAGER), {
+    const result = await corrected.party.execute('UpdateParty', ctx(MANAGER), {
       partyId: 'party-1',
       displayName: 'Andina',
       expectedVersion: 0,
-      changeKind: 'correction',
       changeReason: '  Se registró con otro nombre  ',
     });
+    assert.deepEqual(result.data, { eventId: result.data.eventId, partyId: 'party-1', unchanged: false, version: 1, changedFields: ['displayName'] });
     const payload = (corrected.rows.event![0] as { payload: Record<string, unknown> }).payload;
     assert.deepEqual(
-      [payload.previousDisplayName, payload.displayName, payload.changedFields, payload.changeKind, payload.reason, payload.version, payload.source],
-      ['Cliente', 'Andina', 'displayName', 'correction', 'Se registró con otro nombre', 1, 'manual'],
+      [payload.previousDisplayName, payload.displayName, payload.changedFields, payload.reason, payload.version, payload.source, 'changeKind' in payload],
+      ['Cliente', 'Andina', 'displayName', 'Se registró con otro nombre', 1, 'manual', false],
     );
-
-    const unchanged = editor();
-    await unchanged.party.execute('UpdateParty', ctx(MANAGER), { partyId: 'party-1', displayName: 'Cliente', expectedVersion: 0 });
-    assert.equal((unchanged.rows.event![0] as { payload: Record<string, unknown> }).payload.changedFields, '');
   });
 
-  it('a legal-name change cannot be marked as a typo to skip the reason', async () => {
+  it('an exact no-op returns unchanged without a version bump or business event (review P5)', async () => {
+    const t = harness({ scopes: { [MANAGER]: ['commercial.team.read', 'commercial.customer.edit'] }, existingParties: [customer], leadsOwner: [MANAGER] });
+    const result = await t.party.execute('UpdateParty', ctx(MANAGER), { partyId: 'party-1', displayName: 'Cliente', legalName: null, expectedVersion: 0 });
+    assert.deepEqual(result.data, { partyId: 'party-1', unchanged: true, version: 0 });
+    assert.deepEqual([t.rows.party!.length, t.rows.event!.length], [0, 0]);
+    const stale = harness({ scopes: { [MANAGER]: ['commercial.team.read', 'commercial.customer.edit'] }, existingParties: [customer], leadsOwner: [MANAGER] });
+    assert.equal(
+      await outcome(() => stale.party.execute('UpdateParty', ctx(MANAGER), { partyId: 'party-1', displayName: 'Cliente', expectedVersion: 4 })),
+      'CONFLICT',
+    );
+  });
+
+  it('a steward legal-name change needs a reason and is recorded', async () => {
     const steward = () =>
       harness({
         scopes: { [MANAGER]: ['commercial.team.read', 'commercial.customer.edit', 'master_data.admin'] },
@@ -393,9 +410,7 @@ describe('T03 customer commands: non-disclosure', () => {
       });
     const t = steward();
     assert.equal(
-      await outcome(() =>
-        t.party.execute('UpdateParty', ctx(MANAGER), { partyId: 'party-1', legalName: 'Cliente SRL', expectedVersion: 0, changeKind: 'typo' }),
-      ),
+      await outcome(() => t.party.execute('UpdateParty', ctx(MANAGER), { partyId: 'party-1', legalName: 'Cliente SRL', expectedVersion: 0 })),
       'VALIDATION_FAILED',
     );
     assert.equal(t.rows.event!.length, 0);
@@ -404,7 +419,6 @@ describe('T03 customer commands: non-disclosure', () => {
       partyId: 'party-1',
       legalName: 'Cliente SRL',
       expectedVersion: 0,
-      changeKind: 'typo',
       changeReason: 'Razón social según NIT',
     });
     const payload = (ok.rows.event![0] as { payload: Record<string, unknown> }).payload;
