@@ -4,6 +4,7 @@ import { contactPhoneSummary, timelineEventLabel } from '@/lib/commercial/timeli
 import {
   buildChangeContactEndpointPayload,
   buildRetireContactEndpointPayload,
+  buildRevealContactEndpointPayload,
   contactNumberFromForm,
   CONTACT_PHONE_VERIFICATION_OPTIONS,
 } from '@/lib/party/contact-phone';
@@ -57,6 +58,17 @@ describe('T03 contact phone change and retirement (A2 §58, §66)', () => {
     for (const [number, country] of [['59170000123', 'BO'], ['+54 11 2345 6789', 'BO'], ['70000123', 'AR'], ['abc', 'BO']]) {
       assert.equal(contactNumberFromForm(number, country).ok, false, `${number} ${country}`);
     }
+  });
+
+  it('a reveal needs a 10–500 character reason and the exact history row', () => {
+    const reveal = { partyId: 'p1', contactId: 'c1', associationId: 'a1' };
+    assert.equal(buildRevealContactEndpointPayload({ ...reveal, justification: ' corto ' }).ok, false);
+    assert.equal(buildRevealContactEndpointPayload({ ...reveal, justification: 'x'.repeat(501) }).ok, false);
+    assert.equal(buildRevealContactEndpointPayload({ ...reveal, associationId: '', justification: 'Cliente lo pidió en tienda' }).ok, false);
+    assert.deepEqual(buildRevealContactEndpointPayload({ ...reveal, justification: '  Cliente lo pidió en tienda ' }), {
+      ok: true,
+      payload: { partyId: 'p1', contactId: 'c1', associationId: 'a1', justification: 'Cliente lo pidió en tienda' },
+    });
   });
 
   it('history shows masked numbers with reason and verification wording', () => {

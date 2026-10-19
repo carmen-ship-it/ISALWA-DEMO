@@ -1,0 +1,12 @@
+05ec796a6d68b40ceb50c39c30b580f431050ed315a0b89085c6703ccaf0b46b  packages/os-contracts/src/party-commands.ts
+3b66ce9bf4a99aa657e183924adc591c13ddf29487d37c6abf53755cbc0c915a  packages/os-contracts/src/scopes.ts
+17741f1b6209eb353922dcaa9a53473868241f60dffd200ac6a1d4f3da5e56a8  packages/os-party/src/customer-authority.ts
+92b6261b20375f21f7503803a73120222b699472610a022b170e237d27efa549  packages/os-party/src/party-command-service.ts
+598229c58fbc645f1198c6a13ab47fb754297c9fe0e9ec33fcd4a696b8e568d6  apps/os-api/src/parties.controller.ts
+7d8964977c5587bb935e5720f5d09a57d6264bea81431879369dfc744baf5f51  apps/os-api/src/t03-contact-phone.http.test.ts
+3e2d228a4786822f7efb7046860ea8ba00d816341e7e29ee0419f2b1880724b9  apps/os-api/src/t03-customer-authority-flags.http.test.ts
+9570accd1137655e61e80c7b695851967d60a72036ac2e7b3ce2e1d2b4d130ae  apps/os-web/lib/api/os-api-client.ts
+cd8db99b32be51727adae8856da97ebb48c1398979deb276b3782ca1e7ec0c93  apps/os-web/lib/party/types.ts
+327f378e02bd8b0c9695ed1016649ce67941fb7a796cade768d44e99aeac32e0  apps/os-web/lib/party/contact-phone.ts
+7c53fe16556569cc9be3855ce42dde530587775f1b6506bb8cbdc702281ba1da  apps/os-web/lib/party/actions.ts
+0e95483eabce2d3bc0db6153a944b3334c26d98b7855f140e93be1c63c652f5a  apps/os-web/lib/party/contact-phone.test.ts

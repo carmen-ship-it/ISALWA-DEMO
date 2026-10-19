@@ -24,6 +24,7 @@ import {
 import {
   buildChangeContactEndpointPayload,
   buildRetireContactEndpointPayload,
+  buildRevealContactEndpointPayload,
   contactNumberFromForm,
 } from '@/lib/party/contact-phone';
 import { clientesSearchHref, partyHref } from '@/lib/party/navigation';
@@ -239,6 +240,29 @@ export async function retireContactPhoneAction(formData: FormData): Promise<Comm
     const result = await session.client.executePartyCommand('RetireContactEndpoint', built.payload, createId());
     revalidateCustomer(String(built.payload.partyId));
     return { ok: true, data: result.data };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+/** T03 C6: the full number is returned to the caller once and not revalidated into any page. */
+export async function revealContactEndpointAction(
+  formData: FormData,
+): Promise<{ ok: true; number: string } | { ok: false; error: string }> {
+  const built = buildRevealContactEndpointPayload({
+    partyId: String(formData.get('partyId') ?? '').trim(),
+    contactId: String(formData.get('contactId') ?? '').trim(),
+    associationId: String(formData.get('associationId') ?? '').trim(),
+    justification: String(formData.get('justification') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await customerClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executePartyCommand('RevealContactEndpoint', built.payload, createId());
+    const number = typeof result.data.number === 'string' ? result.data.number : '';
+    if (!number) return { ok: false, error: 'No se pudo mostrar el número.' };
+    return { ok: true, number };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
   }

@@ -10,6 +10,7 @@ import type {
   WorkListResponse,
 } from '@/lib/work/types';
 import type {
+  ContactEndpointHistoryResponse,
   MasterDataPartyDetailResponse,
   MasterDataPartySearchResponse,
   PartyContactsResponse,
@@ -334,6 +335,10 @@ export function createOsApiClient(auth: OsAuthContext) {
         method: 'GET',
         query,
       }),
+    listContactEndpointHistory: (partyId: string, contactId: string) =>
+      request<ContactEndpointHistoryResponse>(
+        `/parties/${encodeURIComponent(partyId)}/contacts/${encodeURIComponent(contactId)}/endpoints`,
+      ),
     executePartyCommand: (
       commandName: PartyCommandName,
       payload: Record<string, unknown>,

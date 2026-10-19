@@ -8,10 +8,10 @@ Source decisions: owner reconciliation of the independent review of `3129709` (2
 |---|---|---|
 | C1 | `UpdateParty` reason, no-op, legal-name handling | STABLE (API; see the C1 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`). `canEditLegalName` / `canReadLegalName` come with C3 |
 | C2 | Timeline field-level visibility | STABLE (API and web labels; see the C2 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C2-TIMELINE.md`) |
-| C3 | Customer detail authority flags | STABLE (API and web actions; see the C3 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C3-AUTHORITY-FLAGS.md`). Endpoint history/reveal/identity-review flags stay false until C6/C7 |
+| C3 | Customer detail authority flags | STABLE (API and web actions; see the C3 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C3-AUTHORITY-FLAGS.md`). History and reveal flags on since C6; identity-review flag stays false until C7 |
 | C4 | Coverage grants (all, bounded, revocable) | STABLE (API and web action; see the C4 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C4-COVERAGE.md`) |
 | C5 | Contact endpoints (phone and WhatsApp): canonical number input, change, retire | STABLE (API, web actions and types; see the C5 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C5-ENDPOINTS.md`). C7 review opening included; resolution is C7 |
-| C6 | Endpoint history, masked by default; justified reveal | PLANNED |
+| C6 | Endpoint history, masked by default; justified reveal | STABLE (API and web client/action; see the C6 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C6-ENDPOINT-HISTORY.md`) |
 | C7 | Identity review for previously used numbers | PLANNED |
 | C8 | Steward lookup | STABLE (API from T03 part 3; web loader `a1c6771`) |
 
@@ -94,6 +94,12 @@ As implemented:
 
 - `GET /v1/parties/:partyId/contacts/:contactId/endpoints`: items `{ associationId, channel, numberMasked, startedAt, endedAt, endReason, verificationMethod }`. Needs `canReviewEndpointHistory`. No full numbers.
 - `RevealContactEndpoint` command: `{ partyId, contactId, associationId, justification }` (justification 10–500). Needs `canRevealEndpoint`. Result `data.number` is shown once, not cached by the UI, with an audit record that holds no number.
+
+As implemented:
+- Items are newest first and limited to this contact on this customer. 403 when the customer is readable but the flag is false; 404 for an unreadable customer or a contact of another customer.
+- Both flags follow the customer edit rule (engineering default).
+- A reveal is never stored for idempotent replay. Send a fresh idempotency key per reveal; a reused key answers `CONFLICT`.
+- os-web: `client.listContactEndpointHistory(partyId, contactId)` → `ContactEndpointHistoryResponse`. `revealContactEndpointAction` takes form fields `partyId`, `contactId`, `associationId`, `justification` and returns `{ ok: true, number }`. The UI shows the number in place and does not store it. Reason text help: "Explique por qué necesita ver el número completo."
 
 ## C7 — Identity review
 

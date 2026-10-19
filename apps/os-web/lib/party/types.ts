@@ -1,3 +1,4 @@
+import type { ContactEndpointHistoryItem } from '@isalwa/os-contracts';
 import type {
   PaginatedMeta,
   PartySummaryReadModel,
@@ -150,6 +151,13 @@ export type PartyContactsResponse = {
   partyId: string;
   contacts: PartyDetailResponse['contacts'];
   meta: PaginatedMeta;
+};
+
+/** T03 C6: masked history of one contact's numbers. Requires `customerAuthority.canReviewEndpointHistory`. */
+export type ContactEndpointHistoryResponse = {
+  partyId: string;
+  contactId: string;
+  items: ContactEndpointHistoryItem[];
 };
 
 export type PartySearchParams = {

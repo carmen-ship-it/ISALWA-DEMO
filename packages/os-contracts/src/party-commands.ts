@@ -11,6 +11,7 @@ export const PARTY_COMMAND_NAMES = [
   'UpdateContact',
   'ChangeContactEndpoint',
   'RetireContactEndpoint',
+  'RevealContactEndpoint',
   'UpdateFiscalIdentity',
   'CreateLead',
   'ResolveLead',
@@ -187,6 +188,25 @@ export const RetireContactEndpointPayloadSchema = z.object({
   channel: z.enum(CONTACT_ENDPOINT_CHANNELS),
 });
 
+/** T03 C6: one full number from the contact's history, for a stated reason. Audited without the number. */
+export const RevealContactEndpointPayloadSchema = z.object({
+  partyId: z.string().min(1),
+  contactId: z.string().min(1),
+  associationId: z.string().min(1),
+  justification: z.string().trim().min(10).max(500),
+});
+
+/** T03 C6: one row of a contact's restricted number history. Never carries the full number. */
+export type ContactEndpointHistoryItem = {
+  associationId: string;
+  channel: ContactEndpointChannel;
+  numberMasked: string | null;
+  startedAt: string;
+  endedAt: string | null;
+  endReason: string | null;
+  verificationMethod: string | null;
+};
+
 export const UpdateFiscalIdentityPayloadSchema = z.object({
   partyId: z.string().min(1),
   nit: z.string().min(1),
@@ -232,6 +252,7 @@ export const PARTY_COMMAND_PAYLOAD_SCHEMAS: Record<PartyCommandName, z.ZodTypeAn
   UpdateContact: UpdateContactPayloadSchema,
   ChangeContactEndpoint: ChangeContactEndpointPayloadSchema,
   RetireContactEndpoint: RetireContactEndpointPayloadSchema,
+  RevealContactEndpoint: RevealContactEndpointPayloadSchema,
   UpdateFiscalIdentity: UpdateFiscalIdentityPayloadSchema,
   CreateLead: CreateLeadPayloadSchema,
   ResolveLead: ResolveLeadPayloadSchema,

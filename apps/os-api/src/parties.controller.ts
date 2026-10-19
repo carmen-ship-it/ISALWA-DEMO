@@ -19,6 +19,8 @@ import {
   resolveAccountAssignmentAuthority,
   SearchPartiesQuerySchema,
   grantableCoverageActionsFor,
+  maskContactNumber,
+  type ContactEndpointHistoryItem,
 } from '@isalwa/os-contracts';
 import { customerAuthorityFlags, type OsPartyStore } from '@isalwa/os-party';
 import type { OsCommercialStore } from '@isalwa/os-commercial';
@@ -251,6 +253,64 @@ export class PartiesController {
           limit: parsed.data.limit,
           hasMore: page.hasMore,
         },
+      };
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';
+      const status =
+        code === 'AUTH_REQUIRED'
+          ? HttpStatus.UNAUTHORIZED
+          : code === 'NOT_FOUND'
+            ? HttpStatus.NOT_FOUND
+          : code === 'TENANT_FORBIDDEN' ||
+              code === 'PERMISSION_DENIED' ||
+              code === 'ACCESS_REVOKED'
+            ? HttpStatus.FORBIDDEN
+            : code === 'VALIDATION_FAILED'
+              ? HttpStatus.BAD_REQUEST
+              : HttpStatus.INTERNAL_SERVER_ERROR;
+      throw new HttpException({ code }, status);
+    }
+  }
+
+  /** T03 C6: this contact's own number history, masked. Earlier customers of a number never appear. */
+  @Get(':partyId/contacts/:contactId/endpoints')
+  async listContactEndpointHistory(
+    @Param('partyId') partyId: string,
+    @Param('contactId') contactId: string,
+    @Req() req: Request,
+  ): Promise<{ partyId: string; contactId: string; items: ContactEndpointHistoryItem[] }> {
+    try {
+      const { session, ctx } = await this.readableCustomer(req, partyId);
+      const party = await this.partyStore.getPartyInOrg(session.organizationId, partyId);
+      if (!party) throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+      const flags = await customerAuthorityFlags({
+        store: this.partyStore,
+        ctx: session,
+        snap: ctx.auth,
+        partyId,
+        partyStatus: party.status,
+      });
+      if (!flags.canReviewEndpointHistory) throw new HttpException({ code: 'PERMISSION_DENIED' }, HttpStatus.FORBIDDEN);
+      const contact = await this.partyStore.getContactInOrg(session.organizationId, contactId);
+      if (!contact || contact.organizationPartyId !== partyId) {
+        throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+      }
+      const rows = await this.partyStore.listEndpointAssociations(session.organizationId, contactId);
+      return {
+        partyId,
+        contactId,
+        items: rows
+          .filter((row) => row.partyId === partyId)
+          .map((row) => ({
+            associationId: row.id,
+            channel: row.channel,
+            numberMasked: maskContactNumber(row.numberE164),
+            startedAt: row.startedAt.toISOString(),
+            endedAt: row.endedAt ? row.endedAt.toISOString() : null,
+            endReason: row.endReason,
+            verificationMethod: row.verificationMethod,
+          })),
       };
     } catch (err) {
       if (err instanceof HttpException) throw err;

@@ -159,8 +159,10 @@ export class PartyCommandService {
       throw new Error('TENANT_FORBIDDEN');
     }
 
-    if (idempotencyKey) {
-      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
+    // A reveal result holds a full number: it is never stored for replay, and every request is audited.
+    const replayKey = command === 'RevealContactEndpoint' ? undefined : idempotencyKey;
+    if (replayKey) {
+      const existing = await this.store.findIdempotency(ctx.organizationId, replayKey);
       if (existing) {
         return this.acceptedReplay(ctx, command, payload, existing.resultJson);
       }
@@ -196,6 +198,9 @@ export class PartyCommandService {
       case 'RetireContactEndpoint':
         result = await this.retireContactEndpoint(ctx, payload, store);
         break;
+      case 'RevealContactEndpoint':
+        result = await this.revealContactEndpoint(ctx, payload, store);
+        break;
       case 'UpdateFiscalIdentity':
         result = await this.updateFiscalIdentity(ctx, payload, store);
         break;
@@ -218,10 +223,10 @@ export class PartyCommandService {
         throw new Error('VALIDATION_FAILED');
       }
 
-      if (idempotencyKey) {
+      if (replayKey) {
         await store.saveIdempotency({
           organizationId: ctx.organizationId,
-          key: idempotencyKey,
+          key: replayKey,
           commandName: command,
           resultJson: sealReplay(result, replayBinding(ctx.actorMemberId, command, payload)),
           expiresAt: new Date(Date.now() + 86400_000),
@@ -229,7 +234,11 @@ export class PartyCommandService {
       }
 
       return result;
-    }).catch((err: unknown) => this.replayAfterConflict(ctx, command, payload, err, idempotencyKey));
+    }).catch((err: unknown) => {
+      // A reused key on a reveal is refused rather than replayed: each reveal needs its own request.
+      if (idempotencyKey && !replayKey && isIdempotencyConflict(err)) throw new Error('CONFLICT');
+      return this.replayAfterConflict(ctx, command, payload, err, replayKey);
+    });
   }
 
   private async emit(
@@ -992,6 +1001,39 @@ export class PartyCommandService {
       { channel, number: retiredMasked },
       { channel, number: null, whatsappFollows },
     );
+  }
+
+  /**
+   * T03 C6: one full number from this contact's own history. The event and audit record who,
+   * which association and why, never the number. Not projected to any timeline.
+   */
+  private async revealContactEndpoint(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsPartyStore,
+  ): Promise<CommandResult> {
+    const partyId = String(payload.partyId);
+    await this.authorize(ctx, 'RevealContactEndpoint', ctx.organizationId, partyId, store);
+    const justification = typeof payload.justification === 'string' ? payload.justification.trim() : '';
+    if (justification.length < 10 || justification.length > 500) throw new Error('VALIDATION_FAILED');
+    const contact = await store.getContactInOrg(ctx.organizationId, String(payload.contactId));
+    if (!contact || contact.organizationPartyId !== partyId) throw new Error('NOT_FOUND');
+    const association = await store.getEndpointAssociation(ctx.organizationId, String(payload.associationId));
+    if (!association || association.contactId !== contact.id || association.partyId !== partyId) {
+      throw new Error('NOT_FOUND');
+    }
+    const result = await this.emit(
+      ctx,
+      store,
+      'contact.endpoint.revealed',
+      'contact',
+      contact.id,
+      { partyId, contactId: contact.id, associationId: association.id, channel: association.channel, justification },
+      'contact.endpoint.revealed',
+      undefined,
+      { associationId: association.id, channel: association.channel, justification },
+    );
+    return { ...result, data: { eventId: result.data.eventId, associationId: association.id, number: association.numberE164 } };
   }
 
   private async updateFiscalIdentity(

@@ -36,19 +36,19 @@ describeHttp('T03 contact endpoint change, retirement and history over HTTP (dis
   const m: Record<string, Seeded> = {};
   const ids: Record<string, string> = {};
 
-  function headers(who: Seeded): Record<string, string> {
+  function headers(who: Seeded, idempotencyKey = `t03-phone-${createId()}`): Record<string, string> {
     return {
       'content-type': 'application/json',
       'x-os-organization-id': org.id,
       'x-os-member-id': who.member.id,
       'x-os-person-id': who.person.id,
       'x-os-auth-identity-id': who.auth.id,
-      'idempotency-key': `t03-phone-${createId()}`,
+      'idempotency-key': idempotencyKey,
     };
   }
 
-  async function command(who: string, name: string, body: Record<string, unknown>): Promise<Reply> {
-    const res = await fetch(`${baseUrl}/v1/commands/${name}`, { method: 'POST', headers: headers(m[who]!), body: JSON.stringify(body) });
+  async function command(who: string, name: string, body: Record<string, unknown>, key?: string): Promise<Reply> {
+    const res = await fetch(`${baseUrl}/v1/commands/${name}`, { method: 'POST', headers: headers(m[who]!, key), body: JSON.stringify(body) });
     const text = await res.text();
     return { status: res.status, body: text ? JSON.parse(text) : {} };
   }
@@ -100,6 +100,7 @@ describeHttp('T03 contact endpoint change, retirement and history over HTTP (dis
     m.workOnly = await seedMember('workonly', ['commercial.customer.edit']);
     m.stranger = await seedMember('stranger', ['commercial.customer.edit']);
     m.steward = await seedMember('steward', ['master_data.admin']);
+    m.orgEditor = await seedMember('orgeditor', ['commercial.customer.edit', 'commercial.org.read']);
 
     ids.party = createId();
     ids.contact = createId();
@@ -319,6 +320,96 @@ describeHttp('T03 contact endpoint change, retirement and history over HTTP (dis
     assert.equal(await prisma().osContactIdentityReview.count({ where: { organizationId: org.id, contactId: addedId } }), 0, 'same customer: no review');
   });
 
+  async function history(who: string, partyId: string, contactId: string) {
+    const res = await fetch(`${baseUrl}/v1/parties/${partyId}/contacts/${contactId}/endpoints`, { headers: headers(m[who]!) });
+    const text = await res.text();
+    return { status: res.status, text, body: text ? (JSON.parse(text) as Record<string, unknown>) : {} };
+  }
+
+  it('C6: customer editors see the contact\'s own number history, masked; others get the usual answers', async () => {
+    const shown = await history('editor', ids.party!, ids.contact!);
+    assert.equal(shown.status, 200, shown.text);
+    const items = shown.body.items as Array<Record<string, unknown>>;
+    assert.deepEqual(
+      items.map((i) => [i.channel, i.numberMasked, i.endReason]).sort(),
+      [
+        ['phone', '•••123', 'changed:entry_error'],
+        ['phone', '•••456', 'retired:no_longer_belongs'],
+        ['whatsapp', '•••123', 'changed:entry_error'],
+        ['whatsapp', '•••456', 'changed:number_changed'],
+        ['whatsapp', '•••789', 'retired:no_longer_belongs'],
+      ],
+    );
+    assert.ok(items.every((i) => typeof i.associationId === 'string' && typeof i.startedAt === 'string' && i.endedAt));
+    for (const digits of ['70000123', '71111456', '72222789']) assert.equal(shown.text.includes(digits), false, digits);
+
+    const workOnly = await history('workOnly', ids.party!, ids.contact!);
+    assert.deepEqual([workOnly.status, workOnly.body], [403, { code: 'PERMISSION_DENIED' }]);
+    const stranger = await history('stranger', ids.party!, ids.contact!);
+    const missing = await history('stranger', createId(), ids.contact!);
+    assert.deepEqual([stranger.status, stranger.body], [404, { code: 'NOT_FOUND' }]);
+    assert.deepEqual([missing.status, missing.body], [stranger.status, stranger.body]);
+    const otherContact = await history('editor', ids.party!, createId());
+    assert.deepEqual([otherContact.status, otherContact.body], [404, { code: 'NOT_FOUND' }]);
+
+    const detail = await fetch(`${baseUrl}/v1/parties/${ids.party}`, { headers: headers(m.editor!) });
+    const flags = ((await detail.json()) as { customerAuthority: Record<string, boolean> }).customerAuthority;
+    assert.deepEqual([flags.canReviewEndpointHistory, flags.canRevealEndpoint], [true, true]);
+  });
+
+  it('C6: the new holder of a recycled number sees only its own row, nothing of the earlier customer', async () => {
+    const review = await prisma().osContactIdentityReview.findFirstOrThrow({ where: { organizationId: org.id, NOT: { partyId: ids.party } } });
+    const shown = await history('orgEditor', review.partyId, review.contactId);
+    assert.equal(shown.status, 200, shown.text);
+    const items = shown.body.items as Array<Record<string, unknown>>;
+    assert.deepEqual(items.map((i) => [i.channel, i.numberMasked, i.endedAt]), [['phone', '•••456', null]]);
+    for (const leak of [ids.party!, ids.contact!, review.matchedAssociationId, 'Rosa', 'T03 Phone Cliente']) {
+      assert.equal(shown.text.includes(leak), false, leak);
+    }
+    const crossReveal = await command('orgEditor', 'RevealContactEndpoint', {
+      partyId: review.partyId,
+      contactId: review.contactId,
+      associationId: review.matchedAssociationId,
+      justification: 'Verificar a quién perteneció antes',
+    });
+    assert.deepEqual([crossReveal.status, crossReveal.body], [404, { code: 'NOT_FOUND' }]);
+  });
+
+  it('C6: a justified reveal returns one full number; the record holds who, which and why, never the number', async () => {
+    const oldPhoneRow = await prisma().osContactEndpointAssociation.findFirstOrThrow({
+      where: { organizationId: org.id, contactId: ids.contact, channel: 'phone', numberE164: OLD_PHONE },
+    });
+    const reveal = (who: string, extra: Record<string, unknown> = {}, key?: string) =>
+      command(
+        who,
+        'RevealContactEndpoint',
+        { partyId: ids.party, contactId: ids.contact, associationId: oldPhoneRow.id, justification: 'Cliente pide confirmar su número anterior', ...extra },
+        key,
+      );
+    assert.equal((await reveal('editor', { justification: 'corto' })).status, 400);
+    assert.deepEqual(await reveal('workOnly').then((r) => [r.status, r.body]), [403, { code: 'PERMISSION_DENIED' }]);
+    assert.deepEqual(await reveal('stranger').then((r) => [r.status, r.body]), [404, { code: 'NOT_FOUND' }]);
+    assert.deepEqual(await reveal('editor', { associationId: createId() }).then((r) => [r.status, r.body]), [404, { code: 'NOT_FOUND' }]);
+    assert.equal(await prisma().osBusinessEvent.count({ where: { organizationId: org.id, eventType: 'contact.endpoint.revealed' } }), 0);
+
+    const key = `t03-reveal-${createId()}`;
+    const ok = await reveal('editor', {}, key);
+    assert.equal(ok.status, 201, JSON.stringify(ok.body));
+    const data = ok.body.data as Record<string, unknown>;
+    assert.deepEqual([data.number, data.associationId], [OLD_PHONE, oldPhoneRow.id]);
+
+    const event = await prisma().osBusinessEvent.findFirstOrThrow({ where: { organizationId: org.id, eventType: 'contact.endpoint.revealed' } });
+    const audit = await prisma().osAuditLog.findFirstOrThrow({ where: { organizationId: org.id, action: 'contact.endpoint.revealed' } });
+    assert.equal(event.actorMemberId, m.editor!.member.id);
+    assert.equal((event.payloadJson as Record<string, unknown>).justification, 'Cliente pide confirmar su número anterior');
+    for (const record of [event, audit]) assert.equal(JSON.stringify(record).includes('70000123'), false);
+    assert.equal(await prisma().osIdempotencyKey.count({ where: { organizationId: org.id, key } }), 0, 'reveal result is never stored');
+
+    const reused = await reveal('editor', {}, key);
+    assert.deepEqual([reused.status, reused.body], [400, { code: 'CONFLICT' }]);
+    assert.equal(await prisma().osBusinessEvent.count({ where: { organizationId: org.id, eventType: 'contact.endpoint.revealed' } }), 1);
+  });
+
   it('the customer timeline shows masked numbers only', async () => {
     await runner.runOnce();
     await runner.runOnce();
@@ -338,5 +429,7 @@ describeHttp('T03 contact endpoint change, retirement and history over HTTP (dis
     ]);
     for (const digits of ['70000123', '71111456', '72222789']) assert.equal(text.includes(digits), false, digits);
     assert.equal(text.includes('Confirmó en tienda'), false, 'evidence note stays out of the timeline');
+    assert.equal(items.some((item) => item.eventType === 'contact.endpoint.revealed'), false, 'reveals are not timeline entries');
+    assert.equal(text.includes('confirmar su número anterior'), false);
   });
 });

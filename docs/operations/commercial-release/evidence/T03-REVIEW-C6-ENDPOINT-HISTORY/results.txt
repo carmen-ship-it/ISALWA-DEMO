@@ -1,0 +1,11 @@
+build os-contracts, os-party: exit 0 each
+tsc --noEmit os-api, os-web: exit 0 each
+t03-contact-phone.http (disposable PG): pass 11, fail 0 (8 C5 + 3 C6)
+t03-customer-authority-flags.http: pass 5, fail 0 (editor flags now include history and reveal)
+os-party (serial): tests 38, pass 38, fail 0
+os-contracts (serial): tests 192, pass 192, fail 0
+os-web contact-phone + customer-self-service: pass 19, fail 0
+mutation M4 (history returns full numbers): exit 1, pass 9, fail 2
+mutation M5 (history authority check removed): exit 1, pass 10, fail 1
+mutation M6 (reveal result stored for replay): exit 1, pass 10, fail 1
+mutated sources restored from saved copies: sha256 identical; os-party rebuilt exit 0; t03-contact-phone.http pass 11, fail 0

@@ -26,8 +26,8 @@ const EDITOR_FLAGS = {
   canEditLegalName: false,
   canEditContacts: true,
   canChangeEndpoints: true,
-  canReviewEndpointHistory: false,
-  canRevealEndpoint: false,
+  canReviewEndpointHistory: true,
+  canRevealEndpoint: true,
   canResolveIdentityReview: false,
 };
 const READER_FLAGS = {

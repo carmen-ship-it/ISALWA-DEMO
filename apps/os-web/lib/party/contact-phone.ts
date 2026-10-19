@@ -107,6 +107,26 @@ export function buildChangeContactEndpointPayload(
   };
 }
 
+/** T03 C6: reveal one number from the contact's history, for a stated reason (10–500 characters). */
+export function buildRevealContactEndpointPayload(input: {
+  partyId: string;
+  contactId: string;
+  associationId: string;
+  justification: string;
+}): PhoneFormResult {
+  const justification = input.justification.trim();
+  if (justification.length < 10 || justification.length > 500) {
+    return { ok: false, error: 'Explique por qué necesita ver el número completo (entre 10 y 500 caracteres).' };
+  }
+  if (!input.partyId || !input.contactId || !input.associationId) {
+    return { ok: false, error: 'No se pudo mostrar el número. Actualice la página e intente de nuevo.' };
+  }
+  return {
+    ok: true,
+    payload: { partyId: input.partyId, contactId: input.contactId, associationId: input.associationId, justification },
+  };
+}
+
 export function buildRetireContactEndpointPayload(input: PhoneFormInput): PhoneFormResult {
   return basePayload(input);
 }
