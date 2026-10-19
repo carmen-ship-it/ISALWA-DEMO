@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { IMPORT_PHONE_DECISIONS, IMPORT_SOURCE_KINDS } from './import-types';
+import {
+  IMPORT_PHONE_DECISIONS,
+  IMPORT_SOURCE_KINDS,
+  type ImportPhoneReviewList,
+  type ImportPhoneValueResolution,
+  type ImportReceipt,
+  type ImportReceiptView,
+} from './import-types';
 import { CONTACT_PHONE_COUNTRIES } from './party-commands';
 
 export const IMPORT_COMMAND_NAMES = [
@@ -13,6 +20,17 @@ export const IMPORT_COMMAND_NAMES = [
 ] as const;
 
 export type ImportCommandName = (typeof IMPORT_COMMAND_NAMES)[number];
+
+/** `data` of each import command result (`{ commandId, correlationId, data }`). */
+export type ImportCommandResultData = {
+  DryRunClientImport: ImportReceipt;
+  ValidateClientImport: ImportReceipt;
+  ExecuteClientImport: ImportReceipt;
+  ReverseImportBatch: ImportReceipt;
+  GetImportBatchReceipt: ImportReceiptView;
+  ListImportPhoneReview: ImportPhoneReviewList;
+  ResolveImportPhoneValue: ImportPhoneValueResolution;
+};
 
 const StaffRowSchema = z.object({
   section: z.literal('A'),

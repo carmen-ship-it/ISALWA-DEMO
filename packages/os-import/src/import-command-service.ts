@@ -1,4 +1,7 @@
 import type {
+  ImportPhoneReviewList,
+  ImportPhoneValueResolution,
+  ImportReceiptView,
   ImportCommandName,
   ImportInputRow,
   RequestContext,
@@ -619,7 +622,7 @@ export class ImportCommandService {
         countrySource: batchPhoneContext(batch).countrySource,
         summary: batch.receiptJson.phoneReview,
         rows: items,
-      },
+      } satisfies ImportPhoneReviewList,
     };
   }
 
@@ -776,7 +779,7 @@ export class ImportCommandService {
         errorCode,
         item: item ?? null,
         phoneReview: phoneSummary,
-      },
+      } satisfies ImportPhoneValueResolution,
     };
   }
 
@@ -793,7 +796,7 @@ export class ImportCommandService {
     return {
       commandId: createId(),
       correlationId: ctx.correlationId,
-      data: { ...batch.receiptJson, mode: 'receipt', status: batch.status },
+      data: { ...batch.receiptJson, mode: 'receipt', status: batch.status } satisfies ImportReceiptView,
     };
   }
 

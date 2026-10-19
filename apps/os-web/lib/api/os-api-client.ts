@@ -49,6 +49,14 @@ import type {
 } from '@/lib/commercial/types';
 import type {
   CommitmentCommandName,
+  ContactFollowupPreferenceItem,
+  ContactRelationshipEndPreview,
+  CorrectionCandidateEvent,
+  CorrectionCandidatePage,
+  CorrectionRequestView,
+  CustomerArchivePreview,
+  ImportCommandName,
+  ImportCommandResultData,
   IssueCommandName,
   ProductFeedbackCommandName,
 } from '@isalwa/os-contracts';
@@ -335,6 +343,26 @@ export function createOsApiClient(auth: OsAuthContext) {
         method: 'GET',
         query,
       }),
+    getContactRelationshipEndPreview: (partyId: string, contactId: string) =>
+      request<ContactRelationshipEndPreview>(
+        `/parties/${encodeURIComponent(partyId)}/contacts/${encodeURIComponent(contactId)}/relationship-end-preview`,
+      ),
+    getContactFollowupPreferences: (partyId: string, contactId: string) =>
+      request<{ partyId: string; contactId: string; items: ContactFollowupPreferenceItem[] }>(
+        `/parties/${encodeURIComponent(partyId)}/contacts/${encodeURIComponent(contactId)}/followup-preferences`,
+      ),
+    getCustomerArchivePreview: (partyId: string) =>
+      request<CustomerArchivePreview>(`/parties/${encodeURIComponent(partyId)}/archive-preview`),
+    /** T03 C9 client import. Every import command, including the reads, is a POST command. */
+    executeImportCommand: <T extends ImportCommandName>(
+      commandName: T,
+      payload: Record<string, unknown>,
+      idempotencyKey?: string,
+    ) =>
+      request<{ commandId: string; correlationId: string; data: ImportCommandResultData[T] }>(
+        `/commands/${commandName}`,
+        { method: 'POST', body: payload, idempotencyKey, retry: false },
+      ),
     listContactEndpointHistory: (partyId: string, contactId: string) =>
       request<ContactEndpointHistoryResponse>(
         `/parties/${encodeURIComponent(partyId)}/contacts/${encodeURIComponent(contactId)}/endpoints`,
@@ -520,6 +548,17 @@ export function createOsApiClient(auth: OsAuthContext) {
         method: 'GET',
         query,
       }),
+    getIssueCorrection: (issueId: string) =>
+      request<{ correction: CorrectionRequestView }>(`/issues/${encodeURIComponent(issueId)}/correction`),
+    listIssueCorrectionCandidates: (issueId: string, page?: { limit?: number; cursor?: string | null }) =>
+      request<CorrectionCandidatePage>(`/issues/${encodeURIComponent(issueId)}/correction/candidate-events`, {
+        method: 'GET',
+        query: { limit: page?.limit, cursor: page?.cursor },
+      }),
+    getIssueCorrectionCandidate: (issueId: string, eventId: string) =>
+      request<{ event: CorrectionCandidateEvent }>(
+        `/issues/${encodeURIComponent(issueId)}/correction/candidate-events/${encodeURIComponent(eventId)}`,
+      ),
     executeIssueCommand: <T extends IssueCommandName>(
       commandName: T,
       payload: Record<string, unknown>,

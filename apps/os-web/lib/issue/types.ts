@@ -45,6 +45,8 @@ export type IssueListItem = {
   ownerMemberId: string | null;
   createdAt: string;
   references: IssueReference[];
+  /** Only in `view=correction_attention` (issue.manage). */
+  correctionAttention?: 'unassigned' | 'owner_lacks_authority';
 };
 
 export type IssueDetail = {
