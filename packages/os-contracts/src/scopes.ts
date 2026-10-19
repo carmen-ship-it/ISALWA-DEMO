@@ -164,6 +164,8 @@ export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_act
   ExecuteClientImport: 'master_data.admin',
   ReverseImportBatch: 'master_data.admin',
   GetImportBatchReceipt: 'master_data.admin',
+  ListImportPhoneReview: 'master_data.admin',
+  ResolveImportPhoneValue: 'master_data.admin',
   RetryDeadLetterDelivery: 'people.admin',
   CreateOpportunity: 'member_active',
   UpdateOpportunity: 'member_active',

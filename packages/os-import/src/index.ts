@@ -1,5 +1,6 @@
 export * from './types';
 export * from './normalize-phone';
+export * from './phone-review';
 export * from './normalize-name';
 export * from './parse-maps-url';
 export * from './normalize-row';

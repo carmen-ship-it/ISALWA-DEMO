@@ -45,32 +45,63 @@ export const ContactNumberInputSchema = z.object({
 });
 export type ContactNumberInput = z.infer<typeof ContactNumberInputSchema>;
 
-const COUNTRY_RULES: Record<ContactPhoneCountry, { callingCode: string; national: RegExp }> = {
+const COUNTRY_RULES: Record<
+  ContactPhoneCountry,
+  { callingCode: string; nationalLength: number; leadingDigits: RegExp }
+> = {
   // Bolivia: 8-digit national numbers; landlines start with the area digit 2–4, mobiles with 6–7.
-  BO: { callingCode: '591', national: /^[2-46-7]\d{7}$/ },
+  BO: { callingCode: '591', nationalLength: 8, leadingDigits: /^[2-46-7]/ },
 };
 
+export const CONTACT_NUMBER_INVALID_REASONS = [
+  'unsupported_country',
+  'empty',
+  'invalid_characters',
+  'other_country_code',
+  'wrong_length',
+  'unassigned_leading_digit',
+] as const;
+export type ContactNumberInvalidReason = (typeof CONTACT_NUMBER_INVALID_REASONS)[number];
+
+export type ContactNumberCheck =
+  | { ok: true; e164: string }
+  | { ok: false; reason: ContactNumberInvalidReason };
+
+/** Calling code of a supported country, or null. */
+export function contactCountryCallingCode(country: string): string | null {
+  return COUNTRY_RULES[country as ContactPhoneCountry]?.callingCode ?? null;
+}
+
 /**
- * E.164 for a number entered with an explicit country, or null when it is not a valid number
- * of that country. Accepts separators and the country's own international prefix (+591 / 00591).
- * A different calling code, or digits that only fit after guessing a country, is refused.
+ * The shared number rule with its refusal reason. Accepts separators and the country's own
+ * international prefix (+591 / 00591). A different calling code, or digits that only fit after
+ * guessing a country, is refused.
  */
-export function normalizeContactNumber(input: { country: string; number: string }): string | null {
+export function checkContactNumber(input: { country: string; number: string }): ContactNumberCheck {
   const rule = COUNTRY_RULES[input.country as ContactPhoneCountry];
-  if (!rule) return null;
+  if (!rule) return { ok: false, reason: 'unsupported_country' };
   const text = input.number.trim();
-  if (!/^[+\d\s().-]+$/.test(text)) return null;
+  if (!text) return { ok: false, reason: 'empty' };
+  if (!/^[+\d\s().-]+$/.test(text)) return { ok: false, reason: 'invalid_characters' };
   const digits = text.replace(/\D/g, '');
   let national: string;
   if (text.startsWith('+')) {
-    if (!digits.startsWith(rule.callingCode)) return null;
+    if (!digits.startsWith(rule.callingCode)) return { ok: false, reason: 'other_country_code' };
     national = digits.slice(rule.callingCode.length);
   } else if (digits.startsWith(`00${rule.callingCode}`)) {
     national = digits.slice(2 + rule.callingCode.length);
   } else {
     national = digits;
   }
-  return rule.national.test(national) ? `+${rule.callingCode}${national}` : null;
+  if (national.length !== rule.nationalLength) return { ok: false, reason: 'wrong_length' };
+  if (!rule.leadingDigits.test(national)) return { ok: false, reason: 'unassigned_leading_digit' };
+  return { ok: true, e164: `+${rule.callingCode}${national}` };
+}
+
+/** E.164 for a number entered with an explicit country, or null when it is not a valid number of that country. */
+export function normalizeContactNumber(input: { country: string; number: string }): string | null {
+  const check = checkContactNumber(input);
+  return check.ok ? check.e164 : null;
 }
 
 /** Last three digits only. Used wherever a number is shown outside the restricted history. */

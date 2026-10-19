@@ -1,4 +1,5 @@
-import type { OsImportStore } from '@isalwa/os-import';
+import type { ImportPhoneDecisionWrite, OsImportStore } from '@isalwa/os-import';
+import { eventOutboxAuditWrites } from './event-writes';
 import type {
   ImportBatchRecord,
   ImportEntityRefs,
@@ -217,6 +218,38 @@ export class PrismaOsImportStore implements OsImportStore {
         entityRefsJson: entityRefs as unknown as Prisma.InputJsonValue,
         ...(outcome !== undefined ? { outcome } : {}),
       },
+    });
+  }
+
+  async recordPhoneDecision(write: ImportPhoneDecisionWrite): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const updated = await tx.osImportRow.updateMany({
+        where: {
+          id: write.rowId,
+          organizationId: write.organizationId,
+          importBatchId: write.importBatchId,
+          normalizedSnapshotJson: { path: ['phoneInput', 'version'], equals: write.expectedVersion },
+        },
+        data: {
+          outcome: write.row.outcome,
+          errorCode: write.row.errorCode,
+          entityRefsJson: write.row.entityRefsJson as unknown as Prisma.InputJsonValue,
+          normalizedSnapshotJson: write.row.normalizedSnapshotJson as unknown as Prisma.InputJsonValue,
+        },
+      });
+      if (updated.count !== 1) throw new Error('CONFLICT');
+      const batch = await tx.osImportBatch.updateMany({
+        where: {
+          id: write.importBatchId,
+          organizationId: write.organizationId,
+          status: { in: ['dry_run', 'validated'] },
+        },
+        data: { receiptJson: write.receipt as unknown as Prisma.InputJsonValue },
+      });
+      if (batch.count !== 1) throw new Error('CONFLICT');
+      for (const op of eventOutboxAuditWrites(tx, write.event, write.outbox, write.audit)) {
+        await op();
+      }
     });
   }
 

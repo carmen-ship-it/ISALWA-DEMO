@@ -76,7 +76,13 @@ function mapError(err: unknown): HttpException {
   if (code === REPLAY_REVIEW_REQUIRED) {
     return new HttpException({ code, message: REPLAY_REVIEW_REQUIRED_MESSAGE }, HttpStatus.CONFLICT);
   }
-  if (code === 'DUPLICATE_REVIEW_REQUIRED') return new HttpException({ code }, HttpStatus.CONFLICT);
+  if (
+    code === 'DUPLICATE_REVIEW_REQUIRED' ||
+    code === 'IMPORT_PHONE_REVIEW_REQUIRED' ||
+    code === 'IMPORT_DRY_RUN_OUTDATED'
+  ) {
+    return new HttpException({ code }, HttpStatus.CONFLICT);
+  }
   const status =
     code === 'AUTH_REQUIRED' || code === 'PROVIDER_NOT_CONFIGURED'
       ? HttpStatus.UNAUTHORIZED

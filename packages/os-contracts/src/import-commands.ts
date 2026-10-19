@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { IMPORT_SOURCE_KINDS } from './import-types';
+import { IMPORT_PHONE_DECISIONS, IMPORT_SOURCE_KINDS } from './import-types';
+import { CONTACT_PHONE_COUNTRIES } from './party-commands';
 
 export const IMPORT_COMMAND_NAMES = [
   'DryRunClientImport',
@@ -7,6 +8,8 @@ export const IMPORT_COMMAND_NAMES = [
   'ExecuteClientImport',
   'ReverseImportBatch',
   'GetImportBatchReceipt',
+  'ListImportPhoneReview',
+  'ResolveImportPhoneValue',
 ] as const;
 
 export type ImportCommandName = (typeof IMPORT_COMMAND_NAMES)[number];
@@ -43,6 +46,8 @@ export type ImportInputRow = z.infer<typeof ImportInputRowSchema>;
 const ImportBatchInputSchema = z.object({
   sourceKind: z.enum(IMPORT_SOURCE_KINDS).default('xls_datos_clientes'),
   sourceFingerprint: z.string().min(1),
+  /** Country of every phone in the batch. Omitted means Bolivia, recorded as a default in the receipt. */
+  phoneCountry: z.enum(CONTACT_PHONE_COUNTRIES).optional(),
   rows: z.array(ImportInputRowSchema).min(1),
 });
 
@@ -61,10 +66,37 @@ export const GetImportBatchReceiptPayloadSchema = z.object({
   importBatchId: z.string().min(1),
 });
 
+export const ListImportPhoneReviewPayloadSchema = z.object({
+  importBatchId: z.string().min(1),
+});
+
+export const ResolveImportPhoneValuePayloadSchema = z
+  .object({
+    importBatchId: z.string().min(1),
+    rowIndex: z.number().int().nonnegative(),
+    /** `celular:<n>` or `telefono:<n>`, as listed by ListImportPhoneReview. */
+    valueId: z.string().regex(/^(celular|telefono):\d{1,3}$/),
+    /** Review version of the row as listed; a stale version is refused. */
+    expectedVersion: z.number().int().nonnegative(),
+    decision: z.enum(IMPORT_PHONE_DECISIONS),
+    correctedNumber: z.string().trim().min(1).max(40).optional(),
+    reason: z.string().trim().min(10).max(500),
+  })
+  .superRefine((value, ctx) => {
+    if (value.decision === 'correct' && !value.correctedNumber) {
+      ctx.addIssue({ code: 'custom', path: ['correctedNumber'], message: 'required to correct' });
+    }
+    if (value.decision === 'omit' && value.correctedNumber) {
+      ctx.addIssue({ code: 'custom', path: ['correctedNumber'], message: 'not allowed when omitting' });
+    }
+  });
+
 export const IMPORT_COMMAND_PAYLOAD_SCHEMAS: Record<ImportCommandName, z.ZodTypeAny> = {
   DryRunClientImport: DryRunClientImportPayloadSchema,
   ValidateClientImport: ValidateClientImportPayloadSchema,
   ExecuteClientImport: ExecuteClientImportPayloadSchema,
   ReverseImportBatch: ReverseImportBatchPayloadSchema,
   GetImportBatchReceipt: GetImportBatchReceiptPayloadSchema,
+  ListImportPhoneReview: ListImportPhoneReviewPayloadSchema,
+  ResolveImportPhoneValue: ResolveImportPhoneValuePayloadSchema,
 };

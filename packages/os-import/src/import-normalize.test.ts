@@ -1,42 +1,60 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeContactNumber } from '@isalwa/os-contracts';
-import { normalizeBoliviaPhone, normalizeBoliviaPhones, phoneMatchKey } from './normalize-phone';
+import { checkContactNumber } from '@isalwa/os-contracts';
+import { checkImportPhone, phoneMatchKey, readImportPhoneValues } from './normalize-phone';
 import { parseMapsUrl } from './parse-maps-url';
 import { normalizeImportRow } from './normalize-row';
 import { analyzeRows, emptyCatalog } from './match';
 import { buildReceipt, isRealClientImportEnabled } from './receipt';
 import type { MatchCatalog } from './types';
 
-describe('normalizeBoliviaPhone', () => {
-  it('normalizes BO mobile digit strings and excel numbers', () => {
-    assert.equal(normalizeBoliviaPhone('70012345'), '+59170012345');
-    assert.equal(normalizeBoliviaPhone(70012345), '+59170012345');
-    assert.equal(normalizeBoliviaPhone('59170012345'), '+59170012345');
-    assert.equal(normalizeBoliviaPhone('+591 700-12345'), '+59170012345');
-    assert.equal(normalizeBoliviaPhone('70012345.0'), '+59170012345');
+describe('checkImportPhone (spreadsheet cleanup + shared rule)', () => {
+  it('cleans spreadsheet forms and records what it changed', () => {
+    assert.deepEqual(checkImportPhone('70012345', 'BO'), { e164: '+59170012345', reason: null, adjustments: [] });
+    assert.equal(checkImportPhone('59170012345', 'BO').e164, '+59170012345');
+    assert.deepEqual(checkImportPhone('59170012345', 'BO').adjustments, ['country_code_without_plus']);
+    assert.equal(checkImportPhone('+591 700-12345', 'BO').e164, '+59170012345');
+    assert.deepEqual(checkImportPhone('70012345.0', 'BO').adjustments, ['excel_decimal']);
+    assert.deepEqual(checkImportPhone('070012345', 'BO').adjustments, ['leading_zero']);
+    assert.deepEqual(checkImportPhone('700 123 45', 'BO').adjustments, ['separators']);
     assert.equal(phoneMatchKey('+59170012345'), '59170012345');
   });
 
-  it('applies the shared contact number rule, so execute never meets a number it refuses', () => {
-    assert.equal(normalizeBoliviaPhone('2212345'), null);
-    assert.equal(normalizeBoliviaPhone('80012345'), null);
-    assert.equal(normalizeBoliviaPhone('22123456'), '+59122123456');
-    assert.equal(normalizeContactNumber({ country: 'BO', number: '+59170012345' }), '+59170012345');
-    assert.deepEqual(normalizeBoliviaPhones('2212345/70011111'), ['+59170011111']);
+  it('refuses with the shared rule reason instead of guessing', () => {
+    assert.deepEqual(checkImportPhone('2212345', 'BO'), { e164: null, reason: 'wrong_length', adjustments: [] });
+    assert.equal(checkImportPhone('80012345', 'BO').reason, 'unassigned_leading_digit');
+    assert.equal(checkImportPhone('+54 11 1234 5678', 'BO').reason, 'other_country_code');
+    assert.equal(checkImportPhone('sin número', 'BO').reason, 'invalid_characters');
+    assert.equal(checkImportPhone('22123456', 'BO').e164, '+59122123456');
+    // Same verdict as the shared contract used by UpdateContact at execute.
+    for (const raw of ['2212345', '80012345', '22123456', '+59170012345']) {
+      assert.equal(checkImportPhone(raw, 'BO').e164, checkContactNumber({ country: 'BO', number: raw }).ok
+        ? (checkContactNumber({ country: 'BO', number: raw }) as { e164: string }).e164
+        : null);
+    }
   });
 
+  it('keeps every value of a cell, valid or not, with its original text', () => {
+    const values = readImportPhoneValues('celular', '2212345/70011111', 'BO');
+    assert.deepEqual(
+      values.map((v) => [v.valueId, v.original, v.status, v.normalized, v.reason]),
+      [
+        ['celular:0', '2212345', 'invalid', null, 'wrong_length'],
+        ['celular:1', '70011111', 'accepted', '+59170011111', null],
+      ],
+    );
+    // A fractional Excel number is flagged, never truncated into a different number.
+    const [fraction] = readImportPhoneValues('celular', 70012345.5, 'BO');
+    assert.equal(fraction?.original, '70012345.5');
+    assert.equal(fraction?.status, 'invalid');
+  });
+});
+
+describe('import phone review in the dry run', () => {
+  const base = { section: 'B' as const, commercialName: 'Tienda', givenName: 'A', familyName: 'B' };
+
   it('splits separated mobiles and does not concatenate them', () => {
-    const numbers = normalizeBoliviaPhones('70011111/70022222');
-    assert.deepEqual(numbers, ['+59170011111', '+59170022222']);
-    const row = normalizeImportRow({
-      section: 'B',
-      rowIndex: 0,
-      commercialName: 'Split Phone Shop',
-      givenName: 'A',
-      familyName: 'B',
-      celular: '70011111/70022222',
-    });
+    const row = normalizeImportRow({ ...base, rowIndex: 0, commercialName: 'Split Phone Shop', celular: '70011111/70022222' });
     assert.equal(row.section, 'B');
     if (row.section !== 'B') return;
     assert.equal(row.whatsapp, '+59170011111');
@@ -47,7 +65,52 @@ describe('normalizeBoliviaPhone', () => {
     const receipt = buildReceipt({ importBatchId: 'b', mode: 'dry_run', analyzed });
     assert.equal(receipt.phoneReview.extraNotImported, 1);
     assert.equal(receipt.phoneReview.code, 'EXTRA_PHONE_NOT_IMPORTED');
+    assert.deepEqual(
+      receipt.phoneReview.items.map((i) => [i.valueId, i.proposedAction]),
+      [['celular:1', 'keep_in_import_record_only']],
+    );
     assert.equal(receipt.wouldCreate, 1);
+  });
+
+  it('counts accepted and invalid values per row, masks originals and records the default country', () => {
+    const rows = [
+      normalizeImportRow({ ...base, rowIndex: 0, celular: '70011111' }),
+      normalizeImportRow({ ...base, rowIndex: 1, commercialName: 'Tienda Dos', celular: '2212345' }),
+      normalizeImportRow({ ...base, rowIndex: 2, commercialName: 'Tienda Tres', celular: '80012345', telefono: '33123456' }),
+    ];
+    const receipt = buildReceipt({ importBatchId: 'b', mode: 'dry_run', analyzed: analyzeRows(rows, emptyCatalog()) });
+    const review = receipt.phoneReview;
+    assert.equal(review.country, 'BO');
+    assert.equal(review.countrySource, 'default');
+    assert.deepEqual(
+      [review.accepted, review.invalid, review.corrected, review.omitted, review.rowsNeedingCorrection],
+      [2, 2, 0, 0, 2],
+    );
+    assert.equal(review.correctionCode, 'PHONE_CORRECTION_REQUIRED');
+    assert.deepEqual(
+      review.items.map((i) => [i.rowIndex, i.valueId, i.maskedOriginal, i.reason, i.proposedAction]),
+      [
+        [1, 'celular:0', '•••345', 'wrong_length', 'correct_or_omit'],
+        [2, 'celular:0', '•••345', 'unassigned_leading_digit', 'correct_or_omit'],
+      ],
+    );
+    assert.equal(JSON.stringify(receipt).includes('2212345'), false);
+    assert.equal(JSON.stringify(receipt).includes('80012345'), false);
+    // The row with only an invalid number has no stored phone but is not claimed to have none.
+    const second = rows[1];
+    assert.ok(second?.section === 'B' && second.phone === null && second.phoneInput.values.length === 1);
+  });
+
+  it('uses an explicit batch country when given', () => {
+    const row = normalizeImportRow({ ...base, rowIndex: 0, celular: '70011111' }, { country: 'BO', countrySource: 'explicit' });
+    const receipt = buildReceipt({
+      importBatchId: 'b',
+      mode: 'dry_run',
+      analyzed: analyzeRows([row], emptyCatalog()),
+      phoneContext: { country: 'BO', countrySource: 'explicit' },
+    });
+    assert.equal(receipt.phoneReview.countrySource, 'explicit');
+    assert.equal(row.section === 'B' && row.phoneInput.countrySource, 'explicit');
   });
 });
 

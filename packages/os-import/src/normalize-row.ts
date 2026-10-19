@@ -1,10 +1,24 @@
-import type { ImportInputRow } from '@isalwa/os-contracts';
+import type { ContactPhoneCountry, ImportInputRow } from '@isalwa/os-contracts';
 import { normalizeEmailKey, normalizeNameKey, normalizeNitKey } from './normalize-name';
-import { normalizeBoliviaPhones, phoneMatchKey } from './normalize-phone';
+import { cellText, DEFAULT_IMPORT_PHONE_COUNTRY, phoneMatchKey, readImportPhoneValues } from './normalize-phone';
+import { derivePhoneSlots } from './phone-review';
 import { parseMapsUrl } from './parse-maps-url';
 import type { NormalizedImportRow } from './types';
 
-export function normalizeImportRow(row: ImportInputRow): NormalizedImportRow {
+export type ImportPhoneContext = {
+  country: ContactPhoneCountry;
+  countrySource: 'default' | 'explicit';
+};
+
+export const DEFAULT_IMPORT_PHONE_CONTEXT: ImportPhoneContext = {
+  country: DEFAULT_IMPORT_PHONE_COUNTRY,
+  countrySource: 'default',
+};
+
+export function normalizeImportRow(
+  row: ImportInputRow,
+  phoneContext: ImportPhoneContext = DEFAULT_IMPORT_PHONE_CONTEXT,
+): NormalizedImportRow {
   if (row.section === 'A') {
     const givenName = row.givenName.trim();
     const familyName = row.familyName.trim();
@@ -22,18 +36,11 @@ export function normalizeImportRow(row: ImportInputRow): NormalizedImportRow {
   const commercialName = row.commercialName.trim();
   const givenName = row.givenName.trim();
   const familyName = row.familyName.trim();
-  const celularNumbers = normalizeBoliviaPhones(row.celular);
-  const telefonoNumbers = normalizeBoliviaPhones(row.telefono);
-  const whatsapp = celularNumbers[0] ?? null;
-  const phone = telefonoNumbers[0] ?? celularNumbers[0] ?? null;
-  const stored = new Set([phone, whatsapp].filter((value): value is string => Boolean(value)));
-  const extraPhoneNotImported = [...celularNumbers, ...telefonoNumbers].filter(
-    (value) => !stored.has(value),
-  ).length;
-  const phoneKeys = [phone, whatsapp, ...celularNumbers, ...telefonoNumbers]
-    .map((value) => phoneMatchKey(value))
-    .filter((value): value is string => Boolean(value))
-    .filter((value, index, all) => all.indexOf(value) === index);
+  const values = [
+    ...readImportPhoneValues('celular', row.celular, phoneContext.country),
+    ...readImportPhoneValues('telefono', row.telefono, phoneContext.country),
+  ];
+  const { phone, whatsapp, phoneKeys, extraPhoneNotImported } = derivePhoneSlots(values);
   const parsed = parseMapsUrl(row.mapsUrl);
 
   return {
@@ -49,6 +56,13 @@ export function normalizeImportRow(row: ImportInputRow): NormalizedImportRow {
     phoneKey: phoneMatchKey(phone),
     phoneKeys,
     extraPhoneNotImported,
+    phoneInput: {
+      ...phoneContext,
+      celularOriginal: present(row.celular),
+      telefonoOriginal: present(row.telefono),
+      values,
+      version: 0,
+    },
     nitKey: normalizeNitKey(row.nit),
     location: {
       kind: parsed.kind,
@@ -58,4 +72,10 @@ export function normalizeImportRow(row: ImportInputRow): NormalizedImportRow {
       provenanceUrl: parsed.provenanceUrl,
     },
   };
+}
+
+function present(raw: string | number | null | undefined): string | null {
+  if (raw === null || raw === undefined) return null;
+  const text = cellText(raw);
+  return text ? text : null;
 }

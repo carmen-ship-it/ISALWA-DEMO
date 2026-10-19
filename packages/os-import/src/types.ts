@@ -1,9 +1,56 @@
 import type {
+  ContactNumberInvalidReason,
+  ContactPhoneCountry,
   ImportBatchStatus,
+  ImportPhoneDecision,
+  ImportPhoneValueStatus,
   ImportRowOutcome,
   ImportSection,
   ImportSourceKind,
 } from '@isalwa/os-contracts';
+
+export type ImportPhoneField = 'celular' | 'telefono';
+
+export type ImportPhoneResolution = {
+  decision: ImportPhoneDecision;
+  byMemberId: string;
+  at: string;
+  reason: string;
+  /** Reviewer's corrected text (restricted, like the original). */
+  correctedOriginal?: string;
+};
+
+/** One value read from a phone cell. Restricted: the original stays in the import record only. */
+export type ImportPhoneValue = {
+  valueId: string;
+  field: ImportPhoneField;
+  tokenIndex: number;
+  original: string;
+  normalized: string | null;
+  status: ImportPhoneValueStatus;
+  /** Shared-rule refusal reason of the original value; kept after a resolution. */
+  reason: ContactNumberInvalidReason | null;
+  adjustments: string[];
+  resolution?: ImportPhoneResolution;
+};
+
+/** Phone provenance of a customer row. */
+export type ImportPhoneInput = {
+  country: ContactPhoneCountry;
+  countrySource: 'default' | 'explicit';
+  celularOriginal: string | null;
+  telefonoOriginal: string | null;
+  values: ImportPhoneValue[];
+  /** Increments with every reviewer decision on this row. */
+  version: number;
+};
+
+export type ImportPhoneProposedAction =
+  | 'import'
+  | 'keep_in_import_record_only'
+  | 'correct_or_omit'
+  | 'import_corrected'
+  | 'import_without_number';
 
 export type ImportEntityRefs = {
   partyId?: string;
@@ -49,6 +96,7 @@ export type NormalizedCustomerRow = {
   phoneKeys: string[];
   /** Valid numbers that Contact.phone / Contact.whatsapp cannot both store. */
   extraPhoneNotImported: number;
+  phoneInput: ImportPhoneInput;
   nitKey: string | null;
   location: LocationAnalysis;
 };
@@ -84,8 +132,26 @@ export type ImportReceipt = {
     skipped: number;
   };
   phoneReview: {
+    country: ContactPhoneCountry;
+    countrySource: 'default' | 'explicit';
+    accepted: number;
+    corrected: number;
+    omitted: number;
+    invalid: number;
     extraNotImported: number;
+    rowsNeedingCorrection: number;
     code: 'EXTRA_PHONE_NOT_IMPORTED' | null;
+    correctionCode: 'PHONE_CORRECTION_REQUIRED' | null;
+    /** Every value that is not a plain stored number. Masked; originals only through ListImportPhoneReview. */
+    items: Array<{
+      rowIndex: number;
+      valueId: string;
+      field: ImportPhoneField;
+      maskedOriginal: string;
+      status: ImportPhoneValueStatus;
+      reason: ContactNumberInvalidReason | null;
+      proposedAction: ImportPhoneProposedAction;
+    }>;
   };
   staff: {
     personCandidates: number;

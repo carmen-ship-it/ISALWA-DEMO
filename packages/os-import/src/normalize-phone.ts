@@ -1,39 +1,64 @@
-import { normalizeContactNumber, type ContactPhoneCountry } from '@isalwa/os-contracts';
+import {
+  checkContactNumber,
+  contactCountryCallingCode,
+  type ContactNumberInvalidReason,
+  type ContactPhoneCountry,
+} from '@isalwa/os-contracts';
+import type { ImportPhoneField, ImportPhoneValue } from './types';
 
-/** The client spreadsheet holds Bolivian numbers only; the country is declared, never guessed. */
-export const IMPORT_PHONE_COUNTRY: ContactPhoneCountry = 'BO';
+/** Used when a batch does not name its phone country; the receipt records it as a default. */
+export const DEFAULT_IMPORT_PHONE_COUNTRY: ContactPhoneCountry = 'BO';
+
+export const IMPORT_PHONE_ADJUSTMENTS = [
+  'excel_decimal',
+  'separators',
+  'country_code_without_plus',
+  'leading_zero',
+] as const;
+export type ImportPhoneAdjustment = (typeof IMPORT_PHONE_ADJUSTMENTS)[number];
+
+export type ImportPhoneCheck = {
+  /** Shared-rule E.164, or null with the reason. */
+  e164: string | null;
+  reason: ContactNumberInvalidReason | null;
+  adjustments: ImportPhoneAdjustment[];
+};
 
 /**
- * Normalize Bolivia phone / mobile values for Contact storage and match keys.
- * Accepts Excel numbers (float risk) and digit strings, then applies the shared contact number rule.
- * Never logs the raw value.
+ * Spreadsheet cleanup (Excel decimal, separators, the country code typed without "+", leading
+ * zeros), then the shared contact number rule for the batch country. Never logs the raw value.
  */
-export function normalizeBoliviaPhone(raw: string | number | null | undefined): string | null {
-  if (raw === null || raw === undefined || raw === '') return null;
-
-  let text = typeof raw === 'number' ? String(Math.trunc(raw)) : String(raw).trim();
-  if (!text) return null;
-
-  // Excel sometimes yields "70000000.0"
+export function checkImportPhone(raw: string, country: ContactPhoneCountry): ImportPhoneCheck {
+  const adjustments: ImportPhoneAdjustment[] = [];
+  let text = raw.trim();
   if (/^\d+\.0+$/.test(text)) {
     text = text.replace(/\.0+$/, '');
+    adjustments.push('excel_decimal');
   }
-
-  const digits = text.replace(/\D/g, '');
-  if (!digits) return null;
-
-  let national = digits;
-  if (national.startsWith('591')) {
-    national = national.slice(3);
+  if (!text.startsWith('+') && /^[\d\s().-]+$/.test(text)) {
+    let digits = text.replace(/\D/g, '');
+    if (digits !== text) adjustments.push('separators');
+    const callingCode = contactCountryCallingCode(country);
+    if (callingCode && digits.startsWith(callingCode) && !digits.startsWith(`00${callingCode}`)) {
+      const rest = digits.slice(callingCode.length);
+      if (checkContactNumber({ country, number: rest }).ok) {
+        digits = rest;
+        adjustments.push('country_code_without_plus');
+      }
+    }
+    if (/^0+[1-9]/.test(digits) && !digits.startsWith('00')) {
+      digits = digits.replace(/^0+/, '');
+      adjustments.push('leading_zero');
+    }
+    text = digits;
   }
-  if (national.startsWith('0')) {
-    national = national.replace(/^0+/, '');
-  }
-
-  return normalizeContactNumber({ country: IMPORT_PHONE_COUNTRY, number: national });
+  const check = checkContactNumber({ country, number: text });
+  return check.ok
+    ? { e164: check.e164, reason: null, adjustments }
+    : { e164: null, reason: check.reason, adjustments };
 }
 
-/** Match key: digits only under +591 country code (no plus). */
+/** Match key: digits of an E.164 number (no plus). */
 export function phoneMatchKey(normalized: string | null | undefined): string | null {
   if (!normalized) return null;
   const digits = normalized.replace(/\D/g, '');
@@ -46,10 +71,9 @@ export function phoneMatchKey(normalized: string | null | undefined): string | n
  */
 export function splitPhoneTokens(raw: string | number | null | undefined): string[] {
   if (raw === null || raw === undefined || raw === '') return [];
-  if (typeof raw === 'number') return [String(Math.trunc(raw))];
+  if (typeof raw === 'number') return [cellText(raw)];
   const text = String(raw).trim();
   if (!text) return [];
-  if (/^\d+\.0+$/.test(text)) return [text.replace(/\.0+$/, '')];
   if (/[/|,;]/.test(text)) {
     return text
       .split(/[/|,;]+/)
@@ -59,15 +83,31 @@ export function splitPhoneTokens(raw: string | number | null | undefined): strin
   return [text];
 }
 
-/** Each token is normalized alone. Invalid fragments are dropped, never joined. */
-export function normalizeBoliviaPhones(raw: string | number | null | undefined): string[] {
-  const seen = new Set<string>();
-  const numbers: string[] = [];
-  for (const token of splitPhoneTokens(raw)) {
-    const normalized = normalizeBoliviaPhone(token);
-    if (!normalized || seen.has(normalized)) continue;
-    seen.add(normalized);
-    numbers.push(normalized);
+/** Excel numbers as text. A fractional value is kept as written so it is flagged, not truncated. */
+export function cellText(raw: string | number): string {
+  if (typeof raw === 'number') {
+    return Number.isInteger(raw) ? raw.toFixed(0) : String(raw);
   }
-  return numbers;
+  return String(raw).trim();
+}
+
+/** Every value in a cell, valid or not, with its original text. Nothing is dropped. */
+export function readImportPhoneValues(
+  field: ImportPhoneField,
+  raw: string | number | null | undefined,
+  country: ContactPhoneCountry,
+): ImportPhoneValue[] {
+  return splitPhoneTokens(raw).map((original, tokenIndex) => {
+    const check = checkImportPhone(original, country);
+    return {
+      valueId: `${field}:${tokenIndex}`,
+      field,
+      tokenIndex,
+      original,
+      normalized: check.e164,
+      status: check.e164 ? 'accepted' : 'invalid',
+      reason: check.reason,
+      adjustments: check.adjustments,
+    };
+  });
 }

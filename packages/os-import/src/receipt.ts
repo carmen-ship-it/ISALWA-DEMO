@@ -1,4 +1,7 @@
 import type { ImportSection } from '@isalwa/os-contracts';
+import type { ImportPhoneContext } from './normalize-row';
+import { DEFAULT_IMPORT_PHONE_CONTEXT } from './normalize-row';
+import { summarizePhoneReview } from './phone-review';
 import type { AnalyzedImportRow, ImportReceipt } from './types';
 
 export function isRealClientImportEnabled(): boolean {
@@ -11,6 +14,7 @@ export function buildReceipt(input: {
   analyzed: AnalyzedImportRow[];
   created?: number;
   reversed?: ImportReceipt['reversed'];
+  phoneContext?: ImportPhoneContext;
 }): ImportReceipt {
   const { importBatchId, mode, analyzed } = input;
   const errors: ImportReceipt['errors'] = [];
@@ -25,7 +29,6 @@ export function buildReceipt(input: {
   let provenanceOnly = 0;
   let skipped = 0;
   let personCandidates = 0;
-  let extraNotImported = 0;
 
   for (const row of analyzed) {
     if (row.outcome === 'REJECTED') {
@@ -53,7 +56,6 @@ export function buildReceipt(input: {
       if (row.normalized.location.kind === 'with_coords') withCoords += 1;
       else if (row.normalized.location.kind === 'provenance_only') provenanceOnly += 1;
       else skipped += 1;
-      extraNotImported += row.normalized.extraPhoneNotImported;
     }
   }
 
@@ -70,10 +72,14 @@ export function buildReceipt(input: {
     manualReview,
     errors,
     location: { withCoords, provenanceOnly, skipped },
-    phoneReview: {
-      extraNotImported,
-      code: extraNotImported > 0 ? 'EXTRA_PHONE_NOT_IMPORTED' : null,
-    },
+    phoneReview: summarizePhoneReview(
+      analyzed.flatMap((row) =>
+        row.normalized.section === 'B'
+          ? [{ rowIndex: row.rowIndex, outcome: row.outcome, phoneInput: row.normalized.phoneInput }]
+          : [],
+      ),
+      input.phoneContext ?? DEFAULT_IMPORT_PHONE_CONTEXT,
+    ),
     staff: {
       personCandidates,
       blockedAuthCreates: 0,

@@ -23,3 +23,10 @@ export type ImportSection = (typeof IMPORT_SECTIONS)[number];
 
 export const IMPORT_SOURCE_KINDS = ['xls_datos_clientes'] as const;
 export type ImportSourceKind = (typeof IMPORT_SOURCE_KINDS)[number];
+
+/** Phone values read from a customer row. Invalid values stay flagged until corrected or explicitly omitted. */
+export const IMPORT_PHONE_VALUE_STATUSES = ['accepted', 'invalid', 'corrected', 'omitted'] as const;
+export type ImportPhoneValueStatus = (typeof IMPORT_PHONE_VALUE_STATUSES)[number];
+
+export const IMPORT_PHONE_DECISIONS = ['correct', 'omit'] as const;
+export type ImportPhoneDecision = (typeof IMPORT_PHONE_DECISIONS)[number];

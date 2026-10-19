@@ -2,6 +2,7 @@ import { DELEGATOR_STANDING_INCLUDE, toDelegatorStanding } from './delegator-sta
 import { createId } from '@isalwa/ts-utils';
 import { COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE, type CustomerCoverageGrant, coverageActionsFromStored } from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
+import { eventOutboxAuditWrites } from './event-writes';
 import type { OsPartyStore } from '@isalwa/os-party';
 import {
   createdAtDescCursorWhere,
@@ -861,58 +862,7 @@ export class PrismaOsPartyStore implements OsPartyStore {
     if (this.testAppendDelayMs > 0) {
       await new Promise((resolve) => setTimeout(resolve, this.testAppendDelayMs));
     }
-    await this.runSequential([
-      () =>
-        this.db().osBusinessEvent.create({
-          data: {
-            id: event.id,
-            organizationId: event.organizationId,
-            eventType: event.eventType,
-            occurredAt: event.occurredAt,
-            recordedAt: event.recordedAt,
-            actorMemberId: event.actorMemberId,
-            authorizationContext: event.authorizationContext as Prisma.InputJsonValue | undefined,
-            primaryEntityType: event.primaryEntityType,
-            primaryEntityId: event.primaryEntityId,
-            payloadJson: (event.payload ?? undefined) as Prisma.InputJsonValue | undefined,
-            provenance: event.provenance ?? 'command',
-            correlationId: event.correlationId,
-            idempotencyKey: event.idempotencyKey,
-            dataOrigin: event.dataOrigin ?? 'production',
-            capabilityKey: event.capabilityKey,
-          },
-        }),
-      () =>
-        this.db().osOutboxMessage.create({
-          data: {
-            id: outbox.id,
-            organizationId: outbox.organizationId,
-            eventId: outbox.eventId,
-            payloadJson: outbox.payloadJson as Prisma.InputJsonValue,
-            status: outbox.status,
-            attemptCount: outbox.attemptCount,
-            nextAttemptAt: outbox.nextAttemptAt,
-            lastError: outbox.lastError,
-            createdAt: outbox.createdAt,
-            publishedAt: outbox.publishedAt,
-          },
-        }),
-      () =>
-        this.db().osAuditLog.create({
-          data: {
-            id: audit.id,
-            organizationId: audit.organizationId,
-            actorMemberId: audit.actorMemberId,
-            action: audit.action,
-            resourceType: audit.resourceType,
-            resourceId: audit.resourceId,
-            beforeJson: (audit.beforeJson ?? undefined) as Prisma.InputJsonValue | undefined,
-            afterJson: (audit.afterJson ?? undefined) as Prisma.InputJsonValue | undefined,
-            correlationId: audit.correlationId,
-            createdAt: audit.createdAt,
-          },
-        }),
-    ]);
+    await this.runSequential(eventOutboxAuditWrites(this.db(), event, outbox, audit));
   }
 
   async findIdempotency(organizationId: string, key: string): Promise<IdempotencyRecord | null> {

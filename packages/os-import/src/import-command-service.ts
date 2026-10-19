@@ -3,7 +3,12 @@ import type {
   ImportInputRow,
   RequestContext,
 } from '@isalwa/os-contracts';
-import { COMMAND_REQUIRED_SCOPES } from '@isalwa/os-contracts';
+import {
+  COMMAND_REQUIRED_SCOPES,
+  CONTACT_PHONE_COUNTRIES,
+  ResolveImportPhoneValuePayloadSchema,
+  type ContactPhoneCountry,
+} from '@isalwa/os-contracts';
 import {
   assertMemberActive,
   assertTenantMatch,
@@ -27,13 +32,20 @@ import type { LocationCommandService, PartyCommandService, OsPartyStore } from '
 import { createId } from '@isalwa/ts-utils';
 import type { OsImportStore } from './import-store';
 import { analyzeRows } from './match';
-import { IMPORT_PHONE_COUNTRY } from './normalize-phone';
-import { normalizeImportRow } from './normalize-row';
+import { checkImportPhone } from './normalize-phone';
+import {
+  DEFAULT_IMPORT_PHONE_CONTEXT,
+  normalizeImportRow,
+  type ImportPhoneContext,
+} from './normalize-row';
+import { derivePhoneSlots, proposedPhoneAction, rowNeedsPhoneCorrection } from './phone-review';
 import { buildReceipt, isRealClientImportEnabled } from './receipt';
 import type {
   AnalyzedImportRow,
   ImportBatchRecord,
   ImportEntityRefs,
+  ImportPhoneInput,
+  ImportPhoneValue,
   ImportReceipt,
   ImportRowRecord,
   NormalizedCustomerRow,
@@ -136,6 +148,11 @@ export class ImportCommandService {
       throw new Error('TENANT_FORBIDDEN');
     }
 
+    if (command === 'ListImportPhoneReview') {
+      // Returns original phone values: never sealed into the replay table.
+      return this.listPhoneReview(ctx, payload);
+    }
+
     const binding = replayBinding(ctx.actorMemberId, command, payload);
     if (idempotencyKey) {
       // Import writes outside one transaction, so the key is claimed before any write.
@@ -176,6 +193,9 @@ export class ImportCommandService {
           break;
         case 'GetImportBatchReceipt':
           result = await this.getReceipt(ctx, payload);
+          break;
+        case 'ResolveImportPhoneValue':
+          result = await this.resolvePhoneValue(ctx, payload);
           break;
         default:
           throw new Error('VALIDATION_FAILED');
@@ -228,13 +248,14 @@ export class ImportCommandService {
     const rows = payload.rows as ImportInputRow[];
     if (!Array.isArray(rows) || rows.length === 0) throw new Error('VALIDATION_FAILED');
 
+    const phoneContext = requestedPhoneContext(payload.phoneCountry);
     const catalog = await this.importStore.loadMatchCatalog(ctx.organizationId);
-    const normalized = rows.map(normalizeImportRow);
+    const normalized = rows.map((row) => normalizeImportRow(row, phoneContext));
     const analyzed = analyzeRows(normalized, catalog);
 
     const importBatchId = createId();
     const mode = status === 'dry_run' ? 'dry_run' : 'validate';
-    const receipt = buildReceipt({ importBatchId, mode, analyzed });
+    const receipt = buildReceipt({ importBatchId, mode, analyzed, phoneContext });
 
     const idempotencyKey =
       currentIdempotencyKey() ??
@@ -274,6 +295,9 @@ export class ImportCommandService {
               familyName: row.normalized.familyName,
               phone: row.normalized.phone,
               whatsapp: row.normalized.whatsapp,
+              phoneKeys: row.normalized.phoneKeys,
+              // Restricted provenance: original cell text and every value, valid or not.
+              phoneInput: row.normalized.phoneInput,
               location: {
                 kind: row.normalized.location.kind,
                 label: row.normalized.location.label,
@@ -306,6 +330,7 @@ export class ImportCommandService {
         possibleDuplicates: receipt.possibleDuplicates,
         manualReview: receipt.manualReview,
         rowsRejected: receipt.rowsRejected,
+        phones: phoneCounts(receipt),
       },
     );
 
@@ -342,6 +367,13 @@ export class ImportCommandService {
     }
 
     const rows = await this.importStore.listRowsForBatch(ctx.organizationId, importBatchId);
+    const toCreate = rows.filter((row) => row.outcome === 'CREATE' && row.section === 'B');
+    // Checked before any write: a batch with an unresolved phone value writes nothing.
+    if (toCreate.some((row) => !snapshotPhoneInput(row))) throw new Error('IMPORT_DRY_RUN_OUTDATED');
+    if (toCreate.some((row) => rowNeedsPhoneCorrection(snapshotPhoneInput(row)))) {
+      throw new Error('IMPORT_PHONE_REVIEW_REQUIRED');
+    }
+    const phoneContext = batchPhoneContext(batch);
     let created = 0;
 
     for (const row of rows) {
@@ -352,9 +384,9 @@ export class ImportCommandService {
       const commercialName = String(snap.commercialName ?? '');
       const givenName = String(snap.givenName ?? '');
       const familyName = String(snap.familyName ?? '');
-      const phone = snap.phone ? { country: IMPORT_PHONE_COUNTRY, number: String(snap.phone) } : undefined;
+      const phone = snap.phone ? { country: phoneContext.country, number: String(snap.phone) } : undefined;
       const whatsapp = snap.whatsapp
-        ? { country: IMPORT_PHONE_COUNTRY, number: String(snap.whatsapp) }
+        ? { country: phoneContext.country, number: String(snap.whatsapp) }
         : undefined;
       const loc = snap.location as NormalizedCustomerRow['location'] | undefined;
 
@@ -414,53 +446,14 @@ export class ImportCommandService {
       created += 1;
     }
 
-    const analyzed: AnalyzedImportRow[] = rows.map((r) => ({
-      section: r.section,
-      rowIndex: r.rowIndex,
-      outcome: r.outcome,
-      errorCode: r.errorCode,
-      entityRefs: r.entityRefsJson,
-      normalized:
-        r.section === 'A'
-          ? {
-              section: 'A' as const,
-              rowIndex: r.rowIndex,
-              givenName: String(r.normalizedSnapshotJson.givenName ?? ''),
-              familyName: String(r.normalizedSnapshotJson.familyName ?? ''),
-              displayNameKey: String(r.normalizedSnapshotJson.displayNameKey ?? ''),
-              emailKey: (r.normalizedSnapshotJson.emailKey as string | null) ?? null,
-              cargo: (r.normalizedSnapshotJson.cargo as string | null) ?? null,
-            }
-          : {
-              section: 'B' as const,
-              rowIndex: r.rowIndex,
-              commercialName: String(r.normalizedSnapshotJson.commercialName ?? ''),
-              commercialNameKey: String(r.normalizedSnapshotJson.commercialNameKey ?? ''),
-              givenName: String(r.normalizedSnapshotJson.givenName ?? ''),
-              familyName: String(r.normalizedSnapshotJson.familyName ?? ''),
-              personNameKey: String(r.normalizedSnapshotJson.personNameKey ?? ''),
-              phone: (r.normalizedSnapshotJson.phone as string | null) ?? null,
-              whatsapp: (r.normalizedSnapshotJson.whatsapp as string | null) ?? null,
-              phoneKey: null,
-              phoneKeys: [],
-              extraPhoneNotImported: Number(r.normalizedSnapshotJson.extraPhoneNotImported ?? 0),
-              nitKey: null,
-              location: (r.normalizedSnapshotJson.location as NormalizedCustomerRow['location']) ?? {
-                kind: 'skipped',
-                label: 'Ubicación GPS',
-                latitude: null,
-                longitude: null,
-                provenanceUrl: null,
-              },
-            },
-      snapshot: r.normalizedSnapshotJson,
-    }));
+    const analyzed = rowsToAnalyzed(rows);
 
     const receipt = buildReceipt({
       importBatchId,
       mode: 'execute',
       analyzed,
       created,
+      phoneContext,
     });
 
     await this.importStore.updateBatch(ctx.organizationId, importBatchId, {
@@ -471,6 +464,7 @@ export class ImportCommandService {
 
     await this.emit(ctx, 'import.batch.executed', importBatchId, {
       importBatchId,
+      phones: phoneCounts(receipt),
       created,
       matched: receipt.matched,
       possibleDuplicates: receipt.possibleDuplicates,
@@ -567,6 +561,205 @@ export class ImportCommandService {
     };
   }
 
+  private async listPhoneReview(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+  ): Promise<ImportCommandResult> {
+    await this.authorize(ctx, 'ListImportPhoneReview', ctx.organizationId);
+    const importBatchId = String(payload.importBatchId);
+    const batch = await this.importStore.getBatchInOrg(ctx.organizationId, importBatchId);
+    if (!batch) throw new Error('NOT_FOUND');
+    const rows = await this.importStore.listRowsForBatch(ctx.organizationId, importBatchId);
+    const items = rows.flatMap((row) => {
+      const input = snapshotPhoneInput(row);
+      if (row.section !== 'B' || !input) return [];
+      const slots = derivePhoneSlots(input.values);
+      return [
+        {
+          rowIndex: row.rowIndex,
+          outcome: row.outcome,
+          version: input.version,
+          needsCorrection: rowNeedsPhoneCorrection(input),
+          celularOriginal: input.celularOriginal,
+          telefonoOriginal: input.telefonoOriginal,
+          values: input.values.map((value) => ({
+            ...value,
+            proposedAction: proposedPhoneAction(value, slots),
+          })),
+        },
+      ];
+    });
+    return {
+      commandId: createId(),
+      correlationId: ctx.correlationId,
+      data: {
+        importBatchId,
+        status: batch.status,
+        country: batchPhoneContext(batch).country,
+        countrySource: batchPhoneContext(batch).countrySource,
+        summary: batch.receiptJson.phoneReview,
+        rows: items,
+      },
+    };
+  }
+
+  private async resolvePhoneValue(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+  ): Promise<ImportCommandResult> {
+    await this.authorize(ctx, 'ResolveImportPhoneValue', ctx.organizationId);
+    const parsed = ResolveImportPhoneValuePayloadSchema.safeParse(payload);
+    if (!parsed.success) throw new Error('VALIDATION_FAILED');
+    const input = parsed.data;
+    const batch = await this.importStore.getBatchInOrg(ctx.organizationId, input.importBatchId);
+    if (!batch) throw new Error('NOT_FOUND');
+    if (batch.status !== 'dry_run' && batch.status !== 'validated') throw new Error('CONFLICT');
+    const rows = await this.importStore.listRowsForBatch(ctx.organizationId, input.importBatchId);
+    const row = rows.find((r) => r.section === 'B' && r.rowIndex === input.rowIndex);
+    if (!row) throw new Error('NOT_FOUND');
+    const phoneInput = snapshotPhoneInput(row);
+    if (!phoneInput) throw new Error('IMPORT_DRY_RUN_OUTDATED');
+    if (phoneInput.version !== input.expectedVersion) throw new Error('CONFLICT');
+    const current = phoneInput.values.find((value) => value.valueId === input.valueId);
+    if (!current) throw new Error('NOT_FOUND');
+    // Only values that failed the shared rule are reviewer decisions; valid input is not rewritten here.
+    if (current.reason === null) throw new Error('VALIDATION_FAILED');
+
+    const phoneContext = batchPhoneContext(batch);
+    const resolution = {
+      decision: input.decision,
+      byMemberId: ctx.actorMemberId,
+      at: ctx.effectiveAt.toISOString(),
+      reason: input.reason,
+    };
+    let next: ImportPhoneValue;
+    if (input.decision === 'correct') {
+      const check = checkImportPhone(input.correctedNumber!, phoneContext.country);
+      if (!check.e164) throw new Error('VALIDATION_FAILED');
+      next = {
+        ...current,
+        normalized: check.e164,
+        status: 'corrected',
+        resolution: { ...resolution, correctedOriginal: input.correctedNumber! },
+      };
+    } else {
+      next = { ...current, normalized: null, status: 'omitted', resolution };
+    }
+
+    const values = phoneInput.values.map((value) => (value.valueId === next.valueId ? next : value));
+    const nextInput: ImportPhoneInput = { ...phoneInput, values, version: phoneInput.version + 1 };
+    const slots = derivePhoneSlots(values);
+
+    let outcome = row.outcome;
+    let errorCode = row.errorCode;
+    let entityRefs = row.entityRefsJson;
+    if (next.status === 'corrected' && row.outcome === 'CREATE') {
+      // A corrected number can point at an existing customer or another row: no silent create.
+      const key = phoneMatchKeyOf(next.normalized);
+      const catalog = await this.importStore.loadMatchCatalog(ctx.organizationId);
+      const existing = catalog.parties.find(
+        (party) =>
+          party.status === 'active' &&
+          party.contacts.some((c) => [c.phone, c.whatsapp].some((n) => phoneMatchKeyOf(n) === key)),
+      );
+      const otherRow = rows.some(
+        (r) =>
+          r.id !== row.id &&
+          r.section === 'B' &&
+          r.outcome !== 'REJECTED' &&
+          ((r.normalizedSnapshotJson.phoneKeys as string[] | undefined) ?? []).includes(key ?? ''),
+      );
+      if (existing || otherRow) {
+        outcome = 'POSSIBLE_DUPLICATE';
+        errorCode = 'CORRECTED_PHONE_MATCH';
+        entityRefs = existing ? { matchedPartyId: existing.partyId, createdByBatch: false } : {};
+      }
+    }
+
+    const snapshot = {
+      ...row.normalizedSnapshotJson,
+      phone: slots.phone,
+      whatsapp: slots.whatsapp,
+      phoneKeys: slots.phoneKeys,
+      hasPhone: Boolean(slots.phone),
+      hasWhatsapp: Boolean(slots.whatsapp),
+      extraPhoneNotImported: slots.extraPhoneNotImported,
+      phoneReview: slots.extraPhoneNotImported > 0 ? 'EXTRA_PHONE_NOT_IMPORTED' : null,
+      phoneInput: nextInput,
+    };
+    const updatedRows = rows.map((r) =>
+      r.id === row.id ? { ...r, outcome, errorCode, entityRefsJson: entityRefs, normalizedSnapshotJson: snapshot } : r,
+    );
+    const receipt = buildReceipt({
+      importBatchId: batch.id,
+      mode: batch.receiptJson.mode,
+      analyzed: rowsToAnalyzed(updatedRows),
+      phoneContext,
+    });
+
+    const eventPayload = {
+      importBatchId: batch.id,
+      rowIndex: row.rowIndex,
+      valueId: next.valueId,
+      decision: input.decision,
+      status: next.status,
+      rowVersion: nextInput.version,
+      outcome,
+      phones: phoneCounts(receipt),
+    };
+    const event = buildBusinessEvent({
+      organizationId: ctx.organizationId,
+      eventType: 'import.row.phone_resolved',
+      occurredAt: ctx.effectiveAt,
+      actorMemberId: ctx.actorMemberId,
+      authorizationContext: { memberId: ctx.actorMemberId },
+      primaryEntityType: 'import_batch',
+      primaryEntityId: batch.id,
+      payload: eventPayload,
+      correlationId: ctx.correlationId,
+      idempotencyKey: currentIdempotencyKey(),
+      capabilityKey: 'partygraph',
+    });
+    await this.importStore.recordPhoneDecision({
+      organizationId: ctx.organizationId,
+      importBatchId: batch.id,
+      rowId: row.id,
+      expectedVersion: phoneInput.version,
+      row: { outcome, errorCode, entityRefsJson: entityRefs, normalizedSnapshotJson: snapshot },
+      receipt,
+      event,
+      outbox: buildOutboxForEvent(event),
+      audit: buildAuditEntry(
+        ctx.organizationId,
+        ctx.actorMemberId,
+        'import.row.phone_resolved',
+        'import_batch',
+        batch.id,
+        ctx.correlationId,
+        undefined,
+        eventPayload,
+      ),
+    });
+
+    const { items, ...phoneSummary } = receipt.phoneReview;
+    const item = items.find(
+      (candidate) => candidate.rowIndex === row.rowIndex && candidate.valueId === next.valueId,
+    );
+    return {
+      commandId: createId(),
+      correlationId: ctx.correlationId,
+      data: {
+        importBatchId: batch.id,
+        rowIndex: row.rowIndex,
+        rowVersion: nextInput.version,
+        outcome,
+        errorCode,
+        item: item ?? null,
+        phoneReview: phoneSummary,
+      },
+    };
+  }
+
   private async getReceipt(
     ctx: RequestContext,
     payload: Record<string, unknown>,
@@ -616,4 +809,77 @@ export class ImportCommandService {
     );
     await this.partyAccess.appendEventAndAudit(event, outbox, audit);
   }
+}
+
+function requestedPhoneContext(raw: unknown): ImportPhoneContext {
+  if (raw === undefined || raw === null) return DEFAULT_IMPORT_PHONE_CONTEXT;
+  if (!(CONTACT_PHONE_COUNTRIES as readonly string[]).includes(String(raw))) {
+    throw new Error('VALIDATION_FAILED');
+  }
+  return { country: raw as ContactPhoneCountry, countrySource: 'explicit' };
+}
+
+function batchPhoneContext(batch: ImportBatchRecord): ImportPhoneContext {
+  const review = batch.receiptJson.phoneReview as Partial<ImportReceipt['phoneReview']> | undefined;
+  return review?.country && review.countrySource
+    ? { country: review.country, countrySource: review.countrySource }
+    : DEFAULT_IMPORT_PHONE_CONTEXT;
+}
+
+function snapshotPhoneInput(row: ImportRowRecord): ImportPhoneInput | undefined {
+  return row.normalizedSnapshotJson.phoneInput as ImportPhoneInput | undefined;
+}
+
+function phoneMatchKeyOf(value: string | null | undefined): string | null {
+  return value ? value.replace(/\D/g, '') || null : null;
+}
+
+function phoneCounts(receipt: ImportReceipt) {
+  const { accepted, corrected, omitted, invalid, extraNotImported, rowsNeedingCorrection } = receipt.phoneReview;
+  return { accepted, corrected, omitted, invalid, extraNotImported, rowsNeedingCorrection };
+}
+
+function rowsToAnalyzed(rows: ImportRowRecord[]): AnalyzedImportRow[] {
+  return rows.map((r) => ({
+    section: r.section,
+    rowIndex: r.rowIndex,
+    outcome: r.outcome,
+    errorCode: r.errorCode,
+    entityRefs: r.entityRefsJson,
+    normalized:
+      r.section === 'A'
+        ? {
+            section: 'A' as const,
+            rowIndex: r.rowIndex,
+            givenName: String(r.normalizedSnapshotJson.givenName ?? ''),
+            familyName: String(r.normalizedSnapshotJson.familyName ?? ''),
+            displayNameKey: String(r.normalizedSnapshotJson.displayNameKey ?? ''),
+            emailKey: (r.normalizedSnapshotJson.emailKey as string | null) ?? null,
+            cargo: (r.normalizedSnapshotJson.cargo as string | null) ?? null,
+          }
+        : {
+            section: 'B' as const,
+            rowIndex: r.rowIndex,
+            commercialName: String(r.normalizedSnapshotJson.commercialName ?? ''),
+            commercialNameKey: String(r.normalizedSnapshotJson.commercialNameKey ?? ''),
+            givenName: String(r.normalizedSnapshotJson.givenName ?? ''),
+            familyName: String(r.normalizedSnapshotJson.familyName ?? ''),
+            personNameKey: String(r.normalizedSnapshotJson.personNameKey ?? ''),
+            phone: (r.normalizedSnapshotJson.phone as string | null) ?? null,
+            whatsapp: (r.normalizedSnapshotJson.whatsapp as string | null) ?? null,
+            phoneKey: null,
+            phoneKeys: (r.normalizedSnapshotJson.phoneKeys as string[] | undefined) ?? [],
+            extraPhoneNotImported: Number(r.normalizedSnapshotJson.extraPhoneNotImported ?? 0),
+            phoneInput: snapshotPhoneInput(r) as ImportPhoneInput,
+            nitKey: null,
+            location: (r.normalizedSnapshotJson.location as NormalizedCustomerRow['location']) ?? {
+              kind: 'skipped',
+              label: 'Ubicación GPS',
+              latitude: null,
+              longitude: null,
+              provenanceUrl: null,
+            },
+          },
+    snapshot: r.normalizedSnapshotJson,
+  }));
 }
