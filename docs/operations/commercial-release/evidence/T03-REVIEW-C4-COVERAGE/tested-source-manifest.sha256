@@ -1,0 +1,17 @@
+c489283f4d83dc742a71a6eefd4b8cd39ee26742b71270710994370fee579a8e  packages/os-contracts/src/operations-scopes.ts
+40d3193fc7bbdcbec45e16ed53f95a83350e740e86f0c012270728e06c6f4b27  packages/os-contracts/src/commercial-commands.ts
+790650e8766318f9ed464af4ef9458fc17ecb56054c7ff2953a976357b842cea  packages/os-contracts/src/commercial-coverage-authority.test.ts
+68f3bc4e72862acd287d5903278d6e46ed374d24995bf3fe965f809d61fd8681  packages/os-domain/src/authorization.ts
+11534381be30c84d66447b244073b1616f640c4a585c5f39c9616f3a403a84a7  packages/os-query/src/query-context.ts
+4154f8973d0449241aafebade837dabb9641797e6c4f48226d35479f41d7a9a9  packages/os-commercial/src/commercial-command-service.ts
+c76923d3bc3a6b9dbc9b16780d95a0e31a39b436a31874008a0098c4182b8539  packages/os-commercial/src/os-commercial-store.ts
+6e35b6c63903a5bdd044da4ccb22b8b99b22f5404a6344636fab76c77c9012be  packages/os-commercial/src/commercial-authority.test.ts
+7fcf1b2a0008430b1dee5b3cd21cb3bace5bd614f3224d6c0108e43b59b64cf9  packages/os-database/src/prisma-commercial-store.ts
+e230c53a8d1abd940f5c5a1620b250e6cdbac7ce06945d44f3940ca240df4981  apps/os-api/src/parties.controller.ts
+a0007d0712fddec3b7d71a04b51427b3111cfc33a523be43a3e421a830561f49  apps/os-api/src/t03-coverage-actions-ui.http.test.ts
+641f7313703e528893fefc60aadca4ac5a2d17b20a63549ead2d365ee34f02c4  apps/os-api/src/t03-customer-authority.http.test.ts
+2a965ba555b3cc6f3222594dceacf5b20e709b0c8bd311f98f36926acd135214  apps/os-api/src/review-r4-lifecycle-coverage.http.test.ts
+646312d87e0e94bf1bc85e3a278891df03ade6ac06f29367028eb5049166ad2f  apps/os-web/lib/commercial/coverage-actions.ts
+c48ef1433b61150134a8b4cef7b37764029e026458c6069c63593c151de776b4  apps/os-web/lib/commercial/coverage-actions.test.ts
+e849e8807ecf31b6e26f8783af6a023e1b95bf7b96b24ed8eb9cfe779d98b273  apps/os-web/lib/commercial/actions.ts
+961e6844908ee2f8ff72859122e77e0f353ee4269ec0be13c7232c5f7cad9449  apps/os-web/lib/party/types.ts

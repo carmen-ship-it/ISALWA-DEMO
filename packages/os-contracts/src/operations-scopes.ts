@@ -438,6 +438,39 @@ export function grantableCoverageActionsFor(grantorScopes: readonly string[]): C
   });
 }
 
+/**
+ * Engineering default (owner decision 2026-10-18), not a recovered customer rule: one coverage
+ * grant lasts at most 30 calendar days and starts at most 30 days ahead. Longer help is a new,
+ * separately authorized grant; nothing renews automatically.
+ */
+export const COVERAGE_MAX_DURATION_DAYS = 30;
+const DAY_MS = 86_400_000;
+
+/** null when the window is acceptable for a new grant; otherwise why it is refused. */
+export function coverageWindowProblem(input: {
+  startsAt: Date;
+  endsAt: Date | null | undefined;
+  now: Date;
+}): 'END_REQUIRED' | 'START_IN_PAST' | 'START_TOO_FAR' | 'END_BEFORE_START' | 'TOO_LONG' | null {
+  const { startsAt, endsAt, now } = input;
+  if (!endsAt) return 'END_REQUIRED';
+  if (startsAt.getTime() < now.getTime() - 60_000) return 'START_IN_PAST';
+  if (startsAt.getTime() > now.getTime() + COVERAGE_MAX_DURATION_DAYS * DAY_MS) return 'START_TOO_FAR';
+  if (endsAt <= startsAt) return 'END_BEFORE_START';
+  if (endsAt.getTime() - startsAt.getTime() > COVERAGE_MAX_DURATION_DAYS * DAY_MS) return 'TOO_LONG';
+  return null;
+}
+
+/** Two coverage windows overlap (an open-ended stored window overlaps everything after its start). */
+export function coverageWindowsOverlap(
+  a: { startsAt: Date; endsAt: Date | null },
+  b: { startsAt: Date; endsAt: Date | null },
+): boolean {
+  const aEndsAfterBStarts = a.endsAt === null || a.endsAt > b.startsAt;
+  const bEndsAfterAStarts = b.endsAt === null || b.endsAt > a.startsAt;
+  return aEndsAfterBStarts && bEndsAfterAStarts;
+}
+
 /** Grants recorded before actions were explicit carried only the commercial-work meaning. */
 export const LEGACY_COVERAGE_ACTIONS: readonly CustomerCoverageAction[] = ['commercial.work'];
 

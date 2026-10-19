@@ -1,0 +1,8 @@
+os-contracts (serial): tests 188, pass 188, fail 0
+os-domain (serial): tests 239, pass 239, fail 0
+os-commercial (serial): tests 106, pass 106, fail 0
+os-query (serial): tests 114, pass 114, fail 0
+regressions vs HEAD 6f39a90d commercial-command-service.ts (restored from saved copy, sha256 identical): pass 28, fail 9; the 5 new P6 tests all fail (open-ended/past/too-long windows, 30-day acceptance, overlap/extension, scheduled grants ended on reassignment, independent authority)
+HTTP+PG disposable isalwa_t01_disposable: t03-coverage-actions-ui tests 4 pass 4; t03-customer-authority tests 10 pass 10; review-r4-lifecycle-coverage tests 4 pass 4; route-auth-path tests 1 pass 1
+os-web coverage-actions + admin-continuity: tests 10, pass 10, fail 0
+tsc os-api: exit 0; tsc os-commercial: exit 0; tsc os-web: exit 0

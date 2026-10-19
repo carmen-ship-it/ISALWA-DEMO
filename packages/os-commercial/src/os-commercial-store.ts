@@ -138,11 +138,12 @@ export interface OsCommercialStore {
     }>
   >;
 
-  /** Active grants for a party (any helper) — UI display. */
+  /** Active grants for a party (any helper); with includeScheduled also grants that start later. */
   listActiveCustomerCoverageForParty(input: {
     organizationId: string;
     customerPartyId: string;
     asOf: Date;
+    includeScheduled?: boolean;
   }): Promise<
     Array<{
       id: string;

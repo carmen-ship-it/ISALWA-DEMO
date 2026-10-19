@@ -140,7 +140,10 @@ export const GrantCustomerCoveragePayloadSchema = z.object({
   actingAdvisorMemberId: z.string().min(1),
   /** Defaults to commercial.work. The service accepts only GRANTABLE_COVERAGE_ACTIONS. */
   coveredActions: z.array(z.string().min(1)).min(1).max(4).optional(),
-  endsAt: z.string().datetime().optional().nullable(),
+  /** Defaults to now. At most COVERAGE_MAX_DURATION_DAYS ahead. */
+  startsAt: z.string().datetime().optional(),
+  /** Required: at most COVERAGE_MAX_DURATION_DAYS after startsAt. */
+  endsAt: z.string().datetime(),
   note: z.string().max(2000).optional(),
 });
 

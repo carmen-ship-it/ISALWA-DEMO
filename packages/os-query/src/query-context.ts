@@ -89,6 +89,11 @@ export async function buildQueryContext(
     accessStatus: member.accessStatus,
     roleKeys,
     delegatedScopes: [],
+    independentScopes: computeEffectiveScopes(
+      roles.map((r) => ({ roleKey: r.roleKey, effectiveAt: r.effectiveAt, endedAt: r.endedAt })),
+      [],
+      session.effectiveAt,
+    ),
     delegatedApproverFor,
   };
   assertMemberActive(auth);

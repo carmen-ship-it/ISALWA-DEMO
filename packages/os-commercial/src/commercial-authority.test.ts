@@ -13,6 +13,8 @@ const OWNER = 'mem-owner';
 const OTHER = 'mem-other';
 const QUOTE_ID = 'quote-1';
 const NOW = new Date('2026-09-13T12:00:00.000Z');
+const DAY = 86_400_000;
+const IN_A_WEEK = new Date(NOW.getTime() + 7 * DAY).toISOString();
 
 function ctx(actorMemberId: string, organizationId = ORG): RequestContext {
   return {
@@ -670,8 +672,22 @@ function coverageStore(input: {
     async getCommercialAccountForParty(organizationId: string, partyId: string) {
       return row && row.organizationId === organizationId && row.partyId === partyId ? row : null;
     },
-    async listActiveCustomerCoverageForParty() {
-      return [];
+    async listActiveCustomerCoverageForParty(query: {
+      organizationId: string;
+      customerPartyId: string;
+      asOf: Date;
+      includeScheduled?: boolean;
+    }) {
+      return grants
+        .filter(
+          (grant) =>
+            grant.organizationId === query.organizationId &&
+            grant.customerPartyId === query.customerPartyId &&
+            !grant.revokedAt &&
+            (query.includeScheduled || grant.startsAt <= query.asOf) &&
+            (grant.endsAt === null || grant.endsAt > query.asOf),
+        )
+        .map((grant) => ({ ...grant, coveredActions: grant.coveredActions ?? ['commercial.work'] }));
     },
     async appendEventAndAudit(event: { eventType: string; payload?: Record<string, unknown> }) {
       events.push({ eventType: event.eventType, payload: event.payload });
@@ -692,6 +708,7 @@ describe('GrantCustomerCoverage', () => {
     const result = await service.execute('GrantCustomerCoverage', ctx('mem-actor'), {
       commercialAccountId: 'acct-1',
       actingAdvisorMemberId: OTHER,
+      endsAt: IN_A_WEEK,
       note: 'Vacaciones',
     });
 
@@ -718,7 +735,7 @@ describe('GrantCustomerCoverage', () => {
     await new CommercialCommandService(store as unknown as OsCommercialStore).execute(
       'GrantCustomerCoverage',
       ctx('mem-actor'),
-      { commercialAccountId: 'acct-1', actingAdvisorMemberId: OTHER, coveredActions: ['commercial.work', 'customer.edit'] },
+      { commercialAccountId: 'acct-1', actingAdvisorMemberId: OTHER, endsAt: IN_A_WEEK, coveredActions: ['commercial.work', 'customer.edit'] },
     );
     assert.deepEqual(store.grants[0]!.coveredActions, ['commercial.work', 'customer.edit']);
     assert.deepEqual(store.events[0]!.payload?.coveredActions, ['commercial.work', 'customer.edit']);
@@ -732,7 +749,7 @@ describe('GrantCustomerCoverage', () => {
           new CommercialCommandService(store as unknown as OsCommercialStore).execute(
             'GrantCustomerCoverage',
             ctx('mem-actor'),
-            { commercialAccountId: 'acct-1', actingAdvisorMemberId: OTHER, coveredActions },
+            { commercialAccountId: 'acct-1', actingAdvisorMemberId: OTHER, endsAt: IN_A_WEEK, coveredActions },
           ),
         /VALIDATION_FAILED/,
         JSON.stringify(coveredActions),
@@ -771,12 +788,89 @@ describe('GrantCustomerCoverage', () => {
         service.execute('GrantCustomerCoverage', ctx('mem-actor'), {
           commercialAccountId: 'acct-1',
           actingAdvisorMemberId: 'mem-foreign-company',
+          endsAt: IN_A_WEEK,
         }),
       /NOT_FOUND/,
     );
     assert.equal(store.grants.length, 0);
     assert.deepEqual(store.events, []);
     assert.equal(store.account!.ownerMemberId, OWNER);
+  });
+
+  describe('review 3129709 P6: bounded windows, all grants, independent authority', () => {
+    const grantor = ['commercial.account.reassign', 'commercial.assignment.org'];
+    const grant = (store: ReturnType<typeof coverageStore>, window: { startsAt?: string; endsAt?: string | null }) =>
+      new CommercialCommandService(store as unknown as OsCommercialStore).execute('GrantCustomerCoverage', ctx('mem-actor'), {
+        commercialAccountId: 'acct-1',
+        actingAdvisorMemberId: OTHER,
+        ...window,
+      });
+    const iso = (offsetDays: number) => new Date(NOW.getTime() + offsetDays * DAY).toISOString();
+
+    it('refuses open-ended, past, too-long and too-distant windows', async () => {
+      for (const window of [
+        {},
+        { endsAt: null },
+        { endsAt: iso(-1) },
+        { endsAt: iso(31) },
+        { startsAt: iso(-2), endsAt: iso(3) },
+        { startsAt: iso(31), endsAt: iso(35) },
+        { startsAt: iso(5), endsAt: iso(5) },
+        { startsAt: iso(5), endsAt: iso(36) },
+      ]) {
+        const store = coverageStore({ scopes: grantor });
+        await assert.rejects(() => grant(store, window), /VALIDATION_FAILED/, JSON.stringify(window));
+        assert.equal(store.grants.length, 0);
+        assert.deepEqual(store.events, []);
+      }
+    });
+
+    it('accepts exactly 30 days and a scheduled start within 30 days', async () => {
+      const now = coverageStore({ scopes: grantor });
+      await grant(now, { endsAt: iso(30) });
+      assert.equal(now.grants[0]!.startsAt.toISOString(), NOW.toISOString());
+      assert.equal(now.grants[0]!.endsAt!.toISOString(), iso(30));
+      const later = coverageStore({ scopes: grantor });
+      await grant(later, { startsAt: iso(30), endsAt: iso(60) });
+      assert.equal(later.grants[0]!.startsAt.toISOString(), iso(30));
+    });
+
+    it('refuses a window overlapping an active or scheduled grant for the same helper; an extension starts when it ends', async () => {
+      const store = coverageStore({ scopes: grantor });
+      await grant(store, { endsAt: iso(10) });
+      await assert.rejects(() => grant(store, { startsAt: iso(5), endsAt: iso(20) }), /VALIDATION_FAILED/);
+      await grant(store, { startsAt: iso(10), endsAt: iso(25) });
+      await assert.rejects(() => grant(store, { startsAt: iso(20), endsAt: iso(28) }), /VALIDATION_FAILED/);
+      assert.equal(store.grants.length, 2);
+      assert.equal(store.events.length, 2);
+    });
+
+    it('ends scheduled grants as well as active ones when the owner changes', async () => {
+      const store = coverageStore({ scopes: grantor });
+      await grant(store, { endsAt: iso(10) });
+      await grant(store, { startsAt: iso(10), endsAt: iso(20) });
+      await new CommercialCommandService(store as unknown as OsCommercialStore).execute(
+        'ReassignCommercialAccountOwner',
+        ctx('mem-actor'),
+        { commercialAccountId: 'acct-1', ownerMemberId: 'mem-asesor' },
+      );
+      assert.deepEqual(
+        store.grants.map((g) => Boolean(g.revokedAt)),
+        [true, true],
+      );
+    });
+
+    it('decides grant authority and delegable actions from independent role assignments only', () => {
+      const source = readFileSync(resolve(__dirname, 'commercial-command-service.ts'), 'utf8');
+      const body = source.slice(
+        source.indexOf('private async grantCustomerCoverage'),
+        source.indexOf('private async revokeCustomerCoverage'),
+      );
+      assert.match(body, /memberIndependentScopes\(snap\)/);
+      assert.match(body, /canGrantCustomerCoverage\(independentScopes\)/);
+      assert.match(body, /grantableCoverageActionsFor\(independentScopes\)/);
+      assert.doesNotMatch(body, /delegatedScopes|snap\.roleKeys/);
+    });
   });
 
   it('gates grant on canGrantCustomerCoverage (reassign scope only)', () => {
@@ -922,6 +1016,7 @@ describe('T03 assignment boundary (2026-10-16 19:30): action permission + explic
       new CommercialCommandService(store as unknown as OsCommercialStore).execute('GrantCustomerCoverage', ctx('mem-actor'), {
         commercialAccountId: 'acct-1',
         actingAdvisorMemberId: OTHER,
+        endsAt: IN_A_WEEK,
         ...(coveredActions ? { coveredActions } : {}),
       });
     const alone = coverageStore({ scopes: ['commercial.account.reassign'] });
@@ -946,6 +1041,7 @@ describe('T03 assignment boundary (2026-10-16 19:30): action permission + explic
           new CommercialCommandService(store as unknown as OsCommercialStore).execute('GrantCustomerCoverage', ctx('mem-actor'), {
             commercialAccountId: 'acct-1',
             actingAdvisorMemberId: OTHER,
+            endsAt: IN_A_WEEK,
             coveredActions: [...actions],
           }),
         /PERMISSION_DENIED/,
@@ -956,6 +1052,7 @@ describe('T03 assignment boundary (2026-10-16 19:30): action permission + explic
     await new CommercialCommandService(store as unknown as OsCommercialStore).execute('GrantCustomerCoverage', ctx('mem-actor'), {
       commercialAccountId: 'acct-1',
       actingAdvisorMemberId: OTHER,
+      endsAt: IN_A_WEEK,
       coveredActions: ['commercial.work', 'quote.convert'],
     });
     assert.deepEqual(store.grants[0]!.coveredActions, ['commercial.work', 'quote.convert']);

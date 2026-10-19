@@ -9,8 +9,10 @@ import {
   Req,
 } from '@nestjs/common';
 import type { Request } from 'express';
+import { memberIndependentScopes } from '@isalwa/os-domain';
 import {
   canGrantCustomerCoverage,
+  canRevokeCustomerCoverage,
   canReassignCommercialAccountOwner,
   CursorPaginationSchema,
   ListPartyTimelineQuerySchema,
@@ -66,7 +68,13 @@ export class PartiesController {
     asOf: Date,
     grantedScopes: string[],
     ownerMemberId: string | null,
-  ): Promise<{ canReassignOwner: boolean; canManageCoverage: boolean; grantableCoverageActions: string[] }> {
+    independentScopes: readonly string[],
+  ): Promise<{
+    canReassignOwner: boolean;
+    canManageCoverage: boolean;
+    canRevokeCoverage: boolean;
+    grantableCoverageActions: string[];
+  }> {
     const authority = resolveAccountAssignmentAuthority({
       grantedScopes,
       currentOwnerMemberId: ownerMemberId,
@@ -75,11 +83,13 @@ export class PartiesController {
         : false,
       actorLeadsTarget: true,
     });
-    const canManageCoverage = authority !== null && ownerMemberId !== null && canGrantCustomerCoverage(grantedScopes);
+    // Granting delegates customer actions: independent authority only, as GrantCustomerCoverage enforces.
+    const canManageCoverage = authority !== null && ownerMemberId !== null && canGrantCustomerCoverage(independentScopes);
     return {
       canReassignOwner: authority !== null && canReassignCommercialAccountOwner(grantedScopes),
       canManageCoverage,
-      grantableCoverageActions: canManageCoverage ? grantableCoverageActionsFor(grantedScopes) : [],
+      canRevokeCoverage: authority !== null && canRevokeCustomerCoverage(grantedScopes),
+      grantableCoverageActions: canManageCoverage ? grantableCoverageActionsFor(independentScopes) : [],
     };
   }
 
@@ -276,20 +286,43 @@ export class PartiesController {
         session.organizationId,
         partyId,
       );
+      const asOf = session.effectiveAt ?? new Date();
       const coverageRows = await this.commercialStore.listActiveCustomerCoverageForParty({
         organizationId: session.organizationId,
         customerPartyId: partyId,
-        asOf: session.effectiveAt ?? new Date(),
+        asOf,
+        includeScheduled: true,
       });
-      const activeCoverage = coverageRows[0]
+      const commercialAuthority = await this.accountAssignmentFlags(
+        session.organizationId,
+        session.actorMemberId,
+        asOf,
+        [...queryCtx.auth.roleKeys, ...queryCtx.auth.delegatedScopes],
+        commercialAccount?.ownerMemberId ?? null,
+        memberIndependentScopes(queryCtx.auth),
+      );
+      const coverageGrants = coverageRows.map((row) => ({
+        grantId: row.id,
+        actingAdvisorMemberId: row.actingAdvisorMemberId,
+        primaryOwnerMemberId: row.primaryOwnerMemberId,
+        coveredActions: [...row.coveredActions],
+        startsAt: row.startsAt.toISOString(),
+        endsAt: row.endsAt?.toISOString() ?? null,
+        status: row.startsAt > asOf ? ('scheduled' as const) : ('active' as const),
+        recordedByMemberId: row.recordedByMemberId,
+        canRevoke: commercialAuthority.canRevokeCoverage,
+      }));
+      // Deprecated: the first active grant only. Removed when the customer page reads coverageGrants.
+      const firstActive = coverageRows.filter((row) => row.startsAt <= asOf);
+      const activeCoverage = firstActive[0]
         ? {
-            grantId: coverageRows[0].id,
-            primaryOwnerMemberId: coverageRows[0].primaryOwnerMemberId,
-            actingAdvisorMemberId: coverageRows[0].actingAdvisorMemberId,
-            startsAt: coverageRows[0].startsAt.toISOString(),
-            endsAt: coverageRows[0].endsAt?.toISOString() ?? null,
-            recordedByMemberId: coverageRows[0].recordedByMemberId,
-            coveredActions: [...coverageRows[0].coveredActions],
+            grantId: firstActive[0].id,
+            primaryOwnerMemberId: firstActive[0].primaryOwnerMemberId,
+            actingAdvisorMemberId: firstActive[0].actingAdvisorMemberId,
+            startsAt: firstActive[0].startsAt.toISOString(),
+            endsAt: firstActive[0].endsAt?.toISOString() ?? null,
+            recordedByMemberId: firstActive[0].recordedByMemberId,
+            coveredActions: [...firstActive[0].coveredActions],
           }
         : null;
       return {
@@ -299,13 +332,8 @@ export class PartiesController {
         contactsMeta,
         commercialAccount,
         activeCoverage,
-        commercialAuthority: await this.accountAssignmentFlags(
-          session.organizationId,
-          session.actorMemberId,
-          session.effectiveAt ?? new Date(),
-          [...queryCtx.auth.roleKeys, ...queryCtx.auth.delegatedScopes],
-          commercialAccount?.ownerMemberId ?? null,
-        ),
+        coverageGrants,
+        commercialAuthority,
       };
     } catch (err) {
       if (err instanceof HttpException) throw err;

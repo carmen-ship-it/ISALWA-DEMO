@@ -242,6 +242,7 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
       command('manager', 'GrantCustomerCoverage', {
         commercialAccountId: state.accountId,
         actingAdvisorMemberId: m.helper!.member.id,
+        endsAt: new Date(Date.now() + 7 * 86_400_000).toISOString(),
         ...(coveredActions ? { coveredActions } : {}),
       });
     const revokeAll = async () => {
@@ -402,7 +403,7 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     const quoteId = await submittedSellerQuote();
     const ordersBefore = await prisma().osOrder.count({ where: { organizationId: orgA.id } });
     const grant = (who: string, coveredActions: string[], advisor = m.helper!) =>
-      command(who, 'GrantCustomerCoverage', { commercialAccountId: state.accountId, actingAdvisorMemberId: advisor.member.id, coveredActions });
+      command(who, 'GrantCustomerCoverage', { commercialAccountId: state.accountId, actingAdvisorMemberId: advisor.member.id, coveredActions, endsAt: new Date(Date.now() + 7 * 86_400_000).toISOString() });
 
     // A grantor without conversion authority cannot delegate it.
     const overreach = await grant('assigner', ['commercial.work', 'quote.convert']);
@@ -507,11 +508,13 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     const teamGrantOutside = await command('teamMgr', 'GrantCustomerCoverage', {
       commercialAccountId: state.accountId,
       actingAdvisorMemberId: m.otherSeller!.member.id,
+      endsAt: new Date(Date.now() + 7 * 86_400_000).toISOString(),
     });
     assert.deepEqual([teamGrantOutside.status, teamGrantOutside.body], [403, { code: 'PERMISSION_DENIED' }]);
     const teamGrant = await command('teamMgr', 'GrantCustomerCoverage', {
       commercialAccountId: state.accountId,
       actingAdvisorMemberId: m.teamSeller!.member.id,
+      endsAt: new Date(Date.now() + 7 * 86_400_000).toISOString(),
     });
     assert.equal(teamGrant.status, 201);
     const grantId = String((teamGrant.body.data as Record<string, unknown>).grantId);

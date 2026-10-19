@@ -1,4 +1,5 @@
-import { isGrantableCoverageAction } from '@isalwa/os-contracts';
+import { COVERAGE_MAX_DURATION_DAYS, isGrantableCoverageAction } from '@isalwa/os-contracts';
+import { dueDateInputToIso } from '@/lib/commitments/draft';
 
 export type CoverageActionChoice = { action: string; label: string; hint: string };
 
@@ -31,4 +32,31 @@ export function formatCoverageActions(actions: readonly string[] | undefined): s
 /** Form values → requested actions; unknown values are dropped, never defaulted upward. */
 export function parseCoverageActions(values: readonly unknown[]): string[] {
   return [...new Set(values.map(String).filter(isGrantableCoverageAction))];
+}
+
+const DAY_MS = 86_400_000;
+
+/**
+ * "Desde" / "Hasta" day fields (America/La_Paz) → the GrantCustomerCoverage window.
+ * Coverage ends at the local midnight after the last covered day; a start of today means now.
+ */
+export function coverageWindowFromForm(
+  input: { startsOn?: unknown; endsOn?: unknown },
+  now: Date,
+): { ok: true; startsAt?: string; endsAt: string } | { ok: false; error: string } {
+  const endsOnStart = dueDateInputToIso(String(input.endsOn ?? ''));
+  if (!endsOnStart) {
+    return { ok: false, error: `Indique hasta qué día dura el apoyo (máximo ${COVERAGE_MAX_DURATION_DAYS} días).` };
+  }
+  if (endsOnStart === 'invalid') return { ok: false, error: 'La fecha de fin no es válida.' };
+  const startsOnStart = dueDateInputToIso(String(input.startsOn ?? ''));
+  if (startsOnStart === 'invalid') return { ok: false, error: 'La fecha de inicio no es válida.' };
+  const endsAt = new Date(new Date(endsOnStart).getTime() + DAY_MS);
+  const startsAt = startsOnStart && new Date(startsOnStart) > now ? new Date(startsOnStart) : null;
+  const effectiveStart = startsAt ?? now;
+  if (endsAt <= effectiveStart) return { ok: false, error: 'La fecha de fin debe ser posterior al inicio.' };
+  if (endsAt.getTime() - effectiveStart.getTime() > COVERAGE_MAX_DURATION_DAYS * DAY_MS) {
+    return { ok: false, error: `El apoyo temporal dura como máximo ${COVERAGE_MAX_DURATION_DAYS} días. Para más tiempo, registre un nuevo apoyo al terminar este.` };
+  }
+  return { ok: true, ...(startsAt ? { startsAt: startsAt.toISOString() } : {}), endsAt: endsAt.toISOString() };
 }

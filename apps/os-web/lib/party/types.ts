@@ -82,9 +82,23 @@ export type PartyDetailResponse = {
   commercialAuthority?: {
     canReassignOwner: boolean;
     canManageCoverage?: boolean;
+    canRevokeCoverage?: boolean;
     /** Actions this viewer may put on a new coverage grant. */
     grantableCoverageActions?: string[];
   };
+  /** Every current and scheduled coverage grant (T03 contract C4). */
+  coverageGrants?: Array<{
+    grantId: string;
+    actingAdvisorMemberId: string;
+    primaryOwnerMemberId: string;
+    coveredActions: string[];
+    startsAt: string;
+    endsAt: string | null;
+    status: 'active' | 'scheduled';
+    recordedByMemberId: string | null;
+    canRevoke: boolean;
+  }>;
+  /** Deprecated: first active grant only; replaced by coverageGrants. */
   activeCoverage?: {
     grantId: string;
     primaryOwnerMemberId: string;

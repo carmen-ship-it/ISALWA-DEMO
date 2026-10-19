@@ -62,7 +62,7 @@ describeHttp('T03 coverage action choice over HTTP (disposable Postgres)', () =>
   }
 
   const grant = (who: string, coveredActions: string[]) =>
-    command(who, 'GrantCustomerCoverage', { commercialAccountId: ids.account, actingAdvisorMemberId: m.helper!.member.id, coveredActions });
+    command(who, 'GrantCustomerCoverage', { commercialAccountId: ids.account, actingAdvisorMemberId: m.helper!.member.id, coveredActions, endsAt: new Date(Date.now() + 7 * 86_400_000).toISOString() });
 
   before(async () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
@@ -93,7 +93,7 @@ describeHttp('T03 coverage action choice over HTTP (disposable Postgres)', () =>
   it('offers each viewer exactly the coverage actions they may delegate; the owner gets none', async () => {
     const offered = async (who: string) =>
       (await detail(who)).commercialAuthority as { canManageCoverage: boolean; grantableCoverageActions: string[] };
-    assert.deepEqual(await offered('assigner'), { canReassignOwner: true, canManageCoverage: true, grantableCoverageActions: ['commercial.work'] });
+    assert.deepEqual(await offered('assigner'), { canReassignOwner: true, canManageCoverage: true, canRevokeCoverage: true, grantableCoverageActions: ['commercial.work'] });
     assert.deepEqual((await offered('editor')).grantableCoverageActions, ['commercial.work', 'customer.edit']);
     assert.deepEqual((await offered('full')).grantableCoverageActions, ['commercial.work', 'customer.edit', 'quote.convert']);
     const owner = await offered('owner');
@@ -121,5 +121,45 @@ describeHttp('T03 coverage action choice over HTTP (disposable Postgres)', () =>
     assert.equal(active.primaryOwnerMemberId, m.owner!.member.id);
     assert.deepEqual(active.coveredActions, ['commercial.work', 'customer.edit']);
     assert.deepEqual(((await detail('helper')).activeCoverage as Record<string, unknown>).coveredActions, ['commercial.work', 'customer.edit']);
+  });
+
+  it('review 3129709 P6: refuses unbounded windows and lists every active and scheduled grant', async () => {
+    const day = 86_400_000;
+    const iso = (days: number) => new Date(Date.now() + days * day).toISOString();
+    const raw = (body: Record<string, unknown>) =>
+      command('editor', 'GrantCustomerCoverage', { commercialAccountId: ids.account, actingAdvisorMemberId: m.helper!.member.id, ...body });
+    const before = await prisma().osCustomerCoverageGrant.count({ where: { organizationId: org.id } });
+    for (const window of [{}, { endsAt: null }, { endsAt: '2099-01-01T00:00:00.000Z' }, { endsAt: iso(31) }, { startsAt: iso(40), endsAt: iso(45) }]) {
+      const reply = await raw(window);
+      assert.deepEqual([reply.status, reply.body], [400, { code: 'VALIDATION_FAILED' }], JSON.stringify(window));
+    }
+    const overlapping = await raw({ startsAt: iso(3), endsAt: iso(10) });
+    assert.deepEqual([overlapping.status, overlapping.body], [400, { code: 'VALIDATION_FAILED' }], 'overlaps the active grant');
+    assert.equal(await prisma().osCustomerCoverageGrant.count({ where: { organizationId: org.id } }), before);
+
+    const activeRow = await prisma().osCustomerCoverageGrant.findFirstOrThrow({ where: { organizationId: org.id, revokedAt: null } });
+    const extension = await raw({ startsAt: activeRow.endsAt!.toISOString(), endsAt: new Date(activeRow.endsAt!.getTime() + 14 * day).toISOString() });
+    assert.equal(extension.status, 201, JSON.stringify(extension.body));
+    const second = await command('editor', 'GrantCustomerCoverage', {
+      commercialAccountId: ids.account,
+      actingAdvisorMemberId: m.assigner!.member.id,
+      endsAt: iso(5),
+    });
+    assert.equal(second.status, 201, JSON.stringify(second.body));
+
+    type Grant = { grantId: string; actingAdvisorMemberId: string; status: string; startsAt: string; endsAt: string | null; canRevoke: boolean };
+    const grants = (who: string) => detail(who).then((d) => d.coverageGrants as Grant[]);
+    const full = await grants('full');
+    assert.equal(full.length, 3, 'every grant, not only the first');
+    assert.deepEqual(
+      full.map((g) => [g.actingAdvisorMemberId, g.status, g.canRevoke]).sort(),
+      [
+        [m.assigner!.member.id, 'active', true],
+        [m.helper!.member.id, 'active', true],
+        [m.helper!.member.id, 'scheduled', true],
+      ].sort(),
+    );
+    assert.ok(full.every((g) => g.endsAt !== null));
+    assert.ok((await grants('owner')).every((g) => g.canRevoke === false), 'the owner sees the grants but cannot revoke');
   });
 });

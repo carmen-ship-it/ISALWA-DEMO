@@ -15,6 +15,8 @@ import {
   MASTER_DATA_ADMIN_SCOPE,
   coverageAuditForConvert,
   buildCustomerCoverageGrant,
+  coverageWindowProblem,
+  coverageWindowsOverlap,
   isGrantableCoverageAction,
   LEGACY_COVERAGE_ACTIONS,
   type CustomerCoverageGrant,
@@ -24,6 +26,7 @@ import {
   assertTenantMatch,
   computeEffectiveScopes,
   memberHasScope,
+  memberIndependentScopes,
   type MemberAccessSnapshot,
 } from '@isalwa/os-domain';
 import {
@@ -84,6 +87,11 @@ export class CommercialCommandService {
         asOf,
       ),
       delegatedScopes: [],
+      independentScopes: computeEffectiveScopes(
+        roles.map((r) => ({ roleKey: r.roleKey, effectiveAt: r.effectiveAt, endedAt: r.endedAt })),
+        [],
+        asOf,
+      ),
     };
   }
 
@@ -1458,6 +1466,7 @@ export class CommercialCommandService {
       organizationId: ctx.organizationId,
       customerPartyId: account.partyId,
       asOf: ctx.effectiveAt,
+      includeScheduled: true,
     })) {
       const ended = await store.revokeCustomerCoverageGrant({
         organizationId: ctx.organizationId,
@@ -1494,7 +1503,9 @@ export class CommercialCommandService {
     store: OsCommercialStore,
   ): Promise<CommandResult> {
     const snap = await this.authorize(ctx, 'GrantCustomerCoverage', ctx.organizationId);
-    if (!canGrantCustomerCoverage([...snap.roleKeys, ...snap.delegatedScopes])) {
+    // Delegating customer actions uses the grantor's independent authority (own role assignments), never a received delegation.
+    const independentScopes = memberIndependentScopes(snap);
+    if (!canGrantCustomerCoverage(independentScopes)) {
       throw new Error('PERMISSION_DENIED');
     }
 
@@ -1507,11 +1518,15 @@ export class CommercialCommandService {
     if (requestedActions.length === 0 || !requestedActions.every(isGrantableCoverageAction)) {
       throw new Error('VALIDATION_FAILED');
     }
-    let endsAt: Date | null = null;
-    if (payload.endsAt != null && String(payload.endsAt).trim()) {
-      endsAt = new Date(String(payload.endsAt));
-      if (Number.isNaN(endsAt.getTime())) throw new Error('VALIDATION_FAILED');
-    }
+    const parseDate = (raw: unknown): Date | null => {
+      if (raw == null || !String(raw).trim()) return null;
+      const date = new Date(String(raw));
+      if (Number.isNaN(date.getTime())) throw new Error('VALIDATION_FAILED');
+      return date;
+    };
+    const endsAt = parseDate(payload.endsAt);
+    const startsAt = parseDate(payload.startsAt) ?? ctx.effectiveAt;
+    if (coverageWindowProblem({ startsAt, endsAt, now: ctx.effectiveAt })) throw new Error('VALIDATION_FAILED');
 
     const account = this.refuseForeign(
       await store.getCommercialAccountInOrg(ctx.organizationId, commercialAccountId),
@@ -1519,7 +1534,7 @@ export class CommercialCommandService {
     );
     await this.assignmentAuthority(ctx, store, snap, account, actingAdvisorMemberId);
     // A grantor delegates only what they are authorized to do themselves.
-    const delegable: readonly string[] = grantableCoverageActionsFor([...snap.roleKeys, ...snap.delegatedScopes]);
+    const delegable: readonly string[] = grantableCoverageActionsFor(independentScopes);
     if (!requestedActions.every((action) => delegable.includes(action))) throw new Error('PERMISSION_DENIED');
     if (account.status !== 'active') throw new Error('VALIDATION_FAILED');
     if (!account.ownerMemberId) throw new Error('VALIDATION_FAILED');
@@ -1530,7 +1545,6 @@ export class CommercialCommandService {
     );
     if (helper.accessStatus !== 'active') throw new Error('VALIDATION_FAILED');
 
-    const startsAt = new Date();
     const built = buildCustomerCoverageGrant({
       organizationId: ctx.organizationId,
       customerPartyId: account.partyId,
@@ -1542,13 +1556,20 @@ export class CommercialCommandService {
     });
     if (!built) throw new Error('VALIDATION_FAILED');
 
-    const existing = await store.listActiveCustomerCoverageGrants({
+    // One window per helper and customer at a time; an extension is a new grant starting when the current one ends.
+    const existing = await store.listActiveCustomerCoverageForParty({
       organizationId: ctx.organizationId,
       customerPartyId: account.partyId,
-      actingAdvisorMemberId,
-      asOf: startsAt,
+      asOf: ctx.effectiveAt,
+      includeScheduled: true,
     });
-    if (existing.length > 0) throw new Error('VALIDATION_FAILED');
+    if (
+      existing.some(
+        (grant) => grant.actingAdvisorMemberId === actingAdvisorMemberId && coverageWindowsOverlap(grant, { startsAt, endsAt }),
+      )
+    ) {
+      throw new Error('VALIDATION_FAILED');
+    }
 
     const grantId = createId();
     await store.createCustomerCoverageGrant({
@@ -1560,7 +1581,7 @@ export class CommercialCommandService {
       coveredActions: built.coveredActions,
       startsAt,
       endsAt,
-      recordedAt: startsAt,
+      recordedAt: ctx.effectiveAt,
       recordedByMemberId: snap.memberId,
     });
 

@@ -32,6 +32,8 @@ export type MemberAccessSnapshot = {
   accessStatus: string;
   roleKeys: string[];
   delegatedScopes: string[];
+  /** Scopes from the member's own active role assignments only (no delegation). Unset means unknown. */
+  independentScopes?: string[];
 };
 
 export function isAssignmentActive(
@@ -79,6 +81,15 @@ export function delegationConfersScope(d: EffectiveDelegation, scope: string, as
   return delegator.roleAssignments.some(
     (r) => r.roleKey === scope && isAssignmentActive(r.effectiveAt, r.endedAt, asOf),
   );
+}
+
+/**
+ * Authority the member holds by their own role assignments. Used where a received delegation
+ * must not count (for example, when delegating further). Fails closed when not computed.
+ */
+export function memberIndependentScopes(snapshot: MemberAccessSnapshot): readonly string[] {
+  if (snapshot.accessStatus !== 'active') return [];
+  return snapshot.independentScopes ?? [];
 }
 
 export function memberHasScope(snapshot: MemberAccessSnapshot, scope: AdminScopeKey): boolean {

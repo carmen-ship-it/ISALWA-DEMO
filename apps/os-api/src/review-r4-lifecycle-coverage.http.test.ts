@@ -118,6 +118,7 @@ describeHttp('Review R4 lifecycle ends customer coverage over HTTP (disposable P
     const granted = await command('manager', 'GrantCustomerCoverage', {
       commercialAccountId: state.accountId,
       actingAdvisorMemberId: m.helper!.member.id,
+      endsAt: new Date(Date.now() + 7 * 86_400_000).toISOString(),
     });
     assert.equal(granted.status, 201, JSON.stringify(granted.body));
     const future = await prisma().osCustomerCoverageGrant.create({
@@ -174,6 +175,7 @@ describeHttp('Review R4 lifecycle ends customer coverage over HTTP (disposable P
     const regrant = await command('manager', 'GrantCustomerCoverage', {
       commercialAccountId: state.accountId,
       actingAdvisorMemberId: m.helper!.member.id,
+      endsAt: new Date(Date.now() + 7 * 86_400_000).toISOString(),
     });
     assert.equal(regrant.status, 201);
     assert.equal((await command('helper', 'CreateQuote', { partyId: state.partyId })).status, 201);

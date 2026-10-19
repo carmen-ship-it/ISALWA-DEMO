@@ -103,6 +103,8 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `3129709450a000db22aff6ba791337fd0833cd3d` | `5c65e74cf1ef96dadbc753f0c66224ee188baebe` | T03 change/retire contact phone (HTTP+PG 6/6, os-web 3/3, os-api 306, os-database 305, os-web 1314). Independent review 2026-10-18 of `60c7278`..`3129709`: 15 open items (`receipts/REVIEW-T03-3129709.md`) | this writer; reviewed 2026-10-18, findings open |
 | `19efa4b6` (tree `47b67be07f4793d68dadea3e8343fb028e063cf1`) | | Docs: review findings and owner decisions (`receipts/REVIEW-T03-3129709.md`), T03 UI contracts, lane A2/B2 assignments | this writer |
 | `120012ab` (tree `e362ec556ded03c698fd5eb25137e1b25e7dd86a`) | | T03 review C1: UpdateParty reason for any change, no-op unchanged, unchanged legal name allowed (os-party 38, 4 regressions fail on old service, HTTP+PG 24/24 on rerun with 1 unexplained failure in run 1, os-contracts 185, os-web 3/3, tsc) | this writer; not reviewed |
+| `94793a41` | | Docs: ledger rows for `3129709`, `19efa4b6`, `120012ab`; reviewed T03 commits marked | this writer |
+| `6f39a90d` | | Docs: LOCAL BROWSER CHECK wording, catalog automatic-answer exclusion as integrator dependency, C1 intermittent failure tracked | this writer |
 
 ## Open blockers
 

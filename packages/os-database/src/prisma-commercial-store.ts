@@ -561,6 +561,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
     organizationId: string;
     customerPartyId: string;
     asOf: Date;
+    includeScheduled?: boolean;
   }) {
     const rows = await this.db().osCustomerCoverageGrant.findMany({
       where: {
@@ -568,10 +569,10 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
         customerPartyId: input.customerPartyId,
         grantType: 'commercial.customer.coverage',
         revokedAt: null,
-        startsAt: { lte: input.asOf },
+        ...(input.includeScheduled ? {} : { startsAt: { lte: input.asOf } }),
         OR: [{ endsAt: null }, { endsAt: { gt: input.asOf } }],
       },
-      orderBy: { startsAt: 'desc' },
+      orderBy: [{ startsAt: 'asc' }, { id: 'asc' }],
     });
     return rows.map((row) => ({
       id: row.id,

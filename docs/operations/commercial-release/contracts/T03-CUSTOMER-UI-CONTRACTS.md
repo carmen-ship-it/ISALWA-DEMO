@@ -9,7 +9,7 @@ Source decisions: owner reconciliation of the independent review of `3129709` (2
 | C1 | `UpdateParty` reason, no-op, legal-name handling | STABLE (API; see the C1 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`). `canEditLegalName` / `canReadLegalName` come with C3 |
 | C2 | Timeline field-level visibility | PLANNED |
 | C3 | Customer detail authority flags | PLANNED |
-| C4 | Coverage grants (all, bounded, revocable) | PLANNED |
+| C4 | Coverage grants (all, bounded, revocable) | STABLE (API and web action; see the C4 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C4-COVERAGE.md`) |
 | C5 | Contact endpoints (phone and WhatsApp): canonical number input, change, retire | PLANNED |
 | C6 | Endpoint history, masked by default; justified reveal | PLANNED |
 | C7 | Identity review for previously used numbers | PLANNED |
@@ -58,7 +58,8 @@ The web actions stop gating on `master_data.admin` (`adminClient`). The API deci
 - No open-ended or automatically renewed grant. To extend, record a new grant that starts when the current one ends (overlap for the same helper → `VALIDATION_FAILED`).
 - 30 days is an engineering default, not a customer rule.
 - `grantableCoverageActions` and the command use the grantor's independent authority only (role assignments, never received delegations).
-- Detail: `coverageGrants: Array<{ grantId, actingAdvisorMemberId, actingAdvisorName, coveredActions, startsAt, endsAt, status: 'active' | 'scheduled', recordedByMemberId, canRevoke }>`, with every active and scheduled grant. `activeCoverage` is removed when the UI switches.
+- Detail: `coverageGrants: Array<{ grantId, actingAdvisorMemberId, primaryOwnerMemberId, coveredActions, startsAt, endsAt, status: 'active' | 'scheduled', recordedByMemberId, canRevoke }>`, with every active and scheduled grant, ordered by start. No name field: the page labels members with its existing member-label resolution. `commercialAuthority.canRevokeCoverage` is added. `activeCoverage` is deprecated and removed when the UI switches.
+- Web action: `grantCustomerCoverageAction` takes form fields `startsOn?` and `endsOn` (`YYYY-MM-DD`, America/La_Paz). Coverage ends at the local midnight after `endsOn`; a start of today means now. The panel adds the two day inputs (lane B2). The range limit is shown as text; the action already refuses out-of-range days.
 - Revoke: existing `RevokeCustomerCoverage` with `grantId`; show it only when `canRevoke`.
 
 ## C5 — Contact endpoints
