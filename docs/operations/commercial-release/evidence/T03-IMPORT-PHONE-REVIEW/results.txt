@@ -1,0 +1,18 @@
+source: 39b6a9b8 (tree e78f594bab9f04c4093ec2e25ba900f5f32a27bb); disposable PG port 54329 only
+targeted before commit:
+  os-import unit: pass 32, fail 0
+  import-phone-review.integration (new) + import-prisma.integration: pass 12, fail 0
+  os-import tsc --noEmit exit 0; os-database tsc --noEmit exit 0 (package configs exclude *.test.ts)
+mutations (each restored, sha256 identical):
+  M13 execute without the phone preflight (os-import rebuilt): exit 1, pass 4, fail 2
+  M14 decision row update outside the decision transaction: exit 1, pass 5, fail 1
+  post-restore import-phone-review.integration: pass 6, fail 0
+milestone at 39b6a9b8, serial, after pnpm --workspace-concurrency=1 --filter "@isalwa/os-api^..." run build (exit 0):
+  os-contracts: tests 192, pass 192, fail 0
+  os-import: tests 32, pass 32, fail 0
+  os-party: tests 38, pass 38, fail 0
+  os-database: tests 311, pass 311, fail 0
+  os-api: tests 327, pass 327, fail 0
+  os-web lib+components: tests 1320, pass 1320, fail 0
+  os-web tsc exit 0; os-api tsc exit 0
+not rerun (unchanged since their last full run): os-domain, os-query, os-commercial, os-events and other packages

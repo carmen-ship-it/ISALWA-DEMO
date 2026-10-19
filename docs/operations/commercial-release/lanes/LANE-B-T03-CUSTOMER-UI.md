@@ -36,6 +36,8 @@ The demo-removal candidate `ct3/t10-demo-removal` / `/Users/carmen/projects/isal
    - "Sin cambios" for an `unchanged` result;
    - timeline shows a summary line for `detail: 'summary'` items.
 
+5. **Client import phone review (C9): ASSIGNED, not started.** No import page or os-web import client exists. It starts after the lane's review gate. Dependencies for integrator: the `os-api-client` methods for the C9 commands, and the page placement (inside the existing customer list surface; no new navigation).
+
 ## Allowed files
 
 - `apps/os-web/app/(app)/clientes/page.tsx` and `clientes/[partyId]/page.tsx` (T03 wiring only);
