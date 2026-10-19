@@ -40,6 +40,13 @@ T02 committed: shared customer-visibility predicate (search/detail/contacts/loca
 
 ## Next command
 
+T03 review sequence C1–C8 done locally (latest `70617a5e`). Milestones at that point: os-api full 326/327 (one read-inventory gap, fixed in `2763c505`), os-database full 302/305 (C5 import and migration-guard follow-ups, fixed in `70617a5e`, targeted checks green), os-web typecheck clean. **Independent review queue (not started; Claude paused):**
+- C1 `120012ab`, C4 `bc211fdd`, C3 `f11991fd`, C2 `f41016bf`, C5 `1bed54a3`, C6 `daf5a14f`, C7 `fff7d352`, C8 `f4102b42`, inventory `2763c505`, import follow-up `70617a5e`.
+- Lane B integration stays gated on that review.
+- Browser verification is pending for every item; the UI components are not wired, so none of these is a completed user workflow.
+
+Next T03 backend items have no published contract yet: end contact relation (A2 §66; its send preview depends on T12), follow-up preference, archive/reactivate with obligation block, correction requests via os-issue. Publishing those contracts comes before implementing them.
+
 R2 follow-up done (21:33 §1–§6): os-query approval reads and os-delivery permission lookup use the canonical delegation rule; suspension/termination end delegations issued by and granted to the member in the same transaction (reinstatement needs a fresh grant); ChangeRole replaces only the primary role, preserves additional grants unless explicitly revoked, with a preview shown before confirmation; bootstrap limited to three minimal proposals with explicit range. Next: R4 / task 4 read gaps (F07, F10 authorship, F11) with HTTP+PG and 404 non-disclosure.
 
 R3 done (20:03 §7, §13.8 #3): web organization context comes from proven active membership via `GET /v1/session/organizations`; one → used, several → valid previous choice or chooser, none → honest no-access; tampered/stale selectors refused by os-api; switching clears session storage and reloads; the Journey no longer changes organization or data mode. Next: task 4 read gaps (commitments, work items, approvals; F07, F10 authorship, F11) with HTTP+PG and 404 non-disclosure.
@@ -114,6 +121,7 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `fff7d352` (tree `992ffa17717d839bbf4fe3c45120b3070b4a867f`) | | T03 review C7: identity review resolution (confirm → unverified in use, reject → retired), superseded on change/retire (migration `20261018230000`, disposable DB only), decision-only timeline event. Identity HTTP 6/6, flags 5/5, endpoint 11/11, os-party 38, os-contracts 192, os-query 115, os-web 20/20, 3 mutations caught | this writer; not reviewed; UI lane B2 |
 | `f4102b42` (tree `18b3cf42f24a5f9e8191abc574e2ba45ba439b10`) | | T03 review C8: delegated steward recheck, no product change. New delegation HTTP 4/4; 2 mutations of `delegationConfersScope` caught. Milestone os-api full suite 326/327: the C6 endpoint-history GET was missing from the read inventory (fixed in the next commit, targeted 16/16) | this writer; not reviewed |
 | `2763c505` (tree `4bdfba389fe71e6c2e081028783a89e898da769f`) | | Read inventory classifies the C6 endpoint-history GET (customer boundary + auth path, disposable PG). Targeted 16/16. os-web typecheck clean | this writer; not reviewed |
+| `70617a5e` (tree `d286b27beffc9cc9d7115f530c5af68efc0084c0`) | | C5 follow-up: client import sends `{country:'BO', number}` and validates with the shared number rule; migration guard 37. Fixtures 30/30, os-import 29/29, party+import PG integration 23/23, mutation M12 caught | this writer; not reviewed |
 
 ## Open blockers
 
@@ -128,7 +136,7 @@ None for local work. External dependencies (§14) recorded per task when reached
 - **`os-import` and the C5 number contract (2026-10-18; corrected after the C8 milestone).** The earlier note here was wrong: import does not write contacts directly. It creates contacts through `UpdateContact`, so it gets association history and identity review, but after C5 it sent plain-string phones and failed with VALIDATION_FAILED. Fixed locally: import declares country BO and uses the shared number rule at validation time (receipt `receipts/T03-REVIEW-C5-FOLLOWUP-IMPORT.md`). Numbers that the shared rule refuses (for example 7-digit nationals) are now dropped in the dry run instead of imported. No import has been run against shared data.
 - **Existing-contact WhatsApp input still editable in the unintegrated form (2026-10-18, C5).** The action ignores numbers for existing contacts, so nothing changes, but the form does not say so. Lane B2 makes it read-only and adds the channel choice.
 
-- **C1 intermittent HTTP failure (2026-10-18, `120012ab`).** The first combined run of `t03-customer-authority` + `review-r1-grant-provisioning` + `t03-contact-phone` failed once in "team manager with the action permissions edits the customer…". Two reruns passed (10/10 alone, 24/24 combined). Detail not captured; cause unknown. Do not rerun broad suites to chase it without a hypothesis. If it recurs, capture the assertion and response body first. Candidate hypothesis: the shared disposable database still holds rows from the earlier runs. Not recurred in the C5 full os-api serial run (314/314).
+- **C1 intermittent HTTP failure (2026-10-18, `120012ab`).** The first combined run of `t03-customer-authority` + `review-r1-grant-provisioning` + `t03-contact-phone` failed once in "team manager with the action permissions edits the customer…". Two reruns passed (10/10 alone, 24/24 combined). Detail not captured; cause unknown. Do not rerun broad suites to chase it without a hypothesis. If it recurs, capture the assertion and response body first. Candidate hypothesis: the shared disposable database still holds rows from the earlier runs. Not recurred in the C5 full os-api serial run (314/314) or the post-C8 run (326/327, only failure the read inventory).
 
 ## Known pre-existing failures (not T01/T02)
 
