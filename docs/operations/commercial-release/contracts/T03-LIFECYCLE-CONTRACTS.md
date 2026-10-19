@@ -204,6 +204,18 @@ No second ticket system is introduced.
   - Closing with text alone is refused. The resolver (owner or `issue.manage`) must also be able to apply the change.
   - The outcome is the decision; `RecordIssueOutcome` is refused on a correction. `ReopenIssue` clears the decision and outcome (the event history keeps the earlier decision).
   - Without the customer-authority port, correction commands fail closed.
-  - `GET /v1/issues/:issueId/correction/candidate-events` (`639c4dc1`) lists, newest first and at most 20, the events that would pass this check. It requires apply authority (404 or 403 otherwise) and returns metadata only: `{eventId, eventType, occurredAt, actorMemberId}`.
+  - `GET /v1/issues/:issueId/correction/candidate-events` (`639c4dc1`, paged at `cdde6603`) lists the events that would pass this check. It requires apply authority (404 or 403 otherwise) and returns metadata only: `{eventId, eventType, occurredAt, actorMemberId, fields}`.
+- **Completion (`cdde6603`, instruction 2026-10-19 01:49).**
+  - **Evidence is exact.**
+    - The cited event must have changed the requested attribute: party, contact and location events carry `changedFields` and `version`, and endpoint events carry `channel` and `whatsappFollows`.
+    - `display_name` and `legal_name` are never interchangeable.
+    - The event's version must be newer than the target version captured at request time.
+    - Its author must have been able to apply the change when it was made.
+    - Otherwise `CORRECTION_EVIDENCE_INVALID` (409).
+  - **Value.** If the value set differs from the proposal, or is unknown, the decision needs `differenceExplanation` (10–500), otherwise `CORRECTION_VALUE_DIFFERS` (409). The record stores `valueMatched` and the explanation. A phone or WhatsApp value is known only for the latest such change.
+  - **Atomicity.** For every issue command, the event, outbox, audit and idempotency writes commit in the issue transaction.
+  - **Paging.** `candidate-events?limit=1..50&cursor=` (opaque keyset cursor, 400 when invalid) plus `candidate-events/:eventId` (exact, 404 when not citable). Every page and lookup is reauthorized.
+  - **Current standing.** A correction's owner must still be able to apply the change, and a non-manager reporter must still know the customer, on progress, journal, link, outcome, resolve and replay. `GET /v1/issues?view=correction_attention` (`issue.manage` only) lists open requests that are `unassigned` or whose owner now lacks authority (`owner_lacks_authority`).
+  - **No applying command.** `location_city` has none, so it can only be Rejected.
 - The request never writes customer data itself. The change goes through the normal domain command and its authority.
 - Payments, quotes, orders and issued documents are not correction fields. Those need their own reversal or revision workflows (A2 §4).

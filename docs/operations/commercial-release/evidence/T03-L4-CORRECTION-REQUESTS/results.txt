@@ -35,3 +35,33 @@ milestone on that tree, serial, one run each:
   os-api: tests 353, pass 353, fail 0
   os-web lib+components: tests 1320, pass 1320, fail 0
 not rerun (no source change; os-contracts change is one added type): os-issue, os-import, os-party, os-query and other packages
+
+completion delta (01:49 instruction): exact evidence, atomic history, paged selection, current authority
+source: cdde6603 (tree 8ef6955899d114af47c07572e75e2ae33d3a9eca, staged and recorded before the runs, HEAD^{tree} identical after commit); manifest tested-source-manifest-cdde6603.sha256 (23 files, 7ae6ed7f..cdde6603); disposable PG port 54329 only
+environment: migration 20261019010000 applied by hand with psql to the disposable database, exit 0
+builds (serial): os-contracts, os-party, os-database, os-issue exit 0; os-api tsc exit 0; os-web tsc exit 0
+targeted before commit:
+  os-issue correction-request (unit): tests 13, pass 13, fail 0
+  os-contracts correction-request (unit): tests 4, pass 4, fail 0
+  t03-correction-request.http + t03-correction-integrity.http: first run tests 12, pass 11, fail 1 (test fixture sent contactId null for a party field; schema refused with 400); fixture corrected; that test rerun alone: tests 1, pass 1, fail 0
+mutations (each restored, sha256 identical to the committed file; tests read the mutated source directly):
+  M27 issue events/idempotency back on the workforce store outside the issue transaction: 2 failing (failed request, failed resolution)
+  M28 legal-name change also counted as display_name: caught (contract unit)
+  M29 version-after-request check removed: 1 failing
+  M30 author authority at change time not checked: 1 failing
+  M31 value differing without explanation accepted: 1 failing
+  M32 owner standing not rechecked: 1 failing
+  M33 candidate cursor ignored: 1 failing
+  M34 management queue omits owners without authority: 1 failing
+  M35 candidate reads without apply authority: 1 failing
+milestone on that tree, serial, one run each:
+  os-contracts: tests 210, pass 210, fail 0
+  os-party: tests 38, pass 38, fail 0
+  os-issue: tests 107, pass 107, fail 0
+  os-query: tests 115, pass 115, fail 0
+  os-import: tests 32, pass 32, fail 0
+  os-database: tests 312, pass 312, fail 0
+  os-api: tests 359, pass 359, fail 0, skipped 0 (includes both correction HTTP files)
+  os-web lib+components: tests 1320, pass 1320, fail 0
+not rerun (no source change): os-domain, os-commercial, os-events, os-commitment and other packages
+operational observation (not an application-test failure, cause unknown): the disposable cluster had shut down at 00:31 (server log: immediate shutdown); restarted about 01:26 on port 54329 with LC_ALL=C; it stayed up through this delta

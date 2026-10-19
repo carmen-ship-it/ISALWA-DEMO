@@ -80,3 +80,69 @@ Recorded in `evidence/T03-L4-CORRECTION-REQUESTS/`:
 - **Shared fields.** `display_name` and `legal_name` both cite `party.updated`. The matcher checks the event kind and target, not which attribute changed.
 - **Candidate list window.** The read scans the 200 newest events of the matching kinds since the request, then filters. In a very busy organization an older matching change can fall outside that window; citing its id directly still works.
 - **UI** is assigned to Lane B (item 9) and not started.
+
+## Completion delta (instruction 2026-10-19 01:49) — commit `cdde6603`
+
+State: IMPLEMENTED and LOCALLY TESTED. Not independently reviewed, not integrated, not deployed, not browser-verified. The limitations above about authority between assignment and resolution, the non-atomic event, shared party fields and the 200-event window are **fixed** by this delta; the remaining limitations are listed below.
+
+**Exact resolution evidence.**
+
+- Customer events now say which attributes changed, without values in public payloads:
+  - `party.updated` already carried `changedFields`;
+  - `contact.updated` adds `changedFields`, `created` and `version`;
+  - `location.updated` adds `changedFields` and `version`;
+  - endpoint events already carried `channel` and `whatsappFollows` (masked numbers only).
+- `correctionFieldsChangedBy` maps them to correction fields:
+  - `displayName` → `display_name`; `legalName` → `legal_name` (never interchangeable);
+  - given or family name → `contact_name`; email → `contact_email`;
+  - phone channel → `contact_phone`; WhatsApp channel or `whatsappFollows` → `contact_whatsapp`;
+  - `addressText` → `location_address`;
+  - fiscal events → `fiscal_identity`.
+
+  A contact creation is not a correction.
+- Applied requires, at resolution time:
+  - the cited event changed the requested field on the same customer target, at or after the request;
+  - its version is newer than the target version captured when the request was made (`target_version_at_request`; null for fiscal and `other`);
+  - its author could apply that change at the time (roles, delegations and customer range as of the event).
+
+  Otherwise `CORRECTION_EVIDENCE_INVALID` (409).
+- The value it set is compared with the proposal:
+  - text: normalized case and whitespace;
+  - fiscal: digits;
+  - phone or WhatsApp: the current number, used only when the cited event is the latest such change.
+
+  If the values differ or are unknown, `differenceExplanation` (10–500) is required, otherwise `CORRECTION_VALUE_DIFFERS` (409). `value_matched` and the explanation are stored in the restricted record. A database check (migration 39, `NOT VALID` so earlier local rows are untouched) enforces it for new and updated rows. The `issue.resolved` event carries `valueMatched` and the explanation, never the proposed value.
+
+**Transactional consistency.** Every issue command, not only corrections, now writes its business event, outbox message, audit row and idempotency record in the issue transaction (the API adapter delegates them to the transaction-bound issue store instead of the workforce store). No issue command logic changed.
+
+**Change selection.**
+
+- `GET …/correction/candidate-events?limit=1..50&cursor=` pages on the server, newest first. The keyset is `(occurredAt, id)` and the cursor is opaque; a bad cursor or limit returns 400. The database prefilters by event type, target and changed attribute. Items add `fields`.
+- `GET …/correction/candidate-events/:eventId` returns one change if it is citable for this request, otherwise 404.
+- Both reauthorize on every call: 404 without issue read or customer knowledge, 403 without apply authority. Neither returns event payloads.
+
+**Responsibility and revoked access.**
+
+- Current standing is enforced on `StartIssueProgress`, `AddIssueJournalEntry`, `LinkIssueWork`, `RecordIssueOutcome`, `ResolveIssue` and idempotent replays.
+- A correction's owner must still be able to apply the change (403). A non-manager reporter must still know the customer (404). `issue.manage` keeps process management, including reassignment.
+- The value read and candidate reads already rechecked current authority. A former owner who keeps customer knowledge gets `proposedValue: null`; one who loses it gets 404.
+- `GET /v1/issues?view=correction_attention` (`issue.manage` only, otherwise 403) lists open correction requests with `correctionAttention: 'unassigned' | 'owner_lacks_authority'`.
+
+**Proof (disposable Postgres, synthetic data)** in the new `t03-correction-integrity.http.test.ts` (6 tests):
+
+- an injected failure on the last write of `ReportIssue` leaves the issue, correction, reference, event, outbox, audit and idempotency counts unchanged; a retry with the same key creates each exactly once; a further retry replays the same issue with no new rows;
+- the same for `ResolveIssue`: no false status, outcome or decision, and exactly one `issue.resolved` event after the retry and replay;
+- three changes read one per page; the third page holds the oldest change; citing it resolves Applied with `valueMatched = true`; exact lookup returns 200 for a citable change and 404 for a non-citable or unknown one;
+- a different value is refused with 409 and accepted with an explanation;
+- a legal-name change cannot evidence a display-name request (409; exact lookup 404); the display-name change can;
+- a coverage-based owner narrowed to work-only coverage loses the value (`null`), candidates (403), journal (403) and resolution (403); revoked coverage gives 404; the queue shows `owner_lacks_authority` until reassignment; an unassigned request shows `unassigned`.
+
+The existing HTTP suite was adjusted: a wrong event now returns 409, and candidate items include `fields`. Mutations M27–M35 were all caught. The milestone ran green on the committed tree in one serial run (`evidence/T03-L4-CORRECTION-REQUESTS/results.txt`).
+
+**Remaining limitations.**
+
+- `location_city` has no applying command (`UpdateLocation` has no city), so it can only be Rejected.
+- `other` can never be value-matched, so Applied always needs an explanation.
+- Phone and WhatsApp values are known only for the latest change on that contact.
+- There is no automatic reassignment. Stale owners are refused and surfaced in the queue.
+- The applied-value check constraint is `NOT VALID` for rows created before migration 39.
