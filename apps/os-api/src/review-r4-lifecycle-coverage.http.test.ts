@@ -101,7 +101,7 @@ describeHttp('Review R4 lifecycle ends customer coverage over HTTP (disposable P
       partyKind: 'organization',
       displayName: 'Ferretería R4',
       contact: { givenName: 'Ana', familyName: 'Rojas' },
-      phone: `7${String(Date.now()).slice(-7)}`,
+      phone: { country: 'BO', number: `7${String(Date.now()).slice(-7)}` },
       city: 'Santa Cruz de la Sierra',
       department: 'Santa Cruz',
     });

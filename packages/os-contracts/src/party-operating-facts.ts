@@ -8,6 +8,8 @@ export type OperatingContactSource = {
   id: string;
   status: string;
   phone: string | null;
+  /** A number under identity review is not a current destination. */
+  phoneStatus?: string | null;
 };
 
 export type OperatingLocationSource = {
@@ -28,7 +30,7 @@ export function selectPrimaryPhone(contacts: readonly OperatingContactSource[]):
     .slice()
     .sort((a, b) => a.id.localeCompare(b.id));
   for (const contact of active) {
-    const phone = contact.phone?.trim();
+    const phone = contact.phoneStatus === 'identity_review' ? null : contact.phone?.trim();
     if (phone) return phone;
   }
   return null;

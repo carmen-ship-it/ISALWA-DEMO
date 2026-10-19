@@ -15,8 +15,8 @@ export const CUSTOMER_SELF_SERVICE_COMMANDS = [
   'CreateParty',
   'UpdateParty',
   'UpdateContact',
-  'ChangeContactPhone',
-  'RetireContactPhone',
+  'ChangeContactEndpoint',
+  'RetireContactEndpoint',
   'CreateLocation',
   'UpdateLocation',
   'DeactivateLocation',
@@ -223,8 +223,9 @@ export function buildUpdateContactPayload(input: {
   givenName: string;
   familyName: string;
   email?: string | null;
-  phone?: string | null;
-  whatsapp?: string | null;
+  /** Sent only when creating a contact; an existing contact's numbers change through the endpoint commands. */
+  phone?: { country: string; number: string } | null;
+  whatsapp?: { country: string; number: string } | null;
   title?: string | null;
 }): Record<string, unknown> {
   const payload: Record<string, unknown> = {
@@ -235,12 +236,10 @@ export function buildUpdateContactPayload(input: {
   const contactId = input.contactId?.trim();
   if (contactId) payload.contactId = contactId;
   const email = input.email?.trim();
-  const phone = input.phone?.trim();
-  const whatsapp = input.whatsapp?.trim();
   const title = input.title?.trim();
   if (email) payload.email = email;
-  if (phone) payload.phone = phone;
-  if (whatsapp) payload.whatsapp = whatsapp;
+  if (!contactId && input.phone) payload.phone = input.phone;
+  if (!contactId && input.whatsapp) payload.whatsapp = input.whatsapp;
   if (title) payload.title = title;
   rejectForbiddenKeys(payload);
   return payload;

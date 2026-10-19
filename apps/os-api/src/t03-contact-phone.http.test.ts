@@ -8,10 +8,13 @@ import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import type { ProjectionRunner } from '@isalwa/os-query';
 import { getOsPrisma } from '@isalwa/os-database';
 import { createId } from '@isalwa/ts-utils';
+import { pickQuoteContact } from './quote-pdf.service';
 
 /**
- * T03 phone maintenance (A2 §58, §66): change a contact's number with reason and a human
- * verification method, or retire it. Real Nest app, disposable Postgres, synthetic members.
+ * T03 contact endpoints (A2 §58, §66; T03 C5–C7): phone and WhatsApp are one boundary. Changing
+ * or retiring either needs authority, reason, verification method and version; numbers carry an
+ * explicit country; every association is dated history; a number formerly on another customer
+ * opens an identity review. No message is sent anywhere (T12). Real Nest app, disposable Postgres.
  */
 const describeHttp = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
@@ -20,8 +23,10 @@ type Reply = { status: number; body: Record<string, unknown> };
 
 const OLD_PHONE = '+59170000123';
 const NEW_PHONE = '+59171111456';
+const OTHER_WHATSAPP = '+59172222789';
+const bo = (number: string) => ({ country: 'BO', number });
 
-describeHttp('T03 contact phone change and retirement over HTTP (disposable Postgres)', () => {
+describeHttp('T03 contact endpoint change, retirement and history over HTTP (disposable Postgres)', () => {
   let app: INestApplication;
   let baseUrl: string;
   let store: OsWorkforceStore;
@@ -75,7 +80,10 @@ describeHttp('T03 contact phone change and retirement over HTTP (disposable Post
   }
 
   const contact = () => prisma().osContact.findUniqueOrThrow({ where: { id: ids.contact! } });
-  const phoneEvents = () => prisma().osBusinessEvent.count({ where: { organizationId: org.id, eventType: { startsWith: 'contact.phone.' } } });
+  const endpointEvents = () =>
+    prisma().osBusinessEvent.count({ where: { organizationId: org.id, eventType: { startsWith: 'contact.endpoint.' } } });
+  const associations = (contactId: string) =>
+    prisma().osContactEndpointAssociation.findMany({ where: { organizationId: org.id, contactId }, orderBy: [{ startedAt: 'asc' }, { channel: 'asc' }] });
 
   before(async () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
@@ -100,6 +108,19 @@ describeHttp('T03 contact phone change and retirement over HTTP (disposable Post
     await prisma().osContact.create({
       data: { id: ids.contact, organizationId: org.id, organizationPartyId: ids.party, givenName: 'Rosa', familyName: 'Quispe', phone: OLD_PHONE, whatsapp: OLD_PHONE },
     });
+    for (const channel of ['phone', 'whatsapp']) {
+      await prisma().osContactEndpointAssociation.create({
+        data: {
+          id: createId(),
+          organizationId: org.id,
+          partyId: ids.party,
+          contactId: ids.contact,
+          channel,
+          numberE164: OLD_PHONE,
+          startedAt: new Date('2020-01-01'),
+        },
+      });
+    }
     await grantCoverage('editor', ['customer.edit']);
     await grantCoverage('workOnly', ['commercial.work']);
   });
@@ -112,94 +133,190 @@ describeHttp('T03 contact phone change and retirement over HTTP (disposable Post
     partyId: ids.party,
     contactId: ids.contact,
     expectedVersion: 0,
-    newPhone: '71111456',
+    channel: 'phone',
+    newNumber: bo('71111456'),
     reason: 'number_changed',
     verificationMethod: 'known_contact_confirmation',
     ...overrides,
   });
 
-  it('refuses incomplete or empty changes and writes nothing', async () => {
-    const before = await phoneEvents();
+  it('refuses incomplete changes and numbers without an explicit, valid country; writes nothing', async () => {
+    const before = await endpointEvents();
     for (const [label, body] of [
       ['no verification method', { ...change(), verificationMethod: undefined }],
       ['unknown verification method', change({ verificationMethod: 'sender_says_so' })],
       ['other without a note', change({ reason: 'other' })],
-      ['same number', change({ newPhone: OLD_PHONE })],
-      ['not a phone', change({ newPhone: 'abc' })],
+      ['no channel', { ...change(), channel: undefined }],
+      ['unknown channel', change({ channel: 'sms' })],
+      ['same number', change({ newNumber: bo(OLD_PHONE) })],
+      ['not a phone', change({ newNumber: bo('abc') })],
+      ['raw string, no country', change({ newNumber: '71111456' })],
+      ['unsupported country', change({ newNumber: { country: 'AR', number: '1123456789' } })],
+      ['another calling code', change({ newNumber: bo('+54 11 2345 6789') })],
+      ['country guessed from digit count', change({ newNumber: bo('59171111456') })],
     ] as const) {
-      const reply = await command('editor', 'ChangeContactPhone', body as Record<string, unknown>);
+      const reply = await command('editor', 'ChangeContactEndpoint', body as Record<string, unknown>);
       assert.equal(reply.status, 400, label);
     }
     assert.equal((await contact()).phone, OLD_PHONE);
-    assert.equal(await phoneEvents(), before);
+    assert.equal(await endpointEvents(), before);
+    assert.equal((await associations(ids.contact!)).length, 2);
   });
 
-  it('only someone who may edit this customer changes the number; others get the usual answers', async () => {
-    const workOnly = await command('workOnly', 'ChangeContactPhone', change());
-    assert.deepEqual([workOnly.status, workOnly.body], [403, { code: 'PERMISSION_DENIED' }]);
-    const stranger = await command('stranger', 'ChangeContactPhone', change());
-    const missing = await command('stranger', 'ChangeContactPhone', change({ partyId: createId() }));
-    assert.deepEqual([stranger.status, stranger.body], [404, { code: 'NOT_FOUND' }]);
-    assert.deepEqual(stranger, missing);
-    const otherContact = await command('editor', 'ChangeContactPhone', change({ contactId: createId() }));
+  it('only someone who may edit this customer changes either channel; others get the usual answers', async () => {
+    for (const channel of ['phone', 'whatsapp']) {
+      const workOnly = await command('workOnly', 'ChangeContactEndpoint', change({ channel }));
+      assert.deepEqual([workOnly.status, workOnly.body], [403, { code: 'PERMISSION_DENIED' }], channel);
+      const stranger = await command('stranger', 'ChangeContactEndpoint', change({ channel }));
+      const missing = await command('stranger', 'ChangeContactEndpoint', change({ channel, partyId: createId() }));
+      assert.deepEqual([stranger.status, stranger.body], [404, { code: 'NOT_FOUND' }], channel);
+      assert.deepEqual(stranger, missing);
+    }
+    const otherContact = await command('editor', 'ChangeContactEndpoint', change({ contactId: createId() }));
     assert.deepEqual([otherContact.status, otherContact.body], [404, { code: 'NOT_FOUND' }]);
-    assert.equal((await contact()).phone, OLD_PHONE);
+    const row = await contact();
+    assert.deepEqual([row.phone, row.whatsapp], [OLD_PHONE, OLD_PHONE]);
   });
 
-  it('changes the number with reason and verification; WhatsApp on the same number follows; history keeps both', async () => {
-    const reply = await command('editor', 'ChangeContactPhone', change({ reason: 'entry_error', verificationMethod: 'in_person', evidenceNote: 'Confirmó en tienda' }));
+  it('changes the phone with reason and verification; WhatsApp on the same number follows; history ends the old rows', async () => {
+    const reply = await command(
+      'editor',
+      'ChangeContactEndpoint',
+      change({ newNumber: bo('7111-1456'), reason: 'entry_error', verificationMethod: 'in_person', evidenceNote: 'Confirmó en tienda' }),
+    );
     assert.equal(reply.status, 201, JSON.stringify(reply.body));
     const row = await contact();
-    assert.deepEqual([row.phone, row.whatsapp, row.version, row.phoneRetiredAt], [NEW_PHONE, NEW_PHONE, 1, null]);
-    const event = await prisma().osBusinessEvent.findFirstOrThrow({ where: { organizationId: org.id, eventType: 'contact.phone.changed' } });
+    assert.deepEqual(
+      [row.phone, row.whatsapp, row.phoneDisplay, row.whatsappDisplay, row.phoneStatus, row.whatsappStatus, row.version, row.phoneRetiredAt],
+      [NEW_PHONE, NEW_PHONE, '7111-1456', '7111-1456', 'unverified', 'unverified', 1, null],
+    );
+    const history = await associations(ids.contact!);
+    assert.deepEqual(
+      history.map((a) => [a.channel, a.numberE164, a.endedAt ? a.endReason : 'active', a.enteredText, a.verificationMethod]),
+      [
+        ['phone', OLD_PHONE, 'changed:entry_error', null, null],
+        ['whatsapp', OLD_PHONE, 'changed:entry_error', null, null],
+        ['phone', NEW_PHONE, 'active', '7111-1456', 'in_person'],
+        ['whatsapp', NEW_PHONE, 'active', '7111-1456', 'in_person'],
+      ],
+    );
+    const event = await prisma().osBusinessEvent.findFirstOrThrow({ where: { organizationId: org.id, eventType: 'contact.endpoint.changed' } });
     const payload = event.payloadJson as Record<string, unknown>;
     assert.deepEqual(
-      [payload.previousPhone, payload.phone, payload.previousPhoneMasked, payload.phoneMasked, payload.reason, payload.verificationMethod, payload.evidenceNote, payload.whatsappFollows],
-      [OLD_PHONE, NEW_PHONE, '•••123', '•••456', 'entry_error', 'in_person', 'Confirmó en tienda', true],
+      [payload.channel, payload.previousMasked, payload.numberMasked, payload.reason, payload.verificationMethod, payload.evidenceNote, payload.whatsappFollows, payload.identityReviewRequired],
+      ['phone', '•••123', '•••456', 'entry_error', 'in_person', 'Confirmó en tienda', true, false],
     );
     assert.equal(event.actorMemberId, m.editor!.member.id);
-    const stale = await command('editor', 'ChangeContactPhone', change({ newPhone: '72222789' }));
+    const audit = await prisma().osAuditLog.findFirstOrThrow({ where: { organizationId: org.id, action: 'contact.endpoint.changed' } });
+    for (const digits of ['70000123', '71111456']) {
+      assert.equal(JSON.stringify(payload).includes(digits), false, `event keeps ${digits} out`);
+      assert.equal(JSON.stringify(audit).includes(digits), false, `audit keeps ${digits} out`);
+    }
+    const stale = await command('editor', 'ChangeContactEndpoint', change({ newNumber: bo('72222789') }));
     assert.deepEqual([stale.status, stale.body], [400, { code: 'CONFLICT' }]);
   });
 
-  it('retires the number: it leaves the contact and the duplicate check; retiring again is refused', async () => {
-    const reply = await command('editor', 'RetireContactPhone', {
-      partyId: ids.party,
-      contactId: ids.contact,
-      expectedVersion: 1,
-      reason: 'no_longer_belongs',
-    });
+  it('changes WhatsApp alone through the same rules; the phone stays', async () => {
+    const unverified = await command('editor', 'ChangeContactEndpoint', { ...change({ channel: 'whatsapp', expectedVersion: 1 }), verificationMethod: undefined });
+    assert.equal(unverified.status, 400);
+    const reply = await command('editor', 'ChangeContactEndpoint', change({ channel: 'whatsapp', expectedVersion: 1, newNumber: bo('+591 72222789') }));
     assert.equal(reply.status, 201, JSON.stringify(reply.body));
     const row = await contact();
-    assert.deepEqual([row.phone, row.whatsapp, row.phoneRetiredReason, row.version, row.status], [null, null, 'no_longer_belongs', 2, 'active']);
-    assert.ok(row.phoneRetiredAt);
-    const again = await command('editor', 'RetireContactPhone', { partyId: ids.party, contactId: ids.contact, expectedVersion: 2, reason: 'no_longer_belongs' });
-    assert.equal(again.status, 400);
+    assert.deepEqual([row.phone, row.whatsapp, row.whatsappStatus, row.version], [NEW_PHONE, OTHER_WHATSAPP, 'unverified', 2]);
+    const active = (await associations(ids.contact!)).filter((a) => !a.endedAt);
+    assert.deepEqual(active.map((a) => [a.channel, a.numberE164]).sort(), [['phone', NEW_PHONE], ['whatsapp', OTHER_WHATSAPP]]);
 
+    const detail = await fetch(`${baseUrl}/v1/parties/${ids.party}`, { headers: headers(m.editor!) });
+    assert.equal(detail.status, 200);
+    const shown = ((await detail.json()) as { contacts: Array<Record<string, unknown>> }).contacts.find((c) => c.id === ids.contact)!;
+    assert.deepEqual(
+      [shown.phone, shown.phoneDisplay, shown.phoneStatus, shown.whatsapp, shown.whatsappDisplay, shown.whatsappStatus],
+      [NEW_PHONE, '7111-1456', 'unverified', OTHER_WHATSAPP, '+591 72222789', 'unverified'],
+    );
+  });
+
+  it('retires WhatsApp and then the phone: neither stays a current destination; retiring again is refused', async () => {
+    const target = { partyId: ids.party, contactId: ids.contact, reason: 'no_longer_belongs' };
+    const wa = await command('editor', 'RetireContactEndpoint', { ...target, channel: 'whatsapp', expectedVersion: 2 });
+    assert.equal(wa.status, 201, JSON.stringify(wa.body));
+    let row = await contact();
+    assert.deepEqual([row.phone, row.whatsapp, row.whatsappRetiredReason, row.version], [NEW_PHONE, null, 'no_longer_belongs', 3]);
+    assert.ok(row.whatsappRetiredAt);
+
+    const phone = await command('editor', 'RetireContactEndpoint', { ...target, channel: 'phone', expectedVersion: 3 });
+    assert.equal(phone.status, 201, JSON.stringify(phone.body));
+    row = await contact();
+    assert.deepEqual([row.phone, row.whatsapp, row.phoneRetiredReason, row.version, row.status], [null, null, 'no_longer_belongs', 4, 'active']);
+    assert.equal((await associations(ids.contact!)).filter((a) => !a.endedAt).length, 0);
+    assert.deepEqual(pickQuoteContact([{ ...row, status: 'active' } as never]).contactPhone, null);
+
+    const again = await command('editor', 'RetireContactEndpoint', { ...target, channel: 'phone', expectedVersion: 4 });
+    assert.equal(again.status, 400);
+  });
+
+  it('a retired number may be registered for another customer; it opens an identity review and reveals nothing', async () => {
     const registered = await command('steward', 'CreateParty', {
       partyKind: 'organization',
       displayName: 'Otro cliente con el número retirado',
       contact: { givenName: 'Luis' },
-      phone: NEW_PHONE,
+      phone: bo('+591 7111 1456'),
     });
     assert.equal(registered.status, 201, JSON.stringify(registered.body));
+    const text = JSON.stringify(registered.body);
+    for (const leak of [ids.party!, ids.contact!, 'T03 Phone Cliente', 'Rosa', 'Quispe']) assert.equal(text.includes(leak), false, leak);
+    const newContactId = String((registered.body.data as Record<string, unknown>).contactId);
+    const created = await prisma().osContact.findUniqueOrThrow({ where: { id: newContactId } });
+    assert.deepEqual([created.phone, created.phoneDisplay, created.phoneStatus], [NEW_PHONE, '+591 7111 1456', 'identity_review']);
+    const review = await prisma().osContactIdentityReview.findFirstOrThrow({ where: { organizationId: org.id, contactId: newContactId } });
+    const matched = await prisma().osContactEndpointAssociation.findUniqueOrThrow({ where: { id: review.matchedAssociationId } });
+    assert.deepEqual([review.status, review.channel, matched.partyId, matched.numberE164], ['open', 'phone', ids.party, NEW_PHONE]);
+    assert.equal(pickQuoteContact([created as never]).contactPhone, null, 'no PDF destination while under review');
+
+    const fresh = await command('steward', 'CreateParty', {
+      partyKind: 'organization',
+      displayName: 'Cliente con número nuevo',
+      contact: { givenName: 'Ana' },
+      phone: bo('6 555 0101'),
+    });
+    assert.equal(fresh.status, 201, JSON.stringify(fresh.body));
+    const freshContact = await prisma().osContact.findUniqueOrThrow({ where: { id: String((fresh.body.data as Record<string, unknown>).contactId) } });
+    assert.deepEqual([freshContact.phone, freshContact.phoneStatus], ['+59165550101', 'unverified']);
+    assert.equal(await prisma().osContactIdentityReview.count({ where: { organizationId: org.id, contactId: freshContact.id } }), 0);
+    assert.equal(pickQuoteContact([freshContact as never]).contactPhone, '+59165550101');
   });
 
-  it('the general contact edit cannot set or change an existing contact\'s number', async () => {
-    const edit = (phone: string) =>
+  it('the general contact edit cannot set or change either number; new contacts use the same number contract', async () => {
+    const edit = (extra: Record<string, unknown>) =>
       command('editor', 'UpdateContact', {
         organizationPartyId: ids.party,
         contactId: ids.contact,
         givenName: 'Rosa',
         familyName: 'Quispe Mamani',
-        phone,
+        ...extra,
       });
-    const bypass = await edit('+59173333000');
-    assert.deepEqual([bypass.status, bypass.body], [400, { code: 'VALIDATION_FAILED' }]);
-    assert.deepEqual([(await contact()).phone, (await contact()).familyName], [null, 'Quispe']);
-    const nameOnly = await edit('');
+    for (const [label, extra] of [
+      ['phone', { phone: bo('73333000') }],
+      ['whatsapp', { whatsapp: bo('73333000') }],
+      ['raw whatsapp string', { whatsapp: '+59173333000' }],
+    ] as const) {
+      const bypass = await edit(extra);
+      assert.equal(bypass.status, 400, label);
+    }
+    let row = await contact();
+    assert.deepEqual([row.phone, row.whatsapp, row.familyName], [null, null, 'Quispe']);
+    const nameOnly = await edit({});
     assert.equal(nameOnly.status, 201, JSON.stringify(nameOnly.body));
-    assert.deepEqual([(await contact()).phone, (await contact()).familyName], [null, 'Quispe Mamani']);
+    row = await contact();
+    assert.deepEqual([row.phone, row.whatsapp, row.familyName], [null, null, 'Quispe Mamani']);
+
+    const rawNew = await command('editor', 'UpdateContact', { organizationPartyId: ids.party, givenName: 'Eva', familyName: 'Mamani', whatsapp: '72222789' });
+    assert.equal(rawNew.status, 400);
+    const added = await command('editor', 'UpdateContact', { organizationPartyId: ids.party, givenName: 'Eva', familyName: 'Mamani', whatsapp: bo('7222 2789') });
+    assert.equal(added.status, 201, JSON.stringify(added.body));
+    const addedId = String((added.body.data as Record<string, unknown>).contactId);
+    const addedRow = await prisma().osContact.findUniqueOrThrow({ where: { id: addedId } });
+    assert.deepEqual([addedRow.whatsapp, addedRow.whatsappDisplay, addedRow.whatsappStatus, addedRow.phone], [OTHER_WHATSAPP, '7222 2789', 'unverified', null]);
+    assert.equal(await prisma().osContactIdentityReview.count({ where: { organizationId: org.id, contactId: addedId } }), 0, 'same customer: no review');
   });
 
   it('the customer timeline shows masked numbers only', async () => {
@@ -208,12 +325,18 @@ describeHttp('T03 contact phone change and retirement over HTTP (disposable Post
     const res = await fetch(`${baseUrl}/v1/parties/${ids.party}/timeline`, { headers: headers(m.editor!) });
     assert.equal(res.status, 200);
     const text = await res.text();
-    const items = (JSON.parse(text).items as Array<{ eventType: string; facts: Record<string, unknown> }>);
-    const changed = items.find((item) => item.eventType === 'contact.phone.changed');
-    const retired = items.find((item) => item.eventType === 'contact.phone.retired');
-    assert.deepEqual([changed?.facts.previousPhoneMasked, changed?.facts.phoneMasked, changed?.facts.verificationMethod], ['•••123', '•••456', 'in_person']);
-    assert.deepEqual([retired?.facts.retiredPhoneMasked, retired?.facts.reason], ['•••456', 'no_longer_belongs']);
-    for (const digits of ['70000123', '71111456']) assert.equal(text.includes(digits), false, digits);
+    const items = JSON.parse(text).items as Array<{ eventType: string; facts: Record<string, unknown> }>;
+    const changed = items.filter((item) => item.eventType === 'contact.endpoint.changed');
+    const retired = items.filter((item) => item.eventType === 'contact.endpoint.retired');
+    assert.deepEqual(
+      changed.map((c) => [c.facts.channel, c.facts.previousMasked, c.facts.numberMasked]).sort(),
+      [['phone', '•••123', '•••456'], ['whatsapp', '•••456', '•••789']],
+    );
+    assert.deepEqual(retired.map((r) => [r.facts.channel, r.facts.retiredMasked, r.facts.reason]).sort(), [
+      ['phone', '•••456', 'no_longer_belongs'],
+      ['whatsapp', '•••789', 'no_longer_belongs'],
+    ]);
+    for (const digits of ['70000123', '71111456', '72222789']) assert.equal(text.includes(digits), false, digits);
     assert.equal(text.includes('Confirmó en tienda'), false, 'evidence note stays out of the timeline');
   });
 });

@@ -101,6 +101,12 @@ function harness(input: {
     async insertContact(row: Record<string, unknown>) {
       rows.contact!.push(row);
     },
+    async insertEndpointAssociation(row: Record<string, unknown>) {
+      (rows.association ??= []).push(row);
+    },
+    async findEndedEndpointAssociationElsewhere() {
+      return null;
+    },
     async insertLocation(row: Record<string, unknown>) {
       rows.location!.push(row);
     },
@@ -146,7 +152,7 @@ const sellerCustomer = {
   partyKind: 'organization',
   displayName: 'Constructora Andina',
   contact: { givenName: 'Rosa', familyName: 'Quispe' },
-  phone: '7123 4567',
+  phone: { country: 'BO', number: '7123 4567' },
   city: 'Santa Cruz de la Sierra',
   department: 'Santa Cruz',
   addressReference: 'Av. Banzer 4to anillo',
@@ -160,6 +166,12 @@ describe('T03 Registrar cliente: seller path', () => {
     assert.equal(t.rows.role![0]!.roleKey, 'customer');
     assert.equal(t.rows.account![0]!.ownerMemberId, SELLER);
     assert.equal(t.rows.contact![0]!.phone, '+59171234567');
+    assert.equal(t.rows.contact![0]!.phoneDisplay, '7123 4567');
+    assert.equal(t.rows.contact![0]!.phoneStatus, 'unverified');
+    assert.deepEqual(
+      t.rows.association!.map((a) => [a.channel, a.numberE164, a.country, a.endedAt]),
+      [['phone', '+59171234567', 'BO', null]],
+    );
     assert.equal(t.rows.contact![0]!.organizationPartyId, result.data.partyId);
     assert.equal(t.rows.location![0]!.city, 'Santa Cruz de la Sierra');
     assert.equal(t.rows.location![0]!.department, 'Santa Cruz');

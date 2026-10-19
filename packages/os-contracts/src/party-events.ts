@@ -9,6 +9,8 @@ export const OS_PARTY_EVENT_TYPES = [
   'contact.updated',
   'contact.phone.changed',
   'contact.phone.retired',
+  'contact.endpoint.changed',
+  'contact.endpoint.retired',
   'party.fiscal_identity.changed',
   'party.duplicate.suggested',
   'party.merge.requested',

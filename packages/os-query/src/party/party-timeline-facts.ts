@@ -23,8 +23,9 @@ const TIMELINE_FACT_ALLOWLIST: Record<string, readonly string[]> = {
   'party.merge.requested': ['partyId', 'targetPartyId'],
   'party.merged': ['partyId', 'survivorPartyId'],
   'party.merge.rejected': ['partyId', 'targetPartyId'],
-  'contact.updated': ['contactId', 'organizationPartyId', 'givenName', 'familyName'],
-  // Masked numbers only; full numbers stay in the event payload and audit.
+  'contact.updated': ['contactId', 'organizationPartyId', 'givenName', 'familyName', 'phoneMasked', 'whatsappMasked'],
+  // Masked numbers only. Older phone events carry full numbers in payload and audit; T03 C5
+  // endpoint events carry masked numbers only, full numbers live in the restricted history.
   'contact.phone.changed': [
     'partyId',
     'contactId',
@@ -36,6 +37,19 @@ const TIMELINE_FACT_ALLOWLIST: Record<string, readonly string[]> = {
     'version',
   ],
   'contact.phone.retired': ['partyId', 'contactId', 'retiredPhoneMasked', 'reason', 'reasonNote', 'version'],
+  'contact.endpoint.changed': [
+    'partyId',
+    'contactId',
+    'channel',
+    'previousMasked',
+    'numberMasked',
+    'whatsappFollows',
+    'reason',
+    'reasonNote',
+    'verificationMethod',
+    'version',
+  ],
+  'contact.endpoint.retired': ['partyId', 'contactId', 'channel', 'retiredMasked', 'whatsappFollows', 'reason', 'reasonNote', 'version'],
   'opportunity.created': ['opportunityId', 'title', 'stage', 'status', 'partyId'],
   'opportunity.updated': ['opportunityId', 'title', 'stage', 'status', 'partyId'],
   'opportunity.stage_changed': ['opportunityId', 'previousStage', 'stage'],
@@ -169,6 +183,8 @@ const TIMELINE_FIELD_SUMMARY: Record<string, readonly string[]> = {
   'contact.updated': ['contactId', 'organizationPartyId'],
   'contact.phone.changed': ['partyId', 'contactId', 'reason', 'version'],
   'contact.phone.retired': ['partyId', 'contactId', 'reason', 'version'],
+  'contact.endpoint.changed': ['partyId', 'contactId', 'channel', 'reason', 'version'],
+  'contact.endpoint.retired': ['partyId', 'contactId', 'channel', 'reason', 'version'],
 };
 
 export function timelineFactsForViewer(

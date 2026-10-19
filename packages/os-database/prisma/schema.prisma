@@ -105,6 +105,8 @@ model OsOrganization {
   issueOwnershipHistory              OsIssueOwnershipHistory[]
 
   contactFollowupPreferences OsContactFollowupPreference[]
+  contactEndpointAssociations OsContactEndpointAssociation[]
+  contactIdentityReviews     OsContactIdentityReview[]
   @@map("os_organizations")
 }
 
@@ -689,15 +691,72 @@ model OsContact {
   /// A2 §5 retired number: excluded from follow-ups, jobs and default selection.
   phoneRetiredAt      DateTime? @map("phone_retired_at")
   phoneRetiredReason  String?   @map("phone_retired_reason")
+  /// T03 C5: entered text kept next to the E.164 value; per-channel status (unverified | verified | identity_review).
+  phoneDisplay          String?   @map("phone_display")
+  whatsappDisplay       String?   @map("whatsapp_display")
+  phoneStatus           String?   @map("phone_status")
+  whatsappStatus        String?   @map("whatsapp_status")
+  whatsappRetiredAt     DateTime? @map("whatsapp_retired_at")
+  whatsappRetiredReason String?   @map("whatsapp_retired_reason")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
   organization        OsOrganization                @relation(fields: [organizationId], references: [id])
   organizationParty   OsParty                       @relation("OrgPartyContacts", fields: [organizationPartyId], references: [id])
   followupPreferences OsContactFollowupPreference[]
+  endpointAssociations OsContactEndpointAssociation[]
 
   @@index([organizationPartyId])
   @@map("os_contacts")
+}
+
+/// T03 C6: restricted, dated history of which number belonged to which contact. Rows are ended, never overwritten.
+model OsContactEndpointAssociation {
+  id                 String    @id
+  organizationId     String    @map("organization_id")
+  partyId            String    @map("party_id")
+  contactId          String    @map("contact_id")
+  channel            String
+  numberE164         String    @map("number_e164")
+  country            String?
+  enteredText        String?   @map("entered_text")
+  startedAt          DateTime  @map("started_at")
+  endedAt            DateTime? @map("ended_at")
+  endReason          String?   @map("end_reason")
+  verificationMethod String?   @map("verification_method")
+  recordedByMemberId String?   @map("recorded_by_member_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  organization    OsOrganization              @relation(fields: [organizationId], references: [id])
+  contact         OsContact                   @relation(fields: [contactId], references: [id])
+  identityReviews OsContactIdentityReview[]
+
+  @@index([organizationId, numberE164], map: "os_contact_endpoint_associations_number_idx")
+  @@index([organizationId, contactId, channel, startedAt], map: "os_contact_endpoint_associations_contact_idx")
+  @@map("os_contact_endpoint_associations")
+}
+
+/// T03 C7: a number matching an ended association on another record waits for an authorized identity decision.
+model OsContactIdentityReview {
+  id                   String    @id
+  organizationId       String    @map("organization_id")
+  partyId              String    @map("party_id")
+  contactId            String    @map("contact_id")
+  channel              String
+  associationId        String    @map("association_id")
+  matchedAssociationId String    @map("matched_association_id")
+  status               String    @default("open")
+  openedAt             DateTime  @map("opened_at")
+  resolvedAt           DateTime? @map("resolved_at")
+  resolvedByMemberId   String?   @map("resolved_by_member_id")
+  verificationMethod   String?   @map("verification_method")
+  note                 String?
+
+  organization OsOrganization               @relation(fields: [organizationId], references: [id])
+  association  OsContactEndpointAssociation @relation(fields: [associationId], references: [id])
+
+  @@index([organizationId, contactId, channel, status], map: "os_contact_identity_reviews_contact_idx")
+  @@map("os_contact_identity_reviews")
 }
 
 model OsFiscalIdentity {

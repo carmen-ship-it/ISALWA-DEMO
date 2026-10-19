@@ -182,15 +182,16 @@ describeHttp('T03 customer authority flags over HTTP (disposable Postgres)', () 
       organizationPartyId: ids.party,
       givenName: 'Rosa',
       familyName: 'Contacto',
-      phone: '+59170001234',
+      phone: { country: 'BO', number: '+59170001234' },
     });
     assert.equal(contact.status, 201, JSON.stringify(contact.body));
     const contactId = String((contact.body.data as Record<string, unknown>).contactId);
-    const changed = await command('owner', 'ChangeContactPhone', {
+    const changed = await command('owner', 'ChangeContactEndpoint', {
       partyId: ids.party,
       contactId,
       expectedVersion: 0,
-      newPhone: '+59170005678',
+      channel: 'phone',
+      newNumber: { country: 'BO', number: '+59170005678' },
       reason: 'other',
       reasonNote: 'Aviso en mostrador C2',
       verificationMethod: 'in_person',
@@ -213,16 +214,16 @@ describeHttp('T03 customer authority flags over HTTP (disposable Postgres)', () 
     assert.equal(renamedFull.detail, 'full');
     assert.equal(renamedFull.facts.reason, 'Nombre comercial actual');
     assert.equal(renamedFull.facts.previousDisplayName, 'Ferretería Flags');
-    assert.equal(find(full.items, 'contact.phone.changed')!.facts.reasonNote, 'Aviso en mostrador C2');
+    assert.equal(find(full.items, 'contact.endpoint.changed')!.facts.reasonNote, 'Aviso en mostrador C2');
 
     for (const who of ['orgReader', 'workHelper']) {
       const summary = await timeline(who);
       const renamed = find(summary.items, 'party.updated')!;
       assert.equal(renamed.detail, 'summary', who);
       assert.deepEqual(Object.keys(renamed.facts).sort(), ['changedFields', 'partyId', 'source', 'version'], who);
-      const phone = find(summary.items, 'contact.phone.changed')!;
+      const phone = find(summary.items, 'contact.endpoint.changed')!;
       assert.equal(phone.detail, 'summary', who);
-      assert.deepEqual(Object.keys(phone.facts).sort(), ['contactId', 'partyId', 'reason', 'version'], who);
+      assert.deepEqual(Object.keys(phone.facts).sort(), ['channel', 'contactId', 'partyId', 'reason', 'version'], who);
       assert.equal(find(summary.items, 'contact.updated')!.detail, 'summary', who);
       // The raw body carries no historical name, reason text, number or contact name.
       for (const secret of ['Nombre comercial actual', 'Ferretería Flags"', 'Aviso en mostrador', '5678', '1234', 'Rosa']) {

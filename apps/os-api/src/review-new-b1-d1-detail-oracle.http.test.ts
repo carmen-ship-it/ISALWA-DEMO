@@ -88,7 +88,7 @@ describeHttp('NEW-B1-D1 commercial detail has no existence oracle (disposable Po
       partyKind: 'organization',
       displayName: 'Cliente D1',
       contact: { givenName: 'Ana', familyName: 'Prueba' },
-      phone: `7${String(Date.now()).slice(-7)}`,
+      phone: { country: 'BO', number: `7${String(Date.now()).slice(-7)}` },
       city: 'Santa Cruz de la Sierra',
       department: 'Santa Cruz',
     });

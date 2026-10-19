@@ -103,7 +103,7 @@ describeHttp('B1 advisor provisioning and onboarding over HTTP (disposable Postg
       partyKind: 'organization',
       displayName: customer,
       contact: { givenName: 'Ana', familyName: 'Prueba' },
-      phone: phone(),
+      phone: { country: 'BO', number: phone() },
       city: 'Santa Cruz de la Sierra',
       department: 'Santa Cruz',
     });
@@ -188,7 +188,7 @@ describeHttp('B1 advisor provisioning and onboarding over HTTP (disposable Postg
       partyKind: 'organization',
       displayName: 'Sin permiso B1',
       contact: { givenName: 'Ana', familyName: 'Prueba' },
-      phone: phone(),
+      phone: { country: 'BO', number: phone() },
       city: 'Santa Cruz de la Sierra',
       department: 'Santa Cruz',
     });

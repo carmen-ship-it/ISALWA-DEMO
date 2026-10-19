@@ -98,7 +98,7 @@ describeHttp('B4 reactivation needs a fresh grant over HTTP (disposable Postgres
       partyKind: 'organization',
       displayName: name,
       contact: { givenName: 'Ana', familyName: 'Prueba' },
-      phone: phone(),
+      phone: { country: 'BO', number: phone() },
       city: 'Santa Cruz de la Sierra',
       department: 'Santa Cruz',
     });

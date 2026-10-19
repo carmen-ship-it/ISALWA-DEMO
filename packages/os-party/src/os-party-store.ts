@@ -4,6 +4,8 @@ import type { PartyOperatingSource } from './store-types';
 import type {
   CommercialAccountRecord,
   ContactRecord,
+  ContactEndpointAssociationRecord,
+  ContactIdentityReviewRecord,
   DelegationRecord,
   DuplicateCandidateRecord,
   FiscalIdentityRecord,
@@ -86,10 +88,48 @@ export interface OsPartyStore {
         | 'version'
         | 'phoneRetiredAt'
         | 'phoneRetiredReason'
+        | 'phoneDisplay'
+        | 'whatsappDisplay'
+        | 'phoneStatus'
+        | 'whatsappStatus'
+        | 'whatsappRetiredAt'
+        | 'whatsappRetiredReason'
       >
     >,
     expectedVersion: number,
   ): Promise<void>;
+  insertEndpointAssociation(row: ContactEndpointAssociationRecord): Promise<void>;
+  /** Ends the contact's current association on this channel; returns the ended row ids. */
+  endActiveEndpointAssociations(input: {
+    organizationId: string;
+    contactId: string;
+    channel: 'phone' | 'whatsapp';
+    endedAt: Date;
+    endReason: string;
+  }): Promise<string[]>;
+  /** Most recent ended association of this number on another customer. Restricted: never returned to callers. */
+  findEndedEndpointAssociationElsewhere(input: {
+    organizationId: string;
+    numberE164: string;
+    excludePartyId: string;
+  }): Promise<{ id: string } | null>;
+  listEndpointAssociations(organizationId: string, contactId: string): Promise<ContactEndpointAssociationRecord[]>;
+  getEndpointAssociation(organizationId: string, associationId: string): Promise<ContactEndpointAssociationRecord | null>;
+  insertIdentityReview(row: ContactIdentityReviewRecord): Promise<void>;
+  getOpenIdentityReview(
+    organizationId: string,
+    contactId: string,
+    channel: 'phone' | 'whatsapp',
+  ): Promise<ContactIdentityReviewRecord | null>;
+  resolveIdentityReview(input: {
+    organizationId: string;
+    reviewId: string;
+    status: 'confirmed' | 'rejected';
+    resolvedAt: Date;
+    resolvedByMemberId: string;
+    verificationMethod: string | null;
+    note: string | null;
+  }): Promise<void>;
   getContactInOrg(organizationId: string, contactId: string): Promise<ContactRecord | null>;
   /** Parties with an active, unretired contact whose phone or WhatsApp equals this normalized number. */
   listPartyIdsWithContactPhone(organizationId: string, phone: string): Promise<string[]>;

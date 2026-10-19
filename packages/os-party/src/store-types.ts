@@ -53,6 +53,46 @@ export type ContactRecord = {
   version: number;
   phoneRetiredAt?: Date | null;
   phoneRetiredReason?: string | null;
+  phoneDisplay?: string | null;
+  whatsappDisplay?: string | null;
+  phoneStatus?: string | null;
+  whatsappStatus?: string | null;
+  whatsappRetiredAt?: Date | null;
+  whatsappRetiredReason?: string | null;
+};
+
+/** T03 C6: one dated association of a number with a contact. Ended, never overwritten. */
+export type ContactEndpointAssociationRecord = {
+  id: string;
+  organizationId: string;
+  partyId: string;
+  contactId: string;
+  channel: 'phone' | 'whatsapp';
+  numberE164: string;
+  country: string | null;
+  enteredText: string | null;
+  startedAt: Date;
+  endedAt: Date | null;
+  endReason: string | null;
+  verificationMethod: string | null;
+  recordedByMemberId: string | null;
+};
+
+/** T03 C7: a number that matched an ended association on another customer. */
+export type ContactIdentityReviewRecord = {
+  id: string;
+  organizationId: string;
+  partyId: string;
+  contactId: string;
+  channel: 'phone' | 'whatsapp';
+  associationId: string;
+  matchedAssociationId: string;
+  status: 'open' | 'confirmed' | 'rejected';
+  openedAt: Date;
+  resolvedAt: Date | null;
+  resolvedByMemberId: string | null;
+  verificationMethod: string | null;
+  note: string | null;
 };
 
 export type FiscalIdentityRecord = {

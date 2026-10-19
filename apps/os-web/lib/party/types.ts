@@ -61,6 +61,12 @@ export type PartyDetailResponse = {
     email: string | null;
     phone: string | null;
     whatsapp: string | null;
+    /** T03 C5: text as entered; `phone` / `whatsapp` are E.164. */
+    phoneDisplay?: string | null;
+    whatsappDisplay?: string | null;
+    /** `identity_review`: not a current destination until resolved (C7). */
+    phoneStatus?: 'unverified' | 'verified' | 'identity_review' | null;
+    whatsappStatus?: 'unverified' | 'verified' | 'identity_review' | null;
     title: string | null;
     status: string;
     version: number;

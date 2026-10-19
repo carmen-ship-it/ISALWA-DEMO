@@ -108,6 +108,7 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `bc211fdd` (tree `60fcad7e3f4235969e531d0d0bbc818419fdd9ad`) | | T03 review C4: coverage bounded to 30 days (engineering default), all active/scheduled grants listed, independent authority, scheduled grants end on reassignment (os-contracts 188, os-domain 239, os-commercial 106, os-query 114, 5 regressions fail on old service, HTTP+PG 4/4 10/10 4/4 1/1, os-web 10/10, tsc) | this writer; not reviewed; browser UNPROVEN (panel inputs lane B2) |
 | `f11991fd` (tree `3474c8e45c929c6a71167a2adf93e708cea3e55a`) | | T03 review C3: customer authority flags from the command rule; legal name only to editors/stewards (engineering default); web edits no longer pre-gated on master_data.admin (HTTP+PG 4/4 new, 10/10, os-query 115, os-party 38, regressions fail on old code, os-web 17/17, tsc) | this writer; not reviewed; page wiring lane B2 |
 | `f41016bf` (tree `b3c2e476e79c52f06d3c517caf7cedb3250f5983`) | | T03 review C2: timeline names/reasons/numbers only to customer editors; safe summary otherwise (HTTP+PG 5/5, 6 timeline suites once, os-query 115, regression fails on old code, os-web 51/51, tsc). Milestone after C1–C4+C2: os-api full serial 311/312; the failure was a `route-auth-path` mock store missing `listCustomerCoverageGrants` (needed by C3 flags), fixed in the next commit, then 1/1 | this writer; not reviewed |
+| `c3587538` (tree `b6e495ac0255aa6b74cec64b5384806dd8e5e52c`) | | Test fix: `route-auth-path` mock store gains `listCustomerCoverageGrants` (1/1); ledger row for `f41016bf` | this writer; not reviewed |
 
 ## Open blockers
 
@@ -119,8 +120,10 @@ None for local work. External dependencies (§14) recorded per task when reached
 
 - **Party search matches on hidden fields (2026-10-18, C3).** The shared search text includes legal name, NIT, razón social and contact phones. Values are not returned to readers without access, but a match on them still lists the customer. Fix needs per-viewer search fields in the projection.
 - **Legal-name read rule is an engineering default (2026-10-18, C3).** Customer editors and data stewards read it; pending owner confirmation.
+- **`os-import` writes contacts without the C5 number contract (2026-10-18, C5).** Import inserts phone/WhatsApp directly, with no country, association history or identity review. Separate lane; must move to the shared contract before any import is run against shared data.
+- **Existing-contact WhatsApp input still editable in the unintegrated form (2026-10-18, C5).** The action ignores numbers for existing contacts, so nothing changes, but the form does not say so. Lane B2 makes it read-only and adds the channel choice.
 
-- **C1 intermittent HTTP failure (2026-10-18, `120012ab`).** The first combined run of `t03-customer-authority` + `review-r1-grant-provisioning` + `t03-contact-phone` failed once in "team manager with the action permissions edits the customer…". Two reruns passed (10/10 alone, 24/24 combined). Detail not captured; cause unknown. Do not rerun broad suites to chase it without a hypothesis. If it recurs, capture the assertion and response body first. Candidate hypothesis: the shared disposable database still holds rows from the earlier runs.
+- **C1 intermittent HTTP failure (2026-10-18, `120012ab`).** The first combined run of `t03-customer-authority` + `review-r1-grant-provisioning` + `t03-contact-phone` failed once in "team manager with the action permissions edits the customer…". Two reruns passed (10/10 alone, 24/24 combined). Detail not captured; cause unknown. Do not rerun broad suites to chase it without a hypothesis. If it recurs, capture the assertion and response body first. Candidate hypothesis: the shared disposable database still holds rows from the earlier runs. Not recurred in the C5 full os-api serial run (314/314).
 
 ## Known pre-existing failures (not T01/T02)
 

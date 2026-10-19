@@ -10,7 +10,7 @@ Source decisions: owner reconciliation of the independent review of `3129709` (2
 | C2 | Timeline field-level visibility | STABLE (API and web labels; see the C2 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C2-TIMELINE.md`) |
 | C3 | Customer detail authority flags | STABLE (API and web actions; see the C3 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C3-AUTHORITY-FLAGS.md`). Endpoint history/reveal/identity-review flags stay false until C6/C7 |
 | C4 | Coverage grants (all, bounded, revocable) | STABLE (API and web action; see the C4 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C4-COVERAGE.md`) |
-| C5 | Contact endpoints (phone and WhatsApp): canonical number input, change, retire | PLANNED |
+| C5 | Contact endpoints (phone and WhatsApp): canonical number input, change, retire | STABLE (API, web actions and types; see the C5 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C5-ENDPOINTS.md`). C7 review opening included; resolution is C7 |
 | C6 | Endpoint history, masked by default; justified reveal | PLANNED |
 | C7 | Identity review for previously used numbers | PLANNED |
 | C8 | Steward lookup | STABLE (API from T03 part 3; web loader `a1c6771`) |
@@ -81,6 +81,14 @@ Number input everywhere (new contact, `CreateParty` registration phone, change):
   - `phoneDisplay`, `whatsappDisplay` (entered text) next to `phone` and `whatsapp` (E.164);
   - `phoneStatus` and `whatsappStatus`: `'unverified' | 'verified' | 'identity_review'`.
   - A retired endpoint is `null` and is not a current destination anywhere (quote PDF included). Documents already issued are unchanged.
+
+As implemented:
+- `normalizeContactNumber`, `maskContactNumber`, `ContactNumberInputSchema`, `CONTACT_ENDPOINT_CHANNELS` and `CONTACT_ENDPOINT_STATUSES` are exported from `@isalwa/os-contracts`. The UI may use `normalizeContactNumber` for early feedback only; the API decides.
+- Changing `channel: 'phone'` also moves a WhatsApp value equal to the old phone (`whatsappFollows`). Retiring the phone does the same.
+- An endpoint under `identity_review` is excluded from the quote PDF and from the customer list's primary phone.
+- Events: `contact.endpoint.changed` / `contact.endpoint.retired` (masked numbers, `channel`, `whatsappFollows`; `identityReviewRequired` on change). Timeline summary keys: `partyId`, `contactId`, `channel`, `reason`, `version`.
+- os-web: `changeContactPhoneAction` / `retireContactPhoneAction` keep their names and read form fields `channel` (default `phone`), `country` (default `BO`), `newPhone`, `reason`, `reasonNote`, `verificationMethod`, `evidenceNote`, `expectedVersion`. `updateContactAction` reads `phone` / `whatsapp` / `country` only when there is no `contactId`.
+- UI (lane B2): the existing-contact WhatsApp input must become read-only like the phone input. Add a channel choice to the change and retire forms, show `phoneDisplay` / `whatsappDisplay`, and show the C7 notice when a status is `identity_review`. Gate everything on `canChangeEndpoints`.
 
 ## C6 — Endpoint history
 

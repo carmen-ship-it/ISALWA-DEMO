@@ -1,0 +1,16 @@
+build os-contracts, os-party, os-database (prisma generate; generated client not committed), os-query: exit 0 each
+tsc --noEmit os-api, os-party, os-web: exit 0 each
+os-contracts (serial): tests 192, pass 192, fail 0
+os-party (serial): tests 38, pass 38, fail 0
+os-query (serial): tests 115, pass 115, fail 0
+os-api full (serial, disposable PG): tests 314, pass 314, fail 0, skipped 0
+os-web lib + components (serial): tests 1318, pass 1318, fail 0
+t03-contact-phone.http (disposable PG): pass 8, fail 0
+t03-customer-authority-flags.http: pass 5, fail 0; t03-customer-authority.http: pass 10, fail 0
+r4 lifecycle 4/4, d1 detail oracle 2/2, b1 advisor provisioning 3/3, r1 grant provisioning 8/8, b4 reactivation 3/3, quote-pdf unit 4/4
+mutation M1 (existing-contact number lock removed): exit 1, pass 7, fail 1 (general contact edit test)
+mutation M2 (identity review never opened): exit 1, pass 7, fail 1 (recycled number test)
+mutation M3 (PDF uses numbers under review): exit 1, pass 7, fail 1 (recycled number test)
+mutated sources restored from saved copies: sha256 identical; os-party rebuilt exit 0; t03-contact-phone.http pass 8, fail 0
+migration 20261018220000_os_contact_endpoints_t03 applied to the disposable database only (psql ON_ERROR_STOP exit 0)
+t03-contact-phone.http with detail read-model assertion added after the suites: pass 8, fail 0; os-web tsc exit 0 after types.ts

@@ -3,6 +3,10 @@ import {
   CONTACT_PHONE_CHANGE_REASONS,
   CONTACT_PHONE_VERIFICATION_METHODS,
   MASTER_DATA_ADMIN_SCOPE,
+  maskContactNumber,
+  normalizeContactNumber,
+  type ContactEndpointChannel,
+  type ContactEndpointStatus,
   partyChangeNeedsReason,
   type ContactPhoneChangeReason,
   resolveAccountAssignmentAuthority,
@@ -27,7 +31,7 @@ import {
   sealReplay,
   withIdempotencyKey,
 } from '@isalwa/os-events';
-import { createId, normalizeBoliviaPhone } from '@isalwa/ts-utils';
+import { createId } from '@isalwa/ts-utils';
 import { assertPartyCommandAuthority } from './customer-authority';
 import type { OsPartyStore } from './os-party-store';
 import type {
@@ -186,11 +190,11 @@ export class PartyCommandService {
       case 'UpdateContact':
         result = await this.updateContact(ctx, payload, store);
         break;
-      case 'ChangeContactPhone':
-        result = await this.changeContactPhone(ctx, payload, store);
+      case 'ChangeContactEndpoint':
+        result = await this.changeContactEndpoint(ctx, payload, store);
         break;
-      case 'RetireContactPhone':
-        result = await this.retireContactPhone(ctx, payload, store);
+      case 'RetireContactEndpoint':
+        result = await this.retireContactEndpoint(ctx, payload, store);
         break;
       case 'UpdateFiscalIdentity':
         result = await this.updateFiscalIdentity(ctx, payload, store);
@@ -384,11 +388,8 @@ export class PartyCommandService {
     const duplicateReason = payload.duplicateReason ? String(payload.duplicateReason).trim() : '';
     if (!displayName) throw new Error('VALIDATION_FAILED');
 
-    let phone: string | null = null;
-    if (payload.phone != null && String(payload.phone).trim()) {
-      phone = normalizeBoliviaPhone(String(payload.phone));
-      if (!/^\+\d{8,15}$/.test(phone)) throw new Error('VALIDATION_FAILED');
-    }
+    const enteredPhone = parseContactNumber(payload.phone);
+    const phone = enteredPhone?.e164 ?? null;
 
     if (!steward) {
       // Bounded seller registration (V2 §5.4): a customer with contact data only.
@@ -475,7 +476,16 @@ export class PartyCommandService {
         title: null,
         status: 'active',
         version: 0,
+        phoneDisplay: enteredPhone?.entered ?? null,
+        phoneStatus: enteredPhone ? 'unverified' : null,
       });
+      if (enteredPhone) {
+        const status = await this.recordEndpointAssociation(ctx, store, partyId, contactId, 'phone', enteredPhone, null);
+        if (status === 'identity_review') {
+          const created = await store.getContactInOrg(ctx.organizationId, contactId);
+          if (created) await store.updateContact(contactId, { phoneStatus: status, version: created.version }, created.version);
+        }
+      }
     }
 
     const city = payload.city ? String(payload.city).trim() || null : null;
@@ -687,8 +697,6 @@ export class PartyCommandService {
     const givenName = String(payload.givenName);
     const familyName = String(payload.familyName);
     const email = payload.email ? String(payload.email) : null;
-    const phone = payload.phone ? String(payload.phone) : null;
-    const whatsapp = payload.whatsapp ? String(payload.whatsapp) : null;
     const title = payload.title ? String(payload.title) : null;
     const personPartyId = payload.personPartyId ? String(payload.personPartyId) : null;
 
@@ -697,13 +705,17 @@ export class PartyCommandService {
       : null;
     // Authority was checked on organizationPartyId; a contact of another party is not reachable through it.
     if (existing && existing.organizationPartyId !== organizationPartyId) throw new Error('NOT_FOUND');
-    // A2 §58: an existing number changes only through ChangeContactPhone / RetireContactPhone.
-    if (existing && phone !== existing.phone) throw new Error('VALIDATION_FAILED');
+    // A2 §58 / T03 C5: an existing contact's numbers change only through ChangeContactEndpoint / RetireContactEndpoint.
+    if (existing && (payload.phone !== undefined || payload.whatsapp !== undefined)) throw new Error('VALIDATION_FAILED');
+    const enteredPhone = existing ? null : parseContactNumber(payload.phone);
+    const enteredWhatsapp = existing ? null : parseContactNumber(payload.whatsapp);
+    const phone = existing ? existing.phone : (enteredPhone?.e164 ?? null);
+    const whatsapp = existing ? existing.whatsapp : (enteredWhatsapp?.e164 ?? null);
 
     if (existing) {
       await store.updateContact(
         contactId,
-        { givenName, familyName, email, phone, whatsapp, title, personPartyId, version: existing.version + 1 },
+        { givenName, familyName, email, title, personPartyId, version: existing.version + 1 },
         existing.version,
       );
     } else {
@@ -720,8 +732,22 @@ export class PartyCommandService {
         title,
         status: 'active',
         version: 0,
+        phoneDisplay: enteredPhone?.entered ?? null,
+        whatsappDisplay: enteredWhatsapp?.entered ?? null,
+        phoneStatus: enteredPhone ? 'unverified' : null,
+        whatsappStatus: enteredWhatsapp ? 'unverified' : null,
       };
       await store.insertContact(contact);
+      const statuses: Partial<ContactRecord> = {};
+      if (enteredPhone) {
+        const s = await this.recordEndpointAssociation(ctx, store, organizationPartyId, contactId, 'phone', enteredPhone, null);
+        if (s === 'identity_review') statuses.phoneStatus = s;
+      }
+      if (enteredWhatsapp) {
+        const s = await this.recordEndpointAssociation(ctx, store, organizationPartyId, contactId, 'whatsapp', enteredWhatsapp, null);
+        if (s === 'identity_review') statuses.whatsappStatus = s;
+      }
+      if (Object.keys(statuses).length > 0) await store.updateContact(contactId, { ...statuses, version: 0 }, 0);
     }
 
     return this.emit(ctx, store, 'contact.updated', 'contact', contactId, {
@@ -730,15 +756,69 @@ export class PartyCommandService {
       givenName,
       familyName,
       email,
-      phone,
-      whatsapp,
+      phoneMasked: maskContactNumber(phone),
+      whatsappMasked: maskContactNumber(whatsapp),
     });
   }
 
-  /** The customer's active contact for a phone command, with the reason rules shared by change and retire. */
-  private async contactForPhoneCommand(
+  /**
+   * T03 C6/C7: records a dated association for a newly entered number. A number that was
+   * associated with another customer before opens an identity review instead of being refused;
+   * nothing about the earlier customer is returned. Never marks the number verified.
+   */
+  private async recordEndpointAssociation(
     ctx: RequestContext,
-    command: 'ChangeContactPhone' | 'RetireContactPhone',
+    store: OsPartyStore,
+    partyId: string,
+    contactId: string,
+    channel: ContactEndpointChannel,
+    entered: EnteredNumber,
+    verificationMethod: string | null,
+  ): Promise<ContactEndpointStatus> {
+    const previous = await store.findEndedEndpointAssociationElsewhere({
+      organizationId: ctx.organizationId,
+      numberE164: entered.e164,
+      excludePartyId: partyId,
+    });
+    const associationId = createId();
+    await store.insertEndpointAssociation({
+      id: associationId,
+      organizationId: ctx.organizationId,
+      partyId,
+      contactId,
+      channel,
+      numberE164: entered.e164,
+      country: entered.country,
+      enteredText: entered.entered,
+      startedAt: ctx.effectiveAt,
+      endedAt: null,
+      endReason: null,
+      verificationMethod,
+      recordedByMemberId: ctx.actorMemberId,
+    });
+    if (!previous) return 'unverified';
+    await store.insertIdentityReview({
+      id: createId(),
+      organizationId: ctx.organizationId,
+      partyId,
+      contactId,
+      channel,
+      associationId,
+      matchedAssociationId: previous.id,
+      status: 'open',
+      openedAt: ctx.effectiveAt,
+      resolvedAt: null,
+      resolvedByMemberId: null,
+      verificationMethod: null,
+      note: null,
+    });
+    return 'identity_review';
+  }
+
+  /** The customer's active contact for an endpoint command, with the reason rules shared by change and retire. */
+  private async contactForEndpointCommand(
+    ctx: RequestContext,
+    command: 'ChangeContactEndpoint' | 'RetireContactEndpoint',
     payload: Record<string, unknown>,
     store: OsPartyStore,
   ) {
@@ -748,21 +828,30 @@ export class PartyCommandService {
     const contact = await store.getContactInOrg(ctx.organizationId, String(payload.contactId));
     if (!contact || contact.organizationPartyId !== partyId) throw new Error('NOT_FOUND');
     if (contact.status !== 'active') throw new Error('VALIDATION_FAILED');
+    const channel = String(payload.channel) as ContactEndpointChannel;
+    if (channel !== 'phone' && channel !== 'whatsapp') throw new Error('VALIDATION_FAILED');
     const reason = String(payload.reason) as ContactPhoneChangeReason;
     if (!(CONTACT_PHONE_CHANGE_REASONS as readonly string[]).includes(reason)) throw new Error('VALIDATION_FAILED');
     const reasonNote = typeof payload.reasonNote === 'string' ? payload.reasonNote.trim() : '';
     if (reason === 'other' && !reasonNote) throw new Error('VALIDATION_FAILED');
-    return { partyId, contact, reason, reasonNote: reasonNote || null, expectedVersion: Number(payload.expectedVersion) };
+    return {
+      partyId,
+      contact,
+      channel,
+      reason,
+      reasonNote: reasonNote || null,
+      expectedVersion: Number(payload.expectedVersion),
+    };
   }
 
-  private async changeContactPhone(
+  private async changeContactEndpoint(
     ctx: RequestContext,
     payload: Record<string, unknown>,
     store: OsPartyStore,
   ): Promise<CommandResult> {
-    const { partyId, contact, reason, reasonNote, expectedVersion } = await this.contactForPhoneCommand(
+    const { partyId, contact, channel, reason, reasonNote, expectedVersion } = await this.contactForEndpointCommand(
       ctx,
-      'ChangeContactPhone',
+      'ChangeContactEndpoint',
       payload,
       store,
     );
@@ -770,92 +859,138 @@ export class PartyCommandService {
     if (!(CONTACT_PHONE_VERIFICATION_METHODS as readonly string[]).includes(verificationMethod)) {
       throw new Error('VALIDATION_FAILED');
     }
-    const phone = normalizeBoliviaPhone(String(payload.newPhone));
-    if (!/^\+\d{8,15}$/.test(phone) || phone === contact.phone) throw new Error('VALIDATION_FAILED');
-    const whatsappFollows = Boolean(contact.phone) && contact.whatsapp === contact.phone;
+    const entered = parseContactNumber(payload.newNumber);
+    if (!entered) throw new Error('VALIDATION_FAILED');
+    const current = channel === 'phone' ? contact.phone : contact.whatsapp;
+    if (entered.e164 === current) throw new Error('VALIDATION_FAILED');
+    const whatsappFollows = channel === 'phone' && Boolean(contact.phone) && contact.whatsapp === contact.phone;
+    const channels: ContactEndpointChannel[] = whatsappFollows ? ['phone', 'whatsapp'] : [channel];
+
+    const patch: Partial<ContactRecord> = {};
+    let identityReviewRequired = false;
+    for (const ch of channels) {
+      await store.endActiveEndpointAssociations({
+        organizationId: ctx.organizationId,
+        contactId: contact.id,
+        channel: ch,
+        endedAt: ctx.effectiveAt,
+        endReason: `changed:${reason}`,
+      });
+      const status = await this.recordEndpointAssociation(ctx, store, partyId, contact.id, ch, entered, verificationMethod);
+      identityReviewRequired ||= status === 'identity_review';
+      if (ch === 'phone') {
+        Object.assign(patch, {
+          phone: entered.e164,
+          phoneDisplay: entered.entered,
+          phoneStatus: status,
+          phoneRetiredAt: null,
+          phoneRetiredReason: null,
+        });
+      } else {
+        Object.assign(patch, {
+          whatsapp: entered.e164,
+          whatsappDisplay: entered.entered,
+          whatsappStatus: status,
+          whatsappRetiredAt: null,
+          whatsappRetiredReason: null,
+        });
+      }
+    }
     const version = contact.version + 1;
-    await store.updateContact(
-      contact.id,
-      {
-        phone,
-        ...(whatsappFollows ? { whatsapp: phone } : {}),
-        phoneRetiredAt: null,
-        phoneRetiredReason: null,
-        version,
-      },
-      expectedVersion,
-    );
+    await store.updateContact(contact.id, { ...patch, version }, expectedVersion);
     const evidenceNote = typeof payload.evidenceNote === 'string' ? payload.evidenceNote.trim() || null : null;
+    const previousMasked = maskContactNumber(current);
+    const numberMasked = maskContactNumber(entered.e164);
     return this.emit(
       ctx,
       store,
-      'contact.phone.changed',
+      'contact.endpoint.changed',
       'contact',
       contact.id,
       {
         partyId,
         contactId: contact.id,
-        previousPhone: contact.phone,
-        phone,
-        previousPhoneMasked: maskPhone(contact.phone),
-        phoneMasked: maskPhone(phone),
+        channel,
+        previousMasked,
+        numberMasked,
         whatsappFollows,
+        identityReviewRequired,
         reason,
         reasonNote,
         verificationMethod,
         evidenceNote,
         version,
       },
-      'contact.phone.changed',
-      { phone: contact.phone, whatsapp: contact.whatsapp },
-      { phone, whatsapp: whatsappFollows ? phone : contact.whatsapp },
+      'contact.endpoint.changed',
+      { channel, number: previousMasked },
+      { channel, number: numberMasked, whatsappFollows },
     );
   }
 
-  private async retireContactPhone(
+  private async retireContactEndpoint(
     ctx: RequestContext,
     payload: Record<string, unknown>,
     store: OsPartyStore,
   ): Promise<CommandResult> {
-    const { partyId, contact, reason, reasonNote, expectedVersion } = await this.contactForPhoneCommand(
+    const { partyId, contact, channel, reason, reasonNote, expectedVersion } = await this.contactForEndpointCommand(
       ctx,
-      'RetireContactPhone',
+      'RetireContactEndpoint',
       payload,
       store,
     );
-    if (!contact.phone) throw new Error('VALIDATION_FAILED');
-    const whatsappFollows = contact.whatsapp === contact.phone;
+    const current = channel === 'phone' ? contact.phone : contact.whatsapp;
+    if (!current) throw new Error('VALIDATION_FAILED');
+    const whatsappFollows = channel === 'phone' && contact.whatsapp === contact.phone;
+    const channels: ContactEndpointChannel[] = whatsappFollows ? ['phone', 'whatsapp'] : [channel];
+    const patch: Partial<ContactRecord> = {};
+    for (const ch of channels) {
+      await store.endActiveEndpointAssociations({
+        organizationId: ctx.organizationId,
+        contactId: contact.id,
+        channel: ch,
+        endedAt: ctx.effectiveAt,
+        endReason: `retired:${reason}`,
+      });
+      if (ch === 'phone') {
+        Object.assign(patch, {
+          phone: null,
+          phoneDisplay: null,
+          phoneStatus: null,
+          phoneRetiredAt: ctx.effectiveAt,
+          phoneRetiredReason: reason,
+        });
+      } else {
+        Object.assign(patch, {
+          whatsapp: null,
+          whatsappDisplay: null,
+          whatsappStatus: null,
+          whatsappRetiredAt: ctx.effectiveAt,
+          whatsappRetiredReason: reason,
+        });
+      }
+    }
     const version = contact.version + 1;
-    await store.updateContact(
-      contact.id,
-      {
-        phone: null,
-        ...(whatsappFollows ? { whatsapp: null } : {}),
-        phoneRetiredAt: ctx.effectiveAt,
-        phoneRetiredReason: reason,
-        version,
-      },
-      expectedVersion,
-    );
+    await store.updateContact(contact.id, { ...patch, version }, expectedVersion);
+    const retiredMasked = maskContactNumber(current);
     return this.emit(
       ctx,
       store,
-      'contact.phone.retired',
+      'contact.endpoint.retired',
       'contact',
       contact.id,
       {
         partyId,
         contactId: contact.id,
-        retiredPhone: contact.phone,
-        retiredPhoneMasked: maskPhone(contact.phone),
+        channel,
+        retiredMasked,
         whatsappFollows,
         reason,
         reasonNote,
         version,
       },
-      'contact.phone.retired',
-      { phone: contact.phone, whatsapp: contact.whatsapp },
-      { phone: null, whatsapp: whatsappFollows ? null : contact.whatsapp },
+      'contact.endpoint.retired',
+      { channel, number: retiredMasked },
+      { channel, number: null, whatsappFollows },
     );
   }
 
@@ -1083,8 +1218,15 @@ export class PartyCommandService {
 }
 
 /** Timeline-safe form of a number: only the last three digits. */
-function maskPhone(phone: string | null): string | null {
-  if (!phone) return null;
-  const digits = phone.replace(/\D/g, '');
-  return digits.length >= 3 ? `•••${digits.slice(-3)}` : '•••';
+type EnteredNumber = { e164: string; country: string; entered: string };
+
+/** T03 C5: the one number contract. Absent input is null; an invalid number is VALIDATION_FAILED. */
+function parseContactNumber(raw: unknown): EnteredNumber | null {
+  if (raw === undefined || raw === null) return null;
+  if (typeof raw !== 'object') throw new Error('VALIDATION_FAILED');
+  const { country, number } = raw as { country?: unknown; number?: unknown };
+  if (typeof country !== 'string' || typeof number !== 'string') throw new Error('VALIDATION_FAILED');
+  const e164 = normalizeContactNumber({ country, number });
+  if (!e164) throw new Error('VALIDATION_FAILED');
+  return { e164, country, entered: number.trim() };
 }

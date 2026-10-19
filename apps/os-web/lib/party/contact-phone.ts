@@ -1,7 +1,27 @@
 import {
+  CONTACT_ENDPOINT_CHANNELS,
   CONTACT_PHONE_CHANGE_REASONS,
+  CONTACT_PHONE_COUNTRIES,
   CONTACT_PHONE_VERIFICATION_METHODS,
+  normalizeContactNumber,
+  type ContactNumberInput,
 } from '@isalwa/os-contracts';
+
+/** The only country the forms offer today; the payload always names it (T03 C5). */
+export const DEFAULT_CONTACT_PHONE_COUNTRY = CONTACT_PHONE_COUNTRIES[0];
+
+type NumberResult = { ok: true; value: ContactNumberInput | null } | { ok: false; error: string };
+
+/** Empty text is no number; anything else must be a valid number of the stated country. */
+export function contactNumberFromForm(number: string | null | undefined, country: string | null | undefined): NumberResult {
+  const text = number?.trim() ?? '';
+  if (!text) return { ok: true, value: null };
+  const chosen = country?.trim() || DEFAULT_CONTACT_PHONE_COUNTRY;
+  if (!(CONTACT_PHONE_COUNTRIES as readonly string[]).includes(chosen) || !normalizeContactNumber({ country: chosen, number: text })) {
+    return { ok: false, error: 'Revise el número: debe ser un número boliviano válido.' };
+  }
+  return { ok: true, value: { country: chosen as ContactNumberInput['country'], number: text } };
+}
 
 /** A2 §58 wording. None of these is "a new sender says they are X". */
 export const CONTACT_PHONE_REASON_LABELS: Record<string, string> = {
@@ -32,6 +52,7 @@ type PhoneFormInput = {
   partyId: string;
   contactId: string;
   expectedVersion: number;
+  channel: string;
   reason: string;
   reasonNote?: string | null;
 };
@@ -44,6 +65,9 @@ function basePayload(input: PhoneFormInput): PhoneFormResult {
   }
   const reasonNote = input.reasonNote?.trim() ?? '';
   if (input.reason === 'other' && !reasonNote) return { ok: false, error: 'Describa el motivo.' };
+  if (!(CONTACT_ENDPOINT_CHANNELS as readonly string[]).includes(input.channel)) {
+    return { ok: false, error: 'No se pudo guardar. Actualice la página e intente de nuevo.' };
+  }
   if (!input.partyId || !input.contactId || !Number.isInteger(input.expectedVersion) || input.expectedVersion < 0) {
     return { ok: false, error: 'No se pudo guardar. Actualice la página e intente de nuevo.' };
   }
@@ -53,19 +77,21 @@ function basePayload(input: PhoneFormInput): PhoneFormResult {
       partyId: input.partyId,
       contactId: input.contactId,
       expectedVersion: input.expectedVersion,
+      channel: input.channel,
       reason: input.reason,
       ...(reasonNote ? { reasonNote } : {}),
     },
   };
 }
 
-export function buildChangeContactPhonePayload(
-  input: PhoneFormInput & { newPhone: string; verificationMethod: string; evidenceNote?: string | null },
+export function buildChangeContactEndpointPayload(
+  input: PhoneFormInput & { newNumber: string; country?: string | null; verificationMethod: string; evidenceNote?: string | null },
 ): PhoneFormResult {
   const base = basePayload(input);
   if (!base.ok) return base;
-  const newPhone = input.newPhone.trim();
-  if (!newPhone) return { ok: false, error: 'Ingrese el número nuevo.' };
+  const newNumber = contactNumberFromForm(input.newNumber, input.country);
+  if (!newNumber.ok) return newNumber;
+  if (!newNumber.value) return { ok: false, error: 'Ingrese el número nuevo.' };
   if (!(CONTACT_PHONE_VERIFICATION_METHODS as readonly string[]).includes(input.verificationMethod)) {
     return { ok: false, error: 'Elija cómo se verificó el número nuevo.' };
   }
@@ -74,13 +100,13 @@ export function buildChangeContactPhonePayload(
     ok: true,
     payload: {
       ...base.payload,
-      newPhone,
+      newNumber: newNumber.value,
       verificationMethod: input.verificationMethod,
       ...(evidenceNote ? { evidenceNote } : {}),
     },
   };
 }
 
-export function buildRetireContactPhonePayload(input: PhoneFormInput): PhoneFormResult {
+export function buildRetireContactEndpointPayload(input: PhoneFormInput): PhoneFormResult {
   return basePayload(input);
 }

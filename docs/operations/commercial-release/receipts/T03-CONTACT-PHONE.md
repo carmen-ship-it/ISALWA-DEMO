@@ -2,6 +2,8 @@
 
 Fourth sub-task of remaining T03 (`T03.md` §9): "actualizar/retirar teléfono" (A2 §58; retired number per A2 §66).
 
+> **Superseded in part by `T03-REVIEW-C5-ENDPOINTS.md`.** The commands are now `ChangeContactEndpoint` / `RetireContactEndpoint` with a channel. Numbers carry an explicit country, events are masked only, history is dated, and WhatsApp follows the same rules. The text below describes `3129709` as reviewed.
+
 ## 1. Commands
 
 Both commands take `partyId` (the customer), `contactId`, `expectedVersion`, a `reason` and, for `other`, a `reasonNote`. Reasons: `number_changed`, `entry_error`, `no_longer_belongs`, `other`.
@@ -12,7 +14,7 @@ Both commands take `partyId` (the customer), `contactId`, `expectedVersion`, a `
 - **`RetireContactPhone`**:
   - sets `phone` to null and records `phone_retired_at` / `phone_retired_reason` (the T03 migration columns);
   - keeps the contact and the person;
-  - nulling the number means every existing reader (duplicate check, sending, default selection) stops using it without auditing each one;
+  - nulling the number means the existing readers (duplicate check, default selection) stop using it. *Correction (finding 5 of `REVIEW-T03-3129709.md`): no sending path existed or was tested; outbound cancellation and provider behavior are pending T12.*
   - retiring when there is no number is refused.
 - **Shared behavior:**
   - A WhatsApp value equal to the old number follows it (changed or cleared), shown as `whatsappFollows` on the event.

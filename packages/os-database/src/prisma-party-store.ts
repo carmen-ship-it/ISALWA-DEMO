@@ -14,6 +14,8 @@ import {
 import type {
   CommercialAccountRecord,
   ContactRecord,
+  ContactEndpointAssociationRecord,
+  ContactIdentityReviewRecord,
   DelegationRecord,
   DuplicateCandidateRecord,
   FiscalIdentityRecord,
@@ -319,6 +321,10 @@ export class PrismaOsPartyStore implements OsPartyStore {
         title: contact.title,
         status: contact.status,
         version: contact.version,
+        phoneDisplay: contact.phoneDisplay ?? null,
+        whatsappDisplay: contact.whatsappDisplay ?? null,
+        phoneStatus: contact.phoneStatus ?? null,
+        whatsappStatus: contact.whatsappStatus ?? null,
       },
     });
   }
@@ -339,6 +345,12 @@ export class PrismaOsPartyStore implements OsPartyStore {
         | 'version'
         | 'phoneRetiredAt'
         | 'phoneRetiredReason'
+        | 'phoneDisplay'
+        | 'whatsappDisplay'
+        | 'phoneStatus'
+        | 'whatsappStatus'
+        | 'whatsappRetiredAt'
+        | 'whatsappRetiredReason'
       >
     >,
     expectedVersion: number,
@@ -346,6 +358,96 @@ export class PrismaOsPartyStore implements OsPartyStore {
     const result = await this.db().osContact.updateMany({
       where: { id: contactId, version: expectedVersion },
       data: patch,
+    });
+    if (result.count === 0) throw new Error('CONFLICT');
+  }
+
+  async insertEndpointAssociation(row: ContactEndpointAssociationRecord): Promise<void> {
+    await this.db().osContactEndpointAssociation.create({ data: { ...row } });
+  }
+
+  async endActiveEndpointAssociations(input: {
+    organizationId: string;
+    contactId: string;
+    channel: 'phone' | 'whatsapp';
+    endedAt: Date;
+    endReason: string;
+  }): Promise<string[]> {
+    const where = { organizationId: input.organizationId, contactId: input.contactId, channel: input.channel, endedAt: null };
+    const rows = await this.db().osContactEndpointAssociation.findMany({ where, select: { id: true } });
+    if (rows.length > 0) {
+      await this.db().osContactEndpointAssociation.updateMany({
+        where: { id: { in: rows.map((r) => r.id) } },
+        data: { endedAt: input.endedAt, endReason: input.endReason },
+      });
+    }
+    return rows.map((r) => r.id);
+  }
+
+  async findEndedEndpointAssociationElsewhere(input: {
+    organizationId: string;
+    numberE164: string;
+    excludePartyId: string;
+  }): Promise<{ id: string } | null> {
+    return this.db().osContactEndpointAssociation.findFirst({
+      where: {
+        organizationId: input.organizationId,
+        numberE164: input.numberE164,
+        endedAt: { not: null },
+        partyId: { not: input.excludePartyId },
+      },
+      orderBy: [{ endedAt: 'desc' }, { id: 'desc' }],
+      select: { id: true },
+    });
+  }
+
+  async listEndpointAssociations(organizationId: string, contactId: string): Promise<ContactEndpointAssociationRecord[]> {
+    const rows = await this.db().osContactEndpointAssociation.findMany({
+      where: { organizationId, contactId },
+      orderBy: [{ startedAt: 'desc' }, { id: 'desc' }],
+    });
+    return rows.map(mapEndpointAssociation);
+  }
+
+  async getEndpointAssociation(organizationId: string, associationId: string): Promise<ContactEndpointAssociationRecord | null> {
+    const row = await this.db().osContactEndpointAssociation.findFirst({ where: { id: associationId, organizationId } });
+    return row ? mapEndpointAssociation(row) : null;
+  }
+
+  async insertIdentityReview(row: ContactIdentityReviewRecord): Promise<void> {
+    await this.db().osContactIdentityReview.create({ data: { ...row } });
+  }
+
+  async getOpenIdentityReview(
+    organizationId: string,
+    contactId: string,
+    channel: 'phone' | 'whatsapp',
+  ): Promise<ContactIdentityReviewRecord | null> {
+    const row = await this.db().osContactIdentityReview.findFirst({
+      where: { organizationId, contactId, channel, status: 'open' },
+      orderBy: { openedAt: 'desc' },
+    });
+    return row ? (row as ContactIdentityReviewRecord) : null;
+  }
+
+  async resolveIdentityReview(input: {
+    organizationId: string;
+    reviewId: string;
+    status: 'confirmed' | 'rejected';
+    resolvedAt: Date;
+    resolvedByMemberId: string;
+    verificationMethod: string | null;
+    note: string | null;
+  }): Promise<void> {
+    const result = await this.db().osContactIdentityReview.updateMany({
+      where: { id: input.reviewId, organizationId: input.organizationId, status: 'open' },
+      data: {
+        status: input.status,
+        resolvedAt: input.resolvedAt,
+        resolvedByMemberId: input.resolvedByMemberId,
+        verificationMethod: input.verificationMethod,
+        note: input.note,
+      },
     });
     if (result.count === 0) throw new Error('CONFLICT');
   }
@@ -476,7 +578,7 @@ export class PrismaOsPartyStore implements OsPartyStore {
     const [contacts, locations, accounts] = await Promise.all([
       this.db().osContact.findMany({
         where: { organizationId, organizationPartyId: { in: ids } },
-        select: { id: true, organizationPartyId: true, status: true, phone: true },
+        select: { id: true, organizationPartyId: true, status: true, phone: true, phoneStatus: true },
       }),
       this.db().osLocation.findMany({
         where: { organizationId, partyId: { in: ids } },
@@ -498,7 +600,7 @@ export class PrismaOsPartyStore implements OsPartyStore {
       partyId,
       contacts: contacts
         .filter((contact) => contact.organizationPartyId === partyId)
-        .map((contact) => ({ id: contact.id, status: contact.status, phone: contact.phone })),
+        .map((contact) => ({ id: contact.id, status: contact.status, phone: contact.phone, phoneStatus: contact.phoneStatus })),
       locations: locations
         .filter((location) => location.partyId === partyId)
         .map((location) => ({
@@ -898,6 +1000,12 @@ function mapContact(row: {
   version: number;
   phoneRetiredAt?: Date | null;
   phoneRetiredReason?: string | null;
+  phoneDisplay?: string | null;
+  whatsappDisplay?: string | null;
+  phoneStatus?: string | null;
+  whatsappStatus?: string | null;
+  whatsappRetiredAt?: Date | null;
+  whatsappRetiredReason?: string | null;
 }): ContactRecord {
   return {
     id: row.id,
@@ -914,6 +1022,44 @@ function mapContact(row: {
     version: row.version,
     phoneRetiredAt: row.phoneRetiredAt ?? null,
     phoneRetiredReason: row.phoneRetiredReason ?? null,
+    phoneDisplay: row.phoneDisplay ?? null,
+    whatsappDisplay: row.whatsappDisplay ?? null,
+    phoneStatus: row.phoneStatus ?? null,
+    whatsappStatus: row.whatsappStatus ?? null,
+    whatsappRetiredAt: row.whatsappRetiredAt ?? null,
+    whatsappRetiredReason: row.whatsappRetiredReason ?? null,
+  };
+}
+
+function mapEndpointAssociation(row: {
+  id: string;
+  organizationId: string;
+  partyId: string;
+  contactId: string;
+  channel: string;
+  numberE164: string;
+  country: string | null;
+  enteredText: string | null;
+  startedAt: Date;
+  endedAt: Date | null;
+  endReason: string | null;
+  verificationMethod: string | null;
+  recordedByMemberId: string | null;
+}): ContactEndpointAssociationRecord {
+  return {
+    id: row.id,
+    organizationId: row.organizationId,
+    partyId: row.partyId,
+    contactId: row.contactId,
+    channel: row.channel as ContactEndpointAssociationRecord['channel'],
+    numberE164: row.numberE164,
+    country: row.country,
+    enteredText: row.enteredText,
+    startedAt: row.startedAt,
+    endedAt: row.endedAt,
+    endReason: row.endReason,
+    verificationMethod: row.verificationMethod,
+    recordedByMemberId: row.recordedByMemberId,
   };
 }
 

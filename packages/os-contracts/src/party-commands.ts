@@ -9,8 +9,8 @@ export const PARTY_COMMAND_NAMES = [
   'AssignPartyRole',
   'EndPartyRole',
   'UpdateContact',
-  'ChangeContactPhone',
-  'RetireContactPhone',
+  'ChangeContactEndpoint',
+  'RetireContactEndpoint',
   'UpdateFiscalIdentity',
   'CreateLead',
   'ResolveLead',
@@ -26,6 +26,58 @@ const FiscalIdentityInputSchema = z.object({
   razonSocial: z.string().min(1),
 });
 
+/**
+ * T03 C5: one number contract for contact creation, registration and endpoint changes.
+ * The country is always explicit; it is never inferred from the digit count.
+ */
+export const CONTACT_PHONE_COUNTRIES = ['BO'] as const;
+export type ContactPhoneCountry = (typeof CONTACT_PHONE_COUNTRIES)[number];
+export const CONTACT_ENDPOINT_CHANNELS = ['phone', 'whatsapp'] as const;
+export type ContactEndpointChannel = (typeof CONTACT_ENDPOINT_CHANNELS)[number];
+export const CONTACT_ENDPOINT_STATUSES = ['unverified', 'verified', 'identity_review'] as const;
+export type ContactEndpointStatus = (typeof CONTACT_ENDPOINT_STATUSES)[number];
+
+export const ContactNumberInputSchema = z.object({
+  country: z.enum(CONTACT_PHONE_COUNTRIES),
+  number: z.string().trim().min(1).max(40),
+});
+export type ContactNumberInput = z.infer<typeof ContactNumberInputSchema>;
+
+const COUNTRY_RULES: Record<ContactPhoneCountry, { callingCode: string; national: RegExp }> = {
+  // Bolivia: 8-digit national numbers; landlines start with the area digit 2–4, mobiles with 6–7.
+  BO: { callingCode: '591', national: /^[2-46-7]\d{7}$/ },
+};
+
+/**
+ * E.164 for a number entered with an explicit country, or null when it is not a valid number
+ * of that country. Accepts separators and the country's own international prefix (+591 / 00591).
+ * A different calling code, or digits that only fit after guessing a country, is refused.
+ */
+export function normalizeContactNumber(input: { country: string; number: string }): string | null {
+  const rule = COUNTRY_RULES[input.country as ContactPhoneCountry];
+  if (!rule) return null;
+  const text = input.number.trim();
+  if (!/^[+\d\s().-]+$/.test(text)) return null;
+  const digits = text.replace(/\D/g, '');
+  let national: string;
+  if (text.startsWith('+')) {
+    if (!digits.startsWith(rule.callingCode)) return null;
+    national = digits.slice(rule.callingCode.length);
+  } else if (digits.startsWith(`00${rule.callingCode}`)) {
+    national = digits.slice(2 + rule.callingCode.length);
+  } else {
+    national = digits;
+  }
+  return rule.national.test(national) ? `+${rule.callingCode}${national}` : null;
+}
+
+/** Last three digits only. Used wherever a number is shown outside the restricted history. */
+export function maskContactNumber(number: string | null | undefined): string | null {
+  if (!number) return null;
+  const digits = number.replace(/\D/g, '');
+  return digits.length >= 3 ? `•••${digits.slice(-3)}` : '•••';
+}
+
 export const CreatePartyPayloadSchema = z.object({
   partyKind: z.enum(PARTY_KINDS),
   displayName: z.string().min(1),
@@ -38,7 +90,7 @@ export const CreatePartyPayloadSchema = z.object({
   contact: z
     .object({ givenName: z.string().trim().min(1).max(200), familyName: z.string().max(200).optional() })
     .optional(),
-  phone: z.string().max(32).optional(),
+  phone: ContactNumberInputSchema.optional(),
   noPhoneReason: z.literal('no_phone_available').optional(),
   city: z.string().max(120).optional(),
   department: z.string().max(120).optional(),
@@ -93,8 +145,9 @@ export const UpdateContactPayloadSchema = z.object({
   givenName: z.string().min(1),
   familyName: z.string().min(1),
   email: z.string().email().optional(),
-  phone: z.string().optional(),
-  whatsapp: z.string().optional(),
+  /** Only when creating a contact. An existing contact's numbers change through ChangeContactEndpoint. */
+  phone: ContactNumberInputSchema.optional(),
+  whatsapp: ContactNumberInputSchema.optional(),
   title: z.string().optional(),
   personPartyId: z.string().optional(),
 });
@@ -118,16 +171,21 @@ const contactPhoneTarget = {
   reasonNote: z.string().trim().min(1).max(500).optional(),
 };
 
-export const ChangeContactPhonePayloadSchema = z.object({
+/** Phone and WhatsApp are one boundary: the same authority, reason, verification and version rules. */
+export const ChangeContactEndpointPayloadSchema = z.object({
   ...contactPhoneTarget,
-  newPhone: z.string().trim().min(1).max(32),
+  channel: z.enum(CONTACT_ENDPOINT_CHANNELS),
+  newNumber: ContactNumberInputSchema,
   verificationMethod: z.enum(CONTACT_PHONE_VERIFICATION_METHODS),
   /** No personal documents by default (A2 §58). */
   evidenceNote: z.string().trim().min(1).max(500).optional(),
 });
 
-/** A2 §66: a retired number leaves follow-ups and default selection; the person and contact stay. */
-export const RetireContactPhonePayloadSchema = z.object(contactPhoneTarget);
+/** A2 §66: a retired number is no current destination anywhere; the person, contact and history stay. */
+export const RetireContactEndpointPayloadSchema = z.object({
+  ...contactPhoneTarget,
+  channel: z.enum(CONTACT_ENDPOINT_CHANNELS),
+});
 
 export const UpdateFiscalIdentityPayloadSchema = z.object({
   partyId: z.string().min(1),
@@ -172,8 +230,8 @@ export const PARTY_COMMAND_PAYLOAD_SCHEMAS: Record<PartyCommandName, z.ZodTypeAn
   AssignPartyRole: AssignPartyRolePayloadSchema,
   EndPartyRole: EndPartyRolePayloadSchema,
   UpdateContact: UpdateContactPayloadSchema,
-  ChangeContactPhone: ChangeContactPhonePayloadSchema,
-  RetireContactPhone: RetireContactPhonePayloadSchema,
+  ChangeContactEndpoint: ChangeContactEndpointPayloadSchema,
+  RetireContactEndpoint: RetireContactEndpointPayloadSchema,
   UpdateFiscalIdentity: UpdateFiscalIdentityPayloadSchema,
   CreateLead: CreateLeadPayloadSchema,
   ResolveLead: ResolveLeadPayloadSchema,

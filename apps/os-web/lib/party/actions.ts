@@ -21,7 +21,11 @@ import {
   partyEditReasonError,
   preserveProvenanceUrl,
 } from '@/lib/party/customer-self-service';
-import { buildChangeContactPhonePayload, buildRetireContactPhonePayload } from '@/lib/party/contact-phone';
+import {
+  buildChangeContactEndpointPayload,
+  buildRetireContactEndpointPayload,
+  contactNumberFromForm,
+} from '@/lib/party/contact-phone';
 import { clientesSearchHref, partyHref } from '@/lib/party/navigation';
 import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 import { redirectKeepingDataMode } from '@/lib/demo/redirect-data-mode';
@@ -166,6 +170,12 @@ export async function updateContactAction(formData: FormData): Promise<CommandAc
     return { ok: false, error: 'Revise el correo del contacto.' };
   }
 
+  const country = String(formData.get('country') ?? '');
+  const phone = contactId ? null : contactNumberFromForm(String(formData.get('phone') ?? ''), country);
+  const whatsapp = contactId ? null : contactNumberFromForm(String(formData.get('whatsapp') ?? ''), country);
+  if (phone && !phone.ok) return phone;
+  if (whatsapp && !whatsapp.ok) return whatsapp;
+
   const session = await customerClient();
   if (!session.ok) return session;
 
@@ -175,8 +185,8 @@ export async function updateContactAction(formData: FormData): Promise<CommandAc
     givenName,
     familyName,
     email,
-    phone: String(formData.get('phone') ?? ''),
-    whatsapp: String(formData.get('whatsapp') ?? ''),
+    phone: phone?.value ?? null,
+    whatsapp: whatsapp?.value ?? null,
     title: String(formData.get('title') ?? ''),
   });
 
@@ -194,15 +204,17 @@ function phoneFormInput(formData: FormData) {
     partyId: String(formData.get('partyId') ?? '').trim(),
     contactId: String(formData.get('contactId') ?? '').trim(),
     expectedVersion: Number(formData.get('expectedVersion')),
+    channel: String(formData.get('channel') ?? 'phone'),
     reason: String(formData.get('reason') ?? ''),
     reasonNote: String(formData.get('reasonNote') ?? ''),
   };
 }
 
 export async function changeContactPhoneAction(formData: FormData): Promise<CommandActionResult> {
-  const built = buildChangeContactPhonePayload({
+  const built = buildChangeContactEndpointPayload({
     ...phoneFormInput(formData),
-    newPhone: String(formData.get('newPhone') ?? ''),
+    newNumber: String(formData.get('newPhone') ?? ''),
+    country: String(formData.get('country') ?? ''),
     verificationMethod: String(formData.get('verificationMethod') ?? ''),
     evidenceNote: String(formData.get('evidenceNote') ?? ''),
   });
@@ -210,7 +222,7 @@ export async function changeContactPhoneAction(formData: FormData): Promise<Comm
   const session = await customerClient();
   if (!session.ok) return session;
   try {
-    const result = await session.client.executePartyCommand('ChangeContactPhone', built.payload, createId());
+    const result = await session.client.executePartyCommand('ChangeContactEndpoint', built.payload, createId());
     revalidateCustomer(String(built.payload.partyId));
     return { ok: true, data: result.data };
   } catch (err) {
@@ -219,12 +231,12 @@ export async function changeContactPhoneAction(formData: FormData): Promise<Comm
 }
 
 export async function retireContactPhoneAction(formData: FormData): Promise<CommandActionResult> {
-  const built = buildRetireContactPhonePayload(phoneFormInput(formData));
+  const built = buildRetireContactEndpointPayload(phoneFormInput(formData));
   if (!built.ok) return built;
   const session = await customerClient();
   if (!session.ok) return session;
   try {
-    const result = await session.client.executePartyCommand('RetireContactPhone', built.payload, createId());
+    const result = await session.client.executePartyCommand('RetireContactEndpoint', built.payload, createId());
     revalidateCustomer(String(built.payload.partyId));
     return { ok: true, data: result.data };
   } catch (err) {

@@ -27,7 +27,10 @@ export function pickQuoteContact(contacts: ContactRecord[]): {
     return { contactName: null, contactPhone: null, contactEmail: null };
   }
   const name = `${active.givenName} ${active.familyName}`.trim();
-  const phone = active.phone?.trim() || active.whatsapp?.trim() || null;
+  // Only the active contact's current numbers; a number under identity review is no current destination.
+  const current = (n: string | null | undefined, status: string | null | undefined) =>
+    active.status === 'active' && status !== 'identity_review' ? n?.trim() || null : null;
+  const phone = current(active.phone, active.phoneStatus) || current(active.whatsapp, active.whatsappStatus);
   const email = active.email?.trim() || null;
   return {
     contactName: name || null,

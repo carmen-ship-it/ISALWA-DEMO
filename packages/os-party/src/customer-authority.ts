@@ -15,8 +15,8 @@ import type { OsPartyStore } from './os-party-store';
 export const CUSTOMER_COMMAND_ACTION: Partial<Record<string, CustomerLifecycleAction>> = {
   UpdateParty: 'edit',
   UpdateContact: 'edit',
-  ChangeContactPhone: 'edit',
-  RetireContactPhone: 'edit',
+  ChangeContactEndpoint: 'edit',
+  RetireContactEndpoint: 'edit',
   CreateLocation: 'edit',
   UpdateLocation: 'edit',
   DeactivateLocation: 'edit',
@@ -129,7 +129,7 @@ export type CustomerAuthorityFlags = {
 
 /**
  * Same rule as assertPartyCommandAuthority for the customer `edit` commands (UpdateParty,
- * UpdateContact, ChangeContactPhone, RetireContactPhone): master_data.admin, or canActOnCustomer.
+ * UpdateContact, ChangeContactEndpoint, RetireContactEndpoint): master_data.admin, or canActOnCustomer.
  * A legal-name change stays data-steward maintenance. Reading the legal name is allowed to
  * whoever may edit the customer or is a data steward (engineering default 2026-10-18, pending
  * owner confirmation). Endpoint history, reveal and identity review stay false until those

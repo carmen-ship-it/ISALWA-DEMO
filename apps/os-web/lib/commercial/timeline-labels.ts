@@ -19,6 +19,8 @@ const EVENT_LABELS: Record<string, string> = {
   'contact.updated': 'Contacto actualizado',
   'contact.phone.changed': 'Teléfono de contacto cambiado',
   'contact.phone.retired': 'Teléfono de contacto retirado',
+  'contact.endpoint.changed': 'Número de contacto cambiado',
+  'contact.endpoint.retired': 'Número de contacto retirado',
   'opportunity.created': 'Oportunidad creada',
   'opportunity.updated': 'Oportunidad actualizada',
   'opportunity.stage_changed': 'Etapa de oportunidad cambiada',
@@ -190,12 +192,30 @@ export function partyUpdateSummary(facts: PartyTimelineFacts): string {
   return parts.join(' · ');
 }
 
-/** Phone history line: masked numbers only, with the A2 §58 reason and verification wording. */
+const CONTACT_CHANNEL_LABELS: Record<string, string> = { phone: 'Teléfono', whatsapp: 'WhatsApp' };
+
+function isContactNumberEvent(eventType: string): boolean {
+  return eventType.startsWith('contact.phone.') || eventType.startsWith('contact.endpoint.');
+}
+
+function contactChannelLabel(facts: PartyTimelineFacts): string {
+  const channel = typeof facts.channel === 'string' ? CONTACT_CHANNEL_LABELS[facts.channel] : undefined;
+  if (!channel) return 'Número';
+  return facts.whatsappFollows === true ? `${channel} y WhatsApp` : channel;
+}
+
+/** Number history line: masked numbers only, with the A2 §58 reason and verification wording. */
 export function contactPhoneSummary(eventType: string, facts: PartyTimelineFacts): string {
-  const parts: string[] =
-    eventType === 'contact.phone.retired'
-      ? [`Número retirado: ${factText(facts.retiredPhoneMasked)}`]
-      : [`Número: ${factText(facts.previousPhoneMasked)} → ${factText(facts.phoneMasked)}`];
+  let parts: string[];
+  if (eventType === 'contact.phone.retired') {
+    parts = [`Número retirado: ${factText(facts.retiredPhoneMasked)}`];
+  } else if (eventType === 'contact.endpoint.retired') {
+    parts = [`${contactChannelLabel(facts)} retirado: ${factText(facts.retiredMasked)}`];
+  } else if (eventType === 'contact.endpoint.changed') {
+    parts = [`${contactChannelLabel(facts)}: ${factText(facts.previousMasked)} → ${factText(facts.numberMasked)}`];
+  } else {
+    parts = [`Número: ${factText(facts.previousPhoneMasked)} → ${factText(facts.phoneMasked)}`];
+  }
   const reason = typeof facts.reason === 'string' ? CONTACT_PHONE_REASON_LABELS[facts.reason] : undefined;
   if (reason) parts.push(`Motivo: ${reason}${typeof facts.reasonNote === 'string' && facts.reasonNote ? ` (${facts.reasonNote})` : ''}`);
   const method = typeof facts.verificationMethod === 'string' ? CONTACT_PHONE_VERIFICATION_LABELS[facts.verificationMethod] : undefined;
@@ -212,8 +232,8 @@ export function restrictedEntrySummary(entry: PartyTimelineEntryReadModel): stri
   if (entry.eventType === 'party.updated' && typeof facts.changedFields === 'string') {
     const fields = facts.changedFields.split(',').filter(Boolean).map((f) => SUMMARY_FIELD_LABELS[f] ?? f);
     parts.push(fields.length > 0 ? `Cambió: ${fields.join(', ')}` : 'Datos del cliente actualizados');
-  } else if (entry.eventType === 'contact.phone.changed' || entry.eventType === 'contact.phone.retired') {
-    parts.push(entry.eventType === 'contact.phone.retired' ? 'Número de contacto retirado' : 'Número de contacto cambiado');
+  } else if (isContactNumberEvent(entry.eventType)) {
+    parts.push(entry.eventType.endsWith('.retired') ? 'Número de contacto retirado' : 'Número de contacto cambiado');
     const reason = typeof facts.reason === 'string' ? CONTACT_PHONE_REASON_LABELS[facts.reason] : undefined;
     if (reason) parts.push(`Motivo: ${reason}`);
   } else {
@@ -227,7 +247,7 @@ export function restrictedEntrySummary(entry: PartyTimelineEntryReadModel): stri
 export function timelineEntrySummary(entry: PartyTimelineEntryReadModel): string {
   if (entry.detail === 'summary') return restrictedEntrySummary(entry);
   if (entry.eventType === 'party.updated') return partyUpdateSummary(entry.facts);
-  if (entry.eventType === 'contact.phone.changed' || entry.eventType === 'contact.phone.retired') {
+  if (isContactNumberEvent(entry.eventType)) {
     return contactPhoneSummary(entry.eventType, entry.facts);
   }
   if (entry.eventType === 'quote.send_recorded') {

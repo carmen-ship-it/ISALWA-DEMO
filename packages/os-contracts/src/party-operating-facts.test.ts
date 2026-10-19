@@ -18,6 +18,14 @@ describe('party operating facts', () => {
       '70000000',
     );
     assert.equal(selectPrimaryPhone([{ id: 'a', status: 'active', phone: '   ' }]), null);
+    assert.equal(
+      selectPrimaryPhone([
+        { id: 'a', status: 'active', phone: '+59170000001', phoneStatus: 'identity_review' },
+        { id: 'b', status: 'active', phone: '+59170000002', phoneStatus: 'unverified' },
+      ]),
+      '+59170000002',
+      'a number under identity review is not a current destination',
+    );
   });
 
   it('treats coordinates as location and a Maps link as provenance only', () => {

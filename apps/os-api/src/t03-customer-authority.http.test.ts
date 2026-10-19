@@ -76,7 +76,7 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     partyKind: 'organization',
     displayName: name,
     contact: { givenName: 'Rosa', familyName: 'Quispe' },
-    phone,
+    phone: { country: 'BO', number: phone },
     city: 'Santa Cruz de la Sierra',
     department: 'Santa Cruz',
     ...extra,

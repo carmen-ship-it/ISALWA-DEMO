@@ -49,8 +49,8 @@ describe('customer self-service authority', () => {
       'CreateParty',
       'UpdateParty',
       'UpdateContact',
-      'ChangeContactPhone',
-      'RetireContactPhone',
+      'ChangeContactEndpoint',
+      'RetireContactEndpoint',
       'CreateLocation',
       'UpdateLocation',
       'DeactivateLocation',
@@ -134,9 +134,18 @@ describe('edit customer', () => {
       givenName: 'Ana',
       familyName: 'Ríos',
       email: 'ana@norte.bo',
-      phone: '70000000',
+      phone: { country: 'BO', number: '70000000' },
     });
     assert.equal(UpdateContactPayloadSchema.safeParse(payload).success, true);
+    assert.equal('phone' in payload, false, 'an existing contact never carries numbers');
+    const added = buildUpdateContactPayload({
+      organizationPartyId: 'party-1',
+      givenName: 'Eva',
+      familyName: 'Ríos',
+      whatsapp: { country: 'BO', number: '7000 0000' },
+    });
+    assert.equal(UpdateContactPayloadSchema.safeParse(added).success, true);
+    assert.deepEqual(added.whatsapp, { country: 'BO', number: '7000 0000' });
     assert.equal(canManageContacts('organization', 'active', ['master_data.admin']), true);
     assert.equal(canManageContacts('person', 'active', ['master_data.admin']), false);
     assert.equal(canManageContacts('organization', 'active', ['sales_rep']), false);
