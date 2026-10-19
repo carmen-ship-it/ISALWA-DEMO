@@ -44,11 +44,13 @@ const TIMELINE_FACT_ALLOWLIST: Record<string, readonly string[]> = {
     'previousMasked',
     'numberMasked',
     'whatsappFollows',
+    'identityReviewRequired',
     'reason',
     'reasonNote',
     'verificationMethod',
     'version',
   ],
+  'contact.identity_review.resolved': ['partyId', 'contactId', 'channel', 'decision', 'verificationMethod', 'note', 'version'],
   'contact.endpoint.retired': ['partyId', 'contactId', 'channel', 'retiredMasked', 'whatsappFollows', 'reason', 'reasonNote', 'version'],
   'opportunity.created': ['opportunityId', 'title', 'stage', 'status', 'partyId'],
   'opportunity.updated': ['opportunityId', 'title', 'stage', 'status', 'partyId'],
@@ -185,6 +187,7 @@ const TIMELINE_FIELD_SUMMARY: Record<string, readonly string[]> = {
   'contact.phone.retired': ['partyId', 'contactId', 'reason', 'version'],
   'contact.endpoint.changed': ['partyId', 'contactId', 'channel', 'reason', 'version'],
   'contact.endpoint.retired': ['partyId', 'contactId', 'channel', 'reason', 'version'],
+  'contact.identity_review.resolved': ['partyId', 'contactId', 'channel', 'decision', 'version'],
 };
 
 export function timelineFactsForViewer(

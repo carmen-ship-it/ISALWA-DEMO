@@ -1,0 +1,16 @@
+276c1f43961509a5bdc8d05327de4a15d5c066d127ab3dbd34d6d08635b2858b  packages/os-database/prisma/migrations/20261018230000_os_contact_identity_review_superseded_t03/migration.sql
+27c495ca2c7575315f336241622a997decb29820781d66983b8dbf8027c9d0ed  packages/os-contracts/src/party-commands.ts
+8bffe5a924dd69b7fc0c0a0b3dba1b46c824b64c226a1bb9c268138528496504  packages/os-contracts/src/scopes.ts
+d35aa43f4f5f6244ecddb9083ed3a64184c17539201a1492a0cb912a0e7d529c  packages/os-contracts/src/party-events.ts
+c417cf62e4196875fa8228b6e0eb926b9fa8a8d48885f113198a0b3cca5cf517  packages/os-party/src/customer-authority.ts
+b68ccd550faf04c008311904f856f5db154d80ae34849975d0b9cc37b40cad04  packages/os-party/src/party-command-service.ts
+b31254ee259b85e4232cc7aab0f7e84398e6258d90138c98e8cd16ee530b653c  packages/os-party/src/os-party-store.ts
+7ac55e907b1ae35cd3b37d143d5cbce3dce9b6139a4b810153bba67e0c691eec  packages/os-party/src/store-types.ts
+0a0e333f433c1bf68524f3ba42bb170ff0f17eea75494c68b8d40788d80e8375  packages/os-database/src/prisma-party-store.ts
+02a78767c559a08c90cfd13215520f87677380ab06638bb9ef56aab0a951cddd  packages/os-query/src/party/party-timeline-facts.ts
+3d4c3e7ddd403b07e90da12a13e3207e95c7a72d15e181fa37d014d3246d202e  apps/os-api/src/t03-identity-review.http.test.ts
+e4d22a7c7fd862d4fb1ababf12d9d4f5c5eae4073f2b297ba8e54ea9ffb0eabf  apps/os-api/src/t03-customer-authority-flags.http.test.ts
+57b442d09be12904bc1c99dfe756a1a4cfa8bab16abad8abc1eed8c7d80be64a  apps/os-web/lib/commercial/timeline-labels.ts
+5347935a515779500a8e97f39aa160458581fb6c87c7dfcec7fe1f35fe277871  apps/os-web/lib/party/contact-phone.ts
+bc71ec55bd258f6cd4c600487e6d2efc28bab80abc8ab1001fab8cf483a8a3e3  apps/os-web/lib/party/actions.ts
+fe03c6a973a5e0d560e0fc10f98f5dedf09cd4f32d908796427798506a1b5354  apps/os-web/lib/party/contact-phone.test.ts

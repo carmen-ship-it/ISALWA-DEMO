@@ -121,6 +121,14 @@ export interface OsPartyStore {
     contactId: string,
     channel: 'phone' | 'whatsapp',
   ): Promise<ContactIdentityReviewRecord | null>;
+  /** Closes open reviews on this channel when its number is changed or retired before a decision. */
+  supersedeOpenIdentityReviews(input: {
+    organizationId: string;
+    contactId: string;
+    channel: 'phone' | 'whatsapp';
+    resolvedAt: Date;
+    resolvedByMemberId: string;
+  }): Promise<number>;
   resolveIdentityReview(input: {
     organizationId: string;
     reviewId: string;

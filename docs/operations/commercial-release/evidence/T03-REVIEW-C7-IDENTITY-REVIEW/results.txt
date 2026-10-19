@@ -1,0 +1,11 @@
+migration 20261018230000_os_contact_identity_review_superseded_t03 applied to the disposable database only (psql ON_ERROR_STOP exit 0)
+build os-contracts, os-party, os-database (prisma generate; generated client not committed), os-query: exit 0 each
+tsc --noEmit os-api, os-web: exit 0 each
+t03-identity-review.http (new, disposable PG): pass 6, fail 0
+t03-customer-authority-flags.http: pass 5, fail 0; t03-contact-phone.http: pass 11, fail 0
+os-party 38/38, os-contracts 192/192, os-query 115/115 (serial)
+os-web contact-phone + customer-self-service: pass 20, fail 0
+mutation M7 (confirm leaves the number under review): exit 1, pass 5, fail 1
+mutation M8 (change does not supersede an open review): exit 1, pass 5, fail 1
+mutation M9 (event names the earlier association): exit 1, pass 5, fail 1
+mutated source restored from saved copy: sha256 identical; os-party rebuilt; t03-identity-review.http pass 6, fail 0

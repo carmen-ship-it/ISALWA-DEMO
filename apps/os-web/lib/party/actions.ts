@@ -24,6 +24,7 @@ import {
 import {
   buildChangeContactEndpointPayload,
   buildRetireContactEndpointPayload,
+  buildResolveContactIdentityReviewPayload,
   buildRevealContactEndpointPayload,
   contactNumberFromForm,
 } from '@/lib/party/contact-phone';
@@ -238,6 +239,28 @@ export async function retireContactPhoneAction(formData: FormData): Promise<Comm
   if (!session.ok) return session;
   try {
     const result = await session.client.executePartyCommand('RetireContactEndpoint', built.payload, createId());
+    revalidateCustomer(String(built.payload.partyId));
+    return { ok: true, data: result.data };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+export async function resolveContactIdentityReviewAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildResolveContactIdentityReviewPayload({
+    partyId: String(formData.get('partyId') ?? '').trim(),
+    contactId: String(formData.get('contactId') ?? '').trim(),
+    expectedVersion: Number(formData.get('expectedVersion')),
+    channel: String(formData.get('channel') ?? ''),
+    decision: String(formData.get('decision') ?? ''),
+    verificationMethod: String(formData.get('verificationMethod') ?? ''),
+    note: String(formData.get('note') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await customerClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executePartyCommand('ResolveContactIdentityReview', built.payload, createId());
     revalidateCustomer(String(built.payload.partyId));
     return { ok: true, data: result.data };
   } catch (err) {

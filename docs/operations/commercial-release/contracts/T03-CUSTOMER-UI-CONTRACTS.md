@@ -8,11 +8,11 @@ Source decisions: owner reconciliation of the independent review of `3129709` (2
 |---|---|---|
 | C1 | `UpdateParty` reason, no-op, legal-name handling | STABLE (API; see the C1 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`). `canEditLegalName` / `canReadLegalName` come with C3 |
 | C2 | Timeline field-level visibility | STABLE (API and web labels; see the C2 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C2-TIMELINE.md`) |
-| C3 | Customer detail authority flags | STABLE (API and web actions; see the C3 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C3-AUTHORITY-FLAGS.md`). History and reveal flags on since C6; identity-review flag stays false until C7 |
+| C3 | Customer detail authority flags | STABLE (API and web actions; see the C3 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C3-AUTHORITY-FLAGS.md`). All flags live since C7 |
 | C4 | Coverage grants (all, bounded, revocable) | STABLE (API and web action; see the C4 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C4-COVERAGE.md`) |
-| C5 | Contact endpoints (phone and WhatsApp): canonical number input, change, retire | STABLE (API, web actions and types; see the C5 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C5-ENDPOINTS.md`). C7 review opening included; resolution is C7 |
+| C5 | Contact endpoints (phone and WhatsApp): canonical number input, change, retire | STABLE (API, web actions and types; see the C5 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C5-ENDPOINTS.md`). Review opening is part of C5 |
 | C6 | Endpoint history, masked by default; justified reveal | STABLE (API and web client/action; see the C6 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C6-ENDPOINT-HISTORY.md`) |
-| C7 | Identity review for previously used numbers | PLANNED |
+| C7 | Identity review for previously used numbers | STABLE (API and web action; see the C7 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C7-IDENTITY-REVIEW.md`) |
 | C8 | Steward lookup | STABLE (API from T03 part 3; web loader `a1c6771`) |
 
 Commands go through the existing `POST /v1/commands/:name` (`executePartyCommand` / `executeCommercialCommand`). Error codes are the existing ones (`VALIDATION_FAILED`, `PERMISSION_DENIED`, `NOT_FOUND`, `CONFLICT`); the UI maps them with `mapCommandError`. The integrator adds the os-web client methods and types (`lib/api/os-api-client.ts`, `lib/party/types.ts`) at the same commit that makes a contract STABLE.
@@ -106,6 +106,13 @@ As implemented:
 - When a number entered for a contact matches an ended association on another customer, the contact endpoint becomes `identity_review` and a review is opened.
 - The new customer's viewers see only "Este número estuvo asociado antes a otro registro. Verifique la identidad antes de usarlo." They never see the former customer, contact or history. No conversation is linked automatically.
 - `ResolveContactIdentityReview`: `{ partyId, contactId, channel, decision: 'confirmed' | 'rejected', verificationMethod, note }`. Needs `canResolveIdentityReview`. `confirmed` → `unverified` endpoint in use; `rejected` → endpoint retired.
+
+As implemented:
+- The payload also needs `expectedVersion` (contact version); `note` is optional (1–500).
+- Refused with `VALIDATION_FAILED` when the channel is not under review.
+- Changing or retiring the number first closes the review as `superseded`.
+- Event `contact.identity_review.resolved` (channel, decision, method, note, version) is on the customer timeline.
+- os-web: `resolveContactIdentityReviewAction` with form fields `partyId`, `contactId`, `expectedVersion`, `channel`, `decision`, `verificationMethod`, `note`. Notice text is `IDENTITY_REVIEW_NOTICE` in `lib/party/contact-phone.ts`. Show it, and the decision form, when `phoneStatus` or `whatsappStatus` is `identity_review` and `canResolveIdentityReview` is true. Show the notice alone otherwise.
 
 ## C8 — Steward lookup (STABLE)
 

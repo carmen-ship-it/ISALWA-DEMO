@@ -12,6 +12,7 @@ export const PARTY_COMMAND_NAMES = [
   'ChangeContactEndpoint',
   'RetireContactEndpoint',
   'RevealContactEndpoint',
+  'ResolveContactIdentityReview',
   'UpdateFiscalIdentity',
   'CreateLead',
   'ResolveLead',
@@ -196,6 +197,22 @@ export const RevealContactEndpointPayloadSchema = z.object({
   justification: z.string().trim().min(10).max(500),
 });
 
+export const CONTACT_IDENTITY_REVIEW_DECISIONS = ['confirmed', 'rejected'] as const;
+
+/**
+ * T03 C7: decide an open identity review on one channel. `confirmed` puts the number in use as
+ * unverified; `rejected` retires it. Nothing about the number's earlier customer is involved.
+ */
+export const ResolveContactIdentityReviewPayloadSchema = z.object({
+  partyId: z.string().min(1),
+  contactId: z.string().min(1),
+  expectedVersion: z.number().int().nonnegative(),
+  channel: z.enum(CONTACT_ENDPOINT_CHANNELS),
+  decision: z.enum(CONTACT_IDENTITY_REVIEW_DECISIONS),
+  verificationMethod: z.enum(CONTACT_PHONE_VERIFICATION_METHODS),
+  note: z.string().trim().min(1).max(500).optional(),
+});
+
 /** T03 C6: one row of a contact's restricted number history. Never carries the full number. */
 export type ContactEndpointHistoryItem = {
   associationId: string;
@@ -253,6 +270,7 @@ export const PARTY_COMMAND_PAYLOAD_SCHEMAS: Record<PartyCommandName, z.ZodTypeAn
   ChangeContactEndpoint: ChangeContactEndpointPayloadSchema,
   RetireContactEndpoint: RetireContactEndpointPayloadSchema,
   RevealContactEndpoint: RevealContactEndpointPayloadSchema,
+  ResolveContactIdentityReview: ResolveContactIdentityReviewPayloadSchema,
   UpdateFiscalIdentity: UpdateFiscalIdentityPayloadSchema,
   CreateLead: CreateLeadPayloadSchema,
   ResolveLead: ResolveLeadPayloadSchema,

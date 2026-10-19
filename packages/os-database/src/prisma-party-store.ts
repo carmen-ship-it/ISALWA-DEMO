@@ -430,6 +430,20 @@ export class PrismaOsPartyStore implements OsPartyStore {
     return row ? (row as ContactIdentityReviewRecord) : null;
   }
 
+  async supersedeOpenIdentityReviews(input: {
+    organizationId: string;
+    contactId: string;
+    channel: 'phone' | 'whatsapp';
+    resolvedAt: Date;
+    resolvedByMemberId: string;
+  }): Promise<number> {
+    const result = await this.db().osContactIdentityReview.updateMany({
+      where: { organizationId: input.organizationId, contactId: input.contactId, channel: input.channel, status: 'open' },
+      data: { status: 'superseded', resolvedAt: input.resolvedAt, resolvedByMemberId: input.resolvedByMemberId },
+    });
+    return result.count;
+  }
+
   async resolveIdentityReview(input: {
     organizationId: string;
     reviewId: string;

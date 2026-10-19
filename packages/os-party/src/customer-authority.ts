@@ -18,6 +18,7 @@ export const CUSTOMER_COMMAND_ACTION: Partial<Record<string, CustomerLifecycleAc
   ChangeContactEndpoint: 'edit',
   RetireContactEndpoint: 'edit',
   RevealContactEndpoint: 'edit',
+  ResolveContactIdentityReview: 'edit',
   CreateLocation: 'edit',
   UpdateLocation: 'edit',
   DeactivateLocation: 'edit',
@@ -134,7 +135,7 @@ export type CustomerAuthorityFlags = {
  * A legal-name change stays data-steward maintenance. Reading the legal name is allowed to
  * whoever may edit the customer or is a data steward (engineering default 2026-10-18, pending
  * owner confirmation). The masked endpoint history and the justified reveal follow the same
- * edit rule (C6; engineering default 2026-10-18). Identity review stays false until C7.
+ * edit rule (C6), and so does resolving an identity review (C7); engineering defaults 2026-10-18.
  */
 export async function customerAuthorityFlags(input: {
   store: OsPartyStore;
@@ -168,6 +169,6 @@ export async function customerAuthorityFlags(input: {
     canChangeEndpoints: mutable,
     canReviewEndpointHistory: canEdit,
     canRevealEndpoint: canEdit,
-    canResolveIdentityReview: false,
+    canResolveIdentityReview: mutable,
   };
 }

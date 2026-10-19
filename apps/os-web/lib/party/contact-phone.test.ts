@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { contactPhoneSummary, timelineEventLabel } from '@/lib/commercial/timeline-labels';
+import { contactPhoneSummary, identityReviewSummary, timelineEventLabel } from '@/lib/commercial/timeline-labels';
 import {
   buildChangeContactEndpointPayload,
+  buildResolveContactIdentityReviewPayload,
   buildRetireContactEndpointPayload,
   buildRevealContactEndpointPayload,
+  IDENTITY_REVIEW_NOTICE,
   contactNumberFromForm,
   CONTACT_PHONE_VERIFICATION_OPTIONS,
 } from '@/lib/party/contact-phone';
@@ -58,6 +60,21 @@ describe('T03 contact phone change and retirement (A2 §58, §66)', () => {
     for (const [number, country] of [['59170000123', 'BO'], ['+54 11 2345 6789', 'BO'], ['70000123', 'AR'], ['abc', 'BO']]) {
       assert.equal(contactNumberFromForm(number, country).ok, false, `${number} ${country}`);
     }
+  });
+
+  it('an identity decision needs confirm/reject and a verification method; the notice names nobody', () => {
+    const review = { partyId: 'p1', contactId: 'c1', expectedVersion: 3, channel: 'phone', verificationMethod: 'in_person' };
+    assert.equal(buildResolveContactIdentityReviewPayload({ ...review, decision: '' }).ok, false);
+    assert.equal(buildResolveContactIdentityReviewPayload({ ...review, decision: 'confirmed', verificationMethod: 'sender_says_so' }).ok, false);
+    assert.deepEqual(buildResolveContactIdentityReviewPayload({ ...review, decision: 'rejected', note: '  ' }), {
+      ok: true,
+      payload: { partyId: 'p1', contactId: 'c1', expectedVersion: 3, channel: 'phone', decision: 'rejected', verificationMethod: 'in_person' },
+    });
+    assert.equal(
+      identityReviewSummary({ channel: 'phone', decision: 'confirmed', verificationMethod: 'in_person' }),
+      'Teléfono: identidad confirmada, número en uso · Verificación: Confirmación presencial',
+    );
+    assert.equal(/cliente|nombre/i.test(IDENTITY_REVIEW_NOTICE), false);
   });
 
   it('a reveal needs a 10–500 character reason and the exact history row', () => {

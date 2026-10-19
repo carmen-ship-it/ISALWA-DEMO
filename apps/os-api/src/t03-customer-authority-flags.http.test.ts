@@ -28,7 +28,7 @@ const EDITOR_FLAGS = {
   canChangeEndpoints: true,
   canReviewEndpointHistory: true,
   canRevealEndpoint: true,
-  canResolveIdentityReview: false,
+  canResolveIdentityReview: true,
 };
 const READER_FLAGS = {
   canEditDisplayName: false,

@@ -201,6 +201,9 @@ export class PartyCommandService {
       case 'RevealContactEndpoint':
         result = await this.revealContactEndpoint(ctx, payload, store);
         break;
+      case 'ResolveContactIdentityReview':
+        result = await this.resolveContactIdentityReview(ctx, payload, store);
+        break;
       case 'UpdateFiscalIdentity':
         result = await this.updateFiscalIdentity(ctx, payload, store);
         break;
@@ -885,6 +888,13 @@ export class PartyCommandService {
         endedAt: ctx.effectiveAt,
         endReason: `changed:${reason}`,
       });
+      await store.supersedeOpenIdentityReviews({
+        organizationId: ctx.organizationId,
+        contactId: contact.id,
+        channel: ch,
+        resolvedAt: ctx.effectiveAt,
+        resolvedByMemberId: ctx.actorMemberId,
+      });
       const status = await this.recordEndpointAssociation(ctx, store, partyId, contact.id, ch, entered, verificationMethod);
       identityReviewRequired ||= status === 'identity_review';
       if (ch === 'phone') {
@@ -960,6 +970,13 @@ export class PartyCommandService {
         endedAt: ctx.effectiveAt,
         endReason: `retired:${reason}`,
       });
+      await store.supersedeOpenIdentityReviews({
+        organizationId: ctx.organizationId,
+        contactId: contact.id,
+        channel: ch,
+        resolvedAt: ctx.effectiveAt,
+        resolvedByMemberId: ctx.actorMemberId,
+      });
       if (ch === 'phone') {
         Object.assign(patch, {
           phone: null,
@@ -1000,6 +1017,81 @@ export class PartyCommandService {
       'contact.endpoint.retired',
       { channel, number: retiredMasked },
       { channel, number: null, whatsappFollows },
+    );
+  }
+
+  /**
+   * T03 C7: decide the open identity review on one channel. `confirmed` → the number is in use as
+   * unverified; `rejected` → the number is retired and its association ended. The event names the
+   * decision only, never the number or anything about an earlier customer.
+   */
+  private async resolveContactIdentityReview(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsPartyStore,
+  ): Promise<CommandResult> {
+    const partyId = String(payload.partyId);
+    await this.authorize(ctx, 'ResolveContactIdentityReview', ctx.organizationId, partyId, store);
+    await this.requireActiveParty(store, ctx.organizationId, partyId);
+    const contact = await store.getContactInOrg(ctx.organizationId, String(payload.contactId));
+    if (!contact || contact.organizationPartyId !== partyId) throw new Error('NOT_FOUND');
+    if (contact.status !== 'active') throw new Error('VALIDATION_FAILED');
+    const channel = String(payload.channel) as ContactEndpointChannel;
+    if (channel !== 'phone' && channel !== 'whatsapp') throw new Error('VALIDATION_FAILED');
+    const decision = String(payload.decision);
+    if (decision !== 'confirmed' && decision !== 'rejected') throw new Error('VALIDATION_FAILED');
+    const verificationMethod = String(payload.verificationMethod);
+    if (!(CONTACT_PHONE_VERIFICATION_METHODS as readonly string[]).includes(verificationMethod)) {
+      throw new Error('VALIDATION_FAILED');
+    }
+    const note = typeof payload.note === 'string' ? payload.note.trim() || null : null;
+    const status = channel === 'phone' ? contact.phoneStatus : contact.whatsappStatus;
+    const review = await store.getOpenIdentityReview(ctx.organizationId, contact.id, channel);
+    if (status !== 'identity_review' || !review) throw new Error('VALIDATION_FAILED');
+
+    const version = contact.version + 1;
+    let patch: Partial<ContactRecord>;
+    if (decision === 'confirmed') {
+      patch = channel === 'phone' ? { phoneStatus: 'unverified' } : { whatsappStatus: 'unverified' };
+    } else {
+      await store.endActiveEndpointAssociations({
+        organizationId: ctx.organizationId,
+        contactId: contact.id,
+        channel,
+        endedAt: ctx.effectiveAt,
+        endReason: 'identity_rejected',
+      });
+      patch =
+        channel === 'phone'
+          ? { phone: null, phoneDisplay: null, phoneStatus: null, phoneRetiredAt: ctx.effectiveAt, phoneRetiredReason: 'identity_rejected' }
+          : {
+              whatsapp: null,
+              whatsappDisplay: null,
+              whatsappStatus: null,
+              whatsappRetiredAt: ctx.effectiveAt,
+              whatsappRetiredReason: 'identity_rejected',
+            };
+    }
+    await store.updateContact(contact.id, { ...patch, version }, Number(payload.expectedVersion));
+    await store.resolveIdentityReview({
+      organizationId: ctx.organizationId,
+      reviewId: review.id,
+      status: decision,
+      resolvedAt: ctx.effectiveAt,
+      resolvedByMemberId: ctx.actorMemberId,
+      verificationMethod,
+      note,
+    });
+    return this.emit(
+      ctx,
+      store,
+      'contact.identity_review.resolved',
+      'contact',
+      contact.id,
+      { partyId, contactId: contact.id, channel, decision, verificationMethod, note, version },
+      'contact.identity_review.resolved',
+      { channel, status: 'identity_review' },
+      { channel, status: decision === 'confirmed' ? 'unverified' : null, decision },
     );
   }
 

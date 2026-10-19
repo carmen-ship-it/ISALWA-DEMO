@@ -87,7 +87,7 @@ export type ContactIdentityReviewRecord = {
   channel: 'phone' | 'whatsapp';
   associationId: string;
   matchedAssociationId: string;
-  status: 'open' | 'confirmed' | 'rejected';
+  status: 'open' | 'confirmed' | 'rejected' | 'superseded';
   openedAt: Date;
   resolvedAt: Date | null;
   resolvedByMemberId: string | null;

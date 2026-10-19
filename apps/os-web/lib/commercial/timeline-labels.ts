@@ -21,6 +21,7 @@ const EVENT_LABELS: Record<string, string> = {
   'contact.phone.retired': 'Teléfono de contacto retirado',
   'contact.endpoint.changed': 'Número de contacto cambiado',
   'contact.endpoint.retired': 'Número de contacto retirado',
+  'contact.identity_review.resolved': 'Identidad del número revisada',
   'opportunity.created': 'Oportunidad creada',
   'opportunity.updated': 'Oportunidad actualizada',
   'opportunity.stage_changed': 'Etapa de oportunidad cambiada',
@@ -204,6 +205,21 @@ function contactChannelLabel(facts: PartyTimelineFacts): string {
   return facts.whatsappFollows === true ? `${channel} y WhatsApp` : channel;
 }
 
+const IDENTITY_DECISION_LABELS: Record<string, string> = {
+  confirmed: 'identidad confirmada, número en uso',
+  rejected: 'identidad rechazada, número retirado',
+};
+
+/** T03 C7 line: the decision and how it was verified; never the number or an earlier customer. */
+export function identityReviewSummary(facts: PartyTimelineFacts): string {
+  const decision = typeof facts.decision === 'string' ? IDENTITY_DECISION_LABELS[facts.decision] : undefined;
+  const parts = [`${contactChannelLabel({ channel: facts.channel })}: ${decision ?? 'revisión de identidad'}`];
+  const method = typeof facts.verificationMethod === 'string' ? CONTACT_PHONE_VERIFICATION_LABELS[facts.verificationMethod] : undefined;
+  if (method) parts.push(`Verificación: ${method}`);
+  if (typeof facts.note === 'string' && facts.note) parts.push(`Nota: ${facts.note}`);
+  return parts.join(' · ');
+}
+
 /** Number history line: masked numbers only, with the A2 §58 reason and verification wording. */
 export function contactPhoneSummary(eventType: string, facts: PartyTimelineFacts): string {
   let parts: string[];
@@ -250,6 +266,7 @@ export function timelineEntrySummary(entry: PartyTimelineEntryReadModel): string
   if (isContactNumberEvent(entry.eventType)) {
     return contactPhoneSummary(entry.eventType, entry.facts);
   }
+  if (entry.eventType === 'contact.identity_review.resolved') return identityReviewSummary(entry.facts);
   if (entry.eventType === 'quote.send_recorded') {
     const parts = [timelineEventLabel(entry.eventType, entry.facts)];
     if (typeof entry.facts.quoteNumber === 'string' && entry.facts.quoteNumber) {

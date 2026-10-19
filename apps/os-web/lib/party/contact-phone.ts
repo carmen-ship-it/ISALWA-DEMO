@@ -107,6 +107,50 @@ export function buildChangeContactEndpointPayload(
   };
 }
 
+/** T03 C7: decide an open identity review on one channel. */
+export function buildResolveContactIdentityReviewPayload(input: {
+  partyId: string;
+  contactId: string;
+  expectedVersion: number;
+  channel: string;
+  decision: string;
+  verificationMethod: string;
+  note?: string | null;
+}): PhoneFormResult {
+  if (input.decision !== 'confirmed' && input.decision !== 'rejected') {
+    return { ok: false, error: 'Elija si confirma o rechaza el número.' };
+  }
+  if (!(CONTACT_PHONE_VERIFICATION_METHODS as readonly string[]).includes(input.verificationMethod)) {
+    return { ok: false, error: 'Elija cómo verificó la identidad.' };
+  }
+  if (
+    !(CONTACT_ENDPOINT_CHANNELS as readonly string[]).includes(input.channel) ||
+    !input.partyId ||
+    !input.contactId ||
+    !Number.isInteger(input.expectedVersion) ||
+    input.expectedVersion < 0
+  ) {
+    return { ok: false, error: 'No se pudo guardar. Actualice la página e intente de nuevo.' };
+  }
+  const note = input.note?.trim() ?? '';
+  return {
+    ok: true,
+    payload: {
+      partyId: input.partyId,
+      contactId: input.contactId,
+      expectedVersion: input.expectedVersion,
+      channel: input.channel,
+      decision: input.decision,
+      verificationMethod: input.verificationMethod,
+      ...(note ? { note } : {}),
+    },
+  };
+}
+
+/** Shown to the new holder's viewers; never names the earlier customer (T03 C7). */
+export const IDENTITY_REVIEW_NOTICE =
+  'Este número estuvo asociado antes a otro registro. Verifique la identidad antes de usarlo.';
+
 /** T03 C6: reveal one number from the contact's history, for a stated reason (10–500 characters). */
 export function buildRevealContactEndpointPayload(input: {
   partyId: string;
