@@ -164,3 +164,14 @@ export type CorrectionRequestView = {
   decidedAt: string | null;
   canDecide: boolean;
 };
+
+/**
+ * Read model for GET /v1/issues/:issueId/correction/candidate-events: events an applied decision
+ * may cite, newest first. Metadata only; event payloads (names, masked numbers) are not returned.
+ */
+export type CorrectionCandidateEvent = {
+  eventId: string;
+  eventType: string;
+  occurredAt: string;
+  actorMemberId: string | null;
+};

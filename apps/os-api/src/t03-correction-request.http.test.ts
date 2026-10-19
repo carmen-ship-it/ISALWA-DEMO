@@ -52,6 +52,12 @@ describeHttp('T03 correction requests over HTTP (disposable Postgres)', () => {
     return { status: res.status, body: text ? JSON.parse(text) : {} };
   }
 
+  async function candidates(who: string): Promise<Reply> {
+    const res = await fetch(`${baseUrl}/v1/issues/${ids.issue}/correction/candidate-events`, { headers: headers(m[who]!) });
+    const text = await res.text();
+    return { status: res.status, body: text ? JSON.parse(text) : {} };
+  }
+
   async function seedMember(name: string, roleKeys: readonly string[]): Promise<Seeded> {
     const seeded = await store.seedAdminMember(org.id, `${name}-${createId()}@t03l4.bo`, name, 'T03');
     await prisma().osRoleAssignment.deleteMany({ where: { organizationId: org.id, memberId: seeded.member.id, roleKey: 'people.admin' } });
@@ -185,6 +191,33 @@ describeHttp('T03 correction requests over HTTP (disposable Postgres)', () => {
     });
     assert.equal(fixed.status, 201, JSON.stringify(fixed.body));
     const contactEvent = await latestEvent('contact.updated', ids.contact!);
+
+    // A same-kind change on another customer's contact must not be offered.
+    const other = await command('owner', 'CreateParty', {
+      partyKind: 'organization',
+      displayName: 'Otro Cliente L4',
+      contact: { givenName: 'Luis', familyName: 'Rojas' },
+      phone: { country: 'BO', number: '70020003' },
+      city: 'Santa Cruz de la Sierra',
+      department: 'Santa Cruz',
+    });
+    assert.equal(other.status, 201, JSON.stringify(other.body));
+    const otherData = other.body.data as Record<string, unknown>;
+    const decoy = await command('owner', 'UpdateContact', {
+      organizationPartyId: String(otherData.partyId),
+      contactId: String(otherData.contactId),
+      givenName: 'Luis Alberto',
+      familyName: 'Rojas',
+    });
+    assert.equal(decoy.status, 201, JSON.stringify(decoy.body));
+
+    const listed = await candidates('owner');
+    assert.equal(listed.status, 200, JSON.stringify(listed.body));
+    const events = listed.body.events as Array<Record<string, unknown>>;
+    assert.deepEqual(events.map((e) => e.eventId), [contactEvent.id]);
+    assert.deepEqual(Object.keys(events[0]!).sort(), ['actorMemberId', 'eventId', 'eventType', 'occurredAt']);
+    assert.equal((await candidates('manager')).status, 404);
+
     const resolved = await command('owner', 'ResolveIssue', {
       issueId: ids.issue,
       resolution: 'Corregido',

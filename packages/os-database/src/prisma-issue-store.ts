@@ -34,6 +34,8 @@ export type IssueCorrectionDecisionPatch = Pick<
 >;
 
 export interface IssueBusinessEventFacts {
+  id?: string;
+  actorMemberId?: string | null;
   eventType: string;
   occurredAt: Date;
   primaryEntityType: string;
@@ -209,6 +211,12 @@ export interface OsIssueStore {
   getCorrectionRequest(organizationId: string, issueId: string): Promise<IssueCorrectionRequestRecord | null>;
   decideCorrectionRequest(organizationId: string, issueId: string, patch: IssueCorrectionDecisionPatch): Promise<void>;
   getBusinessEventInOrg(organizationId: string, eventId: string): Promise<IssueBusinessEventFacts | null>;
+  listBusinessEventsSince(
+    organizationId: string,
+    eventTypes: readonly string[],
+    since: Date,
+    limit: number,
+  ): Promise<IssueBusinessEventFacts[]>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -566,32 +574,64 @@ export class PrismaOsIssueStore implements OsIssueStore {
   ): Promise<IssueBusinessEventFacts | null> {
     const row = await this.db().osBusinessEvent.findFirst({
       where: { id: eventId, organizationId },
-      select: {
-        eventType: true,
-        occurredAt: true,
-        primaryEntityType: true,
-        primaryEntityId: true,
-        payloadJson: true,
-      },
+      select: EVENT_FACT_SELECT,
     });
-    if (!row) return null;
-    const payload =
-      row.payloadJson && typeof row.payloadJson === 'object' && !Array.isArray(row.payloadJson)
-        ? (row.payloadJson as Record<string, unknown>)
-        : null;
-    return {
-      eventType: row.eventType,
-      occurredAt: row.occurredAt,
-      primaryEntityType: row.primaryEntityType,
-      primaryEntityId: row.primaryEntityId,
-      payload,
-    };
+    return row ? mapEventFacts(row) : null;
+  }
+
+  async listBusinessEventsSince(
+    organizationId: string,
+    eventTypes: readonly string[],
+    since: Date,
+    limit: number,
+  ): Promise<IssueBusinessEventFacts[]> {
+    const rows = await this.db().osBusinessEvent.findMany({
+      where: { organizationId, eventType: { in: [...eventTypes] }, occurredAt: { gte: since } },
+      orderBy: { occurredAt: 'desc' },
+      take: limit,
+      select: EVENT_FACT_SELECT,
+    });
+    return rows.map(mapEventFacts);
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mappers
 // ─────────────────────────────────────────────────────────────────────────────
+
+const EVENT_FACT_SELECT = {
+  id: true,
+  actorMemberId: true,
+  eventType: true,
+  occurredAt: true,
+  primaryEntityType: true,
+  primaryEntityId: true,
+  payloadJson: true,
+} as const;
+
+function mapEventFacts(row: {
+  id: string;
+  actorMemberId: string | null;
+  eventType: string;
+  occurredAt: Date;
+  primaryEntityType: string;
+  primaryEntityId: string;
+  payloadJson: unknown;
+}): IssueBusinessEventFacts {
+  const payload =
+    row.payloadJson && typeof row.payloadJson === 'object' && !Array.isArray(row.payloadJson)
+      ? (row.payloadJson as Record<string, unknown>)
+      : null;
+  return {
+    id: row.id,
+    actorMemberId: row.actorMemberId,
+    eventType: row.eventType,
+    occurredAt: row.occurredAt,
+    primaryEntityType: row.primaryEntityType,
+    primaryEntityId: row.primaryEntityId,
+    payload,
+  };
+}
 
 function mapIssue(row: {
   id: string;
