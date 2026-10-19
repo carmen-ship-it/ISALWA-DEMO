@@ -347,6 +347,7 @@ const HTTP_CLASSIFICATION: Record<string, string> = {
   // Masked history; customer read boundary plus the customer edit rule, proven in t03-contact-phone.http.test.ts.
   'GET /parties/:partyId/contacts/:contactId/endpoints': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
   'GET /parties/:partyId/contacts/:contactId/relationship-end-preview': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
+  'GET /parties/:partyId/contacts/:contactId/followup-preferences': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
   'GET /delivery-notes': 'SCOPE-CHECKED|MIN_CUSTOMER_FIELDS|LOCAL_HTTP_PG_VERIFIED',
   'GET /delivery-notes/:id/pdf': 'SCOPE-CHECKED|MIN_CUSTOMER_FIELDS|LOCAL_HTTP_PG_VERIFIED',
   'GET /delivery-ops/orders': 'SCOPE-CHECKED|MIN_CUSTOMER_FIELDS|LOCAL_HTTP_PG_VERIFIED',

@@ -102,6 +102,8 @@ export interface OsPartyStore {
     expectedVersion: number,
   ): Promise<void>;
   listFollowupPreferences(organizationId: string, contactId: string): Promise<ContactFollowupPreferenceRecord[]>;
+  /** Inserts when `expectedVersion` is 0, else updates that version; a mismatch throws CONFLICT. */
+  saveFollowupPreference(record: ContactFollowupPreferenceRecord, expectedVersion: number): Promise<void>;
   insertEndpointAssociation(row: ContactEndpointAssociationRecord): Promise<void>;
   /** Ends the contact's current association on this channel; returns the ended row ids. */
   endActiveEndpointAssociations(input: {

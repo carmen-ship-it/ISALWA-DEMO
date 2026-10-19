@@ -21,6 +21,8 @@ import {
   grantableCoverageActionsFor,
   CONTACT_ENDPOINT_CHANNELS,
   deriveCommitmentState,
+  FOLLOWUP_CHANNELS,
+  type ContactFollowupPreferenceItem,
   isCurrentContact,
   maskContactNumber,
   pickCurrentContact,
@@ -344,6 +346,57 @@ export class PartiesController {
           })),
         commitmentLinkage: 'customer',
         automaticSends: { configured: false, label: 'Envíos automáticos no configurados.' },
+      };
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';
+      const status =
+        code === 'AUTH_REQUIRED'
+          ? HttpStatus.UNAUTHORIZED
+          : code === 'NOT_FOUND'
+            ? HttpStatus.NOT_FOUND
+          : code === 'TENANT_FORBIDDEN' ||
+              code === 'PERMISSION_DENIED' ||
+              code === 'ACCESS_REVOKED'
+            ? HttpStatus.FORBIDDEN
+            : code === 'VALIDATION_FAILED'
+              ? HttpStatus.BAD_REQUEST
+              : HttpStatus.INTERNAL_SERVER_ERROR;
+      throw new HttpException({ code }, status);
+    }
+  }
+
+  /**
+   * T03 L2: the contact's follow-up preference per channel, for anyone who may read the customer,
+   * so that whoever contacts them can respect it. Notes stay in the restricted timeline.
+   */
+  @Get(':partyId/contacts/:contactId/followup-preferences')
+  async contactFollowupPreferences(
+    @Param('partyId') partyId: string,
+    @Param('contactId') contactId: string,
+    @Req() req: Request,
+  ): Promise<{ partyId: string; contactId: string; items: ContactFollowupPreferenceItem[] }> {
+    try {
+      const { session } = await this.readableCustomer(req, partyId);
+      const contact = await this.partyStore.getContactInOrg(session.organizationId, contactId);
+      if (!contact || contact.organizationPartyId !== partyId) {
+        throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+      }
+      const rows = await this.partyStore.listFollowupPreferences(session.organizationId, contactId);
+      return {
+        partyId,
+        contactId,
+        items: FOLLOWUP_CHANNELS.map((channel) => {
+          const row = rows.find((r) => r.channel === channel);
+          return {
+            channel,
+            preference: row?.preference ?? null,
+            source: row?.source ?? null,
+            identityConfirmed: row?.identityConfirmed ?? false,
+            version: row?.version ?? 0,
+            updatedAt: row ? row.updatedAt.toISOString() : null,
+          };
+        }),
       };
     } catch (err) {
       if (err instanceof HttpException) throw err;

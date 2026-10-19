@@ -53,6 +53,7 @@ const TIMELINE_FACT_ALLOWLIST: Record<string, readonly string[]> = {
   'contact.identity_review.resolved': ['partyId', 'contactId', 'channel', 'decision', 'verificationMethod', 'note', 'version'],
   'contact.endpoint.retired': ['partyId', 'contactId', 'channel', 'retiredMasked', 'whatsappFollows', 'reason', 'reasonNote', 'version'],
   'contact.relation.ended': ['partyId', 'contactId', 'reason', 'reasonNote', 'endedOn', 'version'],
+  'contact.followup_preference.changed': ['partyId', 'contactId', 'channel', 'from', 'to', 'source', 'identityConfirmed', 'note', 'version'],
   'opportunity.created': ['opportunityId', 'title', 'stage', 'status', 'partyId'],
   'opportunity.updated': ['opportunityId', 'title', 'stage', 'status', 'partyId'],
   'opportunity.stage_changed': ['opportunityId', 'previousStage', 'stage'],
@@ -190,6 +191,7 @@ const TIMELINE_FIELD_SUMMARY: Record<string, readonly string[]> = {
   'contact.endpoint.retired': ['partyId', 'contactId', 'channel', 'reason', 'version'],
   'contact.identity_review.resolved': ['partyId', 'contactId', 'channel', 'decision', 'version'],
   'contact.relation.ended': ['partyId', 'contactId', 'reason', 'endedOn', 'version'],
+  'contact.followup_preference.changed': ['partyId', 'contactId', 'channel', 'from', 'to', 'source', 'version'],
 };
 
 export function timelineFactsForViewer(

@@ -151,6 +151,7 @@ export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_act
   RevealContactEndpoint: 'master_data.admin',
   ResolveContactIdentityReview: 'master_data.admin',
   EndContactRelationship: 'master_data.admin',
+  SetContactFollowupPreference: 'master_data.admin',
   UpdateFiscalIdentity: 'fiscal.admin',
   CreateLead: 'master_data.admin',
   ResolveLead: 'master_data.admin',

@@ -5,6 +5,10 @@ import {
   CONTACT_PHONE_CHANGE_REASONS,
   CONTACT_RELATION_END_REASONS,
   type ContactRelationEndReason,
+  FOLLOWUP_CHANNELS,
+  FOLLOWUP_PREFERENCES,
+  FOLLOWUP_PREFERENCE_SOURCES,
+  followupPreferenceInputProblem,
   CONTACT_PHONE_VERIFICATION_METHODS,
   MASTER_DATA_ADMIN_SCOPE,
   maskContactNumber,
@@ -40,6 +44,7 @@ import { assertPartyCommandAuthority } from './customer-authority';
 import type { OsPartyStore } from './os-party-store';
 import type {
   CommercialAccountRecord,
+  ContactFollowupPreferenceRecord,
   ContactRecord,
   PartyRecord,
   PartyRoleAssignmentRecord,
@@ -207,6 +212,9 @@ export class PartyCommandService {
         break;
       case 'EndContactRelationship':
         result = await this.endContactRelationship(ctx, payload, store);
+        break;
+      case 'SetContactFollowupPreference':
+        result = await this.setContactFollowupPreference(ctx, payload, store);
         break;
       case 'ResolveContactIdentityReview':
         result = await this.resolveContactIdentityReview(ctx, payload, store);
@@ -1097,6 +1105,70 @@ export class PartyCommandService {
       'contact.relation.ended',
       { status: contact.status, version: contact.version },
       { status: 'inactive', relationEndReason: reason, endedOn, version },
+    );
+  }
+
+  /**
+   * T03 L2 (A1 §7): records one channel's follow-up preference as a person stated it. Always a
+   * member's command; nothing is deleted and orders, payments and history are untouched.
+   */
+  private async setContactFollowupPreference(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsPartyStore,
+  ): Promise<CommandResult> {
+    const partyId = String(payload.partyId);
+    await this.authorize(ctx, 'SetContactFollowupPreference', ctx.organizationId, partyId, store);
+    await this.requireActiveParty(store, ctx.organizationId, partyId);
+    const contact = await store.getContactInOrg(ctx.organizationId, String(payload.contactId));
+    if (!contact || contact.organizationPartyId !== partyId) throw new Error('NOT_FOUND');
+    if (contact.relationEndedAt) throw new Error('CONFLICT');
+    if (contact.status !== 'active') throw new Error('VALIDATION_FAILED');
+    const channel = String(payload.channel) as ContactFollowupPreferenceRecord['channel'];
+    const preference = String(payload.preference) as ContactFollowupPreferenceRecord['preference'];
+    const source = String(payload.source) as ContactFollowupPreferenceRecord['source'];
+    if (
+      !(FOLLOWUP_CHANNELS as readonly string[]).includes(channel) ||
+      !(FOLLOWUP_PREFERENCES as readonly string[]).includes(preference) ||
+      !(FOLLOWUP_PREFERENCE_SOURCES as readonly string[]).includes(source) ||
+      typeof payload.identityConfirmed !== 'boolean'
+    ) {
+      throw new Error('VALIDATION_FAILED');
+    }
+    const identityConfirmed = payload.identityConfirmed;
+    const note = typeof payload.note === 'string' ? payload.note.trim() || null : null;
+    if (followupPreferenceInputProblem({ preference, source, identityConfirmed, note })) throw new Error('VALIDATION_FAILED');
+
+    const expectedVersion = Number(payload.expectedVersion);
+    const current = (await store.listFollowupPreferences(ctx.organizationId, contact.id)).find((p) => p.channel === channel) ?? null;
+    if ((current?.version ?? 0) !== expectedVersion) throw new Error('CONFLICT');
+    const version = expectedVersion + 1;
+    await store.saveFollowupPreference(
+      {
+        id: current?.id ?? createId(),
+        organizationId: ctx.organizationId,
+        contactId: contact.id,
+        channel,
+        preference,
+        source,
+        identityConfirmed,
+        version,
+        recordedByMemberId: ctx.actorMemberId,
+        updatedAt: ctx.effectiveAt,
+      },
+      expectedVersion,
+    );
+    const from = current?.preference ?? null;
+    return this.emit(
+      ctx,
+      store,
+      'contact.followup_preference.changed',
+      'contact',
+      contact.id,
+      { partyId, contactId: contact.id, channel, from, to: preference, source, identityConfirmed, note, version },
+      'contact.followup_preference.changed',
+      { channel, preference: from },
+      { channel, preference, source, identityConfirmed },
     );
   }
 

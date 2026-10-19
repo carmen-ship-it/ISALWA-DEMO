@@ -385,6 +385,38 @@ export class PrismaOsPartyStore implements OsPartyStore {
     }));
   }
 
+  async saveFollowupPreference(record: ContactFollowupPreferenceRecord, expectedVersion: number): Promise<void> {
+    const data = {
+      preference: record.preference,
+      source: record.source,
+      identityConfirmed: record.identityConfirmed,
+      version: record.version,
+      recordedByMemberId: record.recordedByMemberId,
+      updatedAt: record.updatedAt,
+    };
+    if (expectedVersion === 0) {
+      const existing = await this.db().osContactFollowupPreference.findFirst({
+        where: { organizationId: record.organizationId, contactId: record.contactId, channel: record.channel },
+        select: { id: true },
+      });
+      if (existing) throw new Error('CONFLICT');
+      try {
+        await this.db().osContactFollowupPreference.create({
+          data: { id: record.id, organizationId: record.organizationId, contactId: record.contactId, channel: record.channel, ...data },
+        });
+      } catch (err) {
+        if ((err as { code?: string }).code === 'P2002') throw new Error('CONFLICT');
+        throw err;
+      }
+      return;
+    }
+    const result = await this.db().osContactFollowupPreference.updateMany({
+      where: { organizationId: record.organizationId, contactId: record.contactId, channel: record.channel, version: expectedVersion },
+      data,
+    });
+    if (result.count !== 1) throw new Error('CONFLICT');
+  }
+
   async insertEndpointAssociation(row: ContactEndpointAssociationRecord): Promise<void> {
     await this.db().osContactEndpointAssociation.create({ data: { ...row } });
   }

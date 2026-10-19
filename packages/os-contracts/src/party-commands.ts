@@ -14,6 +14,7 @@ export const PARTY_COMMAND_NAMES = [
   'RevealContactEndpoint',
   'ResolveContactIdentityReview',
   'EndContactRelationship',
+  'SetContactFollowupPreference',
   'UpdateFiscalIdentity',
   'CreateLead',
   'ResolveLead',
@@ -272,6 +273,77 @@ export const EndContactRelationshipPayloadSchema = z
     }
   });
 
+/** T03 L2 (A1 §7): stored values of `os_contact_followup_preferences`. */
+export const FOLLOWUP_CHANNELS = ['whatsapp', 'phone', 'email'] as const;
+export const FOLLOWUP_PREFERENCES = ['allowed', 'no_promotions', 'no_unsolicited_followups'] as const;
+export const FOLLOWUP_PREFERENCE_SOURCES = ['customer_message', 'staff_recorded'] as const;
+export type FollowupChannel = (typeof FOLLOWUP_CHANNELS)[number];
+export type FollowupPreference = (typeof FOLLOWUP_PREFERENCES)[number];
+export type FollowupPreferenceSource = (typeof FOLLOWUP_PREFERENCE_SOURCES)[number];
+
+/**
+ * T03 L2: a person records what the contact asked for. Restricting is always accepted; relaxing
+ * to `allowed` needs a staff record with confirmed identity and a note. A generic "sí" is never
+ * consent, and `allowed` is not marketing opt-in.
+ */
+export const SetContactFollowupPreferencePayloadSchema = z
+  .object({
+    partyId: z.string().min(1),
+    contactId: z.string().min(1),
+    channel: z.enum(FOLLOWUP_CHANNELS),
+    preference: z.enum(FOLLOWUP_PREFERENCES),
+    source: z.enum(FOLLOWUP_PREFERENCE_SOURCES),
+    identityConfirmed: z.boolean(),
+    /** Current version of this channel's preference; 0 when none is recorded. */
+    expectedVersion: z.number().int().nonnegative(),
+    note: z.string().trim().min(1).max(500).optional(),
+  })
+  .superRefine((value, ctx) => {
+    const problem = followupPreferenceInputProblem(value);
+    if (problem) ctx.addIssue({ code: z.ZodIssueCode.custom, path: [problem.path], message: problem.message });
+  });
+
+export function followupPreferenceInputProblem(value: {
+  preference: string;
+  source: string;
+  identityConfirmed: boolean;
+  note?: string | null;
+}): { path: 'identityConfirmed' | 'source' | 'note'; message: string } | null {
+  if (value.source === 'customer_message' && !value.identityConfirmed) {
+    return { path: 'identityConfirmed', message: 'a customer message needs a person to confirm who sent it' };
+  }
+  if (value.preference === 'allowed') {
+    if (value.source !== 'staff_recorded') return { path: 'source', message: 'allowed is recorded by staff only' };
+    if (!value.identityConfirmed) return { path: 'identityConfirmed', message: 'allowed needs confirmed identity' };
+    if ((value.note?.trim().length ?? 0) < 10) return { path: 'note', message: 'allowed needs a note of at least 10 characters' };
+  }
+  return null;
+}
+
+/** T03 L2: what a follow-up is, for `followupPermitted`. */
+export const FOLLOWUP_KINDS = ['promotional', 'optional_followup', 'requested_reply', 'transactional'] as const;
+export type FollowupKind = (typeof FOLLOWUP_KINDS)[number];
+
+/**
+ * Promotions are off in this release regardless of preference (mass marketing disabled). A
+ * reply the customer asked for and transactional messages are never blocked by a preference.
+ */
+export function followupPermitted(preference: FollowupPreference | null, kind: FollowupKind): boolean {
+  if (kind === 'requested_reply' || kind === 'transactional') return true;
+  if (kind === 'promotional') return false;
+  return preference !== 'no_unsolicited_followups';
+}
+
+/** T03 L2: `GET /v1/parties/:partyId/contacts/:contactId/followup-preferences`. */
+export type ContactFollowupPreferenceItem = {
+  channel: FollowupChannel;
+  preference: FollowupPreference | null;
+  source: FollowupPreferenceSource | null;
+  identityConfirmed: boolean;
+  version: number;
+  updatedAt: string | null;
+};
+
 /** T03 C6: one row of a contact's restricted number history. Never carries the full number. */
 export type ContactEndpointHistoryItem = {
   associationId: string;
@@ -331,6 +403,7 @@ export const PARTY_COMMAND_PAYLOAD_SCHEMAS: Record<PartyCommandName, z.ZodTypeAn
   RevealContactEndpoint: RevealContactEndpointPayloadSchema,
   ResolveContactIdentityReview: ResolveContactIdentityReviewPayloadSchema,
   EndContactRelationship: EndContactRelationshipPayloadSchema,
+  SetContactFollowupPreference: SetContactFollowupPreferencePayloadSchema,
   UpdateFiscalIdentity: UpdateFiscalIdentityPayloadSchema,
   CreateLead: CreateLeadPayloadSchema,
   ResolveLead: ResolveLeadPayloadSchema,
