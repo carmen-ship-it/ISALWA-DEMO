@@ -1,0 +1,22 @@
+source: 22608eb612cf9f490971e0c3d85950af3c061516 (tree e08b19eacd06dbb0ffb8aaa1f412a5d4c5276b99, staged and recorded before the runs); disposable PG port 54329 only
+migration 20261019000000_os_issue_correction_requests_t03 applied by hand with psql to the disposable DB: exit 0; EXPECTED_MIGRATION_COUNT 38 = migration directories 38
+builds (serial): os-contracts, os-issue, os-database exit 0; os-api tsc exit 0; os-web tsc exit 0
+targeted before commit:
+  correction-request (new, os-contracts): tests 3, pass 3, fail 0
+  correction-request (new, os-issue, memory store): tests 9, pass 9, fail 0
+  t03-correction-request.http (new): first run tests 6, pass 1, fail 5 — ReportIssue with references failed with 500 on os_issue_references_created_by_chk (pre-existing adapter wrote ''); fixed in the same commit; rerun tests 6, pass 6, fail 0
+  inspection-reads.adversarial (new GET classified): tests 16, pass 16, fail 0
+mutations (each restored, sha256 identical 5386b13adf48da243b91f796c702cd04634179d727b792a1a955a5398679a21b; os-issue source read directly by the test):
+  M23 "applied" accepted without the event match: pass 8, fail 1
+  M24 owner assigned without apply authority: pass 8, fail 1
+  M25 proposed value copied into the issue.reported event: pass 8, fail 1
+milestone on that tree, serial, one run each:
+  os-contracts: tests 209, pass 209, fail 0
+  os-issue: tests 103, pass 103, fail 0
+  os-import: tests 32, pass 32, fail 0
+  os-party: tests 38, pass 38, fail 0
+  os-query: tests 115, pass 115, fail 0
+  os-database: tests 312, pass 312, fail 0
+  os-api: tests 353, pass 353, fail 0
+  os-web lib+components: tests 1320, pass 1320, fail 0
+not rerun (no source change): os-domain, os-commercial, os-events, os-commitment and other packages

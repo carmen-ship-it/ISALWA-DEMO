@@ -11,7 +11,7 @@ No business-policy conflict found while mapping. Model gaps are recorded per con
 | L1 | `EndContactRelationship`, relationship-end preview, recipient eligibility | `OsContact` (`status`, `relationEndedAt`, `relationEndReason`), endpoint associations, identity reviews, customer `edit` authority | STABLE API `15e0e089`; locally tested; review and browser pending |
 | L2 | `SetContactFollowupPreference`, preference read, `followupPermitted` | `OsContactFollowupPreference` (migration `20261016230000`), customer `edit` authority | STABLE API `9e7dc7d5`; locally tested; review and browser pending |
 | L3 | `DeactivateParty` / `ReactivateParty` (extended), archive preview | `OsParty.status = 'inactive'` as Archivado, `canActOnCustomer` archive/reactivate | STABLE API `2fefe96d`; locally tested; review and browser pending |
-| L4 | Correction request on `ReportIssue` / `ResolveIssue` | `os-issue` states, owner, journal, outcome; customer `edit` / `master_data.admin` | PLANNED |
+| L4 | Correction request on `ReportIssue` / `ResolveIssue` | `os-issue` states, owner, journal, outcome; customer `edit` / `master_data.admin` / `fiscal.admin` | STABLE API `22608eb6`; locally tested; review and browser pending |
 
 ## L1 — Ending a contact's company relationship
 
@@ -191,9 +191,9 @@ No second ticket system is introduced.
     proposedValue: string (≤ 500, restricted), source: 'customer' | 'staff' | 'document' }
   ```
 
-  - It must reference that party, and the reporter must be able to see the customer (else `NOT_FOUND`).
-  - It is stored in a one-to-one restricted record keyed by issue id. `proposedValue` is shown only to the owner, to customer editors and to `issue.manage`.
-- Responsible person: `AssignIssueOwner` requires that the owner can apply the change. That means customer `edit` authority over that party, or `master_data.admin` for `legal_name` and `fiscal_identity`. No new scope is introduced; A2's proposed `commercial.data_correction.review` is not needed while application authority is the gate.
+  - The reporter must be able to see the customer, and a named contact or location must belong to it (else `NOT_FOUND`). The party reference is linked automatically.
+  - It is stored in a one-to-one restricted record keyed by issue id (`os_issue_correction_requests`). `proposedValue` is never copied into events. `GET /v1/issues/:issueId/correction` requires issue read access and customer knowledge (else 404); `proposedValue` is shown to the reporter, to whoever may apply the change and to `issue.manage`, and is `null` for others.
+- Responsible person: `AssignIssueOwner` requires that the owner knows the customer and can apply the change. That means customer `edit` authority over that party or `master_data.admin`; `master_data.admin` for `legal_name`; and `fiscal.admin` for `fiscal_identity`, which is the scope `UpdateFiscalIdentity` already requires (aligned at implementation, `22608eb6`). No new scope is introduced; A2's proposed `commercial.data_correction.review` is not needed while application authority is the gate.
 - State mapping:
   - Pendiente = `reported` / `triaged`;
   - En revisión = `in_progress`;
@@ -201,6 +201,8 @@ No second ticket system is introduced.
   - Rechazada = `resolved` with `outcome = 'rejected'`.
 - Resolution: `ResolveIssue` on a correction requires `correction: { decision: 'applied' | 'rejected', appliedEventId?, reason (10–500) }`.
   - `applied` requires `appliedEventId`: a business event on the same party, contact or location, recorded after the request, by an authorized actor, with type in {`party.updated`, `party.fiscal_identity.changed`, `contact.updated`, `contact.endpoint.changed`, `contact.endpoint.retired`, `location.updated`}.
-  - Closing with text alone is refused.
+  - Closing with text alone is refused. The resolver (owner or `issue.manage`) must also be able to apply the change.
+  - The outcome is the decision; `RecordIssueOutcome` is refused on a correction. `ReopenIssue` clears the decision and outcome (the event history keeps the earlier decision).
+  - Without the customer-authority port, correction commands fail closed.
 - The request never writes customer data itself. The change goes through the normal domain command and its authority.
 - Payments, quotes, orders and issued documents are not correction fields. Those need their own reversal or revision workflows (A2 §4).
