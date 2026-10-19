@@ -150,7 +150,20 @@ export class PartiesController {
         throw new HttpException({ code: 'VALIDATION_FAILED' }, HttpStatus.BAD_REQUEST);
       }
       const ctx = await buildQueryContext(session, this.workforceStore);
-      return await this.partyTimelineQuery.listPartyTimeline(ctx, partyId, parsed.data);
+      // Names, legal values and reasons follow the customer edit rule (C2/C3); the query rechecks readability.
+      const party = await this.partyStore.getPartyInOrg(session.organizationId, partyId);
+      const fieldDetail = party
+        ? (
+            await customerAuthorityFlags({
+              store: this.partyStore,
+              ctx: session,
+              snap: ctx.auth,
+              partyId,
+              partyStatus: party.status,
+            })
+          ).canReadLegalName
+        : false;
+      return await this.partyTimelineQuery.listPartyTimeline(ctx, partyId, parsed.data, { fieldDetail });
     } catch (err) {
       if (err instanceof HttpException) throw err;
       const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';

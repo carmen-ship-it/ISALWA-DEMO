@@ -156,3 +156,31 @@ export function extractTimelineFacts(
   }
   return facts;
 }
+
+/**
+ * T03 contract C2: customer-field events whose names, legal/fiscal values, free-text reasons
+ * and numbers are shown only to viewers who may edit that customer's fields. Other viewers get
+ * these keys only. Commercial-record notes keep the record's own visibility.
+ */
+const TIMELINE_FIELD_SUMMARY: Record<string, readonly string[]> = {
+  'party.created': ['partyId', 'partyKind', 'initialRoleKey'],
+  'party.updated': ['partyId', 'changedFields', 'version', 'source'],
+  'party.fiscal_identity.changed': ['partyId'],
+  'contact.updated': ['contactId', 'organizationPartyId'],
+  'contact.phone.changed': ['partyId', 'contactId', 'reason', 'version'],
+  'contact.phone.retired': ['partyId', 'contactId', 'reason', 'version'],
+};
+
+export function timelineFactsForViewer(
+  eventType: string,
+  facts: PartyTimelineFacts,
+  fieldDetail: boolean,
+): { facts: PartyTimelineFacts; detail: 'full' | 'summary' } {
+  const summaryKeys = TIMELINE_FIELD_SUMMARY[eventType];
+  if (fieldDetail || !summaryKeys) return { facts, detail: 'full' };
+  const summary: PartyTimelineFacts = {};
+  for (const key of summaryKeys) {
+    if (key in facts) summary[key] = facts[key]!;
+  }
+  return { facts: summary, detail: 'summary' };
+}

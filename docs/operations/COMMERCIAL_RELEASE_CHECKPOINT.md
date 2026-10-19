@@ -106,6 +106,7 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `94793a41` | | Docs: ledger rows for `3129709`, `19efa4b6`, `120012ab`; reviewed T03 commits marked | this writer |
 | `6f39a90d` | | Docs: LOCAL BROWSER CHECK wording, catalog automatic-answer exclusion as integrator dependency, C1 intermittent failure tracked | this writer |
 | `bc211fdd` (tree `60fcad7e3f4235969e531d0d0bbc818419fdd9ad`) | | T03 review C4: coverage bounded to 30 days (engineering default), all active/scheduled grants listed, independent authority, scheduled grants end on reassignment (os-contracts 188, os-domain 239, os-commercial 106, os-query 114, 5 regressions fail on old service, HTTP+PG 4/4 10/10 4/4 1/1, os-web 10/10, tsc) | this writer; not reviewed; browser UNPROVEN (panel inputs lane B2) |
+| `f11991fd` (tree `3474c8e45c929c6a71167a2adf93e708cea3e55a`) | | T03 review C3: customer authority flags from the command rule; legal name only to editors/stewards (engineering default); web edits no longer pre-gated on master_data.admin (HTTP+PG 4/4 new, 10/10, os-query 115, os-party 38, regressions fail on old code, os-web 17/17, tsc) | this writer; not reviewed; page wiring lane B2 |
 
 ## Open blockers
 

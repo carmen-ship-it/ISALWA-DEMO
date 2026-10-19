@@ -203,7 +203,29 @@ export function contactPhoneSummary(eventType: string, facts: PartyTimelineFacts
   return parts.join(' · ');
 }
 
+const SUMMARY_FIELD_LABELS: Record<string, string> = { displayName: 'Nombre', legalName: 'Razón social' };
+
+/** C2 summary entry: what changed, never the values, names or reason text. */
+export function restrictedEntrySummary(entry: PartyTimelineEntryReadModel): string {
+  const facts = entry.facts;
+  const parts: string[] = [];
+  if (entry.eventType === 'party.updated' && typeof facts.changedFields === 'string') {
+    const fields = facts.changedFields.split(',').filter(Boolean).map((f) => SUMMARY_FIELD_LABELS[f] ?? f);
+    parts.push(fields.length > 0 ? `Cambió: ${fields.join(', ')}` : 'Datos del cliente actualizados');
+  } else if (entry.eventType === 'contact.phone.changed' || entry.eventType === 'contact.phone.retired') {
+    parts.push(entry.eventType === 'contact.phone.retired' ? 'Número de contacto retirado' : 'Número de contacto cambiado');
+    const reason = typeof facts.reason === 'string' ? CONTACT_PHONE_REASON_LABELS[facts.reason] : undefined;
+    if (reason) parts.push(`Motivo: ${reason}`);
+  } else {
+    parts.push(timelineEventLabel(entry.eventType, facts));
+  }
+  if (typeof facts.version === 'number') parts.push(`Versión ${facts.version}`);
+  parts.push('Detalle visible para quien puede editar este cliente');
+  return parts.join(' · ');
+}
+
 export function timelineEntrySummary(entry: PartyTimelineEntryReadModel): string {
+  if (entry.detail === 'summary') return restrictedEntrySummary(entry);
   if (entry.eventType === 'party.updated') return partyUpdateSummary(entry.facts);
   if (entry.eventType === 'contact.phone.changed' || entry.eventType === 'contact.phone.retired') {
     return contactPhoneSummary(entry.eventType, entry.facts);

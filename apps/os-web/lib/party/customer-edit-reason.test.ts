@@ -54,3 +54,29 @@ describe('T03 customer edit with reason and field history (A2 §46)', () => {
     );
   });
 });
+
+describe('T03 timeline summary entries (contract C2)', () => {
+  const entry = (eventType: string, facts: Record<string, string | number>) =>
+    ({
+      entryId: 'e1',
+      organizationId: 'org',
+      partyId: 'p1',
+      eventType,
+      occurredAt: '2026-10-18T12:00:00.000Z',
+      actorMemberId: 'm1',
+      correlationId: 'c1',
+      primaryEntityType: 'party',
+      primaryEntityId: 'p1',
+      facts,
+      detail: 'summary' as const,
+    });
+
+  it('says what changed without values, names or reason text', () => {
+    const renamed = timelineEntrySummary(entry('party.updated', { partyId: 'p1', changedFields: 'displayName,legalName', version: 3 }));
+    assert.equal(renamed, 'Cambió: Nombre, Razón social · Versión 3 · Detalle visible para quien puede editar este cliente');
+    assert.doesNotMatch(renamed, /—|→|Motivo/);
+    const phone = timelineEntrySummary(entry('contact.phone.changed', { partyId: 'p1', contactId: 'c1', reason: 'number_changed', version: 2 }));
+    assert.match(phone, /^Número de contacto cambiado · Motivo: /);
+    assert.doesNotMatch(phone, /→|Verificación/);
+  });
+});

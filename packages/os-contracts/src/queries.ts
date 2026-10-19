@@ -320,6 +320,8 @@ export const PartyTimelineEntryReadModelSchema = z.object({
   primaryEntityType: z.string(),
   primaryEntityId: z.string(),
   facts: PartyTimelineFactsSchema,
+  /** 'summary': customer-field event shown without names, reasons or numbers (T03 contract C2). */
+  detail: z.enum(['full', 'summary']).optional(),
 });
 
 export type PartyTimelineEntryReadModel = z.infer<typeof PartyTimelineEntryReadModelSchema>;

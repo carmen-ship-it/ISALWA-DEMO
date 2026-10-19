@@ -1,6 +1,7 @@
 import type { ListPartyTimelineQuery, PartyTimelineEntryReadModel } from '@isalwa/os-contracts';
 import { isPartyTimelineEventType, OS_PROJECTION_CONSUMER_KEYS } from '@isalwa/os-contracts';
 import type { DirectReportLookup } from '../leadership/direct-reports';
+import { timelineFactsForViewer } from './party-timeline-facts';
 import { canReadOwnedRecord } from '../leadership/leadership-visibility';
 import type { QueryContext } from '../query-context';
 import { assertQueryScope, assertQueryTenantResource } from '../query-context';
@@ -254,6 +255,8 @@ export class PartyTimelineQueryService {
     ctx: QueryContext,
     partyId: string,
     query: ListPartyTimelineQuery,
+    /** fieldDetail: the viewer may edit this customer's fields (decided by the caller from the command rule). */
+    options: { fieldDetail?: boolean } = {},
   ): Promise<PaginatedResult<PartyTimelineEntryReadModel> & { freshness: unknown }> {
     assertQueryScope(ctx, 'member_active');
     assertQueryTenantResource(ctx, ctx.organizationId);
@@ -314,8 +317,12 @@ export class PartyTimelineQueryService {
         rebuiltAt: null,
       };
 
+    const fieldDetail = options.fieldDetail === true;
     const entries = await Promise.all(
-      visible.map((item) => this.withoutRestrictedCounterpart(ctx, partyId, toTimelineEntry(item))),
+      visible.map(async (item) => {
+        const entry = await this.withoutRestrictedCounterpart(ctx, partyId, toTimelineEntry(item));
+        return { ...entry, ...timelineFactsForViewer(entry.eventType, entry.facts, fieldDetail) };
+      }),
     );
 
     return {

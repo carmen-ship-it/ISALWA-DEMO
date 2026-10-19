@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { OS_STORE } from './os-store.module';
+import { OS_PROJECTION_RUNNER, OS_STORE } from './os-store.module';
+import type { ProjectionRunner } from '@isalwa/os-query';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { getOsPrisma } from '@isalwa/os-database';
 import { createId } from '@isalwa/ts-utils';
@@ -44,6 +45,7 @@ describeHttp('T03 customer authority flags over HTTP (disposable Postgres)', () 
   let app: INestApplication;
   let baseUrl: string;
   let store: OsWorkforceStore;
+  let runner: ProjectionRunner;
   const prisma = () => getOsPrisma()!;
   let org: { id: string };
   const m: Record<string, Seeded> = {};
@@ -106,6 +108,7 @@ describeHttp('T03 customer authority flags over HTTP (disposable Postgres)', () 
     await app.listen(0);
     baseUrl = `http://127.0.0.1:${(app.getHttpServer().address() as { port: number }).port}`;
     store = moduleRef.get(OS_STORE);
+    runner = moduleRef.get(OS_PROJECTION_RUNNER);
     org = await store.seedOrganization('T03 Flags Org', `t03-flags-${createId()}`);
     m.owner = await seedMember('owner', ['commercial.customer.create', 'commercial.customer.edit']);
     m.ownerPlain = await seedMember('ownerPlain', ['commercial.customer.create']);
@@ -172,6 +175,60 @@ describeHttp('T03 customer authority flags over HTTP (disposable Postgres)', () 
       changeReason: 'Nombre comercial actual',
     });
     assert.equal(renamed.status, 201, JSON.stringify(renamed.body));
+  });
+
+  it('C2: the timeline shows names, reasons and numbers only to viewers who may edit the customer', async () => {
+    const contact = await command('owner', 'UpdateContact', {
+      organizationPartyId: ids.party,
+      givenName: 'Rosa',
+      familyName: 'Contacto',
+      phone: '+59170001234',
+    });
+    assert.equal(contact.status, 201, JSON.stringify(contact.body));
+    const contactId = String((contact.body.data as Record<string, unknown>).contactId);
+    const changed = await command('owner', 'ChangeContactPhone', {
+      partyId: ids.party,
+      contactId,
+      expectedVersion: 0,
+      newPhone: '+59170005678',
+      reason: 'other',
+      reasonNote: 'Aviso en mostrador C2',
+      verificationMethod: 'in_person',
+    });
+    assert.equal(changed.status, 201, JSON.stringify(changed.body));
+    await runner.runOnce();
+    await runner.runOnce();
+
+    type Entry = { eventType: string; detail?: string; facts: Record<string, unknown> };
+    const timeline = async (who: string) => {
+      const res = await fetch(`${baseUrl}/v1/parties/${ids.party}/timeline?limit=50`, { headers: headers(m[who]!) });
+      assert.equal(res.status, 200, who);
+      const text = await res.text();
+      return { text, items: (JSON.parse(text) as { items: Entry[] }).items };
+    };
+    const find = (items: Entry[], type: string) => items.find((e) => e.eventType === type);
+
+    const full = await timeline('editHelper');
+    const renamedFull = find(full.items, 'party.updated')!;
+    assert.equal(renamedFull.detail, 'full');
+    assert.equal(renamedFull.facts.reason, 'Nombre comercial actual');
+    assert.equal(renamedFull.facts.previousDisplayName, 'Ferretería Flags');
+    assert.equal(find(full.items, 'contact.phone.changed')!.facts.reasonNote, 'Aviso en mostrador C2');
+
+    for (const who of ['orgReader', 'workHelper']) {
+      const summary = await timeline(who);
+      const renamed = find(summary.items, 'party.updated')!;
+      assert.equal(renamed.detail, 'summary', who);
+      assert.deepEqual(Object.keys(renamed.facts).sort(), ['changedFields', 'partyId', 'source', 'version'], who);
+      const phone = find(summary.items, 'contact.phone.changed')!;
+      assert.equal(phone.detail, 'summary', who);
+      assert.deepEqual(Object.keys(phone.facts).sort(), ['contactId', 'partyId', 'reason', 'version'], who);
+      assert.equal(find(summary.items, 'contact.updated')!.detail, 'summary', who);
+      // The raw body carries no historical name, reason text, number or contact name.
+      for (const secret of ['Nombre comercial actual', 'Ferretería Flags"', 'Aviso en mostrador', '5678', '1234', 'Rosa']) {
+        assert.ok(!summary.text.includes(secret), `${who} body contains ${secret}`);
+      }
+    }
   });
 
   it('an owner without the customer edit permission reads the customer but gets no edit flags', async () => {

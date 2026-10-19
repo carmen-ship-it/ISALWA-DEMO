@@ -1,0 +1,6 @@
+HTTP+PG disposable isalwa_t01_disposable: t03-customer-authority-flags (C3 + new C2 case) tests 5 pass 5 fail 0
+HTTP+PG timeline-reading suites rerun once after the change: review-r4-work-reads 8/8, review-r4-coverage-actions 4/4, review-r4-timeline-detail 4/4, t03-contact-phone 6/6, customer-visibility 8/8, t03-customer-authority 10/10
+os-query (serial): tests 115 pass 115 fail 0
+regression vs HEAD f11991fd parties.controller.ts + party-timeline-query-service.ts (restored from saved copies, sha256 identical, os-query rebuilt): C2 case fails, other 4 pass
+os-web timeline/party/commercial label tests: tests 51 pass 51 fail 0
+tsc os-api: exit 0; tsc os-web: exit 0
