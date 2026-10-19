@@ -40,7 +40,7 @@ The demo-removal candidate `ct3/t10-demo-removal` / `/Users/carmen/projects/isal
    - "Sin cambios" for an `unchanged` result;
    - timeline shows a summary line for `detail: 'summary'` items.
 
-5. **Client import phone review (C9): ASSIGNED, not started.** No import page or os-web import client exists. It starts once the lane gate above is met. Dependencies for integrator: the `os-api-client` methods for the C9 commands, and the page placement (inside the existing customer list surface; no new navigation).
+5. **Client import phone review (C9): ASSIGNED, not started.** No import page exists. It starts once the lane gate above is met. Client ready at `1ffe5d02`: `executeImportCommand` (typed by `ImportCommandResultData`; originals only from `ListImportPhoneReview`, never cached). Placement: inside the existing customer list surface; no new navigation.
 6. **Contact relationship ending (L1): ASSIGNED, not started.** API stable at `15e0e089`: `EndContactRelationship`, `GET …/contacts/:contactId/relationship-end-preview`, flag `canEndContactRelationship`. Show the customer's commitments as the customer's, and the exact copy "Envíos automáticos no configurados."; never show cancellable sends. Former contacts render as former with date and reason (reason note only where the timeline gives it).
 7. **Follow-up preferences (L2): ASSIGNED, not started.** API stable at `9e7dc7d5`: `SetContactFollowupPreference`, `GET …/contacts/:contactId/followup-preferences`, flag `canSetFollowupPreference`. Offer "no más promociones" and "no me escriban" as distinct choices; `allowed` only as a staff record with confirmed identity and a note. Never pre-fill a preference from a message or an assistant suggestion.
 8. **Archive and reactivation (L3): ASSIGNED, not started.** API stable at `2fefe96d`: `DeactivateParty` / `ReactivateParty` (version and reason now required), `GET /v1/parties/:partyId/archive-preview`, flags `canArchiveCustomer` / `canReactivateCustomer`. Show blocking obligations by kind and "Pagos: no verificados en esta versión"; never present payments as zero. Remove both commands from `CUSTOMER_SELF_SERVICE_FORBIDDEN_COMMANDS` only when this item is wired.
@@ -54,10 +54,24 @@ The demo-removal candidate `ct3/t10-demo-removal` / `/Users/carmen/projects/isal
 - `apps/os-web/lib/commercial/coverage-actions.ts`;
 - `apps/os-web/lib/commercial/actions.ts` (coverage actions only);
 - `apps/os-web/lib/commercial/timeline-labels.ts` (party, contact and coverage summaries only);
+- for item 9 only: `apps/os-web/components/issue/**` (correction display, resolve and assignment forms) and `apps/os-web/app/(app)/incidencias/**` (correction queue view);
 - tests for the above;
 - receipt `receipts/LANE-B-T03-CUSTOMER-UI.md`; evidence `evidence/LANE-B-T03-CUSTOMER-UI/**`.
 
-Integrator-owned (dependency only): `lib/api/os-api-client.ts`, `lib/party/types.ts`, `lib/party/master-data-access.ts`, every package and `apps/os-api`.
+Integrator-owned (dependency only): `lib/api/os-api-client.ts`, `lib/party/types.ts`, `lib/issue/types.ts`, `lib/party/master-data-access.ts`, every package and `apps/os-api`.
+
+Client methods ready at `1ffe5d02` for items 5–9:
+
+- `executeImportCommand`;
+- `getContactRelationshipEndPreview`;
+- `getContactFollowupPreferences`;
+- `getCustomerArchivePreview`;
+- `getIssueCorrection`;
+- `listIssueCorrectionCandidates`;
+- `getIssueCorrectionCandidate`;
+- `IssueListItem.correctionAttention`.
+
+Commands use the existing `executePartyCommand` and `executeIssueCommand`.
 
 ## Tests and evidence
 

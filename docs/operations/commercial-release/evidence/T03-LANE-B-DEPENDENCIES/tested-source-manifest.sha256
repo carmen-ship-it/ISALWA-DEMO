@@ -1,0 +1,7 @@
+5a7d1cfe9f69781d231da5935a34d37e1810e5c0f76f1003ce622be555f94391  apps/os-web/lib/api/os-api-client.t03.test.ts
+061acbb6c21e0d43cdf75b1d1b311a3f80772c7266580cc07b0be43aea2667ff  apps/os-web/lib/api/os-api-client.ts
+07212131194d2223a2e0cb581a0282a240ed8add91ecd700c222dfd823889e93  apps/os-web/lib/issue/types.ts
+f1d9cfdfd271b161f77239249b22840fe5e02354ec4aa7b6a32faea4fd3f0d9a  packages/os-contracts/src/import-commands.ts
+48aac1a7e75748798b9b2b55ebc9d35155d9e514f1dec088152250029b2563fb  packages/os-contracts/src/import-types.ts
+d04fd6040b4a6dbb946461088fc88dc83714deade69cd874335831d1f5975649  packages/os-import/src/import-command-service.ts
+7d3efa239f22defd0430dfe858f196e288182fe14b66196e32d3a4938962f499  packages/os-import/src/types.ts

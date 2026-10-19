@@ -1,0 +1,16 @@
+T03 Lane B integrator dependencies (01:49 "continue remaining enabled T03 work, including import/customer-registration UI dependencies")
+source: 1ffe5d02 (tree 58794a2424d738f534b57b5ce74214dd2e7e500b, staged and recorded before the runs, HEAD^{tree} identical after commit); manifest tested-source-manifest.sha256 (7 files, 67445f92..1ffe5d02); disposable PG port 54329 only
+builds (serial): os-contracts, os-import exit 0 (import service results type-checked with `satisfies` against the new contracts); os-api tsc exit 0; os-web tsc exit 0
+targeted before commit:
+  os-api-client.t03 (new): tests 3, pass 3, fail 0
+mutations (each restored, sha256 identical; tree unchanged after):
+  M36 import command allowed to retry: survived — equivalent (fetchWithRetry retries only GET/HEAD; the flag cannot change POST behavior); replaced by M37
+  M37 import command drops the idempotency key: pass 2, fail 1 (caught)
+  M38 candidate cursor not sent: pass 2, fail 1 (caught)
+milestone on that tree, serial, one run each:
+  os-contracts: tests 210, pass 210, fail 0
+  os-import: tests 32, pass 32, fail 0
+  os-api: tests 359, pass 353, fail 6 — NOT GREEN. All 6 in quote-pdf.http.test.ts: TypeError fetch failed, cause SocketError "other side closed", 2–32 ms each; no server error logged; that file and its dependencies are not in the change (os-import types only, os-web client)
+  os-web lib+components: tests 1323, pass 1323, fail 0
+diagnostic (not counted as a pass): quote-pdf.http.test.ts alone: tests 6, pass 6, fail 0; disposable PG accepting connections
+not rerun (no source change): os-party, os-query, os-issue, os-database and other packages

@@ -14,7 +14,7 @@ Source decisions: owner reconciliation of the independent review of `3129709` (2
 | C6 | Endpoint history, masked by default; justified reveal | STABLE (API and web client/action; see the C6 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C6-ENDPOINT-HISTORY.md`) |
 | C7 | Identity review for previously used numbers | STABLE (API and web action; see the C7 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C7-IDENTITY-REVIEW.md`) |
 | C8 | Steward lookup | STABLE (API from T03 part 3; web loader `a1c6771`). Delegated steward rechecked: grantor, scope and window evaluated at use time (receipt `receipts/T03-REVIEW-C8-STEWARD-DELEGATION.md`) |
-| C9 | Client import phone review: counts, masked items, reviewer originals, correct/omit decisions | STABLE (API `39b6a9b8`, receipt `receipts/T03-IMPORT-PHONE-REVIEW.md`). No os-web client or page yet |
+| C9 | Client import phone review: counts, masked items, reviewer originals, correct/omit decisions | STABLE (API `39b6a9b8`, receipt `receipts/T03-IMPORT-PHONE-REVIEW.md`). Client `executeImportCommand` and result types in os-contracts at `1ffe5d02`; no page yet |
 
 Commands go through the existing `POST /v1/commands/:name` (`executePartyCommand` / `executeCommercialCommand`). Error codes are the existing ones (`VALIDATION_FAILED`, `PERMISSION_DENIED`, `NOT_FOUND`, `CONFLICT`); the UI maps them with `mapCommandError`. The integrator adds the os-web client methods and types (`lib/api/os-api-client.ts`, `lib/party/types.ts`) at the same commit that makes a contract STABLE.
 
