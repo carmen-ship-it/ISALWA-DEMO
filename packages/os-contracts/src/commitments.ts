@@ -92,7 +92,8 @@ export type CommitmentResult =
   | { ok: true; commitment: CommitmentRecord }
   | { ok: false; reason: CommitmentError };
 
-function calendarDay(value: string | Date, timeZone = COMMITMENT_CALENDAR_ZONE): string | null {
+/** `YYYY-MM-DD` of the instant in the Bolivia business calendar. */
+export function calendarDay(value: string | Date, timeZone = COMMITMENT_CALENDAR_ZONE): string | null {
   const date = typeof value === 'string' ? new Date(value) : value;
   if (Number.isNaN(date.getTime())) return null;
   return new Intl.DateTimeFormat('en-CA', {
@@ -114,7 +115,10 @@ export function suggestionIsCommitment(suggestion: CommitmentSuggestion): false 
   return suggestion.canonical;
 }
 
-export function deriveCommitmentState(record: CommitmentRecord, asOf: Date): CommitmentState {
+export function deriveCommitmentState(
+  record: Pick<CommitmentRecord, 'lifecycle' | 'dueAt'>,
+  asOf: Date,
+): CommitmentState {
   if (record.lifecycle === 'fulfilled') return 'fulfilled';
   if (record.lifecycle === 'cancelled') return 'cancelled';
   if (!record.dueAt) return 'pending';

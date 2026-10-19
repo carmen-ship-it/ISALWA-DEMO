@@ -111,6 +111,29 @@ describe('quote PDF document builder', () => {
     assert.equal(picked.contactPhone, '+59171111111');
     assert.equal(picked.contactEmail, 'ana@example.bo');
   });
+
+  it('never prints a former or inactive contact (T03 L1)', () => {
+    const base: ContactRecord = {
+      id: 'c1',
+      organizationId: 'org1',
+      organizationPartyId: 'p1',
+      personPartyId: null,
+      givenName: 'Ana',
+      familyName: 'Ruiz',
+      email: 'ana@example.bo',
+      phone: '+59171111111',
+      whatsapp: null,
+      title: null,
+      status: 'inactive',
+      version: 1,
+      relationEndedAt: new Date('2026-10-01T04:00:00.000Z'),
+      relationEndReason: 'left_company',
+    };
+    assert.deepEqual(pickQuoteContact([base]), { contactName: null, contactPhone: null, contactEmail: null });
+    assert.deepEqual(pickQuoteContact([{ ...base, relationEndedAt: null }]), { contactName: null, contactPhone: null, contactEmail: null });
+    const current = { ...base, id: 'c2', givenName: 'Luis', familyName: 'Paz', email: null, status: 'active', relationEndedAt: null };
+    assert.equal(pickQuoteContact([base, current]).contactName, 'Luis Paz');
+  });
 });
 
 describe('QuotePdfService render', () => {

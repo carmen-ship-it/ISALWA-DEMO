@@ -5,6 +5,7 @@ export * from './commands';
 export * from './party-roles';
 export * from './party-events';
 export * from './party-commands';
+export * from './contact-recipient';
 export * from './location-types';
 export * from './location-events';
 export * from './location-commands';

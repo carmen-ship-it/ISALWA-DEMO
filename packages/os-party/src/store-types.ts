@@ -59,6 +59,22 @@ export type ContactRecord = {
   whatsappStatus?: string | null;
   whatsappRetiredAt?: Date | null;
   whatsappRetiredReason?: string | null;
+  relationEndedAt?: Date | null;
+  relationEndReason?: string | null;
+};
+
+/** T03 L2: one channel's recorded follow-up preference for a contact. */
+export type ContactFollowupPreferenceRecord = {
+  id: string;
+  organizationId: string;
+  contactId: string;
+  channel: 'whatsapp' | 'phone' | 'email';
+  preference: 'allowed' | 'no_promotions' | 'no_unsolicited_followups';
+  source: 'customer_message' | 'staff_recorded';
+  identityConfirmed: boolean;
+  version: number;
+  recordedByMemberId: string;
+  updatedAt: Date;
 };
 
 /** T03 C6: one dated association of a number with a contact. Ended, never overwritten. */

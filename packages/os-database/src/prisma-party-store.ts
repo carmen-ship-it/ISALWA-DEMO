@@ -16,6 +16,7 @@ import type {
   CommercialAccountRecord,
   ContactRecord,
   ContactEndpointAssociationRecord,
+  ContactFollowupPreferenceRecord,
   ContactIdentityReviewRecord,
   DelegationRecord,
   DuplicateCandidateRecord,
@@ -352,6 +353,8 @@ export class PrismaOsPartyStore implements OsPartyStore {
         | 'whatsappStatus'
         | 'whatsappRetiredAt'
         | 'whatsappRetiredReason'
+        | 'relationEndedAt'
+        | 'relationEndReason'
       >
     >,
     expectedVersion: number,
@@ -361,6 +364,25 @@ export class PrismaOsPartyStore implements OsPartyStore {
       data: patch,
     });
     if (result.count === 0) throw new Error('CONFLICT');
+  }
+
+  async listFollowupPreferences(organizationId: string, contactId: string): Promise<ContactFollowupPreferenceRecord[]> {
+    const rows = await this.db().osContactFollowupPreference.findMany({
+      where: { organizationId, contactId },
+      orderBy: { channel: 'asc' },
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      organizationId: row.organizationId,
+      contactId: row.contactId,
+      channel: row.channel as ContactFollowupPreferenceRecord['channel'],
+      preference: row.preference as ContactFollowupPreferenceRecord['preference'],
+      source: row.source as ContactFollowupPreferenceRecord['source'],
+      identityConfirmed: row.identityConfirmed,
+      version: row.version,
+      recordedByMemberId: row.recordedByMemberId,
+      updatedAt: row.updatedAt,
+    }));
   }
 
   async insertEndpointAssociation(row: ContactEndpointAssociationRecord): Promise<void> {
@@ -970,6 +992,8 @@ function mapContact(row: {
   whatsappStatus?: string | null;
   whatsappRetiredAt?: Date | null;
   whatsappRetiredReason?: string | null;
+  relationEndedAt?: Date | null;
+  relationEndReason?: string | null;
 }): ContactRecord {
   return {
     id: row.id,
@@ -992,6 +1016,8 @@ function mapContact(row: {
     whatsappStatus: row.whatsappStatus ?? null,
     whatsappRetiredAt: row.whatsappRetiredAt ?? null,
     whatsappRetiredReason: row.whatsappRetiredReason ?? null,
+    relationEndedAt: row.relationEndedAt ?? null,
+    relationEndReason: row.relationEndReason ?? null,
   };
 }
 

@@ -5,6 +5,7 @@ import type {
   CommercialAccountRecord,
   ContactRecord,
   ContactEndpointAssociationRecord,
+  ContactFollowupPreferenceRecord,
   ContactIdentityReviewRecord,
   DelegationRecord,
   DuplicateCandidateRecord,
@@ -94,10 +95,13 @@ export interface OsPartyStore {
         | 'whatsappStatus'
         | 'whatsappRetiredAt'
         | 'whatsappRetiredReason'
+        | 'relationEndedAt'
+        | 'relationEndReason'
       >
     >,
     expectedVersion: number,
   ): Promise<void>;
+  listFollowupPreferences(organizationId: string, contactId: string): Promise<ContactFollowupPreferenceRecord[]>;
   insertEndpointAssociation(row: ContactEndpointAssociationRecord): Promise<void>;
   /** Ends the contact's current association on this channel; returns the ended row ids. */
   endActiveEndpointAssociations(input: {

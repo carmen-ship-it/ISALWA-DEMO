@@ -19,11 +19,17 @@ import {
   resolveAccountAssignmentAuthority,
   SearchPartiesQuerySchema,
   grantableCoverageActionsFor,
+  CONTACT_ENDPOINT_CHANNELS,
+  deriveCommitmentState,
+  isCurrentContact,
   maskContactNumber,
+  pickCurrentContact,
   type ContactEndpointHistoryItem,
+  type ContactRelationshipEndPreview,
 } from '@isalwa/os-contracts';
 import { customerAuthorityFlags, type OsPartyStore } from '@isalwa/os-party';
 import type { OsCommercialStore } from '@isalwa/os-commercial';
+import type { PrismaOsCommitmentStore } from '@isalwa/os-database';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import {
   assertCustomerReadable,
@@ -37,6 +43,7 @@ import { resolveSession } from './os-session';
 import { enforceRequestRateLimit, type RateLimitCounter } from './request-rate-limit';
 import {
   OS_COMMERCIAL_STORE,
+  OS_COMMITMENT_STORE,
   OS_CUSTOMER_VISIBILITY,
   OS_MEMBER_QUERY_STORE,
   OS_PARTY_QUERY_SERVICE,
@@ -58,6 +65,7 @@ export class PartiesController {
     @Inject(OS_CUSTOMER_VISIBILITY) private readonly customerVisibility: CustomerVisibilityLookup,
     @Inject(OS_MEMBER_QUERY_STORE) private readonly directReports: DirectReportLookup,
     @Inject(OS_RATE_LIMIT_COUNTER) private readonly rateLimits: RateLimitCounter,
+    @Inject(OS_COMMITMENT_STORE) private readonly commitmentStore: PrismaOsCommitmentStore,
   ) {}
 
   /**
@@ -253,6 +261,89 @@ export class PartiesController {
           limit: parsed.data.limit,
           hasMore: page.hasMore,
         },
+      };
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';
+      const status =
+        code === 'AUTH_REQUIRED'
+          ? HttpStatus.UNAUTHORIZED
+          : code === 'NOT_FOUND'
+            ? HttpStatus.NOT_FOUND
+          : code === 'TENANT_FORBIDDEN' ||
+              code === 'PERMISSION_DENIED' ||
+              code === 'ACCESS_REVOKED'
+            ? HttpStatus.FORBIDDEN
+            : code === 'VALIDATION_FAILED'
+              ? HttpStatus.BAD_REQUEST
+              : HttpStatus.INTERNAL_SERVER_ERROR;
+      throw new HttpException({ code }, status);
+    }
+  }
+
+  /**
+   * T03 L1: what ending this contact's relationship affects. Commitments belong to the customer,
+   * not to a contact, and no automatic sending exists, so none is listed as cancellable.
+   */
+  @Get(':partyId/contacts/:contactId/relationship-end-preview')
+  async contactRelationshipEndPreview(
+    @Param('partyId') partyId: string,
+    @Param('contactId') contactId: string,
+    @Req() req: Request,
+  ): Promise<ContactRelationshipEndPreview> {
+    try {
+      const { session, ctx } = await this.readableCustomer(req, partyId);
+      const party = await this.partyStore.getPartyInOrg(session.organizationId, partyId);
+      if (!party) throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+      const flags = await customerAuthorityFlags({
+        store: this.partyStore,
+        ctx: session,
+        snap: ctx.auth,
+        partyId,
+        partyStatus: party.status,
+      });
+      if (!flags.canEndContactRelationship) throw new HttpException({ code: 'PERMISSION_DENIED' }, HttpStatus.FORBIDDEN);
+      const contact = await this.partyStore.getContactInOrg(session.organizationId, contactId);
+      if (!contact || contact.organizationPartyId !== partyId) {
+        throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+      }
+      const contacts = (await this.partyStore.listContactsForOrgParty(session.organizationId, partyId)).items;
+      const currentDefault = pickCurrentContact(contacts);
+      const replacement = pickCurrentContact(contacts.filter((c) => c.id !== contact.id));
+      let openIdentityReviews = 0;
+      for (const channel of CONTACT_ENDPOINT_CHANNELS) {
+        if (await this.partyStore.getOpenIdentityReview(session.organizationId, contact.id, channel)) openIdentityReviews += 1;
+      }
+      const preferences = await this.partyStore.listFollowupPreferences(session.organizationId, contact.id);
+      const commitments = await this.commitmentStore.listCommitmentsByParty(session.organizationId, partyId);
+      const asOf = new Date();
+      return {
+        partyId,
+        contactId: contact.id,
+        version: contact.version,
+        relationStatus: contact.relationEndedAt ? 'ended' : 'current',
+        documentRecipient: {
+          isCurrentDefault: currentDefault?.id === contact.id,
+          replacementContactId: isCurrentContact(contact) && currentDefault?.id === contact.id ? (replacement?.id ?? null) : null,
+        },
+        channels: CONTACT_ENDPOINT_CHANNELS.flatMap((channel) => {
+          const number = channel === 'phone' ? contact.phone : contact.whatsapp;
+          if (!number) return [];
+          const status = (channel === 'phone' ? contact.phoneStatus : contact.whatsappStatus) ?? null;
+          return [{ channel, number: maskContactNumber(number), status }];
+        }),
+        followupPreferences: preferences.length,
+        openIdentityReviews,
+        customerOpenCommitments: commitments
+          .filter((c) => c.lifecycle === 'open')
+          .map((c) => ({
+            id: c.id,
+            dueAt: c.dueAt ? c.dueAt.toISOString() : null,
+            ownerMemberId: c.ownerMemberId,
+            state: deriveCommitmentState({ lifecycle: 'open', dueAt: c.dueAt ? c.dueAt.toISOString() : null }, asOf),
+          })),
+        commitmentLinkage: 'customer',
+        automaticSends: { configured: false, label: 'Envíos automáticos no configurados.' },
       };
     } catch (err) {
       if (err instanceof HttpException) throw err;

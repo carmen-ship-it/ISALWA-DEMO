@@ -1,6 +1,10 @@
 import {
+  calendarDay,
   COMMERCIAL_CUSTOMER_CREATE_SCOPE,
+  CONTACT_ENDPOINT_CHANNELS,
   CONTACT_PHONE_CHANGE_REASONS,
+  CONTACT_RELATION_END_REASONS,
+  type ContactRelationEndReason,
   CONTACT_PHONE_VERIFICATION_METHODS,
   MASTER_DATA_ADMIN_SCOPE,
   maskContactNumber,
@@ -200,6 +204,9 @@ export class PartyCommandService {
         break;
       case 'RevealContactEndpoint':
         result = await this.revealContactEndpoint(ctx, payload, store);
+        break;
+      case 'EndContactRelationship':
+        result = await this.endContactRelationship(ctx, payload, store);
         break;
       case 'ResolveContactIdentityReview':
         result = await this.resolveContactIdentityReview(ctx, payload, store);
@@ -717,6 +724,8 @@ export class PartyCommandService {
       : null;
     // Authority was checked on organizationPartyId; a contact of another party is not reachable through it.
     if (existing && existing.organizationPartyId !== organizationPartyId) throw new Error('NOT_FOUND');
+    // T03 L1: a former contact stays as it was; a renewed relationship is a new contact.
+    if (existing?.relationEndedAt) throw new Error('CONFLICT');
     // A2 §58 / T03 C5: an existing contact's numbers change only through ChangeContactEndpoint / RetireContactEndpoint.
     if (existing && (payload.phone !== undefined || payload.whatsapp !== undefined)) throw new Error('VALIDATION_FAILED');
     const enteredPhone = existing ? null : parseContactNumber(payload.phone);
@@ -1017,6 +1026,77 @@ export class PartyCommandService {
       'contact.endpoint.retired',
       { channel, number: retiredMasked },
       { channel, number: null, whatsappFollows },
+    );
+  }
+
+  /**
+   * T03 L1 (A2 §5): the contact stops being a current recipient. Its open number associations end
+   * (so the number reappearing on another customer opens an identity review) and open reviews are
+   * superseded. The person, the stored numbers as dated history and other relationships stay;
+   * orders, quotes, documents and commitments are untouched.
+   */
+  private async endContactRelationship(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsPartyStore,
+  ): Promise<CommandResult> {
+    const partyId = String(payload.partyId);
+    await this.authorize(ctx, 'EndContactRelationship', ctx.organizationId, partyId, store);
+    await this.requireActiveParty(store, ctx.organizationId, partyId);
+    const contact = await store.getContactInOrg(ctx.organizationId, String(payload.contactId));
+    if (!contact || contact.organizationPartyId !== partyId) throw new Error('NOT_FOUND');
+    if (contact.relationEndedAt) throw new Error('CONFLICT');
+    if (contact.status !== 'active') throw new Error('VALIDATION_FAILED');
+    const expectedVersion = Number(payload.expectedVersion);
+    if (expectedVersion !== contact.version) throw new Error('CONFLICT');
+    const reason = String(payload.reason) as ContactRelationEndReason;
+    if (!(CONTACT_RELATION_END_REASONS as readonly string[]).includes(reason)) throw new Error('VALIDATION_FAILED');
+    const reasonNote = typeof payload.reasonNote === 'string' ? payload.reasonNote.trim() : '';
+    if (reason === 'other' && !reasonNote) throw new Error('VALIDATION_FAILED');
+
+    const today = calendarDay(ctx.effectiveAt);
+    const endedOn = typeof payload.endedOn === 'string' ? payload.endedOn : today;
+    if (!today || !endedOn) throw new Error('VALIDATION_FAILED');
+    // Bolivia has no daylight saving: local midnight is 04:00 UTC.
+    const relationEndedAt = new Date(`${endedOn}T04:00:00.000Z`);
+    if (Number.isNaN(relationEndedAt.getTime()) || calendarDay(relationEndedAt) !== endedOn) {
+      throw new Error('VALIDATION_FAILED');
+    }
+    // A relationship may have ended before it was recorded here; only a future day is refused.
+    if (endedOn > today) throw new Error('VALIDATION_FAILED');
+
+    for (const channel of CONTACT_ENDPOINT_CHANNELS) {
+      await store.endActiveEndpointAssociations({
+        organizationId: ctx.organizationId,
+        contactId: contact.id,
+        channel,
+        endedAt: ctx.effectiveAt,
+        endReason: `relation_ended:${reason}`,
+      });
+      await store.supersedeOpenIdentityReviews({
+        organizationId: ctx.organizationId,
+        contactId: contact.id,
+        channel,
+        resolvedAt: ctx.effectiveAt,
+        resolvedByMemberId: ctx.actorMemberId,
+      });
+    }
+    const version = contact.version + 1;
+    await store.updateContact(
+      contact.id,
+      { status: 'inactive', relationEndedAt, relationEndReason: reason, version },
+      expectedVersion,
+    );
+    return this.emit(
+      ctx,
+      store,
+      'contact.relation.ended',
+      'contact',
+      contact.id,
+      { partyId, contactId: contact.id, reason, reasonNote: reasonNote || null, endedOn, version },
+      'contact.relation.ended',
+      { status: contact.status, version: contact.version },
+      { status: 'inactive', relationEndReason: reason, endedOn, version },
     );
   }
 

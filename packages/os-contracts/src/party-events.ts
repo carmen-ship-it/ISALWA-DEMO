@@ -12,6 +12,7 @@ export const OS_PARTY_EVENT_TYPES = [
   'contact.endpoint.changed',
   'contact.endpoint.retired',
   'contact.identity_review.resolved',
+  'contact.relation.ended',
   'party.fiscal_identity.changed',
   'party.duplicate.suggested',
   'party.merge.requested',

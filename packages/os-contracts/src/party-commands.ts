@@ -13,6 +13,7 @@ export const PARTY_COMMAND_NAMES = [
   'RetireContactEndpoint',
   'RevealContactEndpoint',
   'ResolveContactIdentityReview',
+  'EndContactRelationship',
   'UpdateFiscalIdentity',
   'CreateLead',
   'ResolveLead',
@@ -244,6 +245,33 @@ export const ResolveContactIdentityReviewPayloadSchema = z.object({
   note: z.string().trim().min(1).max(500).optional(),
 });
 
+/** T03 L1 (A2 §5): why a contact's relationship with the customer ended. */
+export const CONTACT_RELATION_END_REASONS = ['left_company', 'role_changed', 'duplicate_contact', 'other'] as const;
+export type ContactRelationEndReason = (typeof CONTACT_RELATION_END_REASONS)[number];
+
+/**
+ * T03 L1: the contact stops being a current recipient; the person, the stored numbers (as dated
+ * history) and every other relationship stay. A renewed relationship is a new contact.
+ */
+export const EndContactRelationshipPayloadSchema = z
+  .object({
+    partyId: z.string().min(1),
+    contactId: z.string().min(1),
+    expectedVersion: z.number().int().nonnegative(),
+    reason: z.enum(CONTACT_RELATION_END_REASONS),
+    reasonNote: z.string().trim().min(10).max(500).optional(),
+    /** Calendar day in America/La_Paz; defaults to today. */
+    endedOn: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.reason === 'other' && !value.reasonNote) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['reasonNote'], message: 'required when reason is other' });
+    }
+  });
+
 /** T03 C6: one row of a contact's restricted number history. Never carries the full number. */
 export type ContactEndpointHistoryItem = {
   associationId: string;
@@ -302,6 +330,7 @@ export const PARTY_COMMAND_PAYLOAD_SCHEMAS: Record<PartyCommandName, z.ZodTypeAn
   RetireContactEndpoint: RetireContactEndpointPayloadSchema,
   RevealContactEndpoint: RevealContactEndpointPayloadSchema,
   ResolveContactIdentityReview: ResolveContactIdentityReviewPayloadSchema,
+  EndContactRelationship: EndContactRelationshipPayloadSchema,
   UpdateFiscalIdentity: UpdateFiscalIdentityPayloadSchema,
   CreateLead: CreateLeadPayloadSchema,
   ResolveLead: ResolveLeadPayloadSchema,

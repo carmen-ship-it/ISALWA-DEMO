@@ -96,6 +96,7 @@ export type PartyDetailResponse = {
     canReviewEndpointHistory: boolean;
     canRevealEndpoint: boolean;
     canResolveIdentityReview: boolean;
+    canEndContactRelationship: boolean;
   };
   commercialAuthority?: {
     canReassignOwner: boolean;

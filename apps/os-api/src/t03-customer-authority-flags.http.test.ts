@@ -29,6 +29,7 @@ const EDITOR_FLAGS = {
   canReviewEndpointHistory: true,
   canRevealEndpoint: true,
   canResolveIdentityReview: true,
+  canEndContactRelationship: true,
 };
 const READER_FLAGS = {
   canEditDisplayName: false,
@@ -39,6 +40,7 @@ const READER_FLAGS = {
   canReviewEndpointHistory: false,
   canRevealEndpoint: false,
   canResolveIdentityReview: false,
+  canEndContactRelationship: false,
 };
 
 describeHttp('T03 customer authority flags over HTTP (disposable Postgres)', () => {

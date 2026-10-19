@@ -6,7 +6,7 @@ import {
   type PdfProvider,
   type QuotePdfDocument,
 } from '@isalwa/providers';
-import type { QuoteDetailReadModel } from '@isalwa/os-contracts';
+import { pickCurrentContact, type QuoteDetailReadModel } from '@isalwa/os-contracts';
 import type { ContactRecord, OsPartyStore, PartyRecord } from '@isalwa/os-party';
 import { getOsPrisma } from '@isalwa/os-database';
 
@@ -22,7 +22,8 @@ export function pickQuoteContact(contacts: ContactRecord[]): {
   contactPhone: string | null;
   contactEmail: string | null;
 } {
-  const active = contacts.find((c) => c.status === 'active') ?? contacts[0];
+  // A former or inactive contact is never printed as the customer's contact.
+  const active = pickCurrentContact(contacts);
   if (!active) {
     return { contactName: null, contactPhone: null, contactEmail: null };
   }

@@ -19,6 +19,7 @@ export const CUSTOMER_COMMAND_ACTION: Partial<Record<string, CustomerLifecycleAc
   RetireContactEndpoint: 'edit',
   RevealContactEndpoint: 'edit',
   ResolveContactIdentityReview: 'edit',
+  EndContactRelationship: 'edit',
   CreateLocation: 'edit',
   UpdateLocation: 'edit',
   DeactivateLocation: 'edit',
@@ -127,6 +128,7 @@ export type CustomerAuthorityFlags = {
   canReviewEndpointHistory: boolean;
   canRevealEndpoint: boolean;
   canResolveIdentityReview: boolean;
+  canEndContactRelationship: boolean;
 };
 
 /**
@@ -136,6 +138,7 @@ export type CustomerAuthorityFlags = {
  * whoever may edit the customer or is a data steward (engineering default 2026-10-18, pending
  * owner confirmation). The masked endpoint history and the justified reveal follow the same
  * edit rule (C6), and so does resolving an identity review (C7); engineering defaults 2026-10-18.
+ * Ending a contact's relationship (L1) is a customer edit.
  */
 export async function customerAuthorityFlags(input: {
   store: OsPartyStore;
@@ -170,5 +173,6 @@ export async function customerAuthorityFlags(input: {
     canReviewEndpointHistory: canEdit,
     canRevealEndpoint: canEdit,
     canResolveIdentityReview: mutable,
+    canEndContactRelationship: mutable,
   };
 }
