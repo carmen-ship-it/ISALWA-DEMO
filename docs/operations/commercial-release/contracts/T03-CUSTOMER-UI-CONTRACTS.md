@@ -13,7 +13,7 @@ Source decisions: owner reconciliation of the independent review of `3129709` (2
 | C5 | Contact endpoints (phone and WhatsApp): canonical number input, change, retire | STABLE (API, web actions and types; see the C5 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C5-ENDPOINTS.md`). Review opening is part of C5 |
 | C6 | Endpoint history, masked by default; justified reveal | STABLE (API and web client/action; see the C6 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C6-ENDPOINT-HISTORY.md`) |
 | C7 | Identity review for previously used numbers | STABLE (API and web action; see the C7 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C7-IDENTITY-REVIEW.md`) |
-| C8 | Steward lookup | STABLE (API from T03 part 3; web loader `a1c6771`) |
+| C8 | Steward lookup | STABLE (API from T03 part 3; web loader `a1c6771`). Delegated steward rechecked: grantor, scope and window evaluated at use time (receipt `receipts/T03-REVIEW-C8-STEWARD-DELEGATION.md`) |
 
 Commands go through the existing `POST /v1/commands/:name` (`executePartyCommand` / `executeCommercialCommand`). Error codes are the existing ones (`VALIDATION_FAILED`, `PERMISSION_DENIED`, `NOT_FOUND`, `CONFLICT`); the UI maps them with `mapCommandError`. The integrator adds the os-web client methods and types (`lib/api/os-api-client.ts`, `lib/party/types.ts`) at the same commit that makes a contract STABLE.
 

@@ -1,0 +1,5 @@
+t03-steward-delegation.http (new, disposable PG): pass 4, fail 0
+mutation M10 (delegationConfersScope without the grantor role check; os-domain rebuilt): exit 1, pass 1, fail 3
+mutation M11 (delegationConfersScope without the window check; os-domain rebuilt): exit 1, pass 3, fail 1
+os-domain authorization.ts restored from saved copy: sha256 identical; os-domain rebuilt; t03-steward-delegation.http pass 4, fail 0
+no product source changed for C8

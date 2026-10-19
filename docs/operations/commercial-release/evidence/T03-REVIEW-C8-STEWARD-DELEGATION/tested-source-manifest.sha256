@@ -1,0 +1,6 @@
+2ff975bd0c39f704ab07c58967464f256b335329f1595540c00eaa99886f6524  apps/os-api/src/t03-steward-delegation.http.test.ts
+68f3bc4e72862acd287d5903278d6e46ed374d24995bf3fe965f809d61fd8681  packages/os-domain/src/authorization.ts
+bfe91835258125d2909bb433f97655e4ec03b2f75f85d15f05e7fb84ca8d3719  apps/os-api/src/master-data.controller.ts
+11534381be30c84d66447b244073b1616f640c4a585c5f39c9616f3a403a84a7  packages/os-query/src/query-context.ts
+fc1df285530c4a0d94571f1b95cfdb1c7989ae6e105ba5d11acae2f23b6c9359  packages/os-database/src/prisma-workforce-store.ts
+8bffe5a924dd69b7fc0c0a0b3dba1b46c824b64c226a1bb9c268138528496504  packages/os-contracts/src/scopes.ts
