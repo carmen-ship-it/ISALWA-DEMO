@@ -6,6 +6,7 @@ import type {
 import {
   COMMAND_REQUIRED_SCOPES,
   CONTACT_PHONE_COUNTRIES,
+  customerArchiveBlocked,
   ResolveImportPhoneValuePayloadSchema,
   type ContactPhoneCountry,
 } from '@isalwa/os-contracts';
@@ -60,6 +61,8 @@ export type ImportCommandResult = {
 type PartyAccessStore = Pick<
   OsPartyStore,
   | 'getMemberInOrg'
+  | 'getPartyInOrg'
+  | 'customerArchiveFacts'
   | 'listRoleAssignmentsForMember'
   | 'listDelegationsForDelegate'
   | 'appendEventAndAudit'
@@ -501,6 +504,19 @@ export class ImportCommandService {
     }
 
     const rows = await this.importStore.listRowsForBatch(ctx.organizationId, importBatchId);
+    // T03 L3: archiving a customer with open obligations is refused, so check every created
+    // customer before writing anything rather than stopping half-way through the batch.
+    const partiesToArchive = new Map<string, number>();
+    for (const row of rows) {
+      const partyId = row.entityRefsJson.createdByBatch ? row.entityRefsJson.partyId : null;
+      if (!partyId) continue;
+      const party = await this.partyAccess.getPartyInOrg(ctx.organizationId, partyId);
+      if (!party || party.status !== 'active') continue;
+      if (customerArchiveBlocked(await this.partyAccess.customerArchiveFacts(ctx.organizationId, partyId))) {
+        throw new Error('ARCHIVE_BLOCKED_BY_OBLIGATIONS');
+      }
+      partiesToArchive.set(partyId, party.version);
+    }
     let parties = 0;
     let contacts = 0;
     let locations = 0;
@@ -524,12 +540,16 @@ export class ImportCommandService {
         contacts += 1;
       }
       if (refs.partyId) {
-        await this.partyCommands.execute(
-          'DeactivateParty',
-          ctx,
-          { partyId: refs.partyId },
-          `import-rev-party-${importBatchId}-${row.rowIndex}`,
-        );
+        const expectedVersion = partiesToArchive.get(refs.partyId);
+        // Already archived (by a person or an earlier attempt of this reversal): nothing to undo.
+        if (expectedVersion !== undefined) {
+          await this.partyCommands.execute(
+            'DeactivateParty',
+            ctx,
+            { partyId: refs.partyId, expectedVersion, reason: 'other', reasonNote: `Reversión de la importación ${importBatchId}` },
+            `import-rev-party-${importBatchId}-${row.rowIndex}`,
+          );
+        }
         parties += 1;
       }
     }

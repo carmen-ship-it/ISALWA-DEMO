@@ -372,4 +372,63 @@ describePrisma('client import prisma integration', () => {
     if (prev === undefined) delete process.env.OS_REAL_CLIENT_IMPORT_ENABLED;
     else process.env.OS_REAL_CLIENT_IMPORT_ENABLED = prev;
   });
+
+  it('T03 L3: reversal refuses before any write while a created customer has an open obligation', async () => {
+    const { org, admin, c } = await seedAdmin();
+    const prev = process.env.OS_REAL_CLIENT_IMPORT_ENABLED;
+    process.env.OS_REAL_CLIENT_IMPORT_ENABLED = 'true';
+    const dry = await importSvc.execute(
+      'ValidateClientImport',
+      c,
+      {
+        sourceKind: 'xls_datos_clientes',
+        sourceFingerprint: `fp-l3-${Date.now()}`,
+        rows: [
+          { section: 'B', rowIndex: 0, commercialName: 'Obligada L3', givenName: 'Ana', familyName: 'Obligada', celular: '70055501', mapsUrl: 'https://maps.app.goo.gl/L3One' },
+          { section: 'B', rowIndex: 1, commercialName: 'Libre L3', givenName: 'Luis', familyName: 'Libre', celular: '70055502', mapsUrl: 'https://maps.app.goo.gl/L3Two' },
+        ],
+      },
+      `idem-l3-val-${Date.now()}`,
+    );
+    const importBatchId = String(dry.data.importBatchId);
+    await importSvc.execute('ExecuteClientImport', c, { importBatchId }, `idem-l3-exec-${Date.now()}`);
+    const created = await prisma.osParty.findMany({ where: { organizationId: org.id, status: 'active' }, orderBy: { displayName: 'asc' } });
+    assert.deepEqual(created.map((p) => p.displayName), ['Libre L3', 'Obligada L3']);
+    const obligated = created[1]!;
+    const commitmentId = `l3-commitment-${Date.now()}`;
+    await prisma.osCommitment.create({
+      data: {
+        id: commitmentId,
+        organizationId: org.id,
+        partyId: obligated.id,
+        ownerMemberId: admin.member.id,
+        text: 'Entregar pedido pendiente',
+        origin: 'employee_entered',
+        createdByMemberId: admin.member.id,
+      },
+    });
+    const snapshot = async () => ({
+      parties: (await prisma.osParty.findMany({ where: { organizationId: org.id }, orderBy: { id: 'asc' } })).map((p) => [p.status, p.version]),
+      contacts: (await prisma.osContact.findMany({ where: { organizationId: org.id }, orderBy: { id: 'asc' } })).map((x) => x.status),
+      locations: (await prisma.osLocation.findMany({ where: { organizationId: org.id }, orderBy: { id: 'asc' } })).map((x) => x.status),
+    });
+    const before = await snapshot();
+    await assert.rejects(
+      () => importSvc.execute('ReverseImportBatch', c, { importBatchId }, `idem-l3-rev-1-${Date.now()}`),
+      (err: Error) => err.message === 'ARCHIVE_BLOCKED_BY_OBLIGATIONS',
+    );
+    assert.deepEqual(await snapshot(), before);
+    assert.equal(await prisma.osBusinessEvent.count({ where: { organizationId: org.id, eventType: 'party.deactivated' } }), 0);
+
+    await prisma.osCommitment.update({ where: { id: commitmentId }, data: { lifecycle: 'fulfilled', fulfilledAt: new Date() } });
+    const reversed = await importSvc.execute('ReverseImportBatch', c, { importBatchId }, `idem-l3-rev-2-${Date.now()}`);
+    assert.equal((reversed.data.reversed as { parties: number }).parties, 2);
+    const after = await prisma.osParty.findMany({ where: { organizationId: org.id }, orderBy: { displayName: 'asc' } });
+    assert.deepEqual(after.map((p) => [p.displayName, p.status, p.version]), [['Libre L3', 'inactive', 1], ['Obligada L3', 'inactive', 1]]);
+    const events = await prisma.osBusinessEvent.findMany({ where: { organizationId: org.id, eventType: 'party.deactivated' } });
+    assert.deepEqual(events.map((e) => (e.payloadJson as Record<string, unknown>).reason), ['other', 'other']);
+
+    if (prev === undefined) delete process.env.OS_REAL_CLIENT_IMPORT_ENABLED;
+    else process.env.OS_REAL_CLIENT_IMPORT_ENABLED = prev;
+  });
 });

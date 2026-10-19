@@ -98,6 +98,8 @@ export type PartyDetailResponse = {
     canResolveIdentityReview: boolean;
     canEndContactRelationship: boolean;
     canSetFollowupPreference: boolean;
+    canArchiveCustomer: boolean;
+    canReactivateCustomer: boolean;
   };
   commercialAuthority?: {
     canReassignOwner: boolean;

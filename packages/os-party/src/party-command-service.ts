@@ -9,6 +9,9 @@ import {
   FOLLOWUP_PREFERENCES,
   FOLLOWUP_PREFERENCE_SOURCES,
   followupPreferenceInputProblem,
+  customerArchiveBlocked,
+  PARTY_ARCHIVE_REASONS,
+  type PartyArchiveReason,
   CONTACT_PHONE_VERIFICATION_METHODS,
   MASTER_DATA_ADMIN_SCOPE,
   maskContactNumber,
@@ -635,6 +638,11 @@ export class PartyCommandService {
     };
   }
 
+  /**
+   * T03 L3 (A2 §6): archive = status `inactive`. Refused while obligations are open (checked in
+   * this transaction). Never deletes, never changes the owner or ownership history, never ends
+   * coverage grants or cancels quotes and opportunities.
+   */
   private async deactivateParty(
     ctx: RequestContext,
     payload: Record<string, unknown>,
@@ -643,10 +651,31 @@ export class PartyCommandService {
     const partyId = String(payload.partyId);
     await this.authorize(ctx, 'DeactivateParty', ctx.organizationId, partyId, store);
     const before = await this.requireActiveParty(store, ctx.organizationId, partyId);
-    await store.updateParty(partyId, { status: 'inactive', version: before.version + 1 }, before.version);
-    return this.emit(ctx, store, 'party.deactivated', 'party', partyId, { partyId });
+    if (before.status !== 'active') throw new Error('CONFLICT');
+    const expectedVersion = Number(payload.expectedVersion);
+    if (!Number.isInteger(expectedVersion) || expectedVersion !== before.version) throw new Error('CONFLICT');
+    const reason = String(payload.reason) as PartyArchiveReason;
+    if (!(PARTY_ARCHIVE_REASONS as readonly string[]).includes(reason)) throw new Error('VALIDATION_FAILED');
+    const reasonNote = typeof payload.reasonNote === 'string' ? payload.reasonNote.trim() : '';
+    if (reason === 'other' && !reasonNote) throw new Error('VALIDATION_FAILED');
+    const facts = await store.customerArchiveFacts(ctx.organizationId, partyId);
+    if (customerArchiveBlocked(facts)) throw new Error('ARCHIVE_BLOCKED_BY_OBLIGATIONS');
+    const version = before.version + 1;
+    await store.updateParty(partyId, { status: 'inactive', version }, before.version);
+    return this.emit(
+      ctx,
+      store,
+      'party.deactivated',
+      'party',
+      partyId,
+      { partyId, reason, reasonNote: reasonNote || null, obligationsChecked: true, paymentsChecked: false, version },
+      'party.deactivated',
+      { status: before.status, version: before.version },
+      { status: 'inactive', reason, version },
+    );
   }
 
+  /** T03 L3: the customer becomes active again; nothing else is restored. */
   private async reactivateParty(
     ctx: RequestContext,
     payload: Record<string, unknown>,
@@ -656,8 +685,24 @@ export class PartyCommandService {
     await this.authorize(ctx, 'ReactivateParty', ctx.organizationId, partyId, store);
     const party = await store.getPartyInOrg(ctx.organizationId, partyId);
     if (!party || party.status === 'merged') throw new Error('NOT_FOUND');
-    await store.updateParty(partyId, { status: 'active', version: party.version + 1 }, party.version);
-    return this.emit(ctx, store, 'party.reactivated', 'party', partyId, { partyId });
+    if (party.status !== 'inactive') throw new Error('CONFLICT');
+    const expectedVersion = Number(payload.expectedVersion);
+    if (!Number.isInteger(expectedVersion) || expectedVersion !== party.version) throw new Error('CONFLICT');
+    const reasonNote = typeof payload.reasonNote === 'string' ? payload.reasonNote.trim() : '';
+    if (reasonNote.length < 10) throw new Error('VALIDATION_FAILED');
+    const version = party.version + 1;
+    await store.updateParty(partyId, { status: 'active', version }, party.version);
+    return this.emit(
+      ctx,
+      store,
+      'party.reactivated',
+      'party',
+      partyId,
+      { partyId, reasonNote, version },
+      'party.reactivated',
+      { status: party.status, version: party.version },
+      { status: 'active', version },
+    );
   }
 
   private async assignPartyRole(

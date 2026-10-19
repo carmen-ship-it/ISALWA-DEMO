@@ -63,6 +63,17 @@ export type ContactRecord = {
   relationEndReason?: string | null;
 };
 
+/** T03 L3: what archiving a customer would leave open or affect. Counts only. */
+export type CustomerArchiveFacts = {
+  openOrders: number;
+  openCommitments: number;
+  openIssues: number;
+  openWorkItems: number;
+  openOpportunities: number;
+  openQuotes: number;
+  currentContacts: number;
+};
+
 /** T03 L2: one channel's recorded follow-up preference for a contact. */
 export type ContactFollowupPreferenceRecord = {
   id: string;

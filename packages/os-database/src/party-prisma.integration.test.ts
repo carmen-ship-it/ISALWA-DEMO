@@ -169,10 +169,10 @@ describePrisma('partygraph prisma integration', () => {
       displayName: 'Inactive Co',
     });
     const partyId = String(created.data.partyId);
-    await svc.execute('DeactivateParty', c, { partyId });
+    await svc.execute('DeactivateParty', c, { partyId, expectedVersion: 0, reason: 'no_longer_operating' });
     let party = await partyStore.getPartyInOrg(org.id, partyId);
     assert.equal(party?.status, 'inactive');
-    await svc.execute('ReactivateParty', c, { partyId });
+    await svc.execute('ReactivateParty', c, { partyId, expectedVersion: 1, reasonNote: 'Volvió a operar este mes' });
     party = await partyStore.getPartyInOrg(org.id, partyId);
     assert.equal(party?.status, 'active');
   });

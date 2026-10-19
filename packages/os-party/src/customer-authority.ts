@@ -131,6 +131,8 @@ export type CustomerAuthorityFlags = {
   canResolveIdentityReview: boolean;
   canEndContactRelationship: boolean;
   canSetFollowupPreference: boolean;
+  canArchiveCustomer: boolean;
+  canReactivateCustomer: boolean;
 };
 
 /**
@@ -141,6 +143,7 @@ export type CustomerAuthorityFlags = {
  * owner confirmation). The masked endpoint history and the justified reveal follow the same
  * edit rule (C6), and so does resolving an identity review (C7); engineering defaults 2026-10-18.
  * Ending a contact's relationship (L1) and recording a follow-up preference (L2) are customer edits.
+ * Archive and reactivation (L3) follow the same rule with their own action scope.
  */
 export async function customerAuthorityFlags(input: {
   store: OsPartyStore;
@@ -153,11 +156,11 @@ export async function customerAuthorityFlags(input: {
   const steward = memberHasScope(snap, MASTER_DATA_ADMIN_SCOPE);
   const facts = await loadCustomerAuthorityFacts(store, ctx, partyId);
   const known = actorCanKnowCustomer(ctx, snap, partyId, facts);
-  const canEdit =
+  const may = (action: CustomerLifecycleAction) =>
     known &&
     (steward ||
       canActOnCustomer({
-        action: 'edit',
+        action,
         actorMemberId: ctx.actorMemberId,
         organizationId: ctx.organizationId,
         customerPartyId: partyId,
@@ -165,6 +168,7 @@ export async function customerAuthorityFlags(input: {
         asOf: ctx.effectiveAt,
         ...facts,
       }));
+  const canEdit = may('edit');
   const mutable = canEdit && input.partyStatus !== 'merged';
   return {
     canEditDisplayName: mutable,
@@ -177,5 +181,7 @@ export async function customerAuthorityFlags(input: {
     canResolveIdentityReview: mutable,
     canEndContactRelationship: mutable,
     canSetFollowupPreference: mutable,
+    canArchiveCustomer: input.partyStatus === 'active' && may('archive'),
+    canReactivateCustomer: input.partyStatus === 'inactive' && may('reactivate'),
   };
 }

@@ -264,7 +264,7 @@ describePrisma('location prisma integration', () => {
   it('emits no location event on validation failure', async () => {
     const { org, c } = await seedOrgAdmin();
     const partyId = await createParty(c, 'Validation Fail Party');
-    await partySvc.execute('DeactivateParty', c, { partyId });
+    await partySvc.execute('DeactivateParty', c, { partyId, expectedVersion: 0, reason: 'no_longer_operating' });
     const before = await prisma.osBusinessEvent.count({
       where: { organizationId: org.id, eventType: { startsWith: 'location.' } },
     });

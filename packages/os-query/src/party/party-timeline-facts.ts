@@ -14,8 +14,8 @@ const TIMELINE_FACT_ALLOWLIST: Record<string, readonly string[]> = {
     'version',
     'source',
   ],
-  'party.deactivated': ['partyId'],
-  'party.reactivated': ['partyId'],
+  'party.deactivated': ['partyId', 'reason', 'reasonNote', 'paymentsChecked', 'version'],
+  'party.reactivated': ['partyId', 'reasonNote', 'version'],
   'party.role.assigned': ['partyId', 'roleKey', 'roleAssignmentId'],
   'party.role.ended': ['partyId', 'roleKey', 'roleAssignmentId'],
   'party.fiscal_identity.changed': ['partyId', 'nit', 'razonSocial'],
@@ -192,6 +192,8 @@ const TIMELINE_FIELD_SUMMARY: Record<string, readonly string[]> = {
   'contact.identity_review.resolved': ['partyId', 'contactId', 'channel', 'decision', 'version'],
   'contact.relation.ended': ['partyId', 'contactId', 'reason', 'endedOn', 'version'],
   'contact.followup_preference.changed': ['partyId', 'contactId', 'channel', 'from', 'to', 'source', 'version'],
+  'party.deactivated': ['partyId', 'reason', 'paymentsChecked', 'version'],
+  'party.reactivated': ['partyId', 'version'],
 };
 
 export function timelineFactsForViewer(

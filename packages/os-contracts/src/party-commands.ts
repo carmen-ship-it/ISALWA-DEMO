@@ -154,13 +154,52 @@ export function partyChangeNeedsReason(input: { changedFields: readonly string[]
   return input.changedFields.length > 0;
 }
 
-export const DeactivatePartyPayloadSchema = z.object({
-  partyId: z.string().min(1),
-});
+/** T03 L3 (A2 §6): why a customer is archived. Archiving is never automatic. */
+export const PARTY_ARCHIVE_REASONS = [
+  'no_longer_operating',
+  'no_current_commercial_relationship',
+  'duplicate_under_review',
+  'other',
+] as const;
+export type PartyArchiveReason = (typeof PARTY_ARCHIVE_REASONS)[number];
 
+/** T03 L3: refused while the customer has open obligations (see the archive preview). */
+export const DeactivatePartyPayloadSchema = z
+  .object({
+    partyId: z.string().min(1),
+    expectedVersion: z.number().int().nonnegative(),
+    reason: z.enum(PARTY_ARCHIVE_REASONS),
+    reasonNote: z.string().trim().min(10).max(500).optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.reason === 'other' && !value.reasonNote) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['reasonNote'], message: 'required when reason is other' });
+    }
+  });
+
+/** T03 L3: restores the customer only; no coverage, price, credit, consent or closed business comes back. */
 export const ReactivatePartyPayloadSchema = z.object({
   partyId: z.string().min(1),
+  expectedVersion: z.number().int().nonnegative(),
+  reasonNote: z.string().trim().min(10).max(500),
 });
+
+/** T03 L3: any open order, commitment, issue or work item blocks archiving; there is no transfer path yet. */
+export function customerArchiveBlocked(obligations: CustomerArchivePreview['obligations']): boolean {
+  return obligations.openOrders + obligations.openCommitments + obligations.openIssues + obligations.openWorkItems > 0;
+}
+
+/** T03 L3: `GET /v1/parties/:partyId/archive-preview`. Counts only. */
+export type CustomerArchivePreview = {
+  partyId: string;
+  version: number;
+  status: string;
+  obligations: { openOrders: number; openCommitments: number; openIssues: number; openWorkItems: number };
+  /** No payment or advance records exist yet (T07); never reported as zero. */
+  payments: { checked: false; reason: 'payments_not_available' };
+  blocked: boolean;
+  effects: { openOpportunities: number; openQuotes: number; currentContacts: number };
+};
 
 export const AssignPartyRolePayloadSchema = z.object({
   partyId: z.string().min(1),

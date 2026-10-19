@@ -31,6 +31,8 @@ const EDITOR_FLAGS = {
   canResolveIdentityReview: true,
   canEndContactRelationship: true,
   canSetFollowupPreference: true,
+  canArchiveCustomer: false,
+  canReactivateCustomer: false,
 };
 const READER_FLAGS = {
   canEditDisplayName: false,
@@ -43,6 +45,8 @@ const READER_FLAGS = {
   canResolveIdentityReview: false,
   canEndContactRelationship: false,
   canSetFollowupPreference: false,
+  canArchiveCustomer: false,
+  canReactivateCustomer: false,
 };
 
 describeHttp('T03 customer authority flags over HTTP (disposable Postgres)', () => {
@@ -147,7 +151,7 @@ describeHttp('T03 customer authority flags over HTTP (disposable Postgres)', () 
       assert.equal((body.party as Record<string, unknown>).legalName, LEGAL_NAME, who);
     }
     const steward = await detail('stewardReader');
-    assert.deepEqual(steward.body.customerAuthority, { ...EDITOR_FLAGS, canEditLegalName: true });
+    assert.deepEqual(steward.body.customerAuthority, { ...EDITOR_FLAGS, canEditLegalName: true, canArchiveCustomer: true });
     assert.equal((steward.body.party as Record<string, unknown>).legalName, LEGAL_NAME);
     // A steward alone does not open commercial customer records (unchanged T02 boundary).
     const stewardOnly = await detail('steward');

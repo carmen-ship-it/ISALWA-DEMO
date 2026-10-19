@@ -17,6 +17,7 @@ import type {
   ContactRecord,
   ContactEndpointAssociationRecord,
   ContactFollowupPreferenceRecord,
+  CustomerArchiveFacts,
   ContactIdentityReviewRecord,
   DelegationRecord,
   DuplicateCandidateRecord,
@@ -383,6 +384,27 @@ export class PrismaOsPartyStore implements OsPartyStore {
       recordedByMemberId: row.recordedByMemberId,
       updatedAt: row.updatedAt,
     }));
+  }
+
+  async customerArchiveFacts(organizationId: string, partyId: string): Promise<CustomerArchiveFacts> {
+    // Sequential: inside an interactive transaction queries must not run concurrently.
+    const db = this.db();
+    const openOrders = await db.osOrder.count({ where: { organizationId, partyId, status: 'open' } });
+    const openCommitments = await db.osCommitment.count({ where: { organizationId, partyId, lifecycle: 'open' } });
+    const openIssues = await db.osIssue.count({
+      where: {
+        organizationId,
+        status: { notIn: ['resolved', 'closed'] },
+        references: { some: { organizationId, referenceType: 'party', referenceId: partyId } },
+      },
+    });
+    const openWorkItems = await db.osWorkItem.count({ where: { organizationId, status: 'open', subjectType: 'party', subjectId: partyId } });
+    const openOpportunities = await db.osOpportunity.count({ where: { organizationId, partyId, status: 'open' } });
+    const openQuotes = await db.osQuote.count({ where: { organizationId, partyId, status: { in: ['draft', 'submitted'] } } });
+    const currentContacts = await db.osContact.count({
+      where: { organizationId, organizationPartyId: partyId, status: 'active', relationEndedAt: null },
+    });
+    return { openOrders, openCommitments, openIssues, openWorkItems, openOpportunities, openQuotes, currentContacts };
   }
 
   async saveFollowupPreference(record: ContactFollowupPreferenceRecord, expectedVersion: number): Promise<void> {

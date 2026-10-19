@@ -21,8 +21,10 @@ import {
   grantableCoverageActionsFor,
   CONTACT_ENDPOINT_CHANNELS,
   deriveCommitmentState,
+  customerArchiveBlocked,
   FOLLOWUP_CHANNELS,
   type ContactFollowupPreferenceItem,
+  type CustomerArchivePreview,
   isCurrentContact,
   maskContactNumber,
   pickCurrentContact,
@@ -346,6 +348,58 @@ export class PartiesController {
           })),
         commitmentLinkage: 'customer',
         automaticSends: { configured: false, label: 'Envíos automáticos no configurados.' },
+      };
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';
+      const status =
+        code === 'AUTH_REQUIRED'
+          ? HttpStatus.UNAUTHORIZED
+          : code === 'NOT_FOUND'
+            ? HttpStatus.NOT_FOUND
+          : code === 'TENANT_FORBIDDEN' ||
+              code === 'PERMISSION_DENIED' ||
+              code === 'ACCESS_REVOKED'
+            ? HttpStatus.FORBIDDEN
+            : code === 'VALIDATION_FAILED'
+              ? HttpStatus.BAD_REQUEST
+              : HttpStatus.INTERNAL_SERVER_ERROR;
+      throw new HttpException({ code }, status);
+    }
+  }
+
+  /** T03 L3: open obligations that block archiving, and what archiving or reactivating would affect. */
+  @Get(':partyId/archive-preview')
+  async customerArchivePreview(@Param('partyId') partyId: string, @Req() req: Request): Promise<CustomerArchivePreview> {
+    try {
+      const { session, ctx } = await this.readableCustomer(req, partyId);
+      const party = await this.partyStore.getPartyInOrg(session.organizationId, partyId);
+      if (!party) throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+      const flags = await customerAuthorityFlags({
+        store: this.partyStore,
+        ctx: session,
+        snap: ctx.auth,
+        partyId,
+        partyStatus: party.status,
+      });
+      if (!flags.canArchiveCustomer && !flags.canReactivateCustomer) {
+        throw new HttpException({ code: 'PERMISSION_DENIED' }, HttpStatus.FORBIDDEN);
+      }
+      const facts = await this.partyStore.customerArchiveFacts(session.organizationId, partyId);
+      const obligations = {
+        openOrders: facts.openOrders,
+        openCommitments: facts.openCommitments,
+        openIssues: facts.openIssues,
+        openWorkItems: facts.openWorkItems,
+      };
+      return {
+        partyId,
+        version: party.version,
+        status: party.status,
+        obligations,
+        payments: { checked: false, reason: 'payments_not_available' },
+        blocked: customerArchiveBlocked(obligations),
+        effects: { openOpportunities: facts.openOpportunities, openQuotes: facts.openQuotes, currentContacts: facts.currentContacts },
       };
     } catch (err) {
       if (err instanceof HttpException) throw err;
