@@ -198,6 +198,9 @@ describe('local HTTP auth path', { concurrency: false }, () => {
         async getCommercialAccountForParty() {
           return null;
         },
+        async listCustomerCoverageGrants() {
+          return [];
+        },
         async listLocationsForParty(
           organizationId: string,
           partyId: string,
