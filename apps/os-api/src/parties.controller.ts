@@ -20,7 +20,7 @@ import {
   SearchPartiesQuerySchema,
   grantableCoverageActionsFor,
 } from '@isalwa/os-contracts';
-import type { OsPartyStore } from '@isalwa/os-party';
+import { customerAuthorityFlags, type OsPartyStore } from '@isalwa/os-party';
 import type { OsCommercialStore } from '@isalwa/os-commercial';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import {
@@ -325,8 +325,16 @@ export class PartiesController {
             coveredActions: [...firstActive[0].coveredActions],
           }
         : null;
+      const customerAuthority = await customerAuthorityFlags({
+        store: this.partyStore,
+        ctx: session,
+        snap: queryCtx.auth,
+        partyId,
+        partyStatus: party.status,
+      });
       return {
-        party,
+        party: customerAuthority.canReadLegalName ? party : { ...party, legalName: null },
+        customerAuthority,
         roles,
         contacts,
         contactsMeta,

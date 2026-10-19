@@ -229,8 +229,27 @@ describe('customer self-service UI contract', () => {
   const locations = readUi('../../components/party/customer-location-panel.tsx');
   const create = readUi('../../components/party/customer-create-form.tsx');
 
-  it('gates mutations on master_data.admin and does not read tenant or owner from the form', () => {
+  it('gates customer creation on master_data.admin, leaves customer edits to the API rule, and does not read tenant or owner from the form', () => {
     assert.match(actions, /actorCanMutateMasterData/);
+    const body = (name: string) => {
+      const start = actions.indexOf(`export async function ${name}`);
+      const next = actions.indexOf('export async function', start + 1);
+      return actions.slice(start, next === -1 ? undefined : next);
+    };
+    assert.match(body('createCustomerAction'), /adminClient\(\)/);
+    for (const name of [
+      'updateCustomerAction',
+      'updateContactAction',
+      'changeContactPhoneAction',
+      'retireContactPhoneAction',
+      'createLocationAction',
+      'updateLocationAction',
+      'deactivateLocationAction',
+    ]) {
+      assert.match(body(name), /customerClient\(\)/, name);
+      assert.doesNotMatch(body(name), /adminClient/, name);
+    }
+    assert.match(body('updateCustomerAction'), /formData\.has\('legalName'\)/);
     assert.doesNotMatch(actions, /formData\.get\('organizationId'\)/);
     assert.doesNotMatch(actions, /formData\.get\('ownerMemberId'\)/);
     assert.doesNotMatch(actions, /formData\.get\('nit'\)/);

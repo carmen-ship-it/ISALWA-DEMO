@@ -79,6 +79,17 @@ export type PartyDetailResponse = {
     status: string;
     version: number;
   } | null;
+  /** T03 contract C3, computed by the API. When canReadLegalName is false, party.legalName is null. */
+  customerAuthority?: {
+    canEditDisplayName: boolean;
+    canReadLegalName: boolean;
+    canEditLegalName: boolean;
+    canEditContacts: boolean;
+    canChangeEndpoints: boolean;
+    canReviewEndpointHistory: boolean;
+    canRevealEndpoint: boolean;
+    canResolveIdentityReview: boolean;
+  };
   commercialAuthority?: {
     canReassignOwner: boolean;
     canManageCoverage?: boolean;

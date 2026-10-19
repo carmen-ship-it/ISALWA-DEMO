@@ -7,6 +7,7 @@ import {
   selectPrimaryPhone,
 } from '@isalwa/os-contracts';
 import type { PartyOperatingSource } from '@isalwa/os-party';
+import { memberHasScope } from '@isalwa/os-domain';
 import type { QueryContext } from '../query-context';
 import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
@@ -106,7 +107,12 @@ export class PartyQueryService {
     const nextCursor =
       hasMore && last ? this.deps.encodeCursor(last.displayName, last.partyId) : null;
 
-    const summaries = items.map((item) => toPartySummary(item));
+    // Legal names are per-customer edit information (C3); the list returns them only to data stewards.
+    const steward = memberHasScope(ctx.auth, MASTER_DATA_ADMIN_SCOPE);
+    const summaries = items.map((item) => {
+      const summary = toPartySummary(item);
+      return steward ? summary : { ...summary, legalName: null };
+    });
     const enriched = await this.attachOperatingFacts(ctx.organizationId, summaries);
 
     return {

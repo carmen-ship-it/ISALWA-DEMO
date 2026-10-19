@@ -39,6 +39,18 @@ async function adminClient() {
   return { ok: true as const, client };
 }
 
+/**
+ * Customer edits (name, contacts, phone, locations): the API decides with the customer resource
+ * rule (owner, team lead, coverage with customer.edit, or data steward). No master_data.admin pre-check.
+ */
+async function customerClient() {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false as const, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
+  return { ok: true as const, client: createOsApiClient(auth) };
+}
+
 function revalidateCustomer(partyId: string) {
   revalidatePath('/clientes');
   revalidatePath(partyHref(partyId));
@@ -98,7 +110,9 @@ export async function createCustomerAction(formData: FormData): Promise<CreateRe
 export async function updateCustomerAction(formData: FormData): Promise<CommandActionResult> {
   const partyId = String(formData.get('partyId') ?? '').trim();
   const displayName = String(formData.get('displayName') ?? '').trim();
-  const legalName = String(formData.get('legalName') ?? '').trim();
+  // The form carries legalName only for a viewer who may edit it; otherwise it is omitted and unchanged.
+  const sendsLegalName = formData.has('legalName');
+  const legalName = sendsLegalName ? String(formData.get('legalName') ?? '').trim() : undefined;
   const expectedVersion = Number(formData.get('expectedVersion'));
   if (!partyId || !displayName) return { ok: false, error: 'Ingrese el nombre del cliente.' };
   if (!Number.isInteger(expectedVersion) || expectedVersion < 0) {
@@ -109,16 +123,16 @@ export async function updateCustomerAction(formData: FormData): Promise<CommandA
   const reasonError = partyEditReasonError({
     previous: {
       displayName: String(formData.get('previousDisplayName') ?? ''),
-      legalName: String(formData.get('previousLegalName') ?? '') || null,
+      legalName: sendsLegalName ? String(formData.get('previousLegalName') ?? '') || null : null,
     },
     displayName,
-    legalName: legalName || null,
+    legalName: sendsLegalName ? legalName || null : null,
     changeKind,
     changeReason,
   });
   if (reasonError) return { ok: false, error: reasonError };
 
-  const session = await adminClient();
+  const session = await customerClient();
   if (!session.ok) return session;
 
   const payload = buildUpdatePartyPayload({
@@ -152,7 +166,7 @@ export async function updateContactAction(formData: FormData): Promise<CommandAc
     return { ok: false, error: 'Revise el correo del contacto.' };
   }
 
-  const session = await adminClient();
+  const session = await customerClient();
   if (!session.ok) return session;
 
   const payload = buildUpdateContactPayload({
@@ -193,7 +207,7 @@ export async function changeContactPhoneAction(formData: FormData): Promise<Comm
     evidenceNote: String(formData.get('evidenceNote') ?? ''),
   });
   if (!built.ok) return built;
-  const session = await adminClient();
+  const session = await customerClient();
   if (!session.ok) return session;
   try {
     const result = await session.client.executePartyCommand('ChangeContactPhone', built.payload, createId());
@@ -207,7 +221,7 @@ export async function changeContactPhoneAction(formData: FormData): Promise<Comm
 export async function retireContactPhoneAction(formData: FormData): Promise<CommandActionResult> {
   const built = buildRetireContactPhonePayload(phoneFormInput(formData));
   if (!built.ok) return built;
-  const session = await adminClient();
+  const session = await customerClient();
   if (!session.ok) return session;
   try {
     const result = await session.client.executePartyCommand('RetireContactPhone', built.payload, createId());
@@ -228,7 +242,7 @@ export async function createLocationAction(formData: FormData): Promise<CommandA
   const provenance = preserveProvenanceUrl(String(formData.get('provenanceUrl') ?? ''));
   if (!provenance.ok) return { ok: false, error: provenance.error };
 
-  const session = await adminClient();
+  const session = await customerClient();
   if (!session.ok) return session;
 
   const payload = buildCreateLocationPayload({
@@ -267,7 +281,7 @@ export async function updateLocationAction(formData: FormData): Promise<CommandA
   if (!provenance.ok) return { ok: false, error: provenance.error };
 
   const addressText = String(formData.get('addressText') ?? '').trim();
-  const session = await adminClient();
+  const session = await customerClient();
   if (!session.ok) return session;
 
   const payload = buildUpdateLocationPayload({
@@ -294,7 +308,7 @@ export async function deactivateLocationAction(formData: FormData): Promise<Comm
   const locationId = String(formData.get('locationId') ?? '').trim();
   if (!partyId || !locationId) return { ok: false, error: 'No se pudo desactivar esta ubicación.' };
 
-  const session = await adminClient();
+  const session = await customerClient();
   if (!session.ok) return session;
 
   const payload = buildDeactivateLocationPayload(locationId);

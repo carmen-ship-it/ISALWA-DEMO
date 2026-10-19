@@ -8,7 +8,7 @@ Source decisions: owner reconciliation of the independent review of `3129709` (2
 |---|---|---|
 | C1 | `UpdateParty` reason, no-op, legal-name handling | STABLE (API; see the C1 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`). `canEditLegalName` / `canReadLegalName` come with C3 |
 | C2 | Timeline field-level visibility | PLANNED |
-| C3 | Customer detail authority flags | PLANNED |
+| C3 | Customer detail authority flags | STABLE (API and web actions; see the C3 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C3-AUTHORITY-FLAGS.md`). Endpoint history/reveal/identity-review flags stay false until C6/C7 |
 | C4 | Coverage grants (all, bounded, revocable) | STABLE (API and web action; see the C4 commit in `COMMERCIAL_RELEASE_CHECKPOINT.md`, receipt `receipts/T03-REVIEW-C4-COVERAGE.md`) |
 | C5 | Contact endpoints (phone and WhatsApp): canonical number input, change, retire | PLANNED |
 | C6 | Endpoint history, masked by default; justified reveal | PLANNED |
@@ -51,6 +51,12 @@ customerAuthority: {
 ```
 
 The web actions stop gating on `master_data.admin` (`adminClient`). The API decides, and the UI hides controls whose flag is false.
+
+As implemented:
+- Flags use the customer `edit` command rule (`master_data.admin` or `canActOnCustomer('edit')`); `canEditLegalName` also needs `master_data.admin`.
+- Legal-name read (engineering default, pending owner confirmation): customer editors and data stewards who can open the record. Search returns `legalName` only to data stewards.
+- `canReviewEndpointHistory`, `canRevealEndpoint`, `canResolveIdentityReview` are false until C6/C7 ship.
+- The customer page must read these flags instead of `actorCanMutateMasterData` (lane B2). `updateCustomerAction` omits `legalName` when the form has no such field, so the form must render the legal-name input only when `canEditLegalName`.
 
 ## C4 — Coverage grants
 

@@ -220,3 +220,26 @@ describe('master-data lookup (T03 2026-10-16 19:30)', () => {
     }
   });
 });
+
+describe('party search legal name (T03 contract C3)', () => {
+  const search = (roleKeys: string[]) =>
+    new PartyQueryService({
+      projectionStore: {
+        searchParties: async () => ({ items: [{ ...party('p1'), legalName: 'Razón Social C3 SRL' }], hasMore: false }),
+        getFreshness: async () => null,
+      } as never,
+      encodeCursor: () => 'cursor',
+      customerVisibility: ownedBy('mem', ['p1']),
+    }).searchParties(memCtx(roleKeys), { limit: 25 } as never);
+
+  it('returns the legal name only to a data steward', async () => {
+    for (const roleKeys of [[], ['commercial.customer.edit'], ['commercial.org.read', 'commercial.customer.edit']]) {
+      const result = await search(roleKeys);
+      assert.equal(result.items.length, 1, JSON.stringify(roleKeys));
+      assert.equal(result.items[0]!.legalName, null, JSON.stringify(roleKeys));
+      assert.doesNotMatch(JSON.stringify(result), /Razón Social C3/);
+    }
+    const steward = await search(['master_data.admin']);
+    assert.equal(steward.items[0]!.legalName, 'Razón Social C3 SRL');
+  });
+});

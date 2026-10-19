@@ -3,6 +3,7 @@ import {
   canKnowCustomer,
   COMMAND_REQUIRED_SCOPES,
   COMMERCIAL_CUSTOMER_CREATE_SCOPE,
+  MASTER_DATA_ADMIN_SCOPE,
   type CustomerCoverageGrant,
   type CustomerLifecycleAction,
   type RequestContext,
@@ -111,4 +112,61 @@ export async function assertPartyCommandAuthority(input: {
     ...facts,
   });
   if (!allowed) throw new Error('PERMISSION_DENIED');
+}
+
+/** T03 contract C3: what the viewer may do on this customer. Display hints; every command rechecks. */
+export type CustomerAuthorityFlags = {
+  canEditDisplayName: boolean;
+  /** false → the API returns `party.legalName` as null. */
+  canReadLegalName: boolean;
+  canEditLegalName: boolean;
+  canEditContacts: boolean;
+  canChangeEndpoints: boolean;
+  canReviewEndpointHistory: boolean;
+  canRevealEndpoint: boolean;
+  canResolveIdentityReview: boolean;
+};
+
+/**
+ * Same rule as assertPartyCommandAuthority for the customer `edit` commands (UpdateParty,
+ * UpdateContact, ChangeContactPhone, RetireContactPhone): master_data.admin, or canActOnCustomer.
+ * A legal-name change stays data-steward maintenance. Reading the legal name is allowed to
+ * whoever may edit the customer or is a data steward (engineering default 2026-10-18, pending
+ * owner confirmation). Endpoint history, reveal and identity review stay false until those
+ * commands exist (C6, C7).
+ */
+export async function customerAuthorityFlags(input: {
+  store: OsPartyStore;
+  ctx: RequestContext;
+  snap: MemberAccessSnapshot;
+  partyId: string;
+  partyStatus: string;
+}): Promise<CustomerAuthorityFlags> {
+  const { store, ctx, snap, partyId } = input;
+  const steward = memberHasScope(snap, MASTER_DATA_ADMIN_SCOPE);
+  const facts = await loadCustomerAuthorityFacts(store, ctx, partyId);
+  const known = actorCanKnowCustomer(ctx, snap, partyId, facts);
+  const canEdit =
+    known &&
+    (steward ||
+      canActOnCustomer({
+        action: 'edit',
+        actorMemberId: ctx.actorMemberId,
+        organizationId: ctx.organizationId,
+        customerPartyId: partyId,
+        grantedScopes: snap.accessStatus === 'active' ? [...snap.roleKeys, ...snap.delegatedScopes] : [],
+        asOf: ctx.effectiveAt,
+        ...facts,
+      }));
+  const mutable = canEdit && input.partyStatus !== 'merged';
+  return {
+    canEditDisplayName: mutable,
+    canReadLegalName: known && (steward || canEdit),
+    canEditLegalName: mutable && steward,
+    canEditContacts: mutable,
+    canChangeEndpoints: mutable,
+    canReviewEndpointHistory: false,
+    canRevealEndpoint: false,
+    canResolveIdentityReview: false,
+  };
 }

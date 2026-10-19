@@ -105,6 +105,7 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `120012ab` (tree `e362ec556ded03c698fd5eb25137e1b25e7dd86a`) | | T03 review C1: UpdateParty reason for any change, no-op unchanged, unchanged legal name allowed (os-party 38, 4 regressions fail on old service, HTTP+PG 24/24 on rerun with 1 unexplained failure in run 1, os-contracts 185, os-web 3/3, tsc) | this writer; not reviewed |
 | `94793a41` | | Docs: ledger rows for `3129709`, `19efa4b6`, `120012ab`; reviewed T03 commits marked | this writer |
 | `6f39a90d` | | Docs: LOCAL BROWSER CHECK wording, catalog automatic-answer exclusion as integrator dependency, C1 intermittent failure tracked | this writer |
+| `bc211fdd` (tree `60fcad7e3f4235969e531d0d0bbc818419fdd9ad`) | | T03 review C4: coverage bounded to 30 days (engineering default), all active/scheduled grants listed, independent authority, scheduled grants end on reassignment (os-contracts 188, os-domain 239, os-commercial 106, os-query 114, 5 regressions fail on old service, HTTP+PG 4/4 10/10 4/4 1/1, os-web 10/10, tsc) | this writer; not reviewed; browser UNPROVEN (panel inputs lane B2) |
 
 ## Open blockers
 
@@ -113,6 +114,9 @@ A commit cannot record its own SHA; each one is added by the next commit.
 None for local work. External dependencies (§14) recorded per task when reached.
 
 ## Tracked limitations
+
+- **Party search matches on hidden fields (2026-10-18, C3).** The shared search text includes legal name, NIT, razón social and contact phones. Values are not returned to readers without access, but a match on them still lists the customer. Fix needs per-viewer search fields in the projection.
+- **Legal-name read rule is an engineering default (2026-10-18, C3).** Customer editors and data stewards read it; pending owner confirmation.
 
 - **C1 intermittent HTTP failure (2026-10-18, `120012ab`).** The first combined run of `t03-customer-authority` + `review-r1-grant-provisioning` + `t03-contact-phone` failed once in "team manager with the action permissions edits the customer…". Two reruns passed (10/10 alone, 24/24 combined). Detail not captured; cause unknown. Do not rerun broad suites to chase it without a hypothesis. If it recurs, capture the assertion and response body first. Candidate hypothesis: the shared disposable database still holds rows from the earlier runs.
 

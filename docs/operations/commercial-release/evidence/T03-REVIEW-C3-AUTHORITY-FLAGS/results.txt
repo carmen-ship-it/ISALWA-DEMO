@@ -1,0 +1,7 @@
+HTTP+PG disposable isalwa_t01_disposable: t03-customer-authority-flags tests 4 pass 4 fail 0 (first rerun after a "Could not find" file-visibility race; the one failing run before the steward fix asserted the steward-only viewer, which is a 404 by the unchanged T02 boundary; test corrected to pin that)
+HTTP+PG t03-customer-authority (controller changed): tests 10 pass 10 fail 0
+os-query (serial): tests 115 pass 115 fail 0
+os-party (serial): tests 38 pass 38 fail 0
+regressions vs HEAD bc211fdd parties.controller.ts + party-query-service.ts (restored from saved copies, sha256 identical): flags HTTP pass 1 fail 3 (the passing test is the command check, unchanged by C3); search unit "returns the legal name only to a data steward" fails
+os-web customer-self-service + customer-edit-reason: tests 17 pass 17 fail 0
+tsc os-api: exit 0; tsc os-web: exit 0
