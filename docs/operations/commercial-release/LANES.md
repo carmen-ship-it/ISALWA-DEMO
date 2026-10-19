@@ -40,7 +40,8 @@ Never: port 5432, `/tmp:5432`, the staging database, `pnpm install` without `--f
 
 1. Bounded commits with conventional messages, in the lane branch only.
 2. Receipt `docs/operations/commercial-release/receipts/LANE-<A|B>-….md` and evidence `docs/operations/commercial-release/evidence/LANE-<A|B>-…/` (allowlisted output only: ✔/✖/ℹ lines, exit codes, sha256 manifests; no env values, tokens, headers or personal data).
-3. States kept separate: IMPLEMENTED, LOCALLY TESTED; never INTEGRATED/DEPLOYED/BROWSER-VERIFIED by the lane.
+3. States kept separate: IMPLEMENTED, LOCALLY TESTED, LOCAL BROWSER CHECK (scoped as below); never INTEGRATED, DEPLOYED or HOSTED by the lane.
+   Browser evidence (owner correction 2026-10-18 21:58): a LOCAL BROWSER CHECK is valid browser evidence when the receipt ties it to the exact source (commit SHA), environment (ports, database, local build), roles (synthetic members used) and the observed cases. Say "locally verified in the browser" for exactly that scope. It does not establish hosted, deployed or live verification, and it does not replace independent review or owner acceptance.
 4. A stable snapshot report: full commit SHA, tree, receipt path, checks run, open dependencies. Then stop or take the next item in the same assignment.
 5. Shared change needed → write it under "Dependencies for integrator" in the receipt with the exact file and the reason; do not edit the file or build an alternative.
 
@@ -76,6 +77,8 @@ Integrator pre-integration check (read-only, 2026-10-17 00:1x):
 | Catalog PDF | Transfer dependency. Repo-only reconciliation stays labelled incomplete; no invented specs, page numbers or prices. |
 
 Before integration: Claude targeted review of exactly `18a0f0c`; the `automaticAnswerFields` PDF gate applied (required change, not yet assigned; lane A receives no new work until directed); integrator recheck of changed interfaces and permissions against the integrator branch head.
+
+**Integrator dependency (explicit):** unpublished or PDF-unverified catalog content stays out of every automatic answer. `automaticAnswerFields` must return nothing while `sheet.pdfCheck.status` is not verified and nothing unpublished. Integrator-owned, applied before any automatic-answer consumer exists; not assigned to lane A2.
 
 Remaining T05 items (assigned, integrator-owned, not built by lane A): DB-backed catalog (`OsCatalogProduct`, aliases), approved price lists (`OsPriceList`/`OsPriceEntry`), knowledge publication and AI published-only filtering through `automaticAnswerFields`, "Agregar a cotización", "Compartir catálogo", navigation entry.
 

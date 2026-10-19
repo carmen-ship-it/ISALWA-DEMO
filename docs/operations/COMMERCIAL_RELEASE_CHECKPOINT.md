@@ -110,6 +110,10 @@ A commit cannot record its own SHA; each one is added by the next commit.
 
 None for local work. External dependencies (§14) recorded per task when reached.
 
+## Tracked limitations
+
+- **C1 intermittent HTTP failure (2026-10-18, `120012ab`).** The first combined run of `t03-customer-authority` + `review-r1-grant-provisioning` + `t03-contact-phone` failed once in "team manager with the action permissions edits the customer…". Two reruns passed (10/10 alone, 24/24 combined). Detail not captured; cause unknown. Do not rerun broad suites to chase it without a hypothesis. If it recurs, capture the assertion and response body first. Candidate hypothesis: the shared disposable database still holds rows from the earlier runs.
+
 ## Known pre-existing failures (not T01/T02)
 
 (Historical, now passing: os-database 299/0 and os-api 223/0 in R2.) 6 delegation tests (5 os-database integration, 1 os-api HTTP) failed with PERMISSION_DENIED because their fixtures delegate scopes the delegator does not hold by own role (rule from `6b29ab3`). os-web tsc TS5097 in `lib/mobile/mobile-390-proof.test.ts`: repaired in R2. Legacy `apps/api` `canonical-session.bootstrap.test.ts` source-text assertion fails (outside os-api graph; separate repair). os-query `query-context.tenant.test.ts` (expects `sales_rep` in roleKeys). Schema drift baseline vs migrations in ~40 older tables (`evidence/T02/schema-drift-baseline.txt`). Owner: engineering, separate repair task.

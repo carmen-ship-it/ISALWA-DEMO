@@ -53,5 +53,5 @@ Integrator-owned (dependency only): `lib/api/os-api-client.ts`, `lib/party/types
 
 - Unit tests for each builder and parser.
 - os-web lib/components suite and `npx tsc --noEmit -p .`.
-- A LOCAL BROWSER CHECK on 3220/4220 with synthetic members: owner, coverage with `customer.edit`, coverage with work only, steward, and a reader. It shows each control present or absent per flag, plus the refusal paths.
+- A LOCAL BROWSER CHECK on 3220/4220 with synthetic members: owner, coverage with `customer.edit`, coverage with work only, steward, and a reader. It shows each control present or absent per flag, plus the refusal paths. Record the SHA, ports, database, roles and observed cases; that is valid browser evidence for that scope, not hosted verification.
 - Bounded commits, receipt, then a stable snapshot report.

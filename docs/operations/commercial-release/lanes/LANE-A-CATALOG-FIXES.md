@@ -14,7 +14,7 @@ The candidate branch `ct3/t05-catalog` and worktree `/Users/carmen/projects/isal
 
 `packages/os-catalog/src/browse.ts`, `packages/os-catalog/src/presentation.ts` (F2 display value only), their tests; `apps/os-web/components/catalog/**`, `apps/os-web/lib/catalog/**`, `apps/os-web/app/(app)/productos/**` and their tests; receipt `docs/operations/commercial-release/receipts/LANE-A-CATALOG-FIXES.md`; evidence `docs/operations/commercial-release/evidence/LANE-A-CATALOG-FIXES/**`.
 
-Not in scope: the `automaticAnswerFields` PDF gate, package-boundary imports, breadcrumb resolution, shell F4/F5 (integrator), anything else in T05.
+Not in scope: the `automaticAnswerFields` PDF/publication gate (explicit integrator dependency: unpublished or PDF-unverified content stays out of automatic answers), package-boundary imports, breadcrumb resolution, shell F4/F5 (integrator), anything else in T05.
 
 ## Tests and evidence
 
@@ -24,7 +24,7 @@ Not in scope: the `automaticAnswerFields` PDF gate, package-boundary imports, br
   - F3: the sheet renders "Precio por confirmar" exactly once.
 - os-catalog suite, os-web catalog tests, `npx tsc --noEmit -p .` for os-catalog and os-web. Counts reported separately. No full-suite rerun beyond these.
 - Mutation evidence is optional. If you do it, apply committed patch files in a disposable copy, never by relocating a rejected script.
-- Local browser recheck of F1–F3 on port 3210 with `isalwa_lanea_browser_disposable` and the `/login` "Entrar (desarrollo)" mechanism; screenshots outside the repo with sha256 in the receipt. This is a LOCAL BROWSER CHECK, never BROWSER-VERIFIED.
+- Local browser recheck of F1–F3 on port 3210 with `isalwa_lanea_browser_disposable` and the `/login` "Entrar (desarrollo)" mechanism; screenshots outside the repo with sha256 in the receipt. Record it as a LOCAL BROWSER CHECK tied to the exact SHA, port, database, synthetic role and observed cases (rule in `../LANES.md`). It is valid browser evidence for that scope and is not hosted verification.
 
 ## Delivery
 
