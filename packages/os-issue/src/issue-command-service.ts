@@ -8,8 +8,12 @@ import {
   COMMAND_REQUIRED_SCOPES,
   ISSUE_MANAGE_SCOPE,
   canTransitionIssue,
+  correctionAppliedValue,
   correctionEventMatches,
+  correctionEventVersion,
+  correctionValueMatches,
   type CorrectionField,
+  type CorrectionTarget,
 } from '@isalwa/os-contracts';
 import {
   ReportIssuePayloadSchema,
@@ -46,7 +50,7 @@ import {
 import { createId } from '@isalwa/ts-utils';
 import type { OsIssueStore } from './os-issue-store';
 import { canReadIssue } from './issue-read-policy';
-import type { IssueRecord } from './store-types';
+import type { IssueCorrectionRequestRecord, IssueRecord } from './store-types';
 import {
   correctionAccess,
   type CorrectionAccess,
@@ -92,6 +96,92 @@ export class IssueCommandService {
       asOf: ctx.effectiveAt,
       facts,
     });
+  }
+
+  /**
+   * L4: on a correction request, standing is current, not historical. issue.manage keeps process
+   * management; otherwise the owner must still be able to apply the change (PERMISSION_DENIED) and
+   * the reporter must still know the customer (NOT_FOUND).
+   */
+  private async assertCorrectionStanding(
+    ctx: RequestContext,
+    snap: MemberAccessSnapshot,
+    store: OsIssueStore,
+    issue: IssueRecord,
+  ): Promise<void> {
+    if (this.hasIssueManageScope(snap)) return;
+    const correction = await store.getCorrectionRequest(ctx.organizationId, issue.id);
+    if (!correction) return;
+    const access = await this.correctionAccessFor(ctx, snap, correction.partyId, correction.field);
+    if (issue.ownerMemberId === ctx.actorMemberId) {
+      if (!access.canApply) throw new Error('PERMISSION_DENIED');
+      return;
+    }
+    if (!access.known) throw new Error('NOT_FOUND');
+  }
+
+  /**
+   * L4: an applied decision must cite a committed change to the requested field on the same
+   * customer target, after the request and newer than the target's version at that time, made by
+   * someone who could apply it then. Returns whether the value it set equals the proposal.
+   */
+  private async validateAppliedEvidence(
+    ctx: RequestContext,
+    store: OsIssueStore,
+    issue: IssueRecord,
+    correction: IssueCorrectionRequestRecord,
+    appliedEventId: string,
+  ): Promise<boolean> {
+    const target: CorrectionTarget = {
+      partyId: correction.partyId,
+      contactId: correction.contactId,
+      locationId: correction.locationId,
+      field: correction.field,
+      reportedAt: issue.reportedAt,
+    };
+    const event = await store.getBusinessEventInOrg(ctx.organizationId, appliedEventId);
+    if (!event || !correctionEventMatches(target, event)) throw new Error('CORRECTION_EVIDENCE_INVALID');
+    const eventVersion = correctionEventVersion(event);
+    if (
+      correction.targetVersionAtRequest !== null &&
+      (eventVersion === null || eventVersion <= correction.targetVersionAtRequest)
+    ) {
+      throw new Error('CORRECTION_EVIDENCE_INVALID');
+    }
+    // The author's roles and delegations as of the change; the command checked membership status then.
+    const authorId = event.actorMemberId;
+    const authorSnap = authorId ? await this.snapshotInOrg(ctx.organizationId, authorId, event.occurredAt) : null;
+    if (!authorSnap) throw new Error('CORRECTION_EVIDENCE_INVALID');
+    const authorFacts = await this.requireCorrectionPort().customerFacts({
+      organizationId: ctx.organizationId,
+      partyId: correction.partyId,
+      memberId: authorSnap.memberId,
+      asOf: event.occurredAt,
+    });
+    const authorAccess = correctionAccess({
+      snap: { ...authorSnap, accessStatus: 'active' },
+      organizationId: ctx.organizationId,
+      partyId: correction.partyId,
+      field: correction.field,
+      asOf: event.occurredAt,
+      facts: authorFacts,
+    });
+    if (!authorAccess.canApply) throw new Error('CORRECTION_EVIDENCE_INVALID');
+
+    let actual = correctionAppliedValue(correction.field, event);
+    if (actual === undefined && correction.contactId && (correction.field === 'contact_phone' || correction.field === 'contact_whatsapp')) {
+      // Endpoint events are masked: compare the current number only when this is the latest such change.
+      const [latest] = await store.listCorrectionChangeEvents(ctx.organizationId, target, { cursor: null, limit: 1 });
+      actual =
+        latest?.id === appliedEventId
+          ? await this.requireCorrectionPort().currentContactNumber({
+              organizationId: ctx.organizationId,
+              contactId: correction.contactId,
+              channel: correction.field === 'contact_phone' ? 'phone' : 'whatsapp',
+            })
+          : null;
+    }
+    return correctionValueMatches(correction.field, correction.proposedValue, actual ?? null);
   }
 
   private async snapshotInOrg(
@@ -186,7 +276,9 @@ export class IssueCommandService {
       (value): value is string => typeof value === 'string' && value.length > 0,
     );
     if (!issueId) throw new Error('NOT_FOUND');
-    this.assertIssueParticipant(snap, ctx, await this.requireIssue(this.store, ctx.organizationId, issueId));
+    const issue = await this.requireIssue(this.store, ctx.organizationId, issueId);
+    this.assertIssueParticipant(snap, ctx, issue);
+    await this.assertCorrectionStanding(ctx, snap, this.store, issue);
     return result;
   }
 
@@ -417,6 +509,13 @@ export class IssueCommandService {
     }
 
     if (correction) {
+      const targetVersionAtRequest = await this.requireCorrectionPort().targetVersion({
+        organizationId: ctx.organizationId,
+        partyId: correction.partyId,
+        contactId: correction.contactId ?? null,
+        locationId: correction.locationId ?? null,
+        field: correction.field,
+      });
       await store.insertCorrectionRequest({
         issueId,
         organizationId: ctx.organizationId,
@@ -432,6 +531,9 @@ export class IssueCommandService {
         decidedByMemberId: null,
         decidedAt: null,
         createdAt: ctx.effectiveAt,
+        targetVersionAtRequest,
+        valueMatched: null,
+        differenceExplanation: null,
       });
     }
 
@@ -551,6 +653,7 @@ export class IssueCommandService {
 
     const parsed = StartIssueProgressPayloadSchema.parse(payload);
     const issue = await this.requireIssue(store, ctx.organizationId, parsed.issueId);
+    await this.assertCorrectionStanding(ctx, snap, store, issue);
     this.assertVersion(parsed.expectedVersion, issue.version);
 
     // Owner or issue.manage can start progress
@@ -594,6 +697,7 @@ export class IssueCommandService {
 
     const parsed = AddIssueJournalEntryPayloadSchema.parse(payload);
     const issue = await this.requireIssue(store, ctx.organizationId, parsed.issueId);
+    await this.assertCorrectionStanding(ctx, snap, store, issue);
     this.assertIssueParticipant(snap, ctx, issue);
     this.assertVersion(parsed.expectedVersion, issue.version);
 
@@ -661,6 +765,7 @@ export class IssueCommandService {
 
     const parsed = LinkIssueWorkPayloadSchema.parse(payload);
     const issue = await this.requireIssue(store, ctx.organizationId, parsed.issueId);
+    await this.assertCorrectionStanding(ctx, snap, store, issue);
     this.assertIssueParticipant(snap, ctx, issue);
     this.assertVersion(parsed.expectedVersion, issue.version);
 
@@ -715,6 +820,7 @@ export class IssueCommandService {
     const correction = await store.getCorrectionRequest(ctx.organizationId, parsed.issueId);
     const decision = parsed.correction;
     if (!correction && decision) throw new Error('VALIDATION_FAILED');
+    let valueMatched: boolean | null = null;
     if (correction) {
       // L4: a correction is decided only by someone who may apply it, and "applied" must cite
       // the customer event that made the change. The request itself never writes data.
@@ -722,20 +828,9 @@ export class IssueCommandService {
       const access = await this.correctionAccessFor(ctx, snap, correction.partyId, correction.field);
       if (!access.canApply) throw new Error('PERMISSION_DENIED');
       if (decision.decision === 'applied') {
-        const event = await store.getBusinessEventInOrg(ctx.organizationId, decision.appliedEventId!);
-        const matches =
-          event !== null &&
-          correctionEventMatches(
-            {
-              partyId: correction.partyId,
-              contactId: correction.contactId,
-              locationId: correction.locationId,
-              field: correction.field,
-              reportedAt: issue.reportedAt,
-            },
-            event,
-          );
-        if (!matches) throw new Error('VALIDATION_FAILED');
+        valueMatched = await this.validateAppliedEvidence(ctx, store, issue, correction, decision.appliedEventId!);
+        // A change that set something other than the proposal is Applied only with an explicit explanation.
+        if (!valueMatched && !decision.differenceExplanation) throw new Error('CORRECTION_VALUE_DIFFERS');
       }
       await store.decideCorrectionRequest(ctx.organizationId, parsed.issueId, {
         decision: decision.decision,
@@ -743,6 +838,8 @@ export class IssueCommandService {
         decisionReason: decision.reason,
         decidedByMemberId: ctx.actorMemberId,
         decidedAt: ctx.effectiveAt,
+        valueMatched,
+        differenceExplanation: decision.differenceExplanation ?? null,
       });
     }
 
@@ -765,6 +862,8 @@ export class IssueCommandService {
             decision: decision.decision,
             appliedEventId: decision.appliedEventId ?? null,
             reason: decision.reason,
+            valueMatched,
+            differenceExplanation: decision.differenceExplanation ?? null,
           },
         }
       : {};
@@ -794,6 +893,7 @@ export class IssueCommandService {
 
     const parsed = RecordIssueOutcomePayloadSchema.parse(payload);
     const issue = await this.requireIssue(store, ctx.organizationId, parsed.issueId);
+    await this.assertCorrectionStanding(ctx, snap, store, issue);
     this.assertIssueParticipant(snap, ctx, issue);
     this.assertVersion(parsed.expectedVersion, issue.version);
     // L4: a correction request's outcome is its recorded decision, set only by ResolveIssue.
@@ -880,6 +980,8 @@ export class IssueCommandService {
         decisionReason: null,
         decidedByMemberId: null,
         decidedAt: null,
+        valueMatched: null,
+        differenceExplanation: null,
       });
     }
 

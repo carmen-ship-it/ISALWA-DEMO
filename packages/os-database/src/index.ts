@@ -29,6 +29,7 @@ export {
   type IssueCorrectionRequestRecord,
   type IssueCorrectionDecisionPatch,
   type IssueBusinessEventFacts,
+  type OpenCorrectionRequestRow,
   type OsIssueStore,
 } from './prisma-issue-store';
 export {

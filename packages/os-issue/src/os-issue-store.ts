@@ -1,4 +1,4 @@
-import type { CorrectionAppliedEvent } from '@isalwa/os-contracts';
+import type { CorrectionAppliedEvent, CorrectionTarget } from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type {
   IssueRecord,
@@ -12,6 +12,7 @@ import type {
   IdempotencyRecord,
   IssueCorrectionRequestRecord,
   IssueCorrectionDecisionPatch,
+  EventCursor,
 } from './store-types';
 
 export interface OsIssueStore {
@@ -76,6 +77,12 @@ export interface OsIssueStore {
   getCorrectionRequest(organizationId: string, issueId: string): Promise<IssueCorrectionRequestRecord | null>;
   decideCorrectionRequest(organizationId: string, issueId: string, patch: IssueCorrectionDecisionPatch): Promise<void>;
   getBusinessEventInOrg(organizationId: string, eventId: string): Promise<CorrectionAppliedEvent | null>;
+  /** Changes eligible for `target`, newest first (occurredAt, id), strictly after `cursor` in that order. */
+  listCorrectionChangeEvents(
+    organizationId: string,
+    target: CorrectionTarget,
+    page: { cursor: EventCursor | null; limit: number },
+  ): Promise<CorrectionAppliedEvent[]>;
 
   // Events/audit
   appendEventAndAudit(

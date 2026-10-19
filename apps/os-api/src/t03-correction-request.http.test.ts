@@ -170,7 +170,6 @@ describeHttp('T03 correction requests over HTTP (disposable Postgres)', () => {
       partyId: ids.party,
       displayName: 'Cliente Corrección L4 SRL',
       changeReason: 'Razón comercial actualizada',
-      changeReason: 'Razón comercial actualizada',
       expectedVersion: (await prisma().osParty.findUniqueOrThrow({ where: { id: ids.party! } })).version,
     });
     assert.equal(renamed.status, 201, JSON.stringify(renamed.body));
@@ -181,7 +180,7 @@ describeHttp('T03 correction requests over HTTP (disposable Postgres)', () => {
       expectedVersion: await issueVersion(),
       correction: { decision: 'applied', appliedEventId: partyEvent.id, reason: 'Nombre corregido en la ficha' },
     });
-    assert.equal(wrong.status, 400, JSON.stringify(wrong.body));
+    assert.equal(wrong.status, 409, JSON.stringify(wrong.body));
 
     const fixed = await command('owner', 'UpdateContact', {
       organizationPartyId: ids.party,
@@ -215,7 +214,7 @@ describeHttp('T03 correction requests over HTTP (disposable Postgres)', () => {
     assert.equal(listed.status, 200, JSON.stringify(listed.body));
     const events = listed.body.events as Array<Record<string, unknown>>;
     assert.deepEqual(events.map((e) => e.eventId), [contactEvent.id]);
-    assert.deepEqual(Object.keys(events[0]!).sort(), ['actorMemberId', 'eventId', 'eventType', 'occurredAt']);
+    assert.deepEqual(Object.keys(events[0]!).sort(), ['actorMemberId', 'eventId', 'eventType', 'fields', 'occurredAt']);
     assert.equal((await candidates('manager')).status, 404);
 
     const resolved = await command('owner', 'ResolveIssue', {

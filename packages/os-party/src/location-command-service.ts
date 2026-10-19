@@ -355,6 +355,14 @@ export class LocationCommandService {
         latitude,
         longitude,
         provenanceUrl,
+        changedFields: [
+          ...(label !== before.label ? ['label'] : []),
+          ...((addressText ?? null) !== (before.addressText ?? null) ? ['addressText'] : []),
+          ...((latitude ?? null) !== (before.latitude ?? null) ? ['latitude'] : []),
+          ...((longitude ?? null) !== (before.longitude ?? null) ? ['longitude'] : []),
+          ...((provenanceUrl ?? null) !== (before.provenanceUrl ?? null) ? ['provenanceUrl'] : []),
+        ].join(','),
+        version: before.version + 1,
       },
       {
         label: before.label,

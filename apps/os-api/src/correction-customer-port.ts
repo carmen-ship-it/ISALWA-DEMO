@@ -22,5 +22,20 @@ export function createCorrectionCustomerPort(partyStore: OsPartyStore): Correcti
       }
       return true;
     },
+    async targetVersion({ organizationId, partyId, contactId, locationId, field }) {
+      if (field === 'fiscal_identity' || field === 'other') return null;
+      if (field.startsWith('contact_') && contactId) {
+        return (await partyStore.getContactInOrg(organizationId, contactId))?.version ?? null;
+      }
+      if (field.startsWith('location_') && locationId) {
+        return (await partyStore.getLocationInOrg(organizationId, locationId))?.version ?? null;
+      }
+      return (await partyStore.getPartyInOrg(organizationId, partyId))?.version ?? null;
+    },
+    async currentContactNumber({ organizationId, contactId, channel }) {
+      const contact = await partyStore.getContactInOrg(organizationId, contactId);
+      if (!contact) return null;
+      return (channel === 'phone' ? contact.phone : contact.whatsapp) ?? null;
+    },
   };
 }

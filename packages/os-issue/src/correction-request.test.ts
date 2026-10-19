@@ -42,10 +42,19 @@ function ctx(memberId: string, effectiveAt: Date = AT): RequestContext {
   };
 }
 
+let accountOwner = ADVISOR;
+const CONTACT_VERSION_AT_REQUEST = 3;
+
 const port: CorrectionCustomerPort = {
   async customerFacts({ organizationId, partyId }) {
     if (organizationId !== ORG || (partyId !== PARTY && partyId !== OTHER_PARTY)) return null;
-    return { accountOwnerMemberId: ADVISOR, ownerIsDirectReportOfActor: false, coverageGrants: [] };
+    return { accountOwnerMemberId: accountOwner, ownerIsDirectReportOfActor: false, coverageGrants: [] };
+  },
+  async targetVersion({ field }) {
+    return field.startsWith('contact_') ? CONTACT_VERSION_AT_REQUEST : field === 'fiscal_identity' ? null : 7;
+  },
+  async currentContactNumber() {
+    return '+59170020002';
   },
   async targetBelongsToParty({ partyId, contactId }) {
     if (contactId === CONTACT) return partyId === PARTY;
@@ -68,6 +77,7 @@ function customerEvent(
   primaryEntityId: string,
   payload: Record<string, unknown>,
   occurredAt: Date = AT,
+  actorMemberId: string = ADVISOR,
 ) {
   store.events.push({
     id,
@@ -75,7 +85,7 @@ function customerEvent(
     eventType,
     occurredAt,
     recordedAt: occurredAt,
-    actorMemberId: ADVISOR,
+    actorMemberId,
     primaryEntityType,
     primaryEntityId,
     payload,
@@ -88,6 +98,7 @@ describe('T03 L4 correction requests', () => {
   let service: IssueCommandService;
 
   beforeEach(() => {
+    accountOwner = ADVISOR;
     store = new MemoryIssueStore();
     service = new IssueCommandService(store, port);
     for (const id of [ADVISOR, OTHER_EDITOR, STEWARD, FISCAL, MANAGER, OUTSIDER]) {
@@ -197,17 +208,41 @@ describe('T03 L4 correction requests', () => {
         expectedVersion: 1,
         ...(correction ? { correction } : {}),
       });
-    customerEvent(store, 'ev-party', 'party.updated', 'party', PARTY, { partyId: PARTY });
-    customerEvent(store, 'ev-other-contact', 'contact.updated', 'contact', 'contact-2', { organizationPartyId: PARTY });
-    customerEvent(store, 'ev-other-party', 'contact.updated', 'contact', FOREIGN_CONTACT, { organizationPartyId: OTHER_PARTY });
-    customerEvent(store, 'ev-early', 'contact.updated', 'contact', CONTACT, { organizationPartyId: PARTY }, new Date('2026-10-01T11:00:00.000Z'));
-    customerEvent(store, 'ev-ok', 'contact.updated', 'contact', CONTACT, { organizationPartyId: PARTY });
+    const named = (extra: Record<string, unknown> = {}) => ({
+      organizationPartyId: PARTY,
+      givenName: 'Ana María',
+      familyName: 'Pérez',
+      changedFields: 'givenName',
+      version: CONTACT_VERSION_AT_REQUEST + 1,
+      ...extra,
+    });
+    customerEvent(store, 'ev-party', 'party.updated', 'party', PARTY, { partyId: PARTY, changedFields: 'displayName', version: 8 });
+    customerEvent(store, 'ev-other-contact', 'contact.updated', 'contact', 'contact-2', named());
+    customerEvent(store, 'ev-other-party', 'contact.updated', 'contact', FOREIGN_CONTACT, named({ organizationPartyId: OTHER_PARTY }));
+    customerEvent(store, 'ev-early', 'contact.updated', 'contact', CONTACT, named(), new Date('2026-10-01T11:00:00.000Z'));
+    customerEvent(store, 'ev-no-fields', 'contact.updated', 'contact', CONTACT, named({ changedFields: undefined }));
+    customerEvent(store, 'ev-email-only', 'contact.updated', 'contact', CONTACT, named({ changedFields: 'email' }));
+    customerEvent(store, 'ev-old-version', 'contact.updated', 'contact', CONTACT, named({ version: CONTACT_VERSION_AT_REQUEST }));
+    customerEvent(store, 'ev-created', 'contact.updated', 'contact', CONTACT, named({ created: true }));
+    customerEvent(store, 'ev-unauthorized-author', 'contact.updated', 'contact', CONTACT, named(), AT, OUTSIDER);
+    customerEvent(store, 'ev-ok', 'contact.updated', 'contact', CONTACT, named());
 
     await assert.rejects(resolve(), /VALIDATION_FAILED/);
-    for (const appliedEventId of ['ev-party', 'ev-other-contact', 'ev-other-party', 'ev-early', 'ev-missing']) {
+    for (const appliedEventId of [
+      'ev-party',
+      'ev-other-contact',
+      'ev-other-party',
+      'ev-early',
+      'ev-no-fields',
+      'ev-email-only',
+      'ev-old-version',
+      'ev-created',
+      'ev-unauthorized-author',
+      'ev-missing',
+    ]) {
       await assert.rejects(
         resolve({ decision: 'applied', appliedEventId, reason: 'Nombre corregido en ficha' }),
-        /VALIDATION_FAILED/,
+        /CORRECTION_EVIDENCE_INVALID/,
         appliedEventId,
       );
     }
@@ -221,6 +256,101 @@ describe('T03 L4 correction requests', () => {
     assert.equal(record?.decision, 'applied');
     assert.equal(record?.appliedEventId, 'ev-ok');
     assert.equal(record?.decidedByMemberId, ADVISOR);
+    assert.equal(record?.valueMatched, true);
+  });
+
+  it('display name and legal name are not interchangeable evidence', async () => {
+    const issueId = await reportAssigned(ADVISOR, { partyId: PARTY, field: 'display_name', proposedValue: 'Andina', source: 'staff' });
+    customerEvent(store, 'ev-legal', 'party.updated', 'party', PARTY, { partyId: PARTY, changedFields: 'legalName', legalName: 'Andina', version: 8 }, AT, STEWARD);
+    customerEvent(store, 'ev-display', 'party.updated', 'party', PARTY, { partyId: PARTY, changedFields: 'displayName', displayName: 'Andina', version: 9 });
+    const resolve = (appliedEventId: string) =>
+      service.execute('ResolveIssue', ctx(ADVISOR), {
+        issueId,
+        resolution: 'Corregido',
+        expectedVersion: 1,
+        correction: { decision: 'applied', appliedEventId, reason: 'Nombre comercial corregido' },
+      });
+    await assert.rejects(resolve('ev-legal'), /CORRECTION_EVIDENCE_INVALID/);
+    await resolve('ev-display');
+    assert.equal((await store.getCorrectionRequest(ORG, issueId))?.valueMatched, true);
+  });
+
+  it('a change that set another value is Applied only with an explicit explanation', async () => {
+    const issueId = await reportAssigned(ADVISOR);
+    customerEvent(store, 'ev-other-value', 'contact.updated', 'contact', CONTACT, {
+      organizationPartyId: PARTY,
+      givenName: 'Ana',
+      familyName: 'Pérez Rojas',
+      changedFields: 'familyName',
+      version: CONTACT_VERSION_AT_REQUEST + 1,
+    });
+    const resolve = (extra: Record<string, unknown>) =>
+      service.execute('ResolveIssue', ctx(ADVISOR), {
+        issueId,
+        resolution: 'Corregido',
+        expectedVersion: 1,
+        correction: { decision: 'applied', appliedEventId: 'ev-other-value', reason: 'Apellido corregido en la ficha', ...extra },
+      });
+    await assert.rejects(resolve({}), /CORRECTION_VALUE_DIFFERS/);
+    assert.equal((await store.getIssueInOrg(ORG, issueId))?.status, 'reported');
+    await resolve({ differenceExplanation: 'La clienta confirmó por teléfono el apellido completo' });
+    const record = await store.getCorrectionRequest(ORG, issueId);
+    assert.equal(record?.valueMatched, false);
+    assert.equal(record?.differenceExplanation, 'La clienta confirmó por teléfono el apellido completo');
+  });
+
+  it('current standing: an owner or reporter who lost access cannot act or replay', async () => {
+    const issueId = await reportAssigned(ADVISOR);
+    const journal = (actor: string, key?: string) =>
+      service.execute(
+        'AddIssueJournalEntry',
+        ctx(actor),
+        { issueId, entryType: 'observation', content: 'Llamé a la clienta', expectedVersion: 1 },
+        key,
+      );
+    await journal(ADVISOR, 'journal-key');
+    accountOwner = 'someone-else';
+    await assert.rejects(journal(ADVISOR), /PERMISSION_DENIED/);
+    await assert.rejects(journal(ADVISOR, 'journal-key'), /PERMISSION_DENIED/);
+    await assert.rejects(
+      service.execute('StartIssueProgress', ctx(ADVISOR), { issueId, expectedVersion: 2 }),
+      /PERMISSION_DENIED/,
+    );
+    await assert.rejects(
+      service.execute('ResolveIssue', ctx(ADVISOR), {
+        issueId,
+        resolution: 'No procede',
+        expectedVersion: 2,
+        correction: { decision: 'rejected', reason: 'El nombre ya es correcto' },
+      }),
+      /PERMISSION_DENIED/,
+    );
+    // An issue manager can still run the process (reassign to someone who can apply it).
+    await service.execute('AssignIssueOwner', ctx(MANAGER), { issueId, ownerMemberId: OTHER_EDITOR, expectedVersion: 2 });
+  });
+
+  it('pages candidate changes newest first and reaches older ones', async () => {
+    const issueId = await reportAssigned(ADVISOR);
+    for (let i = 0; i < 3; i += 1) {
+      customerEvent(store, `ev-page-${i}`, 'contact.updated', 'contact', CONTACT, {
+        organizationPartyId: PARTY,
+        givenName: 'Ana María',
+        familyName: 'Pérez',
+        changedFields: 'givenName',
+        version: CONTACT_VERSION_AT_REQUEST + 1 + i,
+      }, new Date(AT.getTime() + i * 1000));
+    }
+    const target = { partyId: PARTY, contactId: CONTACT, locationId: null, field: 'contact_name' as const, reportedAt: AT };
+    const first = await store.listCorrectionChangeEvents(ORG, target, { cursor: null, limit: 1 });
+    const second = await store.listCorrectionChangeEvents(ORG, target, { cursor: { occurredAt: first[0]!.occurredAt, id: first[0]!.id! }, limit: 1 });
+    const third = await store.listCorrectionChangeEvents(ORG, target, { cursor: { occurredAt: second[0]!.occurredAt, id: second[0]!.id! }, limit: 1 });
+    assert.deepEqual([first, second, third].map((page) => page[0]?.id), ['ev-page-2', 'ev-page-1', 'ev-page-0']);
+    await service.execute('ResolveIssue', ctx(ADVISOR), {
+      issueId,
+      resolution: 'Corregido',
+      expectedVersion: 1,
+      correction: { decision: 'applied', appliedEventId: 'ev-page-0', reason: 'Nombre corregido en la ficha' },
+    });
   });
 
   it('a rejection needs a reason, and is decided only by someone who may apply the change', async () => {

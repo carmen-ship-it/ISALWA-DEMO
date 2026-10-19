@@ -36,6 +36,20 @@ export interface CorrectionCustomerPort {
     contactId: string | null;
     locationId: string | null;
   }): Promise<boolean>;
+  /** Current version of the record the field lives on (party, contact or location); null when it has none. */
+  targetVersion(input: {
+    organizationId: string;
+    partyId: string;
+    contactId: string | null;
+    locationId: string | null;
+    field: CorrectionField;
+  }): Promise<number | null>;
+  /** Current number on the contact's channel (E.164), for endpoint corrections whose events are masked. */
+  currentContactNumber(input: {
+    organizationId: string;
+    contactId: string;
+    channel: 'phone' | 'whatsapp';
+  }): Promise<string | null>;
 }
 
 export type CorrectionAccess = { known: boolean; canApply: boolean };

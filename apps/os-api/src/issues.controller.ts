@@ -10,9 +10,16 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
-import type { OsIssueStore, IssueRecord, IssueJournalEntryRecord } from '@isalwa/os-database';
+import type {
+  OsIssueStore,
+  IssueRecord,
+  IssueJournalEntryRecord,
+  IssueBusinessEventFacts,
+} from '@isalwa/os-database';
 import type {
   CorrectionCandidateEvent,
+  CorrectionCandidatePage,
+  CorrectionTarget,
   CorrectionDecision,
   CorrectionField,
   CorrectionRequestView,
@@ -30,6 +37,7 @@ import {
   CORRECTION_APPLIED_EVENT_TYPES,
   ISSUE_MANAGE_SCOPE,
   correctionEventMatches,
+  correctionFieldsChangedBy,
 } from '@isalwa/os-contracts';
 import { toIssueDetailResponse } from './issue-detail-response';
 import { resolveSession } from './os-session';
@@ -48,6 +56,8 @@ type IssueSummary = {
   resolvedAt: string | null;
   version: number;
   references: Array<{ referenceType: string; referenceId: string }>;
+  /** Only in view=correction_attention: why the correction request has no eligible responsible person. */
+  correctionAttention?: 'unassigned' | 'owner_lacks_authority';
 };
 
 function toSummary(
@@ -70,7 +80,28 @@ function toSummary(
   };
 }
 
-type IssueView = 'open' | 'assigned_to_me' | 'reported_by_me' | 'resolved' | 'all';
+function toCandidate(row: IssueBusinessEventFacts): CorrectionCandidateEvent {
+  return {
+    eventId: row.id!,
+    eventType: row.eventType,
+    occurredAt: row.occurredAt.toISOString(),
+    actorMemberId: row.actorMemberId ?? null,
+    fields: correctionFieldsChangedBy(row),
+  };
+}
+
+function encodeEventCursor(occurredAt: Date, id: string): string {
+  return Buffer.from(`${occurredAt.toISOString()}|${id}`, 'utf8').toString('base64url');
+}
+
+function decodeEventCursor(cursor: string): { occurredAt: Date; id: string } {
+  const [iso, id, extra] = Buffer.from(cursor, 'base64url').toString('utf8').split('|');
+  const occurredAt = new Date(iso ?? '');
+  if (!id || extra !== undefined || Number.isNaN(occurredAt.getTime())) throw new Error('VALIDATION_FAILED');
+  return { occurredAt, id };
+}
+
+type IssueView = 'open' | 'assigned_to_me' | 'reported_by_me' | 'resolved' | 'all' | 'correction_attention';
 
 @Controller('issues')
 export class IssuesController {
@@ -160,15 +191,52 @@ export class IssuesController {
         viewParam === 'assigned_to_me' ||
         viewParam === 'reported_by_me' ||
         viewParam === 'resolved' ||
-        viewParam === 'all'
+        viewParam === 'all' ||
+        viewParam === 'correction_attention'
       ) {
         view = viewParam;
       }
 
       let records: IssueRecord[] = [];
       const hasManageScope = memberHasGrantedScope(snap, ISSUE_MANAGE_SCOPE);
+      const attention = new Map<string, NonNullable<IssueSummary['correctionAttention']>>();
 
       switch (view) {
+        case 'correction_attention': {
+          // T03 L4: open correction requests with no owner, or whose owner can no longer apply the change.
+          if (!hasManageScope) throw new Error('PERMISSION_DENIED');
+          for (const row of await this.issueStore.listOpenCorrectionRequests(session.organizationId)) {
+            let reason: NonNullable<IssueSummary['correctionAttention']> | null = null;
+            if (!row.ownerMemberId) {
+              reason = 'unassigned';
+            } else {
+              const ownerSnap = await this.getAccessSnapshot(session.organizationId, row.ownerMemberId, session.effectiveAt);
+              const access = ownerSnap
+                ? correctionAccess({
+                    snap: ownerSnap,
+                    organizationId: session.organizationId,
+                    partyId: row.record.partyId,
+                    field: row.record.field as CorrectionField,
+                    asOf: session.effectiveAt,
+                    facts: await this.correctionCustomers.customerFacts({
+                      organizationId: session.organizationId,
+                      partyId: row.record.partyId,
+                      memberId: row.ownerMemberId,
+                      asOf: session.effectiveAt,
+                    }),
+                  })
+                : null;
+              if (!access?.canApply) reason = 'owner_lacks_authority';
+            }
+            if (!reason) continue;
+            const record = await this.issueStore.getIssueInOrg(session.organizationId, row.record.issueId);
+            if (record) {
+              records.push(record);
+              attention.set(record.id, reason);
+            }
+          }
+          break;
+        }
         case 'assigned_to_me':
           records = await this.issueStore.listIssuesByOwner(
             session.organizationId,
@@ -290,7 +358,11 @@ export class IssuesController {
       const nextCursor = hasMore ? String(offsetNum + paginated.length) : null;
 
       return {
-        items: paginated.map((row) => toSummary(row.record, row.references)),
+        items: paginated.map((row) => {
+          const summary = toSummary(row.record, row.references);
+          const reason = attention.get(row.record.id);
+          return reason ? { ...summary, correctionAttention: reason } : summary;
+        }),
         total,
         meta: { hasMore, nextCursor, limit: limitNum },
       };
@@ -437,70 +509,87 @@ export class IssuesController {
   }
 
   /**
-   * T03 L4: customer change events an "applied" decision may cite (same rule as ResolveIssue).
-   * Only for someone who may apply the change: 404 without issue read or customer knowledge,
-   * 403 when the customer is known but the change is not theirs to apply.
+   * T03 L4: who is asking about which correction, reauthorized on every call. 404 without issue
+   * read or customer knowledge; 403 when the customer is known but the change is not theirs to apply.
+   */
+  private async correctionApplierContext(req: Request, issueId: string) {
+    const session = await resolveSession(req, this.workforceStore);
+    const snap = await this.getAccessSnapshot(session.organizationId, session.actorMemberId, session.effectiveAt);
+    if (!snap) throw new Error('AUTH_REQUIRED');
+    assertMemberActive(snap);
+    const issue = await this.issueStore.getIssueInOrg(session.organizationId, issueId);
+    if (!issue || !this.canReadIssue(snap, issue)) throw new Error('NOT_FOUND');
+    const correction = await this.issueStore.getCorrectionRequest(session.organizationId, issueId);
+    if (!correction) throw new Error('NOT_FOUND');
+    const field = correction.field as CorrectionField;
+    const access = correctionAccess({
+      snap,
+      organizationId: session.organizationId,
+      partyId: correction.partyId,
+      field,
+      asOf: session.effectiveAt,
+      facts: await this.correctionCustomers.customerFacts({
+        organizationId: session.organizationId,
+        partyId: correction.partyId,
+        memberId: snap.memberId,
+        asOf: session.effectiveAt,
+      }),
+    });
+    if (!access.known) throw new Error('NOT_FOUND');
+    if (!access.canApply) throw new Error('PERMISSION_DENIED');
+    const target: CorrectionTarget = {
+      partyId: correction.partyId,
+      contactId: correction.contactId,
+      locationId: correction.locationId,
+      field,
+      reportedAt: issue.reportedAt,
+    };
+    return { organizationId: session.organizationId, target };
+  }
+
+  /**
+   * T03 L4: customer changes an "applied" decision may cite (same rule as ResolveIssue), newest
+   * first, in server pages (`limit` 1–50, default 20; opaque `cursor`). Metadata only.
    */
   @Get(':issueId/correction/candidate-events')
   async getIssueCorrectionCandidates(
     @Param('issueId') issueId: string,
     @Req() req: Request,
-  ): Promise<{ events: CorrectionCandidateEvent[] }> {
+    @Query('limit') limit?: string,
+    @Query('cursor') cursor?: string,
+  ): Promise<CorrectionCandidatePage> {
     try {
-      const session = await resolveSession(req, this.workforceStore);
-      const snap = await this.getAccessSnapshot(
-        session.organizationId,
-        session.actorMemberId,
-        session.effectiveAt,
-      );
-      if (!snap) throw new Error('AUTH_REQUIRED');
-      assertMemberActive(snap);
-
-      const issue = await this.issueStore.getIssueInOrg(session.organizationId, issueId);
-      if (!issue || !this.canReadIssue(snap, issue)) throw new Error('NOT_FOUND');
-      const correction = await this.issueStore.getCorrectionRequest(session.organizationId, issueId);
-      if (!correction) throw new Error('NOT_FOUND');
-
-      const field = correction.field as CorrectionField;
-      const access = correctionAccess({
-        snap,
-        organizationId: session.organizationId,
-        partyId: correction.partyId,
-        field,
-        asOf: session.effectiveAt,
-        facts: await this.correctionCustomers.customerFacts({
-          organizationId: session.organizationId,
-          partyId: correction.partyId,
-          memberId: snap.memberId,
-          asOf: session.effectiveAt,
-        }),
+      const { organizationId, target } = await this.correctionApplierContext(req, issueId);
+      const pageSize = limit === undefined ? 20 : Number(limit);
+      if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 50) throw new Error('VALIDATION_FAILED');
+      const position = cursor === undefined ? null : decodeEventCursor(cursor);
+      const rows = await this.issueStore.listCorrectionChangeEvents(organizationId, target, {
+        cursor: position,
+        limit: pageSize,
       });
-      if (!access.known) throw new Error('NOT_FOUND');
-      if (!access.canApply) throw new Error('PERMISSION_DENIED');
-
-      const target = {
-        partyId: correction.partyId,
-        contactId: correction.contactId,
-        locationId: correction.locationId,
-        field,
-        reportedAt: issue.reportedAt,
+      const events = rows.filter((row) => correctionEventMatches(target, row)).map(toCandidate);
+      const last = rows[rows.length - 1];
+      return {
+        events,
+        nextCursor: rows.length === pageSize && last ? encodeEventCursor(last.occurredAt, last.id!) : null,
       };
-      const rows = await this.issueStore.listBusinessEventsSince(
-        session.organizationId,
-        CORRECTION_APPLIED_EVENT_TYPES[field],
-        issue.reportedAt,
-        200,
-      );
-      const events = rows
-        .filter((row) => correctionEventMatches(target, row))
-        .slice(0, 20)
-        .map((row) => ({
-          eventId: row.id!,
-          eventType: row.eventType,
-          occurredAt: row.occurredAt.toISOString(),
-          actorMemberId: row.actorMemberId ?? null,
-        }));
-      return { events };
+    } catch (err) {
+      throw this.toHttp(err);
+    }
+  }
+
+  /** T03 L4: one change by id, only if it is citable for this correction (else 404). */
+  @Get(':issueId/correction/candidate-events/:eventId')
+  async getIssueCorrectionCandidate(
+    @Param('issueId') issueId: string,
+    @Param('eventId') eventId: string,
+    @Req() req: Request,
+  ): Promise<{ event: CorrectionCandidateEvent }> {
+    try {
+      const { organizationId, target } = await this.correctionApplierContext(req, issueId);
+      const row = await this.issueStore.getBusinessEventInOrg(organizationId, eventId);
+      if (!row || !correctionEventMatches(target, row)) throw new Error('NOT_FOUND');
+      return { event: toCandidate({ ...row, id: eventId }) };
     } catch (err) {
       throw this.toHttp(err);
     }

@@ -80,7 +80,9 @@ function mapError(err: unknown): HttpException {
     code === 'DUPLICATE_REVIEW_REQUIRED' ||
     code === 'IMPORT_PHONE_REVIEW_REQUIRED' ||
     code === 'ARCHIVE_BLOCKED_BY_OBLIGATIONS' ||
-    code === 'IMPORT_DRY_RUN_OUTDATED'
+    code === 'IMPORT_DRY_RUN_OUTDATED' ||
+    code === 'CORRECTION_EVIDENCE_INVALID' ||
+    code === 'CORRECTION_VALUE_DIFFERS'
   ) {
     return new HttpException({ code }, HttpStatus.CONFLICT);
   }

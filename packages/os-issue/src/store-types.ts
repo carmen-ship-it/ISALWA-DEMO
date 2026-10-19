@@ -115,10 +115,23 @@ export type IssueCorrectionRequestRecord = {
   decidedByMemberId: string | null;
   decidedAt: Date | null;
   createdAt: Date;
+  /** Version of the target (party, contact or location) when the request was made; null when it has none. */
+  targetVersionAtRequest: number | null;
+  valueMatched: boolean | null;
+  differenceExplanation: string | null;
 };
 
 export type IssueCorrectionDecisionPatch = Pick<
   IssueCorrectionRequestRecord,
-  'decision' | 'appliedEventId' | 'decisionReason' | 'decidedByMemberId' | 'decidedAt'
+  | 'decision'
+  | 'appliedEventId'
+  | 'decisionReason'
+  | 'decidedByMemberId'
+  | 'decidedAt'
+  | 'valueMatched'
+  | 'differenceExplanation'
 >;
+
+/** Keyset position in a newest-first event list. */
+export type EventCursor = { occurredAt: Date; id: string };
 

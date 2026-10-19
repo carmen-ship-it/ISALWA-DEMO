@@ -824,6 +824,16 @@ export class PartyCommandService {
       if (Object.keys(statuses).length > 0) await store.updateContact(contactId, { ...statuses, version: 0 }, 0);
     }
 
+    // T03 L4: which attributes an update changed (same comma format as party.updated), and the new version.
+    const changedFields = existing
+      ? [
+          ...(givenName !== existing.givenName ? ['givenName'] : []),
+          ...(familyName !== existing.familyName ? ['familyName'] : []),
+          ...((email ?? null) !== (existing.email ?? null) ? ['email'] : []),
+          ...((title ?? null) !== (existing.title ?? null) ? ['title'] : []),
+          ...((personPartyId ?? null) !== (existing.personPartyId ?? null) ? ['personPartyId'] : []),
+        ].join(',')
+      : null;
     return this.emit(ctx, store, 'contact.updated', 'contact', contactId, {
       contactId,
       organizationPartyId,
@@ -832,6 +842,9 @@ export class PartyCommandService {
       email,
       phoneMasked: maskContactNumber(phone),
       whatsappMasked: maskContactNumber(whatsapp),
+      created: !existing,
+      changedFields,
+      version: existing ? existing.version + 1 : 0,
     });
   }
 

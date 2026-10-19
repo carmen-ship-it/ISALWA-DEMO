@@ -1,8 +1,9 @@
 /**
  * Store adapter for IssueCommandService.
- * Composes PrismaOsIssueStore (CRUD) + shared auth methods from PrismaOsWorkforceStore.
+ * Composes PrismaOsIssueStore (CRUD, events, idempotency — all bound to the issue transaction)
+ * + member/role/delegation reads from PrismaOsWorkforceStore.
  */
-import type { CorrectionAppliedEvent } from '@isalwa/os-contracts';
+import type { CorrectionAppliedEvent, CorrectionTarget } from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type {
   OsIssueStore as CommandStoreInterface,
@@ -17,6 +18,7 @@ import type {
   IdempotencyRecord,
   IssueCorrectionRequestRecord as CommandCorrectionRecord,
   IssueCorrectionDecisionPatch,
+  EventCursor,
 } from '@isalwa/os-issue';
 import type {
   PrismaOsIssueStore,
@@ -35,10 +37,8 @@ export class IssueStoreAdapter implements CommandStoreInterface {
   ) {}
 
   async runInTransaction<T>(fn: (store: CommandStoreInterface) => Promise<T>): Promise<T> {
-    // IssueStore has its own transaction, workforceStore ops are read-only or separate
+    // Every write goes through the scoped issue store; the workforce store is used for member reads only.
     return this.issueStore.runInTransaction(async (_scopedIssue) => {
-      // Create a new adapter scoped to the transaction
-      // Note: workforceStore reads are fine outside the issue tx
       const scopedAdapter = new IssueStoreAdapter(
         _scopedIssue as unknown as PrismaOsIssueStore,
         this.workforceStore,
@@ -355,8 +355,17 @@ export class IssueStoreAdapter implements CommandStoreInterface {
     return this.issueStore.getBusinessEventInOrg(organizationId, eventId);
   }
 
+  async listCorrectionChangeEvents(
+    organizationId: string,
+    target: CorrectionTarget,
+    page: { cursor: EventCursor | null; limit: number },
+  ): Promise<CorrectionAppliedEvent[]> {
+    return this.issueStore.listCorrectionChangeEvents(organizationId, target, page);
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
-  // Events/audit — delegated to workforce store (uses same Prisma client)
+  // Events/audit/outbox and idempotency — in the issue transaction, so a command's state change,
+  // its durable history and its replay record commit or roll back together.
   // ─────────────────────────────────────────────────────────────────────────────
 
   async appendEventAndAudit(
@@ -364,15 +373,15 @@ export class IssueStoreAdapter implements CommandStoreInterface {
     outbox: StoredOutboxMessage,
     audit: StoredAuditLog,
   ): Promise<void> {
-    await this.workforceStore.appendEventAndAudit(event, outbox, audit);
+    await this.issueStore.appendEventAndAudit(event, outbox, audit);
   }
 
   async findIdempotency(organizationId: string, key: string): Promise<IdempotencyRecord | null> {
-    return this.workforceStore.findIdempotency(organizationId, key);
+    return this.issueStore.findIdempotency(organizationId, key);
   }
 
   async saveIdempotency(record: IdempotencyRecord & { id?: string }): Promise<void> {
-    await this.workforceStore.saveIdempotency(record);
+    await this.issueStore.saveIdempotency(record);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

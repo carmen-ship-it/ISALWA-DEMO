@@ -2,7 +2,11 @@
  * In-memory store for testing IssueCommandService.
  */
 
-import type { CorrectionAppliedEvent } from '@isalwa/os-contracts';
+import {
+  correctionEventMatches,
+  type CorrectionAppliedEvent,
+  type CorrectionTarget,
+} from '@isalwa/os-contracts';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type { OsIssueStore } from './os-issue-store';
 import type {
@@ -17,6 +21,7 @@ import type {
   IdempotencyRecord,
   IssueCorrectionRequestRecord,
   IssueCorrectionDecisionPatch,
+  EventCursor,
 } from './store-types';
 
 export class MemoryIssueStore implements OsIssueStore {
@@ -193,14 +198,27 @@ export class MemoryIssueStore implements OsIssueStore {
     eventId: string,
   ): Promise<CorrectionAppliedEvent | null> {
     const event = this.events.find((e) => e.id === eventId && e.organizationId === organizationId);
-    if (!event) return null;
-    return {
-      eventType: event.eventType,
-      occurredAt: event.occurredAt,
-      primaryEntityType: event.primaryEntityType,
-      primaryEntityId: event.primaryEntityId,
-      payload: event.payload ?? null,
-    };
+    return event ? toFacts(event) : null;
+  }
+
+  async listCorrectionChangeEvents(
+    organizationId: string,
+    target: CorrectionTarget,
+    page: { cursor: EventCursor | null; limit: number },
+  ): Promise<CorrectionAppliedEvent[]> {
+    const { cursor } = page;
+    return this.events
+      .filter((e) => e.organizationId === organizationId)
+      .map(toFacts)
+      .filter((e) => correctionEventMatches(target, e))
+      .sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime() || (a.id! < b.id! ? 1 : -1))
+      .filter(
+        (e) =>
+          !cursor ||
+          e.occurredAt.getTime() < cursor.occurredAt.getTime() ||
+          (e.occurredAt.getTime() === cursor.occurredAt.getTime() && e.id! < cursor.id),
+      )
+      .slice(0, page.limit);
   }
 
   async appendEventAndAudit(
@@ -244,4 +262,16 @@ export class MemoryIssueStore implements OsIssueStore {
   addWorkItem(organizationId: string, workItemId: string): void {
     this.workItems.add(`${organizationId}:${workItemId}`);
   }
+}
+
+function toFacts(event: StoredBusinessEvent): CorrectionAppliedEvent {
+  return {
+    id: event.id,
+    actorMemberId: event.actorMemberId,
+    eventType: event.eventType,
+    occurredAt: event.occurredAt,
+    primaryEntityType: event.primaryEntityType,
+    primaryEntityId: event.primaryEntityId,
+    payload: event.payload ?? null,
+  };
 }

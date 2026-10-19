@@ -396,6 +396,7 @@ const HTTP_CLASSIFICATION: Record<string, string> = {
   'GET /issues/:issueId/precedents': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
   'GET /issues/:issueId/correction': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
   'GET /issues/:issueId/correction/candidate-events': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
+  'GET /issues/:issueId/correction/candidate-events/:eventId': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
   'GET /members/:memberId/access-history': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
   'GET /members/:memberId/termination-impact': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
   'GET /memory/changes': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',

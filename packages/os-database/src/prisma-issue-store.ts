@@ -1,5 +1,8 @@
 import { createId } from '@isalwa/ts-utils';
+import { correctionChangeCriteria, type CorrectionTarget } from '@isalwa/os-contracts';
+import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type { OsPrismaClient } from './client';
+import { eventOutboxAuditWrites } from './event-writes';
 import { Prisma } from './generated/client';
 import {
   OS_INTERACTIVE_TX,
@@ -26,12 +29,37 @@ export interface IssueCorrectionRequestRecord {
   decidedByMemberId: string | null;
   decidedAt: Date | null;
   createdAt: Date;
+  targetVersionAtRequest: number | null;
+  valueMatched: boolean | null;
+  differenceExplanation: string | null;
 }
 
 export type IssueCorrectionDecisionPatch = Pick<
   IssueCorrectionRequestRecord,
-  'decision' | 'appliedEventId' | 'decisionReason' | 'decidedByMemberId' | 'decidedAt'
+  | 'decision'
+  | 'appliedEventId'
+  | 'decisionReason'
+  | 'decidedByMemberId'
+  | 'decidedAt'
+  | 'valueMatched'
+  | 'differenceExplanation'
 >;
+
+/** An open correction request (issue not resolved or closed) with its issue's owner. */
+export interface OpenCorrectionRequestRow {
+  record: IssueCorrectionRequestRecord;
+  issueStatus: string;
+  ownerMemberId: string | null;
+  reportedAt: Date;
+}
+
+export interface IssueIdempotencyRecord {
+  organizationId: string;
+  key: string;
+  commandName: string;
+  resultJson: Record<string, unknown>;
+  expiresAt: Date;
+}
 
 export interface IssueBusinessEventFacts {
   id?: string;
@@ -211,12 +239,17 @@ export interface OsIssueStore {
   getCorrectionRequest(organizationId: string, issueId: string): Promise<IssueCorrectionRequestRecord | null>;
   decideCorrectionRequest(organizationId: string, issueId: string, patch: IssueCorrectionDecisionPatch): Promise<void>;
   getBusinessEventInOrg(organizationId: string, eventId: string): Promise<IssueBusinessEventFacts | null>;
-  listBusinessEventsSince(
+  listCorrectionChangeEvents(
     organizationId: string,
-    eventTypes: readonly string[],
-    since: Date,
-    limit: number,
+    target: CorrectionTarget,
+    page: { cursor: { occurredAt: Date; id: string } | null; limit: number },
   ): Promise<IssueBusinessEventFacts[]>;
+  listOpenCorrectionRequests(organizationId: string): Promise<OpenCorrectionRequestRow[]>;
+
+  // Event, outbox, audit and idempotency, bound to the issue transaction when inside one.
+  appendEventAndAudit(event: StoredBusinessEvent, outbox: StoredOutboxMessage, audit: StoredAuditLog): Promise<void>;
+  findIdempotency(organizationId: string, key: string): Promise<IssueIdempotencyRecord | null>;
+  saveIdempotency(record: IssueIdempotencyRecord & { id?: string }): Promise<void>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -579,19 +612,107 @@ export class PrismaOsIssueStore implements OsIssueStore {
     return row ? mapEventFacts(row) : null;
   }
 
-  async listBusinessEventsSince(
+  async listCorrectionChangeEvents(
     organizationId: string,
-    eventTypes: readonly string[],
-    since: Date,
-    limit: number,
+    target: CorrectionTarget,
+    page: { cursor: { occurredAt: Date; id: string } | null; limit: number },
   ): Promise<IssueBusinessEventFacts[]> {
+    const criteria = correctionChangeCriteria(target);
+    if (criteria.length === 0) return [];
+    const json = (path: string, filter: Record<string, unknown>): Prisma.OsBusinessEventWhereInput =>
+      ({ payloadJson: { path: [path], ...filter } }) as Prisma.OsBusinessEventWhereInput;
+    const or: Prisma.OsBusinessEventWhereInput[] = criteria.map((c) => {
+      const and: Prisma.OsBusinessEventWhereInput[] = [];
+      if (c.payloadParty !== 'primary') and.push(json(c.payloadParty, { equals: target.partyId }));
+      if (c.fieldKeys) and.push({ OR: c.fieldKeys.map((key) => json('changedFields', { string_contains: key })) });
+      if (c.channels) and.push({ OR: c.channels.map((channel) => json('channel', { equals: channel })) });
+      if (c.whatsappFollows) and.push(json('whatsappFollows', { equals: true }));
+      return {
+        eventType: { in: [...c.eventTypes] },
+        primaryEntityType: c.primaryEntityType,
+        ...(c.primaryEntityId ? { primaryEntityId: c.primaryEntityId } : {}),
+        AND: and,
+      };
+    });
+    const cursor = page.cursor;
     const rows = await this.db().osBusinessEvent.findMany({
-      where: { organizationId, eventType: { in: [...eventTypes] }, occurredAt: { gte: since } },
-      orderBy: { occurredAt: 'desc' },
-      take: limit,
+      where: {
+        organizationId,
+        occurredAt: { gte: target.reportedAt },
+        OR: or,
+        ...(cursor
+          ? {
+              AND: [
+                {
+                  OR: [
+                    { occurredAt: { lt: cursor.occurredAt } },
+                    { occurredAt: cursor.occurredAt, id: { lt: cursor.id } },
+                  ],
+                },
+              ],
+            }
+          : {}),
+      },
+      orderBy: [{ occurredAt: 'desc' }, { id: 'desc' }],
+      take: page.limit,
       select: EVENT_FACT_SELECT,
     });
     return rows.map(mapEventFacts);
+  }
+
+  async listOpenCorrectionRequests(organizationId: string): Promise<OpenCorrectionRequestRow[]> {
+    const rows = await this.db().osIssueCorrectionRequest.findMany({
+      where: { organizationId, issue: { status: { notIn: ['resolved', 'closed'] } } },
+      include: { issue: { select: { status: true, currentOwnerMemberId: true, reportedAt: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map(({ issue, ...record }) => ({
+      record,
+      issueStatus: issue.status,
+      ownerMemberId: issue.currentOwnerMemberId,
+      reportedAt: issue.reportedAt,
+    }));
+  }
+
+  async appendEventAndAudit(
+    event: StoredBusinessEvent,
+    outbox: StoredOutboxMessage,
+    audit: StoredAuditLog,
+  ): Promise<void> {
+    const ops = eventOutboxAuditWrites(this.db(), event, outbox, audit);
+    if (this.tx) {
+      for (const op of ops) await op();
+      return;
+    }
+    await this.prisma.$transaction(ops.map((op) => op()));
+  }
+
+  async findIdempotency(organizationId: string, key: string): Promise<IssueIdempotencyRecord | null> {
+    const row = await this.db().osIdempotencyKey.findFirst({
+      where: { organizationId, key, expiresAt: { gt: new Date() } },
+    });
+    return row
+      ? {
+          organizationId: row.organizationId,
+          key: row.key,
+          commandName: row.commandName,
+          resultJson: row.resultJson as Record<string, unknown>,
+          expiresAt: row.expiresAt,
+        }
+      : null;
+  }
+
+  async saveIdempotency(record: IssueIdempotencyRecord & { id?: string }): Promise<void> {
+    await this.db().osIdempotencyKey.create({
+      data: {
+        id: record.id ?? createId(),
+        organizationId: record.organizationId,
+        key: record.key,
+        commandName: record.commandName,
+        resultJson: record.resultJson as Prisma.InputJsonValue,
+        expiresAt: record.expiresAt,
+      },
+    });
   }
 }
 
