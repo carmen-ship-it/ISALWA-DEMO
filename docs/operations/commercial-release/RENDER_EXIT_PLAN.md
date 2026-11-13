@@ -30,6 +30,23 @@ Blocked lane: exact invoice amounts and workspace tier. Type: AUTH_BLOCKED. Unbl
 | Uploaded files | None. | No disks, no object storage in code. |
 | Source code | Preserved. | The cleared export and the local branches. Render's deployed commits (`52a9f9e9`, `93a9ca1f`) are older and not needed. |
 
+### 2a. Evidence for the real import, and what deleting the database would lose (2026-11-13)
+
+- **Why the classification changed:** past chats contain recorded live checks against staging. Chat c8777442 (2026-09-14) records "REAL 7 CUSTOMERS PRESERVED: Yes. Import cluster at 2026-09-13T21:24 is 7 locations: 2 with coordinates, 5 provenance-only", repeated in later checks with "No re-import" and "importer execute gate OFF". The import script (chat 8186d15e) read `~/Downloads/DATOS CLIENTES (1).xls` and recorded `source_fingerprint` = SHA-256 of the file bytes = `9de8112b…662446a`. Instructions up to 2026-09-20 said "do not mutate the protected seven Real customers". The earlier "synthetic only" statement came from an infrastructure map and was wrong.
+- **Original import file:** gone. It is not in `~/Downloads`, Trash, a Spotlight search or Dropbox (filename search, 0 results).
+- **Local spreadsheet:** `DATOS_CLIENTES_ISA_2026-09-14.xls` has SHA-256 `52dadbdc…`, which is **not** the imported file. It may contain the same customers, but that is unproven.
+- **Existing backup:** the only dump (2026-09-13 13:46) predates the import (it has no import tables).
+- **Deleting `dpg-dajd3kh5efls738falcg-a` would permanently lose:** the 7 imported customer parties with their contacts and 7 locations (2 with coordinates), the import batch receipt and row log, and any staging changes between 2026-09-14 and the 2026-10-11 suspension (UNKNOWN; policy said do not modify the real customers). Synthetic fixtures and smoke data lost with it have no unique value.
+- **Cost of keeping it:** the Render FAQ lists "storage capacity for Render Postgres databases" as billed, with no exemption for suspended databases. Expect about $0.30/month (1 GB), plus a paid workspace plan staying billable. Compute is not billed while suspended. Exact amounts: AUTH_BLOCKED (Billing page).
+
+### 2b. Web services: no unique persistent files (verified 2026-11-13)
+
+Render API for both `srv-dajd64gae00c739gpk20` and `srv-dajddb67bikc73bl42q0`: no disk, 0 secret files, 0 custom domains, 0 jobs. The filesystems are ephemeral (Render FAQ). Configuration is preserved locally. Deletion is prepared but **not executed**: `DELETE https://api.render.com/v1/services/<id>` for each ID, run only on Carmen's go-ahead.
+
+### 2c. Supabase Auth (updated 2026-11-13)
+
+`isalwa-os-auth-staging` (`qbpxuywtoycjpitxoblo`, sa-east-1, free organization) was **paused**, not deleted. Restore was available. Restored 2026-11-13 11:11–11:16 EDT through the Supabase Management API (free, no plan change); status `ACTIVE_HEALTHY`. The preserved Render service keys authenticate against it. It has 23 auth users, all confirmed: 22 `@isalwa.demo` and 1 on another domain (values not read). Free projects pause again after 1 week of inactivity, so restore again before use if needed. Free-organization limit: 2 active projects. The other four paused projects are untouched.
+
 ## 3. Retirement list (awaiting Carmen's approval; nothing deleted)
 
 | # | Resource | ID | Preservation | Deletion consequence | Effect on future charges |
@@ -62,4 +79,14 @@ Each option needs new purchases (Vercel Pro; a Fly payment method; Neon or Supab
 
 Steps once approved: publish the export to a private repository → create the database → `prisma migrate deploy` (40 migrations) → set env vars from the preserved names and values, rotating the Supabase keys and `OS_QA_SIGNING_SECRET` → deploy os-api, health `/v1/health` → deploy os-web with `NEXT_PUBLIC_OS_API_URL` → re-invite users → optionally re-import the customer spreadsheet. Each step stays PLANNED until it is DEPLOYED and BROWSER-VERIFIED.
 
-Supabase Auth: the old project host does not resolve; whether it can be recovered is UNKNOWN until a Supabase dashboard sign-in.
+Supabase Auth: recovered (see 2c).
+
+## 5. Evaluation preview now vs commercial launch later (owner clarification 2026-11-13)
+
+The current target is an unfinished development and evaluation preview, not production. No purchases or upgrades.
+
+- **Vercel Hobby eligibility: UNCLEAR.** Current Terms §4: "You shall only use the Services under a Hobby plan for your personal or non-commercial use", and Vercel may remove Hobby deployments at its discretion. The current fair-use page no longer shows a definition of commercial use. The exact uncertainty: whether a protected, non-revenue preview of software built for a business, shown to that business for evaluation, counts as "non-commercial". Vercel does not say. Only Vercel can answer this authoritatively.
+- **Free pieces available now:** web on Vercel Hobby (subject to the above, with Vercel Authentication deployment protection), Supabase Auth Free (restored), and a business database as a second Supabase Free project (500 MB, pauses after 1 week of inactivity; keeps auth and business data separate; within the 2-active-project limit).
+- **Blocked lane: API host for the preview.** Type: BUSINESS_DECISION_REQUIRED. os-api must run as an always-on Node process for its in-process outbox worker. Vercel Functions would need backend changes, and Fly.io and similar hosts need a payment method. Without an API host the preview is web-only and non-functional. Unblock: Carmen picks a host that allows a payment method, or approves the serverless adaptation as a reviewed backend change.
+- **Preview data and safety:** synthetic data only (the Sept 13 dump or a fresh `migrate deploy` plus synthetic seed); `OS_REAL_CLIENT_IMPORT_ENABLED` off; messaging and payment integrations disabled; auth mode `supabase` with tenant permissions unchanged; unfinished features keep their existing labels.
+- **Commercial launch later:** Vercel Pro $20, an always-on API host about $3.69+, and a non-pausing database with backups ($20–35). See the table above.
