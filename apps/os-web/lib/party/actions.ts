@@ -27,6 +27,7 @@ import {
   buildRevealContactEndpointPayload,
   contactNumberFromForm,
 } from '@/lib/party/contact-phone';
+import { buildResolveImportPhonePayload, importPhoneCommandMessage } from '@/components/party/import-phone-review';
 import { clientesSearchHref, partyHref } from '@/lib/party/navigation';
 import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 import { redirectKeepingDataMode } from '@/lib/demo/redirect-data-mode';
@@ -355,6 +356,42 @@ export async function updateLocationAction(formData: FormData): Promise<CommandA
     return { ok: true, data: result.data };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+export async function resolveImportPhoneAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildResolveImportPhonePayload({
+    importBatchId: String(formData.get('importBatchId') ?? '').trim(),
+    rowIndex: Number(formData.get('rowIndex')),
+    valueId: String(formData.get('valueId') ?? '').trim(),
+    expectedVersion: Number(formData.get('expectedVersion')),
+    decision: String(formData.get('decision') ?? ''),
+    correctedNumber: String(formData.get('correctedNumber') ?? ''),
+    reason: String(formData.get('reason') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await adminClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executeImportCommand('ResolveImportPhoneValue', built.payload, createId());
+    revalidatePath('/clientes');
+    return { ok: true, data: result.data as unknown as Record<string, unknown> };
+  } catch (err) {
+    return { ok: false, error: importPhoneCommandMessage(err) };
+  }
+}
+
+export async function executeClientImportAction(formData: FormData): Promise<CommandActionResult> {
+  const importBatchId = String(formData.get('importBatchId') ?? '').trim();
+  if (!importBatchId) return { ok: false, error: 'Indique el lote de importación.' };
+  const session = await adminClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executeImportCommand('ExecuteClientImport', { importBatchId }, createId());
+    revalidatePath('/clientes');
+    return { ok: true, data: result.data as unknown as Record<string, unknown> };
+  } catch (err) {
+    return { ok: false, error: importPhoneCommandMessage(err) };
   }
 }
 
