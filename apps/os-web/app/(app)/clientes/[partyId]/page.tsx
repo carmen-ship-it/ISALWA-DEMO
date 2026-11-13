@@ -45,7 +45,7 @@ import {
   commercialOwnerView,
 } from '@/lib/party/customer-self-service';
 import { composeCliente360FromLoaded } from '@/lib/party/next-action';
-import { memberLabel, memberWithCargoLine } from '@/lib/work/member-resolver';
+import { memberLabel, memberWithCargoLine, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { formatTimestamp } from '@/lib/work/labels';
 import {
   contactDisplayName,
@@ -197,6 +197,13 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
     );
     const canReassignOwner =
       !evaluation.active && detail.commercialAuthority?.canReassignOwner === true;
+    const coverageMemberIds = (detail.coverageGrants ?? []).flatMap((grant) =>
+      [grant.actingAdvisorMemberId, grant.recordedByMemberId ?? ''].filter(Boolean),
+    );
+    if (coverageMemberIds.length > 0) {
+      const coverageLabels = await resolveMemberLabels(client, coverageMemberIds);
+      for (const [id, label] of coverageLabels) memberLabels.set(id, label);
+    }
     const ownerResolvedLabel = commercialAccount?.ownerMemberId
       ? memberWithCargoLine(memberResponsibility, commercialAccount.ownerMemberId)
       : null;
@@ -348,25 +355,20 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                   canManageCoverage={
                     !evaluation.active && detail.commercialAuthority?.canManageCoverage === true
                   }
-                  activeCoverage={
-                    detail.activeCoverage
-                      ? {
-                          grantId: detail.activeCoverage.grantId,
-                          actingAdvisorLabel: memberLabel(
-                            memberLabels,
-                            detail.activeCoverage.actingAdvisorMemberId,
-                          ),
-                          actingAdvisorMemberId: detail.activeCoverage.actingAdvisorMemberId,
-                          assignedByLabel: detail.activeCoverage.recordedByMemberId
-                            ? memberLabel(memberLabels, detail.activeCoverage.recordedByMemberId)
-                            : null,
-                          startsAtLabel:
-                            formatTimestamp(detail.activeCoverage.startsAt) ??
-                            detail.activeCoverage.startsAt,
-                          note: null,
-                        }
-                      : null
-                  }
+                  grantableActions={detail.commercialAuthority?.grantableCoverageActions}
+                  coverageGrants={(detail.coverageGrants ?? []).map((grant) => ({
+                    grantId: grant.grantId,
+                    actingAdvisorMemberId: grant.actingAdvisorMemberId,
+                    actingAdvisorLabel: memberLabel(memberLabels, grant.actingAdvisorMemberId),
+                    assignedByLabel: grant.recordedByMemberId
+                      ? memberLabel(memberLabels, grant.recordedByMemberId)
+                      : null,
+                    startsAtLabel: formatTimestamp(grant.startsAt) ?? grant.startsAt,
+                    endsAtLabel: grant.endsAt ? (formatTimestamp(grant.endsAt) ?? grant.endsAt) : '—',
+                    status: grant.status,
+                    coveredActions: grant.coveredActions,
+                    canRevoke: grant.canRevoke,
+                  }))}
                 />
               ) : null}
               {accountLabel ? <p className="text-sm text-[var(--isalwa-slate)]">{accountLabel}</p> : null}

@@ -29,6 +29,13 @@ export function formatCoverageActions(actions: readonly string[] | undefined): s
   return known.map((action) => COPY[action]!.label).join(' · ');
 }
 
+/** Shown next to each grant. The server status is the only source. */
+export function coverageGrantStatusLabel(status: 'active' | 'scheduled'): string {
+  return status === 'scheduled' ? 'Programado' : 'Activo';
+}
+
+export const COVERAGE_WINDOW_HELP = `El apoyo dura como máximo ${COVERAGE_MAX_DURATION_DAYS} días. Para más tiempo, registre un nuevo apoyo al terminar este.`;
+
 /** Form values → requested actions; unknown values are dropped, never defaulted upward. */
 export function parseCoverageActions(values: readonly unknown[]): string[] {
   return [...new Set(values.map(String).filter(isGrantableCoverageAction))];
