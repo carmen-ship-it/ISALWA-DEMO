@@ -1,0 +1,14 @@
+# os-web pnpm test
+# cwd: apps/os-web
+# command: pnpm test
+# exit: 0
+# date: 2026-11-13
+
+ℹ tests 1328
+ℹ suites 389
+ℹ pass 1328
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8300.442708
