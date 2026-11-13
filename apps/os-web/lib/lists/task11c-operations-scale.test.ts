@@ -61,12 +61,12 @@ describe('Task 11C — operations scale foundation', () => {
           { q: 'andina' },
           2,
           page1.pageCount,
-          { orderId: 'ord-1', datos: 'demo' },
+          { orderId: 'ord-1' },
         );
         assert.match(hrefs.prevHref ?? '', /pagina=1|q=andina/);
         assert.match(hrefs.nextHref ?? '', /pagina=3/);
         assert.match(hrefs.nextHref ?? '', /orderId=ord-1/);
-        assert.match(hrefs.nextHref ?? '', /datos=demo/);
+        assert.doesNotMatch(hrefs.nextHref ?? '', /datos=/);
       }
     }
   });

@@ -12,15 +12,12 @@ export type { ListQueryState };
 /** Extra query keys ops desks keep outside frozen ListQueryState (e.g. selected Pedido). */
 export type OpsExtraParams = {
   orderId?: string | null;
-  datos?: string | null;
 };
 
 export function appendOpsExtras(href: string, extras: OpsExtraParams = {}): string {
   const params = new URLSearchParams();
   const orderId = extras.orderId?.trim();
-  const datos = extras.datos?.trim();
   if (orderId) params.set('orderId', orderId);
-  if (datos) params.set('datos', datos);
   const extra = params.toString();
   if (!extra) return href;
   return href.includes('?') ? `${href}&${extra}` : `${href}?${extra}`;

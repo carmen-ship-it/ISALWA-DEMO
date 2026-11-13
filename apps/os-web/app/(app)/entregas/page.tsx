@@ -42,7 +42,7 @@ import {
 export default async function EntregasPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ orderId?: string; datos?: string; q?: string; pagina?: string }>;
+  searchParams?: Promise<{ orderId?: string; q?: string; pagina?: string }>;
 }) {
   const evaluation = await getEvaluationProjection();
   if (!evaluationAllowsDesk(evaluation, 'entregas')) {
@@ -50,7 +50,6 @@ export default async function EntregasPage({
   }
   const params = searchParams ? await searchParams : undefined;
   const selectedOrderId = params?.orderId?.trim() || null;
-  const datos = params?.datos?.trim() || null;
   const listState: ListQueryState = { q: params?.q, pagina: params?.pagina };
   const view = await loadEntregaPage();
   const capabilities = await loadMemberCapabilities();
@@ -109,7 +108,6 @@ export default async function EntregasPage({
       />
       <EntregaOperationalWriteDesk
         selectedOrderId={selectedOrderId}
-        datos={datos}
         listState={listState}
       />
       {view.commercialReadDenied || (canOperateDesk && view.linkedOrders.length === 0) ? null : (
@@ -119,7 +117,6 @@ export default async function EntregasPage({
         exitOrderIds={exitOrderIds}
         deliveredOrderIds={deliveredOrderIds}
         selectedOrderId={selectedOrderId}
-        datos={datos}
         listState={listState}
       />
       )}
@@ -134,7 +131,6 @@ function LinkedOrdersSection({
   exitOrderIds,
   deliveredOrderIds,
   selectedOrderId,
-  datos,
   listState,
 }: {
   orders: LinkedOrderFact[];
@@ -142,7 +138,6 @@ function LinkedOrdersSection({
   exitOrderIds: Set<string>;
   deliveredOrderIds: Set<string>;
   selectedOrderId: string | null;
-  datos: string | null;
   listState: ListQueryState;
 }) {
   const visibleOrders = orders.filter(
@@ -156,7 +151,6 @@ function LinkedOrdersSection({
   });
   const nav = opsBoundedPageHrefs('/entregas', listState, orderWindow.page, orderWindow.pageCount, {
     orderId: selectedOrderId,
-    datos,
   });
 
   return (
@@ -175,7 +169,6 @@ function LinkedOrdersSection({
         </p>
         <form action="/entregas" className="mt-4 flex flex-wrap items-center gap-2">
           {selectedOrderId ? <input type="hidden" name="orderId" value={selectedOrderId} /> : null}
-          {datos ? <input type="hidden" name="datos" value={datos} /> : null}
           <SearchField
             name="q"
             defaultValue={listState.q}
@@ -217,7 +210,6 @@ function LinkedOrdersSection({
               const orderLabel = presentEntregaAuditLabel(order.orderNumber);
               const orderHref = opsListHref('/entregas', listState, {
                 orderId: order.orderId,
-                datos,
               });
               return (
                 <li

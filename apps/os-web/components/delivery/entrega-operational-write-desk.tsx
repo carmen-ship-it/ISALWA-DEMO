@@ -30,7 +30,6 @@ import {
 
 type Props = {
   selectedOrderId?: string | null;
-  datos?: string | null;
   listState?: ListQueryState;
 };
 
@@ -40,7 +39,6 @@ type Props = {
  */
 export async function EntregaOperationalWriteDesk({
   selectedOrderId = null,
-  datos = null,
   listState = {},
 }: Props) {
   const capabilities = await loadMemberCapabilities();
@@ -119,7 +117,7 @@ export async function EntregaOperationalWriteDesk({
     listState,
     orderWindow.page,
     orderWindow.pageCount,
-    { orderId: selected.orderId, datos },
+    { orderId: selected.orderId },
   );
 
   let notes: Array<{
@@ -222,7 +220,6 @@ export async function EntregaOperationalWriteDesk({
         />
         <form action="/entregas" className="mt-6 flex flex-wrap items-center gap-2">
           <input type="hidden" name="orderId" value={selected.orderId} />
-          {datos ? <input type="hidden" name="datos" value={datos} /> : null}
           <SearchField
             name="q"
             defaultValue={listState.q}
@@ -258,7 +255,7 @@ export async function EntregaOperationalWriteDesk({
                   <div className="flex shrink-0 flex-wrap items-center gap-2 md:border-l md:border-[var(--isalwa-mist)] md:pl-3">
                     {active ? <StatusPill tone="active">Seleccionado</StatusPill> : null}
                     <Link
-                      href={opsListHref('/entregas', listState, { orderId: order.orderId, datos })}
+                      href={opsListHref('/entregas', listState, { orderId: order.orderId })}
                       className="inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)]"
                     >
                       Abrir pedido
