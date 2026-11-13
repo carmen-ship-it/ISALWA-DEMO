@@ -13,6 +13,7 @@ import { Cliente360Historial } from '@/components/cliente/cliente-360-historial'
 import { QuoteList } from '@/components/commercial/quote-list';
 import { Cliente360Now } from '@/components/party/cliente-360-now';
 import { Cliente360OwnerLine } from '@/components/party/cliente-360-owner-line';
+import { ContactEndpointPanel, type ContactEndpointAuthority } from '@/components/party/contact-endpoint-panel';
 import { TemporaryCoveragePanel } from '@/components/party/temporary-coverage-panel';
 import { CustomerLocationPanel } from '@/components/party/customer-location-panel';
 import { PageHeader } from '@/components/shell/page-header';
@@ -36,14 +37,10 @@ import { presentHumanCopy } from '@/lib/copy/human-facing-copy';
 import { LIST_SCALE_PREVIEW_DEFAULT, LIST_SCALE_PREVIEW_LARGE } from '@/lib/ui/list-scaling';
 import { newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
-import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
 import type { IssueListItem } from '@/lib/issue/types';
+import type { ContactEndpointHistoryResponse } from '@/lib/party/types';
 import { COMMITMENT_COPY } from '@/lib/commitments/copy';
-import {
-  canManageContacts,
-  canMutateActiveParty,
-  commercialOwnerView,
-} from '@/lib/party/customer-self-service';
+import { commercialOwnerView } from '@/lib/party/customer-self-service';
 import { composeCliente360FromLoaded } from '@/lib/party/next-action';
 import { memberLabel, memberWithCargoLine, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { formatTimestamp } from '@/lib/work/labels';
@@ -186,15 +183,32 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
       party.displayName ||
       party.legalName ||
       'Sin nombre';
-    const actorIsMasterDataAdmin = evaluation.active
-      ? false
-      : await actorCanMutateMasterData(client);
-    const canEditParty = canMutateActiveParty(party.status, actorIsMasterDataAdmin ? ['master_data.admin'] : []);
-    const canEditContacts = canManageContacts(
-      party.partyKind,
-      party.status,
-      actorIsMasterDataAdmin ? ['master_data.admin'] : [],
-    );
+    const canEditParty =
+      !evaluation.active && party.status === 'active' && detail.customerAuthority?.canEditDisplayName === true;
+    const canEditContacts =
+      !evaluation.active &&
+      party.partyKind === 'organization' &&
+      party.status === 'active' &&
+      detail.customerAuthority?.canEditContacts === true;
+    const endpointAuthority: ContactEndpointAuthority = {
+      canChangeEndpoints: !evaluation.active && detail.customerAuthority?.canChangeEndpoints === true,
+      canReviewEndpointHistory: !evaluation.active && detail.customerAuthority?.canReviewEndpointHistory === true,
+      canRevealEndpoint: !evaluation.active && detail.customerAuthority?.canRevealEndpoint === true,
+      canResolveIdentityReview: !evaluation.active && detail.customerAuthority?.canResolveIdentityReview === true,
+    };
+    const endpointHistories = new Map<string, ContactEndpointHistoryResponse['items']>();
+    if (endpointAuthority.canReviewEndpointHistory) {
+      await Promise.all(
+        contacts.map(async (contact) => {
+          try {
+            const history = await client.listContactEndpointHistory(partyId, contact.id);
+            endpointHistories.set(contact.id, history.items);
+          } catch {
+            endpointHistories.set(contact.id, []);
+          }
+        }),
+      );
+    }
     const canReassignOwner =
       !evaluation.active && detail.commercialAuthority?.canReassignOwner === true;
     const coverageMemberIds = (detail.coverageGrants ?? []).flatMap((grant) =>
@@ -391,9 +405,12 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                         <p className="break-words font-medium text-[var(--isalwa-kiln)]">
                           {contactDisplayName(item.givenName, item.familyName)}
                         </p>
-                        {item.phone ? (
-                          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{item.phone}</p>
-                        ) : null}
+                        <ContactEndpointPanel
+                          partyId={partyId}
+                          contact={item}
+                          authority={endpointAuthority}
+                          history={endpointAuthority.canReviewEndpointHistory ? (endpointHistories.get(item.id) ?? []) : null}
+                        />
                       </ListRow>
                     ))}
                   </ul>
