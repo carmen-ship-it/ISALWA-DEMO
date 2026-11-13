@@ -40,6 +40,8 @@ T02 committed: shared customer-visibility predicate (search/detail/contacts/loca
 
 ## Next command
 
+**Checkpoint 2026-11-13b (Render exit, docs only; `commercial-release/RENDER_EXIT_PLAN.md`).** Owner direction: exit Render without paying or resuming. **Correction:** the staging database is not synthetic only; it holds a real customer import batch. Its live contents are inaccessible: Render refuses an export of a suspended database, and any recovery requires payment, so that path is stopped. Preserved without paying: the Sept 13 dump (restore TESTED; synthetic only, 9 migrations), all service env vars and metadata (`~/.isalwa-secrets/render-config-export/`, 600), the source export, and the Sept 14 customer spreadsheet (equivalence to the imported file UNKNOWN). Exact invoice amounts and the workspace tier: AUTH_BLOCKED. Retirement list for 3 resources awaits Carmen's approval; nothing deleted. Replacement: os-web on Vercel Pro, os-api with its in-process worker on one Fly.io machine, Postgres on Neon (≈ $43/month) or Supabase Pro with separate projects (≈ $59/month). Purchases are owner decisions. The Lane B independent review continues separately.
+
 **Checkpoint 2026-11-13 (integrator, docs only).** Source verified: `ct3/v1-repairs` @ `44958998`, worktree dirty only with the 7 regenerated Prisma client files and `.tmp/` (preserved). Lane pins unchanged: `07e536eb` (B), `18a0f0c`/`c8724702` (A), and `ct3/t05-catalog-fixes` = `c8724702` (A2 never started). Done:
 - Transfer clearance: `commercial-release/TRANSFER_CLEARANCE.md`.
 - Review packets prepared, with no review performed by the integrator: `review-packets/REVIEW-PACKET-LANE-B-T10.md` (priority 1; merges cleanly into `44958998`) and `review-packets/REVIEW-PACKET-LANE-A-T05.md`.
@@ -149,6 +151,8 @@ A commit cannot record its own SHA; each one is added by the next commit.
 | `44958998caa778782a0b466b807510212d532f1d` (tree `1cc412f1c792121cd8bb3ab7c7c5105f44241b94`) | | Docs: Lane B dependency receipt, evidence, contract/lane updates, ledger rows, quote-PDF observation | this writer; docs only |
 
 ## Open blockers
+
+**Render exit 2026-11-13 (`commercial-release/RENDER_EXIT_PLAN.md`):** live staging data recovery requires payment, which is excluded, so that lane is parked. Invoice amounts and workspace tier: AUTH_BLOCKED (dashboard or invoice emails). Deleting `dpg-dajd3kh5efls738falcg-a` needs Carmen to explicitly accept losing the real import batch. Replacement purchases (Vercel Pro, Fly, Neon or Supabase Pro) are owner decisions. None of this blocks source review or UI work.
 
 **Update 2026-11-13 (`commercial-release/TRANSFER_CLEARANCE.md`):** the authorized, value-free inspection found no credential-like value in the four R1 logs or the other raw logs under `evidence/T00`–`T03` and `REVIEW-R1`. No rotation or history rewrite is needed. The logs are not sanitized, and the originals are preserved. Cleared: a fresh allowlisted source export (`isalwa-source-44958998.tar.gz`, sha256 `45bf371d…98a5`, outside the repo, no history). Still blocked: pushing or sharing this branch's history. Independent code review of every commit from `e7d8d98` on is still open.
 

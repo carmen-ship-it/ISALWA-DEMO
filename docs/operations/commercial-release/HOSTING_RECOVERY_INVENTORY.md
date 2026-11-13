@@ -27,14 +27,18 @@ A Vercel web deployment does **not** replace os-api, the outbox worker or Postgr
 | Vercel | Account `carmen-ship-it` (carmenaburoda@gmail.com, MFA on), one team `carmen-ship-its-projects`, plan **Hobby**, **0 projects** (the older `isalwa-demo` / `isalwa-architect` Vercel apps no longer exist in this account). Vercel Terms: "You shall only use the Services under a Hobby plan for your personal or non-commercial use." Commercial use on Vercel needs **Pro** ($20 per developer seat per month plus usage). Not changed. |
 | Render | Workspace "carmen abu roda" (`tea-dajbts3m8hqs73fmlv30`, carmenaburoda@gmail.com). Three resources, all **suspended by `billing`** since 2026-10-11 02:51 UTC: Postgres `isalwa-os-staging` (`dpg-dajd3kh5efls738falcg-a`, PG16, plan `0.1c-256mb`, 1 GB, virginia); web `os-api-staging` (`srv-dajd64gae00c739gpk20`, `0.5c-512mb`); web `os-web-staging` (`srv-dajddb67bikc73bl42q0`, free). Both web services: repo `carmen-ship-it/ISALWA-DEMO`, branch `main`, auto-deploy off. |
 | Render DB recovery | `GET …/recovery`: `recoveryStatus AVAILABLE`, `startsAt 2026-10-02T07:40:09Z`. `GET …/export`: none. **Data is retained, not deleted**, and is inaccessible while billing-suspended. |
-| Off-host copy | One local dump `~/.isalwa-secrets/staging-backups/isalwa-os-staging-20260913T174629Z.dump` (129 KB, 2026-09-13), with a restore-drill log. It predates the Sept 15–21 staging fixture work, so it is not current. |
+| Off-host copy | One local dump `~/.isalwa-secrets/staging-backups/isalwa-os-staging-20260913T174629Z.dump` (129 KB, 2026-09-13), with a restore-drill log. It predates the Sept 15–21 staging fixture work, so it is not current. Restore re-verified 2026-11-13 in an isolated socket-only PG16 cluster: exit 0, 43 tables, 9 migrations (latest `20260824220000_os_step16_1a_party_timeline`), 1 organization, 1 party (Step17 seed), 2 auth identities (both `@isalwa.demo`), no import tables. It does **not** contain the real customer import. |
 | Supabase Auth | Project host `qbpxuywtoycjpitxoblo.supabase.co` **does not resolve** (supabase.com reachable). Probably paused or deleted; UNPROVEN until a Supabase dashboard sign-in. Credentials files for it exist locally (not read). |
 
 ## What the existing data is
 
-Per `docs/operations/ISALWA_OWNER_INFRASTRUCTURE_MAP.md` and the handoff, `isalwa-os-staging` is the **staging** business database: synthetic fixtures and owner-demo records, no evidenced production tenant. A production database (`isalwa-os-prod`) was never evidenced. A new production database would be a new environment with `migrate deploy`, not a migration of the staging data, and must be described that way.
+**Correction 2026-11-13 (superseding the earlier "synthetic only" statement):** `isalwa-os-staging` is the staging database, but it is **not synthetic only**. `docs/operations/V1_LAUNCH_SUPPORT_READINESS.md` records a real `xls_datos_clientes` import batch on staging (source `DATOS CLIENTES (1).xls`) that must be protected and not reversed. The live contents are UNKNOWN because the database is billing-suspended and Render refuses an export (`400 cannot trigger a backup for a suspended database`). The 2026-09-13 local dump restores cleanly but contains only bootstrap/synthetic data (9 migrations, no import tables). See `RENDER_EXIT_PLAN.md`.
 
-## Recommended smallest supported arrangement
+A production database (`isalwa-os-prod`) was never evidenced. A new database is a new environment with `migrate deploy`, not a migration of the staging data, and must be described that way.
+
+## Superseded recommendation
+
+**Superseded 2026-11-13 by the owner direction to exit Render** (no payment, no resume). The replacement plan is in `RENDER_EXIT_PLAN.md`. The original recommendation is kept below for the record.
 
 Stay on Render, where the configuration and the retained data already are:
 
