@@ -37,8 +37,6 @@ export const CUSTOMER_SELF_SERVICE_FORBIDDEN_COMMANDS = [
   'UpdateFiscalIdentity',
   'AssignPartyRole',
   'EndPartyRole',
-  'DeactivateParty',
-  'ReactivateParty',
 ] as const;
 
 export const OWNER_REASSIGNMENT_COMMAND = 'ReassignCommercialAccountOwner' as const;

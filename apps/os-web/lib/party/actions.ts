@@ -2,6 +2,7 @@
 
 import { createId } from '@isalwa/ts-utils';
 import { revalidatePath } from 'next/cache';
+import { OsApiError } from '@/lib/api/os-api-errors';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { mapCommandError } from '@/lib/commercial/command-errors';
@@ -17,7 +18,9 @@ import {
   createCustomerSearchGate,
   PARTY_KINDS_FOR_CUSTOMER,
   parseCoordinatePair,
+  buildDeactivatePartyPayload,
   buildEndContactRelationshipPayload,
+  buildReactivatePartyPayload,
   buildSetFollowupPreferencePayload,
   partyEditReasonError,
   preserveProvenanceUrl,
@@ -355,6 +358,50 @@ export async function updateLocationAction(formData: FormData): Promise<CommandA
   try {
     const result = await session.client.executeLocationCommand('UpdateLocation', payload, createId());
     revalidateCustomer(partyId);
+    return { ok: true, data: result.data };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+function archiveCommandError(err: unknown): string {
+  if (err instanceof OsApiError && err.code === 'ARCHIVE_BLOCKED_BY_OBLIGATIONS') {
+    return 'Hay obligaciones abiertas. Resuélvalas antes de archivar.';
+  }
+  return mapCommandError(err);
+}
+
+export async function deactivatePartyAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildDeactivatePartyPayload({
+    partyId: String(formData.get('partyId') ?? '').trim(),
+    expectedVersion: Number(formData.get('expectedVersion')),
+    reason: String(formData.get('reason') ?? ''),
+    reasonNote: String(formData.get('reasonNote') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await customerClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executePartyCommand('DeactivateParty', built.payload, createId());
+    revalidateCustomer(String(built.payload.partyId));
+    return { ok: true, data: result.data };
+  } catch (err) {
+    return { ok: false, error: archiveCommandError(err) };
+  }
+}
+
+export async function reactivatePartyAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildReactivatePartyPayload({
+    partyId: String(formData.get('partyId') ?? '').trim(),
+    expectedVersion: Number(formData.get('expectedVersion')),
+    reasonNote: String(formData.get('reasonNote') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await customerClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executePartyCommand('ReactivateParty', built.payload, createId());
+    revalidateCustomer(String(built.payload.partyId));
     return { ok: true, data: result.data };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
