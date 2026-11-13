@@ -1,0 +1,88 @@
+
+> @isalwa/os-web@0.1.0 build /Users/carmen/projects/isalwa-wt-v1-repairs/apps/os-web
+> next build
+
+   ▲ Next.js 15.5.21
+   - Experiments (use with caution):
+     · optimizePackageImports
+
+   Creating an optimized production build ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (128kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (106kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (254kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled successfully in 18.5s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/8) ...
+   Generating static pages (2/8) 
+   Generating static pages (4/8) 
+   Generating static pages (6/8) 
+ ✓ Generating static pages (8/8)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                                                  Size  First Load JS
+┌ ○ /                                                                       137 B         104 kB
+├ ○ /_not-found                                                             137 B         104 kB
+├ ƒ /administracion                                                       1.53 kB         122 kB
+├ ƒ /administracion/accesos                                               1.53 kB         122 kB
+├ ƒ /administracion/capacidades                                           1.53 kB         122 kB
+├ ƒ /administracion/equipo                                                3.45 kB         194 kB
+├ ƒ /administracion/equipo/[memberId]                                     11.5 kB         202 kB
+├ ƒ /administracion/equipo/invitar                                        3.75 kB         194 kB
+├ ƒ /almacen                                                              5.42 kB         200 kB
+├ ƒ /api/delivery-notes/[id]/pdf                                            137 B         104 kB
+├ ƒ /api/quotes/[quoteId]/pdf                                               137 B         104 kB
+├ ƒ /aprobaciones                                                         3.65 kB         197 kB
+├ ƒ /aprobaciones/[approvalRequestId]                                     1.14 kB         128 kB
+├ ƒ /auditoria                                                            7.37 kB         128 kB
+├ ○ /auth/complete-invite                                                 2.61 kB         181 kB
+├ ○ /auth/forgot-password                                                 2.66 kB         184 kB
+├ ○ /auth/reset-password                                                  3.35 kB         185 kB
+├ ƒ /ayuda                                                                  916 B         117 kB
+├ ƒ /clientes                                                             3.68 kB         194 kB
+├ ƒ /clientes/[partyId]                                                   15.4 kB         228 kB
+├ ƒ /clientes/[partyId]/cotizaciones/[quoteId]                              17 kB         218 kB
+├ ƒ /clientes/[partyId]/oportunidades/[opportunityId]                     4.57 kB         125 kB
+├ ƒ /clientes/[partyId]/oportunidades/[opportunityId]/cotizaciones/nueva  1.11 kB         196 kB
+├ ƒ /clientes/[partyId]/oportunidades/nueva                                 197 B         124 kB
+├ ƒ /clientes/[partyId]/pedidos/[orderId]                                 2.95 kB         212 kB
+├ ƒ /clientes/nuevo                                                       1.85 kB         197 kB
+├ ƒ /compras                                                              2.51 kB         196 kB
+├ ƒ /compromisos                                                          3.72 kB         198 kB
+├ ƒ /conversaciones                                                       12.1 kB         204 kB
+├ ƒ /coordinacion                                                         2.27 kB         185 kB
+├ ƒ /cotizaciones                                                         4.22 kB         194 kB
+├ ƒ /empresa                                                               1.2 kB         114 kB
+├ ƒ /entregas                                                             2.05 kB         197 kB
+├ ƒ /finanzas                                                             5.87 kB         196 kB
+├ ƒ /incidencias                                                          2.82 kB         129 kB
+├ ƒ /incidencias/[issueId]                                                3.13 kB         127 kB
+├ ƒ /incidencias/reportar                                                 3.67 kB         119 kB
+├ ƒ /inicio                                                               3.15 kB         126 kB
+├ ○ /login                                                                5.78 kB         122 kB
+├ ƒ /mapa                                                                  203 kB         389 kB
+├ ƒ /memoria-decisiones                                                   3.34 kB         110 kB
+├ ƒ /mensajes                                                               191 B         196 kB
+├ ƒ /oportunidades                                                        1.92 kB         122 kB
+├ ƒ /oportunidades/nueva                                                    237 B         119 kB
+├ ƒ /pedidos                                                              1.92 kB         122 kB
+├ ƒ /produccion                                                            7.1 kB         202 kB
+├ ƒ /productos                                                            16.3 kB         129 kB
+├ ƒ /salud-datos                                                          3.35 kB         110 kB
+├ ƒ /sistema                                                                382 B         121 kB
+├ ƒ /sistema/pruebas-acceso                                                 371 B         121 kB
+├ ƒ /trabajo                                                               1.9 kB         122 kB
+└ ƒ /trabajo/[workItemId]                                                 2.45 kB         193 kB
++ First Load JS shared by all                                              104 kB
+  ├ chunks/18-e80f8268f2fd0ad7.js                                         46.7 kB
+  ├ chunks/87c73c54-09e1ba5c70e60a51.js                                   54.2 kB
+  └ other shared chunks (total)                                           2.54 kB
+
+
+ƒ Middleware                                                               105 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+build exit 0

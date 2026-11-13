@@ -1,6 +1,6 @@
 # Lane B builder — T03 customer UI
 
-**Not started.** Gate (instruction 2026-10-19 01:49 §5): (1) review of the demo-removal candidate `ct3/t10-demo-removal` @ `07e536eb` with its blocking defects resolved, (2) local integration of that candidate into `ct3/v1-repairs`, then (3) the integrator creates this worktree and records the base here. That is the whole gate.
+**Gate met 2026-11-13; ready to start.** Review PASS WITH FOLLOW-UPS, local integration done, local browser check PASS (`receipts/INTEGRATION-LANE-B-T10.md`). Gate (instruction 2026-10-19 01:49 §5): (1) review of the demo-removal candidate `ct3/t10-demo-removal` @ `07e536eb` with its blocking defects resolved, (2) local integration of that candidate into `ct3/v1-repairs`, then (3) the integrator creates this worktree and records the base here. That is the whole gate.
 
 - Independent review of the C1–C8, import or L1–L4 backend contracts is **not** a prerequisite. Once the gate is met, implement against the API items below marked stable while backend reviews proceed.
 - If a backend review changes a contract, the integrator updates the item here and the lane adapts.
@@ -10,7 +10,7 @@
 |---|---|
 | Worktree | `/Users/carmen/projects/isalwa-wt-t03-customer-ui` (created by the integrator) |
 | Branch | `ct3/t03-customer-ui` |
-| Base | integration commit of lane B into `ct3/v1-repairs`: **TBD** |
+| Base | lane B integration verified at `02d0432608` on `ct3/v1-repairs`; the branch starts at the docs-only commit on top that records this base (same code tree) |
 | Ports / DB | os-web 3220, os-api 4220, `isalwa_laneb_disposable` @ `localhost:54329` (socket `/tmp`) |
 
 The demo-removal candidate `ct3/t10-demo-removal` / `/Users/carmen/projects/isalwa-wt-t10-demo-removal` stays frozen at `07e536eb`. Don't commit there.

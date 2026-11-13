@@ -11,7 +11,7 @@ Base for both lanes: the commit that adds this file (on top of `36e1d10`, R4 Rea
 | A — T05 catalog reconciliation and product presentation | `/Users/carmen/projects/isalwa-wt-t05-catalog` | `ct3/t05-catalog` | `lanes/LANE-A-T05-CATALOG.md` |
 | B — T10/T11 teacher/demo-mode removal | `/Users/carmen/projects/isalwa-wt-t10-demo-removal` | `ct3/t10-demo-removal` | `lanes/LANE-B-T10-DEMO-REMOVAL.md` |
 | A2 — catalog browser fixes F1–F3 (2026-10-18) | `/Users/carmen/projects/isalwa-wt-t05-catalog-fixes` | `ct3/t05-catalog-fixes` (base `c872470`) | `lanes/LANE-A-CATALOG-FIXES.md` |
-| B2 — T03 customer UI (after lane B review and integration) | `/Users/carmen/projects/isalwa-wt-t03-customer-ui` (not yet created) | `ct3/t03-customer-ui` (base: lane B integration commit, TBD) | `lanes/LANE-B-T03-CUSTOMER-UI.md`; contracts `contracts/T03-CUSTOMER-UI-CONTRACTS.md` |
+| B2 — T03 customer UI (after lane B review and integration) | `/Users/carmen/projects/isalwa-wt-t03-customer-ui` (created 2026-11-13) | `ct3/t03-customer-ui` (base: lane B integration, code verified at `02d0432608`) | `lanes/LANE-B-T03-CUSTOMER-UI.md`; contracts `contracts/T03-CUSTOMER-UI-CONTRACTS.md` |
 
 Candidate branches `ct3/t05-catalog` (`c872470`) and `ct3/t10-demo-removal` (`07e536eb`) are frozen for review. Follow-up work happens only on the A2/B2 branches. The UI lanes implement only contracts marked STABLE; backend commands, schema, permissions, shared contracts, os-web API client/types and integration stay integrator-owned.
 

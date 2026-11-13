@@ -1,0 +1,5 @@
+
+> @isalwa/os-web@0.1.0 typecheck /Users/carmen/projects/isalwa-wt-v1-repairs/apps/os-web
+> tsc -p tsconfig.json --noEmit
+
+tsc exit 0
