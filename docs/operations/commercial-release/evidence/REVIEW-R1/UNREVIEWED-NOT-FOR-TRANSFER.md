@@ -37,6 +37,10 @@ Print each matching line (±60 characters) from the four files, counted and dedu
 - Future review exports exclude the four files above (and the unscanned raw logs under `evidence/T00`–`T03` and `REVIEW-R1`) **before** any file is materialized: build the export from an explicit allowlist of paths, never by copying the tree and deleting afterwards.
 - Runner output is written outside the repository first; only allowlisted lines are filtered into `evidence/` (done for R2 follow-up: raw output under `/tmp`, filtered on write).
 
+## Resolution 2026-11-13
+
+Authorized local inspection done (Carmen, 2026-11-13 10:47): no credential-like value in the four files above or in the other raw logs under `T00`–`T03` and `REVIEW-R1`; no rotation or history rewrite required. Not sanitized; originals preserved. Branch history stays NOT FOR TRANSFER; transfer uses an allowlisted source export only. Record: `../../TRANSFER_CLEARANCE.md`.
+
 ## Evidence format from R2 on
 
 Saved evidence keeps only allowlisted lines: test-result lines (`✔`, `✖`, `ℹ pass|fail`), build exit codes, typecheck error lines, source diffs for mutation checks, and SHA256 manifests of the tested source. No environment values, connection strings, tokens or raw headers. Source identity (commit, tree, manifest) is kept.
