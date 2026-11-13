@@ -20,6 +20,7 @@ import {
   buildCreateCustomerPayload,
   buildCreateLocationPayload,
   buildEndContactRelationshipPayload,
+  buildSetFollowupPreferencePayload,
   formerContactLine,
   buildDeactivateLocationPayload,
   buildUpdateContactPayload,
@@ -306,5 +307,26 @@ describe('T03 ending a contact relationship', () => {
     );
     assert.doesNotMatch(readUi('../../components/party/contact-relationship-panel.tsx'), /cancelar envío|envíos pendientes/i);
     assert.match(readUi('../../components/party/contact-relationship-panel.tsx'), /Compromisos abiertos del cliente/);
+  });
+});
+
+describe('T03 follow-up preferences', () => {
+  it('keeps no promociones and no me escriban apart, and allows only as a staff record', () => {
+    const base = { partyId: 'p', contactId: 'c', channel: 'whatsapp', expectedVersion: 0, identityConfirmed: false };
+    const restrict = buildSetFollowupPreferencePayload({ ...base, preference: 'no_promotions' });
+    assert.equal(restrict.ok && restrict.payload.preference, 'no_promotions');
+    assert.equal(restrict.ok && restrict.payload.source, 'staff_recorded');
+    assert.equal(buildSetFollowupPreferencePayload({ ...base, preference: 'allowed', note: 'sí' }).ok, false);
+    const allowed = buildSetFollowupPreferencePayload({
+      ...base,
+      preference: 'allowed',
+      identityConfirmed: true,
+      note: 'La persona confirmó en tienda que quiere seguimiento',
+    });
+    assert.equal(allowed.ok && allowed.payload.source, 'staff_recorded');
+    const panel = readUi('../../components/party/contact-followup-panel.tsx');
+    assert.match(panel, /No más promociones/);
+    assert.match(panel, /No me escriban/);
+    assert.doesNotMatch(panel, /customer_message|defaultValue=\{item\.preference\}/);
   });
 });

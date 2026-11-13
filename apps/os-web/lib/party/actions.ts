@@ -18,6 +18,7 @@ import {
   PARTY_KINDS_FOR_CUSTOMER,
   parseCoordinatePair,
   buildEndContactRelationshipPayload,
+  buildSetFollowupPreferencePayload,
   partyEditReasonError,
   preserveProvenanceUrl,
 } from '@/lib/party/customer-self-service';
@@ -354,6 +355,28 @@ export async function updateLocationAction(formData: FormData): Promise<CommandA
   try {
     const result = await session.client.executeLocationCommand('UpdateLocation', payload, createId());
     revalidateCustomer(partyId);
+    return { ok: true, data: result.data };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+export async function setContactFollowupPreferenceAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildSetFollowupPreferencePayload({
+    partyId: String(formData.get('partyId') ?? '').trim(),
+    contactId: String(formData.get('contactId') ?? '').trim(),
+    channel: String(formData.get('channel') ?? ''),
+    preference: String(formData.get('preference') ?? ''),
+    expectedVersion: Number(formData.get('expectedVersion')),
+    identityConfirmed: formData.get('identityConfirmed') === 'on',
+    note: String(formData.get('note') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await customerClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executePartyCommand('SetContactFollowupPreference', built.payload, createId());
+    revalidateCustomer(String(built.payload.partyId));
     return { ok: true, data: result.data };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };

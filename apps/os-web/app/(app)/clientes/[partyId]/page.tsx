@@ -14,6 +14,7 @@ import { QuoteList } from '@/components/commercial/quote-list';
 import { Cliente360Now } from '@/components/party/cliente-360-now';
 import { Cliente360OwnerLine } from '@/components/party/cliente-360-owner-line';
 import { ContactEndpointPanel, type ContactEndpointAuthority } from '@/components/party/contact-endpoint-panel';
+import { ContactFollowupPanel } from '@/components/party/contact-followup-panel';
 import { ContactRelationshipPanel } from '@/components/party/contact-relationship-panel';
 import { CustomerEditForms } from '@/components/party/customer-edit-forms';
 import { TemporaryCoveragePanel } from '@/components/party/temporary-coverage-panel';
@@ -40,7 +41,7 @@ import { LIST_SCALE_PREVIEW_DEFAULT, LIST_SCALE_PREVIEW_LARGE } from '@/lib/ui/l
 import { newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
 import type { IssueListItem } from '@/lib/issue/types';
-import type { ContactRelationshipEndPreview } from '@isalwa/os-contracts';
+import type { ContactFollowupPreferenceItem, ContactRelationshipEndPreview } from '@isalwa/os-contracts';
 import type { ContactEndpointHistoryResponse } from '@/lib/party/types';
 import { COMMITMENT_COPY } from '@/lib/commitments/copy';
 import { commercialOwnerView } from '@/lib/party/customer-self-service';
@@ -242,6 +243,19 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
         });
       }
     }
+    const canSetFollowupPreference =
+      !evaluation.active && detail.customerAuthority?.canSetFollowupPreference === true;
+    const followupByContact = new Map<string, ContactFollowupPreferenceItem[]>();
+    await Promise.all(
+      contacts.map(async (contact) => {
+        try {
+          const prefs = await client.getContactFollowupPreferences(partyId, contact.id);
+          followupByContact.set(contact.id, prefs.items);
+        } catch {
+          // Customer read is required. A refusal hides the preference.
+        }
+      }),
+    );
     const canReassignOwner =
       !evaluation.active && detail.commercialAuthority?.canReassignOwner === true;
     const coverageMemberIds = (detail.coverageGrants ?? []).flatMap((grant) =>
@@ -452,6 +466,13 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                           contact={item}
                           authority={endpointAuthority}
                           history={endpointAuthority.canReviewEndpointHistory ? (endpointHistories.get(item.id) ?? []) : null}
+                        />
+                        <ContactFollowupPanel
+                          partyId={partyId}
+                          contactId={item.id}
+                          active={item.status === 'active'}
+                          canSet={canSetFollowupPreference}
+                          items={followupByContact.get(item.id) ?? []}
                         />
                         <ContactRelationshipPanel
                           partyId={partyId}

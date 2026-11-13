@@ -3,7 +3,7 @@ import { formatRecordStatus, formatStage, presentStage, formatOpportunityStatus 
 import { formatOptionalCentavos } from './money';
 import { quoteManualSendHistoryLabel } from './quote-manual-send';
 import { CONTACT_PHONE_REASON_LABELS, CONTACT_PHONE_VERIFICATION_LABELS } from '@/lib/party/contact-phone';
-import { CONTACT_RELATION_END_LABELS } from '@/lib/party/customer-self-service';
+import { CONTACT_RELATION_END_LABELS, FOLLOWUP_PREFERENCE_LABELS } from '@/lib/party/customer-self-service';
 
 const EVENT_LABELS: Record<string, string> = {
   'party.created': 'Cliente registrado',
@@ -275,6 +275,10 @@ export function contactRelationEndedSummary(facts: PartyTimelineFacts): string {
 export function timelineEntrySummary(entry: PartyTimelineEntryReadModel): string {
   if (entry.detail === 'summary') return restrictedEntrySummary(entry);
   if (entry.eventType === 'contact.relation.ended') return contactRelationEndedSummary(entry.facts);
+  if (entry.eventType === 'contact.followup_preference.changed') {
+    const to = typeof entry.facts.to === 'string' ? FOLLOWUP_PREFERENCE_LABELS[entry.facts.to] : undefined;
+    return to ? `Seguimiento: ${to}` : 'Preferencia de seguimiento actualizada';
+  }
   if (entry.eventType === 'party.updated') return partyUpdateSummary(entry.facts);
   if (isContactNumberEvent(entry.eventType)) {
     return contactPhoneSummary(entry.eventType, entry.facts);
