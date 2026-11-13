@@ -6,7 +6,6 @@ import { CommandSubmitButton } from '@/components/commercial/command-submit-butt
 import { FormFeedback } from '@/components/commercial/form-feedback';
 import { updateContactAction, updateCustomerAction } from '@/lib/party/actions';
 import { CONTACT_PHONE_COUNTRY_OPTIONS, DEFAULT_CONTACT_PHONE_COUNTRY, IDENTITY_REVIEW_NOTICE } from '@/lib/party/contact-phone';
-import { PARTY_CHANGE_KIND_OPTIONS } from '@/lib/party/customer-self-service';
 import type { PartyDetailResponse } from '@/lib/party/types';
 
 const fieldClass =
@@ -17,6 +16,8 @@ type CustomerEditFormsProps = {
   contacts: PartyDetailResponse['contacts'];
   canEditParty: boolean;
   canEditContacts: boolean;
+  /** The server flag. The field is omitted — not rendered read-only — when this is false. */
+  canEditLegalName?: boolean;
 };
 
 export function CustomerEditForms({
@@ -24,12 +25,13 @@ export function CustomerEditForms({
   contacts,
   canEditParty,
   canEditContacts,
+  canEditLegalName = false,
 }: CustomerEditFormsProps) {
   if (!canEditParty && !canEditContacts) return null;
 
   return (
     <div className="mt-8 space-y-6">
-      {canEditParty ? <PartyFieldsForm party={party} /> : null}
+      {canEditParty ? <PartyFieldsForm party={party} canEditLegalName={canEditLegalName} /> : null}
       {canEditContacts ? (
         <>
           {contacts.map((contact) => (
@@ -42,14 +44,21 @@ export function CustomerEditForms({
   );
 }
 
-function PartyFieldsForm({ party }: { party: PartyDetailResponse['party'] }) {
+function PartyFieldsForm({
+  party,
+  canEditLegalName,
+}: {
+  party: PartyDetailResponse['party'];
+  canEditLegalName: boolean;
+}) {
   const router = useRouter();
   const [state, formAction] = useActionState(
     async (_prev: { error?: string; success?: string } | null, formData: FormData) => {
       const result = await updateCustomerAction(formData);
       if (result.ok) {
         router.refresh();
-        return { success: 'Datos del cliente actualizados.' };
+        const unchanged = result.data?.unchanged === true;
+        return { success: unchanged ? 'Sin cambios' : 'Datos del cliente actualizados.' };
       }
       return { error: result.error };
     },
@@ -77,31 +86,16 @@ function PartyFieldsForm({ party }: { party: PartyDetailResponse['party'] }) {
             className={fieldClass}
           />
         </div>
-        <div>
-          <label htmlFor="edit-legal-name" className="isalwa-section-label">
-            Razón social
-          </label>
-          <input
-            id="edit-legal-name"
-            name="legalName"
-            defaultValue={party.legalName ?? ''}
-            className={fieldClass}
-          />
-        </div>
+        {canEditLegalName ? (
+          <div>
+            <label htmlFor="edit-legal-name" className="isalwa-section-label">
+              Razón social
+            </label>
+            <input id="edit-legal-name" name="legalName" defaultValue={party.legalName ?? ''} className={fieldClass} />
+          </div>
+        ) : null}
         <input type="hidden" name="previousDisplayName" value={party.displayName} />
-        <input type="hidden" name="previousLegalName" value={party.legalName ?? ''} />
-        <div>
-          <label htmlFor="edit-change-kind" className="isalwa-section-label">
-            Tipo de cambio
-          </label>
-          <select id="edit-change-kind" name="changeKind" defaultValue="update" className={fieldClass}>
-            {PARTY_CHANGE_KIND_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        {canEditLegalName ? <input type="hidden" name="previousLegalName" value={party.legalName ?? ''} /> : null}
         <div>
           <label htmlFor="edit-change-reason" className="isalwa-section-label">
             Motivo

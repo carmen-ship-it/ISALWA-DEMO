@@ -182,7 +182,6 @@ export function partyEditReasonError(input: {
   previous: { displayName: string; legalName: string | null };
   displayName: string;
   legalName: string | null;
-  changeKind: PartyChangeKind;
   changeReason: string;
 }): string | null {
   const changedFields = [
@@ -198,7 +197,6 @@ export function buildUpdatePartyPayload(input: {
   displayName: string;
   legalName?: string | null;
   expectedVersion: number;
-  changeKind?: PartyChangeKind;
   changeReason?: string | null;
 }): Record<string, unknown> {
   const payload: Record<string, unknown> = {
@@ -210,7 +208,6 @@ export function buildUpdatePartyPayload(input: {
     const legalName = input.legalName?.trim() ?? '';
     payload.legalName = legalName || null;
   }
-  if (input.changeKind) payload.changeKind = input.changeKind;
   const changeReason = input.changeReason?.trim();
   if (changeReason) payload.changeReason = changeReason;
   rejectForbiddenKeys(payload);

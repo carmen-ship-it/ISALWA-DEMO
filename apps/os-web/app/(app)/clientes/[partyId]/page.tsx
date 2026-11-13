@@ -14,6 +14,7 @@ import { QuoteList } from '@/components/commercial/quote-list';
 import { Cliente360Now } from '@/components/party/cliente-360-now';
 import { Cliente360OwnerLine } from '@/components/party/cliente-360-owner-line';
 import { ContactEndpointPanel, type ContactEndpointAuthority } from '@/components/party/contact-endpoint-panel';
+import { CustomerEditForms } from '@/components/party/customer-edit-forms';
 import { TemporaryCoveragePanel } from '@/components/party/temporary-coverage-panel';
 import { CustomerLocationPanel } from '@/components/party/customer-location-panel';
 import { PageHeader } from '@/components/shell/page-header';
@@ -178,10 +179,11 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
       );
     }
 
+    const readableLegalName = detail.customerAuthority?.canReadLegalName === true ? party.legalName : null;
     const displayName =
-      presentHumanCopy(party.displayName || party.legalName) ||
+      presentHumanCopy(party.displayName || readableLegalName) ||
       party.displayName ||
-      party.legalName ||
+      readableLegalName ||
       'Sin nombre';
     const canEditParty =
       !evaluation.active && party.status === 'active' && detail.customerAuthority?.canEditDisplayName === true;
@@ -342,7 +344,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
               <Cliente360Intelligence facts={intelligence} />
               <Cliente360Now composition={composition} />
               <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
-                {party.legalName ? (
+                {detail.customerAuthority?.canReadLegalName === true && party.legalName ? (
                   <div className="min-w-0 sm:col-span-2">
                     <dt className="isalwa-section-label">Razón social</dt>
                     <dd className="mt-2 break-words text-[var(--isalwa-kiln)]">{party.legalName}</dd>
@@ -360,6 +362,15 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 </div>
               </dl>
               <Cliente360OwnerLine owner={owner} note={composition.owner.note} />
+              {canEditParty ? (
+                <CustomerEditForms
+                  party={party}
+                  contacts={[]}
+                  canEditParty
+                  canEditContacts={false}
+                  canEditLegalName={detail.customerAuthority?.canEditLegalName === true}
+                />
+              ) : null}
               {commercialAccount?.id && commercialAccount.ownerMemberId ? (
                 <TemporaryCoveragePanel
                   partyId={partyId}
