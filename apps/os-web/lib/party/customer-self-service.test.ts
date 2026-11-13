@@ -16,8 +16,11 @@ import {
   OWNER_ABSENT_LABEL,
   OWNER_REASSIGNMENT_COMMAND,
   SCOPES_WITHOUT_CUSTOMER_CREATE,
+  AUTOMATIC_SENDS_ABSENT_LABEL,
   buildCreateCustomerPayload,
   buildCreateLocationPayload,
+  buildEndContactRelationshipPayload,
+  formerContactLine,
   buildDeactivateLocationPayload,
   buildUpdateContactPayload,
   buildUpdateLocationPayload,
@@ -280,5 +283,28 @@ describe('customer self-service UI contract', () => {
     assert.doesNotMatch(locations, /leaflet|mapbox|google\.maps|iframe|geocode|territory|check-in|checkin/i);
     assert.match(locations, /provenanceHref/);
     assert.match(locations, /createLocationAction|updateLocationAction|deactivateLocationAction/);
+  });
+});
+
+describe('T03 ending a contact relationship', () => {
+  it('requires a reason, keeps commitments on the customer, and never offers cancellable sends', () => {
+    assert.equal(AUTOMATIC_SENDS_ABSENT_LABEL, 'Envíos automáticos no configurados.');
+    assert.equal(buildEndContactRelationshipPayload({ partyId: 'p', contactId: 'c', expectedVersion: 1, reason: 'other', reasonNote: 'corto' }).ok, false);
+    const built = buildEndContactRelationshipPayload({
+      partyId: 'p',
+      contactId: 'c',
+      expectedVersion: 1,
+      reason: 'left_company',
+      endedOn: '2026-10-01',
+      today: '2026-10-18',
+    });
+    assert.equal(built.ok && built.payload.reason, 'left_company');
+    assert.equal(formerContactLine({ status: 'active', reason: 'left_company' }), null);
+    assert.equal(
+      formerContactLine({ status: 'inactive', endedOn: '2026-10-01', reason: 'left_company', reasonNote: 'Pasó a otra empresa' }),
+      'Contacto anterior · 2026-10-01 · Dejó la empresa · Pasó a otra empresa',
+    );
+    assert.doesNotMatch(readUi('../../components/party/contact-relationship-panel.tsx'), /cancelar envío|envíos pendientes/i);
+    assert.match(readUi('../../components/party/contact-relationship-panel.tsx'), /Compromisos abiertos del cliente/);
   });
 });

@@ -14,6 +14,7 @@ import { QuoteList } from '@/components/commercial/quote-list';
 import { Cliente360Now } from '@/components/party/cliente-360-now';
 import { Cliente360OwnerLine } from '@/components/party/cliente-360-owner-line';
 import { ContactEndpointPanel, type ContactEndpointAuthority } from '@/components/party/contact-endpoint-panel';
+import { ContactRelationshipPanel } from '@/components/party/contact-relationship-panel';
 import { CustomerEditForms } from '@/components/party/customer-edit-forms';
 import { TemporaryCoveragePanel } from '@/components/party/temporary-coverage-panel';
 import { CustomerLocationPanel } from '@/components/party/customer-location-panel';
@@ -39,6 +40,7 @@ import { LIST_SCALE_PREVIEW_DEFAULT, LIST_SCALE_PREVIEW_LARGE } from '@/lib/ui/l
 import { newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
 import type { IssueListItem } from '@/lib/issue/types';
+import type { ContactRelationshipEndPreview } from '@isalwa/os-contracts';
 import type { ContactEndpointHistoryResponse } from '@/lib/party/types';
 import { COMMITMENT_COPY } from '@/lib/commitments/copy';
 import { commercialOwnerView } from '@/lib/party/customer-self-service';
@@ -210,6 +212,35 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
           }
         }),
       );
+    }
+    const canEndContactRelationship =
+      !evaluation.active && detail.customerAuthority?.canEndContactRelationship === true;
+    const relationshipPreviews = new Map<string, ContactRelationshipEndPreview>();
+    if (canEndContactRelationship) {
+      await Promise.all(
+        contacts
+          .filter((contact) => contact.status === 'active')
+          .map(async (contact) => {
+            try {
+              relationshipPreviews.set(contact.id, await client.getContactRelationshipEndPreview(partyId, contact.id));
+            } catch {
+              // The preview is the gate. A refusal hides the end form.
+            }
+          }),
+      );
+    }
+    const relationEndByContact = new Map<string, { endedOn?: string; reason?: string; reasonNote?: string }>();
+    if (timeline.status === 'ok') {
+      for (const entry of timeline.data.items) {
+        if (entry.eventType !== 'contact.relation.ended') continue;
+        const contactId = typeof entry.facts.contactId === 'string' ? entry.facts.contactId : '';
+        if (!contactId || relationEndByContact.has(contactId)) continue;
+        relationEndByContact.set(contactId, {
+          endedOn: typeof entry.facts.endedOn === 'string' ? entry.facts.endedOn : undefined,
+          reason: typeof entry.facts.reason === 'string' ? entry.facts.reason : undefined,
+          reasonNote: typeof entry.facts.reasonNote === 'string' ? entry.facts.reasonNote : undefined,
+        });
+      }
     }
     const canReassignOwner =
       !evaluation.active && detail.commercialAuthority?.canReassignOwner === true;
@@ -421,6 +452,17 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                           contact={item}
                           authority={endpointAuthority}
                           history={endpointAuthority.canReviewEndpointHistory ? (endpointHistories.get(item.id) ?? []) : null}
+                        />
+                        <ContactRelationshipPanel
+                          partyId={partyId}
+                          contactId={item.id}
+                          status={item.status}
+                          expectedVersion={item.version}
+                          canEnd={canEndContactRelationship}
+                          preview={relationshipPreviews.get(item.id) ?? null}
+                          endedOn={relationEndByContact.get(item.id)?.endedOn}
+                          reason={relationEndByContact.get(item.id)?.reason}
+                          reasonNote={relationEndByContact.get(item.id)?.reasonNote}
                         />
                       </ListRow>
                     ))}

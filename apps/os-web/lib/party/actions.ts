@@ -17,6 +17,7 @@ import {
   createCustomerSearchGate,
   PARTY_KINDS_FOR_CUSTOMER,
   parseCoordinatePair,
+  buildEndContactRelationshipPayload,
   partyEditReasonError,
   preserveProvenanceUrl,
 } from '@/lib/party/customer-self-service';
@@ -353,6 +354,27 @@ export async function updateLocationAction(formData: FormData): Promise<CommandA
   try {
     const result = await session.client.executeLocationCommand('UpdateLocation', payload, createId());
     revalidateCustomer(partyId);
+    return { ok: true, data: result.data };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+export async function endContactRelationshipAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildEndContactRelationshipPayload({
+    partyId: String(formData.get('partyId') ?? '').trim(),
+    contactId: String(formData.get('contactId') ?? '').trim(),
+    expectedVersion: Number(formData.get('expectedVersion')),
+    reason: String(formData.get('reason') ?? ''),
+    reasonNote: String(formData.get('reasonNote') ?? ''),
+    endedOn: String(formData.get('endedOn') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await customerClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executePartyCommand('EndContactRelationship', built.payload, createId());
+    revalidateCustomer(String(built.payload.partyId));
     return { ok: true, data: result.data };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
