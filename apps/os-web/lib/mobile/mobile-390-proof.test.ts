@@ -59,7 +59,7 @@ describe('mobile 390 proof contracts', () => {
     const page = read('app/(app)/almacen/page.tsx');
     assert.match(page, /OperatingScanRow/);
     assert.match(page, /overflow-hidden/);
-    assert.match(page, /hideOnMobile: true/);
+    assert.doesNotMatch(page, /Ingreso PT|Sin ingreso citado/);
   });
 
   it('Compras: OperatingScanRow with hideOnMobile secondary columns', () => {

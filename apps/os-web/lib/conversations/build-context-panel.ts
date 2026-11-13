@@ -1,6 +1,6 @@
 /**
  * Build Contexto ISALWA view model for a selected conversation.
- * Uses deterministic demo suggestion rules + certainty helpers — never auto-mutates.
+ * Uses deterministic suggestion rules + certainty helpers — never auto-mutates.
  */
 
 import {
@@ -11,8 +11,8 @@ import {
 } from '@/lib/certainty';
 import { quoteHref } from '@/lib/commercial/navigation';
 import {
-  demoRecommendedReplyFor,
-  matchDemoSuggestionRules,
+  recommendedReplyFor,
+  matchSuggestionRules,
   type ConversationSuggestion,
 } from './smart-context';
 import type { Conversation } from './model';
@@ -182,7 +182,7 @@ export function buildConversationContextView(input: {
   const { conversation } = input;
   const messageText = lastInboundText(conversation);
   const quoteCode = relatedQuoteCode(conversation);
-  const suggestions = matchDemoSuggestionRules({
+  const suggestions = matchSuggestionRules({
     messageText,
     messageAt: conversation.lastOccurredAt,
     relatedQuoteCode: quoteCode,
@@ -225,7 +225,7 @@ export function buildConversationContextView(input: {
 
   let recommendedReply: ConversationContextView['recommendedReply'] = null;
   if (deliveryFacts.length) {
-    const draft = demoRecommendedReplyFor('delivery_unknown');
+    const draft = recommendedReplyFor('delivery_unknown');
     recommendedReply = { body: draft.body, badges: draft.badges };
   } else if (suggestions.some((s) => s.type === 'possible_opportunity')) {
     recommendedReply = {

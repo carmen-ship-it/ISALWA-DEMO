@@ -3,7 +3,6 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SearchableOption } from '@/lib/experience/searchable-select';
-import { filterByDemoDataMode, isDemoDisplayName, type DemoDataMode } from '@/lib/demo/owner-demo-identity';
 
 export type FinanceSubjectOptions = {
   orders: SearchableOption[];
@@ -14,9 +13,7 @@ export type FinanceSubjectOptions = {
  * Authorized open orders + quotes for finance subject selects.
  * Fail closed: empty lists on auth/session/API failure. No invented rows.
  */
-export async function loadFinanceSubjectOptions(
-  dataMode: DemoDataMode = 'real',
-): Promise<FinanceSubjectOptions> {
+export async function loadFinanceSubjectOptions(): Promise<FinanceSubjectOptions> {
   try {
     const auth = await getServerOsAuthContext();
     if (!auth) return { orders: [], quotes: [] };
@@ -36,18 +33,12 @@ export async function loadFinanceSubjectOptions(
       }),
     ]);
 
-    const ordersRaw = (orderPage.items ?? []).filter((item) => item.status !== 'cancelled');
-    const quotesRaw = (quotePage.items ?? []).filter((item) => item.status !== 'cancelled');
+    const orders = (orderPage.items ?? []).filter((item) => item.status !== 'cancelled');
+    const quotes = (quotePage.items ?? []).filter((item) => item.status !== 'cancelled');
     const labels = await resolvePartyLabels(client, [
-      ...ordersRaw.map((item) => item.partyId),
-      ...quotesRaw.map((item) => item.partyId),
+      ...orders.map((item) => item.partyId),
+      ...quotes.map((item) => item.partyId),
     ]);
-    const orders = filterByDemoDataMode(ordersRaw, dataMode, (item) =>
-      isDemoDisplayName(partyLabel(labels, item.partyId)),
-    );
-    const quotes = filterByDemoDataMode(quotesRaw, dataMode, (item) =>
-      isDemoDisplayName(partyLabel(labels, item.partyId)),
-    );
 
     return {
       orders: orders.map((item) => ({

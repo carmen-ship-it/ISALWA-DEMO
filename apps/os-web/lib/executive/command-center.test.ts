@@ -404,7 +404,6 @@ describe('executive surfaces stay honest', () => {
     const lens = readApp('components/commercial/executive-lens.tsx');
     const panel = readApp('components/executive/command-center-panel.tsx');
     const logic = readApp('lib/executive/command-center.ts');
-    const demo = readApp('components/commercial/demo-preview-cards.tsx');
 
     assert.match(lens, /Valor cotizado/);
     assert.match(lens, /Valor de pedidos/);
@@ -412,8 +411,6 @@ describe('executive surfaces stay honest', () => {
     assert.doesNotMatch(lens, /Ingresos|Revenue|Ventas cobradas/);
     assert.doesNotMatch(`${lens}\n${panel}\n${logic}`, /MetricCard|StatGroup|walkthrough/i);
     assert.doesNotMatch(`${panel}\n${logic}`, /INGRESOS COBRADOS|COBRANZA|DESPACHOS/);
-    assert.match(demo, /Vista demo/);
-    assert.match(demo, /INGRESOS COBRADOS/);
     assert.doesNotMatch(logic, /commitment/i);
   });
 

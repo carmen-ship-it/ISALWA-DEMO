@@ -1,5 +1,5 @@
 import { ADDITIONAL_ASSIGNABLE_SCOPE_KEYS, isAdditionalAssignableScope } from '@isalwa/os-contracts';
-import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
+import { presentHumanCopy } from '@/lib/copy/human-facing-copy';
 
 /** Employee-facing Spanish labels for workforce read surfaces. */
 

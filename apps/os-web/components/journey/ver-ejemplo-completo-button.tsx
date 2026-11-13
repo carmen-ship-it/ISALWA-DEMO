@@ -1,12 +1,12 @@
 'use client';
 
 import { Button } from '@isalwa/ui';
-import { useOwnerDemo } from '@/components/demo/owner-demo-provider';
+import { useJourney } from '@/components/journey/journey-provider';
 
-/** Vista de evaluación / owner — opens Story Mode without overwriting current client. */
+/** Top Journey tab — opens the guided presentation over the current screen. */
 export function VerEjemploCompletoButton() {
-  const { canUseOwnerDemo, openStory } = useOwnerDemo();
-  if (!canUseOwnerDemo) return null;
+  const { canOpenJourney, openStory } = useJourney();
+  if (!canOpenJourney) return null;
 
   return (
     <Button type="button" variant="secondary" size="sm" onClick={openStory}>

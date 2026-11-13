@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
-import { hrefWithClientDataMode } from '@/lib/demo/preserve-data-mode';
 import { deriveShellBreadcrumbs } from '@/lib/navigation/breadcrumbs';
 import { workDetailReturn } from '@/lib/work/navigation';
 
@@ -29,7 +28,7 @@ export function ShellBreadcrumbs() {
       <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
         {back ? (
           <Link
-            href={hrefWithClientDataMode(back.href)}
+            href={back.href}
             className="isalwa-t-fast inline-flex min-h-9 items-center gap-1 rounded-[var(--isalwa-radius-control)] px-1.5 text-sm font-medium text-[var(--isalwa-glaze)] outline-none hover:text-[var(--isalwa-glaze-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
           >
             <ChevronLeft aria-hidden size={16} strokeWidth={1.75} />
@@ -52,7 +51,7 @@ export function ShellBreadcrumbs() {
                   ) : null}
                   {crumb.href && !last ? (
                     <Link
-                      href={hrefWithClientDataMode(crumb.href)}
+                      href={crumb.href}
                       className="isalwa-t-fast truncate rounded-[var(--isalwa-radius-control)] outline-none hover:text-[var(--isalwa-kiln)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
                     >
                       {crumb.label}

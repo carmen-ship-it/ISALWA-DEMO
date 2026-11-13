@@ -3,8 +3,6 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
-import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
 
 export type ComprasLinkedOrder = {
@@ -26,14 +24,13 @@ export async function loadComprasLinkedOrders(listCaps?: ListCap[]): Promise<Com
     const auth = await getServerOsAuthContext();
     if (!auth) return [];
     const client = createOsApiClient(auth);
-    const dataMode = await resolveDemoDataMode({});
-    const fromCommercial = await loadLinkedFromCommercial(client, dataMode, listCaps);
+    const fromCommercial = await loadLinkedFromCommercial(client, listCaps);
     if (fromCommercial.length > 0) return fromCommercial;
 
     const capabilities = await loadMemberCapabilities();
     const organizationId = capabilities?.organizationId?.trim() ?? '';
     if (!organizationId) return [];
-    return loadLinkedFromDeliveryOps(client, dataMode);
+    return loadLinkedFromDeliveryOps(client);
   } catch (err) {
     if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {
       return [];
@@ -44,7 +41,6 @@ export async function loadComprasLinkedOrders(listCaps?: ListCap[]): Promise<Com
 
 async function loadLinkedFromCommercial(
   client: ReturnType<typeof createOsApiClient>,
-  dataMode: Awaited<ReturnType<typeof resolveDemoDataMode>>,
   listCaps?: ListCap[],
 ): Promise<ComprasLinkedOrder[]> {
   let page: Awaited<ReturnType<typeof client.listOrders>>;
@@ -62,9 +58,7 @@ async function loadLinkedFromCommercial(
     client,
     items.map((item) => item.partyId),
   );
-  return filterByDemoDataMode(items, dataMode, (item) =>
-    isDemoDisplayName(partyLabel(partyLabels, item.partyId)),
-  ).map((item) => ({
+  return items.map((item) => ({
     orderId: item.orderId,
     orderNumber: item.orderNumber,
     partyId: item.partyId,
@@ -75,7 +69,6 @@ async function loadLinkedFromCommercial(
 
 async function loadLinkedFromDeliveryOps(
   client: ReturnType<typeof createOsApiClient>,
-  dataMode: Awaited<ReturnType<typeof resolveDemoDataMode>>,
 ): Promise<ComprasLinkedOrder[]> {
   let items: Awaited<ReturnType<typeof client.listDeliveryOperationalOrders>>['items'] = [];
   try {
@@ -88,7 +81,7 @@ async function loadLinkedFromDeliveryOps(
     throw err;
   }
 
-  const mapped = items
+  return items
     .filter((item) => item.status !== 'cancelled')
     .map((item) => ({
       orderId: item.orderId,
@@ -97,6 +90,4 @@ async function loadLinkedFromDeliveryOps(
       status: item.status,
       customerLabel: item.customerName,
     }));
-
-  return filterByDemoDataMode(mapped, dataMode, (item) => isDemoDisplayName(item.customerLabel));
 }

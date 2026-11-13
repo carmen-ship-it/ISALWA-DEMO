@@ -5,17 +5,13 @@ import { ConversationsWorkspace } from '@/components/conversations/conversations
 import { PageHeader } from '@/components/shell/page-header';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
-import { listRegisteredConversationFixtures } from '@/lib/conversations/adapters';
 import { CONVERSATIONS_COPY } from '@/lib/conversations/copy';
-import { ownerDemoConversationFixtures } from '@/lib/conversations/demo-fixtures';
 import { projectManualConversation } from '@/lib/conversations/project-manual';
 import type { Conversation } from '@/lib/conversations/model';
 import {
   ignoredSuggestionIdsFromRecords,
   isSuggestionDecisionRecord,
 } from '@/lib/conversations/suggestion-decision';
-import seededIds from '@/lib/demo/seeded-ids.json';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import {
   evaluationAllowsDesk,
@@ -23,13 +19,7 @@ import {
 } from '@/lib/role-preview/evaluation-resource-access';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
-export default async function ConversacionesPage({
-  searchParams,
-}: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const params = searchParams ? await searchParams : {};
-  const dataMode = await resolveDemoDataMode(params);
+export default async function ConversacionesPage() {
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
@@ -80,46 +70,14 @@ export default async function ConversacionesPage({
         .map(projectManualConversation)
         .filter((row) => !allowedPartyIds || allowedPartyIds.has(row.partyId));
     } catch {
-      // API may be unavailable; fall back below.
+      // API may be unavailable; the workspace shows its empty state.
     }
   } catch {
     // Session-bound page still renders; register form needs an active actor.
   }
 
-  const seededClients = (seededIds.clients ?? [])
-    .map((client) => {
-      const key = (client as { key?: string; clientKey?: string }).key
-        ?? (client as { key?: string; clientKey?: string }).clientKey;
-      const partyId = (client as { partyId?: string }).partyId;
-      if (!key || !partyId) return null;
-      return {
-        key,
-        partyId,
-        opportunityId: (client as { opportunityId?: string | null }).opportunityId ?? null,
-        quoteId: (client as { quoteId?: string | null }).quoteId ?? null,
-        quoteNumber: (client as { quoteNumber?: string | null }).quoteNumber ?? null,
-        orderId: (client as { orderId?: string | null }).orderId ?? null,
-        followUpWorkId: (client as { followUpWorkId?: string | null }).followUpWorkId ?? null,
-      };
-    })
-    .filter((row): row is NonNullable<typeof row> => row != null);
-
-  // Prefer durable domain rows. In Demo mode also keep SYNTH fixtures so Review/Ignore
-  // suggestion cards remain reachable when only manual threads exist without match phrases.
-  const demoFixtures =
-    dataMode === 'demo' && organizationId
-      ? ownerDemoConversationFixtures(organizationId, seededClients).filter(
-          (row) => !allowedPartyIds || allowedPartyIds.has(row.partyId),
-        )
-      : [];
-
-  const durableIds = new Set(durableRows.map((row) => row.id));
   const initialConversations = organizationId
-    ? [
-        ...durableRows,
-        ...(dataMode === 'demo' ? [] : listRegisteredConversationFixtures(organizationId)),
-        ...demoFixtures.filter((row) => !durableIds.has(row.id)),
-      ].filter((row) => !allowedPartyIds || allowedPartyIds.has(row.partyId))
+    ? durableRows.filter((row) => !allowedPartyIds || allowedPartyIds.has(row.partyId))
     : [];
 
   return (

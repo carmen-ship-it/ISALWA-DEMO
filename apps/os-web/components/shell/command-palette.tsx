@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Search, X } from 'lucide-react';
 import { SearchField } from '@isalwa/ui';
 import { CoverageSummaryPanel } from '@/components/productivity/coverage-summary';
@@ -40,7 +40,6 @@ import {
   type PaletteItem,
   type PalettePick,
 } from '@/lib/shell/command-palette';
-import { hrefWithClientDataMode } from '@/lib/demo/preserve-data-mode';
 import { useRolePreview } from '@/components/shell/role-preview-provider';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
@@ -77,8 +76,6 @@ export function CommandPalette({
 }: CommandPaletteProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const datosMode = searchParams.get('datos');
   const dialogRef = useRef<HTMLDialogElement>(null);
   const searchGenRef = useRef(0);
   const listId = useId();
@@ -240,7 +237,7 @@ export function CommandPalette({
       // Invalidate in-flight work for this effect instance (stale query / close / View As).
       if (searchGenRef.current === gen) searchGenRef.current += 1;
     };
-  }, [changed, datosMode, mode, open, persona, query, subjectMemberId]);
+  }, [changed, mode, open, persona, query, subjectMemberId]);
 
   const items = useMemo(() => {
     const q = query.trim();
@@ -391,7 +388,7 @@ export function CommandPalette({
       window.localStorage.setItem(storageKey, JSON.stringify(stored));
     }
     close();
-    router.push(hrefWithClientDataMode(item.href));
+    router.push(item.href);
   }
 
   function onKeyDown(event: React.KeyboardEvent) {
@@ -540,7 +537,7 @@ export function CommandPalette({
               {savedNote}
             </p>
           ) : null}
-          {mode === 'coverage' ? <CoverageSummaryPanel onNavigate={(href) => { close(); router.push(hrefWithClientDataMode(href)); }} /> : null}
+          {mode === 'coverage' ? <CoverageSummaryPanel onNavigate={(href) => { close(); router.push(href); }} /> : null}
           {mode === 'changed' && changedStatus === 'loading' ? (
             <p className="px-3 py-4 text-sm text-[var(--isalwa-slate)]" role="status">Consultando el historial…</p>
           ) : null}
@@ -557,7 +554,7 @@ export function CommandPalette({
               partial={changed.partial}
               onNavigate={(href) => {
                 close();
-                router.push(hrefWithClientDataMode(href));
+                router.push(href);
               }}
             />
           ) : null}

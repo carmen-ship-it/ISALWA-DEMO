@@ -18,7 +18,6 @@ import { createPostSaleExpectedWorkAction } from '@/lib/postsale/actions';
 import { loadPostSalePedidos } from '@/lib/postsale/load-pedidos';
 import type { PostSalePedidoOption } from '@/lib/postsale/pedido-context';
 import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
 import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
@@ -51,9 +50,7 @@ export default async function ProduccionPage({
   const listState = parseListQuery(params);
   const orderIdRaw = params.orderId;
   const selectedOrderId = (Array.isArray(orderIdRaw) ? orderIdRaw[0] : orderIdRaw)?.trim() || null;
-  const datosRaw = params.datos;
-  const datos = (Array.isArray(datosRaw) ? datosRaw[0] : datosRaw)?.trim() || null;
-  const extras = { orderId: selectedOrderId, datos };
+  const extras = { orderId: selectedOrderId };
 
   const evaluation = await getEvaluationProjection();
   if (!evaluationAllowsDesk(evaluation, 'produccion')) {
@@ -116,7 +113,6 @@ export default async function ProduccionPage({
         aria-label="Buscar pedidos de producción"
       >
         {selectedOrderId ? <input type="hidden" name="orderId" value={selectedOrderId} /> : null}
-        {datos ? <input type="hidden" name="datos" value={datos} /> : null}
         <label className="block min-w-[12rem] flex-1 text-sm text-[var(--isalwa-slate)]">
           Buscar Pedido o cliente
           <input
@@ -208,11 +204,9 @@ async function loadProductionDeskData(): Promise<{
     }
     const caps = await loadMemberCapabilities();
     const client = createOsApiClient(auth);
-    const dataMode = await resolveDemoDataMode({});
     const listCaps: ListCap[] = [];
     const pedidos = await loadPostSalePedidos(client, {
       organizationId: caps?.organizationId ?? null,
-      dataMode,
       listCaps,
     });
 

@@ -79,7 +79,6 @@ export function parseGuideRecord(raw: string | null): GuideRecord {
       introCompleted: data.introCompleted === true,
       introSkipped: data.introSkipped === true,
       introStepIndex: typeof data.introStepIndex === 'number' && data.introStepIndex >= 0 ? data.introStepIndex : 0,
-      learningModeEnabled: data.learningModeEnabled === true,
       pageTourSeen: parseStringRecord(data.pageTourSeen),
     };
   } catch {
@@ -117,7 +116,6 @@ export function saveGuide(
     introCompleted: record.introCompleted,
     introSkipped: record.introSkipped,
     introStepIndex: record.introStepIndex,
-    learningModeEnabled: record.learningModeEnabled,
     pageTourSeen: { ...record.pageTourSeen },
   };
   try {

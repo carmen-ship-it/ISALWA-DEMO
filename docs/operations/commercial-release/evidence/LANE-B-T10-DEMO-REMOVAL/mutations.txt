@@ -1,0 +1,97 @@
+Mutation checks. Each mutation was applied to one source file, the listed tests were run, and the file was restored from an in-memory copy; git status showed no residual change afterwards.
+source commit: 3eb31d8684e9f50dd2f9fa5349717a91fdb99aba
+
+## M1 re-add a datos reader (middleware pins ?datos= into the mode cookie)
+file: apps/os-web/middleware.ts
+tests: lib/navigation/middleware-retired-data-mode.test.ts
+exit: 1
+ℹ tests 6
+ℹ pass 3
+ℹ fail 3
+✖ /clientes?datos=real sets no mode cookie and pins no mode header (0.358917ms)
+✖ /inicio?datos=demo sets no mode cookie and pins no mode header (8.47125ms)
+✖ /inicio?datos=demo&story=1 sets no mode cookie and pins no mode header (0.897959ms)
+✖ middleware ignores the retired data mode (53.563584ms)
+result: CAUGHT
+restored: yes
+
+## M2 re-add a datos reader on a real page (inicio)
+file: apps/os-web/app/(app)/inicio/page.tsx
+tests: lib/navigation/retired-demo-mode-guard.test.ts
+exit: 1
+ℹ tests 6
+ℹ pass 5
+ℹ fail 1
+✖ no URL datos value is read or forwarded outside the integrator-owned call sites still listed (18.741208ms)
+✖ retired demo data mode stays retired (91.621917ms)
+result: CAUGHT
+restored: yes
+
+## M3 re-add a fixture merge (conversations adapter merges test fixtures)
+file: apps/os-web/lib/conversations/adapters.ts
+tests: lib/navigation/retired-demo-mode-guard.test.ts
+exit: 1
+ℹ tests 6
+ℹ pass 5
+ℹ fail 1
+✖ no production file merges conversation or seed fixtures (21.280292ms)
+✖ retired demo data mode stays retired (137.715917ms)
+result: CAUGHT
+restored: yes
+
+## M4 gate the Journey on demo state (?story=1 only with datos=demo)
+file: apps/os-web/components/journey/journey-provider.tsx
+tests: components/journey/journey-provider.test.tsx lib/navigation/retired-demo-mode-guard.test.ts
+exit: 1
+ℹ tests 13
+ℹ pass 9
+ℹ fail 4
+✖ ?story=1 opens the panel only for the allowed audience; datos is ignored (1.633084ms)
+✖ Journey is presentation only (2.4505ms)
+✖ no URL datos value is read or forwarded outside the integrator-owned call sites still listed (20.191375ms)
+✖ retired demo data mode stays retired (85.461875ms)
+✖ the Journey provider never touches data mode, organization or storage (0.786625ms)
+✖ the provider holds no data mode, cookie, storage or organization state (0.673959ms)
+result: CAUGHT
+restored: yes
+
+## M5 widen the Journey audience (tab for every viewer)
+file: apps/os-web/components/shell/app-shell.tsx
+tests: components/journey/journey-provider.test.tsx
+exit: 1
+ℹ tests 7
+ℹ pass 6
+ℹ fail 1
+✖ Journey tab audience (7.770584ms)
+✖ the shell gates it with the same showRolePreview predicate, without demo state (1.910708ms)
+result: CAUGHT
+restored: yes
+
+## M6 restore the stored learning mode field on read
+file: apps/os-web/lib/walkthrough/persistence.ts
+tests: lib/walkthrough/guide.test.ts lib/navigation/retired-demo-mode-guard.test.ts
+exit: 1
+ℹ tests 36
+ℹ pass 34
+ℹ fail 2
+✖ ignores a stored learning mode value on read and never writes it back (1.952125ms)
+✖ learning mode is retired (2.180792ms)
+✖ no production file mounts or stores the learning mode switch (15.190459ms)
+✖ retired demo data mode stays retired (75.399125ms)
+result: CAUGHT
+restored: yes
+
+## M7 re-add a DEMO-name filter on a real list (oportunidades)
+file: apps/os-web/app/(app)/oportunidades/page.tsx
+tests: lib/commercial/opportunity-list-query.test.ts lib/navigation/retired-demo-mode-guard.test.ts
+exit: 1
+ℹ tests 7
+ℹ pass 5
+ℹ fail 2
+✖ does not default the title search to DEMO (1.89975ms)
+✖ no production file reads a data mode from the URL, a cookie or a request header (17.997042ms)
+✖ oportunidades list query (2.379167ms)
+✖ retired demo data mode stays retired (75.653042ms)
+result: CAUGHT
+restored: yes
+

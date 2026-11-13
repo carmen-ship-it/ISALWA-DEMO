@@ -65,7 +65,7 @@ export function ConversationsWorkspace({
       mergeConversationSources({
         organizationId,
         recorded,
-        fixtures: initialConversations,
+        initial: initialConversations,
       }),
     [organizationId, recorded, initialConversations],
   );

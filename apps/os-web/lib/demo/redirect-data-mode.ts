@@ -1,27 +1,8 @@
-import { cookies, headers } from 'next/headers';
-import { DEMO_DATA_MODE_COOKIE } from '@/lib/demo/owner-demo-identity';
-import { dataModeForRedirect, withExplicitDataMode } from '@/lib/demo/preserve-data-mode';
-
 /**
- * Carry the submitting page's explicit data mode onto a post-create href.
- * Form field, then Referer, then the mode cookie. Never inferred from a record name.
+ * Import path kept only for importers outside lane B. The data-mode switch is
+ * retired, so post-create redirects never carry a mode from the form, Referer
+ * or a stored cookie. The integrator removes the call sites and deletes this file.
  */
-export async function redirectKeepingDataMode(href: string, formData?: FormData): Promise<string> {
-  const headerList = await headers();
-  const referer = headerList.get('referer');
-  let refererDatos: string | null = null;
-  if (referer) {
-    try {
-      refererDatos = new URL(referer).searchParams.get('datos');
-    } catch {
-      refererDatos = null;
-    }
-  }
-  const jar = await cookies();
-  const mode = dataModeForRedirect({
-    formDatos: formData ? String(formData.get('datos') ?? '') : null,
-    refererDatos,
-    cookieDatos: jar.get(DEMO_DATA_MODE_COOKIE)?.value,
-  });
-  return withExplicitDataMode(href, mode);
+export async function redirectKeepingDataMode(href: string, _formData?: FormData): Promise<string> {
+  return href;
 }

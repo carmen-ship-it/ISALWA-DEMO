@@ -242,19 +242,16 @@ describe('Task 9 final hosted corrective', () => {
     );
   });
 
-  it('BACK_RETURN — Compras review Volver parent + datos-safe history assign', () => {
+  it('BACK_RETURN — Compras review Volver parent without a data-mode wrapper', () => {
     const card = read('components/purchasing/pending-supply-review-card.tsx');
     const workNav = read('lib/work/navigation.ts');
     const workPage = read('app/(app)/trabajo/[workItemId]/page.tsx');
-    const preserve = read('components/demo/preserve-explicit-data-mode.tsx');
     const crumbs = read('components/shell/shell-breadcrumbs.tsx');
     assert.match(card, /workItemHref\(workItemId, 'compras'\)/);
     assert.match(workNav, /Volver a Compras/);
     assert.match(workNav, /workDetailReturn/);
     assert.match(workPage, /workDetailReturn\(from\)/);
     assert.doesNotMatch(workPage, /href="\/inicio"/);
-    assert.match(preserve, /window\.location\.assign\(next\)/);
-    assert.doesNotMatch(preserve, /router\.push/);
-    assert.match(crumbs, /hrefWithClientDataMode/);
+    assert.doesNotMatch(crumbs, /hrefWithClientDataMode|datos/);
     assert.match(crumbs, /workDetailReturn/);
   });

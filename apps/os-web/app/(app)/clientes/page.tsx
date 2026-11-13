@@ -25,21 +25,18 @@ import { newCustomerHref } from '@/lib/party/navigation';
 import type { PartySearchParams } from '@/lib/party/types';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
-import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 type ClientesPageProps = {
-  searchParams: Promise<PartySearchParams & { panel?: string | string[]; datos?: string | string[] }>;
+  searchParams: Promise<PartySearchParams & { panel?: string | string[] }>;
 };
 
 export default async function ClientesPage({ searchParams }: ClientesPageProps) {
   const params = await searchParams;
   const listQuery = parseListQuery(params);
-  const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
@@ -65,20 +62,16 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
   const densityToggleHref = listHref('/clientes', densityToggleState);
 
   try {
-    // Demo mode: prefer DEMO-prefixed search so SYNTH fixtures are not buried under REAL pages.
     // Always request a bounded page (25) with cursor — no unbounded DOM dump.
-    const effectiveQ = q || (dataMode === 'demo' ? 'DEMO' : undefined);
     const result = await client.searchParties({
-      ...(effectiveQ ? { q: effectiveQ } : {}),
+      ...(q ? { q } : {}),
       ...(roleKey ? { roleKey } : {}),
       status: status || 'active',
       ...(cursor ? { cursor } : {}),
       limit: 25,
     });
 
-    let filteredItems = filterByDemoDataMode(result.items, dataMode, (item) =>
-      isDemoDisplayName(item.displayName || item.legalName),
-    ).filter(
+    let filteredItems = result.items.filter(
       (item) =>
         !isEngineeringFixtureCopy(item.displayName) &&
         !isEngineeringFixtureCopy(item.legalName),

@@ -16,9 +16,7 @@ import { receiveFinishedGoodsAction } from '@/lib/postsale/actions';
 import { loadPostSalePedidos } from '@/lib/postsale/load-pedidos';
 import type { PostSalePedidoOption } from '@/lib/postsale/pedido-context';
 import { loadWarehousePedidosFromOrders } from '@/lib/warehouse/load-pedidos';
-import { demoFinishedGoodsOrderIds } from '@/lib/warehouse/demo-fg-citations';
 import { WAREHOUSE_TASK_COPY, resolveWarehousePageAccess } from '@/lib/warehouse';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { workItemHref } from '@/lib/work/navigation';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
@@ -43,7 +41,6 @@ const LIST_PATH = '/almacen';
 type PedidoWarehouseContext = {
   pedido: PostSalePedidoOption;
   warehouseReviewWorkId: string | null;
-  hasFinishedGoodsCitation: boolean;
 };
 
 export default async function AlmacenPage({
@@ -55,9 +52,7 @@ export default async function AlmacenPage({
   const listState = parseListQuery(params);
   const orderIdRaw = params.orderId;
   const selectedOrderId = (Array.isArray(orderIdRaw) ? orderIdRaw[0] : orderIdRaw)?.trim() || null;
-  const datosRaw = params.datos;
-  const datos = (Array.isArray(datosRaw) ? datosRaw[0] : datosRaw)?.trim() || null;
-  const extras = { orderId: selectedOrderId, datos };
+  const extras = { orderId: selectedOrderId };
   const evaluation = await getEvaluationProjection();
   if (!evaluationAllowsDesk(evaluation, 'almacen')) {
     return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Almacén" />;
@@ -120,7 +115,6 @@ export default async function AlmacenPage({
         aria-label="Buscar pedidos de almacén"
       >
         {selectedOrderId ? <input type="hidden" name="orderId" value={selectedOrderId} /> : null}
-        {datos ? <input type="hidden" name="datos" value={datos} /> : null}
         <label className="block min-w-[12rem] flex-1 text-sm text-[var(--isalwa-slate)]">
           Buscar Pedido o cliente
           <input
@@ -198,11 +192,10 @@ function PedidoWarehouseContextSection({
   searchQuery: string | null;
 }) {
   const desktopGrid =
-    'md:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,0.9fr)_minmax(9.5rem,auto)_minmax(14rem,max-content)]';
+    'md:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(9.5rem,auto)_minmax(14rem,max-content)]';
   const headerColumns = [
     { id: 'pedido', label: 'Pedido', className: 'min-w-0' },
     { id: 'client', label: 'Cliente', className: 'min-w-0' },
-    { id: 'citation', label: 'Ingreso PT', className: 'min-w-0' },
     { id: 'status', label: 'Estado', className: 'justify-self-end' },
     { id: 'action', label: 'Acciones', className: 'justify-self-end' },
   ];
@@ -257,12 +250,6 @@ function PedidoWarehouseContextSection({
                     desktopGridClassName={desktopGrid}
                     fields={[
                       { id: 'client', label: 'Cliente', value: row.pedido.customerLabel },
-                      {
-                        id: 'citation',
-                        label: 'Ingreso PT',
-                        value: row.hasFinishedGoodsCitation ? 'Ingreso PT citado' : 'Sin ingreso citado',
-                        hideOnMobile: true,
-                      },
                     ]}
                     status={
                       row.warehouseReviewWorkId ? (
@@ -309,12 +296,9 @@ async function loadAlmacenAccess() {
     let postsalePedidos: PostSalePedidoOption[] = NO_POSTSALE_PEDIDOS;
     let revisiones = 0;
     let contexts: PedidoWarehouseContext[] = [];
-    let fgOrderIds: ReadonlySet<string> = new Set();
     const auth = await getServerOsAuthContext();
     if (auth) {
       const client = createOsApiClient(auth);
-      const dataMode = await resolveDemoDataMode({});
-      fgOrderIds = demoFinishedGoodsOrderIds(dataMode);
       warehousePedidos = await loadWarehousePedidosFromOrders(client, {
         organizationId: context.organizationId,
         listCaps,
@@ -322,14 +306,13 @@ async function loadAlmacenAccess() {
       try {
         postsalePedidos = await loadPostSalePedidos(client, {
           organizationId: context.organizationId,
-          dataMode,
           listCaps,
         });
       } catch {
         postsalePedidos = NO_POSTSALE_PEDIDOS;
       }
       const allowedOrderIds = new Set(postsalePedidos.map((p) => p.orderId));
-      if (postsalePedidos.length > 0 || dataMode === 'demo') {
+      if (postsalePedidos.length > 0) {
         warehousePedidos = warehousePedidos.filter((p) => allowedOrderIds.has(p.orderId));
       }
       let workItems: Awaited<ReturnType<typeof client.listWorkItems>>['items'] = [];
@@ -346,7 +329,6 @@ async function loadAlmacenAccess() {
         return {
           pedido,
           warehouseReviewWorkId: open.warehouse?.workItemId ?? null,
-          hasFinishedGoodsCitation: fgOrderIds.has(pedido.orderId),
         };
       });
     }
@@ -363,10 +345,7 @@ async function loadAlmacenAccess() {
       facts: { receipts: null, pedidos: warehousePedidos },
     });
 
-    const ingresosFromWaiting =
-      resolved.status === 'ready' ? resolved.view?.waiting.length ?? 0 : 0;
-    const ingresosFromDemoCitations = contexts.filter((row) => row.hasFinishedGoodsCitation).length;
-    const ingresos = Math.max(ingresosFromWaiting, ingresosFromDemoCitations);
+    const ingresos = resolved.status === 'ready' ? resolved.view?.waiting.length ?? 0 : 0;
 
     return {
       ...resolved,

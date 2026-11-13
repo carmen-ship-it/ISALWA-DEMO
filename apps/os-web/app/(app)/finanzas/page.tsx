@@ -11,9 +11,6 @@ import {
 } from '@/lib/finance';
 import { loadFinanceSubjectOptions } from '@/lib/finance/load-subject-options';
 import { loadActorRoleKeys } from '@/lib/party/master-data-access';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
-import seededIds from '@/lib/demo/seeded-ids.json';
-import { createReportedOperationalFact } from '@/lib/operations/reported-fact';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
@@ -48,22 +45,13 @@ export default async function FinanzasPage({ searchParams }: FinanzasPageProps) 
     return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Finanzas" />;
   }
   const params = await searchParams;
-  const dataMode = await resolveDemoDataMode(params);
   const access = await loadFinanceAccess();
   const subjectOptions =
-    access.status === 'ready' ? await loadFinanceSubjectOptions(dataMode) : { orders: [], quotes: [] };
+    access.status === 'ready' ? await loadFinanceSubjectOptions() : { orders: [], quotes: [] };
 
-  let prefillOrderId = one(params.orderId);
+  const prefillOrderId = one(params.orderId);
   const prefillPartyId = one(params.partyId);
   const prefillQuoteId = one(params.quoteId);
-
-  const maderas = (seededIds.clients ?? []).find(
-    (c) => (c as { key?: string }).key === 'maderas_oriente',
-  ) as { orderId?: string; partyId?: string } | undefined;
-
-  if (!prefillOrderId && !prefillPartyId && !prefillQuoteId && dataMode === 'demo' && maderas?.orderId) {
-    prefillOrderId = maderas.orderId;
-  }
 
   let initialSubjectType: 'order' | 'party' | 'quote' | undefined;
   let initialSubjectId: string | undefined;
@@ -89,29 +77,6 @@ export default async function FinanzasPage({ searchParams }: FinanzasPageProps) 
     initialSubjectLabel = '';
   }
 
-  const initialFacts =
-    dataMode === 'demo' &&
-    access.status === 'ready' &&
-    maderas?.orderId &&
-    initialSubjectId === maderas.orderId
-      ? [
-          createReportedOperationalFact({
-            id: `demo-seed-payment-${maderas.orderId}`,
-            organizationId: access.organizationId,
-            kind: 'payment',
-            subjectType: 'order',
-            subjectId: maderas.orderId,
-            reportedAt: seededIds.seededAt ?? new Date().toISOString(),
-            reportedByLabel: 'Owner demo seed',
-            amountCentavos: '450000',
-            currency: 'BOB',
-            method: 'transferencia',
-            note: '[is_demo] Pago reportado DEMO — pendiente de confirmar',
-            sourceReference: null,
-          }),
-        ]
-      : [];
-
   return (
     <PageContainer label={FINANCE_DESK_COPY.title} data-tour={FINANCE_PROVENANCE_TARGET}>
       <PageHeader
@@ -133,7 +98,6 @@ export default async function FinanzasPage({ searchParams }: FinanzasPageProps) 
           initialSubjectType={initialSubjectType}
           initialSubjectId={initialSubjectId}
           initialSubjectLabel={initialSubjectLabel}
-          initialFacts={initialFacts}
           mutationsBlocked={evaluation.active}
         />
       ) : (

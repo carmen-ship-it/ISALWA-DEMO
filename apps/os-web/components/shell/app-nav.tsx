@@ -18,9 +18,7 @@ import {
 } from 'lucide-react';
 import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
 import { cx } from '@isalwa/ui';
-import { useOwnerDemo } from '@/components/demo/owner-demo-provider';
 import { useRolePreview } from '@/components/shell/role-preview-provider';
-import { withStoryDemoDatos } from '@/lib/demo/story-mode-steps';
 import { resolveShellNavSections } from '@/lib/capabilities/resolve-nav';
 import { buildClientEvaluationProjection } from '@/lib/role-preview/evaluation-projection-model';
 import { evaluationNavItemVisible } from '@/lib/role-preview/evaluation-resource-access';
@@ -60,14 +58,6 @@ type AppNavProps = {
   collapsed?: boolean;
   onNavigate?: () => void;
 };
-
-function navLinkHref(href: string, demoMode: boolean): string {
-  if (!demoMode) return href;
-  const hashAt = href.indexOf('#');
-  const hash = hashAt >= 0 ? href.slice(hashAt) : '';
-  const base = hashAt >= 0 ? href.slice(0, hashAt) : href;
-  return `${withStoryDemoDatos(base) ?? base}${hash}`;
-}
 
 function navHrefActive(pathname: string, search: string, href: string, itemId: string): boolean {
   return navItemIsActive(pathname, search, itemId, href);
@@ -167,8 +157,6 @@ export function AppNav({
   const search = searchParams.toString() ? `?${searchParams.toString()}` : '';
   const { presentationScopes, active: evaluationActive, persona, subjectMemberId } =
     useRolePreview();
-  const { dataMode } = useOwnerDemo();
-  const demoNav = dataMode === 'demo';
   const presentation: RoleNavPresentation = roleNavPresentation(presentationScopes);
   const emphasized = new Set(presentation.emphasizedIds);
   const sections = resolveShellNavSections({ showAdmin }, capabilities);
@@ -205,7 +193,7 @@ export function AppNav({
       ) : null}
       {visibleSections.map((section) => {
         const containsActive = section.items.some((item) =>
-          navHrefActive(pathname, search, navLinkHref(item.href, demoNav), item.id),
+          navHrefActive(pathname, search, item.href, item.id),
         );
         return (
           <NavSectionCollapse
@@ -219,7 +207,7 @@ export function AppNav({
             {section.items.map((item) => {
               const defaultLabel = navItemLabel(item, t);
               const label = labelForNavItem(item.id, defaultLabel, presentation);
-              const href = navLinkHref(item.href, demoNav);
+              const href = item.href;
               return (
                 <NavLink
                   key={item.id}

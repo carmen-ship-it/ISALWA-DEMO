@@ -21,7 +21,6 @@ import { EventWorkOfferPanel } from '@/components/work/event-work-offer-panel';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { commercialProgressSteps } from '@/lib/commercial/commercial-progress';
@@ -54,7 +53,6 @@ import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-exclu
 
 type QuoteDetailPageProps = {
   params: Promise<{ partyId: string; quoteId: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 const documentLinkClass =
@@ -66,9 +64,8 @@ const documentTitle = (
   </h2>
 );
 
-export default async function QuoteDetailPage({ params, searchParams }: QuoteDetailPageProps) {
+export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) {
   const { partyId, quoteId } = await params;
-  const dataMode = await resolveDemoDataMode(searchParams);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
@@ -594,7 +591,7 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
         ) : null}
 
         <div id="editar-cotizacion" className="scroll-mt-32">
-          <QuoteEditor partyId={partyId} quote={quote} demoPrices={dataMode === 'demo'} />
+          <QuoteEditor partyId={partyId} quote={quote} />
         </div>
       </PageContainer>
     );

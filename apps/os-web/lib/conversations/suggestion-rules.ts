@@ -1,11 +1,11 @@
 /**
- * Deterministic demo suggestion rules for owner-demo phrases.
- * Marked demo — do not pretend live AI inference when no provider is available.
+ * Deterministic suggestion rules for known customer phrases.
+ * Marked `isDemo` (not live inference) — do not pretend live AI inference when no provider is available.
  */
 
 import type { ConversationSuggestion, SuggestionType } from './suggestion-types';
 
-export type DemoSuggestionMatchInput = {
+export type SuggestionMatchInput = {
   messageText: string;
   /** Message timestamp for follow-up Monday calculation. ISO preferred. */
   messageAt?: string | Date | null;
@@ -18,7 +18,7 @@ type Rule = {
   id: string;
   type: SuggestionType;
   test: (normalized: string) => boolean;
-  build: (input: DemoSuggestionMatchInput, snippet: string) => ConversationSuggestion;
+  build: (input: SuggestionMatchInput, snippet: string) => ConversationSuggestion;
 };
 
 const ZONE = 'America/La_Paz';
@@ -233,10 +233,10 @@ const RULES: readonly Rule[] = [
 ];
 
 /**
- * Match deterministic demo rules against message text.
+ * Match deterministic rules against message text.
  * Returns zero or more suggestions, all marked `isDemo: true`.
  */
-export function matchDemoSuggestionRules(input: DemoSuggestionMatchInput): ConversationSuggestion[] {
+export function matchSuggestionRules(input: SuggestionMatchInput): ConversationSuggestion[] {
   const text = input.messageText?.trim() ?? '';
   if (!text) return [];
   const normalized = normalize(text);
@@ -250,6 +250,6 @@ export function matchDemoSuggestionRules(input: DemoSuggestionMatchInput): Conve
   return out;
 }
 
-export function demoSuggestionRuleIds(): readonly string[] {
+export function suggestionRuleIds(): readonly string[] {
   return RULES.map((r) => r.id);
 }

@@ -167,19 +167,15 @@ export function blankLineEntry(): StarterLineEntry {
 
 /**
  * Prefill only known product identity fields (name / short detail).
- * Do not invent quantity or unit. Price is filled only when the caller passes a Demo fixture.
+ * Do not invent quantity, unit or price.
  */
-export function prefillFromStarterProduct(
-  row: StarterQuoteProduct,
-  options?: { demoUnitPrice?: number | null },
-): StarterLineEntry {
-  const demoUnitPrice = options?.demoUnitPrice;
+export function prefillFromStarterProduct(row: StarterQuoteProduct): StarterLineEntry {
   return {
     name: row.name,
     detail: row.description ?? '',
     note: '',
     quantity: '',
     unit: '',
-    unitPrice: demoUnitPrice == null ? '' : String(demoUnitPrice),
+    unitPrice: '',
   };
 }

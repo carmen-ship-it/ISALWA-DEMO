@@ -22,8 +22,6 @@ import { probeWorkOrgLens, probeWorkTeamLens } from '@/lib/work/trabajo-lens';
 import { trabajoLensClarity } from '@/lib/work/trabajo-lens-clarity';
 import { summarizeTrabajoOpen } from '@/lib/work/trabajo-summary';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
-import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 
 const PAGE_LIMIT = 25;
@@ -42,7 +40,6 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
   const query = parseListQuery(params);
   const requestedView = parseTrabajoView(query.view);
   const controls = readListControls(query);
-  const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
@@ -125,14 +122,7 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
       client,
       titled.flatMap((item) => (item.subjectType === 'party' && item.subjectId ? [item.subjectId] : [])),
     );
-    const modeFiltered = filterByDemoDataMode(titled, dataMode, (item) => {
-      if (item.subjectType === 'party' && item.subjectId) {
-        return isDemoDisplayName(partyLabels.get(item.subjectId) ?? null);
-      }
-      // Team/org work without party: include in demo when title/notes carry DEMO marker.
-      return /\bDEMO\b|\[is_demo\]/i.test(`${item.title} ${item.description ?? ''}`);
-    });
-    const items = presentWorkPage(modeFiltered, controls);
+    const items = presentWorkPage(titled, controls);
     const summary = summarizeTrabajoOpen(items);
     const memberLabels = await resolveMemberLabels(
       client,

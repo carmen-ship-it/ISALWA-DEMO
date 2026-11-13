@@ -4,16 +4,13 @@ import { OpportunityCreateForm } from '@/components/commercial/opportunity-creat
 import { PageHeader } from '@/components/shell/page-header';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
-import { withExplicitDataMode } from '@/lib/demo/preserve-data-mode';
-import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
+import { presentHumanCopy } from '@/lib/copy/human-facing-copy';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
 
 type PageProps = {
-  searchParams: Promise<{ q?: string; cliente?: string; datos?: string }>;
+  searchParams: Promise<{ q?: string; cliente?: string }>;
 };
 
 export default async function NuevaOportunidadDesdeListaPage({ searchParams }: PageProps) {
@@ -33,7 +30,6 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
   const canCreateCustomer = evaluation.active ? false : await actorCanMutateMasterData(client);
   const cliente = params.cliente?.trim() ?? '';
   const query = params.q?.trim() ?? '';
-  const dataMode = await resolveDemoDataMode(params);
 
   if (cliente) {
     return (
@@ -44,7 +40,7 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
           description="El cliente ya existe. El título es el nombre comercial de la oportunidad."
           action={
             <Link
-              href={withExplicitDataMode('/oportunidades/nueva', dataMode)}
+              href={'/oportunidades/nueva'}
               className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
             >
               Cambiar cliente
@@ -60,14 +56,12 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
   if (query.length >= 2) {
     try {
       const result = await client.searchParties({ q: query, status: 'active', limit: 25 });
-      matches = filterByDemoDataMode(
-        result.items.filter((party) => !isEngineeringFixtureCopy(party.displayName)),
-        dataMode,
-        (party) => isDemoDisplayName(party.displayName),
-      ).map((party) => ({
-        partyId: party.partyId,
-        displayName: presentHumanCopy(party.displayName) || party.displayName,
-      }));
+      matches = result.items
+        .filter((party) => !isEngineeringFixtureCopy(party.displayName))
+        .map((party) => ({
+          partyId: party.partyId,
+          displayName: presentHumanCopy(party.displayName) || party.displayName,
+        }));
     } catch {
       matches = [];
     }
@@ -82,7 +76,7 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
         action={
           canCreateCustomer ? (
             <Link
-              href={withExplicitDataMode('/clientes/nuevo', dataMode)}
+              href={'/clientes/nuevo'}
               className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
             >
               Crear cliente
@@ -91,7 +85,6 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
         }
       />
       <form method="get" action="/oportunidades/nueva" className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end">
-        <input type="hidden" name="datos" value={dataMode} />
         <label className="min-w-0 flex-1 text-sm text-[var(--isalwa-kiln)]">
           Cliente
           <input
@@ -116,7 +109,7 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
             <>
               No encontramos ese cliente.{' '}
               <Link
-                href={withExplicitDataMode('/clientes/nuevo', dataMode)}
+                href={'/clientes/nuevo'}
                 className="font-medium text-[var(--isalwa-glaze)] underline"
               >
                 Crear cliente
@@ -131,10 +124,7 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
           {matches.map((party) => (
             <li key={party.partyId}>
               <Link
-                href={withExplicitDataMode(
-                  `/oportunidades/nueva?cliente=${encodeURIComponent(party.partyId)}`,
-                  dataMode,
-                )}
+                href={`/oportunidades/nueva?cliente=${encodeURIComponent(party.partyId)}`}
                 className="block px-4 py-3 text-sm font-medium text-[var(--isalwa-kiln)] hover:bg-[var(--isalwa-porcelain)]"
               >
                 {party.displayName}
@@ -147,7 +137,7 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
         <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
           Si el cliente no está en la lista,{' '}
           <Link
-            href={withExplicitDataMode('/clientes/nuevo', dataMode)}
+            href={'/clientes/nuevo'}
             className="font-medium text-[var(--isalwa-glaze)] underline"
           >
             Crear cliente

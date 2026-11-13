@@ -8,8 +8,6 @@ import {
   buildPostSalePedidoOption,
   type PostSalePedidoOption,
 } from '@/lib/postsale/pedido-context';
-import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
-import type { DemoDataMode } from '@/lib/demo/owner-demo-identity';
 import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
 
 const OPEN_ORDER_PAGE_LIMIT = 50;
@@ -18,8 +16,6 @@ const MAX_ORDER_DETAIL_FETCHES = 25;
 export type LoadPostSalePedidosOptions = {
   /** Required for delivery-ops fallback mapping (ops payload has no org field). */
   organizationId?: string | null;
-  /** When set, keep only Pedidos whose party display name matches Demo/Real mode. */
-  dataMode?: 'real' | 'demo';
   listCaps?: ListCap[];
 };
 
@@ -32,17 +28,16 @@ export async function loadPostSalePedidos(
   client: OsApiClient,
   options: LoadPostSalePedidosOptions = {},
 ): Promise<PostSalePedidoOption[]> {
-  const fromCommercial = await loadFromCommercial(client, options.dataMode, options.listCaps);
+  const fromCommercial = await loadFromCommercial(client, options.listCaps);
   if (fromCommercial.length > 0) return fromCommercial;
 
   const organizationId = options.organizationId?.trim() ?? '';
   if (!organizationId) return [];
-  return loadFromDeliveryOps(client, organizationId, options.dataMode);
+  return loadFromDeliveryOps(client, organizationId);
 }
 
 async function loadFromCommercial(
   client: OsApiClient,
-  dataMode?: DemoDataMode,
   listCaps?: ListCap[],
 ): Promise<PostSalePedidoOption[]> {
   let list: OrderListResponse;
@@ -96,12 +91,6 @@ async function loadFromCommercial(
   const options: PostSalePedidoOption[] = [];
   for (const order of details) {
     const customer = partyLabel(partyLabels, order.partyId);
-    if (dataMode) {
-      const keep = filterByDemoDataMode([{ customer }], dataMode, (row) =>
-        isDemoDisplayName(row.customer),
-      );
-      if (keep.length === 0) continue;
-    }
     const built = buildPostSalePedidoOption({
       organizationId: order.organizationId,
       orderId: order.orderId,
@@ -128,7 +117,6 @@ async function loadFromCommercial(
 async function loadFromDeliveryOps(
   client: OsApiClient,
   organizationId: string,
-  dataMode?: DemoDataMode,
 ): Promise<PostSalePedidoOption[]> {
   let items: Awaited<ReturnType<OsApiClient['listDeliveryOperationalOrders']>>['items'] = [];
   try {
@@ -144,12 +132,6 @@ async function loadFromDeliveryOps(
   const options: PostSalePedidoOption[] = [];
   for (const order of items) {
     if (order.status === 'cancelled') continue;
-    if (dataMode) {
-      const keep = filterByDemoDataMode([{ name: order.customerName }], dataMode, (row) =>
-        isDemoDisplayName(row.name),
-      );
-      if (keep.length === 0) continue;
-    }
     const built = buildPostSalePedidoOption({
       organizationId,
       orderId: order.orderId,

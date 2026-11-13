@@ -14,8 +14,6 @@ import { issueListHref } from '@/lib/issue/navigation';
 import { cursorPageLinks } from '@/lib/lists/url-state';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
-import { filterByDemoDataMode } from '@/lib/demo/owner-demo-identity';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import type { IssueListItem } from '@/lib/issue/types';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import {
@@ -55,9 +53,6 @@ function viewQuery(view: IssueView): Record<string, string | number | boolean> {
   }
 }
 
-function isDemoIssue(item: IssueListItem): boolean {
-  return /\bDEMO\b|\[is_demo\]/i.test(`${item.title ?? ''} ${item.description ?? ''}`);
-}
 
 type IncidenciasEmpty = {
   title: string;
@@ -108,7 +103,6 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
   const view = parseView(params.view);
   const cursor = typeof params.cursor === 'string' ? params.cursor : undefined;
   const trail = typeof params.trail === 'string' ? params.trail : undefined;
-  const dataMode = await resolveDemoDataMode(params);
 
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
@@ -149,24 +143,12 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
       client.listIssues({ view: 'assigned_to_me', limit: PAGE_LIMIT }),
       client.listIssues({ view: 'resolved', limit: PAGE_LIMIT }),
     ]);
-    const items = filterByDemoDataMode(applyEvaluationIssues(result.items), dataMode, isDemoIssue).filter(
+    const items = applyEvaluationIssues(result.items).filter(
       (item) => !isEngineeringFixtureCopy(item.title) && !isEngineeringFixtureCopy(item.description),
     );
-    const openCount = filterByDemoDataMode(
-      applyEvaluationIssues(openPage.items ?? []),
-      dataMode,
-      isDemoIssue,
-    ).length;
-    const assignedCount = filterByDemoDataMode(
-      applyEvaluationIssues(assignedPage.items ?? []),
-      dataMode,
-      isDemoIssue,
-    ).length;
-    const resolvedCount = filterByDemoDataMode(
-      applyEvaluationIssues(resolvedPage.items ?? []),
-      dataMode,
-      isDemoIssue,
-    ).length;
+    const openCount = applyEvaluationIssues(openPage.items ?? []).length;
+    const assignedCount = applyEvaluationIssues(assignedPage.items ?? []).length;
+    const resolvedCount = applyEvaluationIssues(resolvedPage.items ?? []).length;
     const memberIds = items.flatMap((item) =>
       [item.reporterMemberId, item.ownerMemberId].filter((id): id is string => Boolean(id)),
     );

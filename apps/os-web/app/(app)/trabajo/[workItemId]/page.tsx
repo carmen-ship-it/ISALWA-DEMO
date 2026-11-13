@@ -8,7 +8,7 @@ import { StaleProjectionBanner } from '@/components/work/stale-projection-banner
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
+import { presentHumanCopy } from '@/lib/copy/human-facing-copy';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import {
   formatDueDate,
@@ -22,8 +22,6 @@ import {
 } from '@/lib/work/labels';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { approvalHref, workDetailReturn } from '@/lib/work/navigation';
-import { withExplicitDataMode, explicitDataMode, DATA_MODE_REQUEST_HEADER } from '@/lib/demo/preserve-data-mode';
-import { headers } from 'next/headers';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { isFollowUpSubjectType, FOLLOW_UP_COPY, followUpStatusLabel } from '@/lib/work/follow-up';
 import { partyHref } from '@/lib/party/navigation';
@@ -122,9 +120,8 @@ export default async function WorkDetailPage({ params, searchParams }: WorkDetai
       }
     }
 
-    const dataMode = explicitDataMode((await headers()).get(DATA_MODE_REQUEST_HEADER));
     const back = workDetailReturn(from);
-    const backHref = withExplicitDataMode(back.href, dataMode);
+    const backHref = back.href;
 
     return (
       <PageContainer label={pageTitle}>

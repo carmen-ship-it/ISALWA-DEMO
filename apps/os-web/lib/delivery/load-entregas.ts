@@ -12,8 +12,6 @@ import {
 } from '@/lib/delivery/map-fulfillment';
 import type { EntregaPanelProps } from '@/components/delivery/entrega-panel';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
-import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
 const MAX_NOTE_LOOKUPS = 25;
 
@@ -85,7 +83,6 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
   }
 
   const client = createOsApiClient(auth);
-  const dataMode = await resolveDemoDataMode({});
   let linkedOrders: LinkedOrderFact[] = [];
   let warehouseExits: EntregaPanelProps['warehouseExits'] = [];
   let deliveries: EntregaPanelProps['deliveries'] = [];
@@ -100,9 +97,7 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
       client,
       raw.map((row) => row.partyId).filter((id): id is string => Boolean(id)),
     );
-    linkedOrders = filterByDemoDataMode(raw, dataMode, (row) =>
-      isDemoDisplayName(partyLabel(partyLabels, row.partyId)),
-    ).map((row) => ({
+    linkedOrders = raw.map((row) => ({
       ...row,
       customerLabel: partyLabel(partyLabels, row.partyId),
     }));
@@ -125,10 +120,10 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
     ]);
     warehouseExits = mapFulfillmentExitsToPanel(
       (exitPage.items ?? []) as FulfillmentWarehouseExitItem[],
-    ).filter((row) => !row.orderId || allowedOrderIds.has(row.orderId) || dataMode !== 'demo');
+    );
     deliveries = mapFulfillmentDeliveriesToPanel(
       (deliveryPage.items ?? []) as FulfillmentDeliveryItem[],
-    ).filter((row) => !row.orderId || allowedOrderIds.has(row.orderId) || dataMode !== 'demo');
+    );
   } catch (err) {
     if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {
       fulfillmentDenied = true;

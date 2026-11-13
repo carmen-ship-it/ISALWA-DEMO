@@ -36,10 +36,6 @@ export const CONVERSATION_FILTER_LABELS: Record<ConversationFilter, string> = {
   possible_issue: 'Incidencia posible',
 };
 
-export const DEMO_WHATSAPP_BADGE = 'DEMO·WHATSAPP' as const;
-export const DEMO_WHATSAPP_BANNER =
-  'Hilo de demostración. WhatsApp no está conectado. No es un canal en vivo.' as const;
-
 export type ConversationRelated = {
   opportunityId: string | null;
   quoteId: string | null;

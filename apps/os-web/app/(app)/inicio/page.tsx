@@ -50,10 +50,6 @@ import {
 } from '@/lib/management/improvement-insights';
 import { composeOrgMetricCards, composeCommercialFunnelCounts, formatManagementPeriodLabel, resolveManagementPeriod } from '@/lib/management/org-metrics';
 import { buildCommercialFunnelSteps } from '@/lib/management/commercial-funnel';
-import {
-  filterByPartyDemoMode,
-  shouldShowManagementTeamTable,
-} from '@/lib/management/demo-lens';
 import { partyCountByOwner } from '@/lib/management/party-count-by-owner';
 import { viewerHasManagementOrgRead } from '@/lib/management/scope';
 import { composeTeamMetricsRows } from '@/lib/management/team-metrics';
@@ -68,8 +64,6 @@ import { classifyQueryError } from '@/lib/work/query-errors';
 import { resolveAttentionSubjects } from '@/lib/work/resolve-staff-subjects';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { isProjectionStale } from '@/lib/query/projection-freshness';
-import { isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
 import {
@@ -126,17 +120,6 @@ function hideFixtureQuote(item: QuoteSummaryReadModel): boolean {
 
 function hideFixtureParty(partyId: string, partyLabels: PartyLabelMap): boolean {
   return !isEngineeringFixtureCopy(partyLabel(partyLabels, partyId));
-}
-
-function allowPartyForDataMode(
-  partyId: string,
-  partyLabels: PartyLabelMap,
-  dataMode: 'real' | 'demo',
-): boolean {
-  const name = partyLabel(partyLabels, partyId);
-  const demo = isDemoDisplayName(name);
-  if (dataMode === 'demo') return demo;
-  return !demo && hideFixtureParty(partyId, partyLabels);
 }
 
 function orgMetricsSparse(cards: ReturnType<typeof composeOrgMetricCards>): boolean {
@@ -288,7 +271,6 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     const activeLens: InicioPageLens = resolveInicioPageLens(paramOne(params.lente), lensInput);
     const periodPreset = parseManagementPeriodPreset(paramOne(params.periodo));
     const managementPeriod = resolveManagementPeriod(periodPreset, undefined, undefined, asOf);
-    const dataMode = await resolveDemoDataMode(params);
     const session = await client.getAuthenticatedSession();
 
     const commandQueuesRaw = await loadInicioCommandQueues(client, {
@@ -385,20 +367,17 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       ...(orgData?.quotesDraft ?? []).map((item) => item.partyId),
     ]);
 
-    const isDemoParty = (partyId: string) =>
-      isDemoDisplayName(partyLabel(partyLabels, partyId));
-
     const responsibilityOpportunities = opportunities.filter((item) =>
-      allowPartyForDataMode(item.partyId, partyLabels, dataMode),
+      hideFixtureParty(item.partyId, partyLabels),
     );
     const responsibilityDraft = quotesDraft.filter((item) =>
-      allowPartyForDataMode(item.partyId, partyLabels, dataMode),
+      hideFixtureParty(item.partyId, partyLabels),
     );
     const responsibilitySubmitted = quotesSubmitted.filter((item) =>
-      allowPartyForDataMode(item.partyId, partyLabels, dataMode),
+      hideFixtureParty(item.partyId, partyLabels),
     );
     const responsibilityAccepted = quotesAccepted.filter((item) =>
-      allowPartyForDataMode(item.partyId, partyLabels, dataMode),
+      hideFixtureParty(item.partyId, partyLabels),
     );
     const linkedQuotes = [...responsibilityDraft, ...responsibilitySubmitted, ...responsibilityAccepted].map(
       (item) => ({
@@ -500,7 +479,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     for (const [partyId, label] of orderPartyLabels) {
       if (!partyLabels.has(partyId)) partyLabels.set(partyId, label);
     }
-    const orders = filterByPartyDemoMode(ordersRaw, dataMode, isDemoParty);
+    const orders = ordersRaw;
     const inicioListCaps: ListCap[] = [];
     pushListCap(inicioListCaps, attentionResult === 'unavailable' ? null : attentionResult, INICIO_ATTENTION_LIMIT);
     pushListCap(
@@ -510,22 +489,10 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     );
     pushListCap(inicioListCaps, ordersResult === 'unavailable' || !ordersResult ? null : ordersResult, 100);
 
-    const orgOpportunities =
-      orgData != null
-        ? filterByPartyDemoMode(orgData.opportunities, dataMode, isDemoParty)
-        : [];
-    const orgQuotes =
-      orgData != null
-        ? filterByPartyDemoMode(orgData.quotesSubmitted, dataMode, isDemoParty)
-        : [];
-    const teamOpportunities =
-      teamData != null
-        ? filterByPartyDemoMode(teamData.opportunities, dataMode, isDemoParty)
-        : [];
-    const teamQuotes =
-      teamData != null
-        ? filterByPartyDemoMode(teamData.quotesSubmitted, dataMode, isDemoParty)
-        : [];
+    const orgOpportunities = orgData?.opportunities ?? [];
+    const orgQuotes = orgData?.quotesSubmitted ?? [];
+    const teamOpportunities = teamData?.opportunities ?? [];
+    const teamQuotes = teamData?.quotesSubmitted ?? [];
 
     const insightBundle =
       activeLens === 'team' && teamData
@@ -580,7 +547,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
         : null;
 
     const teamRows =
-      activeLens === 'team' && teamData && shouldShowManagementTeamTable(dataMode)
+      activeLens === 'team' && teamData
         ? composeTeamMetricsRows({
             period: managementPeriod,
             opportunities: teamOpportunities,
@@ -594,8 +561,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
 
     const showExampleAffordance = viewerHasManagementOrgRead(roleKeys);
     const exceptionsView = isInicioExceptionsView(paramOne(params.vista));
-    const homeHref =
-      paramOne(params.datos) === 'demo' ? '/inicio?datos=demo' : '/inicio';
+    const homeHref = '/inicio';
 
     if (exceptionsView) {
       return (
