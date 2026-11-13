@@ -14,6 +14,8 @@ import { QuoteList } from '@/components/commercial/quote-list';
 import { Cliente360Now } from '@/components/party/cliente-360-now';
 import { Cliente360OwnerLine } from '@/components/party/cliente-360-owner-line';
 import { ContactEndpointPanel, type ContactEndpointAuthority } from '@/components/party/contact-endpoint-panel';
+import { CorrectionRequestForm } from '@/components/issue/correction-request-form';
+import { CustomerArchivePanel } from '@/components/party/customer-archive-panel';
 import { ContactFollowupPanel } from '@/components/party/contact-followup-panel';
 import { ContactRelationshipPanel } from '@/components/party/contact-relationship-panel';
 import { CustomerEditForms } from '@/components/party/customer-edit-forms';
@@ -41,7 +43,7 @@ import { LIST_SCALE_PREVIEW_DEFAULT, LIST_SCALE_PREVIEW_LARGE } from '@/lib/ui/l
 import { newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
 import type { IssueListItem } from '@/lib/issue/types';
-import type { ContactFollowupPreferenceItem, ContactRelationshipEndPreview } from '@isalwa/os-contracts';
+import type { ContactFollowupPreferenceItem, ContactRelationshipEndPreview, CustomerArchivePreview } from '@isalwa/os-contracts';
 import type { ContactEndpointHistoryResponse } from '@/lib/party/types';
 import { COMMITMENT_COPY } from '@/lib/commitments/copy';
 import { commercialOwnerView } from '@/lib/party/customer-self-service';
@@ -243,6 +245,16 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
         });
       }
     }
+    const canArchiveCustomer = !evaluation.active && detail.customerAuthority?.canArchiveCustomer === true;
+    const canReactivateCustomer = !evaluation.active && detail.customerAuthority?.canReactivateCustomer === true;
+    let archivePreview: CustomerArchivePreview | null = null;
+    if (canArchiveCustomer || canReactivateCustomer) {
+      try {
+        archivePreview = await client.getCustomerArchivePreview(partyId);
+      } catch {
+        archivePreview = null;
+      }
+    }
     const canSetFollowupPreference =
       !evaluation.active && detail.customerAuthority?.canSetFollowupPreference === true;
     const followupByContact = new Map<string, ContactFollowupPreferenceItem[]>();
@@ -440,6 +452,24 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                     canRevoke: grant.canRevoke,
                   }))}
                 />
+              ) : null}
+              <CustomerArchivePanel preview={archivePreview} canArchive={canArchiveCustomer} canReactivate={canReactivateCustomer} />
+              {!evaluation.active ? (
+                <details className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] p-4">
+                  <summary className="cursor-pointer text-sm font-medium text-[var(--isalwa-kiln)]">Solicitar corrección de datos</summary>
+                  <CorrectionRequestForm
+                    partyId={partyId}
+                    contacts={contacts.map((item) => ({
+                      id: item.id,
+                      label: contactDisplayName(item.givenName, item.familyName),
+                    }))}
+                    locations={
+                      locations.status === 'ok'
+                        ? locations.data.locations.map((item) => ({ id: item.id, label: item.label }))
+                        : []
+                    }
+                  />
+                </details>
               ) : null}
               {accountLabel ? <p className="text-sm text-[var(--isalwa-slate)]">{accountLabel}</p> : null}
               {party.status === 'merged' && party.mergedIntoPartyId ? (

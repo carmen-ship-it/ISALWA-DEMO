@@ -6,7 +6,9 @@ import { ListPageNav } from '@/components/lists/list-page-nav';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { AccessDeniedState } from '@/components/states/app-states';
+import { ISSUE_MANAGE_SCOPE, hasAssignedOperationsScope } from '@isalwa/os-contracts';
 import { createOsApiClient } from '@/lib/api/os-api-client';
+import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
 import { ISSUE_COPY } from '@/lib/issue/labels';
@@ -26,7 +28,7 @@ import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 const PAGE_LIMIT = 25;
 
-type IssueView = 'open' | 'assigned' | 'reported' | 'resolved';
+type IssueView = 'open' | 'assigned' | 'reported' | 'resolved' | 'correction_attention';
 
 type IncidenciasPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -36,7 +38,7 @@ const tabClass =
   'isalwa-t-fast inline-flex h-9 items-center rounded-[var(--isalwa-radius-control)] border px-4 text-sm font-medium outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 function parseView(raw: string | string[] | undefined): IssueView {
-  if (raw === 'assigned' || raw === 'reported' || raw === 'resolved') return raw;
+  if (raw === 'assigned' || raw === 'reported' || raw === 'resolved' || raw === 'correction_attention') return raw;
   return 'open';
 }
 
@@ -50,6 +52,8 @@ function viewQuery(view: IssueView): Record<string, string | number | boolean> {
       return { view: 'reported_by_me', limit: PAGE_LIMIT };
     case 'resolved':
       return { view: 'resolved', limit: PAGE_LIMIT };
+    case 'correction_attention':
+      return { view: 'correction_attention', limit: PAGE_LIMIT };
   }
 }
 
@@ -88,6 +92,11 @@ function emptyMessage(view: IssueView): IncidenciasEmpty {
         example: ISSUE_COPY.descriptionPlaceholder,
         showReportAction: true,
       };
+    case 'correction_attention':
+      return {
+        title: 'No hay correcciones que requieran atención',
+        description: 'Esta cola muestra solicitudes sin responsable o cuyo responsable ya no puede aplicar el cambio.',
+      };
     case 'resolved':
       return {
         title: ISSUE_COPY.emptyResolved,
@@ -111,6 +120,9 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
   const reportedByLabel = session?.displayLabel?.trim() ?? '';
 
   const client = createOsApiClient(auth);
+  const capabilities = await loadMemberCapabilities();
+  const canManageIssues = hasAssignedOperationsScope(capabilities?.grantedScopes ?? [], ISSUE_MANAGE_SCOPE);
+  const correctionDenied = view === 'correction_attention' && !canManageIssues;
   const evaluation = await getEvaluationProjection();
   if (!evaluationAllowsDesk(evaluation, 'incidencias')) {
     return <EvaluationDeskExcluded evaluation={evaluation} deskLabel={ISSUE_COPY.listTitle} />;
@@ -138,7 +150,9 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
       filterIssuesForEvaluation(evaluation, rows, allowedPartyIds);
 
     const [result, openPage, assignedPage, resolvedPage] = await Promise.all([
-      client.listIssues({ ...viewQuery(view), ...(cursor ? { cursor } : {}) }),
+      correctionDenied
+        ? Promise.resolve({ items: [], meta: { hasMore: false, nextCursor: undefined } })
+        : client.listIssues({ ...viewQuery(view), ...(cursor ? { cursor } : {}) }),
       client.listIssues({ view: 'open', limit: PAGE_LIMIT }),
       client.listIssues({ view: 'assigned_to_me', limit: PAGE_LIMIT }),
       client.listIssues({ view: 'resolved', limit: PAGE_LIMIT }),
@@ -182,9 +196,11 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
           ]}
         />
 
-        <IssueViewTabs active={view} />
+        <IssueViewTabs active={view} showCorrectionQueue={canManageIssues} />
 
-        {items.length === 0 ? (
+        {correctionDenied ? (
+          <AccessDeniedState />
+        ) : items.length === 0 ? (
           <EmptyState
             title={empty.title}
             description={empty.description}
@@ -252,12 +268,15 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
   }
 }
 
-function IssueViewTabs({ active }: { active: IssueView }) {
-  const tabs: Array<{ id: IssueView; label: string }> = [
-    { id: 'open', label: ISSUE_COPY.tabOpen },
-    { id: 'assigned', label: ISSUE_COPY.tabAssigned },
-    { id: 'reported', label: ISSUE_COPY.tabReported },
-    { id: 'resolved', label: ISSUE_COPY.tabResolved },
+function IssueViewTabs({ active, showCorrectionQueue }: { active: IssueView; showCorrectionQueue: boolean }) {
+  const tabs: Array<{ id: IssueView; label: string; href: string }> = [
+    { id: 'open', label: ISSUE_COPY.tabOpen, href: issueListHref() },
+    { id: 'assigned', label: ISSUE_COPY.tabAssigned, href: issueListHref('assigned') },
+    { id: 'reported', label: ISSUE_COPY.tabReported, href: issueListHref('reported') },
+    { id: 'resolved', label: ISSUE_COPY.tabResolved, href: issueListHref('resolved') },
+    ...(showCorrectionQueue
+      ? [{ id: 'correction_attention' as const, label: 'Correcciones', href: '/incidencias?view=correction_attention' }]
+      : []),
   ];
 
   return (
@@ -267,7 +286,7 @@ function IssueViewTabs({ active }: { active: IssueView }) {
         return (
           <Link
             key={tab.id}
-            href={issueListHref(tab.id === 'open' ? undefined : tab.id)}
+            href={tab.href}
             role="tab"
             aria-selected={selected}
             className={cx(

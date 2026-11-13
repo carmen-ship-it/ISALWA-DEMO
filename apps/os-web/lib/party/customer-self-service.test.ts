@@ -17,6 +17,8 @@ import {
   OWNER_REASSIGNMENT_COMMAND,
   SCOPES_WITHOUT_CUSTOMER_CREATE,
   AUTOMATIC_SENDS_ABSENT_LABEL,
+  PAYMENTS_UNVERIFIED_LABEL,
+  archiveObligationLines,
   buildCreateCustomerPayload,
   buildCreateLocationPayload,
   buildEndContactRelationshipPayload,
@@ -328,5 +330,21 @@ describe('T03 follow-up preferences', () => {
     assert.match(panel, /No más promociones/);
     assert.match(panel, /No me escriban/);
     assert.doesNotMatch(panel, /customer_message|defaultValue=\{item\.preference\}/);
+  });
+});
+
+describe('T03 archive and reactivation', () => {
+  it('lists obligations by kind and never presents payments as zero', () => {
+    assert.equal(PAYMENTS_UNVERIFIED_LABEL, 'Pagos: no verificados en esta versión');
+    assert.deepEqual(
+      archiveObligationLines({ openOrders: 1, openCommitments: 0, openIssues: 2, openWorkItems: 0 }).map((line) => line.kind),
+      ['Pedidos abiertos', 'Compromisos abiertos', 'Incidencias abiertas', 'Trabajos abiertos'],
+    );
+    const panel = readUi('../../components/party/customer-archive-panel.tsx');
+    assert.match(panel, /PAYMENTS_UNVERIFIED_LABEL/);
+    assert.doesNotMatch(panel, /Pagos: 0/);
+    const forbidden: readonly string[] = CUSTOMER_SELF_SERVICE_FORBIDDEN_COMMANDS;
+    assert.equal(forbidden.includes('DeactivateParty'), false);
+    assert.equal(forbidden.includes('ReactivateParty'), false);
   });
 });
