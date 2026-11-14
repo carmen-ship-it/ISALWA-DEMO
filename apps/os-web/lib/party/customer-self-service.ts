@@ -242,6 +242,25 @@ export function formerContactLine(input: {
   return ['Contacto anterior', input.endedOn || null, reason, input.reasonNote?.trim() || null].filter(Boolean).join(' · ');
 }
 
+/**
+ * End date and reason for a former contact. The timeline event wins when it is in
+ * the loaded window; otherwise the contact row still carries date and reason.
+ * The free-text note exists only on the timeline event.
+ */
+export function contactRelationEnd(
+  contact: { relationEndedAt?: string | null; relationEndReason?: string | null },
+  timelineEvent?: { endedOn?: string; reason?: string; reasonNote?: string },
+): { endedOn?: string; reason?: string; reasonNote?: string } {
+  const endedOn =
+    timelineEvent?.endedOn ??
+    (contact.relationEndedAt ? laPazToday(new Date(contact.relationEndedAt)) : undefined);
+  return {
+    endedOn,
+    reason: timelineEvent?.reason ?? contact.relationEndReason ?? undefined,
+    reasonNote: timelineEvent?.reasonNote,
+  };
+}
+
 export function buildEndContactRelationshipPayload(input: {
   partyId: string;
   contactId: string;

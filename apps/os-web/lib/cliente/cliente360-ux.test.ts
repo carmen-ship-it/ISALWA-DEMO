@@ -128,6 +128,23 @@ describe('Cliente 360 surface copy', () => {
     assert.doesNotMatch(header, /['">]Cliente360['"<]/);
   });
 
+  it('legal-name authority reaches the edit drawer through header and menu (T03 C2)', () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const read = (path: string) => readFileSync(resolve(here, path), 'utf8');
+    assert.match(
+      read('../../app/(app)/clientes/[partyId]/page.tsx'),
+      /canEditLegalName=\{detail\.customerAuthority\?\.canEditLegalName === true\}/,
+    );
+    assert.match(
+      read('../../components/cliente/cliente-360-header.tsx'),
+      /canEditLegalName: allowMutations && canEditParty && canEditLegalName/,
+    );
+    assert.match(
+      read('../../components/cliente/cliente-360-actions-menu.tsx'),
+      /canEditLegalName=\{props\.canEditLegalName === true\}/,
+    );
+  });
+
   it('resumen does not lead with ¿Por qué veo esto?', () => {
     const here = dirname(fileURLToPath(import.meta.url));
     const now = readFileSync(resolve(here, '../../components/party/cliente-360-now.tsx'), 'utf8');

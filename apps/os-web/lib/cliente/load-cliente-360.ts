@@ -183,6 +183,10 @@ export async function loadCliente360(
   if (detail.activeCoverage?.recordedByMemberId) {
     memberIds.add(detail.activeCoverage.recordedByMemberId);
   }
+  for (const grant of detail.coverageGrants ?? []) {
+    memberIds.add(grant.actingAdvisorMemberId);
+    if (grant.recordedByMemberId) memberIds.add(grant.recordedByMemberId);
+  }
 
   const memberResponsibility = await resolveMemberResponsibilityLabels(client, memberIds);
   const memberLabels: MemberLabelMap = new Map(

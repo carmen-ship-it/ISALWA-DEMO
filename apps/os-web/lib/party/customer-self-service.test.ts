@@ -23,6 +23,7 @@ import {
   buildCreateLocationPayload,
   buildEndContactRelationshipPayload,
   buildSetFollowupPreferencePayload,
+  contactRelationEnd,
   formerContactLine,
   buildDeactivateLocationPayload,
   buildUpdateContactPayload,
@@ -309,6 +310,20 @@ describe('T03 ending a contact relationship', () => {
     );
     assert.doesNotMatch(readUi('../../components/party/contact-relationship-panel.tsx'), /cancelar envío|envíos pendientes/i);
     assert.match(readUi('../../components/party/contact-relationship-panel.tsx'), /Compromisos abiertos del cliente/);
+  });
+
+  it('keeps the end date and reason when the end event is outside the loaded timeline', () => {
+    const contact = { relationEndedAt: '2026-10-01T04:00:00.000Z', relationEndReason: 'role_changed' };
+    assert.deepEqual(contactRelationEnd(contact), { endedOn: '2026-10-01', reason: 'role_changed', reasonNote: undefined });
+    assert.deepEqual(
+      contactRelationEnd(contact, { endedOn: '2026-10-01', reason: 'other', reasonNote: 'Se jubiló este mes' }),
+      { endedOn: '2026-10-01', reason: 'other', reasonNote: 'Se jubiló este mes' },
+    );
+    assert.deepEqual(contactRelationEnd({ relationEndedAt: null, relationEndReason: null }), {
+      endedOn: undefined,
+      reason: undefined,
+      reasonNote: undefined,
+    });
   });
 });
 

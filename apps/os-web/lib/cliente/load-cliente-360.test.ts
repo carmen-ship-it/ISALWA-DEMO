@@ -183,6 +183,39 @@ describe('loadCliente360 null freshness', () => {
   });
 });
 
+describe('loadCliente360 coverage labels (T03 C4)', () => {
+  it('resolves names for every coverage grant, not only the first active one', async () => {
+    const requested: string[] = [];
+    const grant = (grantId: string, advisor: string, recordedBy: string | null) => ({
+      grantId,
+      actingAdvisorMemberId: advisor,
+      primaryOwnerMemberId: 'mem-owner',
+      coveredActions: ['customer.edit'],
+      startsAt: '2026-11-01T00:00:00.000Z',
+      endsAt: null,
+      status: 'scheduled' as const,
+      recordedByMemberId: recordedBy,
+      canRevoke: false,
+    });
+    const client = {
+      ...mockClient({}),
+      getParty: async () => ({
+        ...partyDetail,
+        coverageGrants: [grant('g-1', 'mem-a', 'mem-r'), grant('g-2', 'mem-b', null)],
+      }),
+      getMember: async (memberId: string) => {
+        requested.push(memberId);
+        throw new Error('not needed for this assertion');
+      },
+    } as unknown as OsApiClient;
+    const data = await loadCliente360(client, 'party-1');
+    for (const id of ['mem-a', 'mem-b', 'mem-r']) {
+      assert.ok(requested.includes(id), id);
+      assert.ok(data.memberLabels.has(id), id);
+    }
+  });
+});
+
 describe('loadCliente360 Pedido graph (RC3)', () => {
   it('requests party locations with the default bound of 25', () => {
     const source = readFileSync(new URL('./load-cliente-360.ts', import.meta.url), 'utf8');

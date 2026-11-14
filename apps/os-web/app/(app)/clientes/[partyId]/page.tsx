@@ -46,9 +46,9 @@ import type { IssueListItem } from '@/lib/issue/types';
 import type { ContactFollowupPreferenceItem, ContactRelationshipEndPreview, CustomerArchivePreview } from '@isalwa/os-contracts';
 import type { ContactEndpointHistoryResponse } from '@/lib/party/types';
 import { COMMITMENT_COPY } from '@/lib/commitments/copy';
-import { commercialOwnerView } from '@/lib/party/customer-self-service';
+import { commercialOwnerView, contactRelationEnd } from '@/lib/party/customer-self-service';
 import { composeCliente360FromLoaded } from '@/lib/party/next-action';
-import { memberLabel, memberWithCargoLine, resolveMemberLabels } from '@/lib/work/member-resolver';
+import { memberLabel, memberWithCargoLine } from '@/lib/work/member-resolver';
 import { formatTimestamp } from '@/lib/work/labels';
 import {
   contactDisplayName,
@@ -270,13 +270,6 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
     );
     const canReassignOwner =
       !evaluation.active && detail.commercialAuthority?.canReassignOwner === true;
-    const coverageMemberIds = (detail.coverageGrants ?? []).flatMap((grant) =>
-      [grant.actingAdvisorMemberId, grant.recordedByMemberId ?? ''].filter(Boolean),
-    );
-    if (coverageMemberIds.length > 0) {
-      const coverageLabels = await resolveMemberLabels(client, coverageMemberIds);
-      for (const [id, label] of coverageLabels) memberLabels.set(id, label);
-    }
     const ownerResolvedLabel = commercialAccount?.ownerMemberId
       ? memberWithCargoLine(memberResponsibility, commercialAccount.ownerMemberId)
       : null;
@@ -376,6 +369,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
             party={party}
             contacts={contacts}
             canEditParty={canEditParty}
+            canEditLegalName={detail.customerAuthority?.canEditLegalName === true}
             canEditContacts={canEditContacts}
             canReassignOwner={canReassignOwner}
             allowMutations={!evaluation.active}
@@ -511,9 +505,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                           expectedVersion={item.version}
                           canEnd={canEndContactRelationship}
                           preview={relationshipPreviews.get(item.id) ?? null}
-                          endedOn={relationEndByContact.get(item.id)?.endedOn}
-                          reason={relationEndByContact.get(item.id)?.reason}
-                          reasonNote={relationEndByContact.get(item.id)?.reasonNote}
+                          {...contactRelationEnd(item, relationEndByContact.get(item.id))}
                         />
                       </ListRow>
                     ))}

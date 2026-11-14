@@ -70,6 +70,9 @@ export type PartyDetailResponse = {
     whatsappStatus?: 'unverified' | 'verified' | 'identity_review' | null;
     title: string | null;
     status: string;
+    /** Set when the relationship ended (La Paz midnight of the end date). */
+    relationEndedAt?: string | null;
+    relationEndReason?: string | null;
     version: number;
   }>;
   contactsMeta?: {

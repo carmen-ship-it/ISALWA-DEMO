@@ -29,6 +29,7 @@ export type Cliente360ActionsMenuProps = {
   party: PartyDetailResponse['party'];
   contacts: PartyDetailResponse['contacts'];
   canEditParty: boolean;
+  canEditLegalName?: boolean;
   canEditContacts: boolean;
   canReassignOwner: boolean;
   /** When false, hide all mutating menu entries (Vista de evaluación). */
@@ -159,7 +160,13 @@ export function Cliente360ActionsMenu(props: Cliente360ActionsMenuProps) {
       </ContextDrawer>
 
       <ContextDrawer open={drawer === 'edit_party'} title="Editar cliente" onClose={closeDrawer}>
-        <CustomerEditForms party={props.party} contacts={props.contacts} canEditParty={props.canEditParty} canEditContacts={false} />
+        <CustomerEditForms
+          party={props.party}
+          contacts={props.contacts}
+          canEditParty={props.canEditParty}
+          canEditLegalName={props.canEditLegalName === true}
+          canEditContacts={false}
+        />
       </ContextDrawer>
 
       <Cliente360LocationCreateDrawer
