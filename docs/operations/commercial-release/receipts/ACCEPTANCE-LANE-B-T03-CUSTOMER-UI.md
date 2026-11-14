@@ -1,6 +1,6 @@
 # Custody and local acceptance — Lane B T03 customer UI
 
-Date: 2026-11-13. Integrator: Control Tower (not the builder). State: **TESTED + LOCAL BROWSER CHECK on candidate + integration fixes. NOT INTEGRATED** (awaiting the independent review verdict). Not hosted, not user-accepted.
+Date: 2026-11-13. Integrator: Control Tower (not the builder). State: **INTEGRATED locally at `c1c185ec`** (TESTED + LOCAL BROWSER CHECK). Not hosted, not user-accepted.
 
 ## Custody
 
@@ -100,7 +100,8 @@ No blocking finding from this acceptance. Non-blocking follow-ups:
 
 ## Remaining gaps
 
-- Independent review verdict: pending (receipt `isalwa-transfer-readiness/review-packets/REVIEW-LANE-B-T03-ac132021.md`).
-- Integration into `ct3/v1-repairs`: not done; gated on the review having no unresolved blocking finding.
+- Independent review: PASS WITH FOLLOW-UPS, no blocking findings (`isalwa-transfer-readiness/review-packets/REVIEW-LANE-B-T03-ac132021.md`). Its required items are resolved: legal-name drawer and former-contact fields (`71069113`), coverage labels (`71069113`), receipt migration sentence (`f7baee8a`).
+- Integrated: merge `c1c185ec` into `ct3/v1-repairs`. On `c1c185ec`: os-web 1331/1331, `tsc` exit 0, `next build` exit 0.
+- Reviewer follow-ups not fixed (non-blocking): archived customers still show contact and number forms the API refuses (permission flags ignore archived status); former contacts still show change/retire/identity-review forms; raw commitment state codes and ISO dates in the relationship-end preview; an optional 1–9 character note on a non-"other" reason gets a generic refusal; correction-read failure falls back to the generic resolve form; up to three extra API calls per contact; two display-name edit forms and a few non-design-system elements; no tests for archive/reactivate payload builders; commit `29e6c9e8` does not build alone; contacts deactivated by an import reversal show as "Contacto anterior" without an end date.
 - Import execution (`ExecuteClientImport`) was not exercised in the browser.
 - Hosted proof: UNPROVEN (no hosting).

@@ -1,0 +1,25 @@
+├ ○ /login                                                                5.78 kB         122 kB
+├ ƒ /mapa                                                                  203 kB         389 kB
+├ ƒ /memoria-decisiones                                                   3.34 kB         110 kB
+├ ƒ /mensajes                                                               191 B         196 kB
+├ ƒ /oportunidades                                                        1.92 kB         122 kB
+├ ƒ /oportunidades/nueva                                                    237 B         119 kB
+├ ƒ /pedidos                                                              1.92 kB         122 kB
+├ ƒ /produccion                                                            7.1 kB         202 kB
+├ ƒ /productos                                                            16.3 kB         129 kB
+├ ƒ /salud-datos                                                          3.35 kB         110 kB
+├ ƒ /sistema                                                                382 B         121 kB
+├ ƒ /sistema/pruebas-acceso                                                 371 B         121 kB
+├ ƒ /trabajo                                                               1.9 kB         122 kB
+└ ƒ /trabajo/[workItemId]                                                 2.45 kB         193 kB
++ First Load JS shared by all                                              104 kB
+  ├ chunks/18-e80f8268f2fd0ad7.js                                         46.7 kB
+  ├ chunks/87c73c54-09e1ba5c70e60a51.js                                   54.2 kB
+  └ other shared chunks (total)                                           2.54 kB
+
+
+ƒ Middleware                                                               105 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
