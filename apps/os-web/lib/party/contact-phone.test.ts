@@ -9,6 +9,7 @@ import {
   IDENTITY_REVIEW_NOTICE,
   contactNumberFromForm,
   CONTACT_PHONE_VERIFICATION_OPTIONS,
+  endpointHistoryEndLabel,
 } from '@/lib/party/contact-phone';
 
 const base = { partyId: 'p1', contactId: 'c1', expectedVersion: 2, channel: 'phone', reason: 'number_changed' };
@@ -75,6 +76,13 @@ describe('T03 contact phone change and retirement (A2 §58, §66)', () => {
       'Teléfono: identidad confirmada, número en uso · Verificación: Confirmación presencial',
     );
     assert.equal(/cliente|nombre/i.test(IDENTITY_REVIEW_NOTICE), false);
+  });
+
+  it('labels a known history end reason and hides unknown codes', () => {
+    assert.equal(endpointHistoryEndLabel('retired:number_changed'), 'Cambio de número');
+    assert.equal(endpointHistoryEndLabel('changed:entry_error'), 'Error de registro');
+    assert.equal(endpointHistoryEndLabel('relation_ended:left_company'), null);
+    assert.equal(endpointHistoryEndLabel(null), null);
   });
 
   it('a reveal needs a 10–500 character reason and the exact history row', () => {

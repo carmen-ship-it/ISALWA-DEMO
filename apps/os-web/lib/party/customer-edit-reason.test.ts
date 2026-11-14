@@ -1,32 +1,25 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { partyUpdateSummary, timelineEntrySummary } from '@/lib/commercial/timeline-labels';
-import {
-  buildUpdatePartyPayload,
-  parsePartyChangeKind,
-  partyEditReasonError,
-} from '@/lib/party/customer-self-service';
+import { buildUpdatePartyPayload, partyEditReasonError } from '@/lib/party/customer-self-service';
 
 const previous = { displayName: 'Andina', legalName: 'Andina SRL' };
 
 describe('T03 customer edit with reason and field history (A2 §46)', () => {
   it('asks for a reason for any name or legal-name change, typos included', () => {
     const base = { previous, displayName: 'Andinaa', legalName: 'Andina SRL', changeReason: '' };
-    for (const changeKind of ['update', 'correction', 'typo'] as const) {
-      assert.equal(partyEditReasonError({ ...base, changeKind }), 'Indique el motivo del cambio.', changeKind);
-    }
-    assert.equal(partyEditReasonError({ ...base, displayName: 'Andina', legalName: 'Andina S.R.L.', changeKind: 'typo' }), 'Indique el motivo del cambio.');
-    assert.equal(partyEditReasonError({ ...base, changeKind: 'update', changeReason: 'Cambió de nombre' }), null);
-    assert.equal(partyEditReasonError({ ...base, displayName: 'Andina', changeKind: 'update' }), null, 'nothing changed');
+    assert.equal(partyEditReasonError(base), 'Indique el motivo del cambio.');
+    assert.equal(partyEditReasonError({ ...base, displayName: 'Andina', legalName: 'Andina S.R.L.' }), 'Indique el motivo del cambio.');
+    assert.equal(partyEditReasonError({ ...base, changeReason: 'Cambió de nombre' }), null);
+    assert.equal(partyEditReasonError({ ...base, displayName: 'Andina' }), null, 'nothing changed');
   });
 
-  it('sends kind and trimmed reason; unknown kinds fall back to update', () => {
-    assert.equal(parsePartyChangeKind('typo'), 'typo');
-    assert.equal(parsePartyChangeKind('delete'), 'update');
+  it('sends a trimmed reason and does not send a change kind', () => {
     assert.deepEqual(
-      buildUpdatePartyPayload({ partyId: 'p1', displayName: 'Andina', expectedVersion: 2, changeKind: 'correction', changeReason: '  Mal registrado ' }),
-      { partyId: 'p1', displayName: 'Andina', expectedVersion: 2, changeKind: 'correction', changeReason: 'Mal registrado' },
+      buildUpdatePartyPayload({ partyId: 'p1', displayName: 'Andina', expectedVersion: 2, changeReason: '  Mal registrado ' }),
+      { partyId: 'p1', displayName: 'Andina', expectedVersion: 2, changeReason: 'Mal registrado' },
     );
+    assert.equal('changeKind' in buildUpdatePartyPayload({ partyId: 'p1', displayName: 'A', expectedVersion: 0, changeReason: 'Motivo' }), false);
     assert.equal('changeReason' in buildUpdatePartyPayload({ partyId: 'p1', displayName: 'A', expectedVersion: 0, changeReason: '  ' }), false);
   });
 

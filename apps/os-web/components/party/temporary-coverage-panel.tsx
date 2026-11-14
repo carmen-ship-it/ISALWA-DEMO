@@ -9,16 +9,23 @@ import {
   grantCustomerCoverageAction,
   revokeCustomerCoverageAction,
 } from '@/lib/commercial/actions';
-import { coverageActionChoices, formatCoverageActions } from '@/lib/commercial/coverage-actions';
+import {
+  COVERAGE_WINDOW_HELP,
+  coverageActionChoices,
+  coverageGrantStatusLabel,
+  formatCoverageActions,
+} from '@/lib/commercial/coverage-actions';
 
-export type ActiveCoverageDisplay = {
+export type CoverageGrantDisplay = {
   grantId: string;
   actingAdvisorMemberId: string;
   actingAdvisorLabel: string;
   assignedByLabel: string | null;
   startsAtLabel: string;
-  note: string | null;
-  coveredActions?: string[];
+  endsAtLabel: string;
+  status: 'active' | 'scheduled';
+  coveredActions: string[];
+  canRevoke: boolean;
 };
 
 type TemporaryCoveragePanelProps = {
@@ -27,7 +34,8 @@ type TemporaryCoveragePanelProps = {
   canonicalOwnerLabel: string;
   canonicalOwnerMemberId: string;
   canManageCoverage: boolean;
-  activeCoverage: ActiveCoverageDisplay | null;
+  /** Every active and scheduled grant. There is no single-grant view. */
+  coverageGrants: CoverageGrantDisplay[];
   /** From the server; without it only "continuar oportunidades y cotizaciones" is offered. */
   grantableActions?: string[];
 };
@@ -38,7 +46,7 @@ export function TemporaryCoveragePanel({
   canonicalOwnerLabel,
   canonicalOwnerMemberId,
   canManageCoverage,
-  activeCoverage,
+  coverageGrants,
   grantableActions,
 }: TemporaryCoveragePanelProps) {
   const choices = coverageActionChoices(grantableActions);
@@ -66,7 +74,7 @@ export function TemporaryCoveragePanel({
     null,
   );
 
-  if (!canManageCoverage && !activeCoverage) return null;
+  if (!canManageCoverage && coverageGrants.length === 0) return null;
 
   return (
     <section className="mt-4 space-y-3 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] p-4">
@@ -81,31 +89,35 @@ export function TemporaryCoveragePanel({
         además su propio permiso para cada una.
       </p>
 
-      {activeCoverage ? (
-        <div className="space-y-2 text-sm text-[var(--isalwa-kiln)]">
-          <p>
-            Apoyo activo: <strong>{activeCoverage.actingAdvisorLabel}</strong>
-          </p>
-          <p className="text-[var(--isalwa-slate)]">
-            Asignado{activeCoverage.assignedByLabel ? ` por ${activeCoverage.assignedByLabel}` : ''} ·{' '}
-            {activeCoverage.startsAtLabel}
-          </p>
-          <p className="text-[var(--isalwa-slate)]" data-coverage-actions="active">
-            Cubre: {formatCoverageActions(activeCoverage.coveredActions)}
-          </p>
-          {activeCoverage.note ? (
-            <p className="text-[var(--isalwa-slate)]">Nota: {activeCoverage.note}</p>
-          ) : null}
-          {canManageCoverage ? (
-            <form action={revokeAction} className="space-y-2">
-              <input type="hidden" name="partyId" value={partyId} />
-              <input type="hidden" name="grantId" value={activeCoverage.grantId} />
-              <FormFeedback error={revokeState?.error} success={revokeState?.success} />
-              <CommandSubmitButton label="Quitar apoyo temporal" variant="secondary" />
-            </form>
-          ) : null}
-        </div>
-      ) : canManageCoverage ? (
+      {coverageGrants.length > 0 ? (
+        <ul className="m-0 list-none space-y-3 p-0" data-coverage-grants="list">
+          {coverageGrants.map((grant) => (
+            <li key={grant.grantId} className="space-y-1 text-sm text-[var(--isalwa-kiln)]" data-coverage-status={grant.status}>
+              <p>
+                {coverageGrantStatusLabel(grant.status)}: <strong>{grant.actingAdvisorLabel}</strong>
+              </p>
+              <p className="text-[var(--isalwa-slate)]">
+                Asignado{grant.assignedByLabel ? ` por ${grant.assignedByLabel}` : ''} · {grant.startsAtLabel} – {grant.endsAtLabel}
+              </p>
+              <p className="text-[var(--isalwa-slate)]" data-coverage-actions={grant.grantId}>
+                Cubre: {formatCoverageActions(grant.coveredActions)}
+              </p>
+              {grant.canRevoke ? (
+                <form action={revokeAction} className="space-y-2">
+                  <input type="hidden" name="partyId" value={partyId} />
+                  <input type="hidden" name="grantId" value={grant.grantId} />
+                  <CommandSubmitButton label="Quitar apoyo temporal" variant="secondary" />
+                </form>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-[var(--isalwa-slate)]">No hay apoyos temporales vigentes ni programados.</p>
+      )}
+      <FormFeedback error={revokeState?.error} success={revokeState?.success} />
+
+      {canManageCoverage ? (
         <form action={grantAction} className="space-y-3">
           <input type="hidden" name="partyId" value={partyId} />
           <input type="hidden" name="commercialAccountId" value={commercialAccountId} />
@@ -141,6 +153,32 @@ export function TemporaryCoveragePanel({
               ))}
             </div>
           </fieldset>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label htmlFor="coverage-starts" className="block text-sm text-[var(--isalwa-slate)]">
+                Desde (opcional)
+              </label>
+              <input
+                id="coverage-starts"
+                name="startsOn"
+                type="date"
+                className="mt-1 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-sm text-[var(--isalwa-kiln)]"
+              />
+            </div>
+            <div>
+              <label htmlFor="coverage-ends" className="block text-sm text-[var(--isalwa-slate)]">
+                Hasta
+              </label>
+              <input
+                id="coverage-ends"
+                name="endsOn"
+                type="date"
+                required
+                className="mt-1 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-sm text-[var(--isalwa-kiln)]"
+              />
+            </div>
+          </div>
+          <p className="text-xs text-[var(--isalwa-slate)]">{COVERAGE_WINDOW_HELP}</p>
           <div>
             <label htmlFor="coverage-note" className="block text-sm text-[var(--isalwa-slate)]">
               Motivo (opcional)

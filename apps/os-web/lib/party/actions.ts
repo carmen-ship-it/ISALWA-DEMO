@@ -2,6 +2,7 @@
 
 import { createId } from '@isalwa/ts-utils';
 import { revalidatePath } from 'next/cache';
+import { OsApiError } from '@/lib/api/os-api-errors';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { mapCommandError } from '@/lib/commercial/command-errors';
@@ -17,7 +18,10 @@ import {
   createCustomerSearchGate,
   PARTY_KINDS_FOR_CUSTOMER,
   parseCoordinatePair,
-  parsePartyChangeKind,
+  buildDeactivatePartyPayload,
+  buildEndContactRelationshipPayload,
+  buildReactivatePartyPayload,
+  buildSetFollowupPreferencePayload,
   partyEditReasonError,
   preserveProvenanceUrl,
 } from '@/lib/party/customer-self-service';
@@ -28,6 +32,7 @@ import {
   buildRevealContactEndpointPayload,
   contactNumberFromForm,
 } from '@/lib/party/contact-phone';
+import { buildResolveImportPhonePayload, importPhoneCommandMessage } from '@/components/party/import-phone-review';
 import { clientesSearchHref, partyHref } from '@/lib/party/navigation';
 import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 import { redirectKeepingDataMode } from '@/lib/demo/redirect-data-mode';
@@ -124,7 +129,6 @@ export async function updateCustomerAction(formData: FormData): Promise<CommandA
   if (!Number.isInteger(expectedVersion) || expectedVersion < 0) {
     return { ok: false, error: 'No se pudo guardar. Actualice la página e intente de nuevo.' };
   }
-  const changeKind = parsePartyChangeKind(formData.get('changeKind'));
   const changeReason = String(formData.get('changeReason') ?? '').trim();
   const reasonError = partyEditReasonError({
     previous: {
@@ -133,7 +137,6 @@ export async function updateCustomerAction(formData: FormData): Promise<CommandA
     },
     displayName,
     legalName: sendsLegalName ? legalName || null : null,
-    changeKind,
     changeReason,
   });
   if (reasonError) return { ok: false, error: reasonError };
@@ -146,7 +149,6 @@ export async function updateCustomerAction(formData: FormData): Promise<CommandA
     displayName,
     legalName,
     expectedVersion,
-    changeKind,
     changeReason,
   });
 
@@ -359,6 +361,129 @@ export async function updateLocationAction(formData: FormData): Promise<CommandA
     return { ok: true, data: result.data };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+function archiveCommandError(err: unknown): string {
+  if (err instanceof OsApiError && err.code === 'ARCHIVE_BLOCKED_BY_OBLIGATIONS') {
+    return 'Hay obligaciones abiertas. Resuélvalas antes de archivar.';
+  }
+  return mapCommandError(err);
+}
+
+export async function deactivatePartyAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildDeactivatePartyPayload({
+    partyId: String(formData.get('partyId') ?? '').trim(),
+    expectedVersion: Number(formData.get('expectedVersion')),
+    reason: String(formData.get('reason') ?? ''),
+    reasonNote: String(formData.get('reasonNote') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await customerClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executePartyCommand('DeactivateParty', built.payload, createId());
+    revalidateCustomer(String(built.payload.partyId));
+    return { ok: true, data: result.data };
+  } catch (err) {
+    return { ok: false, error: archiveCommandError(err) };
+  }
+}
+
+export async function reactivatePartyAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildReactivatePartyPayload({
+    partyId: String(formData.get('partyId') ?? '').trim(),
+    expectedVersion: Number(formData.get('expectedVersion')),
+    reasonNote: String(formData.get('reasonNote') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await customerClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executePartyCommand('ReactivateParty', built.payload, createId());
+    revalidateCustomer(String(built.payload.partyId));
+    return { ok: true, data: result.data };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+export async function setContactFollowupPreferenceAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildSetFollowupPreferencePayload({
+    partyId: String(formData.get('partyId') ?? '').trim(),
+    contactId: String(formData.get('contactId') ?? '').trim(),
+    channel: String(formData.get('channel') ?? ''),
+    preference: String(formData.get('preference') ?? ''),
+    expectedVersion: Number(formData.get('expectedVersion')),
+    identityConfirmed: formData.get('identityConfirmed') === 'on',
+    note: String(formData.get('note') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await customerClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executePartyCommand('SetContactFollowupPreference', built.payload, createId());
+    revalidateCustomer(String(built.payload.partyId));
+    return { ok: true, data: result.data };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+export async function endContactRelationshipAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildEndContactRelationshipPayload({
+    partyId: String(formData.get('partyId') ?? '').trim(),
+    contactId: String(formData.get('contactId') ?? '').trim(),
+    expectedVersion: Number(formData.get('expectedVersion')),
+    reason: String(formData.get('reason') ?? ''),
+    reasonNote: String(formData.get('reasonNote') ?? ''),
+    endedOn: String(formData.get('endedOn') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await customerClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executePartyCommand('EndContactRelationship', built.payload, createId());
+    revalidateCustomer(String(built.payload.partyId));
+    return { ok: true, data: result.data };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+export async function resolveImportPhoneAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildResolveImportPhonePayload({
+    importBatchId: String(formData.get('importBatchId') ?? '').trim(),
+    rowIndex: Number(formData.get('rowIndex')),
+    valueId: String(formData.get('valueId') ?? '').trim(),
+    expectedVersion: Number(formData.get('expectedVersion')),
+    decision: String(formData.get('decision') ?? ''),
+    correctedNumber: String(formData.get('correctedNumber') ?? ''),
+    reason: String(formData.get('reason') ?? ''),
+  });
+  if (!built.ok) return built;
+  const session = await adminClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executeImportCommand('ResolveImportPhoneValue', built.payload, createId());
+    revalidatePath('/clientes');
+    return { ok: true, data: result.data as unknown as Record<string, unknown> };
+  } catch (err) {
+    return { ok: false, error: importPhoneCommandMessage(err) };
+  }
+}
+
+export async function executeClientImportAction(formData: FormData): Promise<CommandActionResult> {
+  const importBatchId = String(formData.get('importBatchId') ?? '').trim();
+  if (!importBatchId) return { ok: false, error: 'Indique el lote de importación.' };
+  const session = await adminClient();
+  if (!session.ok) return session;
+  try {
+    const result = await session.client.executeImportCommand('ExecuteClientImport', { importBatchId }, createId());
+    revalidatePath('/clientes');
+    return { ok: true, data: result.data as unknown as Record<string, unknown> };
+  } catch (err) {
+    return { ok: false, error: importPhoneCommandMessage(err) };
   }
 }
 

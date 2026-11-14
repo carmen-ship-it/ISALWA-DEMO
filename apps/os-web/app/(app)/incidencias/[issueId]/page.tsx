@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { Button, PageContainer, PageSection, SectionHeader, StatusPill, Timeline, EmptyState } from '@isalwa/ui';
 import type { TimelineItem } from '@isalwa/ui';
-import { ISSUE_MANAGE_SCOPE, hasAssignedOperationsScope } from '@isalwa/os-contracts';
+import { ISSUE_MANAGE_SCOPE, hasAssignedOperationsScope, type CorrectionRequestView } from '@isalwa/os-contracts';
 import { PageHeader } from '@/components/shell/page-header';
 import { AssignIssueOwnerForm } from '@/components/issue/assign-issue-owner-form';
+import { CorrectionResolveForm, CorrectionSummary } from '@/components/issue/correction-resolve-form';
 import { ResolveIssueForm } from '@/components/issue/resolve-issue-form';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { AccessDeniedState } from '@/components/states/app-states';
@@ -183,6 +184,23 @@ export default async function IssueDetailPage({ params, searchParams }: IssueDet
     const ownerName = issue.ownerMemberId
       ? memberLabel(memberLabels, issue.ownerMemberId)
       : null;
+    let correction: CorrectionRequestView | null = null;
+    try {
+      correction = (await client.getIssueCorrection(issueId)).correction;
+    } catch (err) {
+      if (!(err instanceof OsApiError && (err.kind === 'not_found' || err.kind === 'forbidden'))) throw err;
+    }
+    let correctionEvents: Awaited<ReturnType<typeof client.listIssueCorrectionCandidates>>['events'] = [];
+    let correctionCursor: string | null = null;
+    if (correction?.canDecide && !isTerminalStatus) {
+      try {
+        const page = await client.listIssueCorrectionCandidates(issueId, { limit: 20 });
+        correctionEvents = page.events;
+        correctionCursor = page.nextCursor;
+      } catch (err) {
+        if (!(err instanceof OsApiError && (err.kind === 'not_found' || err.kind === 'forbidden'))) throw err;
+      }
+    }
 
     const possibleCauses = issue.journal.filter((e) => e.entryType === 'possible_cause');
     const otherJournal = issue.journal.filter((e) => e.entryType !== 'possible_cause');
@@ -207,7 +225,20 @@ export default async function IssueDetailPage({ params, searchParams }: IssueDet
           }
         />
 
-        {canResolve ? (
+        {correction ? (
+          <PageSection card className="p-6 md:p-8" data-section-tone="attention">
+            <SectionHeader kicker="Corrección" title="Solicitud de corrección" />
+            <CorrectionSummary correction={correction} />
+            {correction.canDecide && !isTerminalStatus ? (
+              <CorrectionResolveForm
+                issueId={issue.issueId}
+                expectedVersion={issue.version}
+                initialEvents={correctionEvents}
+                initialCursor={correctionCursor}
+              />
+            ) : null}
+          </PageSection>
+        ) : canResolve ? (
           <PageSection card className="p-6 md:p-8" data-section-tone="attention">
             <SectionHeader kicker="Acción" title={ISSUE_COPY.resolveIssue} />
             <ResolveIssueForm issueId={issue.issueId} expectedVersion={issue.version} />

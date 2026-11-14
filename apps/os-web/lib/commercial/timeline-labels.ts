@@ -3,6 +3,7 @@ import { formatRecordStatus, formatStage, presentStage, formatOpportunityStatus 
 import { formatOptionalCentavos } from './money';
 import { quoteManualSendHistoryLabel } from './quote-manual-send';
 import { CONTACT_PHONE_REASON_LABELS, CONTACT_PHONE_VERIFICATION_LABELS } from '@/lib/party/contact-phone';
+import { CONTACT_RELATION_END_LABELS, FOLLOWUP_PREFERENCE_LABELS } from '@/lib/party/customer-self-service';
 
 const EVENT_LABELS: Record<string, string> = {
   'party.created': 'Cliente registrado',
@@ -22,6 +23,8 @@ const EVENT_LABELS: Record<string, string> = {
   'contact.endpoint.changed': 'Número de contacto cambiado',
   'contact.endpoint.retired': 'Número de contacto retirado',
   'contact.identity_review.resolved': 'Identidad del número revisada',
+  'contact.relation.ended': 'Relación del contacto finalizada',
+  'contact.followup_preference.changed': 'Preferencia de seguimiento actualizada',
   'opportunity.created': 'Oportunidad creada',
   'opportunity.updated': 'Oportunidad actualizada',
   'opportunity.stage_changed': 'Etapa de oportunidad cambiada',
@@ -260,8 +263,22 @@ export function restrictedEntrySummary(entry: PartyTimelineEntryReadModel): stri
   return parts.join(' · ');
 }
 
+export function contactRelationEndedSummary(facts: PartyTimelineFacts): string {
+  const reason = typeof facts.reason === 'string' ? CONTACT_RELATION_END_LABELS[facts.reason] : undefined;
+  const parts = ['Relación finalizada'];
+  if (typeof facts.endedOn === 'string' && facts.endedOn) parts.push(facts.endedOn);
+  if (reason) parts.push(reason);
+  if (typeof facts.reasonNote === 'string' && facts.reasonNote) parts.push(facts.reasonNote);
+  return parts.join(' · ');
+}
+
 export function timelineEntrySummary(entry: PartyTimelineEntryReadModel): string {
   if (entry.detail === 'summary') return restrictedEntrySummary(entry);
+  if (entry.eventType === 'contact.relation.ended') return contactRelationEndedSummary(entry.facts);
+  if (entry.eventType === 'contact.followup_preference.changed') {
+    const to = typeof entry.facts.to === 'string' ? FOLLOWUP_PREFERENCE_LABELS[entry.facts.to] : undefined;
+    return to ? `Seguimiento: ${to}` : 'Preferencia de seguimiento actualizada';
+  }
   if (entry.eventType === 'party.updated') return partyUpdateSummary(entry.facts);
   if (isContactNumberEvent(entry.eventType)) {
     return contactPhoneSummary(entry.eventType, entry.facts);

@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { createId } from '@isalwa/ts-utils';
 import Link from 'next/link';
 import { PageSection } from '@isalwa/ui';
 import { CommercialPageFrame } from '@/components/commercial/commercial-page-frame';
@@ -9,6 +10,9 @@ import {
 } from '@/components/commercial/commercial-surfaces';
 import '@/components/commercial/commercial-surfaces.css';
 import { CustomerQuickView } from '@/components/operating/customer-quick-view';
+import { ImportPhoneReviewPanel } from '@/components/party/import-phone-review-panel';
+import { IMPORT_PHONE_REVIEW_PARAM, importPhoneCommandMessage } from '@/components/party/import-phone-review';
+import { MasterDataLookupPanel } from '@/components/party/master-data-lookup-panel';
 import { PartyList } from '@/components/party/party-list';
 import { PartyEmptySearch } from '@/components/party/party-placeholders';
 import { PartySearchForm } from '@/components/party/party-search-form';
@@ -21,7 +25,9 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { cursorPageLinks, listHref, parseListQuery, parsePanel } from '@/lib/lists/url-state';
 import { parseListDensity } from '@/lib/productivity/list-controls';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
+import { loadMasterDataLookup, MASTER_DATA_PARTY_PARAM, MASTER_DATA_TERM_PARAM } from '@/lib/party/master-data-lookup';
 import { newCustomerHref } from '@/lib/party/navigation';
+import type { ImportPhoneReviewList } from '@isalwa/os-contracts';
 import type { PartySearchParams } from '@/lib/party/types';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
@@ -31,7 +37,14 @@ import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-acc
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 type ClientesPageProps = {
-  searchParams: Promise<PartySearchParams & { panel?: string | string[] }>;
+  searchParams: Promise<
+    PartySearchParams & {
+      panel?: string | string[];
+      [MASTER_DATA_TERM_PARAM]?: string;
+      [MASTER_DATA_PARTY_PARAM]?: string;
+      [IMPORT_PHONE_REVIEW_PARAM]?: string;
+    }
+  >;
 };
 
 export default async function ClientesPage({ searchParams }: ClientesPageProps) {
@@ -51,6 +64,23 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
   const cursor = listQuery.cursor;
   const panel = parsePanel(listQuery.panel);
   const canAddCustomer = evaluation.active ? false : await actorCanMutateMasterData(client);
+  const isSteward = canAddCustomer;
+  const masterDataLookup = await loadMasterDataLookup(client, {
+    isSteward,
+    term: typeof params[MASTER_DATA_TERM_PARAM] === 'string' ? params[MASTER_DATA_TERM_PARAM] : '',
+    partyId: typeof params[MASTER_DATA_PARTY_PARAM] === 'string' ? params[MASTER_DATA_PARTY_PARAM] : '',
+  });
+  const importBatchId = isSteward && typeof params[IMPORT_PHONE_REVIEW_PARAM] === 'string' ? params[IMPORT_PHONE_REVIEW_PARAM].trim() : '';
+  let phoneReview: ImportPhoneReviewList | null = null;
+  let phoneReviewError: string | null = null;
+  if (importBatchId) {
+    try {
+      const loaded = await client.executeImportCommand('ListImportPhoneReview', { importBatchId }, createId());
+      phoneReview = loaded.data;
+    } catch (err) {
+      phoneReviewError = importPhoneCommandMessage(err);
+    }
+  }
   const listDensity = parseListDensity(listQuery.density);
   const densityToggleState: typeof listQuery = { ...listQuery };
   delete densityToggleState.cursor;
@@ -116,6 +146,8 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             densityToggleHref={densityToggleHref}
           />
         </div>
+        <MasterDataLookupPanel lookup={masterDataLookup} path="/clientes" />
+        {isSteward ? <ImportPhoneReviewPanel review={phoneReview} error={phoneReviewError} batchId={importBatchId} /> : null}
         <p className="mt-3 text-sm">
           <Link href="/mapa" className="font-medium text-[var(--isalwa-glaze)] hover:underline">
             Mapa y salud de datos

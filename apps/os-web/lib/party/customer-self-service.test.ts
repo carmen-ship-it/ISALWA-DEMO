@@ -16,8 +16,15 @@ import {
   OWNER_ABSENT_LABEL,
   OWNER_REASSIGNMENT_COMMAND,
   SCOPES_WITHOUT_CUSTOMER_CREATE,
+  AUTOMATIC_SENDS_ABSENT_LABEL,
+  PAYMENTS_UNVERIFIED_LABEL,
+  archiveObligationLines,
   buildCreateCustomerPayload,
   buildCreateLocationPayload,
+  buildEndContactRelationshipPayload,
+  buildSetFollowupPreferencePayload,
+  contactRelationEnd,
+  formerContactLine,
   buildDeactivateLocationPayload,
   buildUpdateContactPayload,
   buildUpdateLocationPayload,
@@ -280,5 +287,79 @@ describe('customer self-service UI contract', () => {
     assert.doesNotMatch(locations, /leaflet|mapbox|google\.maps|iframe|geocode|territory|check-in|checkin/i);
     assert.match(locations, /provenanceHref/);
     assert.match(locations, /createLocationAction|updateLocationAction|deactivateLocationAction/);
+  });
+});
+
+describe('T03 ending a contact relationship', () => {
+  it('requires a reason, keeps commitments on the customer, and never offers cancellable sends', () => {
+    assert.equal(AUTOMATIC_SENDS_ABSENT_LABEL, 'Envíos automáticos no configurados.');
+    assert.equal(buildEndContactRelationshipPayload({ partyId: 'p', contactId: 'c', expectedVersion: 1, reason: 'other', reasonNote: 'corto' }).ok, false);
+    const built = buildEndContactRelationshipPayload({
+      partyId: 'p',
+      contactId: 'c',
+      expectedVersion: 1,
+      reason: 'left_company',
+      endedOn: '2026-10-01',
+      today: '2026-10-18',
+    });
+    assert.equal(built.ok && built.payload.reason, 'left_company');
+    assert.equal(formerContactLine({ status: 'active', reason: 'left_company' }), null);
+    assert.equal(
+      formerContactLine({ status: 'inactive', endedOn: '2026-10-01', reason: 'left_company', reasonNote: 'Pasó a otra empresa' }),
+      'Contacto anterior · 2026-10-01 · Dejó la empresa · Pasó a otra empresa',
+    );
+    assert.doesNotMatch(readUi('../../components/party/contact-relationship-panel.tsx'), /cancelar envío|envíos pendientes/i);
+    assert.match(readUi('../../components/party/contact-relationship-panel.tsx'), /Compromisos abiertos del cliente/);
+  });
+
+  it('keeps the end date and reason when the end event is outside the loaded timeline', () => {
+    const contact = { relationEndedAt: '2026-10-01T04:00:00.000Z', relationEndReason: 'role_changed' };
+    assert.deepEqual(contactRelationEnd(contact), { endedOn: '2026-10-01', reason: 'role_changed', reasonNote: undefined });
+    assert.deepEqual(
+      contactRelationEnd(contact, { endedOn: '2026-10-01', reason: 'other', reasonNote: 'Se jubiló este mes' }),
+      { endedOn: '2026-10-01', reason: 'other', reasonNote: 'Se jubiló este mes' },
+    );
+    assert.deepEqual(contactRelationEnd({ relationEndedAt: null, relationEndReason: null }), {
+      endedOn: undefined,
+      reason: undefined,
+      reasonNote: undefined,
+    });
+  });
+});
+
+describe('T03 follow-up preferences', () => {
+  it('keeps no promociones and no me escriban apart, and allows only as a staff record', () => {
+    const base = { partyId: 'p', contactId: 'c', channel: 'whatsapp', expectedVersion: 0, identityConfirmed: false };
+    const restrict = buildSetFollowupPreferencePayload({ ...base, preference: 'no_promotions' });
+    assert.equal(restrict.ok && restrict.payload.preference, 'no_promotions');
+    assert.equal(restrict.ok && restrict.payload.source, 'staff_recorded');
+    assert.equal(buildSetFollowupPreferencePayload({ ...base, preference: 'allowed', note: 'sí' }).ok, false);
+    const allowed = buildSetFollowupPreferencePayload({
+      ...base,
+      preference: 'allowed',
+      identityConfirmed: true,
+      note: 'La persona confirmó en tienda que quiere seguimiento',
+    });
+    assert.equal(allowed.ok && allowed.payload.source, 'staff_recorded');
+    const panel = readUi('../../components/party/contact-followup-panel.tsx');
+    assert.match(panel, /No más promociones/);
+    assert.match(panel, /No me escriban/);
+    assert.doesNotMatch(panel, /customer_message|defaultValue=\{item\.preference\}/);
+  });
+});
+
+describe('T03 archive and reactivation', () => {
+  it('lists obligations by kind and never presents payments as zero', () => {
+    assert.equal(PAYMENTS_UNVERIFIED_LABEL, 'Pagos: no verificados en esta versión');
+    assert.deepEqual(
+      archiveObligationLines({ openOrders: 1, openCommitments: 0, openIssues: 2, openWorkItems: 0 }).map((line) => line.kind),
+      ['Pedidos abiertos', 'Compromisos abiertos', 'Incidencias abiertas', 'Trabajos abiertos'],
+    );
+    const panel = readUi('../../components/party/customer-archive-panel.tsx');
+    assert.match(panel, /PAYMENTS_UNVERIFIED_LABEL/);
+    assert.doesNotMatch(panel, /Pagos: 0/);
+    const forbidden: readonly string[] = CUSTOMER_SELF_SERVICE_FORBIDDEN_COMMANDS;
+    assert.equal(forbidden.includes('DeactivateParty'), false);
+    assert.equal(forbidden.includes('ReactivateParty'), false);
   });
 });

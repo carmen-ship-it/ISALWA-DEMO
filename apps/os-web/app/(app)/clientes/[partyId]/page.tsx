@@ -13,6 +13,12 @@ import { Cliente360Historial } from '@/components/cliente/cliente-360-historial'
 import { QuoteList } from '@/components/commercial/quote-list';
 import { Cliente360Now } from '@/components/party/cliente-360-now';
 import { Cliente360OwnerLine } from '@/components/party/cliente-360-owner-line';
+import { ContactEndpointPanel, type ContactEndpointAuthority } from '@/components/party/contact-endpoint-panel';
+import { CorrectionRequestForm } from '@/components/issue/correction-request-form';
+import { CustomerArchivePanel } from '@/components/party/customer-archive-panel';
+import { ContactFollowupPanel } from '@/components/party/contact-followup-panel';
+import { ContactRelationshipPanel } from '@/components/party/contact-relationship-panel';
+import { CustomerEditForms } from '@/components/party/customer-edit-forms';
 import { TemporaryCoveragePanel } from '@/components/party/temporary-coverage-panel';
 import { CustomerLocationPanel } from '@/components/party/customer-location-panel';
 import { PageHeader } from '@/components/shell/page-header';
@@ -36,14 +42,11 @@ import { presentHumanCopy } from '@/lib/copy/human-facing-copy';
 import { LIST_SCALE_PREVIEW_DEFAULT, LIST_SCALE_PREVIEW_LARGE } from '@/lib/ui/list-scaling';
 import { newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
-import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
 import type { IssueListItem } from '@/lib/issue/types';
+import type { ContactFollowupPreferenceItem, ContactRelationshipEndPreview, CustomerArchivePreview } from '@isalwa/os-contracts';
+import type { ContactEndpointHistoryResponse } from '@/lib/party/types';
 import { COMMITMENT_COPY } from '@/lib/commitments/copy';
-import {
-  canManageContacts,
-  canMutateActiveParty,
-  commercialOwnerView,
-} from '@/lib/party/customer-self-service';
+import { commercialOwnerView, contactRelationEnd } from '@/lib/party/customer-self-service';
 import { composeCliente360FromLoaded } from '@/lib/party/next-action';
 import { memberLabel, memberWithCargoLine } from '@/lib/work/member-resolver';
 import { formatTimestamp } from '@/lib/work/labels';
@@ -181,19 +184,89 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
       );
     }
 
+    const readableLegalName = detail.customerAuthority?.canReadLegalName === true ? party.legalName : null;
     const displayName =
-      presentHumanCopy(party.displayName || party.legalName) ||
+      presentHumanCopy(party.displayName || readableLegalName) ||
       party.displayName ||
-      party.legalName ||
+      readableLegalName ||
       'Sin nombre';
-    const actorIsMasterDataAdmin = evaluation.active
-      ? false
-      : await actorCanMutateMasterData(client);
-    const canEditParty = canMutateActiveParty(party.status, actorIsMasterDataAdmin ? ['master_data.admin'] : []);
-    const canEditContacts = canManageContacts(
-      party.partyKind,
-      party.status,
-      actorIsMasterDataAdmin ? ['master_data.admin'] : [],
+    const canEditParty =
+      !evaluation.active && party.status === 'active' && detail.customerAuthority?.canEditDisplayName === true;
+    const canEditContacts =
+      !evaluation.active &&
+      party.partyKind === 'organization' &&
+      party.status === 'active' &&
+      detail.customerAuthority?.canEditContacts === true;
+    const endpointAuthority: ContactEndpointAuthority = {
+      canChangeEndpoints: !evaluation.active && detail.customerAuthority?.canChangeEndpoints === true,
+      canReviewEndpointHistory: !evaluation.active && detail.customerAuthority?.canReviewEndpointHistory === true,
+      canRevealEndpoint: !evaluation.active && detail.customerAuthority?.canRevealEndpoint === true,
+      canResolveIdentityReview: !evaluation.active && detail.customerAuthority?.canResolveIdentityReview === true,
+    };
+    const endpointHistories = new Map<string, ContactEndpointHistoryResponse['items']>();
+    if (endpointAuthority.canReviewEndpointHistory) {
+      await Promise.all(
+        contacts.map(async (contact) => {
+          try {
+            const history = await client.listContactEndpointHistory(partyId, contact.id);
+            endpointHistories.set(contact.id, history.items);
+          } catch {
+            endpointHistories.set(contact.id, []);
+          }
+        }),
+      );
+    }
+    const canEndContactRelationship =
+      !evaluation.active && detail.customerAuthority?.canEndContactRelationship === true;
+    const relationshipPreviews = new Map<string, ContactRelationshipEndPreview>();
+    if (canEndContactRelationship) {
+      await Promise.all(
+        contacts
+          .filter((contact) => contact.status === 'active')
+          .map(async (contact) => {
+            try {
+              relationshipPreviews.set(contact.id, await client.getContactRelationshipEndPreview(partyId, contact.id));
+            } catch {
+              // The preview is the gate. A refusal hides the end form.
+            }
+          }),
+      );
+    }
+    const relationEndByContact = new Map<string, { endedOn?: string; reason?: string; reasonNote?: string }>();
+    if (timeline.status === 'ok') {
+      for (const entry of timeline.data.items) {
+        if (entry.eventType !== 'contact.relation.ended') continue;
+        const contactId = typeof entry.facts.contactId === 'string' ? entry.facts.contactId : '';
+        if (!contactId || relationEndByContact.has(contactId)) continue;
+        relationEndByContact.set(contactId, {
+          endedOn: typeof entry.facts.endedOn === 'string' ? entry.facts.endedOn : undefined,
+          reason: typeof entry.facts.reason === 'string' ? entry.facts.reason : undefined,
+          reasonNote: typeof entry.facts.reasonNote === 'string' ? entry.facts.reasonNote : undefined,
+        });
+      }
+    }
+    const canArchiveCustomer = !evaluation.active && detail.customerAuthority?.canArchiveCustomer === true;
+    const canReactivateCustomer = !evaluation.active && detail.customerAuthority?.canReactivateCustomer === true;
+    let archivePreview: CustomerArchivePreview | null = null;
+    if (canArchiveCustomer || canReactivateCustomer) {
+      try {
+        archivePreview = await client.getCustomerArchivePreview(partyId);
+      } catch {
+        archivePreview = null;
+      }
+    }
+    const canSetFollowupPreference =
+      !evaluation.active && detail.customerAuthority?.canSetFollowupPreference === true;
+    const followupByContact = new Map<string, ContactFollowupPreferenceItem[]>();
+    await Promise.all(
+      contacts.map(async (contact) => {
+        try {
+          const prefs = await client.getContactFollowupPreferences(partyId, contact.id);
+          followupByContact.set(contact.id, prefs.items);
+        } catch {
+          // Customer read is required. A refusal hides the preference.
+        }
+      }),
     );
     const canReassignOwner =
       !evaluation.active && detail.commercialAuthority?.canReassignOwner === true;
@@ -296,6 +369,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
             party={party}
             contacts={contacts}
             canEditParty={canEditParty}
+            canEditLegalName={detail.customerAuthority?.canEditLegalName === true}
             canEditContacts={canEditContacts}
             canReassignOwner={canReassignOwner}
             allowMutations={!evaluation.active}
@@ -321,7 +395,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
               <Cliente360Intelligence facts={intelligence} />
               <Cliente360Now composition={composition} />
               <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
-                {party.legalName ? (
+                {detail.customerAuthority?.canReadLegalName === true && party.legalName ? (
                   <div className="min-w-0 sm:col-span-2">
                     <dt className="isalwa-section-label">Razón social</dt>
                     <dd className="mt-2 break-words text-[var(--isalwa-kiln)]">{party.legalName}</dd>
@@ -339,6 +413,15 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 </div>
               </dl>
               <Cliente360OwnerLine owner={owner} note={composition.owner.note} />
+              {canEditParty ? (
+                <CustomerEditForms
+                  party={party}
+                  contacts={[]}
+                  canEditParty
+                  canEditContacts={false}
+                  canEditLegalName={detail.customerAuthority?.canEditLegalName === true}
+                />
+              ) : null}
               {commercialAccount?.id && commercialAccount.ownerMemberId ? (
                 <TemporaryCoveragePanel
                   partyId={partyId}
@@ -348,26 +431,39 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                   canManageCoverage={
                     !evaluation.active && detail.commercialAuthority?.canManageCoverage === true
                   }
-                  activeCoverage={
-                    detail.activeCoverage
-                      ? {
-                          grantId: detail.activeCoverage.grantId,
-                          actingAdvisorLabel: memberLabel(
-                            memberLabels,
-                            detail.activeCoverage.actingAdvisorMemberId,
-                          ),
-                          actingAdvisorMemberId: detail.activeCoverage.actingAdvisorMemberId,
-                          assignedByLabel: detail.activeCoverage.recordedByMemberId
-                            ? memberLabel(memberLabels, detail.activeCoverage.recordedByMemberId)
-                            : null,
-                          startsAtLabel:
-                            formatTimestamp(detail.activeCoverage.startsAt) ??
-                            detail.activeCoverage.startsAt,
-                          note: null,
-                        }
-                      : null
-                  }
+                  grantableActions={detail.commercialAuthority?.grantableCoverageActions}
+                  coverageGrants={(detail.coverageGrants ?? []).map((grant) => ({
+                    grantId: grant.grantId,
+                    actingAdvisorMemberId: grant.actingAdvisorMemberId,
+                    actingAdvisorLabel: memberLabel(memberLabels, grant.actingAdvisorMemberId),
+                    assignedByLabel: grant.recordedByMemberId
+                      ? memberLabel(memberLabels, grant.recordedByMemberId)
+                      : null,
+                    startsAtLabel: formatTimestamp(grant.startsAt) ?? grant.startsAt,
+                    endsAtLabel: grant.endsAt ? (formatTimestamp(grant.endsAt) ?? grant.endsAt) : '—',
+                    status: grant.status,
+                    coveredActions: grant.coveredActions,
+                    canRevoke: grant.canRevoke,
+                  }))}
                 />
+              ) : null}
+              <CustomerArchivePanel preview={archivePreview} canArchive={canArchiveCustomer} canReactivate={canReactivateCustomer} />
+              {!evaluation.active ? (
+                <details className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] p-4">
+                  <summary className="cursor-pointer text-sm font-medium text-[var(--isalwa-kiln)]">Solicitar corrección de datos</summary>
+                  <CorrectionRequestForm
+                    partyId={partyId}
+                    contacts={contacts.map((item) => ({
+                      id: item.id,
+                      label: contactDisplayName(item.givenName, item.familyName),
+                    }))}
+                    locations={
+                      locations.status === 'ok'
+                        ? locations.data.locations.map((item) => ({ id: item.id, label: item.label }))
+                        : []
+                    }
+                  />
+                </details>
               ) : null}
               {accountLabel ? <p className="text-sm text-[var(--isalwa-slate)]">{accountLabel}</p> : null}
               {party.status === 'merged' && party.mergedIntoPartyId ? (
@@ -389,9 +485,28 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                         <p className="break-words font-medium text-[var(--isalwa-kiln)]">
                           {contactDisplayName(item.givenName, item.familyName)}
                         </p>
-                        {item.phone ? (
-                          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{item.phone}</p>
-                        ) : null}
+                        <ContactEndpointPanel
+                          partyId={partyId}
+                          contact={item}
+                          authority={endpointAuthority}
+                          history={endpointAuthority.canReviewEndpointHistory ? (endpointHistories.get(item.id) ?? []) : null}
+                        />
+                        <ContactFollowupPanel
+                          partyId={partyId}
+                          contactId={item.id}
+                          active={item.status === 'active'}
+                          canSet={canSetFollowupPreference}
+                          items={followupByContact.get(item.id) ?? []}
+                        />
+                        <ContactRelationshipPanel
+                          partyId={partyId}
+                          contactId={item.id}
+                          status={item.status}
+                          expectedVersion={item.version}
+                          canEnd={canEndContactRelationship}
+                          preview={relationshipPreviews.get(item.id) ?? null}
+                          {...contactRelationEnd(item, relationEndByContact.get(item.id))}
+                        />
                       </ListRow>
                     ))}
                   </ul>

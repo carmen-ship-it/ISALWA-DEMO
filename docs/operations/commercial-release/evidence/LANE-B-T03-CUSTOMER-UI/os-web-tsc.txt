@@ -1,0 +1,6 @@
+# os-web pnpm typecheck
+# cwd: apps/os-web
+# command: tsc -p tsconfig.json --noEmit
+# exit: 0
+# date: 2026-11-13
+# Workspace packages were built locally so their dist types resolve. dist and generated Prisma output were not committed.

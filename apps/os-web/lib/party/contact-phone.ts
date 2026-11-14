@@ -48,6 +48,30 @@ export const CONTACT_PHONE_VERIFICATION_OPTIONS = CONTACT_PHONE_VERIFICATION_MET
   label: CONTACT_PHONE_VERIFICATION_LABELS[value]!,
 }));
 
+export const CONTACT_CHANNEL_OPTIONS = [
+  { value: 'phone' as const, label: 'Teléfono' },
+  { value: 'whatsapp' as const, label: 'WhatsApp' },
+];
+
+/** Countries the forms may offer. The payload always sends the chosen code. */
+export const CONTACT_PHONE_COUNTRY_OPTIONS = CONTACT_PHONE_COUNTRIES.map((value) => ({
+  value,
+  label: value === 'BO' ? 'Bolivia' : value,
+}));
+
+export const CONTACT_ENDPOINT_STATUS_LABELS: Record<string, string> = {
+  unverified: 'Sin verificar',
+  verified: 'Verificado',
+  identity_review: 'En revisión de identidad',
+};
+
+/** History rows store `changed:reason` / `retired:reason`. Unknown codes stay hidden. */
+export function endpointHistoryEndLabel(endReason: string | null | undefined): string | null {
+  if (!endReason) return null;
+  const reason = endReason.includes(':') ? endReason.slice(endReason.indexOf(':') + 1) : endReason;
+  return CONTACT_PHONE_REASON_LABELS[reason] ?? null;
+}
+
 type PhoneFormInput = {
   partyId: string;
   contactId: string;

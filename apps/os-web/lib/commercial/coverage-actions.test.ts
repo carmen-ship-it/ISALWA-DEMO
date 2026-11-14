@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import { grantableCoverageActionsFor } from '@isalwa/os-contracts';
 import {
   coverageActionChoices,
+  coverageGrantStatusLabel,
   coverageWindowFromForm,
   formatCoverageActions,
   parseCoverageActions,
@@ -34,6 +35,8 @@ describe('T03 coverage action choice ("Apoyo temporal")', () => {
       formatCoverageActions(['commercial.work', 'quote.convert']),
       'Continuar oportunidades y cotizaciones · Convertir cotizaciones enviadas a pedido',
     );
+    assert.equal(coverageGrantStatusLabel('active'), 'Activo');
+    assert.equal(coverageGrantStatusLabel('scheduled'), 'Programado');
   });
 });
 

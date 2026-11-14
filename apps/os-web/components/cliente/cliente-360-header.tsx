@@ -25,6 +25,7 @@ export type Cliente360HeaderProps = {
   party: PartyDetailResponse['party'];
   contacts: PartyDetailResponse['contacts'];
   canEditParty: boolean;
+  canEditLegalName?: boolean;
   canEditContacts: boolean;
   canReassignOwner: boolean;
   /** When false (Vista de evaluación), hide mutating CTAs. */
@@ -49,6 +50,7 @@ export function Cliente360Header({
   party,
   contacts,
   canEditParty,
+  canEditLegalName = false,
   canEditContacts,
   canReassignOwner,
   allowMutations = true,
@@ -80,6 +82,7 @@ export function Cliente360Header({
     party,
     contacts,
     canEditParty: allowMutations && canEditParty,
+    canEditLegalName: allowMutations && canEditParty && canEditLegalName,
     canEditContacts: allowMutations && canEditContacts,
     canReassignOwner: allowMutations && canReassignOwner,
     allowMutations,

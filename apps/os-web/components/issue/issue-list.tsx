@@ -2,6 +2,7 @@
 
 import { StatusPill } from '@isalwa/ui';
 import { OperatingScanListHeader, OperatingScanRow } from '@/components/lists/operating-scan-row';
+import { CORRECTION_ATTENTION_LABELS } from '@/components/issue/correction-request';
 import { formatIssueStatus, formatReferenceType, statusToneForIssue } from '@/lib/issue/labels';
 import { issueDetailHref, type IssueListReturn } from '@/lib/issue/journal-page';
 import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
@@ -58,6 +59,7 @@ function contextLabel(item: IssueListItem, memberLabels: MemberLabelMap): string
   const owner = item.ownerMemberId ? memberLabel(memberLabels, item.ownerMemberId) : null;
   parts.push(`Reportó: ${memberLabel(memberLabels, item.reporterMemberId)}`);
   if (owner) parts.push(`Responsable: ${owner}`);
+  if (item.correctionAttention) parts.push(CORRECTION_ATTENTION_LABELS[item.correctionAttention]);
   parts.push(formatTimestamp(item.createdAt));
   return parts.join(' · ');
 }
