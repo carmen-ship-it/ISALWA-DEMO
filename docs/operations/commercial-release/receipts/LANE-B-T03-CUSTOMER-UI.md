@@ -28,7 +28,7 @@ Item 8's page wiring is in `29e6c9e8` and the panel module is in `edcdfe55`. Rev
 | `pnpm typecheck` in `apps/os-web` | exit 0 | `4153eaf6563d4e44dab4c212d29d6820f2ba6c67b88e6e00561a52cd548ef4d7` |
 | Local browser check | cases in `evidence/LANE-B-T03-CUSTOMER-UI/browser-check.md` | `d05b365167f3f30d581a837a6887b40ec75c1dac788f6ab8b80357d83663a471` |
 
-Ports: os-web 3220, os-api 4220. Database: `isalwa_laneb_disposable` at `localhost:54329` (socket `/tmp`). It was 35 migrations behind and the missing columns were absent, so `prisma migrate deploy` applied the four additive T03 migrations. The drifted template `isalwa_t01_disposable` was not used. No reset.
+Ports: os-web 3220, os-api 4220. Database: `isalwa_laneb_disposable` at `localhost:54329` (socket `/tmp`). It had 35 applied migrations and was 4 behind (integrator correction 2026-11-13; IDs in `ACCEPTANCE-LANE-B-T03-CUSTOMER-UI.md`); the missing columns were absent, so `prisma migrate deploy` applied the four additive T03 migrations. The drifted template `isalwa_t01_disposable` was not used. No reset.
 
 ## Item states
 
