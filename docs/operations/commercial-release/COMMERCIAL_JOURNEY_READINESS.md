@@ -10,7 +10,7 @@ Integrator: `/Users/carmen/projects/isalwa-wt-v1-repairs` · `ct3/v1-repairs`. S
 | Stage A finishing | same | Bulk `GET …/followup-preferences`; flags vs archive; preserved forms | same | `receipts/STAGE-A-CUSTOMER-FINISHING.md`; TESTED LOCALLY 2026-11-16 | Independent review |
 | Batch 2 customer entry | `/clientes`, `/clientes/nuevo` | CreateParty §5.4; ValidateClientImport text paste | `commercial.customer.create` / steward | `receipts/BATCH-2-CUSTOMER-ENTRY.md`; TESTED LOCALLY 2026-11-16 | Independent review |
 | T04 quote approval / PDF / acceptance + T15 manual order | `/cotizaciones`, `/aprobaciones`, `/pedidos` | Quote draft/approve/issue/PDF/accept/convert | §13.5; no self-approve; `quote.convert` coverage | `receipts/BATCH-3-T04-QUOTES.md`; TESTED LOCALLY 2026-11-16 | Real approver identity for live; PDF hash pin; price-approve range |
-| T05 catalog | `/productos` | Catalog browse/presentation | published/PDF gate | Lane A candidate `18a0f0c` not integrated; A2 fixes not started | Independent review; missing PDF/prices for publish claims |
+| T05 catalog | `/productos` | Catalog browse/presentation | published/PDF gate | Candidate local only (`c872470`); `receipts/BATCH-4-CATALOG-BLOCKED.md` | Independent review; missing PDF/prices; A2 fixes |
 | T06 conversations / manual attention | `/conversaciones` | Manual attention; inbox filters | account/coverage/tenant | Partial pre-V2; batch 5 | Provider optional |
 | T07 payments | `/finanzas` | Reported payment + verify | Accounting vs advisor | Not started | Approved payment instructions for share |
 | T08/T09 commitments / notifications | `/compromisos`, home | Commitment CRUD; notifications | responsible member; suspension rules | Partial auth repairs only | — |
