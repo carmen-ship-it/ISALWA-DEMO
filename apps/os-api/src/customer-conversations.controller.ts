@@ -10,21 +10,26 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Param,
   Post,
   Query,
   Req,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import {
+  CUSTOMER_CONVERSATION_CHANNELS,
   CUSTOMER_CONVERSATION_PROVENANCE,
   CUSTOMER_CONVERSATION_SOURCE,
+  ConversationNextStepSchema,
   WHATSAPP_NUMBER_PENDING,
   recordManualCustomerConversation,
   type CustomerConversationAdmission,
   type ManualCustomerConversation,
   type CustomerConversationChannel,
+  type ConversationNextStep,
   type RecordCustomerConversationInput,
 } from '@isalwa/os-contracts';
+import type { CommitmentCommandService } from '@isalwa/os-commitment';
 import { getOsPrisma } from '@isalwa/os-database';
 import {
   REPLAY_REVIEW_REQUIRED,
@@ -44,10 +49,39 @@ import {
   type DirectReportLookup,
 } from '@isalwa/os-query';
 import { resolveSession } from './os-session';
+import { createHash } from 'node:crypto';
 import { createId } from '@isalwa/ts-utils';
-import { OS_CUSTOMER_VISIBILITY, OS_MEMBER_QUERY_STORE, OS_STORE } from './os-store.module';
+import {
+  OS_COMMITMENT_COMMAND_SERVICE,
+  OS_CUSTOMER_VISIBILITY,
+  OS_MEMBER_QUERY_STORE,
+  OS_STORE,
+} from './os-store.module';
 
 const RECORD_CONVERSATION_COMMAND = 'RecordCustomerConversation';
+const NEXT_STEP_KEY_PREFIX = 'conv-next-step:';
+
+/** Result of saving the next step next to the conversation. Never silent. */
+export type NextStepOutcome =
+  | { status: 'created'; commitmentId: string }
+  | { status: 'failed'; code: string };
+
+/** Codes the commitment command can return that the person can act on. Anything else is generic. */
+const NEXT_STEP_ERROR_CODES = new Set([
+  'VALIDATION_FAILED',
+  'NOT_FOUND',
+  'PERMISSION_DENIED',
+  'TENANT_FORBIDDEN',
+  'ACCESS_REVOKED',
+  'AUTH_REQUIRED',
+  'CONFLICT',
+  'DATABASE_UNAVAILABLE',
+]);
+
+/** Noon in La Paz on the chosen day, as an instant. The commitment shows that calendar day. */
+export function nextStepDueAt(dueDate: string): string {
+  return new Date(`${dueDate}T12:00:00-04:00`).toISOString();
+}
 
 type StoredJson = NonNullable<
   Parameters<NonNullable<ReturnType<typeof getOsPrisma>>['osIdempotencyKey']['create']>[0]
@@ -81,6 +115,11 @@ function toManual(row: {
   enteredByLabel: string;
   summary: string;
   pastedEvidence: string | null;
+  reason: string | null;
+  assignedMemberId: string | null;
+  assignedLabel: string | null;
+  assignedAt: Date | null;
+  nextStepCommitmentId: string | null;
   opportunityId: string | null;
   quoteId: string | null;
   orderId: string | null;
@@ -89,7 +128,7 @@ function toManual(row: {
   possibleRequestedDate: Date | null;
   nextAction: string | null;
 }): ManualCustomerConversation | null {
-  const channel = row.channel === 'whatsapp' || row.channel === 'manual'
+  const channel = (CUSTOMER_CONVERSATION_CHANNELS as readonly string[]).includes(row.channel)
     ? (row.channel as CustomerConversationChannel)
     : null;
   if (!channel) return null;
@@ -105,6 +144,7 @@ function toManual(row: {
     enteredByLabel: row.enteredByLabel,
     summary: row.summary,
     pastedEvidence: row.pastedEvidence,
+    reason: row.reason,
     opportunityId: row.opportunityId,
     quoteId: row.quoteId,
     orderId: row.orderId,
@@ -115,7 +155,15 @@ function toManual(row: {
       : null,
     nextAction: row.nextAction,
   });
-  return admitted.ok ? admitted.record : null;
+  if (!admitted.ok) return null;
+  // Admission never assigns. Assignment and the commitment link come from stored columns only.
+  return {
+    ...admitted.record,
+    assignedMemberId: row.assignedMemberId,
+    assignedLabel: row.assignedLabel,
+    assignedAt: row.assignedAt ? row.assignedAt.toISOString() : null,
+    nextStepCommitmentId: row.nextStepCommitmentId,
+  };
 }
 
 function prismaCreateFromManual(record: ManualCustomerConversation, createdAtIso: string) {
@@ -131,6 +179,7 @@ function prismaCreateFromManual(record: ManualCustomerConversation, createdAtIso
     enteredByLabel: record.enteredByLabel,
     summary: record.summary,
     pastedEvidence: record.pastedEvidence,
+    reason: record.reason,
     opportunityId: record.opportunityId,
     quoteId: record.quoteId,
     orderId: record.orderId,
@@ -243,7 +292,179 @@ export class CustomerConversationsController {
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
     @Inject(OS_CUSTOMER_VISIBILITY) private readonly customerVisibility: CustomerVisibilityLookup,
     @Inject(OS_MEMBER_QUERY_STORE) private readonly directReports: DirectReportLookup,
+    @Inject(OS_COMMITMENT_COMMAND_SERVICE) private readonly commitmentCommands: CommitmentCommandService,
   ) {}
+
+  /**
+   * Turns the saved next step into a commitment through the existing command (own
+   * transaction, event and audit). The key binds the conversation and the exact payload,
+   * so a retry of the same step is the same commitment and an edited step is a new one.
+   * A failure never throws: the conversation is already saved, so the caller reports a
+   * recoverable partial outcome instead of a success that lost the step.
+   */
+  private async createNextStepCommitment(
+    session: Awaited<ReturnType<typeof resolveSession>>,
+    conversation: { id: string; customerId: string },
+    step: ConversationNextStep,
+  ): Promise<NextStepOutcome> {
+    const prisma = getOsPrisma();
+    if (!prisma) return { status: 'failed', code: 'DATABASE_UNAVAILABLE' };
+    const fingerprint = createHash('sha256')
+      .update(JSON.stringify([step.description, step.ownerMemberId, step.dueDate]))
+      .digest('hex')
+      .slice(0, 16);
+    try {
+      const result = await this.commitmentCommands.execute(
+        'CreateEmployeeCommitment',
+        session,
+        {
+          text: step.description,
+          ownerMemberId: step.ownerMemberId,
+          partyId: conversation.customerId,
+          dueAt: nextStepDueAt(step.dueDate),
+        },
+        `${NEXT_STEP_KEY_PREFIX}${conversation.id}:${fingerprint}`,
+      );
+      const commitmentId = String(result.data?.commitmentId ?? '');
+      if (!commitmentId) return { status: 'failed', code: 'NEXT_STEP_FAILED' };
+      await prisma.osCustomerConversation.updateMany({
+        where: {
+          id: conversation.id,
+          organizationId: session.organizationId,
+          nextStepCommitmentId: null,
+        },
+        data: { nextStepCommitmentId: commitmentId },
+      });
+      return { status: 'created', commitmentId };
+    } catch (err) {
+      const raw =
+        err instanceof HttpException
+          ? ((err.getResponse() as { code?: unknown })?.code ?? '')
+          : err instanceof Error
+            ? err.message
+            : '';
+      const code = typeof raw === 'string' && NEXT_STEP_ERROR_CODES.has(raw) ? raw : 'NEXT_STEP_FAILED';
+      return { status: 'failed', code };
+    }
+  }
+
+  /** Same denial for a missing conversation, another company's, or an unreadable customer. */
+  private async readableConversation(
+    session: Awaited<ReturnType<typeof resolveSession>>,
+    conversationId: string,
+  ) {
+    const prisma = getOsPrisma();
+    if (!prisma) throw new HttpException('Database unavailable', HttpStatus.SERVICE_UNAVAILABLE);
+    const row = await prisma.osCustomerConversation.findFirst({
+      where: { id: conversationId, organizationId: session.organizationId },
+    });
+    if (!row) throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+    const ctx = await buildQueryContext(session, this.workforceStore);
+    const readable = await canReadCustomer({
+      ctx,
+      partyId: row.customerId,
+      lookup: this.customerVisibility,
+      directReports: this.directReports,
+    });
+    if (!readable) throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+    return { prisma, row };
+  }
+
+  /**
+   * Tomar conversación. One winner: the claim only matches an unassigned row, so two
+   * simultaneous takers cannot both succeed. Taking never changes the account owner and
+   * never overrides someone else's assignment.
+   */
+  @Post(':conversationId/take')
+  async takeConversation(
+    @Param('conversationId') conversationId: string,
+    @Req() req: Request,
+  ): Promise<{ item: ManualCustomerConversation }> {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const { prisma, row } = await this.readableConversation(session, conversationId);
+      const present = async (): Promise<{ item: ManualCustomerConversation }> => {
+        const fresh = await prisma.osCustomerConversation.findFirst({
+          where: { id: row.id, organizationId: session.organizationId },
+        });
+        const item = fresh ? toManual(fresh) : null;
+        if (!item) throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+        return { item };
+      };
+      if (row.assignedMemberId === session.actorMemberId) return present();
+      if (row.assignedMemberId) {
+        throw new HttpException(
+          { code: 'ALREADY_ASSIGNED', assignedLabel: row.assignedLabel },
+          HttpStatus.CONFLICT,
+        );
+      }
+      const person = await prisma.osPerson.findUnique({
+        where: { id: session.personId },
+        select: { givenName: true, familyName: true },
+      });
+      const assignedLabel =
+        [person?.givenName, person?.familyName].filter(Boolean).join(' ').trim() ||
+        'Miembro del equipo';
+      const claimed = await prisma.osCustomerConversation.updateMany({
+        where: { id: row.id, organizationId: session.organizationId, assignedMemberId: null },
+        data: {
+          assignedMemberId: session.actorMemberId,
+          assignedLabel,
+          assignedAt: new Date(),
+        },
+      });
+      if (claimed.count === 1) return present();
+      const winner = await prisma.osCustomerConversation.findFirst({
+        where: { id: row.id, organizationId: session.organizationId },
+        select: { assignedMemberId: true, assignedLabel: true },
+      });
+      if (winner?.assignedMemberId === session.actorMemberId) return present();
+      throw new HttpException(
+        { code: 'ALREADY_ASSIGNED', assignedLabel: winner?.assignedLabel ?? null },
+        HttpStatus.CONFLICT,
+      );
+    } catch (err) {
+      throw conversationHttpError(err);
+    }
+  }
+
+  /**
+   * Retry or add the next step of a saved conversation. Idempotent: a conversation that
+   * already has its commitment answers with that commitment and creates nothing.
+   */
+  @Post(':conversationId/next-step')
+  async saveNextStep(
+    @Param('conversationId') conversationId: string,
+    @Req() req: Request,
+    @Body() body: unknown,
+  ): Promise<{ item: ManualCustomerConversation; nextStep: NextStepOutcome }> {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const { prisma, row } = await this.readableConversation(session, conversationId);
+      const parsed = ConversationNextStepSchema.safeParse(body);
+      if (!parsed.success) {
+        throw new HttpException('Invalid next step', HttpStatus.BAD_REQUEST);
+      }
+      const reload = async () => {
+        const fresh = await prisma.osCustomerConversation.findFirst({
+          where: { id: row.id, organizationId: session.organizationId },
+        });
+        const item = fresh ? toManual(fresh) : null;
+        if (!item) throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+        return item;
+      };
+      if (row.nextStepCommitmentId) {
+        return {
+          item: await reload(),
+          nextStep: { status: 'created', commitmentId: row.nextStepCommitmentId },
+        };
+      }
+      const nextStep = await this.createNextStepCommitment(session, row, parsed.data);
+      return { item: await reload(), nextStep };
+    } catch (err) {
+      throw conversationHttpError(err);
+    }
+  }
 
   @Get()
   async listCustomerConversations(
@@ -297,7 +518,7 @@ export class CustomerConversationsController {
   async createCustomerConversation(
     @Req() req: Request,
     @Body() body: unknown,
-  ): Promise<{ item: ManualCustomerConversation }> {
+  ): Promise<{ item: ManualCustomerConversation; nextStep: NextStepOutcome | null }> {
     try {
       const session = await resolveSession(req, this.workforceStore);
       const prisma = getOsPrisma();
@@ -374,6 +595,25 @@ export class CustomerConversationsController {
       const idempotencyKey = req.header('idempotency-key')?.trim();
       const binding = replayBinding(session.actorMemberId, RECORD_CONVERSATION_COMMAND, draft);
       // Authorization above already ran for this actor and these links.
+      const requestedNextStep = ConversationNextStepSchema.safeParse(draft.nextStep);
+      // A replay answers with the stored conversation. A next step that never became a
+      // commitment is attempted again (same key and payload = same commitment).
+      const withNextStep = async (
+        item: ManualCustomerConversation,
+      ): Promise<{ item: ManualCustomerConversation; nextStep: NextStepOutcome | null }> => {
+        if (item.nextStepCommitmentId) {
+          return { item, nextStep: { status: 'created', commitmentId: item.nextStepCommitmentId } };
+        }
+        if (!requestedNextStep.success) return { item, nextStep: null };
+        const nextStep = await this.createNextStepCommitment(session, item, requestedNextStep.data);
+        return {
+          item:
+            nextStep.status === 'created'
+              ? { ...item, nextStepCommitmentId: nextStep.commitmentId }
+              : item,
+          nextStep,
+        };
+      };
       const replayStored = async (): Promise<{ item: ManualCustomerConversation } | null> => {
         if (!idempotencyKey) return null;
         const prior = await prisma.osIdempotencyKey.findUnique({
@@ -391,7 +631,7 @@ export class CustomerConversationsController {
         return { item: replay };
       };
       const earlier = await replayStored();
-      if (earlier) return earlier;
+      if (earlier) return withNextStep(earlier.item);
 
       const person = await prisma.osPerson.findUnique({
         where: { id: session.personId },
@@ -438,10 +678,10 @@ export class CustomerConversationsController {
       } catch (err) {
         if (!idempotencyKey || !isIdempotencyConflict(err)) throw err;
         const winner = await replayStored();
-        if (winner) return winner;
+        if (winner) return withNextStep(winner.item);
         throw err;
       }
-      return { item: admitted.record };
+      return withNextStep(admitted.record);
     } catch (err) {
       throw conversationHttpError(err);
     }

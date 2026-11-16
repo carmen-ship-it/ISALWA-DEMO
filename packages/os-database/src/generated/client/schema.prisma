@@ -1595,6 +1595,13 @@ model OsCustomerConversation {
   enteredByLabel        String    @map("entered_by_label")
   summary               String
   pastedEvidence        String?   @map("pasted_evidence")
+  reason                String?
+  /// Who took the conversation. Not the account owner and not a commitment owner.
+  assignedMemberId      String?   @map("assigned_member_id")
+  assignedLabel         String?   @map("assigned_label")
+  assignedAt            DateTime? @map("assigned_at")
+  /// Set once the saved next step became an OsCommitment (no foreign key; opaque link).
+  nextStepCommitmentId  String?   @map("next_step_commitment_id")
   opportunityId         String?   @map("opportunity_id")
   quoteId               String?   @map("quote_id")
   orderId               String?   @map("order_id")
@@ -1611,6 +1618,7 @@ model OsCustomerConversation {
 
   @@index([organizationId, customerId, occurredAt(sort: Desc)])
   @@index([organizationId, occurredAt(sort: Desc)])
+  @@index([organizationId, assignedMemberId])
   @@map("os_customer_conversations")
 }
 

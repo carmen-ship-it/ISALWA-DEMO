@@ -69,6 +69,16 @@ import type { CommitmentState } from '@isalwa/os-contracts';
 import type { AiAssistResponse } from '@/lib/ai/types';
 import type { AuditListResponse, MemoryChangesResponse } from '@/lib/audit/types';
 
+/** Result of saving the next step beside a conversation. A failure is a recoverable partial outcome. */
+export type CustomerConversationNextStepOutcome =
+  | { status: 'created'; commitmentId: string }
+  | { status: 'failed'; code: string };
+
+export type CustomerConversationSaveResponse = {
+  item: import('@isalwa/os-contracts').ManualCustomerConversation;
+  nextStep?: CustomerConversationNextStepOutcome | null;
+};
+
 export type CommitmentSummary = {
   id: string;
   organizationId: string;
@@ -441,9 +451,25 @@ export function createOsApiClient(auth: OsAuthContext) {
         },
       ),
     createCustomerConversation: (record: import('@isalwa/os-contracts').ManualCustomerConversation) =>
+      request<CustomerConversationSaveResponse>('/customer-conversations', {
+        method: 'POST',
+        body: record,
+        retry: false,
+      }),
+    /** Retry or add the next step of a saved conversation. Idempotent. */
+    saveCustomerConversationNextStep: (
+      conversationId: string,
+      step: import('@isalwa/os-contracts').ConversationNextStep,
+    ) =>
+      request<CustomerConversationSaveResponse>(
+        `/customer-conversations/${encodeURIComponent(conversationId)}/next-step`,
+        { method: 'POST', body: step, retry: false },
+      ),
+    /** Tomar conversación. One winner; a conflict means someone else holds it. */
+    takeCustomerConversation: (conversationId: string) =>
       request<{ item: import('@isalwa/os-contracts').ManualCustomerConversation }>(
-        '/customer-conversations',
-        { method: 'POST', body: record, retry: false },
+        `/customer-conversations/${encodeURIComponent(conversationId)}/take`,
+        { method: 'POST', retry: false },
       ),
     listWarehouseExits: (query?: Record<string, string | number | boolean>) =>
       request<{

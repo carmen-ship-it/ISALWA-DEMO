@@ -27,7 +27,7 @@ describe('command palette authorization', () => {
       'Preparar cotización',
       'Registrar seguimiento',
       'Reportar incidencia',
-      'Registrar conversación',
+      'Registrar atención',
       'Cómo trabajamos',
     ]);
     assert.equal(plain.includes('Agregar cliente'), false);
@@ -46,9 +46,9 @@ describe('command palette authorization', () => {
     assert.equal(reportIssue?.href, '/incidencias/reportar');
   });
 
-  it('includes Registrar conversación without claiming live WhatsApp', () => {
+  it('includes Registrar atención without claiming live WhatsApp', () => {
     const plain = paletteActions({ canCreateCustomer: false, canInvite: false });
-    const register = plain.find((item) => item.label === 'Registrar conversación');
+    const register = plain.find((item) => item.label === 'Registrar atención');
     assert.ok(register);
     assert.equal(register?.href, '/conversaciones?registrar=1');
     assert.match(register?.detail ?? '', /no conectado/i);

@@ -10,6 +10,7 @@ import type { ManualCustomerConversation } from '@isalwa/os-contracts';
 export const CONVERSATION_CHANNELS = [
   'WHATSAPP',
   'PHONE',
+  'VISIT',
   'IN_PERSON',
   'EMAIL',
   'OTHER',
@@ -19,21 +20,26 @@ export type ConversationChannel = (typeof CONVERSATION_CHANNELS)[number];
 export const CONVERSATION_DIRECTIONS = ['inbound', 'outbound'] as const;
 export type ConversationDirection = (typeof CONVERSATION_DIRECTIONS)[number];
 
+/**
+ * Inbox filters (Batch 5). `unassigned` and `mine` read the stored assignment; the account
+ * owner and any commitment owner are separate concepts and never decide these filters.
+ * `needs_response` and `follow_up` come from the derived attention flags.
+ */
 export const CONVERSATION_FILTERS = [
   'all',
+  'unassigned',
+  'mine',
   'needs_response',
   'follow_up',
-  'possible_opportunity',
-  'possible_issue',
 ] as const;
 export type ConversationFilter = (typeof CONVERSATION_FILTERS)[number];
 
 export const CONVERSATION_FILTER_LABELS: Record<ConversationFilter, string> = {
-  all: 'Todas',
-  needs_response: 'Necesitan respuesta',
+  all: 'Todos',
+  unassigned: 'Sin asignar',
+  mine: 'Mis chats',
+  needs_response: 'Por responder',
   follow_up: 'Seguimiento',
-  possible_opportunity: 'Oportunidad posible',
-  possible_issue: 'Incidencia posible',
 };
 
 export type ConversationRelated = {
@@ -102,6 +108,13 @@ export type Conversation = {
   nextAction: string | null;
   customerQuestion: string | null;
   commitmentCandidate: string | null;
+  /** Why the company attended the customer (attention records); null for older records. */
+  reason: string | null;
+  /** Who took the conversation. Separate from account owner and commitment owner. */
+  assignedMemberId: string | null;
+  assignedLabel: string | null;
+  /** Commitment created from the saved next step, when it exists. */
+  nextStepCommitmentId: string | null;
   /** Assigned RESPONSABLE for who-to-ask; null when not yet recorded. */
   responsible: ConversationResponsibleHint | null;
 };
@@ -134,9 +147,11 @@ export function channelLabel(channel: ConversationChannel): string {
     case 'WHATSAPP':
       return 'WhatsApp';
     case 'PHONE':
-      return 'Teléfono';
+      return 'Llamada';
+    case 'VISIT':
+      return 'Visita';
     case 'IN_PERSON':
-      return 'En persona';
+      return 'Atención presencial';
     case 'EMAIL':
       return 'Correo';
     case 'OTHER':
@@ -147,13 +162,35 @@ export function channelLabel(channel: ConversationChannel): string {
 export function mapEvidenceChannel(
   channel: ManualCustomerConversation['channel'],
 ): ConversationChannel {
-  return channel === 'whatsapp' ? 'WHATSAPP' : 'OTHER';
+  switch (channel) {
+    case 'whatsapp':
+      return 'WHATSAPP';
+    case 'call':
+      return 'PHONE';
+    case 'visit':
+      return 'VISIT';
+    case 'in_person':
+      return 'IN_PERSON';
+    default:
+      return 'OTHER';
+  }
 }
 
 export function toEvidenceChannel(
   channel: ConversationChannel,
 ): ManualCustomerConversation['channel'] {
-  return channel === 'WHATSAPP' ? 'whatsapp' : 'manual';
+  switch (channel) {
+    case 'WHATSAPP':
+      return 'whatsapp';
+    case 'PHONE':
+      return 'call';
+    case 'VISIT':
+      return 'visit';
+    case 'IN_PERSON':
+      return 'in_person';
+    default:
+      return 'manual';
+  }
 }
 
 const ISSUE_HINT =
@@ -183,26 +220,61 @@ export function deriveAttention(input: {
 export function conversationMatchesFilter(
   conversation: Conversation,
   filter: ConversationFilter,
+  actorMemberId: string | null = null,
 ): boolean {
   switch (filter) {
     case 'all':
       return true;
+    case 'unassigned':
+      return !conversation.assignedMemberId;
+    case 'mine':
+      return Boolean(actorMemberId) && conversation.assignedMemberId === actorMemberId;
     case 'needs_response':
       return conversation.attention.needsResponse;
     case 'follow_up':
       return conversation.attention.followUp;
-    case 'possible_opportunity':
-      return conversation.attention.possibleOpportunity;
-    case 'possible_issue':
-      return conversation.attention.possibleIssue;
   }
 }
 
 export function filterConversations(
   conversations: readonly Conversation[],
   filter: ConversationFilter,
+  actorMemberId: string | null = null,
 ): Conversation[] {
-  return conversations.filter((item) => conversationMatchesFilter(item, filter));
+  return conversations.filter((item) => conversationMatchesFilter(item, filter, actorMemberId));
+}
+
+function conversationHaystack(item: Conversation): string {
+  return [
+    item.partyLabel,
+    item.contactLabel,
+    item.preview,
+    item.reason,
+    item.customerQuestion,
+    item.nextAction,
+    ...item.messages.map((message) => message.body),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLocaleLowerCase('es');
+}
+
+/**
+ * Inbox search ("Buscar cliente, teléfono o conversación"). Text matches the customer,
+ * contact and conversation words. A phone is not stored on a conversation, so the caller
+ * resolves it through the authorized customer search and passes the matching customer ids.
+ * An empty query shows everything.
+ */
+export function searchInbox(
+  conversations: readonly Conversation[],
+  query: string,
+  customerIdsMatchingQuery: ReadonlySet<string> = new Set(),
+): Conversation[] {
+  const q = query.trim().toLocaleLowerCase('es');
+  if (!q) return [...conversations];
+  return conversations.filter(
+    (item) => customerIdsMatchingQuery.has(item.partyId) || conversationHaystack(item).includes(q),
+  );
 }
 
 export function searchConversations(
@@ -211,20 +283,7 @@ export function searchConversations(
 ): Conversation[] {
   const q = query.trim().toLocaleLowerCase('es');
   if (q.length < 2) return [];
-  return conversations.filter((item) => {
-    const haystack = [
-      item.partyLabel,
-      item.contactLabel,
-      item.preview,
-      item.customerQuestion,
-      item.nextAction,
-      ...item.messages.map((message) => message.body),
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .toLocaleLowerCase('es');
-    return haystack.includes(q);
-  });
+  return conversations.filter((item) => conversationHaystack(item).includes(q));
 }
 
 export function conversationHref(conversationId: string): string {

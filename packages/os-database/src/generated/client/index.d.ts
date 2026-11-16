@@ -90644,6 +90644,11 @@ export namespace Prisma {
     enteredByLabel: string | null
     summary: string | null
     pastedEvidence: string | null
+    reason: string | null
+    assignedMemberId: string | null
+    assignedLabel: string | null
+    assignedAt: Date | null
+    nextStepCommitmentId: string | null
     opportunityId: string | null
     quoteId: string | null
     orderId: string | null
@@ -90669,6 +90674,11 @@ export namespace Prisma {
     enteredByLabel: string | null
     summary: string | null
     pastedEvidence: string | null
+    reason: string | null
+    assignedMemberId: string | null
+    assignedLabel: string | null
+    assignedAt: Date | null
+    nextStepCommitmentId: string | null
     opportunityId: string | null
     quoteId: string | null
     orderId: string | null
@@ -90694,6 +90704,11 @@ export namespace Prisma {
     enteredByLabel: number
     summary: number
     pastedEvidence: number
+    reason: number
+    assignedMemberId: number
+    assignedLabel: number
+    assignedAt: number
+    nextStepCommitmentId: number
     opportunityId: number
     quoteId: number
     orderId: number
@@ -90721,6 +90736,11 @@ export namespace Prisma {
     enteredByLabel?: true
     summary?: true
     pastedEvidence?: true
+    reason?: true
+    assignedMemberId?: true
+    assignedLabel?: true
+    assignedAt?: true
+    nextStepCommitmentId?: true
     opportunityId?: true
     quoteId?: true
     orderId?: true
@@ -90746,6 +90766,11 @@ export namespace Prisma {
     enteredByLabel?: true
     summary?: true
     pastedEvidence?: true
+    reason?: true
+    assignedMemberId?: true
+    assignedLabel?: true
+    assignedAt?: true
+    nextStepCommitmentId?: true
     opportunityId?: true
     quoteId?: true
     orderId?: true
@@ -90771,6 +90796,11 @@ export namespace Prisma {
     enteredByLabel?: true
     summary?: true
     pastedEvidence?: true
+    reason?: true
+    assignedMemberId?: true
+    assignedLabel?: true
+    assignedAt?: true
+    nextStepCommitmentId?: true
     opportunityId?: true
     quoteId?: true
     orderId?: true
@@ -90869,6 +90899,11 @@ export namespace Prisma {
     enteredByLabel: string
     summary: string
     pastedEvidence: string | null
+    reason: string | null
+    assignedMemberId: string | null
+    assignedLabel: string | null
+    assignedAt: Date | null
+    nextStepCommitmentId: string | null
     opportunityId: string | null
     quoteId: string | null
     orderId: string | null
@@ -90911,6 +90946,11 @@ export namespace Prisma {
     enteredByLabel?: boolean
     summary?: boolean
     pastedEvidence?: boolean
+    reason?: boolean
+    assignedMemberId?: boolean
+    assignedLabel?: boolean
+    assignedAt?: boolean
+    nextStepCommitmentId?: boolean
     opportunityId?: boolean
     quoteId?: boolean
     orderId?: boolean
@@ -90937,6 +90977,11 @@ export namespace Prisma {
     enteredByLabel?: boolean
     summary?: boolean
     pastedEvidence?: boolean
+    reason?: boolean
+    assignedMemberId?: boolean
+    assignedLabel?: boolean
+    assignedAt?: boolean
+    nextStepCommitmentId?: boolean
     opportunityId?: boolean
     quoteId?: boolean
     orderId?: boolean
@@ -90963,6 +91008,11 @@ export namespace Prisma {
     enteredByLabel?: boolean
     summary?: boolean
     pastedEvidence?: boolean
+    reason?: boolean
+    assignedMemberId?: boolean
+    assignedLabel?: boolean
+    assignedAt?: boolean
+    nextStepCommitmentId?: boolean
     opportunityId?: boolean
     quoteId?: boolean
     orderId?: boolean
@@ -90989,6 +91039,11 @@ export namespace Prisma {
     enteredByLabel?: boolean
     summary?: boolean
     pastedEvidence?: boolean
+    reason?: boolean
+    assignedMemberId?: boolean
+    assignedLabel?: boolean
+    assignedAt?: boolean
+    nextStepCommitmentId?: boolean
     opportunityId?: boolean
     quoteId?: boolean
     orderId?: boolean
@@ -91002,7 +91057,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type OsCustomerConversationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "customerId" | "customerLabel" | "contactLabel" | "channel" | "occurredAt" | "enteredByMemberId" | "enteredByLabel" | "summary" | "pastedEvidence" | "opportunityId" | "quoteId" | "orderId" | "customerQuestion" | "commitmentCandidate" | "possibleRequestedDate" | "nextAction" | "source" | "provenance" | "advisorNumberStatus" | "createdAt", ExtArgs["result"]["osCustomerConversation"]>
+  export type OsCustomerConversationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "customerId" | "customerLabel" | "contactLabel" | "channel" | "occurredAt" | "enteredByMemberId" | "enteredByLabel" | "summary" | "pastedEvidence" | "reason" | "assignedMemberId" | "assignedLabel" | "assignedAt" | "nextStepCommitmentId" | "opportunityId" | "quoteId" | "orderId" | "customerQuestion" | "commitmentCandidate" | "possibleRequestedDate" | "nextAction" | "source" | "provenance" | "advisorNumberStatus" | "createdAt", ExtArgs["result"]["osCustomerConversation"]>
   export type OsCustomerConversationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
   }
@@ -91030,6 +91085,17 @@ export namespace Prisma {
       enteredByLabel: string
       summary: string
       pastedEvidence: string | null
+      reason: string | null
+      /**
+       * Who took the conversation. Not the account owner and not a commitment owner.
+       */
+      assignedMemberId: string | null
+      assignedLabel: string | null
+      assignedAt: Date | null
+      /**
+       * Set once the saved next step became an OsCommitment (no foreign key; opaque link).
+       */
+      nextStepCommitmentId: string | null
       opportunityId: string | null
       quoteId: string | null
       orderId: string | null
@@ -91476,6 +91542,11 @@ export namespace Prisma {
     readonly enteredByLabel: FieldRef<"OsCustomerConversation", 'String'>
     readonly summary: FieldRef<"OsCustomerConversation", 'String'>
     readonly pastedEvidence: FieldRef<"OsCustomerConversation", 'String'>
+    readonly reason: FieldRef<"OsCustomerConversation", 'String'>
+    readonly assignedMemberId: FieldRef<"OsCustomerConversation", 'String'>
+    readonly assignedLabel: FieldRef<"OsCustomerConversation", 'String'>
+    readonly assignedAt: FieldRef<"OsCustomerConversation", 'DateTime'>
+    readonly nextStepCommitmentId: FieldRef<"OsCustomerConversation", 'String'>
     readonly opportunityId: FieldRef<"OsCustomerConversation", 'String'>
     readonly quoteId: FieldRef<"OsCustomerConversation", 'String'>
     readonly orderId: FieldRef<"OsCustomerConversation", 'String'>
@@ -132404,6 +132475,11 @@ export namespace Prisma {
     enteredByLabel: 'enteredByLabel',
     summary: 'summary',
     pastedEvidence: 'pastedEvidence',
+    reason: 'reason',
+    assignedMemberId: 'assignedMemberId',
+    assignedLabel: 'assignedLabel',
+    assignedAt: 'assignedAt',
+    nextStepCommitmentId: 'nextStepCommitmentId',
     opportunityId: 'opportunityId',
     quoteId: 'quoteId',
     orderId: 'orderId',
@@ -139552,6 +139628,11 @@ export namespace Prisma {
     enteredByLabel?: StringFilter<"OsCustomerConversation"> | string
     summary?: StringFilter<"OsCustomerConversation"> | string
     pastedEvidence?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    reason?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    assignedMemberId?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    assignedLabel?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    assignedAt?: DateTimeNullableFilter<"OsCustomerConversation"> | Date | string | null
+    nextStepCommitmentId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     opportunityId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     quoteId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     orderId?: StringNullableFilter<"OsCustomerConversation"> | string | null
@@ -139578,6 +139659,11 @@ export namespace Prisma {
     enteredByLabel?: SortOrder
     summary?: SortOrder
     pastedEvidence?: SortOrderInput | SortOrder
+    reason?: SortOrderInput | SortOrder
+    assignedMemberId?: SortOrderInput | SortOrder
+    assignedLabel?: SortOrderInput | SortOrder
+    assignedAt?: SortOrderInput | SortOrder
+    nextStepCommitmentId?: SortOrderInput | SortOrder
     opportunityId?: SortOrderInput | SortOrder
     quoteId?: SortOrderInput | SortOrder
     orderId?: SortOrderInput | SortOrder
@@ -139607,6 +139693,11 @@ export namespace Prisma {
     enteredByLabel?: StringFilter<"OsCustomerConversation"> | string
     summary?: StringFilter<"OsCustomerConversation"> | string
     pastedEvidence?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    reason?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    assignedMemberId?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    assignedLabel?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    assignedAt?: DateTimeNullableFilter<"OsCustomerConversation"> | Date | string | null
+    nextStepCommitmentId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     opportunityId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     quoteId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     orderId?: StringNullableFilter<"OsCustomerConversation"> | string | null
@@ -139633,6 +139724,11 @@ export namespace Prisma {
     enteredByLabel?: SortOrder
     summary?: SortOrder
     pastedEvidence?: SortOrderInput | SortOrder
+    reason?: SortOrderInput | SortOrder
+    assignedMemberId?: SortOrderInput | SortOrder
+    assignedLabel?: SortOrderInput | SortOrder
+    assignedAt?: SortOrderInput | SortOrder
+    nextStepCommitmentId?: SortOrderInput | SortOrder
     opportunityId?: SortOrderInput | SortOrder
     quoteId?: SortOrderInput | SortOrder
     orderId?: SortOrderInput | SortOrder
@@ -139664,6 +139760,11 @@ export namespace Prisma {
     enteredByLabel?: StringWithAggregatesFilter<"OsCustomerConversation"> | string
     summary?: StringWithAggregatesFilter<"OsCustomerConversation"> | string
     pastedEvidence?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
+    reason?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
+    assignedMemberId?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
+    assignedLabel?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
+    assignedAt?: DateTimeNullableWithAggregatesFilter<"OsCustomerConversation"> | Date | string | null
+    nextStepCommitmentId?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
     opportunityId?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
     quoteId?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
     orderId?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
@@ -149913,6 +150014,11 @@ export namespace Prisma {
     enteredByLabel: string
     summary: string
     pastedEvidence?: string | null
+    reason?: string | null
+    assignedMemberId?: string | null
+    assignedLabel?: string | null
+    assignedAt?: Date | string | null
+    nextStepCommitmentId?: string | null
     opportunityId?: string | null
     quoteId?: string | null
     orderId?: string | null
@@ -149939,6 +150045,11 @@ export namespace Prisma {
     enteredByLabel: string
     summary: string
     pastedEvidence?: string | null
+    reason?: string | null
+    assignedMemberId?: string | null
+    assignedLabel?: string | null
+    assignedAt?: Date | string | null
+    nextStepCommitmentId?: string | null
     opportunityId?: string | null
     quoteId?: string | null
     orderId?: string | null
@@ -149963,6 +150074,11 @@ export namespace Prisma {
     enteredByLabel?: StringFieldUpdateOperationsInput | string
     summary?: StringFieldUpdateOperationsInput | string
     pastedEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -149989,6 +150105,11 @@ export namespace Prisma {
     enteredByLabel?: StringFieldUpdateOperationsInput | string
     summary?: StringFieldUpdateOperationsInput | string
     pastedEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -150014,6 +150135,11 @@ export namespace Prisma {
     enteredByLabel: string
     summary: string
     pastedEvidence?: string | null
+    reason?: string | null
+    assignedMemberId?: string | null
+    assignedLabel?: string | null
+    assignedAt?: Date | string | null
+    nextStepCommitmentId?: string | null
     opportunityId?: string | null
     quoteId?: string | null
     orderId?: string | null
@@ -150038,6 +150164,11 @@ export namespace Prisma {
     enteredByLabel?: StringFieldUpdateOperationsInput | string
     summary?: StringFieldUpdateOperationsInput | string
     pastedEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -150063,6 +150194,11 @@ export namespace Prisma {
     enteredByLabel?: StringFieldUpdateOperationsInput | string
     summary?: StringFieldUpdateOperationsInput | string
     pastedEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -158276,6 +158412,11 @@ export namespace Prisma {
     enteredByLabel?: SortOrder
     summary?: SortOrder
     pastedEvidence?: SortOrder
+    reason?: SortOrder
+    assignedMemberId?: SortOrder
+    assignedLabel?: SortOrder
+    assignedAt?: SortOrder
+    nextStepCommitmentId?: SortOrder
     opportunityId?: SortOrder
     quoteId?: SortOrder
     orderId?: SortOrder
@@ -158301,6 +158442,11 @@ export namespace Prisma {
     enteredByLabel?: SortOrder
     summary?: SortOrder
     pastedEvidence?: SortOrder
+    reason?: SortOrder
+    assignedMemberId?: SortOrder
+    assignedLabel?: SortOrder
+    assignedAt?: SortOrder
+    nextStepCommitmentId?: SortOrder
     opportunityId?: SortOrder
     quoteId?: SortOrder
     orderId?: SortOrder
@@ -158326,6 +158472,11 @@ export namespace Prisma {
     enteredByLabel?: SortOrder
     summary?: SortOrder
     pastedEvidence?: SortOrder
+    reason?: SortOrder
+    assignedMemberId?: SortOrder
+    assignedLabel?: SortOrder
+    assignedAt?: SortOrder
+    nextStepCommitmentId?: SortOrder
     opportunityId?: SortOrder
     quoteId?: SortOrder
     orderId?: SortOrder
@@ -171311,6 +171462,11 @@ export namespace Prisma {
     enteredByLabel: string
     summary: string
     pastedEvidence?: string | null
+    reason?: string | null
+    assignedMemberId?: string | null
+    assignedLabel?: string | null
+    assignedAt?: Date | string | null
+    nextStepCommitmentId?: string | null
     opportunityId?: string | null
     quoteId?: string | null
     orderId?: string | null
@@ -171335,6 +171491,11 @@ export namespace Prisma {
     enteredByLabel: string
     summary: string
     pastedEvidence?: string | null
+    reason?: string | null
+    assignedMemberId?: string | null
+    assignedLabel?: string | null
+    assignedAt?: Date | string | null
+    nextStepCommitmentId?: string | null
     opportunityId?: string | null
     quoteId?: string | null
     orderId?: string | null
@@ -174340,6 +174501,11 @@ export namespace Prisma {
     enteredByLabel?: StringFilter<"OsCustomerConversation"> | string
     summary?: StringFilter<"OsCustomerConversation"> | string
     pastedEvidence?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    reason?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    assignedMemberId?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    assignedLabel?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    assignedAt?: DateTimeNullableFilter<"OsCustomerConversation"> | Date | string | null
+    nextStepCommitmentId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     opportunityId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     quoteId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     orderId?: StringNullableFilter<"OsCustomerConversation"> | string | null
@@ -219235,6 +219401,11 @@ export namespace Prisma {
     enteredByLabel: string
     summary: string
     pastedEvidence?: string | null
+    reason?: string | null
+    assignedMemberId?: string | null
+    assignedLabel?: string | null
+    assignedAt?: Date | string | null
+    nextStepCommitmentId?: string | null
     opportunityId?: string | null
     quoteId?: string | null
     orderId?: string | null
@@ -222129,6 +222300,11 @@ export namespace Prisma {
     enteredByLabel?: StringFieldUpdateOperationsInput | string
     summary?: StringFieldUpdateOperationsInput | string
     pastedEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -222153,6 +222329,11 @@ export namespace Prisma {
     enteredByLabel?: StringFieldUpdateOperationsInput | string
     summary?: StringFieldUpdateOperationsInput | string
     pastedEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -222177,6 +222358,11 @@ export namespace Prisma {
     enteredByLabel?: StringFieldUpdateOperationsInput | string
     summary?: StringFieldUpdateOperationsInput | string
     pastedEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null

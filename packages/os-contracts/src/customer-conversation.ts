@@ -16,8 +16,28 @@ import { z } from 'zod';
  * back-relation on OsOrganization. Do not add confirmation columns.
  */
 
-export const CUSTOMER_CONVERSATION_CHANNELS = ['whatsapp', 'manual'] as const;
+/**
+ * Stored channel values. `whatsapp` is a manual WhatsApp record the company typed or pasted.
+ * `manual` is the legacy "other record" value. `call`, `visit` and `in_person` are attention
+ * channels (Batch 5 "Registrar atención"). None of them connects a provider.
+ */
+export const CUSTOMER_CONVERSATION_CHANNELS = ['whatsapp', 'manual', 'call', 'visit', 'in_person'] as const;
 export type CustomerConversationChannel = (typeof CUSTOMER_CONVERSATION_CHANNELS)[number];
+
+/** Channels the "Registrar atención" form offers, in display order. */
+export const ATTENTION_CHANNELS = ['call', 'visit', 'in_person', 'whatsapp'] as const;
+export type AttentionChannel = (typeof ATTENTION_CHANNELS)[number];
+
+export const ATTENTION_CHANNEL_LABELS: Record<CustomerConversationChannel, string> = {
+  call: 'Llamada',
+  visit: 'Visita',
+  in_person: 'Atención presencial',
+  whatsapp: 'Registro manual de WhatsApp',
+  manual: 'Otro registro',
+};
+
+/** A reason is required for every channel that is not a legacy record. */
+const REASON_REQUIRED_CHANNELS: readonly CustomerConversationChannel[] = ['call', 'visit', 'in_person'];
 
 export const CUSTOMER_CONVERSATION_SOURCE = 'employee_entered' as const;
 export const CUSTOMER_CONVERSATION_PROVENANCE = 'company_entered' as const;
@@ -37,6 +57,11 @@ export const CUSTOMER_CONVERSATION_ROW_COLUMNS = [
   'entered_by_label',
   'summary',
   'pasted_evidence',
+  'reason',
+  'assigned_member_id',
+  'assigned_label',
+  'assigned_at',
+  'next_step_commitment_id',
   'opportunity_id',
   'quote_id',
   'order_id',
@@ -75,6 +100,18 @@ const optionalText = z
 
 const DateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
+/**
+ * Optional next step saved with the attention. It becomes a commitment through the
+ * existing CreateEmployeeCommitment command. Owner and date are both required.
+ */
+export const ConversationNextStepSchema = z.object({
+  description: z.string().trim().min(1),
+  ownerMemberId: z.string().trim().min(1),
+  dueDate: DateOnly,
+});
+
+export type ConversationNextStep = z.infer<typeof ConversationNextStepSchema>;
+
 export const RecordCustomerConversationSchema = z.object({
   id: z.string().trim().min(1),
   organizationId: z.string().trim().min(1),
@@ -87,6 +124,7 @@ export const RecordCustomerConversationSchema = z.object({
   enteredByLabel: z.string().trim().min(1),
   summary: z.string().trim().min(1),
   pastedEvidence: optionalText,
+  reason: optionalText,
   opportunityId: optionalText,
   quoteId: optionalText,
   orderId: optionalText,
@@ -94,6 +132,11 @@ export const RecordCustomerConversationSchema = z.object({
   commitmentCandidate: optionalText,
   possibleRequestedDate: DateOnly.nullable().optional().transform((value) => value ?? null),
   nextAction: optionalText,
+  nextStep: ConversationNextStepSchema.nullable().optional().transform((value) => value ?? null),
+}).superRefine((value, ctx) => {
+  if (REASON_REQUIRED_CHANNELS.includes(value.channel) && !value.reason) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['reason'], message: 'reason_required' });
+  }
 });
 
 export type RecordCustomerConversationInput = z.input<typeof RecordCustomerConversationSchema>;
@@ -102,7 +145,9 @@ export type CustomerConversationRefusal =
   | 'missing_tenant'
   | 'missing_customer'
   | 'missing_summary'
+  | 'missing_reason'
   | 'missing_entered_by'
+  | 'invalid_next_step'
   | 'invalid_occurred_at'
   | 'invalid_requested_date'
   | 'invalid_record';
@@ -119,6 +164,17 @@ export type ManualCustomerConversation = {
   enteredByLabel: string;
   summary: string;
   pastedEvidence: string | null;
+  /** Why the company attended the customer. Required for call, visit and in-person. */
+  reason: string | null;
+  /**
+   * Who took the conversation. Not the account owner and not a commitment owner.
+   * Only the take command writes this; a record request cannot set it.
+   */
+  assignedMemberId: string | null;
+  assignedLabel: string | null;
+  assignedAt: string | null;
+  /** Set once the saved next step became a real commitment. */
+  nextStepCommitmentId: string | null;
   opportunityId: string | null;
   quoteId: string | null;
   orderId: string | null;
@@ -126,6 +182,8 @@ export type ManualCustomerConversation = {
   commitmentCandidate: string | null;
   possibleRequestedDate: string | null;
   nextAction: string | null;
+  /** Requested with this record. Persisted as a commitment by the command, not by this type. */
+  nextStep: ConversationNextStep | null;
   source: typeof CUSTOMER_CONVERSATION_SOURCE;
   provenance: typeof CUSTOMER_CONVERSATION_PROVENANCE;
   providerConnected: false;
@@ -170,6 +228,11 @@ export type CustomerConversationRow = {
   entered_by_label: string;
   summary: string;
   pasted_evidence: string | null;
+  reason: string | null;
+  assigned_member_id: string | null;
+  assigned_label: string | null;
+  assigned_at: string | null;
+  next_step_commitment_id: string | null;
   opportunity_id: string | null;
   quote_id: string | null;
   order_id: string | null;
@@ -192,6 +255,8 @@ function refusalReason(error: z.ZodError): CustomerConversationRefusal {
   if (fields.has('organizationId')) return 'missing_tenant';
   if (fields.has('customerId') || fields.has('customerLabel')) return 'missing_customer';
   if (fields.has('summary')) return 'missing_summary';
+  if (fields.has('reason')) return 'missing_reason';
+  if (fields.has('nextStep')) return 'invalid_next_step';
   if (fields.has('enteredByLabel')) return 'missing_entered_by';
   if (fields.has('occurredAt')) return 'invalid_occurred_at';
   if (fields.has('possibleRequestedDate')) return 'invalid_requested_date';
@@ -211,13 +276,20 @@ function seal(parsed: z.output<typeof RecordCustomerConversationSchema>): Manual
     enteredByLabel: parsed.enteredByLabel,
     summary: parsed.summary,
     pastedEvidence: parsed.pastedEvidence,
+    reason: parsed.reason,
+    // A record request never assigns, links a commitment, or claims one exists.
+    assignedMemberId: null,
+    assignedLabel: null,
+    assignedAt: null,
+    nextStepCommitmentId: null,
     opportunityId: parsed.opportunityId,
     quoteId: parsed.quoteId,
     orderId: parsed.orderId,
     customerQuestion: parsed.customerQuestion,
     commitmentCandidate: parsed.commitmentCandidate,
     possibleRequestedDate: parsed.possibleRequestedDate,
-    nextAction: parsed.nextAction,
+    nextAction: parsed.nextAction ?? parsed.nextStep?.description ?? null,
+    nextStep: parsed.nextStep,
     source: CUSTOMER_CONVERSATION_SOURCE,
     provenance: CUSTOMER_CONVERSATION_PROVENANCE,
     providerConnected: false,
@@ -358,6 +430,11 @@ export function buildCustomerConversationRow(
     entered_by_label: record.enteredByLabel,
     summary: record.summary,
     pasted_evidence: record.pastedEvidence,
+    reason: record.reason,
+    assigned_member_id: record.assignedMemberId,
+    assigned_label: record.assignedLabel,
+    assigned_at: record.assignedAt,
+    next_step_commitment_id: record.nextStepCommitmentId,
     opportunity_id: record.opportunityId,
     quote_id: record.quoteId,
     order_id: record.orderId,

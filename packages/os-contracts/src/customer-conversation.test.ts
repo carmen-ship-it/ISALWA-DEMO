@@ -197,6 +197,7 @@ describe('manual customer conversation', () => {
     assert.match(sql, /CREATE TABLE os_customer_conversations/);
     assert.match(sql, /organization_id TEXT NOT NULL/);
     assert.match(sql, /customer_id TEXT NOT NULL/);
+    // The channel CHECK was widened by the Batch 5 migration; see the test below.
     assert.match(sql, /CHECK \(channel IN \('whatsapp', 'manual'\)\)/);
     assert.match(sql, /CHECK \(source = 'employee_entered'\)/);
     assert.match(sql, /CHECK \(provenance = 'company_entered'\)/);
@@ -210,12 +211,115 @@ describe('manual customer conversation', () => {
       sql,
       /payment_confirmed|stock_confirmed|delivered_at|production_complete|discount_approved|provider_message_id/,
     );
+    const attentionSql = readFileSync(
+      join(root, 'migrations/20261021000000_os_customer_conversation_attention_b5/migration.sql'),
+      'utf8',
+    );
     for (const column of CUSTOMER_CONVERSATION_ROW_COLUMNS) {
-      assert.match(sql, new RegExp(`\\b${column}\\b`));
+      assert.match(`${sql}\n${attentionSql}`, new RegExp(`\\b${column}\\b`));
     }
 
     assert.match(fragment, /model OsCustomerConversation/);
     assert.match(fragment, /source\s+String\s+@default\("employee_entered"\)/);
     assert.doesNotMatch(fragment, /paymentConfirmed|discountApproved|providerMessageId/);
+  });
+});
+
+describe('Registrar atención (Batch 5)', () => {
+  it('accepts call, visit, in-person and manual WhatsApp, and none connects a provider', () => {
+    for (const channel of ['call', 'visit', 'in_person', 'whatsapp'] as const) {
+      const admitted = recordManualCustomerConversation(input({ channel, reason: 'Consulta de plazo' }));
+      assert.equal(admitted.ok, true, channel);
+      if (!admitted.ok) continue;
+      assert.equal(admitted.record.channel, channel);
+      assert.equal(admitted.record.providerConnected, false);
+      assert.equal(conversationChannelIsConnected(channel), false);
+    }
+    assert.equal(
+      recordManualCustomerConversation(input({ channel: 'sms' as unknown as 'call', reason: 'x' })).ok,
+      false,
+    );
+  });
+
+  it('requires a reason for call, visit and in-person; legacy channels keep working without one', () => {
+    for (const channel of ['call', 'visit', 'in_person'] as const) {
+      assert.deepEqual(recordManualCustomerConversation(input({ channel })), {
+        ok: false,
+        reason: 'missing_reason',
+      });
+      assert.deepEqual(recordManualCustomerConversation(input({ channel, reason: '   ' })), {
+        ok: false,
+        reason: 'missing_reason',
+      });
+    }
+    assert.equal(recordManualCustomerConversation(input({ channel: 'whatsapp' })).ok, true);
+    assert.equal(recordManualCustomerConversation(input({ channel: 'manual' })).ok, true);
+  });
+
+  it('keeps assignment and the commitment link out of a record request', () => {
+    const admitted = recordManualCustomerConversation(
+      input({
+        channel: 'call',
+        reason: 'Consulta',
+        ...({
+          assignedMemberId: 'member-someone',
+          assignedLabel: 'Alguien',
+          assignedAt: occurredAt,
+          nextStepCommitmentId: 'commitment-fake',
+        } as object),
+      }),
+    );
+    assert.equal(admitted.ok, true);
+    if (!admitted.ok) return;
+    assert.equal(admitted.record.assignedMemberId, null);
+    assert.equal(admitted.record.assignedLabel, null);
+    assert.equal(admitted.record.assignedAt, null);
+    assert.equal(admitted.record.nextStepCommitmentId, null);
+  });
+
+  it('admits a next step only with what, who and when, and mirrors it into nextAction', () => {
+    const step = { description: 'Enviar plazos', ownerMemberId: 'member-9', dueDate: '2026-11-20' };
+    const ok = recordManualCustomerConversation(
+      input({ channel: 'call', reason: 'Consulta', nextAction: null, nextStep: step }),
+    );
+    assert.equal(ok.ok, true);
+    if (ok.ok) {
+      assert.deepEqual(ok.record.nextStep, step);
+      assert.equal(ok.record.nextAction, 'Enviar plazos');
+      assert.equal(ok.record.commitmentCreated, false);
+    }
+    for (const bad of [
+      { ...step, ownerMemberId: '' },
+      { ...step, dueDate: '20/11/2026' },
+      { ...step, description: ' ' },
+    ]) {
+      assert.deepEqual(
+        recordManualCustomerConversation(input({ channel: 'call', reason: 'Consulta', nextStep: bad })),
+        { ok: false, reason: 'invalid_next_step' },
+      );
+    }
+  });
+
+  it('builds a row with the reason and no assignment, and the migration enforces the same rules', () => {
+    const admitted = recordManualCustomerConversation(input({ channel: 'visit', reason: 'Visita a obra' }));
+    assert.equal(admitted.ok, true);
+    if (!admitted.ok) return;
+    const row = buildCustomerConversationRow(admitted.record, createdAt);
+    assert.equal(row.channel, 'visit');
+    assert.equal(row.reason, 'Visita a obra');
+    assert.equal(row.assigned_member_id, null);
+    assert.equal(row.next_step_commitment_id, null);
+
+    const sql = readFileSync(
+      join(
+        process.cwd(),
+        '../os-database/prisma/migrations/20261021000000_os_customer_conversation_attention_b5/migration.sql',
+      ),
+      'utf8',
+    );
+    assert.match(sql, /CHECK \(channel IN \('whatsapp', 'manual', 'call', 'visit', 'in_person'\)\)/);
+    assert.match(sql, /channel NOT IN \('call', 'visit', 'in_person'\) OR reason IS NOT NULL/);
+    assert.match(sql, /assigned_member_id IS NULL AND assigned_label IS NULL AND assigned_at IS NULL/);
+    assert.doesNotMatch(sql, /owner_member_id|os_commercial_accounts/);
   });
 });

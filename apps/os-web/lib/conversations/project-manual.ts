@@ -86,6 +86,10 @@ export function projectManualConversation(
     nextAction: record.nextAction,
     customerQuestion: record.customerQuestion,
     commitmentCandidate: record.commitmentCandidate,
+    reason: record.reason,
+    assignedMemberId: record.assignedMemberId,
+    assignedLabel: record.assignedLabel,
+    nextStepCommitmentId: record.nextStepCommitmentId,
     responsible: null,
   };
 }

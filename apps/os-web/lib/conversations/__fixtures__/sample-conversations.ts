@@ -215,6 +215,10 @@ export function ownerDemoConversationFixtures(
       nextAction: extras.nextAction,
       customerQuestion: row.customerQuestion ?? null,
       commitmentCandidate: null,
+      reason: null,
+      assignedMemberId: null,
+      assignedLabel: null,
+      nextStepCommitmentId: null,
       responsible: extras.responsible,
     };
     return conversation;

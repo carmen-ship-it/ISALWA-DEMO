@@ -22,7 +22,7 @@ export function registerConversationActionItem(): PaletteItem {
   return {
     key: 'action:register-conversation',
     kind: 'action',
-    label: 'Registrar conversación',
+    label: 'Registrar atención',
     detail: 'Registro de la empresa. Canal no conectado.',
     href: '/conversaciones?registrar=1',
   };

@@ -5,17 +5,25 @@ import { Button, StatusPill } from '@isalwa/ui';
 import { FormFeedback } from '@/components/commercial/form-feedback';
 import { SearchableSelect } from '@/components/experience/searchable-select';
 import { ServerPartyTypeahead } from '@/components/operating/server-party-typeahead';
-import { createCustomerConversationAction } from '@/lib/conversations/actions';
+import { ServerMemberTypeahead } from '@/components/operating/server-member-typeahead';
 import {
+  createCustomerConversationAction,
+  retryConversationNextStepAction,
+  type ConversationNextStepResult,
+} from '@/lib/conversations/actions';
+import {
+  ATTENTION_CHANNELS,
+  ATTENTION_CHANNEL_LABELS,
   MANUAL_CONVERSATION_COPY,
   MANUAL_CONVERSATION_ERRORS,
   admitManualConversation,
+  type AttentionChannel,
 } from '@/lib/conversations/manual-conversation';
 import {
   listPartyCommercialLinks,
   type PartyCommercialLinkOption,
 } from '@/lib/productivity/actions';
-import type { ManualCustomerConversation } from '@isalwa/os-contracts';
+import type { ConversationNextStep, ManualCustomerConversation } from '@isalwa/os-contracts';
 
 const fieldClass =
   'mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
@@ -26,10 +34,29 @@ export type ManualConversationActor = {
   enteredByLabel: string;
 };
 
+/** What the host learns when an attention is saved. `partial` = saved, next step not created. */
+export type ManualConversationSaveOutcome = { partial: boolean };
+
 type ManualConversationPanelProps = {
   actor: ManualConversationActor | null;
   /** Optional host callback after a company-entered record is admitted. */
-  onRecorded?: (record: ManualCustomerConversation) => void;
+  onRecorded?: (record: ManualCustomerConversation, outcome: ManualConversationSaveOutcome) => void;
+};
+
+/** `datetime-local` value for "now" in the browser's time zone. */
+function nowLocalValue(): string {
+  const now = new Date();
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 16);
+}
+
+type SavedAttention = {
+  conversationId: string;
+  customerId: string;
+  customerLabel: string;
+  nextStep: ConversationNextStepResult;
+  /** Kept so a failed next step can be retried without retyping or re-saving the attention. */
+  pendingStep: ConversationNextStep | null;
 };
 
 function toIso(value: string): string | null {
@@ -51,8 +78,9 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
   const [customerId, setCustomerId] = useState('');
   const [customerLabel, setCustomerLabel] = useState('');
   const [contactLabel, setContactLabel] = useState('');
-  const [channel, setChannel] = useState<'whatsapp' | 'manual'>('whatsapp');
+  const [channel, setChannel] = useState<AttentionChannel>('call');
   const [occurredAt, setOccurredAt] = useState('');
+  const [reason, setReason] = useState('');
   const [summary, setSummary] = useState('');
   const [pastedEvidence, setPastedEvidence] = useState('');
   const [opportunityId, setOpportunityId] = useState('');
@@ -65,10 +93,17 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
   const [customerQuestion, setCustomerQuestion] = useState('');
   const [commitmentCandidate, setCommitmentCandidate] = useState('');
   const [possibleRequestedDate, setPossibleRequestedDate] = useState('');
-  const [nextAction, setNextAction] = useState('');
+  const [withNextStep, setWithNextStep] = useState(false);
+  const [nextStepDescription, setNextStepDescription] = useState('');
+  const [nextStepDate, setNextStepDate] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [records, setRecords] = useState<ManualCustomerConversation[]>([]);
+  const [saved, setSaved] = useState<SavedAttention[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [retryingId, setRetryingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setOccurredAt((current) => current || nowLocalValue());
+  }, []);
 
   useEffect(() => {
     setOpportunityId('');
@@ -117,6 +152,19 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
       setError(MANUAL_CONVERSATION_ERRORS.invalid_occurred_at);
       return;
     }
+    let nextStep: ConversationNextStep | null = null;
+    if (withNextStep) {
+      const ownerMemberId = String(new FormData(event.currentTarget).get('nextStepOwner') ?? '').trim();
+      if (!nextStepDescription.trim() || !ownerMemberId || !nextStepDate.trim()) {
+        setError(MANUAL_CONVERSATION_COPY.nextStepIncomplete);
+        return;
+      }
+      nextStep = {
+        description: nextStepDescription.trim(),
+        ownerMemberId,
+        dueDate: nextStepDate.trim(),
+      };
+    }
     const admitted = admitManualConversation({
       id: crypto.randomUUID(),
       organizationId: actor.organizationId,
@@ -128,6 +176,7 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
       enteredByMemberId: actor.memberId,
       enteredByLabel: actor.enteredByLabel,
       summary,
+      reason,
       pastedEvidence,
       opportunityId,
       quoteId,
@@ -135,7 +184,8 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
       customerQuestion,
       commitmentCandidate,
       possibleRequestedDate,
-      nextAction,
+      nextAction: '',
+      nextStep,
     });
     if (!admitted.ok) {
       setError(MANUAL_CONVERSATION_ERRORS[admitted.reason]);
@@ -146,16 +196,59 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
     const persisted = await createCustomerConversationAction(admitted.record);
     setSubmitting(false);
     if (!persisted.ok) {
+      // Nothing was saved: every field stays as typed so the person can fix and resend.
       setError(persisted.error);
       return;
     }
-    setRecords((current) => [admitted.record, ...current]);
-    onRecorded?.(admitted.record);
+    setSaved((current) => [
+      {
+        conversationId: persisted.id,
+        customerId: admitted.record.customerId,
+        customerLabel: admitted.record.customerLabel,
+        nextStep: persisted.nextStep,
+        pendingStep: persisted.nextStep.status === 'failed' ? nextStep : null,
+      },
+      ...current,
+    ]);
+    onRecorded?.(admitted.record, { partial: persisted.nextStep.status === 'failed' });
+    // The attention is saved either way, so the form clears to avoid saving it twice.
+    setReason('');
     setSummary('');
     setPastedEvidence('');
     setCustomerQuestion('');
     setCommitmentCandidate('');
-    setNextAction('');
+    setPossibleRequestedDate('');
+    setWithNextStep(false);
+    setNextStepDescription('');
+    setNextStepDate('');
+    setOccurredAt(nowLocalValue());
+  }
+
+  async function onRetryNextStep(item: SavedAttention) {
+    if (!item.pendingStep) return;
+    setRetryingId(item.conversationId);
+    const result = await retryConversationNextStepAction({
+      conversationId: item.conversationId,
+      customerId: item.customerId,
+      step: item.pendingStep,
+    });
+    setRetryingId(null);
+    setSaved((current) =>
+      current.map((entry) => {
+        if (entry.conversationId !== item.conversationId) return entry;
+        if (!result.ok) {
+          return {
+            ...entry,
+            nextStep: { status: 'failed', code: 'RETRY_FAILED', message: result.error },
+          };
+        }
+        return {
+          ...entry,
+          nextStep: result.nextStep,
+          pendingStep: result.nextStep.status === 'failed' ? entry.pendingStep : null,
+        };
+      }),
+    );
   }
 
   const partySelected = Boolean(customerId.trim());
@@ -169,11 +262,44 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
       <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.channelClosed}</p>
       <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.companyEntered}</p>
       <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.boundary}</p>
-      {records.map((record) => (
-        <p key={record.id} className="text-sm leading-relaxed text-[var(--isalwa-kiln)]" role="status">
-          {MANUAL_CONVERSATION_COPY.recorded} {record.customerLabel}. {record.summary}
-        </p>
-      ))}
+      {saved.map((item) =>
+        item.nextStep.status === 'failed' ? (
+          <div
+            key={item.conversationId}
+            role="alert"
+            className="space-y-2 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-amber,var(--isalwa-mist))] bg-white p-3"
+          >
+            <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+              {MANUAL_CONVERSATION_COPY.partialTitle} {item.customerLabel}.
+            </p>
+            <p className="text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.partialBody}</p>
+            <p className="text-sm text-[var(--isalwa-slate)]">{item.nextStep.message}</p>
+            {item.pendingStep ? (
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={retryingId === item.conversationId}
+                onClick={() => void onRetryNextStep(item)}
+              >
+                {retryingId === item.conversationId
+                  ? MANUAL_CONVERSATION_COPY.partialRetrying
+                  : MANUAL_CONVERSATION_COPY.partialRetry}
+              </Button>
+            ) : null}
+          </div>
+        ) : (
+          <p
+            key={item.conversationId}
+            className="text-sm leading-relaxed text-[var(--isalwa-kiln)]"
+            role="status"
+          >
+            {item.nextStep.status === 'created'
+              ? MANUAL_CONVERSATION_COPY.recordedWithNextStep
+              : MANUAL_CONVERSATION_COPY.recorded}{' '}
+            {item.customerLabel}.
+          </p>
+        ),
+      )}
       <form onSubmit={onSubmit} className="space-y-4 border-t border-[var(--isalwa-mist)] pt-4">
         <FormFeedback error={error} />
         {actor ? (
@@ -210,26 +336,18 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
         </div>
         <fieldset className="space-y-2">
           <legend className="isalwa-section-label">{MANUAL_CONVERSATION_COPY.channel}</legend>
-          <label className="flex items-center gap-2 text-sm text-[var(--isalwa-kiln)]">
-            <input
-              type="radio"
-              name="channel"
-              value="whatsapp"
-              checked={channel === 'whatsapp'}
-              onChange={() => setChannel('whatsapp')}
-            />
-            {MANUAL_CONVERSATION_COPY.channelWhatsapp}
-          </label>
-          <label className="flex items-center gap-2 text-sm text-[var(--isalwa-kiln)]">
-            <input
-              type="radio"
-              name="channel"
-              value="manual"
-              checked={channel === 'manual'}
-              onChange={() => setChannel('manual')}
-            />
-            {MANUAL_CONVERSATION_COPY.channelManual}
-          </label>
+          {ATTENTION_CHANNELS.map((value) => (
+            <label key={value} className="flex items-center gap-2 text-sm text-[var(--isalwa-kiln)]">
+              <input
+                type="radio"
+                name="channel"
+                value={value}
+                checked={channel === value}
+                onChange={() => setChannel(value)}
+              />
+              {ATTENTION_CHANNEL_LABELS[value]}
+            </label>
+          ))}
           <p className="text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.channelHint}</p>
         </fieldset>
         <div>
@@ -247,6 +365,21 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
           />
         </div>
         <div>
+          <label htmlFor="conversation-reason" className="isalwa-section-label">
+            {MANUAL_CONVERSATION_COPY.reason}
+          </label>
+          <input
+            id="conversation-reason"
+            name="reason"
+            required
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            className={fieldClass}
+            autoComplete="off"
+          />
+          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.reasonHint}</p>
+        </div>
+        <div>
           <label htmlFor="conversation-summary" className="isalwa-section-label">
             {MANUAL_CONVERSATION_COPY.summary}
           </label>
@@ -259,20 +392,58 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
             onChange={(event) => setSummary(event.target.value)}
             className={fieldClass}
           />
+          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.summaryHint}</p>
         </div>
-        <div>
-          <label htmlFor="conversation-pasted" className="isalwa-section-label">
-            {MANUAL_CONVERSATION_COPY.pasted}
+        <div className="space-y-3 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-3">
+          <label className="flex items-center gap-2 text-sm font-medium text-[var(--isalwa-kiln)]">
+            <input
+              type="checkbox"
+              name="withNextStep"
+              checked={withNextStep}
+              onChange={(event) => setWithNextStep(event.target.checked)}
+            />
+            {MANUAL_CONVERSATION_COPY.nextStepToggle}
           </label>
-          <textarea
-            id="conversation-pasted"
-            name="pastedEvidence"
-            rows={3}
-            value={pastedEvidence}
-            onChange={(event) => setPastedEvidence(event.target.value)}
-            className={fieldClass}
-          />
-          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.pastedHint}</p>
+          {withNextStep ? (
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="conversation-next-step" className="isalwa-section-label">
+                  {MANUAL_CONVERSATION_COPY.nextStepDescription}
+                </label>
+                <input
+                  id="conversation-next-step"
+                  name="nextStepDescription"
+                  value={nextStepDescription}
+                  onChange={(event) => setNextStepDescription(event.target.value)}
+                  className={fieldClass}
+                  autoComplete="off"
+                />
+                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                  {MANUAL_CONVERSATION_COPY.nextStepDescriptionHint}
+                </p>
+              </div>
+              <div>
+                <p className="isalwa-section-label">{MANUAL_CONVERSATION_COPY.nextStepOwner}</p>
+                <ServerMemberTypeahead id="conversation-next-step-owner" name="nextStepOwner" required />
+                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                  {MANUAL_CONVERSATION_COPY.nextStepOwnerHint}
+                </p>
+              </div>
+              <div>
+                <label htmlFor="conversation-next-step-date" className="isalwa-section-label">
+                  {MANUAL_CONVERSATION_COPY.nextStepDate}
+                </label>
+                <input
+                  id="conversation-next-step-date"
+                  name="nextStepDate"
+                  type="date"
+                  value={nextStepDate}
+                  onChange={(event) => setNextStepDate(event.target.value)}
+                  className={fieldClass}
+                />
+              </div>
+            </div>
+          ) : null}
         </div>
         <div className="space-y-4">
           <p className="text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.linksHint}</p>
@@ -323,59 +494,68 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
             </div>
           )}
         </div>
-        <div>
-          <label htmlFor="conversation-question" className="isalwa-section-label">
-            {MANUAL_CONVERSATION_COPY.question}
-          </label>
-          <input
-            id="conversation-question"
-            name="customerQuestion"
-            value={customerQuestion}
-            onChange={(event) => setCustomerQuestion(event.target.value)}
-            className={fieldClass}
-          />
-        </div>
-        <div>
-          <label htmlFor="conversation-commitment" className="isalwa-section-label">
-            {MANUAL_CONVERSATION_COPY.commitment}
-          </label>
-          <input
-            id="conversation-commitment"
-            name="commitmentCandidate"
-            value={commitmentCandidate}
-            onChange={(event) => setCommitmentCandidate(event.target.value)}
-            className={fieldClass}
-          />
-          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.commitmentHint}</p>
-        </div>
-        <div>
-          <label htmlFor="conversation-requested-date" className="isalwa-section-label">
-            {MANUAL_CONVERSATION_COPY.requestedDate}
-          </label>
-          <input
-            id="conversation-requested-date"
-            name="possibleRequestedDate"
-            type="date"
-            value={possibleRequestedDate}
-            onChange={(event) => setPossibleRequestedDate(event.target.value)}
-            className={fieldClass}
-          />
-          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.requestedDateHint}</p>
-        </div>
-        <div>
-          <label htmlFor="conversation-next" className="isalwa-section-label">
-            {MANUAL_CONVERSATION_COPY.nextAction}
-          </label>
-          <input
-            id="conversation-next"
-            name="nextAction"
-            value={nextAction}
-            onChange={(event) => setNextAction(event.target.value)}
-            className={fieldClass}
-          />
-        </div>
+        <details className="space-y-4">
+          <summary className="cursor-pointer text-sm font-medium text-[var(--isalwa-kiln)]">
+            {MANUAL_CONVERSATION_COPY.moreDetails}
+          </summary>
+          <div className="space-y-4 pt-3">
+            <div>
+              <label htmlFor="conversation-pasted" className="isalwa-section-label">
+                {MANUAL_CONVERSATION_COPY.pasted}
+              </label>
+              <textarea
+                id="conversation-pasted"
+                name="pastedEvidence"
+                rows={3}
+                value={pastedEvidence}
+                onChange={(event) => setPastedEvidence(event.target.value)}
+                className={fieldClass}
+              />
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.pastedHint}</p>
+            </div>
+            <div>
+              <label htmlFor="conversation-question" className="isalwa-section-label">
+                {MANUAL_CONVERSATION_COPY.question}
+              </label>
+              <input
+                id="conversation-question"
+                name="customerQuestion"
+                value={customerQuestion}
+                onChange={(event) => setCustomerQuestion(event.target.value)}
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="conversation-commitment" className="isalwa-section-label">
+                {MANUAL_CONVERSATION_COPY.commitment}
+              </label>
+              <input
+                id="conversation-commitment"
+                name="commitmentCandidate"
+                value={commitmentCandidate}
+                onChange={(event) => setCommitmentCandidate(event.target.value)}
+                className={fieldClass}
+              />
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.commitmentHint}</p>
+            </div>
+            <div>
+              <label htmlFor="conversation-requested-date" className="isalwa-section-label">
+                {MANUAL_CONVERSATION_COPY.requestedDate}
+              </label>
+              <input
+                id="conversation-requested-date"
+                name="possibleRequestedDate"
+                type="date"
+                value={possibleRequestedDate}
+                onChange={(event) => setPossibleRequestedDate(event.target.value)}
+                className={fieldClass}
+              />
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.requestedDateHint}</p>
+            </div>
+          </div>
+        </details>
         <Button type="submit" disabled={!actor || !customerId.trim() || submitting}>
-          {submitting ? 'Registrando…' : MANUAL_CONVERSATION_COPY.submit}
+          {submitting ? 'Guardando…' : MANUAL_CONVERSATION_COPY.submit}
         </Button>
       </form>
     </section>

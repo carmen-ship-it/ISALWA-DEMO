@@ -1,6 +1,7 @@
 'use client';
 
-import { cx, EmptyState, StatusPill } from '@isalwa/ui';
+import { useLayoutEffect, useRef, type MutableRefObject } from 'react';
+import { cx, EmptyState, SearchField, StatusPill } from '@isalwa/ui';
 import { CONVERSATIONS_COPY } from '@/lib/conversations/copy';
 import {
   channelLabel,
@@ -14,8 +15,14 @@ type ConversationListProps = {
   conversations: readonly Conversation[];
   filter: ConversationFilter;
   selectedId: string | null;
+  query: string;
+  /** True when a filter or a search is narrowing a list that has rows. */
+  narrowed: boolean;
   onFilterChange: (filter: ConversationFilter) => void;
+  onQueryChange: (query: string) => void;
   onSelect: (id: string) => void;
+  /** Scroll position per filter, kept by the host so it survives filter and pane changes. */
+  scrollMemory: MutableRefObject<Record<string, number>>;
 };
 
 function attentionBadges(conversation: Conversation) {
@@ -25,6 +32,9 @@ function attentionBadges(conversation: Conversation) {
   }
   if (conversation.attention.followUp) {
     badges.push({ key: 'follow_up', label: 'Seguimiento', tone: 'sky' });
+  }
+  if (!conversation.assignedMemberId) {
+    badges.push({ key: 'unassigned', label: CONVERSATIONS_COPY.unassigned, tone: 'soft-teal' });
   }
   if (conversation.attention.possibleOpportunity) {
     badges.push({ key: 'possible_opportunity', label: 'Oportunidad posible', tone: 'soft-teal' });
@@ -48,11 +58,33 @@ export function ConversationList({
   conversations,
   filter,
   selectedId,
+  query,
+  narrowed,
   onFilterChange,
+  onQueryChange,
   onSelect,
+  scrollMemory,
 }: ConversationListProps) {
+  const listRef = useRef<HTMLUListElement>(null);
+
+  // Best-effort: return to where the person was in this filter (onScroll keeps it current).
+  useLayoutEffect(() => {
+    const node = listRef.current;
+    if (node) node.scrollTop = scrollMemory.current[filter] ?? 0;
+  }, [filter, scrollMemory]);
+
   return (
     <div className="isalwa-conversation-list flex min-h-0 w-full min-w-0 max-w-full flex-col lg:h-full" aria-label={CONVERSATIONS_COPY.listLabel}>
+      <div className="pb-3">
+        <SearchField
+          value={query}
+          onChange={(event) => onQueryChange(event.target.value)}
+          placeholder={CONVERSATIONS_COPY.searchPlaceholder}
+          aria-label={CONVERSATIONS_COPY.searchLabel}
+          autoComplete="off"
+          className="w-full"
+        />
+      </div>
       <div className="isalwa-conversation-filters flex max-w-full flex-wrap gap-1.5 pb-3">
         {CONVERSATION_FILTERS.map((item) => {
           const active = item === filter;
@@ -75,12 +107,22 @@ export function ConversationList({
         })}
       </div>
       {conversations.length === 0 ? (
-        <EmptyState
-          title={CONVERSATIONS_COPY.emptyList}
-          description={CONVERSATIONS_COPY.emptyListHint}
-        />
+        narrowed ? (
+          <EmptyState title={CONVERSATIONS_COPY.searchEmpty} />
+        ) : (
+          <EmptyState
+            title={CONVERSATIONS_COPY.emptyList}
+            description={CONVERSATIONS_COPY.emptyListHint}
+          />
+        )
       ) : (
-        <ul className="min-h-0 w-full min-w-0 divide-y divide-[var(--isalwa-mist)] lg:flex-1 lg:overflow-y-auto">
+        <ul
+          ref={listRef}
+          onScroll={(event) => {
+            scrollMemory.current[filter] = event.currentTarget.scrollTop;
+          }}
+          className="min-h-0 w-full min-w-0 divide-y divide-[var(--isalwa-mist)] lg:flex-1 lg:overflow-y-auto"
+        >
           {conversations.map((item) => {
             const selected = item.id === selectedId;
             return (

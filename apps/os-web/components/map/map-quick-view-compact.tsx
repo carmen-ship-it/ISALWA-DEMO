@@ -190,7 +190,7 @@ export function MapQuickViewCompact({
           data-map-conversation-stub="lane-c"
         >
           <Button type="button" variant="tertiary" size="sm">
-            Registrar conversación
+            Registrar atención
           </Button>
         </Link>
       </nav>

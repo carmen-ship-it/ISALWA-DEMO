@@ -2,8 +2,14 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { ManualCustomerConversation } from '@isalwa/os-contracts';
 import {
+  CONVERSATION_FILTER_LABELS,
+  CONVERSATION_FILTERS,
+  channelLabel,
   filterConversations,
+  mapEvidenceChannel,
   searchConversations,
+  searchInbox,
+  toEvidenceChannel,
   type Conversation,
 } from './model';
 import { projectManualConversation } from './project-manual';
@@ -26,6 +32,12 @@ function sampleManual(overrides: Partial<ManualCustomerConversation> = {}): Manu
     enteredByLabel: 'Ana',
     summary: 'Pidió cotización de piso.',
     pastedEvidence: '¿Tienen stock esta semana?',
+    reason: null,
+    assignedMemberId: null,
+    assignedLabel: null,
+    assignedAt: null,
+    nextStepCommitmentId: null,
+    nextStep: null,
     opportunityId: 'opp-1',
     quoteId: null,
     orderId: null,
@@ -67,24 +79,97 @@ describe('conversation model', () => {
     assert.equal(conversation.attention.possibleOpportunity, true);
   });
 
-  it('filters attention buckets in Spanish product labels', () => {
-    const base = projectManualConversation(sampleManual());
-    const issue = projectManualConversation(
+  it('offers exactly the Batch 5 inbox filters with their Spanish labels', () => {
+    assert.deepEqual(
+      CONVERSATION_FILTERS.map((filter) => CONVERSATION_FILTER_LABELS[filter]),
+      ['Todos', 'Sin asignar', 'Mis chats', 'Por responder', 'Seguimiento'],
+    );
+  });
+
+  it('filters by assignment, response and follow-up without using the account owner', () => {
+    const open = projectManualConversation(sampleManual({ id: 'conv-open' }));
+    const mine = projectManualConversation(
+      sampleManual({ id: 'conv-mine', assignedMemberId: 'member-1', assignedLabel: 'Ana', assignedAt: '2026-11-16T15:00:00.000Z' }),
+    );
+    const theirs = projectManualConversation(
+      sampleManual({ id: 'conv-theirs', assignedMemberId: 'member-2', assignedLabel: 'Luis', assignedAt: '2026-11-16T15:00:00.000Z' }),
+    );
+    const quiet = projectManualConversation(
       sampleManual({
-        id: 'conv-issue',
-        opportunityId: null,
+        id: 'conv-quiet',
         customerQuestion: null,
         commitmentCandidate: null,
         nextAction: null,
         pastedEvidence: null,
-        summary: 'Reportaron una incidencia de entrega.',
+        opportunityId: null,
       }),
     );
-    assert.equal(filterConversations([base], 'needs_response').length, 1);
-    assert.equal(filterConversations([base], 'follow_up').length, 1);
-    assert.equal(filterConversations([base], 'possible_opportunity').length, 1);
-    assert.equal(filterConversations([issue], 'possible_issue').length, 1);
-    assert.equal(filterConversations([base], 'possible_issue').length, 0);
+    const all = [open, mine, theirs, quiet];
+    const ids = (rows: readonly Conversation[]) => rows.map((row) => row.id).sort();
+
+    assert.deepEqual(ids(filterConversations(all, 'all', 'member-1')), ids(all));
+    assert.deepEqual(ids(filterConversations(all, 'unassigned', 'member-1')), ['conv-open', 'conv-quiet']);
+    assert.deepEqual(ids(filterConversations(all, 'mine', 'member-1')), ['conv-mine']);
+    // Without a signed-in member nothing is "mine"; other people's chats never leak in.
+    assert.deepEqual(ids(filterConversations(all, 'mine', null)), []);
+    assert.deepEqual(ids(filterConversations(all, 'needs_response', 'member-1')), ['conv-mine', 'conv-open', 'conv-theirs']);
+    assert.deepEqual(ids(filterConversations(all, 'follow_up', 'member-1')), ['conv-mine', 'conv-open', 'conv-theirs']);
+  });
+
+  it('inbox search matches customer, contact, conversation words and phone-matched customers', () => {
+    const a = projectManualConversation(sampleManual({ id: 'a', customerLabel: 'Fábrica Norte', customerId: 'party-a' }));
+    const b = projectManualConversation(
+      sampleManual({
+        id: 'b',
+        customerLabel: 'Maderas Sur',
+        customerId: 'party-b',
+        contactLabel: 'Elena',
+        reason: 'Consulta de plazo',
+        summary: 'Pidió plazo',
+        pastedEvidence: null,
+        customerQuestion: null,
+      }),
+    );
+    assert.equal(searchInbox([a, b], '').length, 2);
+    assert.deepEqual(searchInbox([a, b], 'maderas').map((row) => row.id), ['b']);
+    assert.deepEqual(searchInbox([a, b], 'ELENA').map((row) => row.id), ['b']);
+    assert.deepEqual(searchInbox([a, b], 'plazo').map((row) => row.id), ['b']);
+    assert.deepEqual(searchInbox([a, b], 'stock').map((row) => row.id), ['a']);
+    // A phone is not in the conversation: the authorized customer search supplies the ids.
+    assert.deepEqual(searchInbox([a, b], '70000001').map((row) => row.id), []);
+    assert.deepEqual(searchInbox([a, b], '70000001', new Set(['party-a'])).map((row) => row.id), ['a']);
+  });
+
+  it('maps every attention channel to a presentation channel and back', () => {
+    for (const [stored, shown, label] of [
+      ['call', 'PHONE', 'Llamada'],
+      ['visit', 'VISIT', 'Visita'],
+      ['in_person', 'IN_PERSON', 'Atención presencial'],
+      ['whatsapp', 'WHATSAPP', 'WhatsApp'],
+      ['manual', 'OTHER', 'Otro'],
+    ] as const) {
+      assert.equal(mapEvidenceChannel(stored), shown);
+      assert.equal(toEvidenceChannel(shown), stored);
+      assert.equal(channelLabel(shown), label);
+    }
+  });
+
+  it('projects reason, assignment and the next-step link into the thread model', () => {
+    const conversation = projectManualConversation(
+      sampleManual({
+        channel: 'call',
+        reason: 'Consulta por plazo',
+        assignedMemberId: 'member-1',
+        assignedLabel: 'Ana',
+        assignedAt: '2026-11-16T15:00:00.000Z',
+        nextStepCommitmentId: 'commitment-1',
+      }),
+    );
+    assert.equal(conversation.channel, 'PHONE');
+    assert.equal(conversation.reason, 'Consulta por plazo');
+    assert.equal(conversation.assignedMemberId, 'member-1');
+    assert.equal(conversation.assignedLabel, 'Ana');
+    assert.equal(conversation.nextStepCommitmentId, 'commitment-1');
   });
 
   it('search and palette hook find conversations without claiming live WhatsApp', () => {

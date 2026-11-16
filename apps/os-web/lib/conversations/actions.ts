@@ -2,19 +2,49 @@
 
 import { createId } from '@isalwa/ts-utils';
 import { revalidatePath } from 'next/cache';
-import type { ManualCustomerConversation } from '@isalwa/os-contracts';
+import type { ConversationNextStep, ManualCustomerConversation } from '@isalwa/os-contracts';
 import { recordManualCustomerConversation } from '@isalwa/os-contracts';
-import { createOsApiClient } from '@/lib/api/os-api-client';
+import { OsApiError } from '@/lib/api/os-api-errors';
+import { createOsApiClient, type CustomerConversationNextStepOutcome } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { mapCommandError } from '@/lib/commercial/command-errors';
-import { MANUAL_CONVERSATION_COPY, MANUAL_CONVERSATION_ERRORS } from './manual-conversation';
+import {
+  MANUAL_CONVERSATION_COPY,
+  MANUAL_CONVERSATION_ERRORS,
+  nextStepFailureMessage,
+} from './manual-conversation';
 import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 import { buildIgnoreSuggestionAdmissionInput } from './suggestion-decision';
 import type { ConversationSuggestion } from './suggestion-types';
 
+/**
+ * What happened to the optional next step. `failed` means the attention is saved and the
+ * next step is not: the caller must say so and offer a retry, never a plain success.
+ */
+export type ConversationNextStepResult =
+  | { status: 'none' }
+  | { status: 'created'; commitmentId: string }
+  | { status: 'failed'; code: string; message: string };
+
 export type CreateCustomerConversationResult =
-  | { ok: true; id: string }
+  | { ok: true; id: string; nextStep: ConversationNextStepResult }
   | { ok: false; error: string };
+
+export type RetryConversationNextStepResult =
+  | { ok: true; nextStep: ConversationNextStepResult }
+  | { ok: false; error: string };
+
+export type TakeConversationResult =
+  | { ok: true; assignedMemberId: string; assignedLabel: string }
+  | { ok: false; error: string; alreadyAssigned: boolean };
+
+function toNextStepResult(
+  outcome: CustomerConversationNextStepOutcome | null | undefined,
+): ConversationNextStepResult {
+  if (!outcome) return { status: 'none' };
+  if (outcome.status === 'created') return { status: 'created', commitmentId: outcome.commitmentId };
+  return { status: 'failed', code: outcome.code, message: nextStepFailureMessage(outcome.code) };
+}
 
 export type RecordRecommendedReplySentResult =
   | { ok: true; id: string }
@@ -58,9 +88,81 @@ export async function createCustomerConversationAction(
   try {
     const created = await client.createCustomerConversation(admitted.record);
     revalidateConversationPaths(admitted.record.customerId);
-    return { ok: true, id: created.item.id };
+    revalidatePath('/compromisos');
+    return { ok: true, id: created.item.id, nextStep: toNextStepResult(created.nextStep) };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+/** Retry the next step of an attention that is already saved. Idempotent on the server. */
+export async function retryConversationNextStepAction(input: {
+  conversationId: string;
+  customerId: string;
+  step: ConversationNextStep;
+}): Promise<RetryConversationNextStepResult> {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, error: MANUAL_CONVERSATION_COPY.sessionNeeded };
+  try {
+    const saved = await createOsApiClient(auth).saveCustomerConversationNextStep(
+      input.conversationId,
+      input.step,
+    );
+    revalidateConversationPaths(input.customerId);
+    revalidatePath('/compromisos');
+    return { ok: true, nextStep: toNextStepResult(saved.nextStep) };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+/**
+ * Tomar conversación. Only assigns the conversation to the signed-in member.
+ * It does not change the account owner and cannot take a conversation someone else holds.
+ */
+export async function takeConversationAction(input: {
+  conversationId: string;
+  customerId: string;
+}): Promise<TakeConversationResult> {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return { ok: false, error: previewGate.error, alreadyAssigned: false };
+  const auth = await getServerOsAuthContext();
+  if (!auth) {
+    return { ok: false, error: MANUAL_CONVERSATION_COPY.sessionNeeded, alreadyAssigned: false };
+  }
+  try {
+    const taken = await createOsApiClient(auth).takeCustomerConversation(input.conversationId);
+    revalidateConversationPaths(input.customerId);
+    return {
+      ok: true,
+      assignedMemberId: taken.item.assignedMemberId ?? '',
+      assignedLabel: taken.item.assignedLabel ?? '',
+    };
+  } catch (err) {
+    if (err instanceof OsApiError && err.code === 'ALREADY_ASSIGNED') {
+      return { ok: false, error: MANUAL_CONVERSATION_COPY.alreadyTaken, alreadyAssigned: true };
+    }
+    return { ok: false, error: mapCommandError(err), alreadyAssigned: false };
+  }
+}
+
+/**
+ * Customers whose name or phone matches the inbox search. The authorized customer search
+ * does the matching, so a phone never travels in a conversation row and an unreadable
+ * customer never appears.
+ */
+export async function searchConversationCustomerIdsAction(query: string): Promise<string[]> {
+  const q = query.trim();
+  if (q.length < 3) return [];
+  const auth = await getServerOsAuthContext();
+  if (!auth) return [];
+  try {
+    const page = await createOsApiClient(auth).searchParties({ q, status: 'active', limit: 25 });
+    return (page.items ?? []).map((item) => item.partyId);
+  } catch {
+    return [];
   }
 }
 
