@@ -10,6 +10,7 @@ import {
   groupNavItems,
   isNavItemDisabled,
   PRIMARY_NAV,
+  type NavAccess,
   type NavItem,
   type NavItemState,
 } from '@/lib/navigation/nav-config';
@@ -81,9 +82,7 @@ export function applyCapabilityNavState(
   return state ? { ...item, state } : item;
 }
 
-export type ShellNavAccess = {
-  showAdmin: boolean;
-};
+export type ShellNavAccess = NavAccess;
 
 /**
  * Primary shell nav: access filter + capability badges/locks + optional future surfaces in Más.

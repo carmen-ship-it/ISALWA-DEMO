@@ -60,29 +60,29 @@ describe('role-aware nav labeling (no authority change)', () => {
       COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
     ]);
     assert.equal(presentation.inicioLabel, 'Su trabajo');
-    assert.equal(labelForNavItem('inicio', 'Inicio', presentation), 'Inicio');
+    assert.equal(labelForNavItem('inicio', 'Hoy', presentation), 'Hoy');
     assert.equal(labelForNavItem('clientes', 'Clientes', presentation), 'Clientes');
     assert.ok(presentation.emphasizedIds.includes('inicio'));
     assert.deepEqual(primaryNavIds({ showAdmin: false }), [
       'inicio',
-      'excepciones',
+      'conversaciones',
       'clientes',
       'oportunidades',
       'cotizaciones',
       'pedidos',
+      'productos',
       'mapa',
       'trabajo',
-      'conversaciones',
       'aprobaciones',
       'incidencias',
       'compromisos',
+      'excepciones',
       'produccion',
       'almacen',
       'compras',
       'entregas',
       'finanzas',
       'salud-datos',
-      'productos',
       'coordinacion',
       'memoria-decisiones',
       'ayuda',
@@ -122,7 +122,7 @@ describe('nav hierarchy groups', () => {
     const sections = groupNavItems(visible);
     assert.deepEqual(
       sections.map((s) => s.group),
-      ['inicio', 'comercial', 'trabajo', 'operaciones', 'control', 'mas'],
+      ['principal', 'comercial', 'consulta', 'trabajo', 'operaciones', 'control', 'mas'],
     );
     assert.equal(sections.find((s) => s.group === 'comercial')?.label, 'Comercial');
     assert.equal(sections.find((s) => s.group === 'operaciones')?.label, 'Operaciones');
@@ -130,17 +130,18 @@ describe('nav hierarchy groups', () => {
       sections.flatMap((s) => s.items.map((i) => i.id)),
       [
         'inicio',
-        'excepciones',
+        'conversaciones',
         'clientes',
         'oportunidades',
         'cotizaciones',
         'pedidos',
+        'productos',
         'mapa',
         'trabajo',
-        'conversaciones',
         'aprobaciones',
         'incidencias',
         'compromisos',
+        'excepciones',
         'produccion',
         'almacen',
         'compras',
@@ -148,7 +149,6 @@ describe('nav hierarchy groups', () => {
         'finanzas',
         'salud-datos',
         'auditoria',
-        'productos',
         'coordinacion',
         'memoria-decisiones',
         'administracion',

@@ -8,7 +8,9 @@ describe('map provider status', () => {
     const status = resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: '' });
     assert.equal(status.kind, 'unavailable');
     assert.equal(status.tokenPresent, false);
-    assert.match(status.detail, /Vista geográfica en preparación|proveedor geográfico|ubicación ya está organizada/i);
+    assert.match(status.detail, /Falta la credencial del proveedor de mapas/);
+    assert.match(status.detail, /no se dibuja ningún pin/);
+    assert.doesNotMatch(status.detail, /pk\.|sk\.|token\s*[:=]/i);
   });
 
   it('enables live mapbox when token is present', () => {

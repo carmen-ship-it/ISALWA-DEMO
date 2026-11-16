@@ -1,3 +1,23 @@
+import {
+  COMMERCIAL_ORG_READ_SCOPE,
+  COMMERCIAL_TEAM_READ_SCOPE,
+  COMMERCIAL_CUSTOMER_CREATE_SCOPE,
+  COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
+  DELIVERY_RECORD_SCOPE,
+  FINANCE_OPERATIONAL_RECORD_SCOPE,
+  MANAGEMENT_ORG_READ_SCOPE,
+  MASTER_DATA_ADMIN_SCOPE,
+  OPERATIONS_COORDINATOR_RECORD_SCOPE,
+  PAYMENTS_CONFIRM_SCOPE,
+  PAYMENTS_REPORT_SCOPE,
+  PRODUCTION_ENTRY_MEMBER_SCOPE,
+  PRODUCTION_OPERATIONAL_RECORD_SCOPE,
+  PURCHASING_OPERATIONAL_RECORD_SCOPE,
+  WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
+  WAREHOUSE_OUTBOUND_RECORD_SCOPE,
+  hasAssignedOperationsScope,
+} from '@isalwa/os-contracts';
+
 export type NavItemState = 'active' | 'locked' | 'future';
 
 /**
@@ -10,25 +30,41 @@ export type NavItemState = 'active' | 'locked' | 'future';
 export type NavAccessClass = 'VISIBLE+ACTIVE' | 'READ-ONLY' | 'HIDDEN' | 'FUTURE';
 
 /** Visual grouping only — does not authorize or hide destinations. */
-export type NavGroup = 'inicio' | 'comercial' | 'trabajo' | 'operaciones' | 'control' | 'mas';
+export type NavGroup =
+  | 'principal'
+  | 'comercial'
+  | 'consulta'
+  | 'trabajo'
+  | 'operaciones'
+  | 'control'
+  | 'mas';
 
 export const NAV_GROUP_LABEL: Record<NavGroup, string> = {
-  inicio: 'Inicio',
+  principal: 'Principal',
   comercial: 'Comercial',
-  trabajo: 'Trabajo',
+  consulta: 'Catálogo y mapa',
+  trabajo: 'Mi trabajo',
   operaciones: 'Operaciones',
   control: 'Control',
   mas: 'Más',
 };
 
+/**
+ * Primary groups first (Hoy, Conversaciones, Clientes · Comercial · Catálogo, Mapa);
+ * operational and administration areas follow as secondary groups.
+ */
 export const NAV_GROUP_ORDER: readonly NavGroup[] = [
-  'inicio',
+  'principal',
   'comercial',
+  'consulta',
   'trabajo',
   'operaciones',
   'control',
   'mas',
 ];
+
+/** Secondary groups the shell opens collapsed unless they hold the current route. */
+export const NAV_SECONDARY_COLLAPSED_GROUPS: readonly NavGroup[] = ['operaciones', 'control', 'mas'];
 
 export type NavItem = {
   id: string;
@@ -61,27 +97,41 @@ export type NavItem = {
   group: NavGroup;
   /** Product capability key for lifecycle badges — does not hide ops desks. */
   capabilityKey?: string;
+  /**
+   * Secondary areas only: shown in the shell when the actor holds at least one of these
+   * scopes (explicit grants, no cargo/title). Absent = always shown. Navigation only —
+   * every destination still fails closed on its own page and API.
+   */
+  requiresAnyScope?: readonly string[];
 };
 
-/** Executive UX IA — employee vocabulary; order within array defines order inside each group. */
+/** Company-level oversight reads may open operational desks read-only. */
+const OVERSIGHT_SCOPES = [MANAGEMENT_ORG_READ_SCOPE, COMMERCIAL_ORG_READ_SCOPE] as const;
+
+/**
+ * Employee vocabulary. Array order is the display order inside each group.
+ * Primary: Hoy · Conversaciones · Clientes · Comercial · Catálogo · Mapa.
+ * Everything after `consulta` is secondary; operational desks and administration
+ * are shown only to actors holding a matching scope (`requiresAnyScope`).
+ */
 export const PRIMARY_NAV: NavItem[] = [
   {
     id: 'inicio',
     href: '/inicio',
     labelKey: 'nav.inicio',
-    shellLabel: 'Inicio',
+    shellLabel: 'Hoy',
     icon: 'home',
     accessClass: 'VISIBLE+ACTIVE',
-    group: 'inicio',
+    group: 'principal',
   },
   {
-    id: 'excepciones',
-    href: '/inicio?vista=excepciones#excepciones',
-    labelKey: 'nav.excepciones',
-    shellLabel: 'Excepciones',
-    icon: 'alertCircle',
+    id: 'conversaciones',
+    href: '/conversaciones',
+    labelKey: 'nav.conversaciones',
+    shellLabel: 'Conversaciones',
+    icon: 'message',
     accessClass: 'VISIBLE+ACTIVE',
-    group: 'inicio',
+    group: 'principal',
   },
   {
     id: 'clientes',
@@ -89,7 +139,7 @@ export const PRIMARY_NAV: NavItem[] = [
     labelKey: 'nav.clientes',
     icon: 'users',
     accessClass: 'VISIBLE+ACTIVE',
-    group: 'comercial',
+    group: 'principal',
   },
   {
     id: 'oportunidades',
@@ -117,12 +167,21 @@ export const PRIMARY_NAV: NavItem[] = [
     group: 'comercial',
   },
   {
+    id: 'productos',
+    href: '/productos',
+    labelKey: 'nav.productos',
+    shellLabel: 'Catálogo',
+    icon: 'fileText',
+    accessClass: 'VISIBLE+ACTIVE',
+    group: 'consulta',
+  },
+  {
     id: 'mapa',
     href: '/mapa',
     labelKey: 'nav.mapa',
     icon: 'map',
     accessClass: 'VISIBLE+ACTIVE',
-    group: 'comercial',
+    group: 'consulta',
   },
   {
     id: 'trabajo',
@@ -130,15 +189,6 @@ export const PRIMARY_NAV: NavItem[] = [
     labelKey: 'nav.trabajo',
     shellLabel: 'Mi trabajo',
     icon: 'briefcase',
-    accessClass: 'VISIBLE+ACTIVE',
-    group: 'trabajo',
-  },
-  {
-    id: 'conversaciones',
-    href: '/conversaciones',
-    labelKey: 'nav.conversaciones',
-    shellLabel: 'Conversaciones',
-    icon: 'message',
     accessClass: 'VISIBLE+ACTIVE',
     group: 'trabajo',
   },
@@ -168,12 +218,27 @@ export const PRIMARY_NAV: NavItem[] = [
     group: 'trabajo',
   },
   {
+    id: 'excepciones',
+    href: '/inicio?vista=excepciones#excepciones',
+    labelKey: 'nav.excepciones',
+    shellLabel: 'Excepciones',
+    icon: 'alertCircle',
+    accessClass: 'VISIBLE+ACTIVE',
+    group: 'trabajo',
+    requiresAnyScope: [COMMERCIAL_TEAM_READ_SCOPE, ...OVERSIGHT_SCOPES],
+  },
+  {
     id: 'produccion',
     href: '/produccion',
     labelKey: 'nav.produccion',
     icon: 'briefcase',
     accessClass: 'VISIBLE+ACTIVE',
     group: 'operaciones',
+    requiresAnyScope: [
+      PRODUCTION_OPERATIONAL_RECORD_SCOPE,
+      PRODUCTION_ENTRY_MEMBER_SCOPE,
+      ...OVERSIGHT_SCOPES,
+    ],
   },
   {
     id: 'almacen',
@@ -182,6 +247,11 @@ export const PRIMARY_NAV: NavItem[] = [
     icon: 'briefcase',
     accessClass: 'VISIBLE+ACTIVE',
     group: 'operaciones',
+    requiresAnyScope: [
+      WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
+      WAREHOUSE_OUTBOUND_RECORD_SCOPE,
+      ...OVERSIGHT_SCOPES,
+    ],
   },
   {
     id: 'compras',
@@ -190,6 +260,7 @@ export const PRIMARY_NAV: NavItem[] = [
     icon: 'wallet',
     accessClass: 'VISIBLE+ACTIVE',
     group: 'operaciones',
+    requiresAnyScope: [PURCHASING_OPERATIONAL_RECORD_SCOPE, ...OVERSIGHT_SCOPES],
   },
   {
     id: 'entregas',
@@ -198,6 +269,7 @@ export const PRIMARY_NAV: NavItem[] = [
     icon: 'briefcase',
     accessClass: 'VISIBLE+ACTIVE',
     group: 'operaciones',
+    requiresAnyScope: [DELIVERY_RECORD_SCOPE, WAREHOUSE_OUTBOUND_RECORD_SCOPE, ...OVERSIGHT_SCOPES],
   },
   {
     id: 'finanzas',
@@ -206,6 +278,12 @@ export const PRIMARY_NAV: NavItem[] = [
     icon: 'wallet',
     accessClass: 'VISIBLE+ACTIVE',
     group: 'control',
+    requiresAnyScope: [
+      FINANCE_OPERATIONAL_RECORD_SCOPE,
+      PAYMENTS_REPORT_SCOPE,
+      PAYMENTS_CONFIRM_SCOPE,
+      ...OVERSIGHT_SCOPES,
+    ],
   },
   {
     id: 'salud-datos',
@@ -214,6 +292,13 @@ export const PRIMARY_NAV: NavItem[] = [
     icon: 'alertCircle',
     accessClass: 'VISIBLE+ACTIVE',
     group: 'control',
+    requiresAnyScope: [
+      COMMERCIAL_CUSTOMER_CREATE_SCOPE,
+      COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
+      COMMERCIAL_TEAM_READ_SCOPE,
+      MASTER_DATA_ADMIN_SCOPE,
+      ...OVERSIGHT_SCOPES,
+    ],
   },
   {
     id: 'auditoria',
@@ -225,20 +310,13 @@ export const PRIMARY_NAV: NavItem[] = [
     group: 'control',
   },
   {
-    id: 'productos',
-    href: '/productos',
-    labelKey: 'nav.productos',
-    icon: 'fileText',
-    accessClass: 'VISIBLE+ACTIVE',
-    group: 'mas',
-  },
-  {
     id: 'coordinacion',
     href: '/coordinacion',
     labelKey: 'nav.coordinacion',
     icon: 'check',
     accessClass: 'VISIBLE+ACTIVE',
     group: 'mas',
+    requiresAnyScope: [OPERATIONS_COORDINATOR_RECORD_SCOPE, ...OVERSIGHT_SCOPES],
   },
   {
     id: 'memoria-decisiones',
@@ -291,18 +369,30 @@ export const HIDDEN_PRIMARY_NAV_IDS = ['mensajes'] as const;
 
 const HIDDEN_PRIMARY_NAV_ID_SET = new Set<string>(HIDDEN_PRIMARY_NAV_IDS);
 
-export function filterNavByAccess(
-  items: NavItem[],
-  access: { showAdmin: boolean },
-): NavItem[] {
+export type NavAccess = {
+  showAdmin: boolean;
+  /**
+   * Effective scopes from GET /session/authorization. When provided, secondary areas that
+   * declare `requiresAnyScope` are shown only to actors holding one of them. Omit to skip
+   * scope filtering (callers that only know the admin probe).
+   */
+  grantedScopes?: readonly string[];
+};
+
+export function navItemScopePermitted(item: NavItem, grantedScopes: readonly string[] | undefined): boolean {
+  if (!item.requiresAnyScope || grantedScopes === undefined) return true;
+  return item.requiresAnyScope.some((scope) => hasAssignedOperationsScope(grantedScopes, scope));
+}
+
+export function filterNavByAccess(items: NavItem[], access: NavAccess): NavItem[] {
   return items.filter((item) => {
     if (HIDDEN_PRIMARY_NAV_ID_SET.has(item.id)) return false;
     if (item.requiresAdminProbe && !access.showAdmin) return false;
-    return true;
+    return navItemScopePermitted(item, access.grantedScopes);
   });
 }
 
-export function primaryNavIds(access: { showAdmin: boolean }): string[] {
+export function primaryNavIds(access: NavAccess): string[] {
   return filterNavByAccess(PRIMARY_NAV, access).map((item) => item.id);
 }
 
@@ -310,10 +400,11 @@ export function isNavItemDisabled(item: NavItem): boolean {
   return item.state === 'locked' || item.state === 'future';
 }
 
-export function classifyNavItem(item: NavItem, access: { showAdmin: boolean }): NavAccessClass {
+export function classifyNavItem(item: NavItem, access: NavAccess): NavAccessClass {
   if (item.accessClass === 'FUTURE' || HIDDEN_PRIMARY_NAV_ID_SET.has(item.id)) return 'FUTURE';
   if (item.requiresAdminProbe && !access.showAdmin) return 'HIDDEN';
   if (item.requiresAdminProbe && access.showAdmin) return 'VISIBLE+ACTIVE';
+  if (!navItemScopePermitted(item, access.grantedScopes)) return 'HIDDEN';
   return item.accessClass;
 }
 
@@ -334,7 +425,7 @@ export function groupNavItems(items: readonly NavItem[]): Array<{
   const buckets = new Map<NavGroup, NavItem[]>();
   for (const group of NAV_GROUP_ORDER) buckets.set(group, []);
   for (const item of items) {
-    const list = buckets.get(item.group) ?? buckets.get('inicio')!;
+    const list = buckets.get(item.group) ?? buckets.get('principal')!;
     list.push(item);
   }
   return NAV_GROUP_ORDER.map((group) => ({

@@ -86,7 +86,7 @@ describe('map commercial lens', () => {
     assert.equal(portfolio.partyIdsWithOpportunities.has('p1'), true);
     assert.equal(portfolio.partyIdsWithQuotes.has('p1'), true);
     assert.doesNotMatch(portfolio.opportunityValueLabel ?? '', /ingreso|facturaci/i);
-    assert.match(MAP_COMMERCIAL_VALUE_DISCLAIMER, /no representan ingresos contables/i);
+    assert.match(MAP_COMMERCIAL_VALUE_DISCLAIMER, /no representan ventas cerradas/i);
     assert.match(MAP_COMMERCIAL_VALUE_DISCLAIMER, /oportunidades, cotizaciones y pedidos/i);
     assert.doesNotMatch(MAP_COMMERCIAL_VALUE_DISCLAIMER, /AUTHORITATIVE_|revenue/i);
   });

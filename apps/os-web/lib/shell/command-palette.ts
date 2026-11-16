@@ -10,7 +10,7 @@ import { formatOpportunityStatus, formatOrderStatus, formatQuoteStatus } from '@
 import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { formatOptionalCentavos } from '@/lib/commercial/money';
 import { QUOTE_LIFECYCLE_LABELS } from '@/lib/commercial/quote-lifecycle';
-import { filterNavByAccess, PRIMARY_NAV } from '@/lib/navigation/nav-config';
+import { filterNavByAccess, navItemLabel, PRIMARY_NAV } from '@/lib/navigation/nav-config';
 import { t } from '@/lib/i18n/es';
 import { formatWorkStatus } from '@/lib/work/labels';
 import { isEngineeringFixtureCopy, usableStaffTitle } from '@/lib/work/staff-subject';
@@ -250,11 +250,11 @@ export function contextualPaletteActions(pathname: string, access: PaletteAccess
   });
 }
 
-export function paletteNav(showAdmin: boolean): PaletteItem[] {
-  return filterNavByAccess(PRIMARY_NAV, { showAdmin }).map((item) => ({
+export function paletteNav(showAdmin: boolean, grantedScopes?: readonly string[]): PaletteItem[] {
+  return filterNavByAccess(PRIMARY_NAV, { showAdmin, grantedScopes }).map((item) => ({
     key: `nav:${item.id}`,
     kind: 'nav' as const,
-    label: t(item.labelKey),
+    label: navItemLabel(item, t),
     href: item.href,
   }));
 }

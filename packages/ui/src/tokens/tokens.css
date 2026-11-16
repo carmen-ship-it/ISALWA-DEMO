@@ -83,6 +83,9 @@
   --isalwa-text-sm: 13px;
   --isalwa-text-md: 14px;
   --isalwa-text-base: 16px;
+  /* Control geometry. Hosts may raise these (os-web: 44px / 16px); the defaults keep other apps unchanged. */
+  --isalwa-control-height: 40px;
+  --isalwa-field-font-size: var(--isalwa-text-md);
   --isalwa-text-lg: 18px;
   --isalwa-text-xl: 24px;
   --isalwa-text-2xl: 32px;

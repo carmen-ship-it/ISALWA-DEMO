@@ -73,8 +73,8 @@ describe("visual acceptance repair", () => {
     assert.match(banner, /Mostramos únicamente clientes con una ubicación confirmada\./);
     assert.match(experience, /Resumen comercial/);
     assert.match(experience, /MAP_COMMERCIAL_VALUE_DISCLAIMER/);
-    assert.match(lens, /no representan ingresos contables/i);
-    assert.match(lists, /Sin ubicación confirmada/);
+    assert.match(lens, /no representan ventas cerradas, ingresos contables ni fondos confirmados/i);
+    assert.match(lists, /pages\.mapa\.pendingLocation/);
     assert.doesNotMatch(lists, /No se inventan|geocodific|solo un enlace/i);
     const canvas = read("components/map/map-live-canvas.tsx");
     const fallback = read("components/map/map-canvas-fallback.tsx");

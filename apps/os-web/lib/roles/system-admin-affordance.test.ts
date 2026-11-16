@@ -149,27 +149,28 @@ describe('PRIMARY_NAV authority classification audit', () => {
         { id: 'mensajes', accessClass: 'FUTURE', state: 'locked' },
       ],
     );
-    // Ops desks remain visible without people.admin; authority stays inside the page.
+    // Without a loaded scope list the shell never hides desks; with one, secondary desks are
+    // scope-controlled (see nav-batch8.test.ts). Authority stays inside the page and API either way.
     assert.deepEqual(primaryNavIds({ showAdmin: false }), [
       'inicio',
-      'excepciones',
+      'conversaciones',
       'clientes',
       'oportunidades',
       'cotizaciones',
       'pedidos',
+      'productos',
       'mapa',
       'trabajo',
-      'conversaciones',
       'aprobaciones',
       'incidencias',
       'compromisos',
+      'excepciones',
       'produccion',
       'almacen',
       'compras',
       'entregas',
       'finanzas',
       'salud-datos',
-      'productos',
       'coordinacion',
       'memoria-decisiones',
       'ayuda',

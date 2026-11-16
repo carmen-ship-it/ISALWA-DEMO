@@ -14,7 +14,7 @@ export type ShellTrail = {
 };
 
 const ROOT_LABELS: Record<string, string> = {
-  inicio: 'Inicio',
+  inicio: 'Hoy',
   clientes: 'Clientes',
   oportunidades: 'Oportunidades',
   cotizaciones: 'Cotizaciones',

@@ -1,3 +1,4 @@
+import { SectionLoadFailed } from '@/components/states/section-load-failed';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Button, EmptyState, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
@@ -117,7 +118,7 @@ export function InicioLeadershipSection({
         {t(copy.description)} {t('pages.inicio.leadershipReadOnly')}
       </p>
       {unavailable || !data ? (
-        <p className="text-sm text-[var(--isalwa-slate)]">{t('pages.inicio.leadershipUnavailable')}</p>
+        <SectionLoadFailed />
       ) : emptyLens ? (
         <EmptyState
           title={t(copy.title)}

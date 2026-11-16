@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import type { MapViewConfig } from '@isalwa/providers';
 import { Chip, SearchField, StatusPill } from '@isalwa/ui';
 import { MapCanvasFallback } from '@/components/map/map-canvas-fallback';
-import { MapConfirmedMarker, MapLiveCanvas } from '@/components/map/map-live-canvas';
+import { type MapConfirmedMarker, MapLiveCanvas } from '@/components/map/map-live-canvas';
 import { MapCoverageBanner } from '@/components/map/map-coverage-banner';
+import { SectionLoadFailed } from '@/components/states/section-load-failed';
+import { t } from '@/lib/i18n/es';
 import { MapCustomerLists } from '@/components/map/map-customer-lists';
 import { MapLayerControls } from '@/components/map/map-layer-controls';
 import { MapPartyDrawer } from '@/components/map/map-party-drawer';
@@ -46,8 +48,8 @@ type MapExperienceProps = {
   selectedNextAction?: string | null;
   selectedIssueCount?: number | null;
   selectedLastUpdatedIso?: string | null;
-  /** Datos reales | Demo — drives boundary attribute; filtering happens server-side. */
-  dataMode?: 'real' | 'demo';
+  /** Customers whose location could not be read: stated, never silently dropped. */
+  markerFailedCount?: number;
 };
 
 type MobilePane = 'map' | 'list';
@@ -127,7 +129,7 @@ export function MapExperience({
   selectedNextAction = null,
   selectedIssueCount = null,
   selectedLastUpdatedIso = null,
-  dataMode = 'real',
+  markerFailedCount = 0,
 }: MapExperienceProps) {
   const router = useRouter();
   const [layer, setLayer] = useState<MapLayerId>(DEFAULT_MAP_LAYER);
@@ -185,8 +187,6 @@ export function MapExperience({
     <div
       className="space-y-5"
       data-map-desk="location"
-      data-demo-data-mode={dataMode}
-      data-map-demo-boundary={dataMode === 'demo' ? 'DEMO · DATOS FICTICIOS' : undefined}
     >
       {selectedRow ? (
         <div className="hidden lg:contents">
@@ -203,6 +203,12 @@ export function MapExperience({
         </div>
       ) : null}
       <MapCoverageBanner coverage={model.coverage} provider={provider} partial={model.partial} />
+
+      {markerFailedCount > 0 ? (
+        <SectionLoadFailed
+          message={`${t('pages.mapa.markersFailed')} (${markerFailedCount}). Siguen en la lista.`}
+        />
+      ) : null}
 
       <div
         className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4 shadow-[var(--isalwa-shadow-resting)]"

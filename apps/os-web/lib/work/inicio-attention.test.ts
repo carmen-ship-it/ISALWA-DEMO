@@ -143,7 +143,7 @@ describe('CC-1 inicio attention grouping', () => {
 describe('CC-1 empty attention state', () => {
   it('does not invent a celebration or KPI when nothing needs attention', () => {
     assert.equal(groupInicioAttention([]).length, 0);
-    assert.equal(inicioAttentionEmptyMessage(), 'No tienes pendientes para hoy.');
+    assert.equal(inicioAttentionEmptyMessage(), 'No tienes pendientes en esta sección');
     assert.deepEqual(inicioAttentionEmptyCtas(), [
       { href: '/trabajo', label: 'Ver trabajo' },
       { href: '/clientes', label: 'Ir a clientes' },

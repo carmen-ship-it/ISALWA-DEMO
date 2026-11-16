@@ -151,4 +151,4 @@ export function buildMapPartyCommercialSnapshot(
 }
 
 export const MAP_COMMERCIAL_VALUE_DISCLAIMER =
-  'Explore la actividad comercial por cliente y zona. Los valores mostrados provienen de oportunidades, cotizaciones y pedidos registrados en ISALWA; no representan ingresos contables.';
+  'Explore la actividad comercial por cliente y zona. Los valores mostrados provienen de oportunidades, cotizaciones y pedidos registrados en ISALWA; no representan ventas cerradas, ingresos contables ni fondos confirmados.';

@@ -1,10 +1,14 @@
 /**
- * Guided presentation — "Recorrido de ISALWA" (20 steps).
+ * Guided presentation — "Recorrido de ISALWA".
  *
- * Neutral by design (re-review R3/R2F decision 3): steps link to generic
- * product pages the person's own permissions govern, never to seeded
- * records, and no step selects an organization. The walkthrough content is
- * rewritten in T20.
+ * Every step describes behavior ISALWA demonstrably has today (commercial release
+ * batches 2–8, tested locally against a disposable database). Nothing here is a plan,
+ * a provider integration or an invented record:
+ *
+ * - steps link to generic product pages that the person's own permissions govern;
+ * - opening the Journey changes no company, creates no records and sends nothing;
+ * - production, warehouse and delivery are not part of this presentation until they
+ *   are demonstrated end to end; the last step lists what is not connected.
  */
 
 export const STORY_MODE_TITLE = 'Recorrido de ISALWA' as const;
@@ -28,183 +32,168 @@ export function isStoryPdfApiHref(href: string): boolean {
 export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
   {
     step: 1,
-    title: 'Llega una conversación',
-    whatHappened: 'El cliente escribe pidiendo estado del pedido.',
+    title: 'Registrar una atención',
+    whatHappened:
+      'Una persona del equipo anota una llamada, una visita, una atención presencial o un WhatsApp registrado a mano.',
     whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded: 'Conversación registrada como evidencia (no envía WhatsApp).',
+    whatIsalwaRecorded:
+      'Canal, cliente o contacto, fecha y hora, motivo y nota, con un próximo paso opcional. WhatsApp no está conectado: ISALWA no envía ni recibe mensajes por ese canal.',
     ctaLabel: 'Ver conversaciones',
     href: '/conversaciones',
   },
   {
     step: 2,
-    title: 'ISALWA identifica contexto',
-    whatHappened: 'Se vincula la conversación al cliente.',
-    whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded: 'Cliente, contacto y ubicación confirmada.',
+    title: 'Reconocer o registrar al cliente',
+    whatHappened:
+      'Se busca por nombre, teléfono o empresa. Si hay una posible coincidencia, se revisa antes de crear nada.',
+    whoNormallyActs: 'Asesor con permiso para registrar clientes',
+    whatIsalwaRecorded:
+      'El cliente y su contacto con el teléfono normalizado. Un número compartido o reciclado no une identidades por sí solo.',
     ctaLabel: 'Ver clientes',
     href: '/clientes',
   },
   {
     step: 3,
-    title: 'Oportunidad sugerida',
-    whatHappened: 'El hilo comercial sugiere una oportunidad abierta.',
-    whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded: 'Sugerencia determinística — no crea sola el registro.',
-    ctaLabel: 'Ver oportunidades',
-    href: '/oportunidades',
+    title: 'Abrir la ficha del cliente',
+    whatHappened:
+      'La ficha reúne resumen, comercial, operación, trabajo, documentos e historial de ese cliente.',
+    whoNormallyActs: 'Asesor / persona con acceso al cliente',
+    whatIsalwaRecorded:
+      'Solo se muestra lo que la persona puede leer. Cambiar un nombre pide motivo, y los cambios quedan en el historial.',
+    ctaLabel: 'Ver clientes',
+    href: '/clientes',
   },
   {
     step: 4,
-    title: 'Oportunidad creada',
-    whatHappened: 'Se abre la oportunidad.',
-    whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded: 'Oportunidad con etapa y valor esperado.',
-    ctaLabel: 'Ver oportunidades',
-    href: '/oportunidades',
+    title: 'Dejar un compromiso',
+    whatHappened:
+      'Se crea un compromiso con responsable activo, fecha y hora de Bolivia y origen.',
+    whoNormallyActs: 'Asesor / responsable',
+    whatIsalwaRecorded:
+      'El compromiso y un aviso dentro de ISALWA para quien debe cumplirlo. No se envía correo ni mensaje.',
+    ctaLabel: 'Ver compromisos',
+    href: '/compromisos',
   },
   {
     step: 5,
-    title: 'Cotización creada',
-    whatHappened: 'Se emite la cotización con líneas.',
+    title: 'Preparar una cotización',
+    whatHappened:
+      'Desde el cliente se arma un borrador con productos o un ítem especial, precio, cantidad y descuento.',
     whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded: 'Cotización con líneas.',
+    whatIsalwaRecorded:
+      'Un borrador guardado con los precios que escribió una persona. No se emite ni se envía.',
     ctaLabel: 'Ver cotizaciones',
     href: '/cotizaciones',
   },
   {
     step: 6,
-    title: 'PDF generado',
-    whatHappened: 'El PDF de cotización está disponible.',
-    whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded: 'Documento PDF generado desde la cotización.',
-    ctaLabel: 'Ver cotizaciones',
-    href: '/cotizaciones',
+    title: 'Pedir aprobación',
+    whatHappened:
+      'Cuando hace falta, se solicita la aprobación a una persona con autoridad para aprobar precios.',
+    whoNormallyActs: 'Asesor solicita; persona autorizada decide',
+    whatIsalwaRecorded:
+      'La solicitud y la decisión sobre la versión exacta. Quien solicita no se aprueba a sí mismo, y un cambio de condiciones invalida la aprobación.',
+    ctaLabel: 'Ver aprobaciones',
+    href: '/aprobaciones',
   },
   {
     step: 7,
-    title: 'Envío registrado',
-    whatHappened: 'Se registra el envío manual (fuera de ISALWA).',
+    title: 'Emitir la cotización y descargar el PDF',
+    whatHappened:
+      'Con la aprobación vigente, se emite una versión con número y se descarga su PDF.',
     whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded: 'Evidencia de envío manual.',
+    whatIsalwaRecorded:
+      'Versión, número y huella del documento. Emitir no es enviar: descargar el PDF no marca la cotización como enviada ni aceptada.',
     ctaLabel: 'Ver cotizaciones',
     href: '/cotizaciones',
   },
   {
     step: 8,
-    title: 'Seguimiento programado',
-    whatHappened: 'Queda un seguimiento de cotización.',
+    title: 'Registrar la aceptación del cliente',
+    whatHappened:
+      'Una persona anota cómo y cuándo aceptó el cliente, con la evidencia que tiene.',
     whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded: 'Trabajo de seguimiento vinculado al cliente.',
-    ctaLabel: 'Ver trabajo',
-    href: '/trabajo',
-  },
-  {
-    step: 9,
-    title: 'Cliente acepta',
-    whatHappened: 'El cliente acepta y se convierte a pedido.',
-    whoNormallyActs: 'Asesor / persona autorizada a convertir',
-    whatIsalwaRecorded: 'Cotización aceptada → Pedido.',
+    whatIsalwaRecorded:
+      'Versión aceptada, canal, fecha y evidencia escrita por una persona. Un acuse de lectura o un “ok” ambiguo no es aceptación.',
     ctaLabel: 'Ver cotizaciones',
     href: '/cotizaciones',
   },
   {
-    step: 10,
-    title: 'Pedido creado',
-    whatHappened: 'Existe el pedido.',
-    whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded: 'Pedido abierto con líneas.',
+    step: 9,
+    title: 'Crear el pedido',
+    whatHappened:
+      'Con la aceptación registrada, una persona autorizada a convertir crea el pedido.',
+    whoNormallyActs: 'Persona autorizada a convertir',
+    whatIsalwaRecorded:
+      'Un solo pedido por cotización, aunque se repita el clic. No se despacha, produce ni confirma ningún pago.',
     ctaLabel: 'Ver pedidos',
     href: '/pedidos',
+  },
+  {
+    step: 10,
+    title: 'Registrar un pago reportado',
+    whatHappened:
+      'Se anota lo que el cliente dice haber pagado, en uno o varios medios, con referencias y evidencia privada.',
+    whoNormallyActs: 'Asesor',
+    whatIsalwaRecorded:
+      'Un pago reportado, no confirmado. La suma de los medios debe ser igual al total; el efectivo indica quién lo recibió o por qué aún no se sabe.',
+    ctaLabel: 'Ver finanzas',
+    href: '/finanzas',
   },
   {
     step: 11,
-    title: 'Preparación operativa',
-    whatHappened: 'Se solicita revisión operativa del pedido.',
-    whoNormallyActs: 'Asesor / coordinación',
-    whatIsalwaRecorded: 'Trabajo de preparación operativa (producción).',
-    ctaLabel: 'Ver pedidos',
-    href: '/pedidos',
+    title: 'Verificar cada parte del pago',
+    whatHappened:
+      'Contabilidad revisa cada medio por separado y lo confirma o rechaza con motivo.',
+    whoNormallyActs: 'Contabilidad autorizada',
+    whatIsalwaRecorded:
+      'Un resultado por medio, con quién y cuándo. Una imagen o lo que dice el cliente no confirma fondos. No es un libro contable.',
+    ctaLabel: 'Ver finanzas',
+    href: '/finanzas',
   },
   {
     step: 12,
-    title: 'Producción / Almacén / Compras review',
-    whatHappened: 'Producción revisa el pedido.',
-    whoNormallyActs: 'Producción',
-    whatIsalwaRecorded: 'Revisión de producción solicitada.',
-    ctaLabel: 'Ver producción',
-    href: '/produccion',
+    title: 'Cambiar la fecha o reasignar un compromiso',
+    whatHappened:
+      'El responsable reprograma, y quien puede, reasigna o cancela, siempre con motivo.',
+    whoNormallyActs: 'Responsable / gerente con autoridad sobre ese cliente',
+    whatIsalwaRecorded:
+      'La fecha anterior, el responsable anterior, el motivo y quién actuó. El nuevo responsable recibe el aviso.',
+    ctaLabel: 'Ver compromisos',
+    href: '/compromisos',
   },
   {
     step: 13,
-    title: 'Producto terminado',
-    whatHappened: 'Entra producto terminado a almacén.',
-    whoNormallyActs: 'Almacén',
-    whatIsalwaRecorded: 'Recepción de productos terminados (FG).',
-    ctaLabel: 'Ver almacén',
-    href: '/almacen',
+    title: 'Ver los clientes en el mapa',
+    whatHappened:
+      'El mapa de clientes muestra solo clientes visibles para la persona y con coordenadas confirmadas.',
+    whoNormallyActs: 'Asesor / gerencia',
+    whatIsalwaRecorded:
+      'Los clientes sin coordenadas figuran como “Pendiente de ubicación” en la lista. Si el proveedor de mapas no está configurado, no se dibuja ningún pin.',
+    ctaLabel: 'Ver mapa',
+    href: '/mapa',
   },
   {
     step: 14,
-    title: 'Nota de entrega',
-    whatHappened: 'Se emite la nota de entrega con PDF.',
-    whoNormallyActs: 'Persona autorizada para entregas',
-    whatIsalwaRecorded: 'Nota de entrega + PDF disponible.',
-    ctaLabel: 'Ver entregas',
-    href: '/entregas',
-  },
-  {
-    step: 15,
-    title: 'Salida',
-    whatHappened: 'Se registra la salida de almacén.',
-    whoNormallyActs: 'Almacén',
-    whatIsalwaRecorded: 'Salida vinculada al pedido.',
-    ctaLabel: 'Ver almacén',
-    href: '/almacen',
-  },
-  {
-    step: 16,
-    title: 'Entrega',
-    whatHappened: 'Se registra la entrega al cliente.',
-    whoNormallyActs: 'Persona autorizada para entregas',
-    whatIsalwaRecorded: 'Entrega registrada con receptor.',
-    ctaLabel: 'Ver entregas',
-    href: '/entregas',
-  },
-  {
-    step: 17,
-    title: 'Documentos',
-    whatHappened: 'Los documentos del cliente quedan visibles.',
-    whoNormallyActs: 'Asesor / Gerencia',
-    whatIsalwaRecorded: 'PDFs en Documentos del cliente.',
-    ctaLabel: 'Ver clientes',
-    href: '/clientes',
-  },
-  {
-    step: 18,
-    title: 'Cliente360 historial',
-    whatHappened: 'El historial del cliente muestra el recorrido completo.',
-    whoNormallyActs: 'Asesor / Gerencia',
-    whatIsalwaRecorded: 'Historial del cliente en Cliente360.',
-    ctaLabel: 'Ver clientes',
-    href: '/clientes',
-  },
-  {
-    step: 19,
-    title: 'Auditoría',
-    whatHappened: 'La memoria de cambios refleja los hechos.',
-    whoNormallyActs: 'Gerencia',
-    whatIsalwaRecorded: 'Cambios recientes en Inicio.',
-    ctaLabel: 'Ver Inicio',
+    title: 'Empezar el día en Hoy',
+    whatHappened:
+      'Hoy reúne lo que la persona tiene pendiente: atención, trabajo, aprobaciones, compromisos e incidencias.',
+    whoNormallyActs: 'Todo el equipo',
+    whatIsalwaRecorded:
+      'Solo lo que la persona puede leer. Si una carga falla, Hoy lo dice y ofrece reintentar; nunca lo muestra como cero.',
+    ctaLabel: 'Ver Hoy',
     href: '/inicio',
   },
   {
-    step: 20,
-    title: 'Gerencia / métricas',
-    whatHappened: 'La vista de gerencia resume la actividad.',
-    whoNormallyActs: 'Gerencia',
-    whatIsalwaRecorded: 'Métricas de gerencia.',
-    ctaLabel: 'Ver gerencia',
-    href: '/inicio?lente=gerencia',
+    step: 15,
+    title: 'Lo que todavía no está conectado',
+    whatHappened:
+      'Esta presentación no incluye producción, almacén ni entregas, ni envíos por WhatsApp, ni respuestas automáticas.',
+    whoNormallyActs: 'Responsable del sistema',
+    whatIsalwaRecorded:
+      'Nada. Cada capacidad se activa con sus credenciales y autorización; hasta entonces el trabajo manual sigue disponible.',
+    ctaLabel: 'Ver ayuda',
+    href: '/ayuda',
   },
 ] as const;
 

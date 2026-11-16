@@ -59,7 +59,7 @@ describe('UI-5A command error mapping', () => {
       code: 'AUTH_REQUIRED',
       message: 'test',
     });
-    assert.match(mapCommandError(err), /sesión/i);
+    assert.equal(mapCommandError(err), 'Tu sesión terminó. Inicia sesión para continuar.');
   });
 
   it('maps forbidden for unauthorized command', () => {
@@ -69,7 +69,10 @@ describe('UI-5A command error mapping', () => {
       code: 'PERMISSION_DENIED',
       message: 'test',
     });
-    assert.match(mapCommandError(err), /permiso/i);
+    assert.equal(
+      mapCommandError(err),
+      'Tu acceso cambió. Esta acción no se realizó. Solicita ayuda a tu responsable.',
+    );
   });
 
   it('maps validation errors', () => {
@@ -82,20 +85,35 @@ describe('UI-5A command error mapping', () => {
     assert.match(mapCommandError(err), /Revise los datos/i);
   });
 
-  it('maps conflict for duplicate submit replay', () => {
+  it('maps a lost optimistic-version race to the changed-record copy', () => {
     const err = new OsApiError({
       kind: 'conflict',
-      status: 400,
+      status: 409,
       code: 'CONFLICT',
       message: 'test',
     });
-    assert.match(mapCommandError(err), /Actualice/i);
+    assert.equal(
+      mapCommandError(err),
+      'Este registro cambió mientras lo editabas. Revisa la versión actual antes de guardar.',
+    );
+  });
+
+  it('maps an idempotent replay to "already recorded", never "changed" or "not saved"', () => {
+    const err = new OsApiError({
+      kind: 'conflict',
+      status: 409,
+      code: 'IDEMPOTENCY_REPLAY',
+      message: 'test',
+    });
+    assert.match(mapCommandError(err), /ya se registró/i);
     assert.match(mapCommandError(err), /duplicado/i);
   });
 
   it('does not show a generic Error message or raw API English', () => {
     const leaked = 'PrismaClientKnownRequestError: invalid `prisma.quote`';
-    assert.equal(mapCommandError(new Error(leaked)), 'No se pudo completar la acción. Intente de nuevo.');
+    const reconcile =
+      'No pudimos confirmar si se guardó. Actualiza la página y revisa el registro antes de intentar de nuevo.';
+    assert.equal(mapCommandError(new Error(leaked)), reconcile);
     assert.doesNotMatch(mapCommandError(new Error(leaked)), /prisma|Error/i);
     const unknown = new OsApiError({
       kind: 'unknown',
@@ -104,7 +122,8 @@ describe('UI-5A command error mapping', () => {
       message: 'Unauthorized',
     });
     const mapped = mapCommandError(unknown);
-    assert.equal(mapped, 'No se pudo completar la acción. Intente de nuevo.');
+    // 5xx: the write may have happened — reconcile, never claim "not saved".
+    assert.match(mapped, /No pudimos confirmar si se guardó/);
     assert.doesNotMatch(mapped, /Unauthorized|Error/i);
   });
 });

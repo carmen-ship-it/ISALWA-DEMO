@@ -12,9 +12,13 @@ export type NavIconTone = {
 };
 
 const BY_GROUP: Record<NavGroup, NavIconTone> = {
-  inicio: {
+  principal: {
     chip: 'bg-[color-mix(in_srgb,var(--isalwa-kiln)_8%,transparent)]',
     ink: 'text-[var(--isalwa-kiln)]',
+  },
+  consulta: {
+    chip: 'bg-[var(--isalwa-sky-100)]',
+    ink: 'text-[var(--isalwa-info)]',
   },
   comercial: {
     chip: 'bg-[var(--isalwa-teal-100)]',
@@ -65,7 +69,7 @@ const BY_ID: Partial<Record<string, NavIconTone>> = {
 export function navIconTone(item: Pick<NavItem, 'id' | 'group'>): NavIconTone {
   const byId = BY_ID[item.id];
   if (byId) return byId;
-  return BY_GROUP[item.group ?? 'inicio'];
+  return BY_GROUP[item.group ?? 'principal'];
 }
 
 export function navIconToneActive(): NavIconTone {

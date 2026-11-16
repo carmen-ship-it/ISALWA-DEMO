@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { t } from '@/lib/i18n/es';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
@@ -23,7 +24,8 @@ describe('Lane D V1 close — Work / Attention / Issue', () => {
     assert.match(panel, /inicioAttentionEmptyMessage/);
     assert.doesNotMatch(panel, /quotes\?:/);
     assert.doesNotMatch(page, /quotes=\{quotesSubmitted/);
-    assert.match(page, /necesita atención hoy/i);
+    assert.match(page, /pages\.inicio\.description/);
+    assert.equal(t('pages.inicio.description'), 'Tu atención y tus próximos compromisos');
   });
 
   it('Pedido inherits order relation for Reportar incidencia', () => {

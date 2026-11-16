@@ -50,7 +50,7 @@ const ICONS = {
 
 type AppNavProps = {
   showAdmin: boolean;
-  /** Trusted scopes for display labeling only — never used to hide nav. */
+  /** Effective scopes: label emphasis and visibility of permission-controlled secondary areas. */
   grantedScopes?: readonly string[];
   capabilities?: CapabilityStateReadModel[];
   mobile?: boolean;
@@ -159,7 +159,9 @@ export function AppNav({
     useRolePreview();
   const presentation: RoleNavPresentation = roleNavPresentation(presentationScopes);
   const emphasized = new Set(presentation.emphasizedIds);
-  const sections = resolveShellNavSections({ showAdmin }, capabilities);
+  // Preview mode shows exactly what the previewed role would see.
+  const navScopes = evaluationActive ? presentationScopes : grantedScopes;
+  const sections = resolveShellNavSections({ showAdmin, grantedScopes: navScopes }, capabilities);
   const evaluationProjection = useMemo(
     () =>
       buildClientEvaluationProjection({

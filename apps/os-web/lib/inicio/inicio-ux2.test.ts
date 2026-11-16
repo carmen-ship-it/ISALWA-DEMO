@@ -64,7 +64,7 @@ describe('inicio command center UX-2', () => {
     assert.match(page, /InicioMiDia/);
     assert.match(page, /InicioLensTabs/);
     assert.match(page, /Atención de hoy/);
-    assert.match(page, /Esto es lo que necesita atención hoy/);
+    assert.match(page, /pages\.inicio\.description/);
     assert.match(page, /ManagementOrgMetrics/);
     assert.match(page, /ManagementTeamTable/);
     assert.match(page, /Para revisar/);

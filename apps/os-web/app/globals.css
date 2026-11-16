@@ -37,6 +37,9 @@ body {
   );
   --isalwa-surface-app: var(--isalwa-surface-hero);
   --isalwa-shadow-focus: 0 0 0 3px rgba(40, 122, 120, 0.28);
+  /* Batch 8: 44px controls, 16px field text. */
+  --isalwa-control-height: 44px;
+  --isalwa-field-font-size: var(--isalwa-text-base);
   /* Primary = filled navy; secondary = navy border; contextual = teal ops. */
   --isalwa-btn-primary-bg: var(--isalwa-action);
   --isalwa-btn-primary-bg-hover: var(--isalwa-action-deep);
@@ -102,7 +105,7 @@ a.isalwa-action-link:active {
 
 @media (min-width: 768px) {
   .isalwa-page {
-    padding: var(--isalwa-space-8) var(--isalwa-space-6) var(--isalwa-space-12);
+    padding: var(--isalwa-space-8) var(--isalwa-space-5) var(--isalwa-space-12);
   }
 }
 
@@ -171,6 +174,21 @@ input:focus-visible:not(.isalwa-field) {
   outline: 2px solid var(--isalwa-glaze-deep);
   outline-offset: 2px;
   box-shadow: var(--isalwa-shadow-focus);
+}
+
+/*
+ * Control floor (Batch 8): every native field is a 44px target with 16px text (also stops
+ * mobile browsers from zooming on focus). Checkboxes, radios, files and hidden inputs keep
+ * their own geometry. Labels stay persistent in markup; placeholders are never the label.
+ */
+input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='color']),
+select {
+  min-height: 44px;
+  font-size: var(--isalwa-text-base);
+}
+textarea {
+  min-height: 44px;
+  font-size: var(--isalwa-text-base);
 }
 
 /* Map search: parent focus-within — Cursor/CDP may gate :focus while :focus-within still matches. */

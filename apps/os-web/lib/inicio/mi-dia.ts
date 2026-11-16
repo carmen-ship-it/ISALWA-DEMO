@@ -2,7 +2,7 @@ import type { TodayQueue, TodayQueueItem } from '@/lib/inicio/today-queue';
 
 export const MI_DIA_MAX_ITEMS = 7;
 
-export const MI_DIA_EMPTY = 'Todo al día por ahora.';
+export const MI_DIA_EMPTY = 'No tienes pendientes en esta sección';
 
 export type MiDiaRow = TodayQueueItem & {
   categoryLabel: string;

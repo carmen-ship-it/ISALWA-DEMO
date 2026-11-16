@@ -4,6 +4,7 @@ import type { MapCustomerRow } from '@/lib/map/build-view-model';
 import { pendingLocationCta } from '@/lib/map/pending-location';
 import { panelHref, type ListQueryState } from '@/lib/lists/url-state';
 import { partyHref } from '@/lib/party/navigation';
+import { t } from '@/lib/i18n/es';
 
 type MapCustomerListsProps = {
   plottable: readonly MapCustomerRow[];
@@ -66,7 +67,7 @@ function CustomerRow({
             {[
               owner ? `Resp. ${owner}` : null,
               row.primaryPhone,
-              row.hasCoordinates ? 'Ubicación confirmada' : row.hasProvenance ? 'Ubicación por confirmar' : null,
+              row.hasCoordinates ? 'Ubicación confirmada' : t('pages.mapa.pendingLocation'),
             ]
               .filter(Boolean)
               .join(' · ') || 'Sin teléfono ni responsable en esta lectura'}
@@ -138,9 +139,9 @@ export function MapCustomerLists({
         )}
       </section>
 
-      <section aria-label="Sin ubicación confirmada">
+      <section aria-label="Pendiente de ubicación">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">Sin ubicación confirmada</h2>
+          <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">{t('pages.mapa.pendingLocation')}</h2>
           <StatusPill tone="manual">{provenanceFiltered.length}</StatusPill>
         </div>
         {provenanceFiltered.length === 0 ? (

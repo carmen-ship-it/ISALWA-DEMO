@@ -33,7 +33,7 @@ export type AccessMatrixRow = {
 
 function navVisible(navId: string, grantedScopes: readonly string[]): boolean {
   const showAdmin = hasAssignedOperationsScope(grantedScopes, PEOPLE_ADMIN_SCOPE);
-  return primaryNavIds({ showAdmin }).includes(navId);
+  return primaryNavIds({ showAdmin, grantedScopes }).includes(navId);
 }
 
 function productionSession(grantedScopes: readonly string[]): ProductionSession {

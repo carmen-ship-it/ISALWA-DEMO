@@ -67,7 +67,7 @@ type AppShellProps = {
   showAdmin: boolean;
   canCreateCustomer: boolean;
   actorKey: string | null;
-  /** Trusted scopes for nav labeling only — never used to hide destinations. */
+  /** Effective scopes: nav emphasis and visibility of permission-controlled secondary areas. Destinations still fail closed. */
   grantedScopes: readonly string[];
   capabilities: CapabilityStateReadModel[];
   /** UX-5 notification bell/drawer slot (integrator mount while UX-1 parked). */
@@ -309,6 +309,7 @@ export function AppShell({
               open={paletteOpen}
               onOpenChange={setPaletteOpen}
               showAdmin={showAdmin}
+              grantedScopes={grantedScopes}
               canCreateCustomer={canCreateCustomer}
               actorKey={actorKey}
               returnFocusRef={searchButtonRef}

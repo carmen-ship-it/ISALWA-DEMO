@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { PageContainer, PageSection, StatusPill } from '@isalwa/ui';
 import type { AttentionItemReadModel, WorkSummaryReadModel } from '@isalwa/os-contracts';
-import type { MapConfirmedMarker } from '@/components/map/map-live-canvas';
 import { MapExperience } from '@/components/map/map-experience';
 import { PageHeader } from '@/components/shell/page-header';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -19,7 +18,7 @@ import {
   resolveMapViewConfig,
 } from '@/lib/map/provider-status';
 import { t } from '@/lib/i18n/es';
-import type { LocationView } from '@/lib/party/types';
+import { loadConfirmedMarkers, type ConfirmedMarkerLoad } from '@/lib/map/confirmed-markers';
 import { dataHealthFromSummaries } from '@/lib/party/data-health';
 import type { IssueListItem } from '@/lib/issue/types';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
@@ -34,48 +33,6 @@ import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-exclu
 type MapaPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
-
-function locationHasConfirmedCoordinates(location: LocationView): boolean {
-  return (
-    Number.isFinite(location.latitude) &&
-    Number.isFinite(location.longitude) &&
-    location.latitude !== null &&
-    location.longitude !== null
-  );
-}
-
-function pickConfirmedLocation(locations: LocationView[]): LocationView | null {
-  const active = locations.find((loc) => loc.status === 'active' && locationHasConfirmedCoordinates(loc));
-  if (active) return active;
-  return locations.find((loc) => locationHasConfirmedCoordinates(loc)) ?? null;
-}
-
-async function loadConfirmedMarkers(
-  client: ReturnType<typeof createOsApiClient>,
-  plottablePartyIds: readonly { partyId: string; displayName: string }[],
-): Promise<MapConfirmedMarker[]> {
-  if (plottablePartyIds.length === 0) return [];
-
-  const settled = await Promise.all(
-    plottablePartyIds.map(async (row) => {
-      try {
-        const response = await client.listPartyLocations(row.partyId);
-        const location = pickConfirmedLocation(response.locations);
-        if (!location?.latitude || !location?.longitude) return null;
-        return {
-          partyId: row.partyId,
-          displayName: row.displayName,
-          lat: location.latitude,
-          lng: location.longitude,
-        } satisfies MapConfirmedMarker;
-      } catch {
-        return null;
-      }
-    }),
-  );
-
-  return settled.filter((marker): marker is MapConfirmedMarker => marker !== null);
-}
 
 async function loadCommercialLens(
   client: ReturnType<typeof createOsApiClient>,
@@ -148,13 +105,14 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   const provider = resolveMapProviderStatus(mapEnv);
   const viewConfig = resolveMapViewConfig(mapEnv);
   const commercialQuery = commercialListQueryFromProjection(evaluation);
-  const [markers, commercialInput, attentionResult, overdueResult, issuesResult] = await Promise.all([
+  const [markerLoad, commercialInput, attentionResult, overdueResult, issuesResult] = await Promise.all([
+    // Pins only when a provider is configured, and only for customers this actor can already read.
     provider.kind === 'live'
       ? loadConfirmedMarkers(
           client,
           model.plottable.map((row) => ({ partyId: row.partyId, displayName: row.displayName })),
         )
-      : Promise.resolve([] as MapConfirmedMarker[]),
+      : Promise.resolve({ markers: [], failedCount: 0 } satisfies ConfirmedMarkerLoad),
     loadCommercialLens(client, commercialQuery),
     client.listAttention({ activeOnly: true, limit: 100 }).catch(() => ({ items: [] as AttentionItemReadModel[] })),
     client
@@ -242,7 +200,8 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         model={model}
         provider={provider}
         viewConfig={viewConfig}
-        markers={markers}
+        markers={markerLoad.markers}
+        markerFailedCount={markerLoad.failedCount}
         listQuery={listQuery}
         selectedPartyId={selectedPartyId}
         memberLabels={memberLabels}

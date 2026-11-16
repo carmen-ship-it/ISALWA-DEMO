@@ -15,6 +15,7 @@ import {
 } from '@/lib/work/inicio-attention';
 import { AttentionList, FactualDueList } from '@/components/work/attention-list';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
+import { SectionLoadFailed } from '@/components/states/section-load-failed';
 
 type InicioAttentionPanelProps = {
   items: AttentionItemReadModel[];
@@ -45,9 +46,7 @@ export function InicioAttentionPanel({
     return (
       <div aria-label={t('pages.inicio.attention')} data-tour={TOUR_TARGET.homeAttention}>
         <SectionHeader title={t('pages.inicio.attention')} />
-        <p className="text-sm text-[var(--isalwa-slate)]" role="status">
-          {t('pages.inicio.attentionUnavailable')}
-        </p>
+        <SectionLoadFailed />
       </div>
     );
   }

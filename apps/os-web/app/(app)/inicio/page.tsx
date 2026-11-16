@@ -80,7 +80,6 @@ import {
 } from '@/lib/inicio/filter-for-evaluation';
 
 const PERSONAL_OPEN_WORK_LIMIT = 100;
-const HERO_SUBTITLE = 'Esto es lo que necesita atención hoy.';
 
 type InicioPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -460,11 +459,24 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       approvalsScope,
       workOwnerMemberId: projectionWorkOwnerId,
     });
-    const summaryCards = summaryCardsFromCounts(
-      summaryCounts,
-      commandQueues.unavailable.issues,
-    );
+    const summaryCards = summaryCardsFromCounts(summaryCounts, {
+      attention: attentionResult === 'unavailable',
+      today:
+        personalWorkResult === 'unavailable' ||
+        commandQueues.unavailable.work ||
+        commandQueues.unavailable.commitments,
+      approvals: commandQueues.unavailable.approvals,
+      issues: commandQueues.unavailable.issues,
+    });
     const miDiaItems = flattenMiDia(todayQueue);
+    // A failed source is a failure state, never an empty day or a zero.
+    const miDiaUnavailable =
+      attentionResult === 'unavailable' ||
+      personalWorkResult === 'unavailable' ||
+      commandQueues.unavailable.work ||
+      commandQueues.unavailable.issues ||
+      commandQueues.unavailable.commitments ||
+      commandQueues.unavailable.approvals;
     const greeting = greetingLine(shellContext?.givenName);
 
     const ordersResult =
@@ -582,9 +594,9 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     return (
       <PageContainer label={t('pages.inicio.title')}>
         <PageHeader
-          kicker={t('pages.inicio.kicker')}
-          title={greeting}
-          description={HERO_SUBTITLE}
+          kicker={greeting}
+          title={t('pages.inicio.title')}
+          description={t('pages.inicio.description')}
           action={destinationLink('/trabajo', 'Ver mi trabajo', 'primary')}
         />
 
@@ -608,7 +620,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
             <InicioSummaryCards cards={summaryCards} />
           </InicioVisualBand>
           <InicioVisualBand tone="mi-dia" label="Mi día">
-            <InicioMiDia items={miDiaItems} />
+            <InicioMiDia items={miDiaItems} unavailable={miDiaUnavailable} />
             <ListCapNotice caps={inicioListCaps} />
           </InicioVisualBand>
 

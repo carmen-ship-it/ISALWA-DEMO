@@ -47,6 +47,8 @@ type CommandPaletteProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   showAdmin: boolean;
+  /** Effective scopes: palette lists the same permission-controlled areas as the nav. */
+  grantedScopes?: readonly string[];
   canCreateCustomer: boolean;
   actorKey: string | null;
   returnFocusRef: React.RefObject<HTMLElement | null>;
@@ -70,6 +72,7 @@ export function CommandPalette({
   open,
   onOpenChange,
   showAdmin,
+  grantedScopes,
   canCreateCustomer,
   actorKey,
   returnFocusRef,
@@ -92,7 +95,13 @@ export function CommandPalette({
   const [currentHref, setCurrentHref] = useState('');
   const [savedNote, setSavedNote] = useState<string | null>(null);
 
-  const { blocksMutations, persona, subjectMemberId } = useRolePreview();
+  const {
+    blocksMutations,
+    persona,
+    subjectMemberId,
+    active: evaluationActive,
+    presentationScopes,
+  } = useRolePreview();
   const storageKey = actorKey ? recentsStorageKey(actorKey) : null;
   const viewsKey = actorKey ? savedViewsStorageKey(actorKey) : null;
   const showPaletteActions = paletteIncludesActions(blocksMutations);
@@ -248,7 +257,7 @@ export function CommandPalette({
           : paletteActions(access)
         ).filter((item) => matchesPaletteQuery(item, q))
       : [];
-    const nav = paletteNav(showAdmin).filter((item) => matchesPaletteQuery(item, q));
+    const nav = paletteNav(showAdmin, evaluationActive ? presentationScopes : grantedScopes).filter((item) => matchesPaletteQuery(item, q));
     if (pick) {
       return remote
         .map((item) => applyPick(item, pick))
@@ -274,6 +283,9 @@ export function CommandPalette({
     recents,
     remote,
     showAdmin,
+    grantedScopes,
+    evaluationActive,
+    presentationScopes,
     showPaletteActions,
   ]);
 

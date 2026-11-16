@@ -30,8 +30,10 @@ const styles: Record<Variant, string> = {
 };
 
 const sizes: Record<Size, string> = {
-  sm: 'h-8 px-3 text-[var(--isalwa-text-sm)]',
-  md: 'h-10 px-4 text-[var(--isalwa-text-md)]',
+  /* Visual 32px everywhere; a pseudo-element extends the hit area to 44px. */
+  sm: "relative h-8 px-3 text-[var(--isalwa-text-sm)] before:absolute before:inset-x-0 before:-top-1.5 before:-bottom-1.5 before:content-['']",
+  /* Height comes from --isalwa-control-height (40px default; os-web sets 44px). */
+  md: 'h-[var(--isalwa-control-height)] px-4 text-[var(--isalwa-text-md)]',
 };
 
 export function Button({

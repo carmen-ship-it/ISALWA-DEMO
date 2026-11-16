@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { cx } from '@isalwa/ui';
 import { navSectionIsOpen } from '@/lib/navigation/nav-active';
-import type { NavGroup } from '@/lib/navigation/nav-config';
+import { NAV_SECONDARY_COLLAPSED_GROUPS, type NavGroup } from '@/lib/navigation/nav-config';
 
 const STORAGE_KEY = 'isalwa.nav.collapsedGroups';
 
@@ -59,8 +59,12 @@ export function NavSectionCollapse({
       setManualCollapsed(stored[group]!);
       return;
     }
-    // Mobile default: collapse inactive groups to reduce vertical bloat.
-    if (mobile && !containsActive && group !== 'inicio') {
+    // Operational/administration groups open collapsed; on mobile every inactive
+    // non-primary group does, to reduce vertical bloat. The active group always opens.
+    if (containsActive) return;
+    const secondary = NAV_SECONDARY_COLLAPSED_GROUPS.includes(group);
+    const primary = group === 'principal' || group === 'comercial' || group === 'consulta';
+    if (secondary || (mobile && !primary)) {
       setManualCollapsed(true);
     }
   }, [group, mobile, containsActive]);

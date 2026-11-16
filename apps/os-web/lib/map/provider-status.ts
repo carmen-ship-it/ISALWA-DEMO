@@ -62,7 +62,7 @@ export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEn
       kind: 'unavailable',
       label: 'Vista geográfica en preparación',
       detail:
-        'La información de ubicación ya está organizada. La visualización completa sobre mapa podrá activarse cuando se conecte el proveedor geográfico.',
+        'Falta la credencial del proveedor de mapas, por eso no se dibuja ningún pin ni se usa un servicio de mapas. Los clientes con ubicación confirmada siguen disponibles en la lista.',
       engine: null,
       tokenPresent: false,
     };
@@ -83,7 +83,7 @@ export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEn
     kind: 'unavailable',
     label: 'Vista geográfica en preparación',
     detail:
-      'La información de ubicación ya está organizada. La visualización completa sobre mapa podrá activarse cuando se conecte el proveedor geográfico.',
+      'La información de ubicación ya está organizada. La visualización completa sobre mapa podrá activarse cuando se conecte el proveedor geográfico. Mientras tanto no se dibuja ningún pin.',
     engine: null,
     tokenPresent: false,
   };

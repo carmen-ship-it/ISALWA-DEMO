@@ -79,4 +79,4 @@ export const MAP_LAYER_LEGEND: Record<
 };
 
 export const MAP_VALUE_DISCLAIMER_SHORT =
-  'Los valores provienen de registros comerciales de ISALWA y no representan ingresos contables.';
+  'Los valores provienen de registros comerciales de ISALWA y no representan ventas cerradas, ingresos contables ni fondos confirmados.';
