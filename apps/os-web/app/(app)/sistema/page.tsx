@@ -8,6 +8,11 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { getOsApiBaseUrl, getOsAuthMode, isSupabaseConfigured } from '@/lib/auth/config';
 import { resolveAiHostedVisibility } from '@/components/ai/hosted-state';
 import { resolveMapProviderStatus } from '@/lib/map/provider-status';
+import {
+  aiChannelHealth,
+  emailChannelHealth,
+  whatsappChannelHealth,
+} from '@/lib/system/channel-health';
 import { loadActorRoleKeys } from '@/lib/party/master-data-access';
 import { isQaControlEnabled } from '@/lib/qa/runtime';
 import {
@@ -27,12 +32,6 @@ type ProviderHealthRow = {
   detail: string;
   tone: HealthTone;
 };
-
-function providerKind(provider: string): 'mock' | 'live' | 'unset' {
-  const value = provider.trim().toLowerCase();
-  if (!value || value === 'mock') return 'mock';
-  return 'live';
-}
 
 async function loadProviderHealth(client: OsApiClient): Promise<ProviderHealthRow[]> {
   const mapStatus = resolveMapProviderStatus();
@@ -132,50 +131,9 @@ async function loadProviderHealth(client: OsApiClient): Promise<ProviderHealthRo
     tone: mapStatus.kind === 'live' ? 'success' : 'neutral',
   });
 
-  const aiHosted = resolveAiHostedVisibility();
-  rows.push({
-    id: 'ai',
-    label: 'IA',
-    state: aiHosted.show
-      ? aiHosted.citationsLive
-        ? 'Funcionando'
-        : 'Piloto (mock)'
-      : aiHosted.blocker === 'PROVIDER_BLOCKED'
-        ? 'Falta configurar'
-        : 'Desactivada',
-    detail: aiHosted.show
-      ? aiHosted.citationsLive
-        ? 'La asistencia de IA está habilitada con proveedor en vivo.'
-        : 'La asistencia de IA está en piloto sin llamada al proveedor en vivo.'
-      : aiHosted.blocker === 'PROVIDER_BLOCKED'
-        ? 'Falta la credencial del proveedor de IA en este entorno.'
-        : 'La asistencia de IA permanece apagada hasta habilitarla de forma explícita.',
-    tone: aiHosted.show ? 'success' : aiHosted.blocker === 'PROVIDER_BLOCKED' ? 'warning' : 'neutral',
-  });
-
-  const emailKind = providerKind(process.env.EMAIL_PROVIDER ?? '');
-  rows.push({
-    id: 'email',
-    label: 'Email',
-    state: emailKind === 'live' ? 'Funcionando' : 'No conectado',
-    detail:
-      emailKind === 'live'
-        ? 'Hay un proveedor de correo declarado en configuración; no se envían credenciales desde esta pantalla.'
-        : 'El correo transaccional no está conectado en este entorno.',
-    tone: emailKind === 'live' ? 'neutral' : 'neutral',
-  });
-
-  const messagingKind = providerKind(process.env.MESSAGING_PROVIDER ?? '');
-  rows.push({
-    id: 'whatsapp',
-    label: 'WhatsApp',
-    state: messagingKind === 'live' ? 'Funcionando' : 'No conectado',
-    detail:
-      messagingKind === 'live'
-        ? 'Hay un proveedor de mensajería declarado; el canal WhatsApp no se evalúa desde secretos aquí.'
-        : 'WhatsApp y envíos automáticos siguen sin conectar en este entorno.',
-    tone: 'neutral',
-  });
+  rows.push(aiChannelHealth(resolveAiHostedVisibility()));
+  rows.push(emailChannelHealth(process.env));
+  rows.push(whatsappChannelHealth(process.env));
 
   rows.push({
     id: 'monitoring',

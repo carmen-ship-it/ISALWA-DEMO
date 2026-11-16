@@ -2,7 +2,7 @@
 
 Compact map for the 2026-11-16 continuation. Authority: V2 + A1 + A2 + `REUSE_MAP.md` §12/§13 + T03 contracts. Checkpoint: `docs/operations/COMMERCIAL_RELEASE_CHECKPOINT.md` (wins over stale `CURRENT_STATE.md`). Continuation: `CONTINUATION-2026-11-16.md`.
 
-Integrator: `/Users/carmen/projects/isalwa-wt-v1-repairs` · `ct3/v1-repairs`. Starting committed HEAD for this run: `aada5396`. Stage A committed `11e4f38b`. Batch 2 customer entry TESTED LOCALLY (receipt `BATCH-2-CUSTOMER-ENTRY.md`).
+Integrator: `/Users/carmen/projects/isalwa-wt-v1-repairs` · `ct3/v1-repairs`. Starting committed HEAD for this run: `aada5396`. Batch 9 parent: `fd11db98`. Stage A committed `11e4f38b`. Batch 2 customer entry TESTED LOCALLY (receipt `BATCH-2-CUSTOMER-ENTRY.md`).
 
 | Journey / ID | Routes | Commands / reads | Permissions | Local evidence | Blockers |
 |---|---|---|---|---|---|
@@ -13,10 +13,34 @@ Integrator: `/Users/carmen/projects/isalwa-wt-v1-repairs` · `ct3/v1-repairs`. S
 | T05 catalog | `/productos` | Catalog browse/presentation | published/PDF gate | Candidate local only (`c872470`); `receipts/BATCH-4-CATALOG-BLOCKED.md` | Independent review; missing PDF/prices; A2 fixes |
 | T06 conversations / manual attention | `/conversaciones` | Manual attention; inbox filters; claim | account/coverage/tenant | `receipts/BATCH-5-CONVERSATIONS.md` @ `6f46eede`; TESTED LOCALLY | Nota interna; attention states; provider optional |
 | T07 payments | `/finanzas` | Reported payment, per-tender verify, allocations, instructions, archive check | `payments.report` / `payments.confirm` / publish scope | `receipts/BATCH-6-PAYMENTS.md`; TESTED LOCALLY | No approved payment instructions (share stays absent); no cash-receiver roster; independent review |
-| T08/T09 commitments / notifications | `/compromisos`, home | Commitment CRUD; notifications | responsible member; suspension rules | Partial auth repairs only | — |
-| T10/T11 shell / Journey | shell, Journey | — | Journey audience | Demo mode removed `1be6d9e5` | Remaining interaction polish in later batches |
-| T12–T14 WhatsApp / AI | adapters | Outbox / proposals | takeover; published knowledge | Not activated | No paid provider calls in this instruction |
-| T16 map / Hoy | `/mapa`, `/inicio` | scoped pins / work queues | same visibility as customer reads | Partial shell | Map credentials if adapter requires |
-| Hosting evaluation | Vercel `carmen-ship-it` | — | — | Inventory 2026-11-13: Hobby, 0 projects; Render exit planned | Owner purchase/API host; fresh allowlisted export after new SHA |
+| T08/T09 commitments / notifications | `/compromisos`, `/compromisos/[id]`, home | Create/reschedule/reassign/cancel, handover queue, stored notices | responsible member; suspension rules | `receipts/BATCH-7-COMMITMENTS.md`; TESTED LOCALLY | 48h follow-up engine, due/overdue scheduler, opt-in sound, handover for work/order/issue-linked commitments; independent review |
+| T10/T11 shell / Journey | shell, `/inicio`, Journey | Nav groups, Hoy states, error copy, 44px controls | Journey audience; nav scope filter (links only, routes keep own gates) | Demo mode removed `1be6d9e5`; `receipts/BATCH-8-SHELL-MAP.md` TESTED LOCALLY, not browser-verified | Cliente 360 next-step header; label/padding audits; browser check at 390/1440 |
+| T12 WhatsApp / media | `/conversaciones`, `/mensajes`, `/sistema` (system.admin) | Manual attention only; **no send, no webhook, no adapter** | takeover; tenant from trusted connection (future) | `receipts/BATCH-9-PROVIDERS-HOSTING.md`: honesty IMPLEMENTED + TESTED LOCALLY (`/sistema` no longer shows WhatsApp/Email "Funcionando"); adapter SPECIFIED only, not activated | Meta/WABA credentials + number, activation authority, hosted webhook host, reviewed adapter, storage + inspection choice |
+| T13 A01–A22 engine | — | — | published public knowledge | SPECIFIED only (V2/A1); not built | T12; approved hours/address/catalog document |
+| T14 AI proposals H01–H09 | `/clientes`, issues (assist panel) | Read-only assist with mutation deny list; mock unless key + `AI_ENABLED=true`; evidence review records a human decision | human confirmation; budget caps | Existing gate audited, no paid call made; proposals/quotas SPECIFIED only | Model/budget choice; persistent quota + accept/ignore commands; review |
+| T16 map / Hoy | `/mapa`, `/inicio` | Confirmed pins, "Pendiente de ubicación" list, Hoy sections | same visibility as customer reads | `receipts/BATCH-8-SHELL-MAP.md`; TESTED LOCALLY | Mapbox public token (owner/cost) for the live canvas; browser check |
+| Hosting evaluation | Vercel `carmen-ship-it` | — | — | `receipts/VERCEL-HOSTING-PREP.md`: manifest PREPARED; not deployed, not exported; inventory not refreshed (Vercel needs sign-in) | Owner purchase (H1), API host (H2), review then fresh allowlisted export (H3), Vercel/Supabase sign-in (H4/H6) |
 
 States used in receipts: SPECIFIED · IMPLEMENTED · TESTED LOCALLY · INDEPENDENTLY REVIEWED · INTEGRATED · DEPLOYED · LIVE JOURNEY VERIFIED · OWNER ACCEPTED.
+
+## Distinct gates (never merged in any receipt)
+
+| Gate | Meaning | Status after Batch 9 |
+|---|---|---|
+| Independent review | A reviewer other than the builder verdicts pinned source and boundaries | **None** for Batches 2–9 (only C1–C9/L1–L4 customer UI and Lane B demo removal were reviewed) |
+| Integration | Merged locally on `ct3/v1-repairs` | Batches 1–9 are committed locally; not pushed |
+| Deployment | Running at an authorized hosted destination | **None.** No deploy, no push, no export built |
+| Provider activation | Real WhatsApp/email/AI/map/payment connection with activation authority | **None.** All disconnected and labeled so |
+| Human acceptance | A person completing tasks unaided and signing off | **None** |
+
+## Open blockers, Batches 4–9
+
+| Batch | Blocker | Type |
+|---|---|---|
+| 4 Catalog | Independent review of Lane A candidate; `CatalogoVitriCompleto2026.pdf` and approved prices missing (no "Compartir catálogo", "Precio por confirmar"); A2 fixes (accent search, provenance, breadcrumb, `automaticAnswerFields` gate) not implemented | REVIEW + DATA |
+| 5 Conversations | "Nota interna" and the five attention states not built; WhatsApp not connected (Batch 9 T12) | IMPLEMENTATION + PROVIDER |
+| 6 Payments | No approved payment instructions (share stays absent); no cash-receiver roster; no real Accounting member; review | DATA + OWNER |
+| 7 Commitments | 48h follow-up engine, due/overdue scheduler, opt-in sound, linked-record handover | IMPLEMENTATION |
+| 8 Shell/map | Cliente 360 next-step header; Mapbox token; label and padding audits; no browser verification | IMPLEMENTATION + OWNER |
+| 9 Providers/hosting | T12/T13/T14 not built; credentials, number, activation authority; owner purchase; API host; export after review; Vercel/Supabase sign-in | PROVIDER + OWNER + REVIEW |
+| 3 (carried) | PDF hash pin; price-approve range; real approver identity | IMPLEMENTATION + OWNER |
