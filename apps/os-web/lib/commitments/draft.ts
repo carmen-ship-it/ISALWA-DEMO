@@ -1,8 +1,16 @@
-import { createEmployeeCommitment, type CommitmentRecord, type CommitmentResult } from '@isalwa/os-contracts';
+import {
+  commitmentDueAtFromLaPaz,
+  createEmployeeCommitment,
+  type CommitmentRecord,
+  type CommitmentResult,
+} from '@isalwa/os-contracts';
 
 const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-/** Midnight in America/La_Paz, stored as UTC. Matches the existing Bolivia offset. */
+/**
+ * Start of the day in America/La_Paz, stored as UTC (coverage windows). A commitment deadline is not
+ * a day boundary: use `commitmentDueInputToIso`, which defaults to noon like a conversation's next step.
+ */
 export function dueDateInputToIso(value: string | null | undefined): string | null | 'invalid' {
   const trimmed = value?.trim() ?? '';
   if (!trimmed) return null;
@@ -24,6 +32,19 @@ export function dueDateInputToIso(value: string | null | undefined): string | nu
   return `${match[1]}-${match[2]}-${match[3]}T04:00:00.000Z`;
 }
 
+/**
+ * A date and optional time typed on the La Paz clock, as the UTC instant to store.
+ * A date alone means noon. Empty means no deadline. An impossible day or time is `invalid`.
+ */
+export function commitmentDueInputToIso(
+  date: string | null | undefined,
+  time?: string | null,
+): string | null | 'invalid' {
+  const day = date?.trim() ?? '';
+  if (!day) return null;
+  return commitmentDueAtFromLaPaz(day, time) ?? 'invalid';
+}
+
 export function buildCommitmentDraft(input: {
   id: string;
   organizationId: string;
@@ -31,10 +52,11 @@ export function buildCommitmentDraft(input: {
   createdByMemberId: string;
   text: string;
   dueDate?: string | null;
+  dueTime?: string | null;
   partyId?: string | null;
   createdAt: string;
 }): CommitmentResult {
-  const dueAt = dueDateInputToIso(input.dueDate);
+  const dueAt = commitmentDueInputToIso(input.dueDate, input.dueTime);
   if (dueAt === 'invalid') return { ok: false, reason: 'invalid_due' };
   return createEmployeeCommitment({
     id: input.id,

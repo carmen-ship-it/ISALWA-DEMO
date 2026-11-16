@@ -4,7 +4,7 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 
 /**
  * Integrator mount for UX-5 bell/drawer while UX-1 nav lane remains parked.
- * Loads Attention only — no shell/nav restructuring.
+ * Loads the member's stored notices plus Attention and Work — no shell/nav restructuring.
  */
 export async function ShellNotificationSlot() {
   const auth = await getServerOsAuthContext().catch(() => null);
@@ -37,6 +37,13 @@ export async function ShellNotificationSlot() {
     work = [];
   }
 
+  let persisted: Awaited<ReturnType<typeof client.listNotifications>>['items'] = [];
+  try {
+    persisted = (await client.listNotifications({ limit: 20 })).items ?? [];
+  } catch {
+    persisted = [];
+  }
+
   // Shell summary only — never dump an unbounded notification DOM.
   return (
     <NotificationDrawerHost
@@ -44,6 +51,7 @@ export async function ShellNotificationSlot() {
       recipientMemberId={recipientMemberId}
       attention={attention.slice(0, 8)}
       work={work.slice(0, 8)}
+      persisted={persisted}
     />
   );
 }

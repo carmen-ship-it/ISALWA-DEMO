@@ -216,4 +216,5 @@ export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_act
   FulfillCommitment: 'member_active',
   CancelCommitment: 'member_active',
   ReassignCommitmentOwner: 'member_active',
+  RescheduleCommitment: 'member_active',
 };

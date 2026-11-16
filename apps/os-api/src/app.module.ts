@@ -17,6 +17,7 @@ import { DeliveryNotesController, DeliveryOpsController } from './delivery.contr
 import { CapabilitiesController } from './capabilities.controller';
 import { OperationsController } from './operations.controller';
 import { CommitmentsController } from './commitments.controller';
+import { NotificationsController } from './notifications.controller';
 import { IssuesController } from './issues.controller';
 import { ProductFeedbackController } from './product-feedback.controller';
 import { MemoryController } from './memory.controller';
@@ -55,6 +56,7 @@ const devControllers = isDevBootstrapEnabled() ? [BootstrapController] : [];
     DeliveryOpsController,
     OrdersController,
     CommitmentsController,
+    NotificationsController,
     IssuesController,
     ProductFeedbackController,
     MemoryController,

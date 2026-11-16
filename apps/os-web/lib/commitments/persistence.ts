@@ -110,10 +110,14 @@ export async function listCommitmentsAction(query?: {
   }
 }
 
-/**
- * Fulfill a commitment via the OS API.
- */
-export async function fulfillCommitmentAction(commitmentId: string): Promise<CommitmentFulfillResult> {
+type CommitmentChangeInput =
+  | { command: 'FulfillCommitment'; commitmentId: string; note?: string }
+  | { command: 'RescheduleCommitment'; commitmentId: string; dueAt: string; reason: string }
+  | { command: 'ReassignCommitmentOwner'; commitmentId: string; newOwnerMemberId: string; reason: string }
+  | { command: 'CancelCommitment'; commitmentId: string; reason: string };
+
+/** One owned entry point for every change to an existing commitment; the server enforces who may. */
+async function changeCommitment(input: CommitmentChangeInput): Promise<CommitmentFulfillResult> {
   const previewGate = await assertRolePreviewAllowsMutation();
   if (!previewGate.ok) {
     return { ok: false, reason: 'view_as_blocked', message: previewGate.error };
@@ -125,18 +129,46 @@ export async function fulfillCommitmentAction(commitmentId: string): Promise<Com
   }
 
   const client = createOsApiClient(auth);
+  const { command, ...payload } = input;
 
   try {
-    await client.executeCommitmentCommand(
-      'FulfillCommitment',
-      { commitmentId },
-      createId(),
-    );
-
+    await client.executeCommitmentCommand(command, payload, createId());
     revalidatePath('/compromisos');
-
+    revalidatePath(`/compromisos/${input.commitmentId}`);
     return { ok: true };
   } catch (err) {
     return { ok: false, reason: 'api_error', message: mapCommandError(err) };
   }
+}
+
+/** Mark a commitment as done. The note is optional. */
+export async function fulfillCommitmentAction(commitmentId: string, note?: string): Promise<CommitmentFulfillResult> {
+  const trimmed = note?.trim();
+  return changeCommitment({ command: 'FulfillCommitment', commitmentId, ...(trimmed ? { note: trimmed } : {}) });
+}
+
+/** Move the promised date. The previous date stays in the commitment's history. */
+export async function rescheduleCommitmentAction(input: {
+  commitmentId: string;
+  dueAt: string;
+  reason: string;
+}): Promise<CommitmentFulfillResult> {
+  return changeCommitment({ command: 'RescheduleCommitment', ...input, reason: input.reason.trim() });
+}
+
+/** Give the commitment to another active member. */
+export async function reassignCommitmentAction(input: {
+  commitmentId: string;
+  newOwnerMemberId: string;
+  reason: string;
+}): Promise<CommitmentFulfillResult> {
+  return changeCommitment({ command: 'ReassignCommitmentOwner', ...input, reason: input.reason.trim() });
+}
+
+/** Drop the commitment. The reason is kept. */
+export async function cancelCommitmentAction(input: {
+  commitmentId: string;
+  reason: string;
+}): Promise<CommitmentFulfillResult> {
+  return changeCommitment({ command: 'CancelCommitment', ...input, reason: input.reason.trim() });
 }

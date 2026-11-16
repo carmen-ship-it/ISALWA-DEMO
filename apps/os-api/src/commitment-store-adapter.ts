@@ -5,7 +5,9 @@
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type {
   OsCommitmentStore as CommandStoreInterface,
+  CommitmentChangeRecord,
   CommitmentDatabaseRecord,
+  CommitmentNoticeRecord,
   MemberRecord,
   RoleAssignmentRecord,
   DelegationRecord,
@@ -17,6 +19,27 @@ import type {
 } from '@isalwa/os-database';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import type { OsPartyStore } from '@isalwa/os-party';
+
+type PrismaCommitmentPatch = Parameters<PrismaOsCommitmentStore['updateCommitment']>[1];
+
+/** Copies only the fields the caller set. An absent key never overwrites a column with undefined. */
+function toPrismaPatch(
+  patch: Partial<
+    Pick<
+      CommitmentDatabaseRecord,
+      'ownerMemberId' | 'dueAt' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
+    >
+  >,
+): PrismaCommitmentPatch {
+  const out: PrismaCommitmentPatch = {};
+  if (patch.ownerMemberId !== undefined) out.ownerMemberId = patch.ownerMemberId;
+  if (patch.dueAt !== undefined) out.dueAt = patch.dueAt;
+  if (patch.lifecycle !== undefined) out.lifecycle = patch.lifecycle;
+  if (patch.fulfilledAt !== undefined) out.fulfilledAt = patch.fulfilledAt;
+  if (patch.fulfilledByMemberId !== undefined) out.fulfilledByMemberId = patch.fulfilledByMemberId;
+  if (patch.cancelledAt !== undefined) out.cancelledAt = patch.cancelledAt;
+  return out;
+}
 
 /**
  * Adapts PrismaOsCommitmentStore + OsWorkforceStore to provide full OsCommitmentStore
@@ -134,17 +157,46 @@ export class CommitmentStoreAdapter implements CommandStoreInterface {
     patch: Partial<
       Pick<
         CommitmentDatabaseRecord,
-        'ownerMemberId' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
+        'ownerMemberId' | 'dueAt' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
       >
     >,
   ): Promise<void> {
-    const prismaPatch: Parameters<typeof this.commitmentStore.updateCommitment>[1] = {};
-    if (patch.lifecycle !== undefined) prismaPatch.lifecycle = patch.lifecycle;
-    if (patch.fulfilledAt !== undefined) prismaPatch.fulfilledAt = patch.fulfilledAt;
-    if (patch.fulfilledByMemberId !== undefined) prismaPatch.fulfilledByMemberId = patch.fulfilledByMemberId;
-    if (patch.cancelledAt !== undefined) prismaPatch.cancelledAt = patch.cancelledAt;
-    // ownerMemberId is not in the prisma patch type — handle separately if needed
-    await this.commitmentStore.updateCommitment(commitmentId, prismaPatch);
+    await this.commitmentStore.updateCommitment(commitmentId, toPrismaPatch(patch));
+  }
+
+  async updateOpenCommitment(
+    organizationId: string,
+    commitmentId: string,
+    expectedOwnerMemberId: string,
+    patch: Partial<
+      Pick<
+        CommitmentDatabaseRecord,
+        'ownerMemberId' | 'dueAt' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
+      >
+    >,
+  ): Promise<boolean> {
+    return this.commitmentStore.updateOpenCommitment(
+      organizationId,
+      commitmentId,
+      expectedOwnerMemberId,
+      toPrismaPatch(patch),
+    );
+  }
+
+  async insertCommitmentChange(change: CommitmentChangeRecord): Promise<void> {
+    await this.commitmentStore.insertCommitmentChange(change);
+  }
+
+  async admitCommitmentNotice(notice: CommitmentNoticeRecord): Promise<void> {
+    await this.commitmentStore.admitCommitmentNotice(notice);
+  }
+
+  async resolveCommitmentNotices(
+    organizationId: string,
+    commitmentId: string,
+    options?: { kinds?: readonly string[]; exceptRecipientMemberId?: string },
+  ): Promise<number> {
+    return this.commitmentStore.resolveCommitmentNotices(organizationId, commitmentId, options);
   }
 
   async listCommitmentsForParty(

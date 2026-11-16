@@ -5,7 +5,10 @@ import {
   admitNotification,
   commitmentNoticeKind,
   createInternalNotification,
+  markNotificationAcknowledged,
   markNotificationRead,
+  NOTIFICATION_KINDS,
+  notificationAcknowledgement,
   notificationDeliversExternally,
   notificationReadState,
   notificationResolution,
@@ -152,5 +155,36 @@ describe('internal notifications', () => {
       notificationsInOrganization([own, foreign], 'org-a').map((item) => item.id),
       ['n1'],
     );
+  });
+});
+
+describe('acknowledged is its own fact (T09)', () => {
+  it('acknowledging neither reads nor resolves, and keeps the first time', () => {
+    const open = notice();
+    assert.equal(notificationAcknowledgement(open), 'pending');
+    const first = markNotificationAcknowledged(open, at);
+    assert.equal(first.ok, true);
+    if (!first.ok) return;
+    assert.equal(notificationAcknowledgement(first.notification), 'acknowledged');
+    assert.equal(notificationReadState(first.notification), 'unread');
+    assert.equal(notificationResolution(first.notification), 'open');
+    const again = markNotificationAcknowledged(first.notification, '2026-09-15T16:00:00.000Z');
+    assert.equal(again.ok && again.notification.acknowledgedAt, at);
+    assert.deepEqual(markNotificationAcknowledged(open, 'yesterday'), { ok: false, reason: 'invalid_time' });
+  });
+
+  it('reading and resolving leave the acknowledgement alone', () => {
+    const acknowledged = markNotificationAcknowledged(notice(), at);
+    assert.equal(acknowledged.ok, true);
+    if (!acknowledged.ok) return;
+    const read = markNotificationRead(acknowledged.notification, at);
+    assert.equal(read.ok && read.notification.acknowledgedAt, at);
+    const resolved = resolveIfSourceConditionGone(acknowledged.notification, false, at);
+    assert.equal(resolved.ok && resolved.notification.acknowledgedAt, at);
+    assert.equal(resolved.ok && notificationResolution(resolved.notification), 'resolved');
+  });
+
+  it('a commitment handed to someone is a notice kind of its own', () => {
+    assert.ok(NOTIFICATION_KINDS.includes('commitment_assigned'));
   });
 });

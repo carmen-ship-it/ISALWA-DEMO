@@ -9,13 +9,21 @@ import {
   Req,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { deriveCommitmentState, type CommitmentRecord, type CommitmentState } from '@isalwa/os-contracts';
+import {
+  deriveCommitmentState,
+  type CommitmentChange,
+  type CommitmentChangeKind,
+  type CommitmentRecord,
+  type CommitmentState,
+} from '@isalwa/os-contracts';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
-import type { PrismaOsCommitmentStore } from '@isalwa/os-database';
+import type { CommitmentChangeRow, PrismaOsCommitmentStore } from '@isalwa/os-database';
 import {
   buildQueryContext,
+  CommitmentHandoverAuthorizer,
   CommitmentReadAuthorizer,
   type CustomerVisibilityLookup,
+  type QueryContext,
   type MemberQueryStorePort,
 } from '@isalwa/os-query';
 import { resolveSession } from './os-session';
@@ -43,6 +51,41 @@ type CommitmentSummary = {
   fulfilledAt: string | null;
   fulfilledByMemberId: string | null;
   cancelledAt: string | null;
+  /** Whether the current owner still has access. A commitment of a member who lost access needs a new owner. */
+  ownerAccessActive: boolean;
+  /** What the signed-in member can do with this commitment right now. Same rules the commands enforce. */
+  actor: {
+    canFulfill: boolean;
+    canReschedule: boolean;
+    canCancel: boolean;
+    canReassign: boolean;
+    /** Why the member may hand it over: they own it, manage the account, or it is workforce continuity. */
+    handoverAuthority: 'owner' | 'customer_manager' | 'workforce_continuity' | null;
+  };
+};
+
+type CommitmentDetail = CommitmentSummary & { changes: CommitmentChange[] };
+
+function toChange(row: CommitmentChangeRow): CommitmentChange {
+  return {
+    id: row.id,
+    commitmentId: row.commitmentId,
+    kind: row.kind as CommitmentChangeKind,
+    actorMemberId: row.actorMemberId,
+    reason: row.reason,
+    previousDueAt: row.previousDueAt ? row.previousDueAt.toISOString() : null,
+    newDueAt: row.newDueAt ? row.newDueAt.toISOString() : null,
+    previousOwnerMemberId: row.previousOwnerMemberId,
+    newOwnerMemberId: row.newOwnerMemberId,
+    changedAt: row.changedAt.toISOString(),
+  };
+}
+
+type Viewer = {
+  ctx: QueryContext;
+  read: CommitmentReadAuthorizer;
+  handover: CommitmentHandoverAuthorizer;
+  ownerActive: (memberId: string) => Promise<boolean>;
 };
 
 function toSummary(
@@ -66,6 +109,8 @@ function toSummary(
     fulfilledAt: record.fulfilledAt,
     fulfilledByMemberId: record.fulfilledByMemberId ?? null,
     cancelledAt: record.cancelledAt,
+    ownerAccessActive: true,
+    actor: { canFulfill: false, canReschedule: false, canCancel: false, canReassign: false, handoverAuthority: null },
   };
 }
 
@@ -117,13 +162,55 @@ export class CommitmentsController {
     @Inject(OS_CUSTOMER_VISIBILITY) private readonly customerVisibility: CustomerVisibilityLookup,
   ) {}
 
-  private async authorizer(req: Request): Promise<CommitmentReadAuthorizer> {
+  private async viewer(req: Request): Promise<Viewer> {
     const session = await resolveSession(req, this.workforceStore);
     const ctx = await buildQueryContext(session, this.workforceStore);
-    return new CommitmentReadAuthorizer(ctx, {
-      directReports: this.directReports,
-      customerVisibility: this.customerVisibility,
-    });
+    const deps = { directReports: this.directReports, customerVisibility: this.customerVisibility };
+    const owners = new Map<string, Promise<boolean>>();
+    return {
+      ctx,
+      read: new CommitmentReadAuthorizer(ctx, deps),
+      handover: new CommitmentHandoverAuthorizer(ctx, deps),
+      ownerActive: (memberId) => {
+        let cached = owners.get(memberId);
+        if (!cached) {
+          cached = this.workforceStore
+            .getMemberInOrg(ctx.organizationId, memberId)
+            .then((member) => member?.accessStatus === 'active');
+          owners.set(memberId, cached);
+        }
+        return cached;
+      },
+    };
+  }
+
+  /** The summary plus what this member may do, from the same rules the commands apply. */
+  private async annotate(
+    record: Awaited<ReturnType<PrismaOsCommitmentStore['getCommitmentInOrg']>> & object,
+    viewer: Viewer,
+    asOf: Date,
+  ): Promise<CommitmentSummary> {
+    const summary = toSummary(dbToContract(record), asOf);
+    const ownerActive = await viewer.ownerActive(record.ownerMemberId);
+    const open = record.lifecycle === 'open';
+    const isOwner = viewer.ctx.auth.accessStatus === 'active' && record.ownerMemberId === viewer.ctx.auth.memberId;
+    let handoverAuthority: CommitmentSummary['actor']['handoverAuthority'] = null;
+    if (open) {
+      handoverAuthority = isOwner
+        ? 'owner'
+        : ((await viewer.handover.authority(record, ownerActive))?.kind ?? null);
+    }
+    return {
+      ...summary,
+      ownerAccessActive: ownerActive,
+      actor: {
+        canFulfill: open && isOwner,
+        canReschedule: open && isOwner,
+        canCancel: open && isOwner,
+        canReassign: handoverAuthority !== null,
+        handoverAuthority,
+      },
+    };
   }
 
   @Get()
@@ -131,6 +218,7 @@ export class CommitmentsController {
     @Query('partyId') partyId: string | undefined,
     @Query('ownerMemberId') ownerMemberId: string | undefined,
     @Query('lifecycle') lifecycle: 'open' | 'fulfilled' | 'cancelled' | undefined,
+    @Query('view') view: string | undefined,
     @Query('limit') limit: string | undefined,
     @Query('cursor') cursor: string | undefined,
     @Req() req: Request,
@@ -141,32 +229,36 @@ export class CommitmentsController {
     try {
       const session = await resolveSession(req, this.workforceStore);
       const asOf = new Date();
+      const viewer = await this.viewer(req);
 
       let records;
-      if (partyId) {
-        records = await this.commitmentStore.listCommitmentsByParty(
-          session.organizationId,
-          partyId,
+      if (view === 'reassignment') {
+        // Open commitments whose owner lost access, limited to those this member may hand over.
+        const open = (await this.commitmentStore.listCommitmentsByOrg(session.organizationId)).filter(
+          (r) => r.lifecycle === 'open',
         );
-      } else if (ownerMemberId) {
-        records =
-          lifecycle === 'open'
-            ? await this.commitmentStore.listOpenCommitmentsByOwner(
-                session.organizationId,
-                ownerMemberId,
-              )
-            : await this.commitmentStore.listCommitmentsByOwner(
-                session.organizationId,
-                ownerMemberId,
-              );
+        const owned = await Promise.all(open.map((r) => viewer.ownerActive(r.ownerMemberId)));
+        const orphaned = open.filter((_, index) => !owned[index]);
+        const allowed = await Promise.all(
+          orphaned.map(async (r) => (await viewer.handover.authority(r, false)) !== null),
+        );
+        records = orphaned.filter((_, index) => allowed[index]);
       } else {
-        records = await this.commitmentStore.listCommitmentsByOrg(session.organizationId);
+        if (partyId) {
+          records = await this.commitmentStore.listCommitmentsByParty(session.organizationId, partyId);
+        } else if (ownerMemberId) {
+          records =
+            lifecycle === 'open'
+              ? await this.commitmentStore.listOpenCommitmentsByOwner(session.organizationId, ownerMemberId)
+              : await this.commitmentStore.listCommitmentsByOwner(session.organizationId, ownerMemberId);
+        } else {
+          records = await this.commitmentStore.listCommitmentsByOrg(session.organizationId);
+        }
+        if (lifecycle) {
+          records = records.filter((r) => r.lifecycle === lifecycle);
+        }
+        records = await viewer.read.filter(records);
       }
-
-      if (lifecycle) {
-        records = records.filter((r) => r.lifecycle === lifecycle);
-      }
-      records = await (await this.authorizer(req)).filter(records);
 
       // Stable newest-first page for desk navigation.
       records = [...records].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -177,7 +269,7 @@ export class CommitmentsController {
       if (!Number.isFinite(offsetNum) || offsetNum < 0) offsetNum = 0;
       const page = records.slice(offsetNum, offsetNum + limitNum);
       const hasMore = offsetNum + page.length < records.length;
-      const items = page.map((r) => toSummary(dbToContract(r), asOf));
+      const items = await Promise.all(page.map((r) => this.annotate(r, viewer, asOf)));
       return {
         items,
         meta: {
@@ -195,17 +287,24 @@ export class CommitmentsController {
   async getCommitment(
     @Param('commitmentId') commitmentId: string,
     @Req() req: Request,
-  ): Promise<CommitmentSummary> {
+  ): Promise<CommitmentDetail> {
     try {
       const session = await resolveSession(req, this.workforceStore);
+      const viewer = await this.viewer(req);
       const record = await this.commitmentStore.getCommitmentInOrg(
         session.organizationId,
         commitmentId,
       );
-      if (!record || !(await (await this.authorizer(req)).canRead(record))) {
-        throw new Error('NOT_FOUND');
-      }
-      return toSummary(dbToContract(record), new Date());
+      if (!record) throw new Error('NOT_FOUND');
+      // Besides the usual readers, a member who may hand it over sees an orphaned commitment (workforce continuity).
+      const handoverView =
+        record.lifecycle === 'open' &&
+        !(await viewer.ownerActive(record.ownerMemberId)) &&
+        (await viewer.handover.authority(record, false)) !== null;
+      if (!(await viewer.read.canRead(record)) && !handoverView) throw new Error('NOT_FOUND');
+      const summary = await this.annotate(record, viewer, new Date());
+      const changes = await this.commitmentStore.listCommitmentChanges(session.organizationId, commitmentId);
+      return { ...summary, changes: changes.map(toChange) };
     } catch (err) {
       throw this.toHttp(err);
     }

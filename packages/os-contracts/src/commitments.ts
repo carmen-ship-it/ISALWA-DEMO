@@ -104,6 +104,43 @@ export function calendarDay(value: string | Date, timeZone = COMMITMENT_CALENDAR
   }).format(date);
 }
 
+/** Time of day a promise gets when the person chose a day only. Same noon the conversation next step uses. */
+export const COMMITMENT_DEFAULT_DUE_TIME = '12:00';
+
+const LA_PAZ_PARTS = new Intl.DateTimeFormat('en-CA', {
+  timeZone: COMMITMENT_CALENDAR_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
+
+/** `{ date: 'YYYY-MM-DD', time: 'HH:mm' }` of an instant on the Bolivia clock, or null when invalid. */
+export function commitmentDueLaPazParts(value: string | Date): { date: string; time: string } | null {
+  const date = typeof value === 'string' ? new Date(value) : value;
+  if (Number.isNaN(date.getTime())) return null;
+  const parts = Object.fromEntries(LA_PAZ_PARTS.formatToParts(date).map((part) => [part.type, part.value]));
+  return { date: `${parts.year}-${parts.month}-${parts.day}`, time: `${parts.hour}:${parts.minute}` };
+}
+
+/**
+ * The UTC instant of a Bolivia wall-clock date and time (UTC−4, no daylight saving).
+ * A date alone means noon, not midnight. Returns null for an impossible date or time
+ * (2026-02-31, 25:00) rather than rolling over to another day.
+ */
+export function commitmentDueAtFromLaPaz(date: string, time?: string | null): string | null {
+  const day = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date.trim());
+  const clock = /^(\d{2}):(\d{2})$/.exec(time?.trim() || COMMITMENT_DEFAULT_DUE_TIME);
+  if (!day || !clock) return null;
+  const instant = new Date(`${day[0]}T${clock[0]}:00-04:00`);
+  if (Number.isNaN(instant.getTime())) return null;
+  const back = commitmentDueLaPazParts(instant);
+  if (!back || back.date !== day[0] || back.time !== clock[0]) return null;
+  return instant.toISOString();
+}
+
 export function isCanonicalCommitment(
   value: CommitmentRecord | CommitmentSuggestion,
 ): value is CommitmentRecord {

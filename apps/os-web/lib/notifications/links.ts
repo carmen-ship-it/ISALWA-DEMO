@@ -8,7 +8,7 @@ const LINK_LABELS: Record<NotificationSourceType, string> = {
   quote: 'Ver cotización',
   order: 'Ver pedido',
   opportunity: 'Ver oportunidad',
-  commitment: 'Ver cliente',
+  commitment: 'Ver compromiso',
   payment_report: 'Ver pagos',
 };
 
@@ -39,7 +39,7 @@ export function notificationRecordHref(source: NotificationSource): string | nul
         ? `/clientes/${encodeURIComponent(partyId)}/oportunidades/${encodeURIComponent(id)}`
         : null;
     case 'commitment':
-      return partyId ? `/clientes/${encodeURIComponent(partyId)}` : null;
+      return `/compromisos/${encodeURIComponent(id)}`;
     case 'payment_report':
       return '/finanzas';
     default:

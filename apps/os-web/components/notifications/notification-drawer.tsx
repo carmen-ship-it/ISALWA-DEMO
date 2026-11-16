@@ -9,6 +9,8 @@ import { NOTIFICATION_COPY } from '@/lib/notifications/copy';
 import { projectInboxFromAttention } from '@/lib/notifications/project';
 import { countUnreadOpen } from '@/lib/notifications/view';
 
+const NO_STORED_NOTICES: readonly InternalNotification[] = [];
+
 export type NotificationDrawerHostProps = {
   organizationId: string;
   recipientMemberId: string;
@@ -16,10 +18,12 @@ export type NotificationDrawerHostProps = {
   work?: readonly WorkSummaryReadModel[];
   /** Pre-projected items override Attention projection when supplied. */
   items?: readonly InternalNotification[];
+  /** The member's stored notices (commitments). Shown first, beside the computed ones. */
+  persisted?: readonly InternalNotification[];
 };
 
 /**
- * Shell mount: bell + right drawer. Projects Attention/Work — no external channel.
+ * Shell mount: bell + right drawer. Stored notices plus Attention/Work projection — no external channel.
  */
 export function NotificationDrawerHost({
   organizationId,
@@ -27,18 +31,22 @@ export function NotificationDrawerHost({
   attention,
   work,
   items,
+  persisted = NO_STORED_NOTICES,
 }: NotificationDrawerHostProps) {
   const [open, setOpen] = useState(false);
 
   const inbox = useMemo(() => {
     if (items) return items;
-    return projectInboxFromAttention({
-      organizationId,
-      recipientMemberId,
-      attention,
-      work,
-    });
-  }, [items, organizationId, recipientMemberId, attention, work]);
+    return [
+      ...persisted,
+      ...projectInboxFromAttention({
+        organizationId,
+        recipientMemberId,
+        attention,
+        work,
+      }),
+    ];
+  }, [items, persisted, organizationId, recipientMemberId, attention, work]);
 
   const unreadCount = countUnreadOpen(inbox);
 

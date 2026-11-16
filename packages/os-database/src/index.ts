@@ -14,6 +14,8 @@ export { PrismaOsCommercialStore } from './prisma-commercial-store';
 export { PrismaOsImportStore } from './prisma-import-store';
 export {
   PrismaOsCommitmentStore,
+  type CommitmentChangeRow,
+  type CommitmentNoticeInput,
   type CommitmentRecord,
   type OsCommitmentStore,
 } from './prisma-commitment-store';

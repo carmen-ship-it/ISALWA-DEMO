@@ -29,6 +29,34 @@ export type CommitmentDatabaseRecord = {
   provenanceSuggestionId: string | null;
 };
 
+/** One append-only change to a commitment: the values it replaced, who did it and why. */
+export type CommitmentChangeRecord = {
+  id: string;
+  organizationId: string;
+  commitmentId: string;
+  kind: 'rescheduled' | 'reassigned' | 'cancelled' | 'fulfilled';
+  actorMemberId: string;
+  reason: string | null;
+  previousDueAt: Date | null;
+  newDueAt: Date | null;
+  previousOwnerMemberId: string | null;
+  newOwnerMemberId: string | null;
+  changedAt: Date;
+};
+
+/** Internal notice about a commitment. Recipient is the current responsible person. */
+export type CommitmentNoticeRecord = {
+  id: string;
+  organizationId: string;
+  recipientMemberId: string;
+  kind: 'commitment_assigned' | 'responsibility_changed';
+  dedupKey: string;
+  title: string;
+  body: string | null;
+  commitmentId: string;
+  partyId: string | null;
+};
+
 export type MemberRecord = {
   id: string;
   organizationId: string;

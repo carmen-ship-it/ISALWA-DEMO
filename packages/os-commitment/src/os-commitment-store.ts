@@ -1,6 +1,8 @@
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type {
+  CommitmentChangeRecord,
   CommitmentDatabaseRecord,
+  CommitmentNoticeRecord,
   IdempotencyRecord,
   MemberRecord,
   RoleAssignmentRecord,
@@ -36,10 +38,34 @@ export interface OsCommitmentStore {
     patch: Partial<
       Pick<
         CommitmentDatabaseRecord,
-        'ownerMemberId' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
+        'ownerMemberId' | 'dueAt' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
       >
     >,
   ): Promise<void>;
+  /**
+   * Applies the patch only while the commitment is open and still owned by `expectedOwnerMemberId`.
+   * False: another request changed it first (two people acting at once have one winner).
+   */
+  updateOpenCommitment(
+    organizationId: string,
+    commitmentId: string,
+    expectedOwnerMemberId: string,
+    patch: Partial<
+      Pick<
+        CommitmentDatabaseRecord,
+        'ownerMemberId' | 'dueAt' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
+      >
+    >,
+  ): Promise<boolean>;
+  insertCommitmentChange(change: CommitmentChangeRecord): Promise<void>;
+  /** One open notice per recipient and issue. */
+  admitCommitmentNotice(notice: CommitmentNoticeRecord): Promise<void>;
+  /** Closes open commitment notices whose condition is gone. Returns how many closed. */
+  resolveCommitmentNotices(
+    organizationId: string,
+    commitmentId: string,
+    options?: { kinds?: readonly string[]; exceptRecipientMemberId?: string },
+  ): Promise<number>;
   listCommitmentsForParty(
     organizationId: string,
     partyId: string,

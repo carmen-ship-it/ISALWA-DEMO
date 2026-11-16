@@ -82,7 +82,8 @@ function mapError(err: unknown): HttpException {
     code === 'ARCHIVE_BLOCKED_BY_OBLIGATIONS' ||
     code === 'IMPORT_DRY_RUN_OUTDATED' ||
     code === 'CORRECTION_EVIDENCE_INVALID' ||
-    code === 'CORRECTION_VALUE_DIFFERS'
+    code === 'CORRECTION_VALUE_DIFFERS' ||
+    code === 'COMMITMENT_CHANGED'
   ) {
     return new HttpException({ code }, HttpStatus.CONFLICT);
   }

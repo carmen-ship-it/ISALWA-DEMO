@@ -21,6 +21,7 @@ export * from './commercial/commercial-projection-consumer';
 export * from './commercial/commercial-query-service';
 export * from './commercial/commercial-auth';
 export * from './commitment/commitment-auth';
+export * from './commitment/commitment-handover';
 export * from './leadership/direct-reports';
 export * from './leadership/leadership-visibility';
 export * from './member/member-query-store-port';

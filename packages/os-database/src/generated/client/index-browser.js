@@ -927,6 +927,20 @@ exports.Prisma.OsCommitmentScalarFieldEnum = {
   provenanceSuggestionId: 'provenanceSuggestionId'
 };
 
+exports.Prisma.OsCommitmentChangeScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  commitmentId: 'commitmentId',
+  kind: 'kind',
+  actorMemberId: 'actorMemberId',
+  reason: 'reason',
+  previousDueAt: 'previousDueAt',
+  newDueAt: 'newDueAt',
+  previousOwnerMemberId: 'previousOwnerMemberId',
+  newOwnerMemberId: 'newOwnerMemberId',
+  changedAt: 'changedAt'
+};
+
 exports.Prisma.OsInternalNotificationScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
@@ -940,6 +954,7 @@ exports.Prisma.OsInternalNotificationScalarFieldEnum = {
   partyId: 'partyId',
   channel: 'channel',
   readAt: 'readAt',
+  acknowledgedAt: 'acknowledgedAt',
   resolvedAt: 'resolvedAt',
   resolvedBecause: 'resolvedBecause',
   createdAt: 'createdAt'
@@ -1780,6 +1795,7 @@ exports.Prisma.ModelName = {
   OsPaymentAllocation: 'OsPaymentAllocation',
   OsPaymentInstructionVersion: 'OsPaymentInstructionVersion',
   OsCommitment: 'OsCommitment',
+  OsCommitmentChange: 'OsCommitmentChange',
   OsInternalNotification: 'OsInternalNotification',
   OsCatalogProduct: 'OsCatalogProduct',
   OsCatalogProductProvenance: 'OsCatalogProductProvenance',

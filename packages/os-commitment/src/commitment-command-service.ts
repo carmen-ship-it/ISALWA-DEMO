@@ -26,14 +26,22 @@ import {
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
 import type { OsCommitmentStore } from './os-commitment-store';
-import type { CommitmentDatabaseRecord } from './store-types';
+import type { CommitmentChangeRecord, CommitmentDatabaseRecord } from './store-types';
+
+const NOTICE_EXCERPT_MAX = 140;
+
+function excerpt(text: string): string {
+  const trimmed = text.trim().replace(/\s+/g, ' ');
+  return trimmed.length > NOTICE_EXCERPT_MAX ? `${trimmed.slice(0, NOTICE_EXCERPT_MAX - 1)}…` : trimmed;
+}
 
 export type CommitmentCommandName =
   | 'CreateEmployeeCommitment'
   | 'CreateCustomerReportedCommitment'
   | 'FulfillCommitment'
   | 'CancelCommitment'
-  | 'ReassignCommitmentOwner';
+  | 'ReassignCommitmentOwner'
+  | 'RescheduleCommitment';
 
 export type CommandResult = {
   commandId: string;
@@ -42,11 +50,34 @@ export type CommandResult = {
 };
 
 /**
- * Authority model (per Wave B spec):
- * - create/fulfill/cancel own = member_active
- * - ReassignCommitmentOwner = member_active AND (actor === current owner)
- *   No people.admin fallback. Future: commitment.manage scope.
+ * Authority model:
+ * - create = member_active (the owner may be another active member).
+ * - fulfill / cancel / reschedule = member_active AND actor is the current owner.
+ * - ReassignCommitmentOwner = the current owner, or one of the handover authorities the
+ *   injected guard names (a commercial manager over the customer's account, or workforce
+ *   continuity for an internal commitment whose owner no longer has access). Without the
+ *   guard only the owner can hand over. Production, warehouse and purchasing commitments
+ *   have no handover authority here and are not invented.
  */
+export type CommitmentHandover =
+  | { kind: 'owner' }
+  | { kind: 'customer_manager'; range: 'org' | 'team' }
+  | { kind: 'workforce_continuity' };
+
+export type CommitmentReassignGuard = {
+  /** Authority of a non-owner actor over this commitment, or null for none. */
+  authority(
+    ctx: RequestContext,
+    commitment: CommitmentDatabaseRecord,
+  ): Promise<Exclude<CommitmentHandover, { kind: 'owner' }> | null>;
+  /** Whether this member may hold the commitment: a customer commitment needs a holder who can work that customer. */
+  mayHold(
+    ctx: RequestContext,
+    commitment: CommitmentDatabaseRecord,
+    targetMemberId: string,
+    handover: CommitmentHandover,
+  ): Promise<boolean>;
+};
 /**
  * Whether the actor may link a commitment to this party (F07). A false answer is
  * reported as NOT_FOUND, the same as a party that does not exist.
@@ -57,6 +88,7 @@ export class CommitmentCommandService {
   constructor(
     private readonly store: OsCommitmentStore,
     private readonly canLinkParty: CommitmentPartyLinkGuard | null = null,
+    private readonly reassignGuard: CommitmentReassignGuard | null = null,
   ) {}
 
   private async snapshotInOrg(
@@ -195,6 +227,9 @@ export class CommitmentCommandService {
           break;
         case 'ReassignCommitmentOwner':
           result = await this.reassignCommitmentOwner(ctx, payload, store);
+          break;
+        case 'RescheduleCommitment':
+          result = await this.rescheduleCommitment(ctx, payload, store);
           break;
         default:
           throw new Error('VALIDATION_FAILED');
@@ -377,6 +412,9 @@ export class CommitmentCommandService {
 
     await store.insertCommitment(dbRecord);
 
+    // The person made responsible hears about it; the person who recorded it for themselves does not.
+    await this.noticeAssigned(store, dbRecord, ownerMemberId, ctx.actorMemberId);
+
     return this.emit(ctx, store, 'commitment.created', 'commitment', commitmentId, {
       commitmentId,
       ownerMemberId,
@@ -410,6 +448,71 @@ export class CommitmentCommandService {
     return this.createCommitment(ctx, payload, store, 'customer_reported');
   }
 
+  /** A commitment the actor cannot know about answers like a missing one (F07); the owner already knows it. */
+  private async denyNonOwner(ctx: RequestContext, commitment: CommitmentDatabaseRecord): Promise<Error> {
+    if (
+      commitment.partyId &&
+      this.canLinkParty &&
+      !(await this.canLinkParty(ctx, commitment.partyId))
+    ) {
+      return new Error('NOT_FOUND');
+    }
+    return new Error('PERMISSION_DENIED');
+  }
+
+  private async requireOwnerOfOpen(
+    ctx: RequestContext,
+    store: OsCommitmentStore,
+    commitmentId: string,
+  ): Promise<CommitmentDatabaseRecord> {
+    const commitment = await this.requireOpenCommitment(store, ctx.organizationId, commitmentId);
+    if (commitment.ownerMemberId !== ctx.actorMemberId) throw await this.denyNonOwner(ctx, commitment);
+    return commitment;
+  }
+
+  private async noticeAssigned(
+    store: OsCommitmentStore,
+    commitment: CommitmentDatabaseRecord,
+    recipientMemberId: string,
+    actorMemberId: string,
+  ): Promise<void> {
+    if (recipientMemberId === actorMemberId) return;
+    await store.admitCommitmentNotice({
+      id: createId(),
+      organizationId: commitment.organizationId,
+      recipientMemberId,
+      kind: 'commitment_assigned',
+      dedupKey: `commitment_assigned:commitment:${commitment.id}`,
+      title: 'Compromiso asignado',
+      body: excerpt(commitment.text),
+      commitmentId: commitment.id,
+      partyId: commitment.partyId,
+    });
+  }
+
+  private async recordChange(
+    ctx: RequestContext,
+    store: OsCommitmentStore,
+    commitment: CommitmentDatabaseRecord,
+    change: Partial<CommitmentChangeRecord> & Pick<CommitmentChangeRecord, 'kind'>,
+  ): Promise<string> {
+    const id = createId();
+    await store.insertCommitmentChange({
+      id,
+      organizationId: ctx.organizationId,
+      commitmentId: commitment.id,
+      actorMemberId: ctx.actorMemberId,
+      reason: null,
+      previousDueAt: null,
+      newDueAt: null,
+      previousOwnerMemberId: null,
+      newOwnerMemberId: null,
+      changedAt: ctx.effectiveAt,
+      ...change,
+    });
+    return id;
+  }
+
   private async fulfillCommitment(
     ctx: RequestContext,
     payload: Record<string, unknown>,
@@ -417,25 +520,21 @@ export class CommitmentCommandService {
   ): Promise<CommandResult> {
     await this.authorize(ctx, 'FulfillCommitment', ctx.organizationId);
     const commitmentId = String(payload.commitmentId);
-    const commitment = await this.requireOpenCommitment(store, ctx.organizationId, commitmentId);
+    const commitment = await this.requireOwnerOfOpen(ctx, store, commitmentId);
 
-    // Only owner can fulfill their own commitment
-    if (commitment.ownerMemberId !== ctx.actorMemberId) {
-      throw new Error('PERMISSION_DENIED');
-    }
+    const result = fulfillCommitment(this.toContractRecord(commitment), ctx.effectiveAt.toISOString());
+    if (!result.ok) throw new Error('VALIDATION_FAILED');
 
-    const contractRecord = this.toContractRecord(commitment);
-    const result = fulfillCommitment(contractRecord, ctx.effectiveAt.toISOString());
-
-    if (!result.ok) {
-      throw new Error('VALIDATION_FAILED');
-    }
-
-    await store.updateCommitment(commitmentId, {
+    const won = await store.updateOpenCommitment(ctx.organizationId, commitmentId, commitment.ownerMemberId, {
       lifecycle: 'fulfilled',
       fulfilledAt: ctx.effectiveAt,
       fulfilledByMemberId: ctx.actorMemberId,
     });
+    if (!won) throw new Error('COMMITMENT_CHANGED');
+    const note = typeof payload.note === 'string' && payload.note.trim() ? payload.note.trim() : null;
+    await this.recordChange(ctx, store, commitment, { kind: 'fulfilled', reason: note });
+    // The promise is kept: nobody still needs to be told it is due.
+    await store.resolveCommitmentNotices(ctx.organizationId, commitmentId);
 
     return this.emit(
       ctx,
@@ -457,24 +556,20 @@ export class CommitmentCommandService {
   ): Promise<CommandResult> {
     await this.authorize(ctx, 'CancelCommitment', ctx.organizationId);
     const commitmentId = String(payload.commitmentId);
-    const commitment = await this.requireOpenCommitment(store, ctx.organizationId, commitmentId);
+    const reason = typeof payload.reason === 'string' ? payload.reason.trim() : '';
+    if (!reason) throw new Error('VALIDATION_FAILED');
+    const commitment = await this.requireOwnerOfOpen(ctx, store, commitmentId);
 
-    // Only owner can cancel their own commitment
-    if (commitment.ownerMemberId !== ctx.actorMemberId) {
-      throw new Error('PERMISSION_DENIED');
-    }
+    const result = cancelCommitment(this.toContractRecord(commitment), ctx.effectiveAt.toISOString());
+    if (!result.ok) throw new Error('VALIDATION_FAILED');
 
-    const contractRecord = this.toContractRecord(commitment);
-    const result = cancelCommitment(contractRecord, ctx.effectiveAt.toISOString());
-
-    if (!result.ok) {
-      throw new Error('VALIDATION_FAILED');
-    }
-
-    await store.updateCommitment(commitmentId, {
+    const won = await store.updateOpenCommitment(ctx.organizationId, commitmentId, commitment.ownerMemberId, {
       lifecycle: 'cancelled',
       cancelledAt: ctx.effectiveAt,
     });
+    if (!won) throw new Error('COMMITMENT_CHANGED');
+    await this.recordChange(ctx, store, commitment, { kind: 'cancelled', reason });
+    await store.resolveCommitmentNotices(ctx.organizationId, commitmentId);
 
     return this.emit(
       ctx,
@@ -482,11 +577,75 @@ export class CommitmentCommandService {
       'commitment.cancelled',
       'commitment',
       commitmentId,
-      { commitmentId, reason: payload.reason ? String(payload.reason) : undefined },
+      { commitmentId, reason },
       'commitment.cancelled',
       { lifecycle: commitment.lifecycle },
       { lifecycle: 'cancelled' },
     );
+  }
+
+  /**
+   * The new deadline replaces the current one on the commitment; the replaced deadline, the
+   * actor and the reason stay in the change history. Owner only, like fulfilling.
+   */
+  private async rescheduleCommitment(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsCommitmentStore,
+  ): Promise<CommandResult> {
+    await this.authorize(ctx, 'RescheduleCommitment', ctx.organizationId);
+    const commitmentId = String(payload.commitmentId);
+    const reason = typeof payload.reason === 'string' ? payload.reason.trim() : '';
+    const newDueAt = payload.dueAt ? new Date(String(payload.dueAt)) : null;
+    if (!reason || !newDueAt || Number.isNaN(newDueAt.getTime())) throw new Error('VALIDATION_FAILED');
+    const commitment = await this.requireOwnerOfOpen(ctx, store, commitmentId);
+    // A change to the same instant is not a change: no history row, no event.
+    if (commitment.dueAt && commitment.dueAt.getTime() === newDueAt.getTime()) {
+      throw new Error('VALIDATION_FAILED');
+    }
+
+    const won = await store.updateOpenCommitment(ctx.organizationId, commitmentId, commitment.ownerMemberId, {
+      dueAt: newDueAt,
+    });
+    if (!won) throw new Error('COMMITMENT_CHANGED');
+    const changeId = await this.recordChange(ctx, store, commitment, {
+      kind: 'rescheduled',
+      reason,
+      previousDueAt: commitment.dueAt,
+      newDueAt,
+    });
+    // "Vence hoy" / "Vencido" described the old date. The next read raises one for the new date if it applies.
+    await store.resolveCommitmentNotices(ctx.organizationId, commitmentId, {
+      kinds: ['commitment_due', 'commitment_overdue'],
+    });
+
+    return this.emit(
+      ctx,
+      store,
+      'commitment.rescheduled',
+      'commitment',
+      commitmentId,
+      {
+        commitmentId,
+        changeId,
+        previousDueAt: commitment.dueAt ? commitment.dueAt.toISOString() : null,
+        dueAt: newDueAt.toISOString(),
+        reason,
+      },
+      'commitment.rescheduled',
+      { dueAt: commitment.dueAt ? commitment.dueAt.toISOString() : null },
+      { dueAt: newDueAt.toISOString() },
+    );
+  }
+
+  private async handoverAuthority(
+    ctx: RequestContext,
+    commitment: CommitmentDatabaseRecord,
+  ): Promise<CommitmentHandover> {
+    if (commitment.ownerMemberId === ctx.actorMemberId) return { kind: 'owner' };
+    const granted = this.reassignGuard ? await this.reassignGuard.authority(ctx, commitment) : null;
+    if (!granted) throw await this.denyNonOwner(ctx, commitment);
+    return granted;
   }
 
   private async reassignCommitmentOwner(
@@ -497,23 +656,51 @@ export class CommitmentCommandService {
     await this.authorize(ctx, 'ReassignCommitmentOwner', ctx.organizationId);
     const commitmentId = String(payload.commitmentId);
     const newOwnerMemberId = String(payload.newOwnerMemberId);
+    const reason = typeof payload.reason === 'string' ? payload.reason.trim() : '';
+    if (!reason) throw new Error('VALIDATION_FAILED');
     const commitment = await this.requireOpenCommitment(store, ctx.organizationId, commitmentId);
-
-    // Per spec: only current owner can reassign. No people.admin fallback.
-    if (commitment.ownerMemberId !== ctx.actorMemberId) {
-      throw new Error('PERMISSION_DENIED');
-    }
+    const handover = await this.handoverAuthority(ctx, commitment);
 
     const newOwner = await store.getMemberInOrg(ctx.organizationId, newOwnerMemberId);
-    if (!newOwner || newOwner.accessStatus !== 'active') {
-      throw new Error('VALIDATION_FAILED');
+    if (!newOwner || newOwner.accessStatus !== 'active') throw new Error('VALIDATION_FAILED');
+    if (newOwnerMemberId === commitment.ownerMemberId) throw new Error('VALIDATION_FAILED');
+    // A customer commitment may only go to someone who can work that customer; handing it over grants nothing.
+    if (this.reassignGuard && !(await this.reassignGuard.mayHold(ctx, commitment, newOwnerMemberId, handover))) {
+      throw new Error('TARGET_PREREQUISITE_MISSING');
     }
 
     const previousOwnerMemberId = commitment.ownerMemberId;
-
-    await store.updateCommitment(commitmentId, {
+    const won = await store.updateOpenCommitment(ctx.organizationId, commitmentId, previousOwnerMemberId, {
       ownerMemberId: newOwnerMemberId,
     });
+    if (!won) throw new Error('COMMITMENT_CHANGED');
+    const changeId = await this.recordChange(ctx, store, commitment, {
+      kind: 'reassigned',
+      reason,
+      previousOwnerMemberId,
+      newOwnerMemberId,
+    });
+
+    // The previous owner's open notices described a responsibility that moved.
+    await store.resolveCommitmentNotices(ctx.organizationId, commitmentId, {
+      kinds: ['commitment_assigned', 'commitment_due', 'commitment_overdue', 'responsibility_changed'],
+      exceptRecipientMemberId: newOwnerMemberId,
+    });
+    await this.noticeAssigned(store, commitment, newOwnerMemberId, ctx.actorMemberId);
+    const previousOwner = await store.getMemberInOrg(ctx.organizationId, previousOwnerMemberId);
+    if (previousOwner?.accessStatus === 'active' && previousOwnerMemberId !== ctx.actorMemberId) {
+      await store.admitCommitmentNotice({
+        id: createId(),
+        organizationId: ctx.organizationId,
+        recipientMemberId: previousOwnerMemberId,
+        kind: 'responsibility_changed',
+        dedupKey: `responsibility_changed:commitment:${commitmentId}:${changeId}`,
+        title: 'Compromiso reasignado',
+        body: excerpt(commitment.text),
+        commitmentId,
+        partyId: commitment.partyId,
+      });
+    }
 
     return this.emit(
       ctx,
@@ -521,7 +708,7 @@ export class CommitmentCommandService {
       'commitment.reassigned',
       'commitment',
       commitmentId,
-      { commitmentId, newOwnerMemberId, previousOwnerMemberId },
+      { commitmentId, changeId, newOwnerMemberId, previousOwnerMemberId, reason, authority: handover.kind },
       'commitment.reassigned',
       { ownerMemberId: previousOwnerMemberId },
       { ownerMemberId: newOwnerMemberId },

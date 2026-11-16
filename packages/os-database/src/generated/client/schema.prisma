@@ -70,6 +70,7 @@ model OsOrganization {
   paymentAllocations         OsPaymentAllocation[]
   paymentInstructionVersions OsPaymentInstructionVersion[]
   commitments                OsCommitment[]
+  commitmentChanges          OsCommitmentChange[]
   internalNotifications      OsInternalNotification[]
 
   catalogProducts                     OsCatalogProduct[]
@@ -1332,10 +1333,33 @@ model OsCommitment {
   cancelledAt            DateTime? @map("cancelled_at")
   provenanceSuggestionId String?   @map("provenance_suggestion_id")
 
-  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  organization OsOrganization       @relation(fields: [organizationId], references: [id])
+  changes      OsCommitmentChange[]
 
   @@index([organizationId, ownerMemberId, lifecycle, dueAt])
   @@map("os_commitments")
+}
+
+/// Append-only history of a commitment's deadline, owner and closing reason (T08).
+/// The current deadline and owner live on the commitment; this keeps what they replaced.
+model OsCommitmentChange {
+  id                    String    @id
+  organizationId        String    @map("organization_id")
+  commitmentId          String    @map("commitment_id")
+  kind                  String
+  actorMemberId         String    @map("actor_member_id")
+  reason                String?
+  previousDueAt         DateTime? @map("previous_due_at")
+  newDueAt              DateTime? @map("new_due_at")
+  previousOwnerMemberId String?   @map("previous_owner_member_id")
+  newOwnerMemberId      String?   @map("new_owner_member_id")
+  changedAt             DateTime  @default(now()) @map("changed_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  commitment   OsCommitment   @relation(fields: [commitmentId], references: [id])
+
+  @@index([commitmentId, changedAt], map: "os_commitment_changes_commitment_idx")
+  @@map("os_commitment_changes")
 }
 
 /// Internal channel only. Not the legacy notifications table.
@@ -1354,12 +1378,14 @@ model OsInternalNotification {
   partyId           String?   @map("party_id")
   channel           String    @default("internal")
   readAt            DateTime? @map("read_at")
+  acknowledgedAt    DateTime? @map("acknowledged_at")
   resolvedAt        DateTime? @map("resolved_at")
   resolvedBecause   String?   @map("resolved_because")
   createdAt         DateTime  @default(now()) @map("created_at")
 
   organization OsOrganization @relation(fields: [organizationId], references: [id])
 
+  @@index([organizationId, recipientMemberId, createdAt(sort: Desc)], map: "os_internal_notifications_recipient_idx")
   @@map("os_internal_notifications")
 }
 

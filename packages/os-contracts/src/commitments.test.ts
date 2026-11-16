@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
   cancelCommitment,
+  commitmentDueAtFromLaPaz,
+  commitmentDueLaPazParts,
   confirmCommitmentSuggestion,
   createCommitmentSuggestion,
   createEmployeeCommitment,
@@ -151,5 +153,35 @@ describe('commitment states', () => {
     const foreign = { ...other, id: 'c-foreign', organizationId: 'org-b' };
     const visible = commitmentsInOrganization([own, foreign], 'org-a');
     assert.deepEqual(visible.map((item) => item.id), ['c1']);
+  });
+});
+
+describe('commitment deadline on the Bolivia clock (T08)', () => {
+  it('a day alone means noon, like the next step of a conversation', () => {
+    assert.equal(commitmentDueAtFromLaPaz('2026-09-14'), '2026-09-14T16:00:00.000Z');
+    assert.equal(commitmentDueAtFromLaPaz('2026-09-14', ''), '2026-09-14T16:00:00.000Z');
+    assert.equal(commitmentDueAtFromLaPaz('2026-09-14', null), '2026-09-14T16:00:00.000Z');
+  });
+
+  it('reads a time on the Bolivia clock and shows the same clock back', () => {
+    const due = commitmentDueAtFromLaPaz('2026-09-14', '23:30');
+    assert.equal(due, '2026-09-15T03:30:00.000Z');
+    assert.deepEqual(commitmentDueLaPazParts(due!), { date: '2026-09-14', time: '23:30' });
+    assert.deepEqual(commitmentDueLaPazParts('2026-09-14T16:00:00.000Z'), { date: '2026-09-14', time: '12:00' });
+    assert.equal(commitmentDueLaPazParts('not a date'), null);
+  });
+
+  it('refuses impossible days and times instead of rolling them over', () => {
+    for (const [date, time] of [['2026-02-31', undefined], ['2026-09-31', '10:00'], ['2026-09-14', '25:00'], ['2026-09-14', '10:61'], ['14/09/2026', undefined], ['2026-09-14', 'noon']] as const) {
+      assert.equal(commitmentDueAtFromLaPaz(date, time), null, `${date} ${time}`);
+    }
+  });
+
+  it('a commitment due at noon is due that Bolivia day and overdue the next', () => {
+    const due = commitmentDueAtFromLaPaz('2026-09-14')!;
+    const record = { lifecycle: 'open' as const, dueAt: due };
+    assert.equal(deriveCommitmentState(record, new Date('2026-09-14T04:00:00.000Z')), 'due_today');
+    assert.equal(deriveCommitmentState(record, new Date('2026-09-15T03:59:00.000Z')), 'due_today');
+    assert.equal(deriveCommitmentState(record, new Date('2026-09-15T04:00:00.000Z')), 'overdue');
   });
 });

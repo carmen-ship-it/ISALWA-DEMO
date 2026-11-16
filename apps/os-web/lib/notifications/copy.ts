@@ -14,10 +14,15 @@ export const NOTIFICATION_COPY = {
   read: 'Leído',
   resolved: 'Resuelto',
   resolvedWhy: 'La condición de origen ya no está.',
-  notStored: 'Estos avisos no están guardados. No se envían por correo ni al teléfono.',
+  persistedNote:
+    'Los avisos de compromisos quedan guardados para usted. Los de Atención y Trabajo se calculan al abrir y no se guardan. No se envían por correo ni al teléfono.',
   inProductOnly: 'Canal actual: solo dentro de ISALWA. Sin correo, push ni WhatsApp.',
-  notMarkedRead: 'No se guardó como leído. Los avisos todavía no quedan registrados.',
-  empty: 'Sin avisos para mostrar. Los avisos internos todavía no se guardan.',
+  notMarkedRead: 'No se guardó como leído. Los avisos calculados no quedan registrados.',
+  markFailed: 'No se pudo guardar el cambio. Intente de nuevo.',
+  empty: 'Sin avisos para mostrar.',
+  acknowledge: 'Enterado',
+  acknowledged: 'Enterado',
+  acknowledgeHint: 'Enterado confirma que lo tomó a cargo. No lo resuelve.',
   markRead: 'Marcar como leído',
 } as const;
 
@@ -33,6 +38,7 @@ const KIND_LABELS: Record<NotificationKind, string> = {
   data_issue_review: 'Dato por revisar',
   payment_to_verify: 'Pago por verificar',
   payment_outcome: 'Resultado de pago',
+  commitment_assigned: 'Compromiso asignado',
 };
 
 export function notificationKindLabel(kind: NotificationKind): string {

@@ -43,6 +43,9 @@ function makeStore() {
     async getCommitmentInOrg(organizationId: string, commitmentId: string) {
       return commitments.find((c) => c.organizationId === organizationId && c.id === commitmentId) ?? null;
     },
+    async admitCommitmentNotice() {
+      // Notices are covered in commitment-command-service.test.ts.
+    },
     async appendEventAndAudit(event: unknown) {
       events.push(event);
     },

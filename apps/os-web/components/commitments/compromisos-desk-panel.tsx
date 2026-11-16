@@ -5,6 +5,7 @@ import { SearchField, SectionHeader } from '@isalwa/ui';
 import { CommitmentList } from '@/components/commitments/commitment-list';
 import { ListToolbar } from '@/components/lists/list-toolbar';
 import type { CommitmentSummary } from '@/lib/api/os-api-client';
+import { COMMITMENT_COPY } from '@/lib/commitments/copy';
 import { bucketCompromisosDesk } from '@/lib/commitments/desk-buckets';
 import { partyLabel, type PartyLabelMap } from '@/lib/commercial/party-resolver';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
@@ -12,6 +13,8 @@ import { deskPanelClass } from '@/lib/ui/visual-status';
 
 type CompromisosDeskPanelProps = {
   items: CommitmentSummary[];
+  /** Open commitments whose owner lost access, limited to those this member may reassign. */
+  reassignmentQueue?: CommitmentSummary[];
   memberLabels: MemberLabelMap;
   partyLabels: PartyLabelMap;
 };
@@ -40,9 +43,10 @@ type BucketProps = {
   memberLabels: MemberLabelMap;
   emptyTitle: string;
   emptyDescription: string;
+  description?: string;
 };
 
-function CommitmentBucket({ kicker, title, items, memberLabels, emptyTitle, emptyDescription, accent }: BucketProps & { accent?: string }) {
+function CommitmentBucket({ kicker, title, items, memberLabels, emptyTitle, emptyDescription, description, accent }: BucketProps & { accent?: string }) {
   return (
     <section className={`mb-4 overflow-hidden ${deskPanelClass} p-0`}>
       <div className={`px-4 py-3 md:px-5 ${accent ?? 'bg-[var(--isalwa-sky-100)]'}`}>
@@ -57,6 +61,7 @@ function CommitmentBucket({ kicker, title, items, memberLabels, emptyTitle, empt
         />
       </div>
       <div className="bg-white px-4 py-3 md:px-5 md:py-4">
+        {description ? <p className="mb-3 text-sm text-[var(--isalwa-slate)]">{description}</p> : null}
         <CommitmentList
           items={items}
           memberLabels={memberLabels}
@@ -71,7 +76,7 @@ function CommitmentBucket({ kicker, title, items, memberLabels, emptyTitle, empt
   );
 }
 
-export function CompromisosDeskPanel({ items, memberLabels, partyLabels }: CompromisosDeskPanelProps) {
+export function CompromisosDeskPanel({ items, reassignmentQueue = [], memberLabels, partyLabels }: CompromisosDeskPanelProps) {
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
 
@@ -101,6 +106,18 @@ export function CompromisosDeskPanel({ items, memberLabels, partyLabels }: Compr
         <p className="mb-4 text-sm text-[var(--isalwa-slate)]">
           Ningún compromiso coincide con la búsqueda.
         </p>
+      ) : null}
+      {reassignmentQueue.length > 0 ? (
+        <CommitmentBucket
+          kicker={COMMITMENT_COPY.queueKicker}
+          title={COMMITMENT_COPY.queueTitle}
+          accent="bg-[var(--isalwa-status-amber-bg)]"
+          items={reassignmentQueue}
+          memberLabels={memberLabels}
+          emptyTitle={COMMITMENT_COPY.noActiveOwner}
+          emptyDescription={COMMITMENT_COPY.queueDescription}
+          description={COMMITMENT_COPY.queueDescription}
+        />
       ) : null}
       <CommitmentBucket
         kicker="Próximos"

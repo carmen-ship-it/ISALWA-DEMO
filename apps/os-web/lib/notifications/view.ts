@@ -1,4 +1,5 @@
 import {
+  notificationAcknowledgement,
   notificationReadState,
   notificationResolution,
   type InternalNotification,
@@ -19,6 +20,10 @@ export type NotificationRowView = {
   readTone: NotificationTone;
   urgencyTone: NotificationTone;
   resolved: boolean;
+  /** The recipient confirmed they took it on. Separate from read and from resolved. */
+  acknowledged: boolean;
+  /** Stored for the member. Projected rows (Attention, Work) are computed and carry a `proj:` id. */
+  persisted: boolean;
   href: string;
   linkLabel: string;
   ctaLabel: string;
@@ -47,6 +52,8 @@ export function notificationRowView(notification: InternalNotification): Notific
     readTone: readState === 'unread' ? 'info' : 'neutral',
     urgencyTone,
     resolved: notificationResolution(notification) === 'resolved',
+    acknowledged: notificationAcknowledgement(notification) === 'acknowledged',
+    persisted: !notification.id.startsWith('proj:'),
     href,
     linkLabel: notificationLinkLabel(notification.source.recordType),
     ctaLabel,

@@ -65,7 +65,7 @@ import type {
   IssueDetailResponse,
   IssueCommandResult,
 } from '@/lib/issue/types';
-import type { CommitmentState } from '@isalwa/os-contracts';
+import type { CommitmentChange, CommitmentState, InternalNotification } from '@isalwa/os-contracts';
 import type { AiAssistResponse } from '@/lib/ai/types';
 import type { AuditListResponse, MemoryChangesResponse } from '@/lib/audit/types';
 
@@ -96,7 +96,19 @@ export type CommitmentSummary = {
   fulfilledAt: string | null;
   fulfilledByMemberId: string | null;
   cancelledAt: string | null;
+  /** False when the owner lost access: the commitment then waits for a new responsible person. */
+  ownerAccessActive?: boolean;
+  /** What the signed-in member may do with it now. The server enforces the same rules. */
+  actor?: {
+    canFulfill: boolean;
+    canReschedule: boolean;
+    canCancel: boolean;
+    canReassign: boolean;
+    handoverAuthority: 'owner' | 'customer_manager' | 'workforce_continuity' | null;
+  };
 };
+
+export type CommitmentDetail = CommitmentSummary & { changes: CommitmentChange[] };
 
 export type OsAuthContext = (
   | { mode: 'supabase'; accessToken: string; organizationId?: string }
@@ -652,7 +664,20 @@ export function createOsApiClient(auth: OsAuthContext) {
     listCommitments: (query?: Record<string, string | number | boolean>) =>
       request<{ items: CommitmentSummary[] }>('/commitments', { method: 'GET', query }),
     getCommitment: (commitmentId: string) =>
-      request<CommitmentSummary>(`/commitments/${encodeURIComponent(commitmentId)}`),
+      request<CommitmentDetail>(`/commitments/${encodeURIComponent(commitmentId)}`),
+    // Internal notices of the signed-in member (T09). No email or push.
+    listNotifications: (query?: Record<string, string | number | boolean>) =>
+      request<{ items: InternalNotification[] }>('/notifications', { method: 'GET', query }),
+    markNotificationRead: (notificationId: string) =>
+      request<{ item: InternalNotification }>(`/notifications/${encodeURIComponent(notificationId)}/read`, {
+        method: 'POST',
+        retry: false,
+      }),
+    acknowledgeNotification: (notificationId: string) =>
+      request<{ item: InternalNotification }>(
+        `/notifications/${encodeURIComponent(notificationId)}/acknowledge`,
+        { method: 'POST', retry: false },
+      ),
     executeCommitmentCommand: <T extends CommitmentCommandName>(
       commandName: T,
       payload: Record<string, unknown>,

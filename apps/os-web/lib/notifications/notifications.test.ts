@@ -1,13 +1,17 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
-import { createInternalNotification, markNotificationRead, resolveIfSourceConditionGone } from '@isalwa/os-contracts';
+import {
+  createInternalNotification,
+  markNotificationAcknowledged,
+  markNotificationRead,
+  resolveIfSourceConditionGone,
+} from '@isalwa/os-contracts';
 import { overdueAttention, sampleAttention, approvalAttention } from '@/lib/work/fixtures';
 import { NOTIFICATION_COPY, notificationKindLabel, unreadCountLabel } from './copy';
 import { presentNotificationDrawer } from './drawer-view';
 import { dueSoonVisual, dueSoonLabel } from './due-soon';
 import { notificationRecordHref } from './links';
-import { notificationPersistence } from './persistence';
 import { partitionNotificationRows } from './partition';
 import { projectInboxFromAttention } from './project';
 import { countUnreadOpen, presentNotificationRows } from './view';
@@ -31,7 +35,7 @@ function notice(id: string, source: { recordType: 'commitment' | 'work_item'; re
 }
 
 describe('notification presentation', () => {
-  it('links only to an existing record and drops a commitment card without a customer', () => {
+  it('links a commitment notice to its own page, with or without a customer', () => {
     assert.equal(notificationRecordHref({ recordType: 'work_item', recordId: 'w 1', partyId: null }), '/trabajo/w%201');
     assert.equal(
       notificationRecordHref({ recordType: 'approval_request', recordId: 'a1', partyId: null }),
@@ -41,23 +45,45 @@ describe('notification presentation', () => {
       notificationRecordHref({ recordType: 'quote', recordId: 'q1', partyId: 'p1' }),
       '/clientes/p1/cotizaciones/q1',
     );
-    assert.equal(notificationRecordHref({ recordType: 'commitment', recordId: 'c1', partyId: null }), null);
-    assert.equal(
-      notificationRecordHref({ recordType: 'commitment', recordId: 'c1', partyId: 'p1' }),
-      '/clientes/p1',
-    );
+    assert.equal(notificationRecordHref({ recordType: 'commitment', recordId: 'c1', partyId: null }), '/compromisos/c1');
+    assert.equal(notificationRecordHref({ recordType: 'commitment', recordId: 'c 1', partyId: 'p1' }), '/compromisos/c%201');
 
     const rows = presentNotificationRows([
       notice('linked', { recordType: 'commitment', recordId: 'c1', partyId: 'p1' }),
-      notice('dead', { recordType: 'commitment', recordId: 'c2', partyId: null }),
+      notice('internal', { recordType: 'commitment', recordId: 'c2', partyId: null }),
     ]);
-    assert.equal(rows.length, 1);
-    assert.equal(rows[0]?.href, '/clientes/p1');
+    assert.equal(rows.length, 2);
+    assert.equal(rows[0]?.href, '/compromisos/c1');
+    assert.equal(rows[1]?.href, '/compromisos/c2');
     assert.equal(rows[0]?.readLabel, 'Sin leer');
-    assert.equal(rows[0]?.ctaLabel, 'Ver cliente');
+    assert.equal(rows[0]?.ctaLabel, 'Ver compromiso');
+    assert.equal(rows[0]?.persisted, true);
   });
 
-  it('counts only unread open notices and does not mark read as saved', async () => {
+  it('keeps read, acknowledged and resolved as three separate facts', () => {
+    const open = notice('n-assigned', { recordType: 'commitment', recordId: 'c1', partyId: null });
+    const read = markNotificationRead(open, createdAt);
+    assert.equal(read.ok, true);
+    if (!read.ok) return;
+    const acknowledged = markNotificationAcknowledged(open, createdAt);
+    assert.equal(acknowledged.ok, true);
+    if (!acknowledged.ok) return;
+    const [row] = presentNotificationRows([acknowledged.notification]);
+    // Acknowledging does not read it and does not resolve it.
+    assert.deepEqual([row?.acknowledged, row?.readState, row?.resolved], [true, 'unread', false]);
+    const [readRow] = presentNotificationRows([read.notification]);
+    assert.deepEqual([readRow?.acknowledged, readRow?.readState, readRow?.resolved], [false, 'read', false]);
+    assert.equal(countUnreadOpen([acknowledged.notification]), 1);
+    assert.equal(notificationKindLabel('commitment_assigned'), 'Compromiso asignado');
+    assert.match(NOTIFICATION_COPY.acknowledgeHint, /No lo resuelve/);
+  });
+
+  it('a computed row (proj: id) is not a stored notice', () => {
+    const projected = notice('proj:work-due:w1', { recordType: 'work_item', recordId: 'w1', partyId: null });
+    assert.equal(presentNotificationRows([projected])[0]?.persisted, false);
+  });
+
+  it('counts only unread open notices and does not mark read as saved', () => {
     const open = notice('open', { recordType: 'work_item', recordId: 'w1', partyId: null });
     const read = markNotificationRead(open, createdAt);
     assert.equal(read.ok, true);
@@ -72,18 +98,17 @@ describe('notification presentation', () => {
     assert.equal(countUnreadOpen([open, read.notification, resolved.notification]), 1);
     assert.equal(unreadCountLabel(1), '1 sin leer');
     assert.equal(notificationKindLabel('commitment_overdue'), 'Compromiso vencido');
-    assert.match(NOTIFICATION_COPY.notStored, /correo/);
+    assert.match(NOTIFICATION_COPY.persistedNote, /correo/);
     assert.match(NOTIFICATION_COPY.inProductOnly, /WhatsApp/);
     assert.match(NOTIFICATION_COPY.readDoesNotCompleteWork, /no completa el trabajo/i);
-
-    const marked = await notificationPersistence().markRead('open', createdAt);
-    assert.deepEqual(marked, { ok: false, persisted: false, reason: 'schema_not_available' });
     assert.equal(open.readAt, null);
   });
 
-  it('does not reach a provider or prisma', () => {
-    const source = readFileSync(new URL('./persistence.ts', import.meta.url), 'utf8');
+  it('stores nothing itself and reaches no provider: it calls the API as the signed-in member', () => {
+    const source = readFileSync(new URL('./actions.ts', import.meta.url), 'utf8');
     assert.doesNotMatch(source, /prisma|sendgrid|fcm|web-push|smtp/i);
+    assert.match(source, /markNotificationRead/);
+    assert.match(source, /acknowledgeNotification/);
   });
 });
 

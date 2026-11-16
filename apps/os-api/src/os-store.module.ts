@@ -43,6 +43,7 @@ import {
   type CustomerVisibilityLookup,
   buildQueryContext,
   canLinkCommitmentParty,
+  CommitmentHandoverAuthorizer,
   ProjectionRunner,
   WorkProjectionConsumer,
   WorkQueryService,
@@ -349,11 +350,24 @@ function createMemberQueryStore(): MemberQueryStorePort {
           workforceStore,
           partyStore,
         );
-        return new CommitmentCommandService(adapter, async (ctx, partyId) =>
-          canLinkCommitmentParty(await buildQueryContext(ctx, workforceStore), partyId, {
-            customerVisibility,
-            directReports,
-          }),
+        const deps = { customerVisibility, directReports };
+        return new CommitmentCommandService(
+          adapter,
+          async (ctx, partyId) => canLinkCommitmentParty(await buildQueryContext(ctx, workforceStore), partyId, deps),
+          {
+            async authority(ctx, commitment) {
+              const owner = await workforceStore.getMemberInOrg(ctx.organizationId, commitment.ownerMemberId);
+              return new CommitmentHandoverAuthorizer(await buildQueryContext(ctx, workforceStore), deps).authority(
+                commitment,
+                owner?.accessStatus === 'active',
+              );
+            },
+            async mayHold(ctx, commitment, targetMemberId, handover) {
+              const actor = await buildQueryContext(ctx, workforceStore);
+              const target = await buildQueryContext({ ...ctx, actorMemberId: targetMemberId }, workforceStore);
+              return new CommitmentHandoverAuthorizer(actor, deps).mayHold(commitment, target, handover);
+            },
+          },
         );
       },
       inject: [

@@ -28,6 +28,32 @@ export interface CommitmentRecord {
   provenanceSuggestionId: string | null;
 }
 
+export interface CommitmentChangeRow {
+  id: string;
+  organizationId: string;
+  commitmentId: string;
+  kind: string;
+  actorMemberId: string;
+  reason: string | null;
+  previousDueAt: Date | null;
+  newDueAt: Date | null;
+  previousOwnerMemberId: string | null;
+  newOwnerMemberId: string | null;
+  changedAt: Date;
+}
+
+export interface CommitmentNoticeInput {
+  id: string;
+  organizationId: string;
+  recipientMemberId: string;
+  kind: 'commitment_assigned' | 'commitment_due' | 'commitment_overdue' | 'responsibility_changed';
+  dedupKey: string;
+  title: string;
+  body: string | null;
+  commitmentId: string;
+  partyId: string | null;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Store interface
 // ─────────────────────────────────────────────────────────────────────────────
@@ -41,9 +67,32 @@ export interface OsCommitmentStore {
     commitmentId: string,
     patch: Partial<Pick<
       CommitmentRecord,
-      'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
+      'ownerMemberId' | 'dueAt' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
     >>,
   ): Promise<void>;
+  /** Applies the patch only while the commitment is still open under the same owner. False means someone else changed it first. */
+  updateOpenCommitment(
+    organizationId: string,
+    commitmentId: string,
+    expectedOwnerMemberId: string,
+    patch: Partial<Pick<
+      CommitmentRecord,
+      'ownerMemberId' | 'dueAt' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
+    >>,
+  ): Promise<boolean>;
+  insertCommitmentChange(change: CommitmentChangeRow): Promise<void>;
+  listCommitmentChanges(organizationId: string, commitmentId: string): Promise<CommitmentChangeRow[]>;
+  /** One open notice per recipient and issue; a second admission of the same issue is ignored. */
+  admitCommitmentNotice(notice: CommitmentNoticeInput): Promise<void>;
+  /**
+   * Closes the commitment's open notices whose condition is gone. `keepRecipientMemberId`
+   * leaves that member's notices alone (the new owner of a handover).
+   */
+  resolveCommitmentNotices(
+    organizationId: string,
+    commitmentId: string,
+    options?: { kinds?: readonly string[]; exceptRecipientMemberId?: string },
+  ): Promise<number>;
 
   // List queries
   listCommitmentsByOrg(organizationId: string): Promise<CommitmentRecord[]>;
@@ -120,13 +169,82 @@ export class PrismaOsCommitmentStore implements OsCommitmentStore {
     commitmentId: string,
     patch: Partial<Pick<
       CommitmentRecord,
-      'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
+      'ownerMemberId' | 'dueAt' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
     >>,
   ): Promise<void> {
     await this.db().osCommitment.update({
       where: { id: commitmentId },
       data: patch,
     });
+  }
+
+  async updateOpenCommitment(
+    organizationId: string,
+    commitmentId: string,
+    expectedOwnerMemberId: string,
+    patch: Partial<Pick<
+      CommitmentRecord,
+      'ownerMemberId' | 'dueAt' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
+    >>,
+  ): Promise<boolean> {
+    const result = await this.db().osCommitment.updateMany({
+      where: { id: commitmentId, organizationId, lifecycle: 'open', ownerMemberId: expectedOwnerMemberId },
+      data: patch,
+    });
+    return result.count === 1;
+  }
+
+  async insertCommitmentChange(change: CommitmentChangeRow): Promise<void> {
+    await this.db().osCommitmentChange.create({ data: change });
+  }
+
+  async listCommitmentChanges(organizationId: string, commitmentId: string): Promise<CommitmentChangeRow[]> {
+    return this.db().osCommitmentChange.findMany({
+      where: { organizationId, commitmentId },
+      orderBy: [{ changedAt: 'asc' }, { id: 'asc' }],
+    });
+  }
+
+  async admitCommitmentNotice(notice: CommitmentNoticeInput): Promise<void> {
+    await this.db().osInternalNotification.createMany({
+      data: [
+        {
+          id: notice.id,
+          organizationId: notice.organizationId,
+          recipientMemberId: notice.recipientMemberId,
+          kind: notice.kind,
+          dedupKey: notice.dedupKey,
+          title: notice.title,
+          body: notice.body,
+          sourceRecordType: 'commitment',
+          sourceRecordId: notice.commitmentId,
+          partyId: notice.partyId,
+          channel: 'internal',
+        },
+      ],
+      skipDuplicates: true,
+    });
+  }
+
+  async resolveCommitmentNotices(
+    organizationId: string,
+    commitmentId: string,
+    options: { kinds?: readonly string[]; exceptRecipientMemberId?: string } = {},
+  ): Promise<number> {
+    const result = await this.db().osInternalNotification.updateMany({
+      where: {
+        organizationId,
+        sourceRecordType: 'commitment',
+        sourceRecordId: commitmentId,
+        resolvedAt: null,
+        ...(options.kinds ? { kind: { in: [...options.kinds] } } : {}),
+        ...(options.exceptRecipientMemberId
+          ? { recipientMemberId: { not: options.exceptRecipientMemberId } }
+          : {}),
+      },
+      data: { resolvedAt: new Date(), resolvedBecause: 'source_condition_gone' },
+    });
+    return result.count;
   }
 
   async listCommitmentsByOrg(organizationId: string): Promise<CommitmentRecord[]> {

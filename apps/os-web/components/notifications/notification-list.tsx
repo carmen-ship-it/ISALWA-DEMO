@@ -5,9 +5,10 @@ import { NOTIFICATION_COPY } from '@/lib/notifications/copy';
 type NotificationListProps = {
   rows: readonly NotificationRowView[];
   onMarkRead?: (notificationId: string) => void;
+  onAcknowledge?: (notificationId: string) => void;
 };
 
-export function NotificationList({ rows, onMarkRead }: NotificationListProps) {
+export function NotificationList({ rows, onMarkRead, onAcknowledge }: NotificationListProps) {
   if (rows.length === 0) return null;
   return (
     <ul className="min-w-0" aria-label="Avisos">
@@ -32,7 +33,18 @@ export function NotificationList({ rows, onMarkRead }: NotificationListProps) {
               <StatusPill tone={row.urgencyTone}>{row.body.split(' · ')[0]}</StatusPill>
             ) : null}
             <StatusPill tone={row.readTone}>{row.readLabel}</StatusPill>
+            {row.acknowledged ? <StatusPill tone="neutral">{NOTIFICATION_COPY.acknowledged}</StatusPill> : null}
             {row.resolved ? <StatusPill tone="success">{NOTIFICATION_COPY.resolved}</StatusPill> : null}
+            {onAcknowledge && row.persisted && !row.acknowledged && !row.resolved ? (
+              <button
+                type="button"
+                className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
+                title={NOTIFICATION_COPY.acknowledgeHint}
+                onClick={() => onAcknowledge(row.id)}
+              >
+                {NOTIFICATION_COPY.acknowledge}
+              </button>
+            ) : null}
             {onMarkRead && row.readState === 'unread' && !row.resolved ? (
               <button
                 type="button"

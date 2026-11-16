@@ -2,7 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import Link from 'next/link';
 import { Button, EmptyState, ListRow, SectionHeader, StatusPill } from '@isalwa/ui';
+import { CommitmentActionForm, type CommitmentChangeMode } from '@/components/commitments/commitment-action-form';
 import { ScaledListReveal } from '@/components/ui/scaled-list-reveal';
 import type { CommitmentSummary } from '@/lib/api/os-api-client';
 import { COMMITMENT_COPY, commitmentStateLabel } from '@/lib/commitments/copy';
@@ -38,6 +40,8 @@ type CommitmentListProps = {
   partyLabel?: string | null;
   asOf?: Date;
   showOrigin?: boolean;
+  /** Link each row to its own page. Off on that page. */
+  showDetailLink?: boolean;
   onFulfilled?: () => void;
   /** Apply shared list-scaling (0 empty · 1–5 compact · 6+ Ver todos). */
   scale?: boolean;
@@ -63,6 +67,7 @@ export function CommitmentList({
   memberLabels = new Map(),
   partyLabel = null,
   showOrigin = true,
+  showDetailLink = true,
   onFulfilled,
   scale = false,
   hideHeader = false,
@@ -72,6 +77,7 @@ export function CommitmentList({
   const router = useRouter();
   const [fulfillingId, setFulfillingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [changing, setChanging] = useState<{ id: string; mode: CommitmentChangeMode } | null>(null);
 
   const rows = [...items].filter((item) => !isEngineeringFixtureCopy(item.text)).sort((a, b) => {
     const rankA = RANK[a.state] ?? 99;
@@ -114,11 +120,20 @@ export function CommitmentList({
             ? memberLabel(memberLabels, row.fulfilledByMemberId)
             : null;
           const fulfilledWhen = formatFulfilledAt(row.fulfilledAt);
-          const canFulfill = row.lifecycle === 'open';
+          // The server says what this member may do. Without flags (older payloads) keep the one action that always existed.
+          const open = row.lifecycle === 'open';
+          const canFulfill = row.actor ? row.actor.canFulfill : open;
+          const canReschedule = row.actor?.canReschedule === true;
+          const canReassign = row.actor?.canReassign === true;
+          const canCancel = row.actor?.canCancel === true;
+          const activeMode = changing?.id === row.id ? changing.mode : null;
+          const ownerLost = row.ownerAccessActive === false && open;
           const meta = [
             `${COMMITMENT_COPY.promisedBy}: ${promisor}`,
             partyLabel ? `${COMMITMENT_COPY.promisedTo}: ${partyLabel}` : null,
-            `${COMMITMENT_COPY.followUpOwner}: ${followUp}`,
+            ownerLost
+              ? `${COMMITMENT_COPY.followUpOwner}: ${COMMITMENT_COPY.noActiveOwner}`
+              : `${COMMITMENT_COPY.followUpOwner}: ${followUp}`,
             dueLabel,
             customerReported ? COMMITMENT_COPY.paymentBoundary : null,
             row.lifecycle === 'fulfilled' && fulfilledBy
@@ -138,6 +153,13 @@ export function CommitmentList({
                   {presentHumanCopy(row.text) || 'Compromiso'}
                 </p>
                 <p className="mt-1 line-clamp-2 text-xs leading-4 text-[var(--isalwa-slate)]">{meta}</p>
+                {activeMode ? (
+                  <CommitmentActionForm
+                    commitment={row}
+                    mode={activeMode}
+                    onClose={() => setChanging(null)}
+                  />
+                ) : null}
               </div>
               <div className="flex flex-wrap items-center justify-end gap-2">
                 {showOrigin ? (
@@ -146,6 +168,7 @@ export function CommitmentList({
                   </StatusPill>
                 ) : null}
                 <StatusPill tone={tone}>{stateLabel}</StatusPill>
+                {ownerLost ? <StatusPill tone="warning">{COMMITMENT_COPY.noActiveOwner}</StatusPill> : null}
                 {canFulfill ? (
                   <Button
                     variant="secondary"
@@ -155,6 +178,29 @@ export function CommitmentList({
                   >
                     {fulfillingId === row.id ? '…' : COMMITMENT_COPY.fulfill}
                   </Button>
+                ) : null}
+                {canReschedule ? (
+                  <Button variant="ghost" size="sm" onClick={() => setChanging({ id: row.id, mode: 'reschedule' })}>
+                    {COMMITMENT_COPY.reschedule}
+                  </Button>
+                ) : null}
+                {canReassign ? (
+                  <Button variant="ghost" size="sm" onClick={() => setChanging({ id: row.id, mode: 'reassign' })}>
+                    {COMMITMENT_COPY.reassign}
+                  </Button>
+                ) : null}
+                {canCancel ? (
+                  <Button variant="ghost" size="sm" onClick={() => setChanging({ id: row.id, mode: 'cancel' })}>
+                    {COMMITMENT_COPY.cancel}
+                  </Button>
+                ) : null}
+                {showDetailLink ? (
+                  <Link
+                    href={`/compromisos/${encodeURIComponent(row.id)}`}
+                    className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
+                  >
+                    {COMMITMENT_COPY.openDetail}
+                  </Link>
                 ) : null}
               </div>
             </ListRow>

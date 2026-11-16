@@ -5,7 +5,7 @@ import { EmptyState, SectionHeader } from '@isalwa/ui';
 import type { InternalNotification } from '@isalwa/os-contracts';
 import { NotificationList } from '@/components/notifications/notification-list';
 import { NOTIFICATION_COPY, unreadCountLabel } from '@/lib/notifications/copy';
-import { notificationPersistence } from '@/lib/notifications/persistence';
+import { acknowledgeNotificationAction, markNotificationReadAction } from '@/lib/notifications/actions';
 import { partitionNotificationRows } from '@/lib/notifications/partition';
 import { countUnreadOpen } from '@/lib/notifications/view';
 
@@ -15,30 +15,54 @@ type NotificationCenterProps = {
 
 export function NotificationCenter({ items }: NotificationCenterProps) {
   const [notice, setNotice] = useState<string | null>(null);
-  const [overlay, setOverlay] = useState<Map<string, string>>(() => new Map());
+  // What the member just did in this session, until the next load brings the stored state.
+  const [overlay, setOverlay] = useState<Map<string, { readAt?: string; acknowledgedAt?: string }>>(() => new Map());
 
   const merged = useMemo(() => {
     if (overlay.size === 0) return items;
     return items.map((item) => {
-      const readAt = overlay.get(item.id);
-      return readAt ? { ...item, readAt } : item;
+      const local = overlay.get(item.id);
+      return local ? { ...item, ...local } : item;
     });
   }, [items, overlay]);
 
   const sections = partitionNotificationRows(merged);
   const unread = unreadCountLabel(countUnreadOpen(merged));
 
+  function remember(notificationId: string, patch: { readAt?: string; acknowledgedAt?: string }) {
+    setOverlay((prev) => new Map(prev).set(notificationId, { ...prev.get(notificationId), ...patch }));
+  }
+
   async function onMarkRead(notificationId: string) {
-    const readAt = new Date().toISOString();
-    const result = await notificationPersistence().markRead(notificationId, readAt);
-    setOverlay((prev) => new Map(prev).set(notificationId, readAt));
-    if (!result.persisted) setNotice(NOTIFICATION_COPY.notMarkedRead);
+    setNotice(null);
+    // Rows computed from Attention and Work are not stored; only the view changes.
+    if (notificationId.startsWith('proj:')) {
+      remember(notificationId, { readAt: new Date().toISOString() });
+      setNotice(NOTIFICATION_COPY.notMarkedRead);
+      return;
+    }
+    const result = await markNotificationReadAction(notificationId);
+    if (!result.ok) {
+      setNotice(NOTIFICATION_COPY.markFailed);
+      return;
+    }
+    remember(notificationId, { readAt: result.item.readAt ?? undefined });
+  }
+
+  async function onAcknowledge(notificationId: string) {
+    setNotice(null);
+    const result = await acknowledgeNotificationAction(notificationId);
+    if (!result.ok) {
+      setNotice(NOTIFICATION_COPY.markFailed);
+      return;
+    }
+    remember(notificationId, { acknowledgedAt: result.item.acknowledgedAt ?? undefined });
   }
 
   const hasRows = sections.nuevas.length + sections.anteriores.length > 0;
 
   return (
-    <section data-persistence="not_persisted" aria-labelledby="notification-heading">
+    <section aria-labelledby="notification-heading">
       <SectionHeader
         kicker={NOTIFICATION_COPY.kicker}
         title={
@@ -53,7 +77,7 @@ export function NotificationCenter({ items }: NotificationCenterProps) {
       />
       <p className="mb-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">{NOTIFICATION_COPY.inProductOnly}</p>
       <p className="mb-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">{NOTIFICATION_COPY.readDoesNotCompleteWork}</p>
-      <p className="mb-4 text-sm leading-relaxed text-[var(--isalwa-slate)]">{NOTIFICATION_COPY.notStored}</p>
+      <p className="mb-4 text-sm leading-relaxed text-[var(--isalwa-slate)]">{NOTIFICATION_COPY.persistedNote}</p>
       {notice ? (
         <p className="mb-4 text-sm text-[var(--isalwa-slate)]" role="status">
           {notice}
@@ -68,7 +92,7 @@ export function NotificationCenter({ items }: NotificationCenterProps) {
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--isalwa-slate)]">
                 {NOTIFICATION_COPY.sectionNew}
               </h3>
-              <NotificationList rows={sections.nuevas} onMarkRead={onMarkRead} />
+              <NotificationList rows={sections.nuevas} onMarkRead={onMarkRead} onAcknowledge={onAcknowledge} />
             </div>
           ) : null}
           {sections.anteriores.length > 0 ? (
@@ -76,7 +100,7 @@ export function NotificationCenter({ items }: NotificationCenterProps) {
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--isalwa-slate)]">
                 {NOTIFICATION_COPY.sectionEarlier}
               </h3>
-              <NotificationList rows={sections.anteriores} />
+              <NotificationList rows={sections.anteriores} onAcknowledge={onAcknowledge} />
             </div>
           ) : null}
         </div>

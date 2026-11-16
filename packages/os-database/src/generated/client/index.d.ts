@@ -292,6 +292,12 @@ export type OsPaymentInstructionVersion = $Result.DefaultSelection<Prisma.$OsPay
  */
 export type OsCommitment = $Result.DefaultSelection<Prisma.$OsCommitmentPayload>
 /**
+ * Model OsCommitmentChange
+ * Append-only history of a commitment's deadline, owner and closing reason (T08).
+ * The current deadline and owner live on the commitment; this keeps what they replaced.
+ */
+export type OsCommitmentChange = $Result.DefaultSelection<Prisma.$OsCommitmentChangePayload>
+/**
  * Model OsInternalNotification
  * Internal channel only. Not the legacy notifications table.
  * Resolve only when the source condition is gone.
@@ -1209,6 +1215,16 @@ export class PrismaClient<
     * ```
     */
   get osCommitment(): Prisma.OsCommitmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.osCommitmentChange`: Exposes CRUD operations for the **OsCommitmentChange** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsCommitmentChanges
+    * const osCommitmentChanges = await prisma.osCommitmentChange.findMany()
+    * ```
+    */
+  get osCommitmentChange(): Prisma.OsCommitmentChangeDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.osInternalNotification`: Exposes CRUD operations for the **OsInternalNotification** model.
@@ -2204,6 +2220,7 @@ export namespace Prisma {
     OsPaymentAllocation: 'OsPaymentAllocation',
     OsPaymentInstructionVersion: 'OsPaymentInstructionVersion',
     OsCommitment: 'OsCommitment',
+    OsCommitmentChange: 'OsCommitmentChange',
     OsInternalNotification: 'OsInternalNotification',
     OsCatalogProduct: 'OsCatalogProduct',
     OsCatalogProductProvenance: 'OsCatalogProductProvenance',
@@ -2272,7 +2289,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osContactEndpointAssociation" | "osContactIdentityReview" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry" | "osReportedOperationalFact" | "osPaymentTender" | "osPaymentTenderEvent" | "osPaymentEvidence" | "osPaymentAllocation" | "osPaymentInstructionVersion" | "osCommitment" | "osInternalNotification" | "osCatalogProduct" | "osCatalogProductProvenance" | "osCatalogProductAttribute" | "osCatalogProductStatusEvent" | "osOrderLine" | "osOperationalCase" | "osOperationalCaseFact" | "osOperationalCaseFactReversal" | "osOperationalReleaseDecision" | "osOperationalReleaseDecisionReversal" | "osProductionQuema" | "osProductionQuemaTime" | "osProductionQuemaProduct" | "osProductionTraceEntry" | "osCustomerConversation" | "osWarehouseExit" | "osWarehouseOutboundNote" | "osWarehouseOutboundNoteLine" | "osDelivery" | "osDeliveryNote" | "osDeliveryNoteLine" | "osDeliveryEvidence" | "customerCommittedDate" | "customerCommittedDateRevision" | "productionInternalTargetDate" | "productionInternalTargetRevision" | "productionDateIssue" | "customerDateInformedRecord" | "osOrderAllocation" | "osFinishedGoodsReceipt" | "osPurchaseRequest" | "osPurchaseRequestStatusHistory" | "osPurchaseRequestNote" | "osPriceList" | "osPriceEntry" | "osSpecialOrderClassification" | "osCustomerCoverageGrant" | "osCoordinationDecision" | "osIssue" | "osIssueCorrectionRequest" | "osIssueReference" | "osIssueJournalEntry" | "osIssueWorkLink" | "osIssueRelation" | "osIssueResolutionCycle" | "osProductFeedback" | "osIssueOwnershipHistory" | "osRateLimitBucket" | "osContactFollowupPreference"
+      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osContactEndpointAssociation" | "osContactIdentityReview" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry" | "osReportedOperationalFact" | "osPaymentTender" | "osPaymentTenderEvent" | "osPaymentEvidence" | "osPaymentAllocation" | "osPaymentInstructionVersion" | "osCommitment" | "osCommitmentChange" | "osInternalNotification" | "osCatalogProduct" | "osCatalogProductProvenance" | "osCatalogProductAttribute" | "osCatalogProductStatusEvent" | "osOrderLine" | "osOperationalCase" | "osOperationalCaseFact" | "osOperationalCaseFactReversal" | "osOperationalReleaseDecision" | "osOperationalReleaseDecisionReversal" | "osProductionQuema" | "osProductionQuemaTime" | "osProductionQuemaProduct" | "osProductionTraceEntry" | "osCustomerConversation" | "osWarehouseExit" | "osWarehouseOutboundNote" | "osWarehouseOutboundNoteLine" | "osDelivery" | "osDeliveryNote" | "osDeliveryNoteLine" | "osDeliveryEvidence" | "customerCommittedDate" | "customerCommittedDateRevision" | "productionInternalTargetDate" | "productionInternalTargetRevision" | "productionDateIssue" | "customerDateInformedRecord" | "osOrderAllocation" | "osFinishedGoodsReceipt" | "osPurchaseRequest" | "osPurchaseRequestStatusHistory" | "osPurchaseRequestNote" | "osPriceList" | "osPriceEntry" | "osSpecialOrderClassification" | "osCustomerCoverageGrant" | "osCoordinationDecision" | "osIssue" | "osIssueCorrectionRequest" | "osIssueReference" | "osIssueJournalEntry" | "osIssueWorkLink" | "osIssueRelation" | "osIssueResolutionCycle" | "osProductFeedback" | "osIssueOwnershipHistory" | "osRateLimitBucket" | "osContactFollowupPreference"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -6272,6 +6289,80 @@ export namespace Prisma {
           }
         }
       }
+      OsCommitmentChange: {
+        payload: Prisma.$OsCommitmentChangePayload<ExtArgs>
+        fields: Prisma.OsCommitmentChangeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsCommitmentChangeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCommitmentChangePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsCommitmentChangeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCommitmentChangePayload>
+          }
+          findFirst: {
+            args: Prisma.OsCommitmentChangeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCommitmentChangePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsCommitmentChangeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCommitmentChangePayload>
+          }
+          findMany: {
+            args: Prisma.OsCommitmentChangeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCommitmentChangePayload>[]
+          }
+          create: {
+            args: Prisma.OsCommitmentChangeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCommitmentChangePayload>
+          }
+          createMany: {
+            args: Prisma.OsCommitmentChangeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsCommitmentChangeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCommitmentChangePayload>[]
+          }
+          delete: {
+            args: Prisma.OsCommitmentChangeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCommitmentChangePayload>
+          }
+          update: {
+            args: Prisma.OsCommitmentChangeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCommitmentChangePayload>
+          }
+          deleteMany: {
+            args: Prisma.OsCommitmentChangeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsCommitmentChangeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsCommitmentChangeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCommitmentChangePayload>[]
+          }
+          upsert: {
+            args: Prisma.OsCommitmentChangeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCommitmentChangePayload>
+          }
+          aggregate: {
+            args: Prisma.OsCommitmentChangeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsCommitmentChange>
+          }
+          groupBy: {
+            args: Prisma.OsCommitmentChangeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsCommitmentChangeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsCommitmentChangeCountArgs<ExtArgs>
+            result: $Utils.Optional<OsCommitmentChangeCountAggregateOutputType> | number
+          }
+        }
+      }
       OsInternalNotification: {
         payload: Prisma.$OsInternalNotificationPayload<ExtArgs>
         fields: Prisma.OsInternalNotificationFieldRefs
@@ -10122,6 +10213,7 @@ export namespace Prisma {
     osPaymentAllocation?: OsPaymentAllocationOmit
     osPaymentInstructionVersion?: OsPaymentInstructionVersionOmit
     osCommitment?: OsCommitmentOmit
+    osCommitmentChange?: OsCommitmentChangeOmit
     osInternalNotification?: OsInternalNotificationOmit
     osCatalogProduct?: OsCatalogProductOmit
     osCatalogProductProvenance?: OsCatalogProductProvenanceOmit
@@ -10301,6 +10393,7 @@ export namespace Prisma {
     paymentAllocations: number
     paymentInstructionVersions: number
     commitments: number
+    commitmentChanges: number
     internalNotifications: number
     catalogProducts: number
     orderLines: number
@@ -10392,6 +10485,7 @@ export namespace Prisma {
     paymentAllocations?: boolean | OsOrganizationCountOutputTypeCountPaymentAllocationsArgs
     paymentInstructionVersions?: boolean | OsOrganizationCountOutputTypeCountPaymentInstructionVersionsArgs
     commitments?: boolean | OsOrganizationCountOutputTypeCountCommitmentsArgs
+    commitmentChanges?: boolean | OsOrganizationCountOutputTypeCountCommitmentChangesArgs
     internalNotifications?: boolean | OsOrganizationCountOutputTypeCountInternalNotificationsArgs
     catalogProducts?: boolean | OsOrganizationCountOutputTypeCountCatalogProductsArgs
     orderLines?: boolean | OsOrganizationCountOutputTypeCountOrderLinesArgs
@@ -10785,6 +10879,13 @@ export namespace Prisma {
    */
   export type OsOrganizationCountOutputTypeCountCommitmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OsCommitmentWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountCommitmentChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCommitmentChangeWhereInput
   }
 
   /**
@@ -11824,6 +11925,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type OsCommitmentCountOutputType
+   */
+
+  export type OsCommitmentCountOutputType = {
+    changes: number
+  }
+
+  export type OsCommitmentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    changes?: boolean | OsCommitmentCountOutputTypeCountChangesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * OsCommitmentCountOutputType without action
+   */
+  export type OsCommitmentCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentCountOutputType
+     */
+    select?: OsCommitmentCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * OsCommitmentCountOutputType without action
+   */
+  export type OsCommitmentCountOutputTypeCountChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCommitmentChangeWhereInput
+  }
+
+
+  /**
    * Count Type OsCatalogProductCountOutputType
    */
 
@@ -12633,6 +12765,7 @@ export namespace Prisma {
     paymentAllocations?: boolean | OsOrganization$paymentAllocationsArgs<ExtArgs>
     paymentInstructionVersions?: boolean | OsOrganization$paymentInstructionVersionsArgs<ExtArgs>
     commitments?: boolean | OsOrganization$commitmentsArgs<ExtArgs>
+    commitmentChanges?: boolean | OsOrganization$commitmentChangesArgs<ExtArgs>
     internalNotifications?: boolean | OsOrganization$internalNotificationsArgs<ExtArgs>
     catalogProducts?: boolean | OsOrganization$catalogProductsArgs<ExtArgs>
     orderLines?: boolean | OsOrganization$orderLinesArgs<ExtArgs>
@@ -12759,6 +12892,7 @@ export namespace Prisma {
     paymentAllocations?: boolean | OsOrganization$paymentAllocationsArgs<ExtArgs>
     paymentInstructionVersions?: boolean | OsOrganization$paymentInstructionVersionsArgs<ExtArgs>
     commitments?: boolean | OsOrganization$commitmentsArgs<ExtArgs>
+    commitmentChanges?: boolean | OsOrganization$commitmentChangesArgs<ExtArgs>
     internalNotifications?: boolean | OsOrganization$internalNotificationsArgs<ExtArgs>
     catalogProducts?: boolean | OsOrganization$catalogProductsArgs<ExtArgs>
     orderLines?: boolean | OsOrganization$orderLinesArgs<ExtArgs>
@@ -12855,6 +12989,7 @@ export namespace Prisma {
       paymentAllocations: Prisma.$OsPaymentAllocationPayload<ExtArgs>[]
       paymentInstructionVersions: Prisma.$OsPaymentInstructionVersionPayload<ExtArgs>[]
       commitments: Prisma.$OsCommitmentPayload<ExtArgs>[]
+      commitmentChanges: Prisma.$OsCommitmentChangePayload<ExtArgs>[]
       internalNotifications: Prisma.$OsInternalNotificationPayload<ExtArgs>[]
       catalogProducts: Prisma.$OsCatalogProductPayload<ExtArgs>[]
       orderLines: Prisma.$OsOrderLinePayload<ExtArgs>[]
@@ -13347,6 +13482,7 @@ export namespace Prisma {
     paymentAllocations<T extends OsOrganization$paymentAllocationsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$paymentAllocationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPaymentAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     paymentInstructionVersions<T extends OsOrganization$paymentInstructionVersionsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$paymentInstructionVersionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPaymentInstructionVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     commitments<T extends OsOrganization$commitmentsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$commitmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCommitmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    commitmentChanges<T extends OsOrganization$commitmentChangesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$commitmentChangesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     internalNotifications<T extends OsOrganization$internalNotificationsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$internalNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsInternalNotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     catalogProducts<T extends OsOrganization$catalogProductsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$catalogProductsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCatalogProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     orderLines<T extends OsOrganization$orderLinesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$orderLinesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsOrderLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -14984,6 +15120,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OsCommitmentScalarFieldEnum | OsCommitmentScalarFieldEnum[]
+  }
+
+  /**
+   * OsOrganization.commitmentChanges
+   */
+  export type OsOrganization$commitmentChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeInclude<ExtArgs> | null
+    where?: OsCommitmentChangeWhereInput
+    orderBy?: OsCommitmentChangeOrderByWithRelationInput | OsCommitmentChangeOrderByWithRelationInput[]
+    cursor?: OsCommitmentChangeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsCommitmentChangeScalarFieldEnum | OsCommitmentChangeScalarFieldEnum[]
   }
 
   /**
@@ -78673,6 +78833,8 @@ export namespace Prisma {
     cancelledAt?: boolean
     provenanceSuggestionId?: boolean
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    changes?: boolean | OsCommitment$changesArgs<ExtArgs>
+    _count?: boolean | OsCommitmentCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["osCommitment"]>
 
   export type OsCommitmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -78737,6 +78899,8 @@ export namespace Prisma {
   export type OsCommitmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "partyId" | "ownerMemberId" | "text" | "dueAt" | "origin" | "relatedSubjectType" | "relatedSubjectId" | "lifecycle" | "createdByMemberId" | "createdAt" | "fulfilledAt" | "fulfilledByMemberId" | "cancelledAt" | "provenanceSuggestionId", ExtArgs["result"]["osCommitment"]>
   export type OsCommitmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    changes?: boolean | OsCommitment$changesArgs<ExtArgs>
+    _count?: boolean | OsCommitmentCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OsCommitmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
@@ -78749,6 +78913,7 @@ export namespace Prisma {
     name: "OsCommitment"
     objects: {
       organization: Prisma.$OsOrganizationPayload<ExtArgs>
+      changes: Prisma.$OsCommitmentChangePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -79162,6 +79327,7 @@ export namespace Prisma {
   export interface Prisma__OsCommitmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    changes<T extends OsCommitment$changesArgs<ExtArgs> = {}>(args?: Subset<T, OsCommitment$changesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -79603,6 +79769,30 @@ export namespace Prisma {
   }
 
   /**
+   * OsCommitment.changes
+   */
+  export type OsCommitment$changesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeInclude<ExtArgs> | null
+    where?: OsCommitmentChangeWhereInput
+    orderBy?: OsCommitmentChangeOrderByWithRelationInput | OsCommitmentChangeOrderByWithRelationInput[]
+    cursor?: OsCommitmentChangeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsCommitmentChangeScalarFieldEnum | OsCommitmentChangeScalarFieldEnum[]
+  }
+
+  /**
    * OsCommitment without action
    */
   export type OsCommitmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -79618,6 +79808,1150 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: OsCommitmentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OsCommitmentChange
+   */
+
+  export type AggregateOsCommitmentChange = {
+    _count: OsCommitmentChangeCountAggregateOutputType | null
+    _min: OsCommitmentChangeMinAggregateOutputType | null
+    _max: OsCommitmentChangeMaxAggregateOutputType | null
+  }
+
+  export type OsCommitmentChangeMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    commitmentId: string | null
+    kind: string | null
+    actorMemberId: string | null
+    reason: string | null
+    previousDueAt: Date | null
+    newDueAt: Date | null
+    previousOwnerMemberId: string | null
+    newOwnerMemberId: string | null
+    changedAt: Date | null
+  }
+
+  export type OsCommitmentChangeMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    commitmentId: string | null
+    kind: string | null
+    actorMemberId: string | null
+    reason: string | null
+    previousDueAt: Date | null
+    newDueAt: Date | null
+    previousOwnerMemberId: string | null
+    newOwnerMemberId: string | null
+    changedAt: Date | null
+  }
+
+  export type OsCommitmentChangeCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    commitmentId: number
+    kind: number
+    actorMemberId: number
+    reason: number
+    previousDueAt: number
+    newDueAt: number
+    previousOwnerMemberId: number
+    newOwnerMemberId: number
+    changedAt: number
+    _all: number
+  }
+
+
+  export type OsCommitmentChangeMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    commitmentId?: true
+    kind?: true
+    actorMemberId?: true
+    reason?: true
+    previousDueAt?: true
+    newDueAt?: true
+    previousOwnerMemberId?: true
+    newOwnerMemberId?: true
+    changedAt?: true
+  }
+
+  export type OsCommitmentChangeMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    commitmentId?: true
+    kind?: true
+    actorMemberId?: true
+    reason?: true
+    previousDueAt?: true
+    newDueAt?: true
+    previousOwnerMemberId?: true
+    newOwnerMemberId?: true
+    changedAt?: true
+  }
+
+  export type OsCommitmentChangeCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    commitmentId?: true
+    kind?: true
+    actorMemberId?: true
+    reason?: true
+    previousDueAt?: true
+    newDueAt?: true
+    previousOwnerMemberId?: true
+    newOwnerMemberId?: true
+    changedAt?: true
+    _all?: true
+  }
+
+  export type OsCommitmentChangeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsCommitmentChange to aggregate.
+     */
+    where?: OsCommitmentChangeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCommitmentChanges to fetch.
+     */
+    orderBy?: OsCommitmentChangeOrderByWithRelationInput | OsCommitmentChangeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsCommitmentChangeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCommitmentChanges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCommitmentChanges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsCommitmentChanges
+    **/
+    _count?: true | OsCommitmentChangeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsCommitmentChangeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsCommitmentChangeMaxAggregateInputType
+  }
+
+  export type GetOsCommitmentChangeAggregateType<T extends OsCommitmentChangeAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsCommitmentChange]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsCommitmentChange[P]>
+      : GetScalarType<T[P], AggregateOsCommitmentChange[P]>
+  }
+
+
+
+
+  export type OsCommitmentChangeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCommitmentChangeWhereInput
+    orderBy?: OsCommitmentChangeOrderByWithAggregationInput | OsCommitmentChangeOrderByWithAggregationInput[]
+    by: OsCommitmentChangeScalarFieldEnum[] | OsCommitmentChangeScalarFieldEnum
+    having?: OsCommitmentChangeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsCommitmentChangeCountAggregateInputType | true
+    _min?: OsCommitmentChangeMinAggregateInputType
+    _max?: OsCommitmentChangeMaxAggregateInputType
+  }
+
+  export type OsCommitmentChangeGroupByOutputType = {
+    id: string
+    organizationId: string
+    commitmentId: string
+    kind: string
+    actorMemberId: string
+    reason: string | null
+    previousDueAt: Date | null
+    newDueAt: Date | null
+    previousOwnerMemberId: string | null
+    newOwnerMemberId: string | null
+    changedAt: Date
+    _count: OsCommitmentChangeCountAggregateOutputType | null
+    _min: OsCommitmentChangeMinAggregateOutputType | null
+    _max: OsCommitmentChangeMaxAggregateOutputType | null
+  }
+
+  type GetOsCommitmentChangeGroupByPayload<T extends OsCommitmentChangeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsCommitmentChangeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsCommitmentChangeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsCommitmentChangeGroupByOutputType[P]>
+            : GetScalarType<T[P], OsCommitmentChangeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsCommitmentChangeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    commitmentId?: boolean
+    kind?: boolean
+    actorMemberId?: boolean
+    reason?: boolean
+    previousDueAt?: boolean
+    newDueAt?: boolean
+    previousOwnerMemberId?: boolean
+    newOwnerMemberId?: boolean
+    changedAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    commitment?: boolean | OsCommitmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCommitmentChange"]>
+
+  export type OsCommitmentChangeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    commitmentId?: boolean
+    kind?: boolean
+    actorMemberId?: boolean
+    reason?: boolean
+    previousDueAt?: boolean
+    newDueAt?: boolean
+    previousOwnerMemberId?: boolean
+    newOwnerMemberId?: boolean
+    changedAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    commitment?: boolean | OsCommitmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCommitmentChange"]>
+
+  export type OsCommitmentChangeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    commitmentId?: boolean
+    kind?: boolean
+    actorMemberId?: boolean
+    reason?: boolean
+    previousDueAt?: boolean
+    newDueAt?: boolean
+    previousOwnerMemberId?: boolean
+    newOwnerMemberId?: boolean
+    changedAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    commitment?: boolean | OsCommitmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCommitmentChange"]>
+
+  export type OsCommitmentChangeSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    commitmentId?: boolean
+    kind?: boolean
+    actorMemberId?: boolean
+    reason?: boolean
+    previousDueAt?: boolean
+    newDueAt?: boolean
+    previousOwnerMemberId?: boolean
+    newOwnerMemberId?: boolean
+    changedAt?: boolean
+  }
+
+  export type OsCommitmentChangeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "commitmentId" | "kind" | "actorMemberId" | "reason" | "previousDueAt" | "newDueAt" | "previousOwnerMemberId" | "newOwnerMemberId" | "changedAt", ExtArgs["result"]["osCommitmentChange"]>
+  export type OsCommitmentChangeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    commitment?: boolean | OsCommitmentDefaultArgs<ExtArgs>
+  }
+  export type OsCommitmentChangeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    commitment?: boolean | OsCommitmentDefaultArgs<ExtArgs>
+  }
+  export type OsCommitmentChangeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    commitment?: boolean | OsCommitmentDefaultArgs<ExtArgs>
+  }
+
+  export type $OsCommitmentChangePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsCommitmentChange"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+      commitment: Prisma.$OsCommitmentPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      commitmentId: string
+      kind: string
+      actorMemberId: string
+      reason: string | null
+      previousDueAt: Date | null
+      newDueAt: Date | null
+      previousOwnerMemberId: string | null
+      newOwnerMemberId: string | null
+      changedAt: Date
+    }, ExtArgs["result"]["osCommitmentChange"]>
+    composites: {}
+  }
+
+  type OsCommitmentChangeGetPayload<S extends boolean | null | undefined | OsCommitmentChangeDefaultArgs> = $Result.GetResult<Prisma.$OsCommitmentChangePayload, S>
+
+  type OsCommitmentChangeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsCommitmentChangeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsCommitmentChangeCountAggregateInputType | true
+    }
+
+  export interface OsCommitmentChangeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsCommitmentChange'], meta: { name: 'OsCommitmentChange' } }
+    /**
+     * Find zero or one OsCommitmentChange that matches the filter.
+     * @param {OsCommitmentChangeFindUniqueArgs} args - Arguments to find a OsCommitmentChange
+     * @example
+     * // Get one OsCommitmentChange
+     * const osCommitmentChange = await prisma.osCommitmentChange.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsCommitmentChangeFindUniqueArgs>(args: SelectSubset<T, OsCommitmentChangeFindUniqueArgs<ExtArgs>>): Prisma__OsCommitmentChangeClient<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsCommitmentChange that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsCommitmentChangeFindUniqueOrThrowArgs} args - Arguments to find a OsCommitmentChange
+     * @example
+     * // Get one OsCommitmentChange
+     * const osCommitmentChange = await prisma.osCommitmentChange.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsCommitmentChangeFindUniqueOrThrowArgs>(args: SelectSubset<T, OsCommitmentChangeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsCommitmentChangeClient<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsCommitmentChange that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCommitmentChangeFindFirstArgs} args - Arguments to find a OsCommitmentChange
+     * @example
+     * // Get one OsCommitmentChange
+     * const osCommitmentChange = await prisma.osCommitmentChange.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsCommitmentChangeFindFirstArgs>(args?: SelectSubset<T, OsCommitmentChangeFindFirstArgs<ExtArgs>>): Prisma__OsCommitmentChangeClient<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsCommitmentChange that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCommitmentChangeFindFirstOrThrowArgs} args - Arguments to find a OsCommitmentChange
+     * @example
+     * // Get one OsCommitmentChange
+     * const osCommitmentChange = await prisma.osCommitmentChange.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsCommitmentChangeFindFirstOrThrowArgs>(args?: SelectSubset<T, OsCommitmentChangeFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsCommitmentChangeClient<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsCommitmentChanges that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCommitmentChangeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsCommitmentChanges
+     * const osCommitmentChanges = await prisma.osCommitmentChange.findMany()
+     * 
+     * // Get first 10 OsCommitmentChanges
+     * const osCommitmentChanges = await prisma.osCommitmentChange.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const osCommitmentChangeWithIdOnly = await prisma.osCommitmentChange.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OsCommitmentChangeFindManyArgs>(args?: SelectSubset<T, OsCommitmentChangeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsCommitmentChange.
+     * @param {OsCommitmentChangeCreateArgs} args - Arguments to create a OsCommitmentChange.
+     * @example
+     * // Create one OsCommitmentChange
+     * const OsCommitmentChange = await prisma.osCommitmentChange.create({
+     *   data: {
+     *     // ... data to create a OsCommitmentChange
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsCommitmentChangeCreateArgs>(args: SelectSubset<T, OsCommitmentChangeCreateArgs<ExtArgs>>): Prisma__OsCommitmentChangeClient<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsCommitmentChanges.
+     * @param {OsCommitmentChangeCreateManyArgs} args - Arguments to create many OsCommitmentChanges.
+     * @example
+     * // Create many OsCommitmentChanges
+     * const osCommitmentChange = await prisma.osCommitmentChange.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsCommitmentChangeCreateManyArgs>(args?: SelectSubset<T, OsCommitmentChangeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsCommitmentChanges and returns the data saved in the database.
+     * @param {OsCommitmentChangeCreateManyAndReturnArgs} args - Arguments to create many OsCommitmentChanges.
+     * @example
+     * // Create many OsCommitmentChanges
+     * const osCommitmentChange = await prisma.osCommitmentChange.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsCommitmentChanges and only return the `id`
+     * const osCommitmentChangeWithIdOnly = await prisma.osCommitmentChange.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsCommitmentChangeCreateManyAndReturnArgs>(args?: SelectSubset<T, OsCommitmentChangeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsCommitmentChange.
+     * @param {OsCommitmentChangeDeleteArgs} args - Arguments to delete one OsCommitmentChange.
+     * @example
+     * // Delete one OsCommitmentChange
+     * const OsCommitmentChange = await prisma.osCommitmentChange.delete({
+     *   where: {
+     *     // ... filter to delete one OsCommitmentChange
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsCommitmentChangeDeleteArgs>(args: SelectSubset<T, OsCommitmentChangeDeleteArgs<ExtArgs>>): Prisma__OsCommitmentChangeClient<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsCommitmentChange.
+     * @param {OsCommitmentChangeUpdateArgs} args - Arguments to update one OsCommitmentChange.
+     * @example
+     * // Update one OsCommitmentChange
+     * const osCommitmentChange = await prisma.osCommitmentChange.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsCommitmentChangeUpdateArgs>(args: SelectSubset<T, OsCommitmentChangeUpdateArgs<ExtArgs>>): Prisma__OsCommitmentChangeClient<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsCommitmentChanges.
+     * @param {OsCommitmentChangeDeleteManyArgs} args - Arguments to filter OsCommitmentChanges to delete.
+     * @example
+     * // Delete a few OsCommitmentChanges
+     * const { count } = await prisma.osCommitmentChange.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsCommitmentChangeDeleteManyArgs>(args?: SelectSubset<T, OsCommitmentChangeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsCommitmentChanges.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCommitmentChangeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsCommitmentChanges
+     * const osCommitmentChange = await prisma.osCommitmentChange.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsCommitmentChangeUpdateManyArgs>(args: SelectSubset<T, OsCommitmentChangeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsCommitmentChanges and returns the data updated in the database.
+     * @param {OsCommitmentChangeUpdateManyAndReturnArgs} args - Arguments to update many OsCommitmentChanges.
+     * @example
+     * // Update many OsCommitmentChanges
+     * const osCommitmentChange = await prisma.osCommitmentChange.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsCommitmentChanges and only return the `id`
+     * const osCommitmentChangeWithIdOnly = await prisma.osCommitmentChange.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsCommitmentChangeUpdateManyAndReturnArgs>(args: SelectSubset<T, OsCommitmentChangeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsCommitmentChange.
+     * @param {OsCommitmentChangeUpsertArgs} args - Arguments to update or create a OsCommitmentChange.
+     * @example
+     * // Update or create a OsCommitmentChange
+     * const osCommitmentChange = await prisma.osCommitmentChange.upsert({
+     *   create: {
+     *     // ... data to create a OsCommitmentChange
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsCommitmentChange we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsCommitmentChangeUpsertArgs>(args: SelectSubset<T, OsCommitmentChangeUpsertArgs<ExtArgs>>): Prisma__OsCommitmentChangeClient<$Result.GetResult<Prisma.$OsCommitmentChangePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsCommitmentChanges.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCommitmentChangeCountArgs} args - Arguments to filter OsCommitmentChanges to count.
+     * @example
+     * // Count the number of OsCommitmentChanges
+     * const count = await prisma.osCommitmentChange.count({
+     *   where: {
+     *     // ... the filter for the OsCommitmentChanges we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsCommitmentChangeCountArgs>(
+      args?: Subset<T, OsCommitmentChangeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsCommitmentChangeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsCommitmentChange.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCommitmentChangeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsCommitmentChangeAggregateArgs>(args: Subset<T, OsCommitmentChangeAggregateArgs>): Prisma.PrismaPromise<GetOsCommitmentChangeAggregateType<T>>
+
+    /**
+     * Group by OsCommitmentChange.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCommitmentChangeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsCommitmentChangeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsCommitmentChangeGroupByArgs['orderBy'] }
+        : { orderBy?: OsCommitmentChangeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsCommitmentChangeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsCommitmentChangeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsCommitmentChange model
+   */
+  readonly fields: OsCommitmentChangeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsCommitmentChange.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsCommitmentChangeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    commitment<T extends OsCommitmentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsCommitmentDefaultArgs<ExtArgs>>): Prisma__OsCommitmentClient<$Result.GetResult<Prisma.$OsCommitmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsCommitmentChange model
+   */
+  interface OsCommitmentChangeFieldRefs {
+    readonly id: FieldRef<"OsCommitmentChange", 'String'>
+    readonly organizationId: FieldRef<"OsCommitmentChange", 'String'>
+    readonly commitmentId: FieldRef<"OsCommitmentChange", 'String'>
+    readonly kind: FieldRef<"OsCommitmentChange", 'String'>
+    readonly actorMemberId: FieldRef<"OsCommitmentChange", 'String'>
+    readonly reason: FieldRef<"OsCommitmentChange", 'String'>
+    readonly previousDueAt: FieldRef<"OsCommitmentChange", 'DateTime'>
+    readonly newDueAt: FieldRef<"OsCommitmentChange", 'DateTime'>
+    readonly previousOwnerMemberId: FieldRef<"OsCommitmentChange", 'String'>
+    readonly newOwnerMemberId: FieldRef<"OsCommitmentChange", 'String'>
+    readonly changedAt: FieldRef<"OsCommitmentChange", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsCommitmentChange findUnique
+   */
+  export type OsCommitmentChangeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCommitmentChange to fetch.
+     */
+    where: OsCommitmentChangeWhereUniqueInput
+  }
+
+  /**
+   * OsCommitmentChange findUniqueOrThrow
+   */
+  export type OsCommitmentChangeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCommitmentChange to fetch.
+     */
+    where: OsCommitmentChangeWhereUniqueInput
+  }
+
+  /**
+   * OsCommitmentChange findFirst
+   */
+  export type OsCommitmentChangeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCommitmentChange to fetch.
+     */
+    where?: OsCommitmentChangeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCommitmentChanges to fetch.
+     */
+    orderBy?: OsCommitmentChangeOrderByWithRelationInput | OsCommitmentChangeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsCommitmentChanges.
+     */
+    cursor?: OsCommitmentChangeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCommitmentChanges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCommitmentChanges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsCommitmentChanges.
+     */
+    distinct?: OsCommitmentChangeScalarFieldEnum | OsCommitmentChangeScalarFieldEnum[]
+  }
+
+  /**
+   * OsCommitmentChange findFirstOrThrow
+   */
+  export type OsCommitmentChangeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCommitmentChange to fetch.
+     */
+    where?: OsCommitmentChangeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCommitmentChanges to fetch.
+     */
+    orderBy?: OsCommitmentChangeOrderByWithRelationInput | OsCommitmentChangeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsCommitmentChanges.
+     */
+    cursor?: OsCommitmentChangeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCommitmentChanges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCommitmentChanges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsCommitmentChanges.
+     */
+    distinct?: OsCommitmentChangeScalarFieldEnum | OsCommitmentChangeScalarFieldEnum[]
+  }
+
+  /**
+   * OsCommitmentChange findMany
+   */
+  export type OsCommitmentChangeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCommitmentChanges to fetch.
+     */
+    where?: OsCommitmentChangeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCommitmentChanges to fetch.
+     */
+    orderBy?: OsCommitmentChangeOrderByWithRelationInput | OsCommitmentChangeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsCommitmentChanges.
+     */
+    cursor?: OsCommitmentChangeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCommitmentChanges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCommitmentChanges.
+     */
+    skip?: number
+    distinct?: OsCommitmentChangeScalarFieldEnum | OsCommitmentChangeScalarFieldEnum[]
+  }
+
+  /**
+   * OsCommitmentChange create
+   */
+  export type OsCommitmentChangeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsCommitmentChange.
+     */
+    data: XOR<OsCommitmentChangeCreateInput, OsCommitmentChangeUncheckedCreateInput>
+  }
+
+  /**
+   * OsCommitmentChange createMany
+   */
+  export type OsCommitmentChangeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsCommitmentChanges.
+     */
+    data: OsCommitmentChangeCreateManyInput | OsCommitmentChangeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsCommitmentChange createManyAndReturn
+   */
+  export type OsCommitmentChangeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsCommitmentChanges.
+     */
+    data: OsCommitmentChangeCreateManyInput | OsCommitmentChangeCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsCommitmentChange update
+   */
+  export type OsCommitmentChangeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsCommitmentChange.
+     */
+    data: XOR<OsCommitmentChangeUpdateInput, OsCommitmentChangeUncheckedUpdateInput>
+    /**
+     * Choose, which OsCommitmentChange to update.
+     */
+    where: OsCommitmentChangeWhereUniqueInput
+  }
+
+  /**
+   * OsCommitmentChange updateMany
+   */
+  export type OsCommitmentChangeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsCommitmentChanges.
+     */
+    data: XOR<OsCommitmentChangeUpdateManyMutationInput, OsCommitmentChangeUncheckedUpdateManyInput>
+    /**
+     * Filter which OsCommitmentChanges to update
+     */
+    where?: OsCommitmentChangeWhereInput
+    /**
+     * Limit how many OsCommitmentChanges to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsCommitmentChange updateManyAndReturn
+   */
+  export type OsCommitmentChangeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * The data used to update OsCommitmentChanges.
+     */
+    data: XOR<OsCommitmentChangeUpdateManyMutationInput, OsCommitmentChangeUncheckedUpdateManyInput>
+    /**
+     * Filter which OsCommitmentChanges to update
+     */
+    where?: OsCommitmentChangeWhereInput
+    /**
+     * Limit how many OsCommitmentChanges to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsCommitmentChange upsert
+   */
+  export type OsCommitmentChangeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsCommitmentChange to update in case it exists.
+     */
+    where: OsCommitmentChangeWhereUniqueInput
+    /**
+     * In case the OsCommitmentChange found by the `where` argument doesn't exist, create a new OsCommitmentChange with this data.
+     */
+    create: XOR<OsCommitmentChangeCreateInput, OsCommitmentChangeUncheckedCreateInput>
+    /**
+     * In case the OsCommitmentChange was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsCommitmentChangeUpdateInput, OsCommitmentChangeUncheckedUpdateInput>
+  }
+
+  /**
+   * OsCommitmentChange delete
+   */
+  export type OsCommitmentChangeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeInclude<ExtArgs> | null
+    /**
+     * Filter which OsCommitmentChange to delete.
+     */
+    where: OsCommitmentChangeWhereUniqueInput
+  }
+
+  /**
+   * OsCommitmentChange deleteMany
+   */
+  export type OsCommitmentChangeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsCommitmentChanges to delete
+     */
+    where?: OsCommitmentChangeWhereInput
+    /**
+     * Limit how many OsCommitmentChanges to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsCommitmentChange without action
+   */
+  export type OsCommitmentChangeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCommitmentChange
+     */
+    select?: OsCommitmentChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCommitmentChange
+     */
+    omit?: OsCommitmentChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCommitmentChangeInclude<ExtArgs> | null
   }
 
 
@@ -79644,6 +80978,7 @@ export namespace Prisma {
     partyId: string | null
     channel: string | null
     readAt: Date | null
+    acknowledgedAt: Date | null
     resolvedAt: Date | null
     resolvedBecause: string | null
     createdAt: Date | null
@@ -79662,6 +80997,7 @@ export namespace Prisma {
     partyId: string | null
     channel: string | null
     readAt: Date | null
+    acknowledgedAt: Date | null
     resolvedAt: Date | null
     resolvedBecause: string | null
     createdAt: Date | null
@@ -79680,6 +81016,7 @@ export namespace Prisma {
     partyId: number
     channel: number
     readAt: number
+    acknowledgedAt: number
     resolvedAt: number
     resolvedBecause: number
     createdAt: number
@@ -79700,6 +81037,7 @@ export namespace Prisma {
     partyId?: true
     channel?: true
     readAt?: true
+    acknowledgedAt?: true
     resolvedAt?: true
     resolvedBecause?: true
     createdAt?: true
@@ -79718,6 +81056,7 @@ export namespace Prisma {
     partyId?: true
     channel?: true
     readAt?: true
+    acknowledgedAt?: true
     resolvedAt?: true
     resolvedBecause?: true
     createdAt?: true
@@ -79736,6 +81075,7 @@ export namespace Prisma {
     partyId?: true
     channel?: true
     readAt?: true
+    acknowledgedAt?: true
     resolvedAt?: true
     resolvedBecause?: true
     createdAt?: true
@@ -79827,6 +81167,7 @@ export namespace Prisma {
     partyId: string | null
     channel: string
     readAt: Date | null
+    acknowledgedAt: Date | null
     resolvedAt: Date | null
     resolvedBecause: string | null
     createdAt: Date
@@ -79862,6 +81203,7 @@ export namespace Prisma {
     partyId?: boolean
     channel?: boolean
     readAt?: boolean
+    acknowledgedAt?: boolean
     resolvedAt?: boolean
     resolvedBecause?: boolean
     createdAt?: boolean
@@ -79881,6 +81223,7 @@ export namespace Prisma {
     partyId?: boolean
     channel?: boolean
     readAt?: boolean
+    acknowledgedAt?: boolean
     resolvedAt?: boolean
     resolvedBecause?: boolean
     createdAt?: boolean
@@ -79900,6 +81243,7 @@ export namespace Prisma {
     partyId?: boolean
     channel?: boolean
     readAt?: boolean
+    acknowledgedAt?: boolean
     resolvedAt?: boolean
     resolvedBecause?: boolean
     createdAt?: boolean
@@ -79919,12 +81263,13 @@ export namespace Prisma {
     partyId?: boolean
     channel?: boolean
     readAt?: boolean
+    acknowledgedAt?: boolean
     resolvedAt?: boolean
     resolvedBecause?: boolean
     createdAt?: boolean
   }
 
-  export type OsInternalNotificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "recipientMemberId" | "kind" | "dedupKey" | "title" | "body" | "sourceRecordType" | "sourceRecordId" | "partyId" | "channel" | "readAt" | "resolvedAt" | "resolvedBecause" | "createdAt", ExtArgs["result"]["osInternalNotification"]>
+  export type OsInternalNotificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "recipientMemberId" | "kind" | "dedupKey" | "title" | "body" | "sourceRecordType" | "sourceRecordId" | "partyId" | "channel" | "readAt" | "acknowledgedAt" | "resolvedAt" | "resolvedBecause" | "createdAt", ExtArgs["result"]["osInternalNotification"]>
   export type OsInternalNotificationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
   }
@@ -79953,6 +81298,7 @@ export namespace Prisma {
       partyId: string | null
       channel: string
       readAt: Date | null
+      acknowledgedAt: Date | null
       resolvedAt: Date | null
       resolvedBecause: string | null
       createdAt: Date
@@ -80392,6 +81738,7 @@ export namespace Prisma {
     readonly partyId: FieldRef<"OsInternalNotification", 'String'>
     readonly channel: FieldRef<"OsInternalNotification", 'String'>
     readonly readAt: FieldRef<"OsInternalNotification", 'DateTime'>
+    readonly acknowledgedAt: FieldRef<"OsInternalNotification", 'DateTime'>
     readonly resolvedAt: FieldRef<"OsInternalNotification", 'DateTime'>
     readonly resolvedBecause: FieldRef<"OsInternalNotification", 'String'>
     readonly createdAt: FieldRef<"OsInternalNotification", 'DateTime'>
@@ -139453,6 +140800,23 @@ export namespace Prisma {
   export type OsCommitmentScalarFieldEnum = (typeof OsCommitmentScalarFieldEnum)[keyof typeof OsCommitmentScalarFieldEnum]
 
 
+  export const OsCommitmentChangeScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    commitmentId: 'commitmentId',
+    kind: 'kind',
+    actorMemberId: 'actorMemberId',
+    reason: 'reason',
+    previousDueAt: 'previousDueAt',
+    newDueAt: 'newDueAt',
+    previousOwnerMemberId: 'previousOwnerMemberId',
+    newOwnerMemberId: 'newOwnerMemberId',
+    changedAt: 'changedAt'
+  };
+
+  export type OsCommitmentChangeScalarFieldEnum = (typeof OsCommitmentChangeScalarFieldEnum)[keyof typeof OsCommitmentChangeScalarFieldEnum]
+
+
   export const OsInternalNotificationScalarFieldEnum: {
     id: 'id',
     organizationId: 'organizationId',
@@ -139466,6 +140830,7 @@ export namespace Prisma {
     partyId: 'partyId',
     channel: 'channel',
     readAt: 'readAt',
+    acknowledgedAt: 'acknowledgedAt',
     resolvedAt: 'resolvedAt',
     resolvedBecause: 'resolvedBecause',
     createdAt: 'createdAt'
@@ -140592,6 +141957,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationListRelationFilter
     paymentInstructionVersions?: OsPaymentInstructionVersionListRelationFilter
     commitments?: OsCommitmentListRelationFilter
+    commitmentChanges?: OsCommitmentChangeListRelationFilter
     internalNotifications?: OsInternalNotificationListRelationFilter
     catalogProducts?: OsCatalogProductListRelationFilter
     orderLines?: OsOrderLineListRelationFilter
@@ -140691,6 +142057,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationOrderByRelationAggregateInput
     paymentInstructionVersions?: OsPaymentInstructionVersionOrderByRelationAggregateInput
     commitments?: OsCommitmentOrderByRelationAggregateInput
+    commitmentChanges?: OsCommitmentChangeOrderByRelationAggregateInput
     internalNotifications?: OsInternalNotificationOrderByRelationAggregateInput
     catalogProducts?: OsCatalogProductOrderByRelationAggregateInput
     orderLines?: OsOrderLineOrderByRelationAggregateInput
@@ -140793,6 +142160,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationListRelationFilter
     paymentInstructionVersions?: OsPaymentInstructionVersionListRelationFilter
     commitments?: OsCommitmentListRelationFilter
+    commitmentChanges?: OsCommitmentChangeListRelationFilter
     internalNotifications?: OsInternalNotificationListRelationFilter
     catalogProducts?: OsCatalogProductListRelationFilter
     orderLines?: OsOrderLineListRelationFilter
@@ -145884,6 +147252,7 @@ export namespace Prisma {
     cancelledAt?: DateTimeNullableFilter<"OsCommitment"> | Date | string | null
     provenanceSuggestionId?: StringNullableFilter<"OsCommitment"> | string | null
     organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    changes?: OsCommitmentChangeListRelationFilter
   }
 
   export type OsCommitmentOrderByWithRelationInput = {
@@ -145904,6 +147273,7 @@ export namespace Prisma {
     cancelledAt?: SortOrderInput | SortOrder
     provenanceSuggestionId?: SortOrderInput | SortOrder
     organization?: OsOrganizationOrderByWithRelationInput
+    changes?: OsCommitmentChangeOrderByRelationAggregateInput
   }
 
   export type OsCommitmentWhereUniqueInput = Prisma.AtLeast<{
@@ -145927,6 +147297,7 @@ export namespace Prisma {
     cancelledAt?: DateTimeNullableFilter<"OsCommitment"> | Date | string | null
     provenanceSuggestionId?: StringNullableFilter<"OsCommitment"> | string | null
     organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    changes?: OsCommitmentChangeListRelationFilter
   }, "id">
 
   export type OsCommitmentOrderByWithAggregationInput = {
@@ -145973,6 +147344,94 @@ export namespace Prisma {
     provenanceSuggestionId?: StringNullableWithAggregatesFilter<"OsCommitment"> | string | null
   }
 
+  export type OsCommitmentChangeWhereInput = {
+    AND?: OsCommitmentChangeWhereInput | OsCommitmentChangeWhereInput[]
+    OR?: OsCommitmentChangeWhereInput[]
+    NOT?: OsCommitmentChangeWhereInput | OsCommitmentChangeWhereInput[]
+    id?: StringFilter<"OsCommitmentChange"> | string
+    organizationId?: StringFilter<"OsCommitmentChange"> | string
+    commitmentId?: StringFilter<"OsCommitmentChange"> | string
+    kind?: StringFilter<"OsCommitmentChange"> | string
+    actorMemberId?: StringFilter<"OsCommitmentChange"> | string
+    reason?: StringNullableFilter<"OsCommitmentChange"> | string | null
+    previousDueAt?: DateTimeNullableFilter<"OsCommitmentChange"> | Date | string | null
+    newDueAt?: DateTimeNullableFilter<"OsCommitmentChange"> | Date | string | null
+    previousOwnerMemberId?: StringNullableFilter<"OsCommitmentChange"> | string | null
+    newOwnerMemberId?: StringNullableFilter<"OsCommitmentChange"> | string | null
+    changedAt?: DateTimeFilter<"OsCommitmentChange"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    commitment?: XOR<OsCommitmentScalarRelationFilter, OsCommitmentWhereInput>
+  }
+
+  export type OsCommitmentChangeOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    commitmentId?: SortOrder
+    kind?: SortOrder
+    actorMemberId?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    previousDueAt?: SortOrderInput | SortOrder
+    newDueAt?: SortOrderInput | SortOrder
+    previousOwnerMemberId?: SortOrderInput | SortOrder
+    newOwnerMemberId?: SortOrderInput | SortOrder
+    changedAt?: SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+    commitment?: OsCommitmentOrderByWithRelationInput
+  }
+
+  export type OsCommitmentChangeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OsCommitmentChangeWhereInput | OsCommitmentChangeWhereInput[]
+    OR?: OsCommitmentChangeWhereInput[]
+    NOT?: OsCommitmentChangeWhereInput | OsCommitmentChangeWhereInput[]
+    organizationId?: StringFilter<"OsCommitmentChange"> | string
+    commitmentId?: StringFilter<"OsCommitmentChange"> | string
+    kind?: StringFilter<"OsCommitmentChange"> | string
+    actorMemberId?: StringFilter<"OsCommitmentChange"> | string
+    reason?: StringNullableFilter<"OsCommitmentChange"> | string | null
+    previousDueAt?: DateTimeNullableFilter<"OsCommitmentChange"> | Date | string | null
+    newDueAt?: DateTimeNullableFilter<"OsCommitmentChange"> | Date | string | null
+    previousOwnerMemberId?: StringNullableFilter<"OsCommitmentChange"> | string | null
+    newOwnerMemberId?: StringNullableFilter<"OsCommitmentChange"> | string | null
+    changedAt?: DateTimeFilter<"OsCommitmentChange"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    commitment?: XOR<OsCommitmentScalarRelationFilter, OsCommitmentWhereInput>
+  }, "id">
+
+  export type OsCommitmentChangeOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    commitmentId?: SortOrder
+    kind?: SortOrder
+    actorMemberId?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    previousDueAt?: SortOrderInput | SortOrder
+    newDueAt?: SortOrderInput | SortOrder
+    previousOwnerMemberId?: SortOrderInput | SortOrder
+    newOwnerMemberId?: SortOrderInput | SortOrder
+    changedAt?: SortOrder
+    _count?: OsCommitmentChangeCountOrderByAggregateInput
+    _max?: OsCommitmentChangeMaxOrderByAggregateInput
+    _min?: OsCommitmentChangeMinOrderByAggregateInput
+  }
+
+  export type OsCommitmentChangeScalarWhereWithAggregatesInput = {
+    AND?: OsCommitmentChangeScalarWhereWithAggregatesInput | OsCommitmentChangeScalarWhereWithAggregatesInput[]
+    OR?: OsCommitmentChangeScalarWhereWithAggregatesInput[]
+    NOT?: OsCommitmentChangeScalarWhereWithAggregatesInput | OsCommitmentChangeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OsCommitmentChange"> | string
+    organizationId?: StringWithAggregatesFilter<"OsCommitmentChange"> | string
+    commitmentId?: StringWithAggregatesFilter<"OsCommitmentChange"> | string
+    kind?: StringWithAggregatesFilter<"OsCommitmentChange"> | string
+    actorMemberId?: StringWithAggregatesFilter<"OsCommitmentChange"> | string
+    reason?: StringNullableWithAggregatesFilter<"OsCommitmentChange"> | string | null
+    previousDueAt?: DateTimeNullableWithAggregatesFilter<"OsCommitmentChange"> | Date | string | null
+    newDueAt?: DateTimeNullableWithAggregatesFilter<"OsCommitmentChange"> | Date | string | null
+    previousOwnerMemberId?: StringNullableWithAggregatesFilter<"OsCommitmentChange"> | string | null
+    newOwnerMemberId?: StringNullableWithAggregatesFilter<"OsCommitmentChange"> | string | null
+    changedAt?: DateTimeWithAggregatesFilter<"OsCommitmentChange"> | Date | string
+  }
+
   export type OsInternalNotificationWhereInput = {
     AND?: OsInternalNotificationWhereInput | OsInternalNotificationWhereInput[]
     OR?: OsInternalNotificationWhereInput[]
@@ -145989,6 +147448,7 @@ export namespace Prisma {
     partyId?: StringNullableFilter<"OsInternalNotification"> | string | null
     channel?: StringFilter<"OsInternalNotification"> | string
     readAt?: DateTimeNullableFilter<"OsInternalNotification"> | Date | string | null
+    acknowledgedAt?: DateTimeNullableFilter<"OsInternalNotification"> | Date | string | null
     resolvedAt?: DateTimeNullableFilter<"OsInternalNotification"> | Date | string | null
     resolvedBecause?: StringNullableFilter<"OsInternalNotification"> | string | null
     createdAt?: DateTimeFilter<"OsInternalNotification"> | Date | string
@@ -146008,6 +147468,7 @@ export namespace Prisma {
     partyId?: SortOrderInput | SortOrder
     channel?: SortOrder
     readAt?: SortOrderInput | SortOrder
+    acknowledgedAt?: SortOrderInput | SortOrder
     resolvedAt?: SortOrderInput | SortOrder
     resolvedBecause?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -146030,6 +147491,7 @@ export namespace Prisma {
     partyId?: StringNullableFilter<"OsInternalNotification"> | string | null
     channel?: StringFilter<"OsInternalNotification"> | string
     readAt?: DateTimeNullableFilter<"OsInternalNotification"> | Date | string | null
+    acknowledgedAt?: DateTimeNullableFilter<"OsInternalNotification"> | Date | string | null
     resolvedAt?: DateTimeNullableFilter<"OsInternalNotification"> | Date | string | null
     resolvedBecause?: StringNullableFilter<"OsInternalNotification"> | string | null
     createdAt?: DateTimeFilter<"OsInternalNotification"> | Date | string
@@ -146049,6 +147511,7 @@ export namespace Prisma {
     partyId?: SortOrderInput | SortOrder
     channel?: SortOrder
     readAt?: SortOrderInput | SortOrder
+    acknowledgedAt?: SortOrderInput | SortOrder
     resolvedAt?: SortOrderInput | SortOrder
     resolvedBecause?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -146073,6 +147536,7 @@ export namespace Prisma {
     partyId?: StringNullableWithAggregatesFilter<"OsInternalNotification"> | string | null
     channel?: StringWithAggregatesFilter<"OsInternalNotification"> | string
     readAt?: DateTimeNullableWithAggregatesFilter<"OsInternalNotification"> | Date | string | null
+    acknowledgedAt?: DateTimeNullableWithAggregatesFilter<"OsInternalNotification"> | Date | string | null
     resolvedAt?: DateTimeNullableWithAggregatesFilter<"OsInternalNotification"> | Date | string | null
     resolvedBecause?: StringNullableWithAggregatesFilter<"OsInternalNotification"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"OsInternalNotification"> | Date | string
@@ -150820,6 +152284,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -150919,6 +152384,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -151018,6 +152484,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -151117,6 +152584,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -156738,6 +158206,7 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     provenanceSuggestionId?: string | null
     organization: OsOrganizationCreateNestedOneWithoutCommitmentsInput
+    changes?: OsCommitmentChangeCreateNestedManyWithoutCommitmentInput
   }
 
   export type OsCommitmentUncheckedCreateInput = {
@@ -156757,6 +158226,7 @@ export namespace Prisma {
     fulfilledByMemberId?: string | null
     cancelledAt?: Date | string | null
     provenanceSuggestionId?: string | null
+    changes?: OsCommitmentChangeUncheckedCreateNestedManyWithoutCommitmentInput
   }
 
   export type OsCommitmentUpdateInput = {
@@ -156776,6 +158246,7 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     provenanceSuggestionId?: NullableStringFieldUpdateOperationsInput | string | null
     organization?: OsOrganizationUpdateOneRequiredWithoutCommitmentsNestedInput
+    changes?: OsCommitmentChangeUpdateManyWithoutCommitmentNestedInput
   }
 
   export type OsCommitmentUncheckedUpdateInput = {
@@ -156795,6 +158266,7 @@ export namespace Prisma {
     fulfilledByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     provenanceSuggestionId?: NullableStringFieldUpdateOperationsInput | string | null
+    changes?: OsCommitmentChangeUncheckedUpdateManyWithoutCommitmentNestedInput
   }
 
   export type OsCommitmentCreateManyInput = {
@@ -156853,6 +158325,102 @@ export namespace Prisma {
     provenanceSuggestionId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type OsCommitmentChangeCreateInput = {
+    id: string
+    kind: string
+    actorMemberId: string
+    reason?: string | null
+    previousDueAt?: Date | string | null
+    newDueAt?: Date | string | null
+    previousOwnerMemberId?: string | null
+    newOwnerMemberId?: string | null
+    changedAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutCommitmentChangesInput
+    commitment: OsCommitmentCreateNestedOneWithoutChangesInput
+  }
+
+  export type OsCommitmentChangeUncheckedCreateInput = {
+    id: string
+    organizationId: string
+    commitmentId: string
+    kind: string
+    actorMemberId: string
+    reason?: string | null
+    previousDueAt?: Date | string | null
+    newDueAt?: Date | string | null
+    previousOwnerMemberId?: string | null
+    newOwnerMemberId?: string | null
+    changedAt?: Date | string
+  }
+
+  export type OsCommitmentChangeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    previousDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    newDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    previousOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    newOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutCommitmentChangesNestedInput
+    commitment?: OsCommitmentUpdateOneRequiredWithoutChangesNestedInput
+  }
+
+  export type OsCommitmentChangeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    commitmentId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    previousDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    newDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    previousOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    newOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCommitmentChangeCreateManyInput = {
+    id: string
+    organizationId: string
+    commitmentId: string
+    kind: string
+    actorMemberId: string
+    reason?: string | null
+    previousDueAt?: Date | string | null
+    newDueAt?: Date | string | null
+    previousOwnerMemberId?: string | null
+    newOwnerMemberId?: string | null
+    changedAt?: Date | string
+  }
+
+  export type OsCommitmentChangeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    previousDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    newDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    previousOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    newOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCommitmentChangeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    commitmentId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    previousDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    newDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    previousOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    newOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OsInternalNotificationCreateInput = {
     id: string
     recipientMemberId: string
@@ -156865,6 +158433,7 @@ export namespace Prisma {
     partyId?: string | null
     channel?: string
     readAt?: Date | string | null
+    acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
     resolvedBecause?: string | null
     createdAt?: Date | string
@@ -156884,6 +158453,7 @@ export namespace Prisma {
     partyId?: string | null
     channel?: string
     readAt?: Date | string | null
+    acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
     resolvedBecause?: string | null
     createdAt?: Date | string
@@ -156901,6 +158471,7 @@ export namespace Prisma {
     partyId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: StringFieldUpdateOperationsInput | string
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedBecause?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -156920,6 +158491,7 @@ export namespace Prisma {
     partyId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: StringFieldUpdateOperationsInput | string
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedBecause?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -156938,6 +158510,7 @@ export namespace Prisma {
     partyId?: string | null
     channel?: string
     readAt?: Date | string | null
+    acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
     resolvedBecause?: string | null
     createdAt?: Date | string
@@ -156955,6 +158528,7 @@ export namespace Prisma {
     partyId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: StringFieldUpdateOperationsInput | string
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedBecause?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -156973,6 +158547,7 @@ export namespace Prisma {
     partyId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: StringFieldUpdateOperationsInput | string
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedBecause?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -162576,6 +164151,12 @@ export namespace Prisma {
     none?: OsCommitmentWhereInput
   }
 
+  export type OsCommitmentChangeListRelationFilter = {
+    every?: OsCommitmentChangeWhereInput
+    some?: OsCommitmentChangeWhereInput
+    none?: OsCommitmentChangeWhereInput
+  }
+
   export type OsInternalNotificationListRelationFilter = {
     every?: OsInternalNotificationWhereInput
     some?: OsInternalNotificationWhereInput
@@ -163003,6 +164584,10 @@ export namespace Prisma {
   }
 
   export type OsCommitmentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsCommitmentChangeOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -166433,6 +168018,53 @@ export namespace Prisma {
     provenanceSuggestionId?: SortOrder
   }
 
+  export type OsCommitmentScalarRelationFilter = {
+    is?: OsCommitmentWhereInput
+    isNot?: OsCommitmentWhereInput
+  }
+
+  export type OsCommitmentChangeCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    commitmentId?: SortOrder
+    kind?: SortOrder
+    actorMemberId?: SortOrder
+    reason?: SortOrder
+    previousDueAt?: SortOrder
+    newDueAt?: SortOrder
+    previousOwnerMemberId?: SortOrder
+    newOwnerMemberId?: SortOrder
+    changedAt?: SortOrder
+  }
+
+  export type OsCommitmentChangeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    commitmentId?: SortOrder
+    kind?: SortOrder
+    actorMemberId?: SortOrder
+    reason?: SortOrder
+    previousDueAt?: SortOrder
+    newDueAt?: SortOrder
+    previousOwnerMemberId?: SortOrder
+    newOwnerMemberId?: SortOrder
+    changedAt?: SortOrder
+  }
+
+  export type OsCommitmentChangeMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    commitmentId?: SortOrder
+    kind?: SortOrder
+    actorMemberId?: SortOrder
+    reason?: SortOrder
+    previousDueAt?: SortOrder
+    newDueAt?: SortOrder
+    previousOwnerMemberId?: SortOrder
+    newOwnerMemberId?: SortOrder
+    changedAt?: SortOrder
+  }
+
   export type OsInternalNotificationCountOrderByAggregateInput = {
     id?: SortOrder
     organizationId?: SortOrder
@@ -166446,6 +168078,7 @@ export namespace Prisma {
     partyId?: SortOrder
     channel?: SortOrder
     readAt?: SortOrder
+    acknowledgedAt?: SortOrder
     resolvedAt?: SortOrder
     resolvedBecause?: SortOrder
     createdAt?: SortOrder
@@ -166464,6 +168097,7 @@ export namespace Prisma {
     partyId?: SortOrder
     channel?: SortOrder
     readAt?: SortOrder
+    acknowledgedAt?: SortOrder
     resolvedAt?: SortOrder
     resolvedBecause?: SortOrder
     createdAt?: SortOrder
@@ -166482,6 +168116,7 @@ export namespace Prisma {
     partyId?: SortOrder
     channel?: SortOrder
     readAt?: SortOrder
+    acknowledgedAt?: SortOrder
     resolvedAt?: SortOrder
     resolvedBecause?: SortOrder
     createdAt?: SortOrder
@@ -169474,6 +171109,13 @@ export namespace Prisma {
     connect?: OsCommitmentWhereUniqueInput | OsCommitmentWhereUniqueInput[]
   }
 
+  export type OsCommitmentChangeCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsCommitmentChangeCreateWithoutOrganizationInput, OsCommitmentChangeUncheckedCreateWithoutOrganizationInput> | OsCommitmentChangeCreateWithoutOrganizationInput[] | OsCommitmentChangeUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCommitmentChangeCreateOrConnectWithoutOrganizationInput | OsCommitmentChangeCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsCommitmentChangeCreateManyOrganizationInputEnvelope
+    connect?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+  }
+
   export type OsInternalNotificationCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<OsInternalNotificationCreateWithoutOrganizationInput, OsInternalNotificationUncheckedCreateWithoutOrganizationInput> | OsInternalNotificationCreateWithoutOrganizationInput[] | OsInternalNotificationUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsInternalNotificationCreateOrConnectWithoutOrganizationInput | OsInternalNotificationCreateOrConnectWithoutOrganizationInput[]
@@ -170088,6 +171730,13 @@ export namespace Prisma {
     connectOrCreate?: OsCommitmentCreateOrConnectWithoutOrganizationInput | OsCommitmentCreateOrConnectWithoutOrganizationInput[]
     createMany?: OsCommitmentCreateManyOrganizationInputEnvelope
     connect?: OsCommitmentWhereUniqueInput | OsCommitmentWhereUniqueInput[]
+  }
+
+  export type OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsCommitmentChangeCreateWithoutOrganizationInput, OsCommitmentChangeUncheckedCreateWithoutOrganizationInput> | OsCommitmentChangeCreateWithoutOrganizationInput[] | OsCommitmentChangeUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCommitmentChangeCreateOrConnectWithoutOrganizationInput | OsCommitmentChangeCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsCommitmentChangeCreateManyOrganizationInputEnvelope
+    connect?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
   }
 
   export type OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput = {
@@ -171055,6 +172704,20 @@ export namespace Prisma {
     update?: OsCommitmentUpdateWithWhereUniqueWithoutOrganizationInput | OsCommitmentUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OsCommitmentUpdateManyWithWhereWithoutOrganizationInput | OsCommitmentUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OsCommitmentScalarWhereInput | OsCommitmentScalarWhereInput[]
+  }
+
+  export type OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsCommitmentChangeCreateWithoutOrganizationInput, OsCommitmentChangeUncheckedCreateWithoutOrganizationInput> | OsCommitmentChangeCreateWithoutOrganizationInput[] | OsCommitmentChangeUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCommitmentChangeCreateOrConnectWithoutOrganizationInput | OsCommitmentChangeCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsCommitmentChangeUpsertWithWhereUniqueWithoutOrganizationInput | OsCommitmentChangeUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsCommitmentChangeCreateManyOrganizationInputEnvelope
+    set?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    disconnect?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    delete?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    connect?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    update?: OsCommitmentChangeUpdateWithWhereUniqueWithoutOrganizationInput | OsCommitmentChangeUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsCommitmentChangeUpdateManyWithWhereWithoutOrganizationInput | OsCommitmentChangeUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsCommitmentChangeScalarWhereInput | OsCommitmentChangeScalarWhereInput[]
   }
 
   export type OsInternalNotificationUpdateManyWithoutOrganizationNestedInput = {
@@ -172287,6 +173950,20 @@ export namespace Prisma {
     update?: OsCommitmentUpdateWithWhereUniqueWithoutOrganizationInput | OsCommitmentUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OsCommitmentUpdateManyWithWhereWithoutOrganizationInput | OsCommitmentUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OsCommitmentScalarWhereInput | OsCommitmentScalarWhereInput[]
+  }
+
+  export type OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsCommitmentChangeCreateWithoutOrganizationInput, OsCommitmentChangeUncheckedCreateWithoutOrganizationInput> | OsCommitmentChangeCreateWithoutOrganizationInput[] | OsCommitmentChangeUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCommitmentChangeCreateOrConnectWithoutOrganizationInput | OsCommitmentChangeCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsCommitmentChangeUpsertWithWhereUniqueWithoutOrganizationInput | OsCommitmentChangeUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsCommitmentChangeCreateManyOrganizationInputEnvelope
+    set?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    disconnect?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    delete?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    connect?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    update?: OsCommitmentChangeUpdateWithWhereUniqueWithoutOrganizationInput | OsCommitmentChangeUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsCommitmentChangeUpdateManyWithWhereWithoutOrganizationInput | OsCommitmentChangeUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsCommitmentChangeScalarWhereInput | OsCommitmentChangeScalarWhereInput[]
   }
 
   export type OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput = {
@@ -176272,12 +177949,82 @@ export namespace Prisma {
     connect?: OsOrganizationWhereUniqueInput
   }
 
+  export type OsCommitmentChangeCreateNestedManyWithoutCommitmentInput = {
+    create?: XOR<OsCommitmentChangeCreateWithoutCommitmentInput, OsCommitmentChangeUncheckedCreateWithoutCommitmentInput> | OsCommitmentChangeCreateWithoutCommitmentInput[] | OsCommitmentChangeUncheckedCreateWithoutCommitmentInput[]
+    connectOrCreate?: OsCommitmentChangeCreateOrConnectWithoutCommitmentInput | OsCommitmentChangeCreateOrConnectWithoutCommitmentInput[]
+    createMany?: OsCommitmentChangeCreateManyCommitmentInputEnvelope
+    connect?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+  }
+
+  export type OsCommitmentChangeUncheckedCreateNestedManyWithoutCommitmentInput = {
+    create?: XOR<OsCommitmentChangeCreateWithoutCommitmentInput, OsCommitmentChangeUncheckedCreateWithoutCommitmentInput> | OsCommitmentChangeCreateWithoutCommitmentInput[] | OsCommitmentChangeUncheckedCreateWithoutCommitmentInput[]
+    connectOrCreate?: OsCommitmentChangeCreateOrConnectWithoutCommitmentInput | OsCommitmentChangeCreateOrConnectWithoutCommitmentInput[]
+    createMany?: OsCommitmentChangeCreateManyCommitmentInputEnvelope
+    connect?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+  }
+
   export type OsOrganizationUpdateOneRequiredWithoutCommitmentsNestedInput = {
     create?: XOR<OsOrganizationCreateWithoutCommitmentsInput, OsOrganizationUncheckedCreateWithoutCommitmentsInput>
     connectOrCreate?: OsOrganizationCreateOrConnectWithoutCommitmentsInput
     upsert?: OsOrganizationUpsertWithoutCommitmentsInput
     connect?: OsOrganizationWhereUniqueInput
     update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutCommitmentsInput, OsOrganizationUpdateWithoutCommitmentsInput>, OsOrganizationUncheckedUpdateWithoutCommitmentsInput>
+  }
+
+  export type OsCommitmentChangeUpdateManyWithoutCommitmentNestedInput = {
+    create?: XOR<OsCommitmentChangeCreateWithoutCommitmentInput, OsCommitmentChangeUncheckedCreateWithoutCommitmentInput> | OsCommitmentChangeCreateWithoutCommitmentInput[] | OsCommitmentChangeUncheckedCreateWithoutCommitmentInput[]
+    connectOrCreate?: OsCommitmentChangeCreateOrConnectWithoutCommitmentInput | OsCommitmentChangeCreateOrConnectWithoutCommitmentInput[]
+    upsert?: OsCommitmentChangeUpsertWithWhereUniqueWithoutCommitmentInput | OsCommitmentChangeUpsertWithWhereUniqueWithoutCommitmentInput[]
+    createMany?: OsCommitmentChangeCreateManyCommitmentInputEnvelope
+    set?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    disconnect?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    delete?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    connect?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    update?: OsCommitmentChangeUpdateWithWhereUniqueWithoutCommitmentInput | OsCommitmentChangeUpdateWithWhereUniqueWithoutCommitmentInput[]
+    updateMany?: OsCommitmentChangeUpdateManyWithWhereWithoutCommitmentInput | OsCommitmentChangeUpdateManyWithWhereWithoutCommitmentInput[]
+    deleteMany?: OsCommitmentChangeScalarWhereInput | OsCommitmentChangeScalarWhereInput[]
+  }
+
+  export type OsCommitmentChangeUncheckedUpdateManyWithoutCommitmentNestedInput = {
+    create?: XOR<OsCommitmentChangeCreateWithoutCommitmentInput, OsCommitmentChangeUncheckedCreateWithoutCommitmentInput> | OsCommitmentChangeCreateWithoutCommitmentInput[] | OsCommitmentChangeUncheckedCreateWithoutCommitmentInput[]
+    connectOrCreate?: OsCommitmentChangeCreateOrConnectWithoutCommitmentInput | OsCommitmentChangeCreateOrConnectWithoutCommitmentInput[]
+    upsert?: OsCommitmentChangeUpsertWithWhereUniqueWithoutCommitmentInput | OsCommitmentChangeUpsertWithWhereUniqueWithoutCommitmentInput[]
+    createMany?: OsCommitmentChangeCreateManyCommitmentInputEnvelope
+    set?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    disconnect?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    delete?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    connect?: OsCommitmentChangeWhereUniqueInput | OsCommitmentChangeWhereUniqueInput[]
+    update?: OsCommitmentChangeUpdateWithWhereUniqueWithoutCommitmentInput | OsCommitmentChangeUpdateWithWhereUniqueWithoutCommitmentInput[]
+    updateMany?: OsCommitmentChangeUpdateManyWithWhereWithoutCommitmentInput | OsCommitmentChangeUpdateManyWithWhereWithoutCommitmentInput[]
+    deleteMany?: OsCommitmentChangeScalarWhereInput | OsCommitmentChangeScalarWhereInput[]
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutCommitmentChangesInput = {
+    create?: XOR<OsOrganizationCreateWithoutCommitmentChangesInput, OsOrganizationUncheckedCreateWithoutCommitmentChangesInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutCommitmentChangesInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsCommitmentCreateNestedOneWithoutChangesInput = {
+    create?: XOR<OsCommitmentCreateWithoutChangesInput, OsCommitmentUncheckedCreateWithoutChangesInput>
+    connectOrCreate?: OsCommitmentCreateOrConnectWithoutChangesInput
+    connect?: OsCommitmentWhereUniqueInput
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutCommitmentChangesNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutCommitmentChangesInput, OsOrganizationUncheckedCreateWithoutCommitmentChangesInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutCommitmentChangesInput
+    upsert?: OsOrganizationUpsertWithoutCommitmentChangesInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutCommitmentChangesInput, OsOrganizationUpdateWithoutCommitmentChangesInput>, OsOrganizationUncheckedUpdateWithoutCommitmentChangesInput>
+  }
+
+  export type OsCommitmentUpdateOneRequiredWithoutChangesNestedInput = {
+    create?: XOR<OsCommitmentCreateWithoutChangesInput, OsCommitmentUncheckedCreateWithoutChangesInput>
+    connectOrCreate?: OsCommitmentCreateOrConnectWithoutChangesInput
+    upsert?: OsCommitmentUpsertWithoutChangesInput
+    connect?: OsCommitmentWhereUniqueInput
+    update?: XOR<XOR<OsCommitmentUpdateToOneWithWhereWithoutChangesInput, OsCommitmentUpdateWithoutChangesInput>, OsCommitmentUncheckedUpdateWithoutChangesInput>
   }
 
   export type OsOrganizationCreateNestedOneWithoutInternalNotificationsInput = {
@@ -180868,6 +182615,7 @@ export namespace Prisma {
     fulfilledByMemberId?: string | null
     cancelledAt?: Date | string | null
     provenanceSuggestionId?: string | null
+    changes?: OsCommitmentChangeCreateNestedManyWithoutCommitmentInput
   }
 
   export type OsCommitmentUncheckedCreateWithoutOrganizationInput = {
@@ -180886,6 +182634,7 @@ export namespace Prisma {
     fulfilledByMemberId?: string | null
     cancelledAt?: Date | string | null
     provenanceSuggestionId?: string | null
+    changes?: OsCommitmentChangeUncheckedCreateNestedManyWithoutCommitmentInput
   }
 
   export type OsCommitmentCreateOrConnectWithoutOrganizationInput = {
@@ -180895,6 +182644,42 @@ export namespace Prisma {
 
   export type OsCommitmentCreateManyOrganizationInputEnvelope = {
     data: OsCommitmentCreateManyOrganizationInput | OsCommitmentCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsCommitmentChangeCreateWithoutOrganizationInput = {
+    id: string
+    kind: string
+    actorMemberId: string
+    reason?: string | null
+    previousDueAt?: Date | string | null
+    newDueAt?: Date | string | null
+    previousOwnerMemberId?: string | null
+    newOwnerMemberId?: string | null
+    changedAt?: Date | string
+    commitment: OsCommitmentCreateNestedOneWithoutChangesInput
+  }
+
+  export type OsCommitmentChangeUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    commitmentId: string
+    kind: string
+    actorMemberId: string
+    reason?: string | null
+    previousDueAt?: Date | string | null
+    newDueAt?: Date | string | null
+    previousOwnerMemberId?: string | null
+    newOwnerMemberId?: string | null
+    changedAt?: Date | string
+  }
+
+  export type OsCommitmentChangeCreateOrConnectWithoutOrganizationInput = {
+    where: OsCommitmentChangeWhereUniqueInput
+    create: XOR<OsCommitmentChangeCreateWithoutOrganizationInput, OsCommitmentChangeUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsCommitmentChangeCreateManyOrganizationInputEnvelope = {
+    data: OsCommitmentChangeCreateManyOrganizationInput | OsCommitmentChangeCreateManyOrganizationInput[]
     skipDuplicates?: boolean
   }
 
@@ -180910,6 +182695,7 @@ export namespace Prisma {
     partyId?: string | null
     channel?: string
     readAt?: Date | string | null
+    acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
     resolvedBecause?: string | null
     createdAt?: Date | string
@@ -180927,6 +182713,7 @@ export namespace Prisma {
     partyId?: string | null
     channel?: string
     readAt?: Date | string | null
+    acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
     resolvedBecause?: string | null
     createdAt?: Date | string
@@ -184196,6 +185983,39 @@ export namespace Prisma {
     provenanceSuggestionId?: StringNullableFilter<"OsCommitment"> | string | null
   }
 
+  export type OsCommitmentChangeUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsCommitmentChangeWhereUniqueInput
+    update: XOR<OsCommitmentChangeUpdateWithoutOrganizationInput, OsCommitmentChangeUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsCommitmentChangeCreateWithoutOrganizationInput, OsCommitmentChangeUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsCommitmentChangeUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsCommitmentChangeWhereUniqueInput
+    data: XOR<OsCommitmentChangeUpdateWithoutOrganizationInput, OsCommitmentChangeUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsCommitmentChangeUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsCommitmentChangeScalarWhereInput
+    data: XOR<OsCommitmentChangeUpdateManyMutationInput, OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsCommitmentChangeScalarWhereInput = {
+    AND?: OsCommitmentChangeScalarWhereInput | OsCommitmentChangeScalarWhereInput[]
+    OR?: OsCommitmentChangeScalarWhereInput[]
+    NOT?: OsCommitmentChangeScalarWhereInput | OsCommitmentChangeScalarWhereInput[]
+    id?: StringFilter<"OsCommitmentChange"> | string
+    organizationId?: StringFilter<"OsCommitmentChange"> | string
+    commitmentId?: StringFilter<"OsCommitmentChange"> | string
+    kind?: StringFilter<"OsCommitmentChange"> | string
+    actorMemberId?: StringFilter<"OsCommitmentChange"> | string
+    reason?: StringNullableFilter<"OsCommitmentChange"> | string | null
+    previousDueAt?: DateTimeNullableFilter<"OsCommitmentChange"> | Date | string | null
+    newDueAt?: DateTimeNullableFilter<"OsCommitmentChange"> | Date | string | null
+    previousOwnerMemberId?: StringNullableFilter<"OsCommitmentChange"> | string | null
+    newOwnerMemberId?: StringNullableFilter<"OsCommitmentChange"> | string | null
+    changedAt?: DateTimeFilter<"OsCommitmentChange"> | Date | string
+  }
+
   export type OsInternalNotificationUpsertWithWhereUniqueWithoutOrganizationInput = {
     where: OsInternalNotificationWhereUniqueInput
     update: XOR<OsInternalNotificationUpdateWithoutOrganizationInput, OsInternalNotificationUncheckedUpdateWithoutOrganizationInput>
@@ -184228,6 +186048,7 @@ export namespace Prisma {
     partyId?: StringNullableFilter<"OsInternalNotification"> | string | null
     channel?: StringFilter<"OsInternalNotification"> | string
     readAt?: DateTimeNullableFilter<"OsInternalNotification"> | Date | string | null
+    acknowledgedAt?: DateTimeNullableFilter<"OsInternalNotification"> | Date | string | null
     resolvedAt?: DateTimeNullableFilter<"OsInternalNotification"> | Date | string | null
     resolvedBecause?: StringNullableFilter<"OsInternalNotification"> | string | null
     createdAt?: DateTimeFilter<"OsInternalNotification"> | Date | string
@@ -185755,6 +187576,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -185853,6 +187675,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -186218,6 +188041,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -186316,6 +188140,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -186613,6 +188438,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -186711,6 +188537,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -186908,6 +188735,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -187006,6 +188834,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -187167,6 +188996,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -187265,6 +189095,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -187430,6 +189261,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -187528,6 +189360,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -187671,6 +189504,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -187769,6 +189603,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -187926,6 +189761,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -188024,6 +189860,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -188171,6 +190008,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -188269,6 +190107,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -188451,6 +190290,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -188549,6 +190389,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -188727,6 +190568,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -188825,6 +190667,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -189025,6 +190868,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -189123,6 +190967,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -189319,6 +191164,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -189417,6 +191263,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -189617,6 +191464,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -189715,6 +191563,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -189911,6 +191760,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -190009,6 +191859,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -190236,6 +192087,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -190334,6 +192186,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -190513,6 +192366,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -190611,6 +192465,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -190770,6 +192625,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -190868,6 +192724,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -191017,6 +192874,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -191115,6 +192973,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -191274,6 +193133,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -191372,6 +193232,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -191521,6 +193382,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -191619,6 +193481,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -191733,6 +193596,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -191831,6 +193695,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -191929,6 +193794,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -192027,6 +193893,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -192141,6 +194008,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -192239,6 +194107,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -192337,6 +194206,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -192435,6 +194305,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -192549,6 +194420,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -192647,6 +194519,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -192745,6 +194618,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -192843,6 +194717,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -192957,6 +194832,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -193055,6 +194931,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -193153,6 +195030,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -193251,6 +195129,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -193365,6 +195244,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -193463,6 +195343,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -193561,6 +195442,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -193659,6 +195541,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -193773,6 +195656,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -193871,6 +195755,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -193969,6 +195854,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -194067,6 +195953,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -194898,6 +196785,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -194996,6 +196884,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -195399,6 +197288,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -195497,6 +197387,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -195670,6 +197561,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -195768,6 +197660,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -195931,6 +197824,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -196029,6 +197923,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -196175,6 +198070,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -196273,6 +198169,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -196422,6 +198319,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -196520,6 +198418,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -196675,6 +198574,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -196773,6 +198673,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -196871,6 +198772,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -196969,6 +198871,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -197216,6 +199119,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -197314,6 +199218,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -197493,6 +199398,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -197591,6 +199497,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -197943,6 +199850,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -198041,6 +199949,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -198297,6 +200206,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -198395,6 +200305,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -198624,6 +200535,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -198722,6 +200634,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -198911,6 +200824,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -199009,6 +200923,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -199398,6 +201313,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -199496,6 +201412,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -199782,6 +201699,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -199880,6 +201798,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -200053,6 +201972,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -200151,6 +202071,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -200314,6 +202235,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -200412,6 +202334,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -200663,6 +202586,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -200761,6 +202685,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -200957,6 +202882,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -201055,6 +202981,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -201270,6 +203197,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -201368,6 +203296,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -201549,6 +203478,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -201647,6 +203577,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -201800,6 +203731,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -201898,6 +203830,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -202040,6 +203973,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -202138,6 +204072,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -202311,6 +204246,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -202409,6 +204345,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -202572,6 +204509,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -202670,6 +204608,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -202843,6 +204782,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -202941,6 +204881,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -203104,6 +205045,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -203202,6 +205144,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -203375,6 +205318,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -203473,6 +205417,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -203636,6 +205581,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -203734,6 +205680,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -203966,6 +205913,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -204064,6 +206012,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -204292,6 +206241,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -204390,6 +206340,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -204622,6 +206573,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -204720,6 +206672,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -204948,6 +206901,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -205046,6 +207000,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -205160,6 +207115,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -205258,6 +207214,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -205356,6 +207313,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -205454,6 +207412,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -205568,6 +207527,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -205666,6 +207626,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -205764,6 +207725,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -205862,6 +207824,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -205976,6 +207939,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -206074,6 +208038,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -206172,6 +208137,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -206270,6 +208236,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -206384,6 +208351,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -206482,6 +208450,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -206580,6 +208549,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -206678,6 +208648,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -206792,6 +208763,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -206890,6 +208862,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -206988,6 +208961,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -207086,6 +209060,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -207200,6 +209175,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -207298,6 +209274,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -207396,6 +209373,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -207494,6 +209472,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -207608,6 +209587,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -207706,6 +209686,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -207804,6 +209785,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -207902,6 +209884,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -208016,6 +209999,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -208114,6 +210098,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -208212,6 +210197,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -208310,6 +210296,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -208424,6 +210411,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -208522,6 +210510,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -208620,6 +210609,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -208718,6 +210708,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -208832,6 +210823,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -208930,6 +210922,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -209028,6 +211021,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -209126,6 +211120,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -209240,6 +211235,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -209338,6 +211334,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -209436,6 +211433,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -209534,6 +211532,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -209996,6 +211995,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -210094,6 +212094,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -210439,6 +212440,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -210537,6 +212539,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -210867,6 +212870,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -210965,6 +212969,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -211225,6 +213230,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -211323,6 +213329,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -211480,6 +213487,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -211578,6 +213586,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -211725,6 +213734,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -211823,6 +213833,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -212039,6 +214050,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -212137,6 +214149,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -212349,6 +214362,7 @@ export namespace Prisma {
     paymentEvidence?: OsPaymentEvidenceCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -212447,6 +214461,7 @@ export namespace Prisma {
     paymentEvidence?: OsPaymentEvidenceUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -212667,6 +214682,7 @@ export namespace Prisma {
     paymentEvidence?: OsPaymentEvidenceUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -212765,6 +214781,7 @@ export namespace Prisma {
     paymentEvidence?: OsPaymentEvidenceUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -212981,6 +214998,7 @@ export namespace Prisma {
     paymentEvidence?: OsPaymentEvidenceCreateNestedManyWithoutOrganizationInput
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -213079,6 +215097,7 @@ export namespace Prisma {
     paymentEvidence?: OsPaymentEvidenceUncheckedCreateNestedManyWithoutOrganizationInput
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -213193,6 +215212,7 @@ export namespace Prisma {
     paymentEvidence?: OsPaymentEvidenceUpdateManyWithoutOrganizationNestedInput
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -213291,6 +215311,7 @@ export namespace Prisma {
     paymentEvidence?: OsPaymentEvidenceUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -213389,6 +215410,7 @@ export namespace Prisma {
     paymentEvidence?: OsPaymentEvidenceCreateNestedManyWithoutOrganizationInput
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -213487,6 +215509,7 @@ export namespace Prisma {
     paymentEvidence?: OsPaymentEvidenceUncheckedCreateNestedManyWithoutOrganizationInput
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -213531,6 +215554,42 @@ export namespace Prisma {
   export type OsOrganizationCreateOrConnectWithoutCommitmentsInput = {
     where: OsOrganizationWhereUniqueInput
     create: XOR<OsOrganizationCreateWithoutCommitmentsInput, OsOrganizationUncheckedCreateWithoutCommitmentsInput>
+  }
+
+  export type OsCommitmentChangeCreateWithoutCommitmentInput = {
+    id: string
+    kind: string
+    actorMemberId: string
+    reason?: string | null
+    previousDueAt?: Date | string | null
+    newDueAt?: Date | string | null
+    previousOwnerMemberId?: string | null
+    newOwnerMemberId?: string | null
+    changedAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutCommitmentChangesInput
+  }
+
+  export type OsCommitmentChangeUncheckedCreateWithoutCommitmentInput = {
+    id: string
+    organizationId: string
+    kind: string
+    actorMemberId: string
+    reason?: string | null
+    previousDueAt?: Date | string | null
+    newDueAt?: Date | string | null
+    previousOwnerMemberId?: string | null
+    newOwnerMemberId?: string | null
+    changedAt?: Date | string
+  }
+
+  export type OsCommitmentChangeCreateOrConnectWithoutCommitmentInput = {
+    where: OsCommitmentChangeWhereUniqueInput
+    create: XOR<OsCommitmentChangeCreateWithoutCommitmentInput, OsCommitmentChangeUncheckedCreateWithoutCommitmentInput>
+  }
+
+  export type OsCommitmentChangeCreateManyCommitmentInputEnvelope = {
+    data: OsCommitmentChangeCreateManyCommitmentInput | OsCommitmentChangeCreateManyCommitmentInput[]
+    skipDuplicates?: boolean
   }
 
   export type OsOrganizationUpsertWithoutCommitmentsInput = {
@@ -213601,6 +215660,7 @@ export namespace Prisma {
     paymentEvidence?: OsPaymentEvidenceUpdateManyWithoutOrganizationNestedInput
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -213699,6 +215759,7 @@ export namespace Prisma {
     paymentEvidence?: OsPaymentEvidenceUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -213738,6 +215799,526 @@ export namespace Prisma {
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
     contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsCommitmentChangeUpsertWithWhereUniqueWithoutCommitmentInput = {
+    where: OsCommitmentChangeWhereUniqueInput
+    update: XOR<OsCommitmentChangeUpdateWithoutCommitmentInput, OsCommitmentChangeUncheckedUpdateWithoutCommitmentInput>
+    create: XOR<OsCommitmentChangeCreateWithoutCommitmentInput, OsCommitmentChangeUncheckedCreateWithoutCommitmentInput>
+  }
+
+  export type OsCommitmentChangeUpdateWithWhereUniqueWithoutCommitmentInput = {
+    where: OsCommitmentChangeWhereUniqueInput
+    data: XOR<OsCommitmentChangeUpdateWithoutCommitmentInput, OsCommitmentChangeUncheckedUpdateWithoutCommitmentInput>
+  }
+
+  export type OsCommitmentChangeUpdateManyWithWhereWithoutCommitmentInput = {
+    where: OsCommitmentChangeScalarWhereInput
+    data: XOR<OsCommitmentChangeUpdateManyMutationInput, OsCommitmentChangeUncheckedUpdateManyWithoutCommitmentInput>
+  }
+
+  export type OsOrganizationCreateWithoutCommitmentChangesInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactCreateNestedManyWithoutOrganizationInput
+    paymentTenders?: OsPaymentTenderCreateNestedManyWithoutOrganizationInput
+    paymentTenderEvents?: OsPaymentTenderEventCreateNestedManyWithoutOrganizationInput
+    paymentEvidence?: OsPaymentEvidenceCreateNestedManyWithoutOrganizationInput
+    paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
+    paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
+    issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
+    issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
+    issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
+    issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
+    issueRelations?: OsIssueRelationCreateNestedManyWithoutOrganizationInput
+    issueResolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutOrganizationInput
+    productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutCommitmentChangesInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentTenders?: OsPaymentTenderUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentTenderEvents?: OsPaymentTenderEventUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentEvidence?: OsPaymentEvidenceUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
+    issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
+    issueRelations?: OsIssueRelationUncheckedCreateNestedManyWithoutOrganizationInput
+    issueResolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutOrganizationInput
+    productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutCommitmentChangesInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutCommitmentChangesInput, OsOrganizationUncheckedCreateWithoutCommitmentChangesInput>
+  }
+
+  export type OsCommitmentCreateWithoutChangesInput = {
+    id: string
+    partyId?: string | null
+    ownerMemberId: string
+    text: string
+    dueAt?: Date | string | null
+    origin: string
+    relatedSubjectType?: string | null
+    relatedSubjectId?: string | null
+    lifecycle?: string
+    createdByMemberId: string
+    createdAt?: Date | string
+    fulfilledAt?: Date | string | null
+    fulfilledByMemberId?: string | null
+    cancelledAt?: Date | string | null
+    provenanceSuggestionId?: string | null
+    organization: OsOrganizationCreateNestedOneWithoutCommitmentsInput
+  }
+
+  export type OsCommitmentUncheckedCreateWithoutChangesInput = {
+    id: string
+    organizationId: string
+    partyId?: string | null
+    ownerMemberId: string
+    text: string
+    dueAt?: Date | string | null
+    origin: string
+    relatedSubjectType?: string | null
+    relatedSubjectId?: string | null
+    lifecycle?: string
+    createdByMemberId: string
+    createdAt?: Date | string
+    fulfilledAt?: Date | string | null
+    fulfilledByMemberId?: string | null
+    cancelledAt?: Date | string | null
+    provenanceSuggestionId?: string | null
+  }
+
+  export type OsCommitmentCreateOrConnectWithoutChangesInput = {
+    where: OsCommitmentWhereUniqueInput
+    create: XOR<OsCommitmentCreateWithoutChangesInput, OsCommitmentUncheckedCreateWithoutChangesInput>
+  }
+
+  export type OsOrganizationUpsertWithoutCommitmentChangesInput = {
+    update: XOR<OsOrganizationUpdateWithoutCommitmentChangesInput, OsOrganizationUncheckedUpdateWithoutCommitmentChangesInput>
+    create: XOR<OsOrganizationCreateWithoutCommitmentChangesInput, OsOrganizationUncheckedCreateWithoutCommitmentChangesInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutCommitmentChangesInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutCommitmentChangesInput, OsOrganizationUncheckedUpdateWithoutCommitmentChangesInput>
+  }
+
+  export type OsOrganizationUpdateWithoutCommitmentChangesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUpdateManyWithoutOrganizationNestedInput
+    paymentTenders?: OsPaymentTenderUpdateManyWithoutOrganizationNestedInput
+    paymentTenderEvents?: OsPaymentTenderEventUpdateManyWithoutOrganizationNestedInput
+    paymentEvidence?: OsPaymentEvidenceUpdateManyWithoutOrganizationNestedInput
+    paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
+    paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
+    issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
+    issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
+    issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
+    issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
+    issueRelations?: OsIssueRelationUpdateManyWithoutOrganizationNestedInput
+    issueResolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutOrganizationNestedInput
+    productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutCommitmentChangesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentTenders?: OsPaymentTenderUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentTenderEvents?: OsPaymentTenderEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentEvidence?: OsPaymentEvidenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
+    issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueRelations?: OsIssueRelationUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueResolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutOrganizationNestedInput
+    productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsCommitmentUpsertWithoutChangesInput = {
+    update: XOR<OsCommitmentUpdateWithoutChangesInput, OsCommitmentUncheckedUpdateWithoutChangesInput>
+    create: XOR<OsCommitmentCreateWithoutChangesInput, OsCommitmentUncheckedCreateWithoutChangesInput>
+    where?: OsCommitmentWhereInput
+  }
+
+  export type OsCommitmentUpdateToOneWithWhereWithoutChangesInput = {
+    where?: OsCommitmentWhereInput
+    data: XOR<OsCommitmentUpdateWithoutChangesInput, OsCommitmentUncheckedUpdateWithoutChangesInput>
+  }
+
+  export type OsCommitmentUpdateWithoutChangesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerMemberId?: StringFieldUpdateOperationsInput | string
+    text?: StringFieldUpdateOperationsInput | string
+    dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    origin?: StringFieldUpdateOperationsInput | string
+    relatedSubjectType?: NullableStringFieldUpdateOperationsInput | string | null
+    relatedSubjectId?: NullableStringFieldUpdateOperationsInput | string | null
+    lifecycle?: StringFieldUpdateOperationsInput | string
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    provenanceSuggestionId?: NullableStringFieldUpdateOperationsInput | string | null
+    organization?: OsOrganizationUpdateOneRequiredWithoutCommitmentsNestedInput
+  }
+
+  export type OsCommitmentUncheckedUpdateWithoutChangesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerMemberId?: StringFieldUpdateOperationsInput | string
+    text?: StringFieldUpdateOperationsInput | string
+    dueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    origin?: StringFieldUpdateOperationsInput | string
+    relatedSubjectType?: NullableStringFieldUpdateOperationsInput | string | null
+    relatedSubjectId?: NullableStringFieldUpdateOperationsInput | string | null
+    lifecycle?: StringFieldUpdateOperationsInput | string
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    provenanceSuggestionId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OsOrganizationCreateWithoutInternalNotificationsInput = {
@@ -213798,6 +216379,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
     operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
@@ -213896,6 +216478,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
     operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
@@ -214010,6 +216593,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
     operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
@@ -214108,6 +216692,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
     operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -214206,6 +216791,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
     operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
@@ -214304,6 +216890,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
     operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
@@ -214539,6 +217126,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
     operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
@@ -214637,6 +217225,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
     operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -215116,6 +217705,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
@@ -215214,6 +217804,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
@@ -215481,6 +218072,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
@@ -215579,6 +218171,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -215848,6 +218441,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -215946,6 +218540,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -216160,6 +218755,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -216258,6 +218854,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -216388,6 +218985,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -216486,6 +219084,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -216756,6 +219355,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -216854,6 +219454,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -217071,6 +219672,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -217169,6 +219771,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -217331,6 +219934,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -217429,6 +220033,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -217581,6 +220186,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -217679,6 +220285,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -217945,6 +220552,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -218043,6 +220651,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -218258,6 +220867,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -218356,6 +220966,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -218516,6 +221127,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -218614,6 +221226,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -218764,6 +221377,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -218862,6 +221476,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -219134,6 +221749,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -219232,6 +221848,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -219378,6 +221995,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -219476,6 +222094,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -219700,6 +222319,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -219798,6 +222418,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -219992,6 +222613,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -220090,6 +222712,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -220318,6 +222941,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -220416,6 +223040,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -220612,6 +223237,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -220710,6 +223336,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -220994,6 +223621,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -221092,6 +223720,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -221316,6 +223945,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -221414,6 +224044,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -221528,6 +224159,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -221626,6 +224258,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -221724,6 +224357,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -221822,6 +224456,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -221968,6 +224603,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -222066,6 +224702,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -222217,6 +224854,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -222315,6 +224953,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -222472,6 +225111,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -222570,6 +225210,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -222668,6 +225309,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -222766,6 +225408,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -222912,6 +225555,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -223010,6 +225654,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -223159,6 +225804,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -223257,6 +225903,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -223412,6 +226059,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -223510,6 +226158,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -223608,6 +226257,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -223706,6 +226356,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -223852,6 +226503,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -223950,6 +226602,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -224097,6 +226750,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -224195,6 +226849,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -224348,6 +227003,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -224446,6 +227102,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -224544,6 +227201,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -224642,6 +227300,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -224756,6 +227415,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -224854,6 +227514,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -224952,6 +227613,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -225050,6 +227712,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -225164,6 +227827,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -225262,6 +227926,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -225360,6 +228025,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -225458,6 +228124,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -225638,6 +228305,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -225736,6 +228404,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -226145,6 +228814,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -226243,6 +228913,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -226396,6 +229067,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -226494,6 +229166,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -226608,6 +229281,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -226706,6 +229380,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -226898,6 +229573,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -226996,6 +229672,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -227184,6 +229861,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -227282,6 +229960,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -227396,6 +230075,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -227494,6 +230174,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -227592,6 +230273,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -227690,6 +230372,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -227804,6 +230487,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -227902,6 +230586,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -228000,6 +230685,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -228098,6 +230784,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -228212,6 +230899,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -228310,6 +230998,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -228408,6 +231097,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -228506,6 +231196,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -228883,6 +231574,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -228981,6 +231673,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -229240,6 +231933,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -229338,6 +232032,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -229517,6 +232212,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -229615,6 +232311,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -229784,6 +232481,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -229882,6 +232580,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -230061,6 +232760,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -230159,6 +232859,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -230328,6 +233029,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -230426,6 +233128,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -230605,6 +233308,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -230703,6 +233407,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -230872,6 +233577,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -230970,6 +233676,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -231149,6 +233856,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -231247,6 +233955,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -231416,6 +234125,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -231514,6 +234224,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -231758,6 +234469,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -231856,6 +234568,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -232096,6 +234809,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -232194,6 +234908,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -232373,6 +235088,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -232471,6 +235187,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -232640,6 +235357,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -232738,6 +235456,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -232852,6 +235571,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -232950,6 +235670,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -233048,6 +235769,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -233146,6 +235868,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -233325,6 +236048,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -233423,6 +236147,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -233592,6 +236317,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
@@ -233690,6 +236416,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
     commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
     internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
     catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
     orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
@@ -233865,6 +236592,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
@@ -233963,6 +236691,7 @@ export namespace Prisma {
     paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
     paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
     commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
     catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
     orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -234760,6 +237489,19 @@ export namespace Prisma {
     provenanceSuggestionId?: string | null
   }
 
+  export type OsCommitmentChangeCreateManyOrganizationInput = {
+    id: string
+    commitmentId: string
+    kind: string
+    actorMemberId: string
+    reason?: string | null
+    previousDueAt?: Date | string | null
+    newDueAt?: Date | string | null
+    previousOwnerMemberId?: string | null
+    newOwnerMemberId?: string | null
+    changedAt?: Date | string
+  }
+
   export type OsInternalNotificationCreateManyOrganizationInput = {
     id: string
     recipientMemberId: string
@@ -234772,6 +237514,7 @@ export namespace Prisma {
     partyId?: string | null
     channel?: string
     readAt?: Date | string | null
+    acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
     resolvedBecause?: string | null
     createdAt?: Date | string
@@ -237471,6 +240214,7 @@ export namespace Prisma {
     fulfilledByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     provenanceSuggestionId?: NullableStringFieldUpdateOperationsInput | string | null
+    changes?: OsCommitmentChangeUpdateManyWithoutCommitmentNestedInput
   }
 
   export type OsCommitmentUncheckedUpdateWithoutOrganizationInput = {
@@ -237489,6 +240233,7 @@ export namespace Prisma {
     fulfilledByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     provenanceSuggestionId?: NullableStringFieldUpdateOperationsInput | string | null
+    changes?: OsCommitmentChangeUncheckedUpdateManyWithoutCommitmentNestedInput
   }
 
   export type OsCommitmentUncheckedUpdateManyWithoutOrganizationInput = {
@@ -237509,6 +240254,45 @@ export namespace Prisma {
     provenanceSuggestionId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type OsCommitmentChangeUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    previousDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    newDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    previousOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    newOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commitment?: OsCommitmentUpdateOneRequiredWithoutChangesNestedInput
+  }
+
+  export type OsCommitmentChangeUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    commitmentId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    previousDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    newDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    previousOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    newOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    commitmentId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    previousDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    newDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    previousOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    newOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OsInternalNotificationUpdateWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
     recipientMemberId?: StringFieldUpdateOperationsInput | string
@@ -237521,6 +240305,7 @@ export namespace Prisma {
     partyId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: StringFieldUpdateOperationsInput | string
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedBecause?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -237538,6 +240323,7 @@ export namespace Prisma {
     partyId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: StringFieldUpdateOperationsInput | string
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedBecause?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -237555,6 +240341,7 @@ export namespace Prisma {
     partyId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: StringFieldUpdateOperationsInput | string
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedBecause?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -242202,6 +244989,58 @@ export namespace Prisma {
     content?: BytesFieldUpdateOperationsInput | Bytes
     uploadedByMemberId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCommitmentChangeCreateManyCommitmentInput = {
+    id: string
+    organizationId: string
+    kind: string
+    actorMemberId: string
+    reason?: string | null
+    previousDueAt?: Date | string | null
+    newDueAt?: Date | string | null
+    previousOwnerMemberId?: string | null
+    newOwnerMemberId?: string | null
+    changedAt?: Date | string
+  }
+
+  export type OsCommitmentChangeUpdateWithoutCommitmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    previousDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    newDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    previousOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    newOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutCommitmentChangesNestedInput
+  }
+
+  export type OsCommitmentChangeUncheckedUpdateWithoutCommitmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    previousDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    newDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    previousOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    newOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCommitmentChangeUncheckedUpdateManyWithoutCommitmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    previousDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    newDueAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    previousOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    newOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OsCatalogProductProvenanceCreateManyProductInput = {

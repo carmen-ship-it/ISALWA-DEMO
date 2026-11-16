@@ -23,6 +23,8 @@ export const NOTIFICATION_KINDS = [
   'payment_to_verify',
   /** T07: a tender was confirmed, rejected or reversed (reporter and account owner). */
   'payment_outcome',
+  /** T08: a commitment was given to this member (created for them or handed over). */
+  'commitment_assigned',
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
@@ -31,6 +33,9 @@ export type CommitmentNoticeKind = (typeof COMMITMENT_NOTICE_KINDS)[number];
 
 export const NOTIFICATION_READ_STATES = ['unread', 'read'] as const;
 export type NotificationReadState = (typeof NOTIFICATION_READ_STATES)[number];
+
+export const NOTIFICATION_ACKNOWLEDGEMENTS = ['pending', 'acknowledged'] as const;
+export type NotificationAcknowledgement = (typeof NOTIFICATION_ACKNOWLEDGEMENTS)[number];
 
 export const NOTIFICATION_RESOLUTIONS = ['open', 'resolved'] as const;
 export type NotificationResolution = (typeof NOTIFICATION_RESOLUTIONS)[number];
@@ -75,6 +80,8 @@ export const InternalNotificationSchema = z
     source: NotificationSourceSchema,
     channel: z.literal(NOTIFICATION_CHANNEL),
     readAt: IsoDateTime.nullable(),
+    /** The recipient confirmed they took it on. Separate from read and from resolved. */
+    acknowledgedAt: IsoDateTime.nullable().optional(),
     resolvedAt: IsoDateTime.nullable(),
     resolvedBecause: z.literal('source_condition_gone').nullable(),
     createdAt: IsoDateTime,
@@ -114,6 +121,12 @@ export function notificationDedupKey(input: {
 
 export function notificationReadState(notification: Pick<InternalNotification, 'readAt'>): NotificationReadState {
   return notification.readAt ? 'read' : 'unread';
+}
+
+export function notificationAcknowledgement(
+  notification: Pick<InternalNotification, 'acknowledgedAt'>,
+): NotificationAcknowledgement {
+  return notification.acknowledgedAt ? 'acknowledged' : 'pending';
 }
 
 export function notificationResolution(
@@ -208,6 +221,17 @@ export function markNotificationRead(
   const parsed = IsoDateTime.safeParse(readAt);
   if (!parsed.success) return { ok: false, reason: 'invalid_time' };
   return { ok: true, notification: { ...notification, readAt: parsed.data } };
+}
+
+/** Acknowledging does not mark the notice read and does not resolve it. */
+export function markNotificationAcknowledged(
+  notification: InternalNotification,
+  acknowledgedAt: string,
+): NotificationResult {
+  if (notification.acknowledgedAt) return { ok: true, notification };
+  const parsed = IsoDateTime.safeParse(acknowledgedAt);
+  if (!parsed.success) return { ok: false, reason: 'invalid_time' };
+  return { ok: true, notification: { ...notification, acknowledgedAt: parsed.data } };
 }
 
 /**

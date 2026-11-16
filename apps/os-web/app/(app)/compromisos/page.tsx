@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { Button, EmptyState, PageContainer, StatGroup, StatusPill } from '@isalwa/ui';
+import { CommitmentCreateDrawer } from '@/components/commitments/commitment-create-drawer';
 import { CompromisosDeskPanel } from '@/components/commitments/compromisos-desk-panel';
 import { ListPageNav } from '@/components/lists/list-page-nav';
 import { ListCapNotice } from '@/components/lists/list-cap-notice';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { createOsApiClient } from '@/lib/api/os-api-client';
-import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
 import { COMMITMENT_COPY } from '@/lib/commitments/copy';
 import { cursorPageLinks } from '@/lib/lists/url-state';
 import { bucketCompromisosDesk } from '@/lib/commitments/desk-buckets';
@@ -44,10 +45,16 @@ export default async function CompromisosPage({
 
   try {
     const PAGE_LIMIT = 25;
-    const [openResult, fulfilledResult] = await Promise.all([
+    const [openResult, fulfilledResult, queueResult, session, webSession] = await Promise.all([
       client.listCommitments({ lifecycle: 'open', limit: PAGE_LIMIT, ...(cursor ? { cursor } : {}) }),
       client.listCommitments({ lifecycle: 'fulfilled', limit: PAGE_LIMIT }),
+      // Only members with handover authority get anything here; for everyone else it is empty.
+      client.listCommitments({ view: 'reassignment', limit: PAGE_LIMIT }).catch(() => ({ items: [] })),
+      client.getAuthenticatedSession().catch(() => null),
+      getServerWebSession().catch(() => null),
     ]);
+    const actorMemberId = session?.memberId?.trim() ?? '';
+    const organizationId = session?.organizationId?.trim() ?? '';
     const openMeta = (openResult as { meta?: { hasMore?: boolean; nextCursor?: string | null } }).meta;
     let allowedPartyIds: Set<string> | null = null;
     if (evaluation.active && evaluation.persona === 'asesor') {
@@ -70,15 +77,20 @@ export default async function CompromisosPage({
       [...(openResult.items ?? []), ...(fulfilledResult.items ?? [])],
       allowedPartyIds,
     );
+    const queue = filterCommitmentsForEvaluation(evaluation, queueResult.items ?? [], allowedPartyIds).filter(
+      (item) => !isEngineeringFixtureCopy(item.text),
+    );
     const partyLabels = await resolvePartyLabels(
       client,
-      raw.map((item) => item.partyId).filter((id): id is string => Boolean(id)),
+      [...raw, ...queue].map((item) => item.partyId).filter((id): id is string => Boolean(id)),
     );
-    const items = raw.filter((item) => !isEngineeringFixtureCopy(item.text));
+    // A commitment waiting for an owner is shown once, in its own section.
+    const queued = new Set(queue.map((item) => item.id));
+    const items = raw.filter((item) => !isEngineeringFixtureCopy(item.text) && !queued.has(item.id));
     const buckets = bucketCompromisosDesk(items);
     const memberLabels = await resolveMemberLabels(
       client,
-      items.flatMap((item) =>
+      [...items, ...queue].flatMap((item) =>
         [item.ownerMemberId, item.createdByMemberId, item.fulfilledByMemberId].filter(
           (id): id is string => Boolean(id),
         ),
@@ -90,9 +102,16 @@ export default async function CompromisosPage({
         <PageHeader
           kicker="Trabajo"
           title={COMMITMENT_COPY.title}
-          description="Promesas registradas en la empresa. Un compromiso del cliente no confirma un pago. Para registrar uno nuevo, ábralo desde el cliente."
+          description="Promesas registradas en la empresa, con responsable y fecha. Un compromiso del cliente no confirma un pago. También puede registrarlo desde la ficha del cliente."
           action={
             <div className="flex flex-wrap items-center gap-3">
+              {actorMemberId && organizationId ? (
+                <CommitmentCreateDrawer
+                  organizationId={organizationId}
+                  actorMemberId={actorMemberId}
+                  actorLabel={webSession?.displayLabel?.trim() ?? ''}
+                />
+              ) : null}
               <Link href="/clientes">
                 <Button type="button" variant="secondary">
                   Ir a clientes
@@ -128,7 +147,7 @@ export default async function CompromisosPage({
           ]}
         />
 
-        <CompromisosDeskPanel items={items} memberLabels={memberLabels} partyLabels={partyLabels} />
+        <CompromisosDeskPanel items={items} reassignmentQueue={queue} memberLabels={memberLabels} partyLabels={partyLabels} />
         {openMeta?.hasMore ? <ListCapNotice caps={[{ hasMore: true, limit: 25 }]} /> : null}
         {(() => {
           const nav = cursorPageLinks(

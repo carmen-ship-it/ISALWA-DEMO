@@ -1,6 +1,5 @@
 export { NOTIFICATION_COPY, notificationKindLabel, notificationReadLabel, unreadCountLabel } from './copy';
 export { notificationRecordHref, notificationLinkLabel } from './links';
-export { notificationPersistence } from './persistence';
 export {
   countUnreadOpen,
   notificationRowView,
