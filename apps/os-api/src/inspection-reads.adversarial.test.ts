@@ -314,6 +314,7 @@ const NEWLY_VERIFIED = [
   'PartyTimelineQueryService.listPartyTimeline',
   'MemberQueryService.listMembers',
   'MemberQueryService.listActiveMemberOptions',
+  'MemberQueryService.listPriceApproverOptions',
   'MemberQueryService.getMember',
   'CapabilityQueryService.getCapabilityState',
   'ApprovalQueryService.listPendingApprovals',
@@ -434,7 +435,7 @@ describe('os-api inspection read inventory', () => {
       .sort();
     const classified = Object.keys(HTTP_CLASSIFICATION).sort();
     assert.deepEqual(found, classified);
-    assert.equal(NEWLY_VERIFIED.length, 18);
+    assert.equal(NEWLY_VERIFIED.length, 19);
     const unreviewed = Object.entries(HTTP_CLASSIFICATION).filter(
       ([, state]) => state.includes('UNREVIEWED') || state.includes('LOCAL_PROOF_MISSING'),
     );
