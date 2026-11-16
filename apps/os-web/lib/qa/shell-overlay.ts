@@ -28,7 +28,8 @@ export async function resolveQaShellOverlay(
   return {
     grantedScopes: scopes,
     showAdmin: hasAssignedOperationsScope(scopes, PEOPLE_ADMIN_SCOPE),
-    canCreateCustomer: hasMasterDataAdminScope(scopes),
+    canCreateCustomer:
+      scopes.includes('commercial.customer.create') || hasMasterDataAdminScope(scopes),
     personaLabel: active.persona.label,
   };
 }

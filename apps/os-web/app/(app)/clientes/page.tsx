@@ -10,6 +10,7 @@ import {
 } from '@/components/commercial/commercial-surfaces';
 import '@/components/commercial/commercial-surfaces.css';
 import { CustomerQuickView } from '@/components/operating/customer-quick-view';
+import { ImportBatchPastePanel } from '@/components/party/import-batch-paste-panel';
 import { ImportPhoneReviewPanel } from '@/components/party/import-phone-review-panel';
 import { IMPORT_PHONE_REVIEW_PARAM, importPhoneCommandMessage } from '@/components/party/import-phone-review';
 import { MasterDataLookupPanel } from '@/components/party/master-data-lookup-panel';
@@ -24,7 +25,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { cursorPageLinks, listHref, parseListQuery, parsePanel } from '@/lib/lists/url-state';
 import { parseListDensity } from '@/lib/productivity/list-controls';
-import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
+import { actorCanCreateCustomer, actorCanMutateMasterData } from '@/lib/party/master-data-access';
 import { loadMasterDataLookup, MASTER_DATA_PARTY_PARAM, MASTER_DATA_TERM_PARAM } from '@/lib/party/master-data-lookup';
 import { newCustomerHref } from '@/lib/party/navigation';
 import type { ImportPhoneReviewList } from '@isalwa/os-contracts';
@@ -63,8 +64,8 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
   const status = listQuery.status;
   const cursor = listQuery.cursor;
   const panel = parsePanel(listQuery.panel);
-  const canAddCustomer = evaluation.active ? false : await actorCanMutateMasterData(client);
-  const isSteward = canAddCustomer;
+  const canAddCustomer = evaluation.active ? false : await actorCanCreateCustomer(client);
+  const isSteward = evaluation.active ? false : await actorCanMutateMasterData(client);
   const masterDataLookup = await loadMasterDataLookup(client, {
     isSteward,
     term: typeof params[MASTER_DATA_TERM_PARAM] === 'string' ? params[MASTER_DATA_TERM_PARAM] : '',
@@ -131,7 +132,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
           action={
             addHref ? (
               <Link href={addHref} className={commercialPrimaryLinkClass}>
-                Agregar cliente
+                Registrar cliente
               </Link>
             ) : undefined
           }
@@ -147,6 +148,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
           />
         </div>
         <MasterDataLookupPanel lookup={masterDataLookup} path="/clientes" />
+        {isSteward ? <ImportBatchPastePanel /> : null}
         {isSteward ? <ImportPhoneReviewPanel review={phoneReview} error={phoneReviewError} batchId={importBatchId} /> : null}
         <p className="mt-3 text-sm">
           <Link href="/mapa" className="font-medium text-[var(--isalwa-glaze)] hover:underline">

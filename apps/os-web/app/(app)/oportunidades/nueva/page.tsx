@@ -7,7 +7,7 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { presentHumanCopy } from '@/lib/copy/human-facing-copy';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
-import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
+import { actorCanCreateCustomer } from '@/lib/party/master-data-access';
 
 type PageProps = {
   searchParams: Promise<{ q?: string; cliente?: string }>;
@@ -27,7 +27,7 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
   }
 
   const client = createOsApiClient(auth);
-  const canCreateCustomer = evaluation.active ? false : await actorCanMutateMasterData(client);
+  const canCreateCustomer = evaluation.active ? false : await actorCanCreateCustomer(client);
   const cliente = params.cliente?.trim() ?? '';
   const query = params.q?.trim() ?? '';
 

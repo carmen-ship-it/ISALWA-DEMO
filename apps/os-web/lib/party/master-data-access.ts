@@ -20,3 +20,9 @@ export async function actorCanMutateMasterData(client: OsApiClient): Promise<boo
   const grantedScopes = await loadActorRoleKeys(client);
   return hasMasterDataAdminScope(grantedScopes);
 }
+
+/** Advisor registration (`commercial.customer.create`) or data steward. Server still enforces CreateParty. */
+export async function actorCanCreateCustomer(client: OsApiClient): Promise<boolean> {
+  const grantedScopes = await loadActorRoleKeys(client);
+  return grantedScopes.includes('commercial.customer.create') || hasMasterDataAdminScope(grantedScopes);
+}

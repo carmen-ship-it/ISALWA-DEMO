@@ -1,6 +1,6 @@
 # Receipt — Stage A customer finishing
 
-Date: 2026-11-16. Integrator worktree `/Users/carmen/projects/isalwa-wt-v1-repairs`, branch `ct3/v1-repairs`. Parent HEAD before this work: `aada53963fce921a51faf22ed0b1230e436b45d9`. Continuation: `CONTINUATION-2026-11-16.md` §6.
+Date: 2026-11-16. Integrator worktree `/Users/carmen/projects/isalwa-wt-v1-repairs`, branch `ct3/v1-repairs`. Parent HEAD before this work: `aada53963fce921a51faf22ed0b1230e436b45d9`. Implementation commit: `11e4f38b1c7e637c66fda0f95a8bb1cc1233fb23`, tree `bdef1b92fb7a0a498067ae6b9720e9f2c210d715`. Continuation: `CONTINUATION-2026-11-16.md` §6.
 
 States: **IMPLEMENTED** · **TESTED LOCALLY** (unit/HTTP/typecheck/build + local browser actions). Not independently reviewed. Not hosted. Not owner-accepted. Broader T03 backend review queue remains open.
 
@@ -40,7 +40,7 @@ Browser actors exercised: owner (former line, short-note preserve, end relations
 ## Limits
 
 - Independent review of Stage A and of C1–C9/L1–L4 backend: not done.
-- Import file→batch UI still a tracked gap (Batch 2).
+- Import file→batch: addressed in Batch 2 as steward text paste → ValidateClientImport (not a binary spreadsheet parser).
 - Hosted / live: UNPROVEN.
 - Screenshot-only checks from 2026-11-13 were superseded by this action browser run.
 

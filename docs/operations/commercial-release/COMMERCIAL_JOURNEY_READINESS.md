@@ -2,12 +2,13 @@
 
 Compact map for the 2026-11-16 continuation. Authority: V2 + A1 + A2 + `REUSE_MAP.md` §12/§13 + T03 contracts. Checkpoint: `docs/operations/COMMERCIAL_RELEASE_CHECKPOINT.md` (wins over stale `CURRENT_STATE.md`). Continuation: `CONTINUATION-2026-11-16.md`.
 
-Integrator: `/Users/carmen/projects/isalwa-wt-v1-repairs` · `ct3/v1-repairs`. Starting committed HEAD for this run: `aada5396`. Stage A finishing is in progress on the dirty tree.
+Integrator: `/Users/carmen/projects/isalwa-wt-v1-repairs` · `ct3/v1-repairs`. Starting committed HEAD for this run: `aada5396`. Stage A committed `11e4f38b`. Batch 2 customer entry TESTED LOCALLY (receipt `BATCH-2-CUSTOMER-ENTRY.md`).
 
 | Journey / ID | Routes | Commands / reads | Permissions | Local evidence | Blockers |
 |---|---|---|---|---|---|
 | Customer UI C1–C9, L1–L4 | `/clientes`, `/clientes/[id]`, `/incidencias` | Party/contact/issue correction commands; endpoint history; import phone review | `customerAuthority` / coverage / steward / `issue.manage` | Integrated `c1c185ec`; acceptance `receipts/ACCEPTANCE-LANE-B-T03-CUSTOMER-UI.md`; review PASS WITH FOLLOW-UPS | Stage A finishing (this batch); backend independent review queue still open |
 | Stage A finishing | same | Bulk `GET …/followup-preferences`; flags vs archive; preserved forms | same | `receipts/STAGE-A-CUSTOMER-FINISHING.md`; TESTED LOCALLY 2026-11-16 | Independent review |
+| Batch 2 customer entry | `/clientes`, `/clientes/nuevo` | CreateParty §5.4; ValidateClientImport text paste | `commercial.customer.create` / steward | `receipts/BATCH-2-CUSTOMER-ENTRY.md`; TESTED LOCALLY 2026-11-16 | Independent review |
 | T04 quote approval / PDF / acceptance + T15 manual order | `/cotizaciones`, `/aprobaciones`, `/pedidos` | Quote draft/approve/issue/PDF/accept/convert | §13.5; no self-approve; `quote.convert` coverage | Not started | Real approver identity for live; synthetic OK for local |
 | T05 catalog | `/productos` | Catalog browse/presentation | published/PDF gate | Lane A candidate `18a0f0c` not integrated; A2 fixes not started | Independent review; missing PDF/prices for publish claims |
 | T06 conversations / manual attention | `/conversaciones` | Manual attention; inbox filters | account/coverage/tenant | Partial pre-V2; batch 5 | Provider optional |

@@ -68,7 +68,7 @@ function PartyFieldsForm({
   return (
     <details className="border-t border-[var(--isalwa-mist)] pt-6">
       <summary className="cursor-pointer text-sm font-medium text-[var(--isalwa-kiln)]">
-        Editar datos del cliente
+        Editar datos
       </summary>
       <form action={formAction} className="mt-4 space-y-4">
         <FormFeedback error={state?.error} success={state?.success} />
@@ -105,7 +105,7 @@ function PartyFieldsForm({
             Indique el motivo de cualquier cambio de nombre o razón social, incluso un error de escritura. Queda en el historial con el valor anterior y el nuevo.
           </p>
         </div>
-        <CommandSubmitButton label="Guardar cliente" />
+        <CommandSubmitButton label="Guardar cambios" />
       </form>
     </details>
   );

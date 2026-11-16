@@ -1,0 +1,57 @@
+▶ customer self-service authority
+  ✔ requires master_data.admin for every wired command (0.654042ms)
+  ✔ does not grant salesperson, people admin, or commercial read create authority (0.116125ms)
+  ✔ does not wire lead, merge, fiscal, or role-policy commands (0.103167ms)
+✔ customer self-service authority (1.328084ms)
+▶ add customer
+  ✔ builds CreateParty with customer role, contact, phone or no-phone reason, without tenant or fiscal fields (0.758833ms)
+  ✔ does not silent-merge: search and explicit confirmation are required (0.082833ms)
+✔ add customer (0.918042ms)
+▶ edit customer
+  ✔ updates supported party fields and can clear legal name without fiscal identity (0.223375ms)
+  ✔ updates contact fields on the organization party only through UpdateContact (0.285875ms)
+✔ edit customer (0.608333ms)
+▶ commercial owner
+  ✔ renders a read-only owner and an honest absent label (0.15425ms)
+✔ commercial owner (0.212458ms)
+▶ locations
+  ✔ lists coordinates and preserves provenance URL without geocoding (0.1885ms)
+  ✔ creates, updates, and deactivates without tenant, map, or geocode fields (0.351209ms)
+  ✔ does not add map, geocode, territory, or route behavior (0.133084ms)
+✔ locations (0.737917ms)
+▶ customer self-service UI contract
+  ✔ gates customer creation on commercial.customer.create (or steward), leaves customer edits to the API rule, and does not read tenant or owner from the form (0.325833ms)
+  ✔ keeps owner display and only offers reassignment through an explicit confirmed control (0.203792ms)
+  ✔ does not add a map, geocoder, or short-link resolver in the location panel (0.102042ms)
+✔ customer self-service UI contract (0.678292ms)
+▶ T03 ending a contact relationship
+  ✔ requires a reason, keeps commitments on the customer, and never offers cancellable sends (0.374709ms)
+  ✔ keeps the end date and reason when the end event is outside the loaded timeline (30.886667ms)
+✔ T03 ending a contact relationship (31.318791ms)
+▶ T03 follow-up preferences
+  ✔ keeps no promociones and no me escriban apart, and allows only as a staff record (0.312584ms)
+✔ T03 follow-up preferences (0.348333ms)
+▶ T03 archive and reactivation
+  ✔ lists obligations by kind and never presents payments as zero (0.1215ms)
+✔ T03 archive and reactivation (0.147208ms)
+▶ T03 customer finishing (Stage A)
+  ✔ refuses a short optional note by field instead of sending it to a generic server refusal (0.3975ms)
+  ✔ builds archive and reactivation payloads the server accepts, and refuses what it refuses (0.223083ms)
+  ✔ gives a contact without a record one empty entry per channel (0.064666ms)
+  ✔ loads per-contact data only for the managed contact and offers no forms to former contacts (0.21425ms)
+  ✔ keeps one commercial-name form, in the actions drawer (0.087333ms)
+  ✔ never shows a failed load as an empty value (0.170958ms)
+✔ T03 customer finishing (Stage A) (1.237041ms)
+▶ parseClientImportCustomerText
+  ✔ parses comma rows into section B without inventing phones (0.81725ms)
+  ✔ skips a header and accepts semicolon or tab separators (0.098166ms)
+  ✔ rejects empty paste and incomplete rows (0.113417ms)
+✔ parseClientImportCustomerText (1.517125ms)
+ℹ tests 27
+ℹ suites 11
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 200.011334

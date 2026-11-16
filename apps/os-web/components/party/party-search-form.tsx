@@ -80,14 +80,14 @@ export function PartySearchForm({
                 htmlFor="party-search"
                 className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]"
               >
-                Buscar clientes y contactos
+                Buscar por nombre, teléfono o empresa
               </label>
               <SearchField
                 id="party-search"
                 name="q"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Nombre, contacto o teléfono"
+                placeholder="Buscar por nombre, teléfono o empresa"
                 autoComplete="off"
               />
             </div>

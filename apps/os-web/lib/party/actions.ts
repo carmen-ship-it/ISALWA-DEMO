@@ -7,7 +7,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { mapCommandError } from '@/lib/commercial/command-errors';
 import type { CreateRedirectResult, CommandActionResult } from '@/lib/commercial/command-types';
-import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
+import { actorCanCreateCustomer, actorCanMutateMasterData } from '@/lib/party/master-data-access';
 import {
   buildCreateCustomerPayload,
   buildCreateLocationPayload,
@@ -46,6 +46,17 @@ async function adminClient() {
   if (!auth) return { ok: false as const, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
   const client = createOsApiClient(auth);
   const allowed = await actorCanMutateMasterData(client);
+  if (!allowed) return { ok: false as const, error: DENIED };
+  return { ok: true as const, client };
+}
+
+async function createCustomerClient() {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false as const, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
+  const client = createOsApiClient(auth);
+  const allowed = await actorCanCreateCustomer(client);
   if (!allowed) return { ok: false as const, error: DENIED };
   return { ok: true as const, client };
 }
@@ -89,23 +100,43 @@ export async function createCustomerAction(formData: FormData): Promise<CreateRe
 
   const displayName = String(formData.get('displayName') ?? '').trim();
   const partyKind = String(formData.get('partyKind') ?? '').trim();
-  const legalName = String(formData.get('legalName') ?? '').trim();
   if (!displayName) return { ok: false, error: 'Ingrese el nombre del cliente.' };
   if (!(PARTY_KINDS_FOR_CUSTOMER as readonly string[]).includes(partyKind)) {
     return { ok: false, error: 'Seleccione si es empresa o persona.' };
   }
 
-  const session = await adminClient();
+  const session = await createCustomerClient();
   if (!session.ok) return session;
 
-  const payload = buildCreateCustomerPayload({
+  const noPhoneAvailable = formData.get('noPhoneAvailable') === 'on';
+  const phoneParsed = contactNumberFromForm(
+    String(formData.get('phone') ?? ''),
+    String(formData.get('phoneCountry') ?? ''),
+  );
+  if (!phoneParsed.ok) return { ok: false, error: phoneParsed.error, fieldErrors: { phone: phoneParsed.error } };
+  if (noPhoneAvailable && phoneParsed.value) {
+    return {
+      ok: false,
+      error: 'No indique un teléfono si marcó que no hay número disponible.',
+      fieldErrors: { phone: 'Quite el número o desmarque “Sin teléfono disponible”.' },
+    };
+  }
+
+  const isSteward = await actorCanMutateMasterData(session.client);
+  const built = buildCreateCustomerPayload({
     displayName,
     partyKind: partyKind as 'organization' | 'person',
-    legalName,
+    ...(isSteward ? { legalName: String(formData.get('legalName') ?? '').trim() || null } : {}),
+    contactGivenName: String(formData.get('contactGivenName') ?? ''),
+    contactFamilyName: String(formData.get('contactFamilyName') ?? ''),
+    phone: noPhoneAvailable ? null : phoneParsed.value,
+    noPhoneAvailable,
+    duplicateReason: String(formData.get('duplicateReason') ?? ''),
   });
+  if (!built.ok) return built;
 
   try {
-    const result = await session.client.executePartyCommand('CreateParty', payload, createId());
+    const result = await session.client.executePartyCommand('CreateParty', built.payload, createId());
     const partyId = String(result.data.partyId ?? '').trim();
     if (!partyId) {
       return { ok: false, error: 'El cliente se creó, pero no se pudo abrir la ficha. Búsquelo en Clientes.' };
@@ -114,6 +145,14 @@ export async function createCustomerAction(formData: FormData): Promise<CreateRe
     revalidatePath(clientesSearchHref({ q: searchedQuery.trim() }));
     return { ok: true, redirectTo: await redirectKeepingDataMode(partyHref(partyId), formData) };
   } catch (err) {
+    if (err instanceof OsApiError && err.code === 'DUPLICATE_REVIEW_REQUIRED') {
+      return {
+        ok: false,
+        error:
+          'Este teléfono ya aparece en otros registros. Si es otro cliente legítimo, indique el motivo y registre de nuevo. No se fusiona en silencio.',
+        fieldErrors: { duplicateReason: 'Indique el motivo para registrar otro cliente con este teléfono.' },
+      };
+    }
     return { ok: false, error: mapCommandError(err) };
   }
 }
@@ -482,6 +521,39 @@ export async function executeClientImportAction(formData: FormData): Promise<Com
     const result = await session.client.executeImportCommand('ExecuteClientImport', { importBatchId }, createId());
     revalidatePath('/clientes');
     return { ok: true, data: result.data as unknown as Record<string, unknown> };
+  } catch (err) {
+    return { ok: false, error: importPhoneCommandMessage(err) };
+  }
+}
+
+export async function validateClientImportTextAction(
+  formData: FormData,
+): Promise<CommandActionResult & { redirectTo?: string }> {
+  const { parseClientImportCustomerText } = await import('@/lib/party/import-batch-text');
+  const parsed = parseClientImportCustomerText(String(formData.get('batchText') ?? ''));
+  if (!parsed.ok) return parsed;
+  const session = await adminClient();
+  if (!session.ok) return session;
+  const sourceFingerprint = `paste-${createId()}`;
+  try {
+    const result = await session.client.executeImportCommand(
+      'ValidateClientImport',
+      {
+        sourceKind: 'xls_datos_clientes',
+        sourceFingerprint,
+        phoneCountry: 'BO',
+        rows: parsed.rows,
+      },
+      createId(),
+    );
+    const importBatchId = String((result.data as { importBatchId?: string }).importBatchId ?? '').trim();
+    if (!importBatchId) return { ok: false, error: 'La validación no devolvió un lote.' };
+    revalidatePath('/clientes');
+    return {
+      ok: true,
+      data: result.data as unknown as Record<string, unknown>,
+      redirectTo: `/clientes?lote=${encodeURIComponent(importBatchId)}`,
+    };
   } catch (err) {
     return { ok: false, error: importPhoneCommandMessage(err) };
   }

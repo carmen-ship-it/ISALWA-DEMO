@@ -9,7 +9,7 @@ import { StaleProjectionBanner } from '@/components/work/stale-projection-banner
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
+import { actorCanCreateCustomer, actorCanMutateMasterData } from '@/lib/party/master-data-access';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
 type NewCustomerPageProps = {
@@ -22,16 +22,17 @@ export default async function NewCustomerPage({ searchParams }: NewCustomerPageP
   if (!auth) return null;
 
   const client = createOsApiClient(auth);
-  const canCreate = await actorCanMutateMasterData(client);
+  const canCreate = await actorCanCreateCustomer(client);
+  const canSetLegalName = canCreate ? await actorCanMutateMasterData(client) : false;
   const query = q?.trim() ?? '';
 
   if (!canCreate) {
     return (
-      <PageContainer label="Agregar cliente">
+      <PageContainer label="Registrar cliente">
         <PermissionDeniedSurface
           title="No puede realizar esta acción"
-          kicker="Relaciones"
-          explanation="Su acceso actual permite consultar clientes, pero no crear uno."
+          kicker="Clientes"
+          explanation="Su acceso actual permite consultar clientes, pero no registrar uno."
           backHref="/clientes"
           backLabel="Volver a clientes"
         />
@@ -45,10 +46,10 @@ export default async function NewCustomerPage({ searchParams }: NewCustomerPageP
       matches = await client.searchParties({ q: query, limit: 25 });
     } catch (err) {
       return (
-        <PageContainer label="Agregar cliente">
+        <PageContainer label="Registrar cliente">
           <PageHeader
-            kicker="Relaciones"
-            title="Agregar cliente"
+            kicker="Clientes"
+            title="Registrar cliente"
             action={
               <Link href="/clientes" className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
                 Volver
@@ -62,11 +63,11 @@ export default async function NewCustomerPage({ searchParams }: NewCustomerPageP
   }
 
   return (
-    <PageContainer label="Agregar cliente">
+    <PageContainer label="Registrar cliente">
       <PageHeader
-        kicker="Relaciones"
-        title="Agregar cliente"
-        description="Busque primero. Si el cliente ya existe, ábralo. Crear uno nuevo no fusiona registros."
+        kicker="Clientes"
+        title="Registrar cliente"
+        description="Busque primero. Si el cliente ya existe, ábralo. Registrar uno nuevo no fusiona registros."
         action={
           <Link href="/clientes" className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
             Volver
@@ -100,6 +101,7 @@ export default async function NewCustomerPage({ searchParams }: NewCustomerPageP
                 searchedQuery={query}
                 hasMoreMatches={matches.meta.hasMore}
                 matchCount={matches.items.length}
+                canSetLegalName={canSetLegalName}
               />
             </div>
           </PageSection>

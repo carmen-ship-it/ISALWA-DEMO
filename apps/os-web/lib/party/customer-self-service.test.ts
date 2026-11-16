@@ -92,20 +92,41 @@ describe('customer self-service authority', () => {
 });
 
 describe('add customer', () => {
-  it('builds CreateParty with customer role and commercial account, without tenant or fiscal fields', () => {
-    const payload = buildCreateCustomerPayload({
+  it('builds CreateParty with customer role, contact, phone or no-phone reason, without tenant or fiscal fields', () => {
+    const withPhone = buildCreateCustomerPayload({
       displayName: '  Ferretería Norte  ',
       partyKind: 'organization',
-      legalName: 'Ferretería Norte S.R.L.',
+      contactGivenName: 'Ana',
+      contactFamilyName: 'Pérez',
+      phone: { country: 'BO', number: '70011001' },
     });
-    assert.equal(CreatePartyPayloadSchema.safeParse(payload).success, true);
-    assert.equal(payload.initialRoleKey, 'customer');
-    assert.equal(payload.createCommercialAccount, true);
-    assert.equal(payload.displayName, 'Ferretería Norte');
-    assert.equal('organizationId' in payload, false);
-    assert.equal('ownerMemberId' in payload, false);
-    assert.equal('fiscalIdentity' in payload, false);
-    assert.equal('nit' in payload, false);
+    assert.equal(withPhone.ok, true);
+    if (!withPhone.ok) return;
+    assert.equal(CreatePartyPayloadSchema.safeParse(withPhone.payload).success, true);
+    assert.equal(withPhone.payload.initialRoleKey, 'customer');
+    assert.equal(withPhone.payload.createCommercialAccount, true);
+    assert.equal(withPhone.payload.displayName, 'Ferretería Norte');
+    assert.deepEqual(withPhone.payload.contact, { givenName: 'Ana', familyName: 'Pérez' });
+    assert.deepEqual(withPhone.payload.phone, { country: 'BO', number: '70011001' });
+    assert.equal('organizationId' in withPhone.payload, false);
+    assert.equal('ownerMemberId' in withPhone.payload, false);
+    assert.equal('fiscalIdentity' in withPhone.payload, false);
+    assert.equal('nit' in withPhone.payload, false);
+
+    const noPhone = buildCreateCustomerPayload({
+      displayName: 'Sin Teléfono',
+      partyKind: 'organization',
+      contactGivenName: 'Luis',
+      noPhoneAvailable: true,
+    });
+    assert.equal(noPhone.ok && noPhone.payload.noPhoneReason, 'no_phone_available');
+
+    const missingContact = buildCreateCustomerPayload({
+      displayName: 'Empresa',
+      partyKind: 'organization',
+      phone: { country: 'BO', number: '70011001' },
+    });
+    assert.equal(missingContact.ok, false);
   });
 
   it('does not silent-merge: search and explicit confirmation are required', () => {
@@ -252,14 +273,16 @@ describe('customer self-service UI contract', () => {
   const locations = readUi('../../components/party/customer-location-panel.tsx');
   const create = readUi('../../components/party/customer-create-form.tsx');
 
-  it('gates customer creation on master_data.admin, leaves customer edits to the API rule, and does not read tenant or owner from the form', () => {
+  it('gates customer creation on commercial.customer.create (or steward), leaves customer edits to the API rule, and does not read tenant or owner from the form', () => {
+    assert.match(actions, /actorCanCreateCustomer/);
     assert.match(actions, /actorCanMutateMasterData/);
     const body = (name: string) => {
       const start = actions.indexOf(`export async function ${name}`);
       const next = actions.indexOf('export async function', start + 1);
       return actions.slice(start, next === -1 ? undefined : next);
     };
-    assert.match(body('createCustomerAction'), /adminClient\(\)/);
+    assert.match(body('createCustomerAction'), /createCustomerClient\(\)/);
+    assert.doesNotMatch(body('createCustomerAction'), /adminClient\(\)/);
     for (const name of [
       'updateCustomerAction',
       'updateContactAction',
@@ -288,6 +311,9 @@ describe('customer self-service UI contract', () => {
     assert.match(form, /reassignCommercialAccountOwnerAction/);
     assert.doesNotMatch(edit, /UpdateFiscalIdentity|fiscalIdentity|name="nit"|name="ownerMemberId"/);
     assert.doesNotMatch(create, /CreateLead|RequestPartyMerge|name="nit"|name="ownerMemberId"|name="roleKey"/);
+    assert.match(create, /contactGivenName/);
+    assert.match(create, /noPhoneAvailable/);
+    assert.match(create, /duplicateReason/);
   });
 
   it('does not add a map, geocoder, or short-link resolver in the location panel', () => {

@@ -1,0 +1,16 @@
+owner_authz	200	["commercial.customer.create","commercial.customer.edit"]
+helper_authz	200	["commercial.customer.edit"]
+steward_authz	200	["commercial.org.read","master_data.admin"]
+owner_can_create_ui_gate	yes
+helper_can_create_ui_gate	no
+steward_can_create_ui_gate	yes
+CreateParty_owner	201	partyId
+CreateParty_helper_denied	403	{"code":"PERMISSION_DENIED"}
+CreateParty_owner_no_phone	201	partyId
+CreateParty_dup_no_reason	409	{"code":"DUPLICATE_REVIEW_REQUIRED"}
+CreateParty_dup_with_reason	201	partyId
+ValidateClientImport_steward	201	batch=01M7H8AB79G593RYJZXP788Y18
+ListImportPhoneReview	201:{"code":null,"items":[{"field":"celular","reason":"wrong_length","status":"invalid","valueId":"celular:0","rowIndex":2,"maskedOriginal":"•••123","proposedAction":"correct_or_omit"}],"country":"BO","invalid":1,"omitted":0,"accepted":1,"corrected":0,"countrySource":"explicit","correctionCode":"PHONE_CORRECTION_REQUIRED","extraNotImported":0,"rowsNeedingCorrection":1}
+ValidateClientImport_helper_denied	403	{"code":"PERMISSION_DENIED"}
+
+BATCH2_HTTP_OK true

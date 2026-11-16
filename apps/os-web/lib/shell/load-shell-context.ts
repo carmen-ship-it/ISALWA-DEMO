@@ -8,7 +8,7 @@ import {
   getServerWebSession,
 } from '@/lib/auth/actions';
 import type { SessionOrganization } from '@/lib/auth/organization-selection';
-import { actorCanMutateMasterData, loadActorRoleKeys } from '@/lib/party/master-data-access';
+import { actorCanCreateCustomer, loadActorRoleKeys } from '@/lib/party/master-data-access';
 import { resolveQaShellOverlay } from '@/lib/qa/shell-overlay';
 import { canUseRolePreview } from '@/lib/role-preview/access';
 import { loadEvaluationAsesorOptions } from '@/lib/role-preview/load-asesor-options';
@@ -131,7 +131,7 @@ export const loadShellContext = cache(async function loadShellContext(): Promise
     }
 
     try {
-      canCreateCustomer = await actorCanMutateMasterData(client);
+      canCreateCustomer = await actorCanCreateCustomer(client);
     } catch {
       canCreateCustomer = false;
     }

@@ -127,12 +127,28 @@ function rejectForbiddenKeys(payload: Record<string, unknown>): void {
   }
 }
 
-export function buildCreateCustomerPayload(input: {
+export type BuildCreateCustomerInput = {
   displayName: string;
   partyKind: PartyKind;
+  /** Steward-only; advisors must omit (API refuses legalName without master_data.admin). */
   legalName?: string | null;
-}): Record<string, unknown> {
+  contactGivenName?: string | null;
+  contactFamilyName?: string | null;
+  phone?: { country: string; number: string } | null;
+  noPhoneAvailable?: boolean;
+  duplicateReason?: string | null;
+};
+
+/**
+ * V2 §5.4 advisor registration: customer + commercial account; organization needs contact.givenName;
+ * phone or explicit no_phone_available. Shared phones need duplicateReason — never silent merge.
+ */
+export function buildCreateCustomerPayload(
+  input: BuildCreateCustomerInput,
+): { ok: true; payload: Record<string, unknown> } | { ok: false; error: string; fieldErrors?: Record<string, string> } {
   const displayName = input.displayName.trim();
+  if (!displayName) return { ok: false, error: 'Ingrese el nombre del cliente.', fieldErrors: { displayName: 'Ingrese el nombre del cliente.' } };
+
   const payload: Record<string, unknown> = {
     partyKind: input.partyKind,
     displayName,
@@ -141,8 +157,39 @@ export function buildCreateCustomerPayload(input: {
   };
   const legalName = input.legalName?.trim();
   if (legalName) payload.legalName = legalName;
+
+  const givenName = input.contactGivenName?.trim() ?? '';
+  const familyName = input.contactFamilyName?.trim() ?? '';
+  if (input.partyKind === 'organization') {
+    if (!givenName) {
+      return {
+        ok: false,
+        error: 'Indique el nombre de la persona de contacto.',
+        fieldErrors: { contactGivenName: 'Indique el nombre de la persona de contacto.' },
+      };
+    }
+    payload.contact = { givenName, ...(familyName ? { familyName } : {}) };
+  } else if (givenName) {
+    payload.contact = { givenName, ...(familyName ? { familyName } : {}) };
+  }
+
+  if (input.noPhoneAvailable) {
+    payload.noPhoneReason = 'no_phone_available';
+  } else if (input.phone) {
+    payload.phone = input.phone;
+  } else {
+    return {
+      ok: false,
+      error: 'Indique un teléfono o marque que no hay número disponible.',
+      fieldErrors: { phone: 'Indique un teléfono o marque que no hay número disponible.' },
+    };
+  }
+
+  const duplicateReason = input.duplicateReason?.trim() ?? '';
+  if (duplicateReason) payload.duplicateReason = duplicateReason;
+
   rejectForbiddenKeys(payload);
-  return payload;
+  return { ok: true, payload };
 }
 
 export function createCustomerSearchGate(input: {
