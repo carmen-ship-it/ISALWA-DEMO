@@ -207,7 +207,7 @@ export function createOsApiClient(auth: OsAuthContext) {
     const method = options.method ?? 'GET';
     const correlationId = createId();
     const headers: Record<string, string> = {
-      Accept: 'application/pdf, application/json',
+      Accept: 'application/pdf, image/*, application/json',
       'x-correlation-id': correlationId,
       ...authHeaders(auth),
     };
@@ -237,9 +237,35 @@ export function createOsApiClient(auth: OsAuthContext) {
     };
   }
 
+  /** Private file upload (payment evidence, approved QR): raw bytes, never JSON. */
+  async function requestBytes<T>(
+    path: string,
+    bytes: ArrayBuffer,
+    query?: OsApiRequestOptions['query'],
+  ): Promise<T> {
+    const response = await fetch(buildUrl(path, query), {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/octet-stream',
+        'x-correlation-id': createId(),
+        ...authHeaders(auth),
+      },
+      body: bytes,
+      cache: 'no-store',
+    });
+    if (!response.ok) {
+      throw await parseOsApiError(response);
+    }
+    return (await response.json()) as T;
+  }
+
   return {
     get: <T>(path: string, query?: OsApiRequestOptions['query']) =>
       request<T>(path, { method: 'GET', query }),
+    getBinary: (path: string) => requestBinary(path, { method: 'GET' }),
+    postBytes: <T>(path: string, bytes: ArrayBuffer, query?: OsApiRequestOptions['query']) =>
+      requestBytes<T>(path, bytes, query),
     post: <T>(path: string, body?: unknown, idempotencyKey?: string) =>
       request<T>(path, { method: 'POST', body, idempotencyKey, retry: false }),
     executeCommand: <T extends CommercialCommandName>(

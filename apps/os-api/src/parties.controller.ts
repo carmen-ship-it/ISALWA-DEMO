@@ -391,13 +391,15 @@ export class PartiesController {
         openCommitments: facts.openCommitments,
         openIssues: facts.openIssues,
         openWorkItems: facts.openWorkItems,
+        pendingPayments: facts.pendingPayments,
+        unassignedPayments: facts.unassignedPayments,
       };
       return {
         partyId,
         version: party.version,
         status: party.status,
         obligations,
-        payments: { checked: false, reason: 'payments_not_available' },
+        payments: { checked: true },
         blocked: customerArchiveBlocked(obligations),
         effects: { openOpportunities: facts.openOpportunities, openQuotes: facts.openQuotes, currentContacts: facts.currentContacts },
       };

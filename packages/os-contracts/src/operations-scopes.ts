@@ -73,6 +73,24 @@ export const COMMERCIAL_PRICE_APPROVE_SCOPE = 'commercial.price.approve' as cons
  */
 export const COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE = 'commercial.exception.authorize' as const;
 export const FINANCE_OPERATIONAL_RECORD_SCOPE = 'finance.operational.record' as const;
+/**
+ * T07 / A1 §6. Report a received-payment claim (tenders, references, evidence).
+ * Reporting is not confirming. finance.operational.record holders keep the
+ * ability to report (existing desk assignment); this is the narrower advisor scope.
+ */
+export const PAYMENTS_REPORT_SCOPE = 'payments.report' as const;
+/**
+ * T07 / A1 §6. Verify, reject, reverse, and allocate the specific part (tender) of a
+ * reported payment after a human checked the funds. Explicit assignment only; neither
+ * finance.operational.record, payments.report nor a title implies it.
+ */
+export const PAYMENTS_CONFIRM_SCOPE = 'payments.confirm' as const;
+/**
+ * A1 §6. Publish/retire approved payment instructions (QR/transfer destination).
+ * Distinct from payments.confirm. A destination change needs an approver other than
+ * the person who drafted it.
+ */
+export const PAYMENT_INSTRUCTIONS_PUBLISH_SCOPE = 'commercial.payment_instructions.publish' as const;
 export const PRODUCTION_OPERATIONAL_RECORD_SCOPE = 'production.operational.record' as const;
 export const WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE = 'warehouse.finished_goods.receive' as const;
 /**
@@ -144,6 +162,9 @@ export const OPERATIONS_ACCESS_SCOPE_KEYS = [
   COMMERCIAL_PRICE_APPROVE_SCOPE,
   COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE,
   FINANCE_OPERATIONAL_RECORD_SCOPE,
+  PAYMENTS_REPORT_SCOPE,
+  PAYMENTS_CONFIRM_SCOPE,
+  PAYMENT_INSTRUCTIONS_PUBLISH_SCOPE,
   PRODUCTION_OPERATIONAL_RECORD_SCOPE,
   WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
   WAREHOUSE_OUTBOUND_RECORD_SCOPE,
@@ -302,6 +323,29 @@ export function canAuthorizePaymentException(grantedScopes: readonly string[]): 
 /** Operational finance record. Not a ledger posting and not a confirmation. */
 export function canRecordOperationalFinance(grantedScopes: readonly string[]): boolean {
   return hasAssignedOperationsScope(grantedScopes, FINANCE_OPERATIONAL_RECORD_SCOPE);
+}
+
+/**
+ * Report a payment: payments.report, or the existing finance.operational.record desk
+ * assignment. Never a title. Reporting never confirms funds.
+ */
+export function canReportPayment(grantedScopes: readonly string[]): boolean {
+  return (
+    hasAssignedOperationsScope(grantedScopes, PAYMENTS_REPORT_SCOPE) ||
+    hasAssignedOperationsScope(grantedScopes, FINANCE_OPERATIONAL_RECORD_SCOPE)
+  );
+}
+
+/**
+ * Verify a tender of a reported payment (confirm, reject, reverse, allocate). Only
+ * payments.confirm. Not ledger posting: canConfirmFinance stays false.
+ */
+export function canVerifyReportedPayment(grantedScopes: readonly string[]): boolean {
+  return hasAssignedOperationsScope(grantedScopes, PAYMENTS_CONFIRM_SCOPE);
+}
+
+export function canPublishPaymentInstructions(grantedScopes: readonly string[]): boolean {
+  return hasAssignedOperationsScope(grantedScopes, PAYMENT_INSTRUCTIONS_PUBLISH_SCOPE);
 }
 
 export function canPostFinanceLedger(_grantedScopes: readonly string[]): false {

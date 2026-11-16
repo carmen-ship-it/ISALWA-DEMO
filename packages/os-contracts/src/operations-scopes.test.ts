@@ -87,6 +87,9 @@ describe('operational access scopes', () => {
       'commercial.price.approve',
       'commercial.exception.authorize',
       'finance.operational.record',
+      'payments.report',
+      'payments.confirm',
+      'commercial.payment_instructions.publish',
       'production.operational.record',
       'warehouse.finished_goods.receive',
       'warehouse.outbound.record',
@@ -461,7 +464,8 @@ describe('operational access scopes', () => {
       false,
     );
     assert.equal(
-      OPERATIONS_ACCESS_SCOPE_KEYS.some((scope) => scope.toLowerCase().includes('payment')),
+      // T07 added explicit payments.report / payments.confirm. None may be a production gate.
+      OPERATIONS_ACCESS_SCOPE_KEYS.some((scope) => scope.toLowerCase().includes('payment.confirmed')),
       false,
     );
     assert.equal(isOperationsAccessScope('payment.confirmed.required'), false);

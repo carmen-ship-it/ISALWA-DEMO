@@ -396,12 +396,37 @@ export class PrismaOsPartyStore implements OsPartyStore {
       },
     });
     const openWorkItems = await db.osWorkItem.count({ where: { organizationId, status: 'open', subjectType: 'party', subjectId: partyId } });
+    const pendingPayments = await db.osReportedOperationalFact.count({
+      where: { organizationId, kind: 'payment', customerPartyId: partyId, tenders: { some: { verification: 'pending' } } },
+    });
+    const confirmedFacts = await db.osReportedOperationalFact.findMany({
+      where: { organizationId, kind: 'payment', customerPartyId: partyId, tenders: { some: { verification: 'confirmed' } } },
+      select: {
+        tenders: { where: { verification: 'confirmed' }, select: { amountCentavos: true } },
+        allocations: { where: { status: 'active' }, select: { amountCentavos: true } },
+      },
+    });
+    const unassignedPayments = confirmedFacts.filter((fact) => {
+      const confirmed = fact.tenders.reduce((sum, tender) => sum + tender.amountCentavos, BigInt(0));
+      const allocated = fact.allocations.reduce((sum, item) => sum + item.amountCentavos, BigInt(0));
+      return confirmed > allocated;
+    }).length;
     const openOpportunities = await db.osOpportunity.count({ where: { organizationId, partyId, status: 'open' } });
     const openQuotes = await db.osQuote.count({ where: { organizationId, partyId, status: { in: ['draft', 'submitted'] } } });
     const currentContacts = await db.osContact.count({
       where: { organizationId, organizationPartyId: partyId, status: 'active', relationEndedAt: null },
     });
-    return { openOrders, openCommitments, openIssues, openWorkItems, openOpportunities, openQuotes, currentContacts };
+    return {
+      openOrders,
+      openCommitments,
+      openIssues,
+      openWorkItems,
+      pendingPayments,
+      unassignedPayments,
+      openOpportunities,
+      openQuotes,
+      currentContacts,
+    };
   }
 
   async saveFollowupPreference(record: ContactFollowupPreferenceRecord, expectedVersion: number): Promise<void> {

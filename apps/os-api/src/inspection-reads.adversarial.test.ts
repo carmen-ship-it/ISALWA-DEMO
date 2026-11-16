@@ -411,6 +411,16 @@ const HTTP_CLASSIFICATION: Record<string, string> = {
   // master_data.admin only; proven in t03-customer-authority.http.test.ts on disposable Postgres.
   'GET /master-data/parties': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_PG_VERIFIED',
   'GET /master-data/parties/:partyId': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_PG_VERIFIED',
+  // T07 reported payments: author/verifier/customer-visibility boundaries proven in batch6-payments.http.test.ts.
+  'GET /payment-reports': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
+  'GET /payment-reports/customers/:customerId/orders': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
+  'GET /payment-reports/:reportId': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
+  'GET /payment-reports/:reportId/evidence/:evidenceId': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
+  // Approved payment instructions are public tenant configuration; draft access needs the publish scope.
+  'GET /payment-instructions/current': 'MEMBER_ACTIVE|NO_CUSTOMER_DATA|LOCAL_HTTP_PG_VERIFIED',
+  'GET /payment-instructions': 'SCOPE-CHECKED|NO_CUSTOMER_DATA|LOCAL_HTTP_PG_VERIFIED',
+  'GET /payment-instructions/:instructionId/share-check': 'MEMBER_ACTIVE|NO_CUSTOMER_DATA|LOCAL_HTTP_PG_VERIFIED',
+  'GET /payment-instructions/:instructionId/qr': 'SCOPE-CHECKED|NO_CUSTOMER_DATA|LOCAL_HTTP_PG_VERIFIED',
 };
 
 function getRoutes(source: string): string[] {

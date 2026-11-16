@@ -7,7 +7,7 @@ import {
 } from './party-commands';
 
 describe('T03 L3 archive rules', () => {
-  const none = { openOrders: 0, openCommitments: 0, openIssues: 0, openWorkItems: 0 };
+  const none = { openOrders: 0, openCommitments: 0, openIssues: 0, openWorkItems: 0, pendingPayments: 0, unassignedPayments: 0 };
 
   it('any single open obligation blocks archiving', () => {
     assert.equal(customerArchiveBlocked(none), false);

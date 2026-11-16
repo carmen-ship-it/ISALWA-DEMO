@@ -9,7 +9,7 @@ import {
   FINANCE_DESK_COPY,
   resolveFinancePageAccess,
 } from '@/lib/finance';
-import { loadFinanceSubjectOptions } from '@/lib/finance/load-subject-options';
+import { loadFinancePrefill } from '@/lib/finance/load-prefill';
 import { loadActorRoleKeys } from '@/lib/party/master-data-access';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
@@ -35,8 +35,9 @@ function one(value: string | string[] | undefined): string | null {
 }
 
 /**
- * Operational finance desk for Contabilidad.
- * Unlocks with finance.operational.record only.
+ * Operational finance desk for Contabilidad: reported payments and their human verification.
+ * Unlocks with an explicit assignment (payments.report, payments.confirm, payment-instruction
+ * publication or finance.operational.record). Cargo and title never unlock it.
  * Product capability `finance` remains LOCKED (no official ledger / Ingresos).
  */
 export default async function FinanzasPage({ searchParams }: FinanzasPageProps) {
@@ -46,36 +47,10 @@ export default async function FinanzasPage({ searchParams }: FinanzasPageProps) 
   }
   const params = await searchParams;
   const access = await loadFinanceAccess();
-  const subjectOptions =
-    access.status === 'ready' ? await loadFinanceSubjectOptions() : { orders: [], quotes: [] };
-
-  const prefillOrderId = one(params.orderId);
-  const prefillPartyId = one(params.partyId);
-  const prefillQuoteId = one(params.quoteId);
-
-  let initialSubjectType: 'order' | 'party' | 'quote' | undefined;
-  let initialSubjectId: string | undefined;
-  let initialSubjectLabel: string | undefined;
-
-  if (prefillOrderId) {
-    const hit = subjectOptions.orders.find((option) => option.id === prefillOrderId);
-    if (hit) {
-      initialSubjectType = 'order';
-      initialSubjectId = hit.id;
-      initialSubjectLabel = hit.hint ? `${hit.label} · ${hit.hint}` : hit.label;
-    }
-  } else if (prefillQuoteId) {
-    const hit = subjectOptions.quotes.find((option) => option.id === prefillQuoteId);
-    if (hit) {
-      initialSubjectType = 'quote';
-      initialSubjectId = hit.id;
-      initialSubjectLabel = hit.hint ? `${hit.label} · ${hit.hint}` : hit.label;
-    }
-  } else if (prefillPartyId) {
-    initialSubjectType = 'party';
-    initialSubjectId = prefillPartyId;
-    initialSubjectLabel = '';
-  }
+  const prefill =
+    access.status === 'ready'
+      ? await loadFinancePrefill({ partyId: one(params.partyId), orderId: one(params.orderId) })
+      : null;
 
   return (
     <PageContainer label={FINANCE_DESK_COPY.title} data-tour={FINANCE_PROVENANCE_TARGET}>
@@ -89,15 +64,12 @@ export default async function FinanzasPage({ searchParams }: FinanzasPageProps) 
       {access.status === 'ready' ? (
         <FinanceOperationalDesk
           status="ready"
-          organizationId={access.organizationId}
-          memberId={access.memberId}
-          actorLabel={access.actorLabel}
-          grantedScopes={access.grantedScopes}
-          orderOptions={subjectOptions.orders}
-          quoteOptions={subjectOptions.quotes}
-          initialSubjectType={initialSubjectType}
-          initialSubjectId={initialSubjectId}
-          initialSubjectLabel={initialSubjectLabel}
+          canReport={access.canReport}
+          canVerify={access.canVerify}
+          canPublishInstructions={access.canPublishInstructions}
+          initialCustomerId={prefill?.customerId}
+          initialCustomerLabel={prefill?.customerLabel}
+          initialOrderId={prefill?.orderId}
           mutationsBlocked={evaluation.active}
         />
       ) : (

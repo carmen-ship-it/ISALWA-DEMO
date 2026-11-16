@@ -181,15 +181,15 @@ describeHttp('T03 customer archive and reactivation over HTTP (disposable Postgr
     ...overrides,
   });
 
-  it('previews open obligations as blocking, payments as unchecked, and effects separately', async () => {
+  it('previews open obligations as blocking, payments as checked, and effects separately', async () => {
     const reply = await preview('owner');
     assert.equal(reply.status, 200, JSON.stringify(reply.body));
     assert.deepEqual(reply.body, {
       partyId: ids.party,
       version: 0,
       status: 'active',
-      obligations: { openOrders: 1, openCommitments: 1, openIssues: 1, openWorkItems: 1 },
-      payments: { checked: false, reason: 'payments_not_available' },
+      obligations: { openOrders: 1, openCommitments: 1, openIssues: 1, openWorkItems: 1, pendingPayments: 0, unassignedPayments: 0 },
+      payments: { checked: true },
       blocked: true,
       effects: { openOpportunities: 1, openQuotes: 0, currentContacts: 1 },
     });
@@ -232,7 +232,7 @@ describeHttp('T03 customer archive and reactivation over HTTP (disposable Postgr
     }
     const lastOne = await command('owner', 'DeactivateParty', archive());
     assert.deepEqual([lastOne.status, lastOne.body], [409, { code: 'ARCHIVE_BLOCKED_BY_OBLIGATIONS' }], 'work item still open');
-    assert.deepEqual((await preview('owner')).body.obligations, { openOrders: 0, openCommitments: 0, openIssues: 0, openWorkItems: 1 });
+    assert.deepEqual((await preview('owner')).body.obligations, { openOrders: 0, openCommitments: 0, openIssues: 0, openWorkItems: 1, pendingPayments: 0, unassignedPayments: 0 });
     await prisma().osWorkItem.update({ where: { id: ids.workItem! }, data: { status: 'completed' } });
     assert.equal((await preview('owner')).body.blocked, false);
     const row = await party();
@@ -253,7 +253,7 @@ describeHttp('T03 customer archive and reactivation over HTTP (disposable Postgr
     assert.deepEqual([row.status, row.version], ['inactive', 1]);
     const event = await prisma().osBusinessEvent.findFirstOrThrow({ where: { organizationId: org.id, eventType: 'party.deactivated' } });
     const payload = event.payloadJson as Record<string, unknown>;
-    assert.deepEqual([payload.reason, payload.obligationsChecked, payload.paymentsChecked], ['no_current_commercial_relationship', true, false]);
+    assert.deepEqual([payload.reason, payload.obligationsChecked, payload.paymentsChecked], ['no_current_commercial_relationship', true, true]);
     assert.equal(await archiveEvents(), 1);
     const account = await prisma().osCommercialAccount.findFirst({ where: { organizationId: org.id, partyId: ids.party! } });
     assert.deepEqual([account?.ownerMemberId, account?.version], [before.account?.ownerMemberId, before.account?.version]);
@@ -311,7 +311,7 @@ describeHttp('T03 customer archive and reactivation over HTTP (disposable Postgr
       };
     };
     const owner = await read('owner');
-    assert.deepEqual([owner.archived?.reason, owner.archived?.paymentsChecked], ['no_current_commercial_relationship', false]);
+    assert.deepEqual([owner.archived?.reason, owner.archived?.paymentsChecked], ['no_current_commercial_relationship', true]);
     assert.equal(owner.reactivated?.reasonNote, 'Retomó compras este mes');
     const reader = await read('reader');
     assert.equal(reader.archived?.reason, 'no_current_commercial_relationship');

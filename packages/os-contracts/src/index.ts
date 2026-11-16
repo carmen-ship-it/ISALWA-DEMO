@@ -36,6 +36,7 @@ export * from './product-feedback';
 export * from './issue-authority-matrix';
 export * from './notifications';
 export * from './reported-operational-fact';
+export * from './payment-report';
 export * from './product-catalog';
 export * from './order-line';
 export * from './operational-case';

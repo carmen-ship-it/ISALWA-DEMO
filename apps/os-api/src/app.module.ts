@@ -25,6 +25,8 @@ import { AuditController } from './audit.controller';
 import { QaController } from './qa.controller';
 import { FulfillmentController } from './fulfillment.controller';
 import { CustomerConversationsController } from './customer-conversations.controller';
+import { PaymentReportsController } from './payments.controller';
+import { PaymentInstructionsController } from './payment-instructions.controller';
 import { OsStoreModule } from './os-store.module';
 import { isDevBootstrapEnabled } from './env-validation';
 
@@ -60,6 +62,8 @@ const devControllers = isDevBootstrapEnabled() ? [BootstrapController] : [];
     AuditController,
     FulfillmentController,
     CustomerConversationsController,
+    PaymentReportsController,
+    PaymentInstructionsController,
     QaController,
     ...devControllers,
   ],

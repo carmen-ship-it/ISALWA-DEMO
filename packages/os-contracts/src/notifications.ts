@@ -19,6 +19,10 @@ export const NOTIFICATION_KINDS = [
   'commitment_overdue',
   'responsibility_changed',
   'data_issue_review',
+  /** T07: a reported payment tender waits for a human verifier. */
+  'payment_to_verify',
+  /** T07: a tender was confirmed, rejected or reversed (reporter and account owner). */
+  'payment_outcome',
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
@@ -41,6 +45,7 @@ export const NOTIFICATION_SOURCE_TYPES = [
   'order',
   'opportunity',
   'organization_member',
+  'payment_report',
 ] as const;
 export type NotificationSourceType = (typeof NOTIFICATION_SOURCE_TYPES)[number];
 

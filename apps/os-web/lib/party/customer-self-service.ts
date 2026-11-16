@@ -370,19 +370,25 @@ export const PARTY_ARCHIVE_REASON_LABELS: Record<string, string> = {
   other: 'Otro',
 };
 
-export const PAYMENTS_UNVERIFIED_LABEL = 'Pagos: no verificados en esta versión';
+/** T07: reported payments are part of the archive check. They are reports in ISALWA, not an accounting balance. */
+export const PAYMENTS_CHECKED_LABEL =
+  'Pagos reportados en ISALWA incluidos en esta revisión. No es el saldo contable del cliente.';
 
 export function archiveObligationLines(obligations: {
   openOrders: number;
   openCommitments: number;
   openIssues: number;
   openWorkItems: number;
+  pendingPayments: number;
+  unassignedPayments: number;
 }): Array<{ kind: string; count: number }> {
   return [
     { kind: 'Pedidos abiertos', count: obligations.openOrders },
     { kind: 'Compromisos abiertos', count: obligations.openCommitments },
     { kind: 'Incidencias abiertas', count: obligations.openIssues },
     { kind: 'Trabajos abiertos', count: obligations.openWorkItems },
+    { kind: 'Pagos reportados por verificar', count: obligations.pendingPayments },
+    { kind: 'Pagos confirmados sin asignar a un pedido', count: obligations.unassignedPayments },
   ];
 }
 

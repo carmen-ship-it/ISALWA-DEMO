@@ -20,7 +20,7 @@ import {
   OWNER_REASSIGNMENT_COMMAND,
   SCOPES_WITHOUT_CUSTOMER_CREATE,
   AUTOMATIC_SENDS_ABSENT_LABEL,
-  PAYMENTS_UNVERIFIED_LABEL,
+  PAYMENTS_CHECKED_LABEL,
   archiveObligationLines,
   buildCreateCustomerPayload,
   buildCreateLocationPayload,
@@ -386,13 +386,27 @@ describe('T03 follow-up preferences', () => {
 
 describe('T03 archive and reactivation', () => {
   it('lists obligations by kind and never presents payments as zero', () => {
-    assert.equal(PAYMENTS_UNVERIFIED_LABEL, 'Pagos: no verificados en esta versión');
+    assert.match(PAYMENTS_CHECKED_LABEL, /No es el saldo contable/);
     assert.deepEqual(
-      archiveObligationLines({ openOrders: 1, openCommitments: 0, openIssues: 2, openWorkItems: 0 }).map((line) => line.kind),
-      ['Pedidos abiertos', 'Compromisos abiertos', 'Incidencias abiertas', 'Trabajos abiertos'],
+      archiveObligationLines({
+        openOrders: 1,
+        openCommitments: 0,
+        openIssues: 2,
+        openWorkItems: 0,
+        pendingPayments: 1,
+        unassignedPayments: 0,
+      }).map((line) => line.kind),
+      [
+        'Pedidos abiertos',
+        'Compromisos abiertos',
+        'Incidencias abiertas',
+        'Trabajos abiertos',
+        'Pagos reportados por verificar',
+        'Pagos confirmados sin asignar a un pedido',
+      ],
     );
     const panel = readUi('../../components/party/customer-archive-panel.tsx');
-    assert.match(panel, /PAYMENTS_UNVERIFIED_LABEL/);
+    assert.match(panel, /PAYMENTS_CHECKED_LABEL/);
     assert.doesNotMatch(panel, /Pagos: 0/);
     const forbidden: readonly string[] = CUSTOMER_SELF_SERVICE_FORBIDDEN_COMMANDS;
     assert.equal(forbidden.includes('DeactivateParty'), false);

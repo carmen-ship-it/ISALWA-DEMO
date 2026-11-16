@@ -69,6 +69,10 @@ export type CustomerArchiveFacts = {
   openCommitments: number;
   openIssues: number;
   openWorkItems: number;
+  /** T07: reported payments with a tender still to verify. */
+  pendingPayments: number;
+  /** T07: reported payments with confirmed funds not assigned to any order. */
+  unassignedPayments: number;
   openOpportunities: number;
   openQuotes: number;
   currentContacts: number;

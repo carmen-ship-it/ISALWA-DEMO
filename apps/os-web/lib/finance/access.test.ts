@@ -245,9 +245,10 @@ describe('finance operational desk access', () => {
     assert.match(page, /resolveFinancePageAccess/);
     assert.match(page, /FinanceOperationalDesk/);
     assert.match(page, /FinanceDisclaimer/);
-    assert.match(page, /loadFinanceSubjectOptions/);
-    assert.match(desk, /SearchableSelect/);
-    assert.match(desk, /ServerPartyTypeahead/);
+    assert.match(page, /loadFinancePrefill/);
+    assert.match(desk, /PaymentReportForm/);
+    assert.match(desk, /PaymentReportList/);
+    assert.match(desk, /PaymentInstructionsPanel/);
     assert.doesNotMatch(desk, /finance-subject-id/);
     assert.doesNotMatch(desk, /finance-subject-label/);
     assert.doesNotMatch(desk, /Identificador/);
@@ -269,16 +270,50 @@ describe('finance operational desk access', () => {
     );
   });
 
-  it('cannot show the payment form without a selected subject id', () => {
-    const desk = readFileSync(
-      resolve(__dirname, '../../components/finance/finance-operational-desk.tsx'),
+  it('the payment form needs a customer picked from the server list and never trusts a typed id', () => {
+    const form = readFileSync(
+      resolve(__dirname, '../../components/finance/payment-report-form.tsx'),
       'utf8',
     );
-    assert.match(desk, /const canShowForm = trimmedSubjectId\.length > 0/);
-    assert.match(desk, /selectOption\(id, props\.orderOptions\)/);
-    assert.match(desk, /selectOption\(id, props\.quoteOptions\)/);
-    assert.match(desk, /setSubjectId\(partyId\)/);
-    assert.doesNotMatch(desk, /onChange=\{\(event\) => setSubjectId/);
-    assert.doesNotMatch(desk, /onChange=\{\(event\) => setSubjectLabel/);
+    assert.match(form, /ServerPartyTypeahead/);
+    assert.match(form, /customer_required|buildPaymentReportRequest/);
+    assert.match(form, /setCustomerId\(partyId\)/);
+    assert.doesNotMatch(form, /onChange=\{\(event\) => setCustomerId/);
+    assert.match(form, /recordPaymentReportAction\(built\.body, attemptKey\)/);
+  });
+
+  it('payments.report / payments.confirm / publication unlock the desk with their own flags, never ledger', () => {
+    const report = resolveFinancePageAccess({ session: session(), grantedScopes: ['payments.report'] });
+    assert.equal(report.status, 'ready');
+    if (report.status !== 'ready') return;
+    assert.equal(report.canReport, true);
+    assert.equal(report.canVerify, false);
+    assert.equal(report.canPublishInstructions, false);
+    assert.equal(report.canConfirm, false);
+    assert.equal(report.canPostLedger, false);
+
+    const verify = resolveFinancePageAccess({ session: session(), grantedScopes: ['payments.confirm'] });
+    assert.equal(verify.status, 'ready');
+    if (verify.status !== 'ready') return;
+    assert.equal(verify.canVerify, true);
+    assert.equal(verify.canReport, false);
+    assert.equal(verify.canConfirm, false, 'verifying a tender is not a ledger confirmation');
+    assert.equal(verify.canPostLedger, false);
+
+    const publish = resolveFinancePageAccess({
+      session: session(),
+      grantedScopes: ['commercial.payment_instructions.publish'],
+    });
+    assert.equal(publish.status, 'ready');
+    if (publish.status !== 'ready') return;
+    assert.equal(publish.canPublishInstructions, true);
+    assert.equal(publish.canVerify, false);
+
+    // A title or cargo of Contabilidad opens nothing.
+    const title = resolveFinancePageAccess({
+      session: session({ grantedScopes: [], cargo: 'Contabilidad', title: 'Contabilidad' }),
+      grantedScopes: [],
+    });
+    assert.equal(title.status, 'denied');
   });
 });

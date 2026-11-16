@@ -2,7 +2,10 @@ import {
   FINANCE_OPERATIONAL_RECORD_SCOPE,
   canConfirmFinance,
   canPostFinanceLedger,
+  canPublishPaymentInstructions,
   canRecordOperationalFinance,
+  canReportPayment,
+  canVerifyReportedPayment,
   scopesGrantedByCargoOrTitle,
 } from '@isalwa/os-contracts';
 import { FINANCE_DESK_COPY } from './copy';
@@ -32,6 +35,9 @@ export type FinancePageAccess =
       actorLabel: string;
       grantedScopes: readonly string[];
       canRecord: false;
+      canReport: false;
+      canVerify: false;
+      canPublishInstructions: false;
       canConfirm: false;
       canPostLedger: false;
     }
@@ -42,7 +48,14 @@ export type FinancePageAccess =
       memberId: string;
       actorLabel: string;
       grantedScopes: readonly string[];
-      canRecord: true;
+      /** finance.operational.record (the original desk assignment). */
+      canRecord: boolean;
+      /** payments.report (or the operational record scope): may register reported payments. */
+      canReport: boolean;
+      /** payments.confirm: verifies each tender, allocates and reverses. Never ledger posting. */
+      canVerify: boolean;
+      /** commercial.payment_instructions.publish: drafts and approves payment instructions. */
+      canPublishInstructions: boolean;
       canConfirm: false;
       canPostLedger: false;
     };
@@ -62,6 +75,9 @@ function denied(reason: FinanceDeskDenial): FinancePageAccess {
     actorLabel: 'Registro operativo',
     grantedScopes: [],
     canRecord: false,
+    canReport: false,
+    canVerify: false,
+    canPublishInstructions: false,
     canConfirm: false,
     canPostLedger: false,
   };
@@ -70,7 +86,8 @@ function denied(reason: FinanceDeskDenial): FinancePageAccess {
 /**
  * Route gate for /finanzas operational desk.
  * Product capability `finance` staying LOCKED is intentional (no official ledger).
- * This desk unlocks only with an explicit finance.operational.record assignment.
+ * This desk unlocks only with an explicit assignment: finance.operational.record,
+ * payments.report (report), payments.confirm (verify) or payment-instruction publication.
  * Cargo and title never grant access.
  */
 export function resolveFinancePageAccess(input: {
@@ -92,7 +109,10 @@ export function resolveFinancePageAccess(input: {
   // Cargo/title are ignored on purpose. Empty array proves they grant nothing.
   void scopesGrantedByCargoOrTitle(input.session?.cargo, input.session?.title);
 
-  if (!canRecordOperationalFinance(input.grantedScopes)) {
+  const canReport = canReportPayment(input.grantedScopes);
+  const canVerify = canVerifyReportedPayment(input.grantedScopes);
+  const canPublishInstructions = canPublishPaymentInstructions(input.grantedScopes);
+  if (!canRecordOperationalFinance(input.grantedScopes) && !canReport && !canVerify && !canPublishInstructions) {
     return denied('unauthorized_role');
   }
 
@@ -103,7 +123,10 @@ export function resolveFinancePageAccess(input: {
     memberId,
     actorLabel: blank(input.session?.actorLabel) ?? 'Contabilidad',
     grantedScopes: input.grantedScopes,
-    canRecord: true,
+    canRecord: canRecordOperationalFinance(input.grantedScopes),
+    canReport,
+    canVerify,
+    canPublishInstructions,
     canConfirm: canConfirmFinance(input.grantedScopes),
     canPostLedger: canPostFinanceLedger(input.grantedScopes),
   };

@@ -668,7 +668,7 @@ export class PartyCommandService {
       'party.deactivated',
       'party',
       partyId,
-      { partyId, reason, reasonNote: reasonNote || null, obligationsChecked: true, paymentsChecked: false, version },
+      { partyId, reason, reasonNote: reasonNote || null, obligationsChecked: true, paymentsChecked: true, version },
       'party.deactivated',
       { status: before.status, version: before.version },
       { status: 'inactive', reason, version },

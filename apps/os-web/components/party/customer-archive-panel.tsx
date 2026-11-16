@@ -9,7 +9,7 @@ import { submittedValues, usePreservedForm, type PreservedFormState } from '@/li
 import { deactivatePartyAction, reactivatePartyAction } from '@/lib/party/actions';
 import {
   PARTY_ARCHIVE_REASON_LABELS,
-  PAYMENTS_UNVERIFIED_LABEL,
+  PAYMENTS_CHECKED_LABEL,
   archiveObligationLines,
 } from '@/lib/party/customer-self-service';
 
@@ -37,7 +37,7 @@ export function CustomerArchivePanel({
           </li>
         ))}
       </ul>
-      <p className="text-sm text-[var(--isalwa-kiln)]">{PAYMENTS_UNVERIFIED_LABEL}</p>
+      <p className="text-sm text-[var(--isalwa-kiln)]">{PAYMENTS_CHECKED_LABEL}</p>
       <p className="text-xs text-[var(--isalwa-slate)]">
         Archivar no borra el cliente, no cambia al responsable y no cancela cotizaciones ni oportunidades.
       </p>

@@ -184,9 +184,21 @@ export const ReactivatePartyPayloadSchema = z.object({
   reasonNote: z.string().trim().min(10).max(500),
 });
 
-/** T03 L3: any open order, commitment, issue or work item blocks archiving; there is no transfer path yet. */
+/**
+ * T03 L3 + T07: any open order, commitment, issue or work item blocks archiving, and so does a reported
+ * payment that still has a tender to verify or confirmed funds not assigned to an order. There is no
+ * transfer path yet; a person resolves the payment first.
+ */
 export function customerArchiveBlocked(obligations: CustomerArchivePreview['obligations']): boolean {
-  return obligations.openOrders + obligations.openCommitments + obligations.openIssues + obligations.openWorkItems > 0;
+  return (
+    obligations.openOrders +
+      obligations.openCommitments +
+      obligations.openIssues +
+      obligations.openWorkItems +
+      obligations.pendingPayments +
+      obligations.unassignedPayments >
+    0
+  );
 }
 
 /** T03 L3: `GET /v1/parties/:partyId/archive-preview`. Counts only. */
@@ -194,9 +206,18 @@ export type CustomerArchivePreview = {
   partyId: string;
   version: number;
   status: string;
-  obligations: { openOrders: number; openCommitments: number; openIssues: number; openWorkItems: number };
-  /** No payment or advance records exist yet (T07); never reported as zero. */
-  payments: { checked: false; reason: 'payments_not_available' };
+  obligations: {
+    openOrders: number;
+    openCommitments: number;
+    openIssues: number;
+    openWorkItems: number;
+    /** Reported payments with at least one tender still to verify. */
+    pendingPayments: number;
+    /** Reported payments with confirmed funds not yet assigned to an order (anticipos). */
+    unassignedPayments: number;
+  };
+  /** T07: reported payments are part of the check. These are reports in ISALWA, not an accounting balance. */
+  payments: { checked: true };
   blocked: boolean;
   effects: { openOpportunities: number; openQuotes: number; currentContacts: number };
 };

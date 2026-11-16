@@ -1,6 +1,7 @@
 import {
   ISSUE_MANAGE_SCOPE,
   PEOPLE_ADMIN_SCOPE,
+  canPublishPaymentInstructions,
   canReassignCommercialAccountOwner,
   canRecordCoordinatorWork,
   canRecordDelivery,
@@ -8,6 +9,8 @@ import {
   canRecordProduction,
   canRecordPurchasing,
   canRecordWarehouseOutbound,
+  canReportPayment,
+  canVerifyReportedPayment,
   canReceiveFinishedGoods,
   hasAssignedOperationsScope,
 } from '@isalwa/os-contracts';
@@ -137,6 +140,24 @@ export function buildAccessMatrix(grantedScopes: readonly string[]): AccessMatri
       evaluator: 'Autorización finance.operational.record',
     },
     {
+      id: 'payments-report',
+      label: 'Registrar pago reportado',
+      allowed: canReportPayment(grantedScopes),
+      evaluator: 'Autorización payments.report',
+    },
+    {
+      id: 'payments-verify',
+      label: 'Verificar pagos reportados',
+      allowed: canVerifyReportedPayment(grantedScopes),
+      evaluator: 'Autorización payments.confirm',
+    },
+    {
+      id: 'payment-instructions-publish',
+      label: 'Aprobar instrucciones de pago',
+      allowed: canPublishPaymentInstructions(grantedScopes),
+      evaluator: 'Autorización commercial.payment_instructions.publish',
+    },
+    {
       id: 'commercial-reassign',
       label: 'Reasignación comercial',
       allowed: canReassignCommercialAccountOwner(grantedScopes),
@@ -151,7 +172,7 @@ export function buildAccessMatrix(grantedScopes: readonly string[]): AccessMatri
     {
       id: 'finance-desk',
       label: 'Escritorio financiero operativo',
-      allowed: finance.status === 'ready' && finance.canRecord,
+      allowed: finance.status === 'ready',
       evaluator: 'Acceso al escritorio financiero',
     },
     {

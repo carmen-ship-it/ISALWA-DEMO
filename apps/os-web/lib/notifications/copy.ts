@@ -31,6 +31,8 @@ const KIND_LABELS: Record<NotificationKind, string> = {
   commitment_overdue: 'Compromiso vencido',
   responsibility_changed: 'Responsable cambiado',
   data_issue_review: 'Dato por revisar',
+  payment_to_verify: 'Pago por verificar',
+  payment_outcome: 'Resultado de pago',
 };
 
 export function notificationKindLabel(kind: NotificationKind): string {

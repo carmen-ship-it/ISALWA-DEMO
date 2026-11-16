@@ -64,6 +64,11 @@ model OsOrganization {
   importBatches      OsImportBatch[]
   importRows         OsImportRow[]
   reportedOperationalFacts OsReportedOperationalFact[]
+  paymentTenders           OsPaymentTender[]
+  paymentTenderEvents      OsPaymentTenderEvent[]
+  paymentEvidence          OsPaymentEvidence[]
+  paymentAllocations       OsPaymentAllocation[]
+  paymentInstructionVersions OsPaymentInstructionVersion[]
   commitments        OsCommitment[]
   internalNotifications OsInternalNotification[]
 
@@ -472,6 +477,7 @@ model OsParty {
   opportunities     OsOpportunity[]
   quotes            OsQuote[]
   orders            OsOrder[]
+  paymentReports    OsReportedOperationalFact[] @relation("PaymentReportCustomer")
 
   @@index([organizationId, status])
   @@map("os_parties")
@@ -659,7 +665,10 @@ model OsOrder {
   party        OsParty          @relation(fields: [partyId], references: [id])
   quote        OsQuote          @relation(fields: [quoteId], references: [id])
   lines        OsOrderLine[]
+  paymentReportsIntended OsReportedOperationalFact[] @relation("PaymentReportIntendedOrder")
+  paymentAllocations     OsPaymentAllocation[]
 
+  @@unique([organizationId, id])
   @@unique([organizationId, orderNumber])
   /// T04: one order per quote. Concurrent CreateOrder loses on this key (CONFLICT).
   @@unique([organizationId, quoteId])
@@ -1146,16 +1155,157 @@ model OsReportedOperationalFact {
   correctsFactId     String?  @map("corrects_fact_id")
   idempotencyKey     String?  @map("idempotency_key")
   createdAt          DateTime @default(now()) @map("created_at")
+  /// T07 payment reports only. The customer is a real Party; an intended order is a stated
+  /// intent, never an allocation. Legacy rows leave these NULL.
+  customerPartyId    String?  @map("customer_party_id")
+  intendedOrderId    String?  @map("intended_order_id")
+  paidOn             DateTime? @map("paid_on") @db.Date
 
   organization OsOrganization              @relation(fields: [organizationId], references: [id])
   correctsFact OsReportedOperationalFact?  @relation("ReportedFactCorrection", fields: [correctsFactId], references: [id])
   corrections  OsReportedOperationalFact[] @relation("ReportedFactCorrection")
+  customerParty OsParty?                   @relation("PaymentReportCustomer", fields: [customerPartyId], references: [id])
+  intendedOrder OsOrder?                   @relation("PaymentReportIntendedOrder", fields: [intendedOrderId], references: [id])
+  tenders      OsPaymentTender[]
+  evidence     OsPaymentEvidence[]
+  allocations  OsPaymentAllocation[]
 
+  @@unique([organizationId, id])
+  @@index([organizationId, customerPartyId, kind])
   @@unique([organizationId, idempotencyKey])
   @@index([organizationId, subjectType, subjectId])
   @@index([organizationId, kind, activity])
   @@index([organizationId, reportedAt])
   @@map("os_reported_operational_facts")
+}
+
+/// T07: one component of a reported payment (QR, efectivo, transferencia, otro). Amount, method and
+/// report never change; `verification` moves pending -> confirmed|rejected, confirmed -> reversed only,
+/// each step with an append-only OsPaymentTenderEvent. Cash with an unresolved receiver is never confirmed.
+model OsPaymentTender {
+  id                           String   @id
+  organizationId               String   @map("organization_id")
+  factId                       String   @map("fact_id")
+  seq                          Int
+  method                       String
+  amountCentavos               BigInt   @map("amount_centavos")
+  reference                    String?
+  referenceNormalized          String?  @map("reference_normalized")
+  cashRecipientMemberId        String?  @map("cash_recipient_member_id")
+  cashRecipientLabel           String?  @map("cash_recipient_label")
+  cashRecipientUnresolvedReason String? @map("cash_recipient_unresolved_reason")
+  verification                 String   @default("pending")
+  replacesTenderId             String?  @map("replaces_tender_id")
+  createdAt                    DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization            @relation(fields: [organizationId], references: [id])
+  fact         OsReportedOperationalFact @relation(fields: [organizationId, factId], references: [organizationId, id])
+  replaces     OsPaymentTender?          @relation("PaymentTenderReplacement", fields: [replacesTenderId], references: [id])
+  replacedBy   OsPaymentTender[]         @relation("PaymentTenderReplacement")
+  events       OsPaymentTenderEvent[]
+  evidence     OsPaymentEvidence[]
+
+  @@unique([factId, seq])
+  @@index([organizationId, verification])
+  @@map("os_payment_tenders")
+}
+
+/// Append-only. A human decision and why. Never updated or deleted (trigger).
+model OsPaymentTenderEvent {
+  id            String   @id
+  organizationId String  @map("organization_id")
+  tenderId      String   @map("tender_id")
+  action        String
+  reason        String
+  actorMemberId String   @map("actor_member_id")
+  actorLabel    String   @map("actor_label")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  tender       OsPaymentTender @relation(fields: [tenderId], references: [id])
+
+  @@index([tenderId, createdAt])
+  @@map("os_payment_tender_events")
+}
+
+/// Private evidence file for a human to read. Never produces an outcome (no OCR, no auto-confirm).
+model OsPaymentEvidence {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  factId             String   @map("fact_id")
+  tenderId           String?  @map("tender_id")
+  fileName           String   @map("file_name")
+  contentType        String   @map("content_type")
+  sizeBytes          Int      @map("size_bytes")
+  sha256             String
+  content            Bytes
+  uploadedByMemberId String   @map("uploaded_by_member_id")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization            @relation(fields: [organizationId], references: [id])
+  fact         OsReportedOperationalFact @relation(fields: [organizationId, factId], references: [organizationId, id])
+  tender       OsPaymentTender?          @relation(fields: [tenderId], references: [id])
+
+  @@index([organizationId, factId])
+  @@index([organizationId, sha256])
+  @@map("os_payment_evidence")
+}
+
+/// Explicit allocation of confirmed funds to an order of the same customer and tenant.
+/// The sum of active allocations never exceeds confirmed funds (trigger). Remainder = anticipo sin asignar.
+model OsPaymentAllocation {
+  id                  String    @id
+  organizationId      String    @map("organization_id")
+  factId              String    @map("fact_id")
+  orderId             String    @map("order_id")
+  amountCentavos      BigInt    @map("amount_centavos")
+  status              String    @default("active")
+  allocatedByMemberId String    @map("allocated_by_member_id")
+  allocatedByLabel    String    @map("allocated_by_label")
+  allocatedAt         DateTime  @default(now()) @map("allocated_at")
+  releasedAt          DateTime? @map("released_at")
+  releasedByMemberId  String?   @map("released_by_member_id")
+  releasedReason      String?   @map("released_reason")
+
+  organization OsOrganization            @relation(fields: [organizationId], references: [id])
+  fact         OsReportedOperationalFact @relation(fields: [organizationId, factId], references: [organizationId, id])
+  order        OsOrder                   @relation(fields: [organizationId, orderId], references: [organizationId, id])
+
+  @@index([organizationId, factId, status])
+  @@index([organizationId, orderId, status])
+  @@map("os_payment_allocations")
+}
+
+/// Approved public payment destination (QR or bank transfer), versioned per tenant. Never a developer
+/// account, never taken from an inbound image. The publisher is not the drafter (CHECK).
+model OsPaymentInstructionVersion {
+  id                  String    @id
+  organizationId      String    @map("organization_id")
+  version             Int
+  method              String
+  holderLabel         String    @map("holder_label")
+  bankName            String?   @map("bank_name")
+  accountReference    String?   @map("account_reference")
+  currency            String    @default("BOB")
+  publicNote          String?   @map("public_note")
+  validFrom           DateTime? @map("valid_from") @db.Date
+  validUntil          DateTime? @map("valid_until") @db.Date
+  qrContent           Bytes?    @map("qr_content")
+  qrContentType       String?   @map("qr_content_type")
+  qrSha256            String?   @map("qr_sha256")
+  status              String    @default("draft")
+  createdByMemberId   String    @map("created_by_member_id")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  publishedByMemberId String?   @map("published_by_member_id")
+  publishedAt         DateTime? @map("published_at")
+  retiredByMemberId   String?   @map("retired_by_member_id")
+  retiredAt           DateTime? @map("retired_at")
+  retiredReason       String?   @map("retired_reason")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, version])
+  @@map("os_payment_instruction_versions")
 }
 
 /// Stored lifecycle is open, fulfilled, or cancelled only.

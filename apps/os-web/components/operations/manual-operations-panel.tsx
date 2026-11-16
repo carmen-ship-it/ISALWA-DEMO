@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { StatusPill } from '@isalwa/ui';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
@@ -14,11 +15,17 @@ import {
 } from '@/lib/operations/reported-fact';
 import { InventorySnapshotForm } from './inventory-snapshot-form';
 import { ManualDispatchForm } from './manual-dispatch-form';
-import { ManualPaymentForm } from './manual-payment-form';
 import { ReportedFactProvenance } from './reported-fact-provenance';
 import type { ManualOperationSubject } from './subject';
 
 type ManualOperationsPanelProps = ManualOperationSubject;
+
+function paymentDeskHref(subject: ManualOperationsPanelProps): string {
+  const id = encodeURIComponent(subject.subjectId);
+  if (subject.subjectType === 'party') return `/finanzas?partyId=${id}`;
+  if (subject.subjectType === 'order') return `/finanzas?orderId=${id}`;
+  return '/finanzas';
+}
 
 /**
  * Local draft only. Does not persist and does not mutate commercial records.
@@ -67,7 +74,12 @@ export function ManualOperationsPanel(props: ManualOperationsPanelProps) {
           onReversed={onReversed}
         />
       ))}
-      <ManualPaymentForm {...props} onRecorded={onRecorded} />
+      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Los pagos reportados se guardan y los verifica Contabilidad.{' '}
+        <Link href={paymentDeskHref(props)} className="font-medium text-[var(--isalwa-glaze)] underline">
+          Registrar pago reportado
+        </Link>
+      </p>
       <ManualDispatchForm {...props} onRecorded={onRecorded} />
       <InventorySnapshotForm {...props} onRecorded={onRecorded} />
     </section>

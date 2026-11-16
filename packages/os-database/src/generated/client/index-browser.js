@@ -820,7 +820,92 @@ exports.Prisma.OsReportedOperationalFactScalarFieldEnum = {
   payloadJson: 'payloadJson',
   correctsFactId: 'correctsFactId',
   idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt',
+  customerPartyId: 'customerPartyId',
+  intendedOrderId: 'intendedOrderId',
+  paidOn: 'paidOn'
+};
+
+exports.Prisma.OsPaymentTenderScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  factId: 'factId',
+  seq: 'seq',
+  method: 'method',
+  amountCentavos: 'amountCentavos',
+  reference: 'reference',
+  referenceNormalized: 'referenceNormalized',
+  cashRecipientMemberId: 'cashRecipientMemberId',
+  cashRecipientLabel: 'cashRecipientLabel',
+  cashRecipientUnresolvedReason: 'cashRecipientUnresolvedReason',
+  verification: 'verification',
+  replacesTenderId: 'replacesTenderId',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.OsPaymentTenderEventScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  tenderId: 'tenderId',
+  action: 'action',
+  reason: 'reason',
+  actorMemberId: 'actorMemberId',
+  actorLabel: 'actorLabel',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsPaymentEvidenceScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  factId: 'factId',
+  tenderId: 'tenderId',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  sizeBytes: 'sizeBytes',
+  sha256: 'sha256',
+  content: 'content',
+  uploadedByMemberId: 'uploadedByMemberId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsPaymentAllocationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  factId: 'factId',
+  orderId: 'orderId',
+  amountCentavos: 'amountCentavos',
+  status: 'status',
+  allocatedByMemberId: 'allocatedByMemberId',
+  allocatedByLabel: 'allocatedByLabel',
+  allocatedAt: 'allocatedAt',
+  releasedAt: 'releasedAt',
+  releasedByMemberId: 'releasedByMemberId',
+  releasedReason: 'releasedReason'
+};
+
+exports.Prisma.OsPaymentInstructionVersionScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  version: 'version',
+  method: 'method',
+  holderLabel: 'holderLabel',
+  bankName: 'bankName',
+  accountReference: 'accountReference',
+  currency: 'currency',
+  publicNote: 'publicNote',
+  validFrom: 'validFrom',
+  validUntil: 'validUntil',
+  qrContent: 'qrContent',
+  qrContentType: 'qrContentType',
+  qrSha256: 'qrSha256',
+  status: 'status',
+  createdByMemberId: 'createdByMemberId',
+  createdAt: 'createdAt',
+  publishedByMemberId: 'publishedByMemberId',
+  publishedAt: 'publishedAt',
+  retiredByMemberId: 'retiredByMemberId',
+  retiredAt: 'retiredAt',
+  retiredReason: 'retiredReason'
 };
 
 exports.Prisma.OsCommitmentScalarFieldEnum = {
@@ -1689,6 +1774,11 @@ exports.Prisma.ModelName = {
   OsOrderReadModel: 'OsOrderReadModel',
   OsPartyTimelineEntry: 'OsPartyTimelineEntry',
   OsReportedOperationalFact: 'OsReportedOperationalFact',
+  OsPaymentTender: 'OsPaymentTender',
+  OsPaymentTenderEvent: 'OsPaymentTenderEvent',
+  OsPaymentEvidence: 'OsPaymentEvidence',
+  OsPaymentAllocation: 'OsPaymentAllocation',
+  OsPaymentInstructionVersion: 'OsPaymentInstructionVersion',
   OsCommitment: 'OsCommitment',
   OsInternalNotification: 'OsInternalNotification',
   OsCatalogProduct: 'OsCatalogProduct',
