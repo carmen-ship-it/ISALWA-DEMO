@@ -573,25 +573,35 @@ model OsOpportunity {
 }
 
 model OsQuote {
-  id                     String    @id
-  organizationId         String    @map("organization_id")
-  partyId                String    @map("party_id")
-  commercialAccountId    String?   @map("commercial_account_id")
-  opportunityId          String?   @map("opportunity_id")
-  ownerMemberId          String    @map("owner_member_id")
-  quoteNumber            String    @map("quote_number")
-  status                 String    @default("draft")
-  currency               String    @default("BOB")
-  subtotalCentavos       BigInt    @default(0) @map("subtotal_centavos")
-  headerDiscountCentavos BigInt    @default(0) @map("header_discount_centavos")
-  totalCentavos          BigInt    @default(0) @map("total_centavos")
-  revisionNumber         Int       @default(1) @map("revision_number")
-  notes                  String?
-  version                Int       @default(0)
-  submittedAt            DateTime? @map("submitted_at")
-  cancelledAt            DateTime? @map("cancelled_at")
-  createdAt              DateTime  @default(now()) @map("created_at")
-  updatedAt              DateTime  @updatedAt @map("updated_at")
+  id                         String    @id
+  organizationId             String    @map("organization_id")
+  partyId                    String    @map("party_id")
+  commercialAccountId        String?   @map("commercial_account_id")
+  opportunityId              String?   @map("opportunity_id")
+  ownerMemberId              String    @map("owner_member_id")
+  quoteNumber                String    @map("quote_number")
+  status                     String    @default("draft")
+  currency                   String    @default("BOB")
+  subtotalCentavos           BigInt    @default(0) @map("subtotal_centavos")
+  headerDiscountCentavos     BigInt    @default(0) @map("header_discount_centavos")
+  totalCentavos              BigInt    @default(0) @map("total_centavos")
+  revisionNumber             Int       @default(1) @map("revision_number")
+  notes                      String?
+  version                    Int       @default(0)
+  submittedAt                DateTime? @map("submitted_at")
+  /// T04: issuance (SubmitQuote / Emitir). The hash covers the material terms of issuedRevisionNumber.
+  issuedAt                   DateTime? @map("issued_at")
+  issuedDocumentHash         String?   @map("issued_document_hash")
+  issuedRevisionNumber       Int?      @map("issued_revision_number")
+  validUntil                 DateTime? @map("valid_until")
+  /// T04: human-recorded customer acceptance of customerAcceptedRevision.
+  customerAcceptedAt         DateTime? @map("customer_accepted_at")
+  customerAcceptanceChannel  String?   @map("customer_acceptance_channel")
+  customerAcceptanceEvidence String?   @map("customer_acceptance_evidence")
+  customerAcceptedRevision   Int?      @map("customer_accepted_revision")
+  cancelledAt                DateTime? @map("cancelled_at")
+  createdAt                  DateTime  @default(now()) @map("created_at")
+  updatedAt                  DateTime  @updatedAt @map("updated_at")
 
   organization OsOrganization @relation(fields: [organizationId], references: [id])
   party        OsParty        @relation(fields: [partyId], references: [id])
@@ -654,6 +664,8 @@ model OsOrder {
   lines        OsOrderLine[]
 
   @@unique([organizationId, orderNumber])
+  /// T04: one order per quote. Concurrent CreateOrder loses on this key (CONFLICT).
+  @@unique([organizationId, quoteId])
   @@index([organizationId, partyId])
   @@index([organizationId, quoteId])
   @@map("os_orders")
@@ -1027,6 +1039,11 @@ model OsQuoteReadModel {
   revisionNumber         Int       @map("revision_number")
   notes                  String?
   submittedAt            DateTime? @map("submitted_at")
+  /// T04: issuance and acceptance facts copied from os_quotes (nullable = not issued / not accepted).
+  issuedAt               DateTime? @map("issued_at")
+  issuedDocumentHash     String?   @map("issued_document_hash")
+  issuedRevisionNumber   Int?      @map("issued_revision_number")
+  customerAcceptedAt     DateTime? @map("customer_accepted_at")
   cancelledAt            DateTime? @map("cancelled_at")
   createdAt              DateTime  @map("created_at")
   lastEventId            String?   @map("last_event_id")

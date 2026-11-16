@@ -15,6 +15,12 @@ import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import type { ProjectionRunner } from '@isalwa/os-query';
 import { getOsPrisma } from '@isalwa/os-database';
 import { createId } from '@isalwa/ts-utils';
+import {
+  approveQuoteOverHttp,
+  seedSyntheticPriceApprover,
+  sessionHeadersFor,
+  type SyntheticSession,
+} from './quote-lifecycle.http-support';
 
 const describeHttp = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
@@ -45,6 +51,7 @@ describeHttp('os-api quote PDF (Cotización)', () => {
   let mdAdmin: { member: { id: string }; person: { id: string }; auth: { id: string } };
   let sales: { member: { id: string }; person: { id: string }; auth: { id: string } };
   let salesB: { member: { id: string }; person: { id: string }; auth: { id: string } };
+  let approver: SyntheticSession;
 
   before(async () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
@@ -74,6 +81,7 @@ describeHttp('os-api quote PDF (Cotización)', () => {
     });
     sales = await seedSalesMember(org.id, `pdf-sales-${Date.now()}@comm.bo`);
     salesB = await seedSalesMember(orgB.id, `pdf-salesb-${Date.now()}@comm.bo`);
+    approver = await seedSyntheticPriceApprover(org.id, `pdf-approver-${Date.now()}@comm.bo`);
   });
 
   after(async () => {
@@ -179,11 +187,19 @@ describeHttp('os-api quote PDF (Cotización)', () => {
     }
 
     if (opts?.submit) {
-      await fetch(`${baseUrl}/v1/commands/SubmitQuote`, {
+      // T04: the exact terms are approved before issuance.
+      await approveQuoteOverHttp({
+        baseUrl,
+        ownerHeaders: headers,
+        approverHeaders: sessionHeadersFor(org.id, approver),
+        quoteId,
+      });
+      const issued = await fetch(`${baseUrl}/v1/commands/SubmitQuote`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ quoteId }),
       });
+      assert.equal(issued.status, 201);
     }
 
     await drainProjections();

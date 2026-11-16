@@ -34,6 +34,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
 import { loadCliente360 } from '@/lib/cliente/load-cliente-360';
+import { prepareQuoteTarget } from '@/lib/cliente/prepare-quote';
 import { buildCliente360Intelligence } from '@/lib/cliente/client-intelligence';
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
 import { parseCliente360Tab } from '@/lib/cliente/nav-sections';
@@ -387,6 +388,11 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
             manualSubjectLabel={displayName}
             manualOrganizationId={manualOrganizationId}
             manualSubjectId={manualSubjectId}
+            prepareQuote={
+              party.status === 'active'
+                ? prepareQuoteTarget({ partyId, opportunities, linkedQuotes })
+                : undefined
+            }
           />
           <Cliente360Nav partyId={partyId} activeTab={tab} embedded />
         </Cliente360Sticky>

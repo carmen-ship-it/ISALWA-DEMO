@@ -37,10 +37,10 @@ describe('whoHasTheBallView', () => {
       temporarySupport: null,
       pendingApproval: null,
       nextStepStatement: 'Prepare una cotización',
-      nextStepHrefLabel: 'Crear cotización',
+      nextStepHrefLabel: 'Preparar cotización',
     });
     assert.equal(view.principalLine, WHO_HAS_THE_BALL_COPY.noOwner);
-    assert.match(view.nextSafeLine ?? '', /Crear cotización/);
+    assert.match(view.nextSafeLine ?? '', /Preparar cotización/);
   });
 
   it('surfaces temporary support only when evidenced', () => {

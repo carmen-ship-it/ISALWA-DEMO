@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import {
   POST_APPROVAL_CANCELLED_EXPLANATION,
   POST_APPROVAL_CONVERT_LABEL,
+  POST_APPROVAL_ISSUE_NEXT_STEP,
   POST_APPROVAL_QUOTE_LINK_LABEL,
   postApprovalContinue,
   quoteConvertHref,
@@ -25,11 +26,11 @@ describe('postApprovalContinue', () => {
     assert.equal(result.quoteHref, null);
   });
 
-  it('offers Ver cotización and Convertir when authority allows convert', () => {
+  it('offers Ver cotización and Crear pedido when accepted and authority allows convert', () => {
     const result = postApprovalContinue({
       approvalStatus: 'approved',
       subjectType: 'quote',
-      quoteStatus: 'submitted',
+      quoteStatus: 'accepted',
       canConvertToOrder: true,
       partyId: 'party-1',
       quoteId: 'quote-1',
@@ -43,7 +44,7 @@ describe('postApprovalContinue', () => {
     assert.equal(result.stateExplanation, null);
   });
 
-  it('explains cancelled quotes and withholds Convertir', () => {
+  it('explains cancelled quotes and withholds Crear pedido', () => {
     const result = postApprovalContinue({
       approvalStatus: 'approved',
       subjectType: 'quote',
@@ -57,7 +58,34 @@ describe('postApprovalContinue', () => {
     assert.equal(result.stateExplanation, POST_APPROVAL_CANCELLED_EXPLANATION);
   });
 
-  it('withholds Convertir when submitted but actor lacks convert scope', () => {
+  it('points an approved draft at Emitir and never at Crear pedido', () => {
+    const result = postApprovalContinue({
+      approvalStatus: 'approved',
+      subjectType: 'quote',
+      quoteStatus: 'draft',
+      canConvertToOrder: true,
+      partyId: 'party-1',
+      quoteId: 'quote-1',
+    });
+    assert.equal(result.convertHref, null);
+    assert.equal(result.stateExplanation, POST_APPROVAL_ISSUE_NEXT_STEP);
+    assert.match(result.stateExplanation ?? '', /Emitir cotización/);
+  });
+
+  it('withholds Crear pedido on an issued quote until the customer acceptance is recorded', () => {
+    const result = postApprovalContinue({
+      approvalStatus: 'approved',
+      subjectType: 'quote',
+      quoteStatus: 'submitted',
+      canConvertToOrder: true,
+      partyId: 'party-1',
+      quoteId: 'quote-1',
+    });
+    assert.equal(result.convertHref, null);
+    assert.match(result.stateExplanation ?? '', /no crea un pedido/i);
+  });
+
+  it('withholds Crear pedido when submitted but actor lacks convert scope', () => {
     const result = postApprovalContinue({
       approvalStatus: 'approved',
       subjectType: 'quote',

@@ -35,6 +35,8 @@ export type CommercialApprovalSubjectRecord = {
   ownerMemberId: string;
   status: string;
   partyId: string;
+  /** Quotes only: the current revision an approval request binds to. */
+  revisionNumber?: number;
 };
 
 export type ApprovalRequestRecord = {

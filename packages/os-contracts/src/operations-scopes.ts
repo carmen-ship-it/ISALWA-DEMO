@@ -114,8 +114,8 @@ export const SYSTEM_ADMIN_SCOPE = 'system.admin' as const;
  */
 export const QA_ACCESS_SCOPE = 'qa.access' as const;
 
-/** Matches current CreateOrder eligibility. Ownership alone is not enough. */
-export const OWN_QUOTE_CONVERT_ELIGIBLE_STATUS = 'submitted' as const;
+/** CreateOrder eligibility (T04): customer acceptance is recorded. Ownership alone is not enough. */
+export const OWN_QUOTE_CONVERT_ELIGIBLE_STATUS = 'accepted' as const;
 
 /**
  * Issue management scope. Required for triage, assign, confirm cause, resolve, close, reopen.

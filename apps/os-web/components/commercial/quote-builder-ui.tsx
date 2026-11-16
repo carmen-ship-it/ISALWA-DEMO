@@ -38,7 +38,7 @@ export function QuoteDraftNextStep({ lineCount }: { lineCount: number }) {
     ? 'Complete cantidad, unidad y precio y guarde la línea.'
     : lineCount === 0
       ? 'Agregue productos a la cotización.'
-      : 'Revise la cotización y preséntela.';
+      : 'Revise la cotización, solicite la aprobación y emítala.';
   const step: CommercialNextStep = {
     statement,
     href: null,

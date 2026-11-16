@@ -223,6 +223,14 @@ export const QuoteSummaryReadModelSchema = z.object({
   revisionNumber: z.number().int(),
   notes: z.string().nullable(),
   submittedAt: z.string().datetime().nullable(),
+  /**
+   * T04 issuance and acceptance facts. Absent or null = not issued / not accepted
+   * (a legacy submitted quote has issuedAt null and cannot be accepted).
+   */
+  issuedAt: z.string().datetime().nullable().optional(),
+  issuedDocumentHash: z.string().nullable().optional(),
+  issuedRevisionNumber: z.number().int().nullable().optional(),
+  customerAcceptedAt: z.string().datetime().nullable().optional(),
   cancelledAt: z.string().datetime().nullable(),
   createdAt: z.string().datetime(),
 });

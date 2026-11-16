@@ -12,6 +12,7 @@ import { AppToast, AppToastRegion } from '@/components/states/app-toast';
 import { createOrderAction } from '@/lib/commercial/actions';
 import { hrefWithClientDataMode } from '@/lib/demo/preserve-data-mode';
 import { guidanceForConvertQuote } from '@/lib/guidance/select';
+import { QUOTE_LIFECYCLE_LABELS } from '@/lib/commercial/quote-lifecycle';
 
 type ConvertQuoteFormProps = {
   partyId: string;
@@ -64,7 +65,9 @@ export function ConvertQuoteForm({
       <GuidanceNotes notes={guidanceForConvertQuote({ quoteStatus })} />
       <FormFeedback error={state?.error} />
       <Button type="button" variant="primary" onClick={() => dialogRef.current?.showModal()}>
-        {quoteStatus === 'accepted' ? 'Cliente aceptó · Convertir a Pedido' : 'Convertir a Pedido'}
+        {quoteStatus === 'accepted'
+          ? `Cliente aceptó · ${QUOTE_LIFECYCLE_LABELS.createOrder}`
+          : QUOTE_LIFECYCLE_LABELS.createOrder}
       </Button>
 
       <dialog
@@ -102,8 +105,8 @@ export function ConvertQuoteForm({
             <CommandSubmitButton
               label={
                 quoteStatus === 'accepted'
-                  ? 'Cliente aceptó · Convertir a Pedido'
-                  : 'Convertir a Pedido'
+                  ? `Cliente aceptó · ${QUOTE_LIFECYCLE_LABELS.createOrder}`
+                  : QUOTE_LIFECYCLE_LABELS.createOrder
               }
               pendingLabel="Registrando pedido…"
             />

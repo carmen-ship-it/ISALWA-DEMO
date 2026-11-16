@@ -30,7 +30,7 @@ const base = {
 describe('Task 8 post-send state corrective', () => {
   it('derives next action across draft → presented → sent', () => {
     const draft = quoteNextStep({ ...base, status: 'draft', sendRecorded: false });
-    assert.equal(draft?.statement, 'Revise la cotización y preséntela.');
+    assert.equal(draft?.statement, 'Revise la cotización, solicite la aprobación y emítala.');
     assert.doesNotMatch(draft?.statement ?? '', /Envío registrado/);
 
     const presented = quoteNextStep({ ...base, status: 'submitted', sendRecorded: false });

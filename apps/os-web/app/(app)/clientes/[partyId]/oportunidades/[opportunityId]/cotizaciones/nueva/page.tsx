@@ -40,7 +40,7 @@ export default async function NewQuotePage({ params }: NewQuotePageProps) {
       <PageContainer label="Nueva cotización">
         <PageHeader
           kicker="Cotización"
-          title="Crear cotización"
+          title="Preparar cotización"
           description={customerName}
           action={
             <Link

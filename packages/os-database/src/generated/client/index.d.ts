@@ -42128,6 +42128,8 @@ export namespace Prisma {
     totalCentavos: number | null
     revisionNumber: number | null
     version: number | null
+    issuedRevisionNumber: number | null
+    customerAcceptedRevision: number | null
   }
 
   export type OsQuoteSumAggregateOutputType = {
@@ -42136,6 +42138,8 @@ export namespace Prisma {
     totalCentavos: bigint | null
     revisionNumber: number | null
     version: number | null
+    issuedRevisionNumber: number | null
+    customerAcceptedRevision: number | null
   }
 
   export type OsQuoteMinAggregateOutputType = {
@@ -42155,6 +42159,14 @@ export namespace Prisma {
     notes: string | null
     version: number | null
     submittedAt: Date | null
+    issuedAt: Date | null
+    issuedDocumentHash: string | null
+    issuedRevisionNumber: number | null
+    validUntil: Date | null
+    customerAcceptedAt: Date | null
+    customerAcceptanceChannel: string | null
+    customerAcceptanceEvidence: string | null
+    customerAcceptedRevision: number | null
     cancelledAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -42177,6 +42189,14 @@ export namespace Prisma {
     notes: string | null
     version: number | null
     submittedAt: Date | null
+    issuedAt: Date | null
+    issuedDocumentHash: string | null
+    issuedRevisionNumber: number | null
+    validUntil: Date | null
+    customerAcceptedAt: Date | null
+    customerAcceptanceChannel: string | null
+    customerAcceptanceEvidence: string | null
+    customerAcceptedRevision: number | null
     cancelledAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -42199,6 +42219,14 @@ export namespace Prisma {
     notes: number
     version: number
     submittedAt: number
+    issuedAt: number
+    issuedDocumentHash: number
+    issuedRevisionNumber: number
+    validUntil: number
+    customerAcceptedAt: number
+    customerAcceptanceChannel: number
+    customerAcceptanceEvidence: number
+    customerAcceptedRevision: number
     cancelledAt: number
     createdAt: number
     updatedAt: number
@@ -42212,6 +42240,8 @@ export namespace Prisma {
     totalCentavos?: true
     revisionNumber?: true
     version?: true
+    issuedRevisionNumber?: true
+    customerAcceptedRevision?: true
   }
 
   export type OsQuoteSumAggregateInputType = {
@@ -42220,6 +42250,8 @@ export namespace Prisma {
     totalCentavos?: true
     revisionNumber?: true
     version?: true
+    issuedRevisionNumber?: true
+    customerAcceptedRevision?: true
   }
 
   export type OsQuoteMinAggregateInputType = {
@@ -42239,6 +42271,14 @@ export namespace Prisma {
     notes?: true
     version?: true
     submittedAt?: true
+    issuedAt?: true
+    issuedDocumentHash?: true
+    issuedRevisionNumber?: true
+    validUntil?: true
+    customerAcceptedAt?: true
+    customerAcceptanceChannel?: true
+    customerAcceptanceEvidence?: true
+    customerAcceptedRevision?: true
     cancelledAt?: true
     createdAt?: true
     updatedAt?: true
@@ -42261,6 +42301,14 @@ export namespace Prisma {
     notes?: true
     version?: true
     submittedAt?: true
+    issuedAt?: true
+    issuedDocumentHash?: true
+    issuedRevisionNumber?: true
+    validUntil?: true
+    customerAcceptedAt?: true
+    customerAcceptanceChannel?: true
+    customerAcceptanceEvidence?: true
+    customerAcceptedRevision?: true
     cancelledAt?: true
     createdAt?: true
     updatedAt?: true
@@ -42283,6 +42331,14 @@ export namespace Prisma {
     notes?: true
     version?: true
     submittedAt?: true
+    issuedAt?: true
+    issuedDocumentHash?: true
+    issuedRevisionNumber?: true
+    validUntil?: true
+    customerAcceptedAt?: true
+    customerAcceptanceChannel?: true
+    customerAcceptanceEvidence?: true
+    customerAcceptedRevision?: true
     cancelledAt?: true
     createdAt?: true
     updatedAt?: true
@@ -42392,6 +42448,14 @@ export namespace Prisma {
     notes: string | null
     version: number
     submittedAt: Date | null
+    issuedAt: Date | null
+    issuedDocumentHash: string | null
+    issuedRevisionNumber: number | null
+    validUntil: Date | null
+    customerAcceptedAt: Date | null
+    customerAcceptanceChannel: string | null
+    customerAcceptanceEvidence: string | null
+    customerAcceptedRevision: number | null
     cancelledAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -42433,6 +42497,14 @@ export namespace Prisma {
     notes?: boolean
     version?: boolean
     submittedAt?: boolean
+    issuedAt?: boolean
+    issuedDocumentHash?: boolean
+    issuedRevisionNumber?: boolean
+    validUntil?: boolean
+    customerAcceptedAt?: boolean
+    customerAcceptanceChannel?: boolean
+    customerAcceptanceEvidence?: boolean
+    customerAcceptedRevision?: boolean
     cancelledAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -42462,6 +42534,14 @@ export namespace Prisma {
     notes?: boolean
     version?: boolean
     submittedAt?: boolean
+    issuedAt?: boolean
+    issuedDocumentHash?: boolean
+    issuedRevisionNumber?: boolean
+    validUntil?: boolean
+    customerAcceptedAt?: boolean
+    customerAcceptanceChannel?: boolean
+    customerAcceptanceEvidence?: boolean
+    customerAcceptedRevision?: boolean
     cancelledAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -42487,6 +42567,14 @@ export namespace Prisma {
     notes?: boolean
     version?: boolean
     submittedAt?: boolean
+    issuedAt?: boolean
+    issuedDocumentHash?: boolean
+    issuedRevisionNumber?: boolean
+    validUntil?: boolean
+    customerAcceptedAt?: boolean
+    customerAcceptanceChannel?: boolean
+    customerAcceptanceEvidence?: boolean
+    customerAcceptedRevision?: boolean
     cancelledAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -42512,12 +42600,20 @@ export namespace Prisma {
     notes?: boolean
     version?: boolean
     submittedAt?: boolean
+    issuedAt?: boolean
+    issuedDocumentHash?: boolean
+    issuedRevisionNumber?: boolean
+    validUntil?: boolean
+    customerAcceptedAt?: boolean
+    customerAcceptanceChannel?: boolean
+    customerAcceptanceEvidence?: boolean
+    customerAcceptedRevision?: boolean
     cancelledAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type OsQuoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "partyId" | "commercialAccountId" | "opportunityId" | "ownerMemberId" | "quoteNumber" | "status" | "currency" | "subtotalCentavos" | "headerDiscountCentavos" | "totalCentavos" | "revisionNumber" | "notes" | "version" | "submittedAt" | "cancelledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["osQuote"]>
+  export type OsQuoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "partyId" | "commercialAccountId" | "opportunityId" | "ownerMemberId" | "quoteNumber" | "status" | "currency" | "subtotalCentavos" | "headerDiscountCentavos" | "totalCentavos" | "revisionNumber" | "notes" | "version" | "submittedAt" | "issuedAt" | "issuedDocumentHash" | "issuedRevisionNumber" | "validUntil" | "customerAcceptedAt" | "customerAcceptanceChannel" | "customerAcceptanceEvidence" | "customerAcceptedRevision" | "cancelledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["osQuote"]>
   export type OsQuoteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
     party?: boolean | OsPartyDefaultArgs<ExtArgs>
@@ -42565,6 +42661,20 @@ export namespace Prisma {
       notes: string | null
       version: number
       submittedAt: Date | null
+      /**
+       * T04: issuance (SubmitQuote / Emitir). The hash covers the material terms of issuedRevisionNumber.
+       */
+      issuedAt: Date | null
+      issuedDocumentHash: string | null
+      issuedRevisionNumber: number | null
+      validUntil: Date | null
+      /**
+       * T04: human-recorded customer acceptance of customerAcceptedRevision.
+       */
+      customerAcceptedAt: Date | null
+      customerAcceptanceChannel: string | null
+      customerAcceptanceEvidence: string | null
+      customerAcceptedRevision: number | null
       cancelledAt: Date | null
       createdAt: Date
       updatedAt: Date
@@ -43013,6 +43123,14 @@ export namespace Prisma {
     readonly notes: FieldRef<"OsQuote", 'String'>
     readonly version: FieldRef<"OsQuote", 'Int'>
     readonly submittedAt: FieldRef<"OsQuote", 'DateTime'>
+    readonly issuedAt: FieldRef<"OsQuote", 'DateTime'>
+    readonly issuedDocumentHash: FieldRef<"OsQuote", 'String'>
+    readonly issuedRevisionNumber: FieldRef<"OsQuote", 'Int'>
+    readonly validUntil: FieldRef<"OsQuote", 'DateTime'>
+    readonly customerAcceptedAt: FieldRef<"OsQuote", 'DateTime'>
+    readonly customerAcceptanceChannel: FieldRef<"OsQuote", 'String'>
+    readonly customerAcceptanceEvidence: FieldRef<"OsQuote", 'String'>
+    readonly customerAcceptedRevision: FieldRef<"OsQuote", 'Int'>
     readonly cancelledAt: FieldRef<"OsQuote", 'DateTime'>
     readonly createdAt: FieldRef<"OsQuote", 'DateTime'>
     readonly updatedAt: FieldRef<"OsQuote", 'DateTime'>
@@ -64926,6 +65044,7 @@ export namespace Prisma {
     headerDiscountCentavos: number | null
     totalCentavos: number | null
     revisionNumber: number | null
+    issuedRevisionNumber: number | null
   }
 
   export type OsQuoteReadModelSumAggregateOutputType = {
@@ -64933,6 +65052,7 @@ export namespace Prisma {
     headerDiscountCentavos: bigint | null
     totalCentavos: bigint | null
     revisionNumber: number | null
+    issuedRevisionNumber: number | null
   }
 
   export type OsQuoteReadModelMinAggregateOutputType = {
@@ -64951,6 +65071,10 @@ export namespace Prisma {
     revisionNumber: number | null
     notes: string | null
     submittedAt: Date | null
+    issuedAt: Date | null
+    issuedDocumentHash: string | null
+    issuedRevisionNumber: number | null
+    customerAcceptedAt: Date | null
     cancelledAt: Date | null
     createdAt: Date | null
     lastEventId: string | null
@@ -64974,6 +65098,10 @@ export namespace Prisma {
     revisionNumber: number | null
     notes: string | null
     submittedAt: Date | null
+    issuedAt: Date | null
+    issuedDocumentHash: string | null
+    issuedRevisionNumber: number | null
+    customerAcceptedAt: Date | null
     cancelledAt: Date | null
     createdAt: Date | null
     lastEventId: string | null
@@ -64997,6 +65125,10 @@ export namespace Prisma {
     revisionNumber: number
     notes: number
     submittedAt: number
+    issuedAt: number
+    issuedDocumentHash: number
+    issuedRevisionNumber: number
+    customerAcceptedAt: number
     cancelledAt: number
     createdAt: number
     lastEventId: number
@@ -65011,6 +65143,7 @@ export namespace Prisma {
     headerDiscountCentavos?: true
     totalCentavos?: true
     revisionNumber?: true
+    issuedRevisionNumber?: true
   }
 
   export type OsQuoteReadModelSumAggregateInputType = {
@@ -65018,6 +65151,7 @@ export namespace Prisma {
     headerDiscountCentavos?: true
     totalCentavos?: true
     revisionNumber?: true
+    issuedRevisionNumber?: true
   }
 
   export type OsQuoteReadModelMinAggregateInputType = {
@@ -65036,6 +65170,10 @@ export namespace Prisma {
     revisionNumber?: true
     notes?: true
     submittedAt?: true
+    issuedAt?: true
+    issuedDocumentHash?: true
+    issuedRevisionNumber?: true
+    customerAcceptedAt?: true
     cancelledAt?: true
     createdAt?: true
     lastEventId?: true
@@ -65059,6 +65197,10 @@ export namespace Prisma {
     revisionNumber?: true
     notes?: true
     submittedAt?: true
+    issuedAt?: true
+    issuedDocumentHash?: true
+    issuedRevisionNumber?: true
+    customerAcceptedAt?: true
     cancelledAt?: true
     createdAt?: true
     lastEventId?: true
@@ -65082,6 +65224,10 @@ export namespace Prisma {
     revisionNumber?: true
     notes?: true
     submittedAt?: true
+    issuedAt?: true
+    issuedDocumentHash?: true
+    issuedRevisionNumber?: true
+    customerAcceptedAt?: true
     cancelledAt?: true
     createdAt?: true
     lastEventId?: true
@@ -65192,6 +65338,10 @@ export namespace Prisma {
     revisionNumber: number
     notes: string | null
     submittedAt: Date | null
+    issuedAt: Date | null
+    issuedDocumentHash: string | null
+    issuedRevisionNumber: number | null
+    customerAcceptedAt: Date | null
     cancelledAt: Date | null
     createdAt: Date
     lastEventId: string | null
@@ -65234,6 +65384,10 @@ export namespace Prisma {
     revisionNumber?: boolean
     notes?: boolean
     submittedAt?: boolean
+    issuedAt?: boolean
+    issuedDocumentHash?: boolean
+    issuedRevisionNumber?: boolean
+    customerAcceptedAt?: boolean
     cancelledAt?: boolean
     createdAt?: boolean
     lastEventId?: boolean
@@ -65258,6 +65412,10 @@ export namespace Prisma {
     revisionNumber?: boolean
     notes?: boolean
     submittedAt?: boolean
+    issuedAt?: boolean
+    issuedDocumentHash?: boolean
+    issuedRevisionNumber?: boolean
+    customerAcceptedAt?: boolean
     cancelledAt?: boolean
     createdAt?: boolean
     lastEventId?: boolean
@@ -65282,6 +65440,10 @@ export namespace Prisma {
     revisionNumber?: boolean
     notes?: boolean
     submittedAt?: boolean
+    issuedAt?: boolean
+    issuedDocumentHash?: boolean
+    issuedRevisionNumber?: boolean
+    customerAcceptedAt?: boolean
     cancelledAt?: boolean
     createdAt?: boolean
     lastEventId?: boolean
@@ -65306,6 +65468,10 @@ export namespace Prisma {
     revisionNumber?: boolean
     notes?: boolean
     submittedAt?: boolean
+    issuedAt?: boolean
+    issuedDocumentHash?: boolean
+    issuedRevisionNumber?: boolean
+    customerAcceptedAt?: boolean
     cancelledAt?: boolean
     createdAt?: boolean
     lastEventId?: boolean
@@ -65313,7 +65479,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type OsQuoteReadModelOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"quoteId" | "organizationId" | "partyId" | "commercialAccountId" | "opportunityId" | "ownerMemberId" | "quoteNumber" | "status" | "currency" | "subtotalCentavos" | "headerDiscountCentavos" | "totalCentavos" | "revisionNumber" | "notes" | "submittedAt" | "cancelledAt" | "createdAt" | "lastEventId" | "lastOccurredAt" | "updatedAt", ExtArgs["result"]["osQuoteReadModel"]>
+  export type OsQuoteReadModelOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"quoteId" | "organizationId" | "partyId" | "commercialAccountId" | "opportunityId" | "ownerMemberId" | "quoteNumber" | "status" | "currency" | "subtotalCentavos" | "headerDiscountCentavos" | "totalCentavos" | "revisionNumber" | "notes" | "submittedAt" | "issuedAt" | "issuedDocumentHash" | "issuedRevisionNumber" | "customerAcceptedAt" | "cancelledAt" | "createdAt" | "lastEventId" | "lastOccurredAt" | "updatedAt", ExtArgs["result"]["osQuoteReadModel"]>
   export type OsQuoteReadModelInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
   }
@@ -65345,6 +65511,13 @@ export namespace Prisma {
       revisionNumber: number
       notes: string | null
       submittedAt: Date | null
+      /**
+       * T04: issuance and acceptance facts copied from os_quotes (nullable = not issued / not accepted).
+       */
+      issuedAt: Date | null
+      issuedDocumentHash: string | null
+      issuedRevisionNumber: number | null
+      customerAcceptedAt: Date | null
       cancelledAt: Date | null
       createdAt: Date
       lastEventId: string | null
@@ -65789,6 +65962,10 @@ export namespace Prisma {
     readonly revisionNumber: FieldRef<"OsQuoteReadModel", 'Int'>
     readonly notes: FieldRef<"OsQuoteReadModel", 'String'>
     readonly submittedAt: FieldRef<"OsQuoteReadModel", 'DateTime'>
+    readonly issuedAt: FieldRef<"OsQuoteReadModel", 'DateTime'>
+    readonly issuedDocumentHash: FieldRef<"OsQuoteReadModel", 'String'>
+    readonly issuedRevisionNumber: FieldRef<"OsQuoteReadModel", 'Int'>
+    readonly customerAcceptedAt: FieldRef<"OsQuoteReadModel", 'DateTime'>
     readonly cancelledAt: FieldRef<"OsQuoteReadModel", 'DateTime'>
     readonly createdAt: FieldRef<"OsQuoteReadModel", 'DateTime'>
     readonly lastEventId: FieldRef<"OsQuoteReadModel", 'String'>
@@ -131453,6 +131630,14 @@ export namespace Prisma {
     notes: 'notes',
     version: 'version',
     submittedAt: 'submittedAt',
+    issuedAt: 'issuedAt',
+    issuedDocumentHash: 'issuedDocumentHash',
+    issuedRevisionNumber: 'issuedRevisionNumber',
+    validUntil: 'validUntil',
+    customerAcceptedAt: 'customerAcceptedAt',
+    customerAcceptanceChannel: 'customerAcceptanceChannel',
+    customerAcceptanceEvidence: 'customerAcceptanceEvidence',
+    customerAcceptedRevision: 'customerAcceptedRevision',
     cancelledAt: 'cancelledAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -131811,6 +131996,10 @@ export namespace Prisma {
     revisionNumber: 'revisionNumber',
     notes: 'notes',
     submittedAt: 'submittedAt',
+    issuedAt: 'issuedAt',
+    issuedDocumentHash: 'issuedDocumentHash',
+    issuedRevisionNumber: 'issuedRevisionNumber',
+    customerAcceptedAt: 'customerAcceptedAt',
     cancelledAt: 'cancelledAt',
     createdAt: 'createdAt',
     lastEventId: 'lastEventId',
@@ -135248,6 +135437,14 @@ export namespace Prisma {
     notes?: StringNullableFilter<"OsQuote"> | string | null
     version?: IntFilter<"OsQuote"> | number
     submittedAt?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
+    issuedAt?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
+    issuedDocumentHash?: StringNullableFilter<"OsQuote"> | string | null
+    issuedRevisionNumber?: IntNullableFilter<"OsQuote"> | number | null
+    validUntil?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
+    customerAcceptedAt?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
+    customerAcceptanceChannel?: StringNullableFilter<"OsQuote"> | string | null
+    customerAcceptanceEvidence?: StringNullableFilter<"OsQuote"> | string | null
+    customerAcceptedRevision?: IntNullableFilter<"OsQuote"> | number | null
     cancelledAt?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
     createdAt?: DateTimeFilter<"OsQuote"> | Date | string
     updatedAt?: DateTimeFilter<"OsQuote"> | Date | string
@@ -135276,6 +135473,14 @@ export namespace Prisma {
     notes?: SortOrderInput | SortOrder
     version?: SortOrder
     submittedAt?: SortOrderInput | SortOrder
+    issuedAt?: SortOrderInput | SortOrder
+    issuedDocumentHash?: SortOrderInput | SortOrder
+    issuedRevisionNumber?: SortOrderInput | SortOrder
+    validUntil?: SortOrderInput | SortOrder
+    customerAcceptedAt?: SortOrderInput | SortOrder
+    customerAcceptanceChannel?: SortOrderInput | SortOrder
+    customerAcceptanceEvidence?: SortOrderInput | SortOrder
+    customerAcceptedRevision?: SortOrderInput | SortOrder
     cancelledAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -135308,6 +135513,14 @@ export namespace Prisma {
     notes?: StringNullableFilter<"OsQuote"> | string | null
     version?: IntFilter<"OsQuote"> | number
     submittedAt?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
+    issuedAt?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
+    issuedDocumentHash?: StringNullableFilter<"OsQuote"> | string | null
+    issuedRevisionNumber?: IntNullableFilter<"OsQuote"> | number | null
+    validUntil?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
+    customerAcceptedAt?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
+    customerAcceptanceChannel?: StringNullableFilter<"OsQuote"> | string | null
+    customerAcceptanceEvidence?: StringNullableFilter<"OsQuote"> | string | null
+    customerAcceptedRevision?: IntNullableFilter<"OsQuote"> | number | null
     cancelledAt?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
     createdAt?: DateTimeFilter<"OsQuote"> | Date | string
     updatedAt?: DateTimeFilter<"OsQuote"> | Date | string
@@ -135336,6 +135549,14 @@ export namespace Prisma {
     notes?: SortOrderInput | SortOrder
     version?: SortOrder
     submittedAt?: SortOrderInput | SortOrder
+    issuedAt?: SortOrderInput | SortOrder
+    issuedDocumentHash?: SortOrderInput | SortOrder
+    issuedRevisionNumber?: SortOrderInput | SortOrder
+    validUntil?: SortOrderInput | SortOrder
+    customerAcceptedAt?: SortOrderInput | SortOrder
+    customerAcceptanceChannel?: SortOrderInput | SortOrder
+    customerAcceptanceEvidence?: SortOrderInput | SortOrder
+    customerAcceptedRevision?: SortOrderInput | SortOrder
     cancelledAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -135366,6 +135587,14 @@ export namespace Prisma {
     notes?: StringNullableWithAggregatesFilter<"OsQuote"> | string | null
     version?: IntWithAggregatesFilter<"OsQuote"> | number
     submittedAt?: DateTimeNullableWithAggregatesFilter<"OsQuote"> | Date | string | null
+    issuedAt?: DateTimeNullableWithAggregatesFilter<"OsQuote"> | Date | string | null
+    issuedDocumentHash?: StringNullableWithAggregatesFilter<"OsQuote"> | string | null
+    issuedRevisionNumber?: IntNullableWithAggregatesFilter<"OsQuote"> | number | null
+    validUntil?: DateTimeNullableWithAggregatesFilter<"OsQuote"> | Date | string | null
+    customerAcceptedAt?: DateTimeNullableWithAggregatesFilter<"OsQuote"> | Date | string | null
+    customerAcceptanceChannel?: StringNullableWithAggregatesFilter<"OsQuote"> | string | null
+    customerAcceptanceEvidence?: StringNullableWithAggregatesFilter<"OsQuote"> | string | null
+    customerAcceptedRevision?: IntNullableWithAggregatesFilter<"OsQuote"> | number | null
     cancelledAt?: DateTimeNullableWithAggregatesFilter<"OsQuote"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"OsQuote"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"OsQuote"> | Date | string
@@ -135527,6 +135756,7 @@ export namespace Prisma {
   export type OsOrderWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     organizationId_orderNumber?: OsOrderOrganizationIdOrderNumberCompoundUniqueInput
+    organizationId_quoteId?: OsOrderOrganizationIdQuoteIdCompoundUniqueInput
     AND?: OsOrderWhereInput | OsOrderWhereInput[]
     OR?: OsOrderWhereInput[]
     NOT?: OsOrderWhereInput | OsOrderWhereInput[]
@@ -135549,7 +135779,7 @@ export namespace Prisma {
     party?: XOR<OsPartyScalarRelationFilter, OsPartyWhereInput>
     quote?: XOR<OsQuoteScalarRelationFilter, OsQuoteWhereInput>
     lines?: OsOrderLineListRelationFilter
-  }, "id" | "organizationId_orderNumber">
+  }, "id" | "organizationId_orderNumber" | "organizationId_quoteId">
 
   export type OsOrderOrderByWithAggregationInput = {
     id?: SortOrder
@@ -137139,6 +137369,10 @@ export namespace Prisma {
     revisionNumber?: IntFilter<"OsQuoteReadModel"> | number
     notes?: StringNullableFilter<"OsQuoteReadModel"> | string | null
     submittedAt?: DateTimeNullableFilter<"OsQuoteReadModel"> | Date | string | null
+    issuedAt?: DateTimeNullableFilter<"OsQuoteReadModel"> | Date | string | null
+    issuedDocumentHash?: StringNullableFilter<"OsQuoteReadModel"> | string | null
+    issuedRevisionNumber?: IntNullableFilter<"OsQuoteReadModel"> | number | null
+    customerAcceptedAt?: DateTimeNullableFilter<"OsQuoteReadModel"> | Date | string | null
     cancelledAt?: DateTimeNullableFilter<"OsQuoteReadModel"> | Date | string | null
     createdAt?: DateTimeFilter<"OsQuoteReadModel"> | Date | string
     lastEventId?: StringNullableFilter<"OsQuoteReadModel"> | string | null
@@ -137163,6 +137397,10 @@ export namespace Prisma {
     revisionNumber?: SortOrder
     notes?: SortOrderInput | SortOrder
     submittedAt?: SortOrderInput | SortOrder
+    issuedAt?: SortOrderInput | SortOrder
+    issuedDocumentHash?: SortOrderInput | SortOrder
+    issuedRevisionNumber?: SortOrderInput | SortOrder
+    customerAcceptedAt?: SortOrderInput | SortOrder
     cancelledAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     lastEventId?: SortOrderInput | SortOrder
@@ -137190,6 +137428,10 @@ export namespace Prisma {
     revisionNumber?: IntFilter<"OsQuoteReadModel"> | number
     notes?: StringNullableFilter<"OsQuoteReadModel"> | string | null
     submittedAt?: DateTimeNullableFilter<"OsQuoteReadModel"> | Date | string | null
+    issuedAt?: DateTimeNullableFilter<"OsQuoteReadModel"> | Date | string | null
+    issuedDocumentHash?: StringNullableFilter<"OsQuoteReadModel"> | string | null
+    issuedRevisionNumber?: IntNullableFilter<"OsQuoteReadModel"> | number | null
+    customerAcceptedAt?: DateTimeNullableFilter<"OsQuoteReadModel"> | Date | string | null
     cancelledAt?: DateTimeNullableFilter<"OsQuoteReadModel"> | Date | string | null
     createdAt?: DateTimeFilter<"OsQuoteReadModel"> | Date | string
     lastEventId?: StringNullableFilter<"OsQuoteReadModel"> | string | null
@@ -137214,6 +137456,10 @@ export namespace Prisma {
     revisionNumber?: SortOrder
     notes?: SortOrderInput | SortOrder
     submittedAt?: SortOrderInput | SortOrder
+    issuedAt?: SortOrderInput | SortOrder
+    issuedDocumentHash?: SortOrderInput | SortOrder
+    issuedRevisionNumber?: SortOrderInput | SortOrder
+    customerAcceptedAt?: SortOrderInput | SortOrder
     cancelledAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     lastEventId?: SortOrderInput | SortOrder
@@ -137245,6 +137491,10 @@ export namespace Prisma {
     revisionNumber?: IntWithAggregatesFilter<"OsQuoteReadModel"> | number
     notes?: StringNullableWithAggregatesFilter<"OsQuoteReadModel"> | string | null
     submittedAt?: DateTimeNullableWithAggregatesFilter<"OsQuoteReadModel"> | Date | string | null
+    issuedAt?: DateTimeNullableWithAggregatesFilter<"OsQuoteReadModel"> | Date | string | null
+    issuedDocumentHash?: StringNullableWithAggregatesFilter<"OsQuoteReadModel"> | string | null
+    issuedRevisionNumber?: IntNullableWithAggregatesFilter<"OsQuoteReadModel"> | number | null
+    customerAcceptedAt?: DateTimeNullableWithAggregatesFilter<"OsQuoteReadModel"> | Date | string | null
     cancelledAt?: DateTimeNullableWithAggregatesFilter<"OsQuoteReadModel"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"OsQuoteReadModel"> | Date | string
     lastEventId?: StringNullableWithAggregatesFilter<"OsQuoteReadModel"> | string | null
@@ -145040,6 +145290,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -145068,6 +145326,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -145090,6 +145356,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -145118,6 +145392,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -145143,6 +145425,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -145162,6 +145452,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -145184,6 +145482,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -147152,6 +147458,10 @@ export namespace Prisma {
     revisionNumber: number
     notes?: string | null
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    customerAcceptedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt: Date | string
     lastEventId?: string | null
@@ -147176,6 +147486,10 @@ export namespace Prisma {
     revisionNumber: number
     notes?: string | null
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    customerAcceptedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt: Date | string
     lastEventId?: string | null
@@ -147198,6 +147512,10 @@ export namespace Prisma {
     revisionNumber?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastEventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -147222,6 +147540,10 @@ export namespace Prisma {
     revisionNumber?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastEventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -147245,6 +147567,10 @@ export namespace Prisma {
     revisionNumber: number
     notes?: string | null
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    customerAcceptedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt: Date | string
     lastEventId?: string | null
@@ -147267,6 +147593,10 @@ export namespace Prisma {
     revisionNumber?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastEventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -147290,6 +147620,10 @@ export namespace Prisma {
     revisionNumber?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastEventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -155468,6 +155802,17 @@ export namespace Prisma {
     not?: NestedBigIntFilter<$PrismaModel> | bigint | number
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type OsOpportunityNullableScalarRelationFilter = {
     is?: OsOpportunityWhereInput | null
     isNot?: OsOpportunityWhereInput | null
@@ -155495,6 +155840,14 @@ export namespace Prisma {
     notes?: SortOrder
     version?: SortOrder
     submittedAt?: SortOrder
+    issuedAt?: SortOrder
+    issuedDocumentHash?: SortOrder
+    issuedRevisionNumber?: SortOrder
+    validUntil?: SortOrder
+    customerAcceptedAt?: SortOrder
+    customerAcceptanceChannel?: SortOrder
+    customerAcceptanceEvidence?: SortOrder
+    customerAcceptedRevision?: SortOrder
     cancelledAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -155506,6 +155859,8 @@ export namespace Prisma {
     totalCentavos?: SortOrder
     revisionNumber?: SortOrder
     version?: SortOrder
+    issuedRevisionNumber?: SortOrder
+    customerAcceptedRevision?: SortOrder
   }
 
   export type OsQuoteMaxOrderByAggregateInput = {
@@ -155525,6 +155880,14 @@ export namespace Prisma {
     notes?: SortOrder
     version?: SortOrder
     submittedAt?: SortOrder
+    issuedAt?: SortOrder
+    issuedDocumentHash?: SortOrder
+    issuedRevisionNumber?: SortOrder
+    validUntil?: SortOrder
+    customerAcceptedAt?: SortOrder
+    customerAcceptanceChannel?: SortOrder
+    customerAcceptanceEvidence?: SortOrder
+    customerAcceptedRevision?: SortOrder
     cancelledAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -155547,6 +155910,14 @@ export namespace Prisma {
     notes?: SortOrder
     version?: SortOrder
     submittedAt?: SortOrder
+    issuedAt?: SortOrder
+    issuedDocumentHash?: SortOrder
+    issuedRevisionNumber?: SortOrder
+    validUntil?: SortOrder
+    customerAcceptedAt?: SortOrder
+    customerAcceptanceChannel?: SortOrder
+    customerAcceptanceEvidence?: SortOrder
+    customerAcceptedRevision?: SortOrder
     cancelledAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -155558,6 +155929,8 @@ export namespace Prisma {
     totalCentavos?: SortOrder
     revisionNumber?: SortOrder
     version?: SortOrder
+    issuedRevisionNumber?: SortOrder
+    customerAcceptedRevision?: SortOrder
   }
 
   export type BigIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -155574,6 +155947,22 @@ export namespace Prisma {
     _sum?: NestedBigIntFilter<$PrismaModel>
     _min?: NestedBigIntFilter<$PrismaModel>
     _max?: NestedBigIntFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type OsQuoteScalarRelationFilter = {
@@ -155653,6 +156042,11 @@ export namespace Prisma {
   export type OsOrderOrganizationIdOrderNumberCompoundUniqueInput = {
     organizationId: string
     orderNumber: string
+  }
+
+  export type OsOrderOrganizationIdQuoteIdCompoundUniqueInput = {
+    organizationId: string
+    quoteId: string
   }
 
   export type OsOrderCountOrderByAggregateInput = {
@@ -156598,6 +156992,10 @@ export namespace Prisma {
     revisionNumber?: SortOrder
     notes?: SortOrder
     submittedAt?: SortOrder
+    issuedAt?: SortOrder
+    issuedDocumentHash?: SortOrder
+    issuedRevisionNumber?: SortOrder
+    customerAcceptedAt?: SortOrder
     cancelledAt?: SortOrder
     createdAt?: SortOrder
     lastEventId?: SortOrder
@@ -156610,6 +157008,7 @@ export namespace Prisma {
     headerDiscountCentavos?: SortOrder
     totalCentavos?: SortOrder
     revisionNumber?: SortOrder
+    issuedRevisionNumber?: SortOrder
   }
 
   export type OsQuoteReadModelMaxOrderByAggregateInput = {
@@ -156628,6 +157027,10 @@ export namespace Prisma {
     revisionNumber?: SortOrder
     notes?: SortOrder
     submittedAt?: SortOrder
+    issuedAt?: SortOrder
+    issuedDocumentHash?: SortOrder
+    issuedRevisionNumber?: SortOrder
+    customerAcceptedAt?: SortOrder
     cancelledAt?: SortOrder
     createdAt?: SortOrder
     lastEventId?: SortOrder
@@ -156651,6 +157054,10 @@ export namespace Prisma {
     revisionNumber?: SortOrder
     notes?: SortOrder
     submittedAt?: SortOrder
+    issuedAt?: SortOrder
+    issuedDocumentHash?: SortOrder
+    issuedRevisionNumber?: SortOrder
+    customerAcceptedAt?: SortOrder
     cancelledAt?: SortOrder
     createdAt?: SortOrder
     lastEventId?: SortOrder
@@ -156663,6 +157070,7 @@ export namespace Prisma {
     headerDiscountCentavos?: SortOrder
     totalCentavos?: SortOrder
     revisionNumber?: SortOrder
+    issuedRevisionNumber?: SortOrder
   }
 
   export type OsQuoteLineReadModelQuoteIdLineNumberCompoundUniqueInput = {
@@ -157745,17 +158153,6 @@ export namespace Prisma {
     correctionReason?: SortOrder
   }
 
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
   export type OsProductionQuemaNullableScalarRelationFilter = {
     is?: OsProductionQuemaWhereInput | null
     isNot?: OsProductionQuemaWhereInput | null
@@ -157865,22 +158262,6 @@ export namespace Prisma {
   export type OsProductionTraceEntrySumOrderByAggregateInput = {
     goodCount?: SortOrder
     lostCount?: SortOrder
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type OsCustomerConversationCountOrderByAggregateInput = {
@@ -165094,6 +165475,14 @@ export namespace Prisma {
     divide?: bigint | number
   }
 
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type OsOrganizationUpdateOneRequiredWithoutQuotesNestedInput = {
     create?: XOR<OsOrganizationCreateWithoutQuotesInput, OsOrganizationUncheckedCreateWithoutQuotesInput>
     connectOrCreate?: OsOrganizationCreateOrConnectWithoutQuotesInput
@@ -167084,14 +167473,6 @@ export namespace Prisma {
     connect?: OsProductionTraceEntryWhereUniqueInput | OsProductionTraceEntryWhereUniqueInput[]
   }
 
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
   export type OsOrganizationUpdateOneRequiredWithoutProductionTraceEntriesNestedInput = {
     create?: XOR<OsOrganizationCreateWithoutProductionTraceEntriesInput, OsOrganizationUncheckedCreateWithoutProductionTraceEntriesInput>
     connectOrCreate?: OsOrganizationCreateOrConnectWithoutProductionTraceEntriesInput
@@ -168601,6 +168982,22 @@ export namespace Prisma {
     _max?: NestedBigIntFilter<$PrismaModel>
   }
 
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -168628,22 +169025,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type NestedBoolNullableFilter<$PrismaModel = never> = {
@@ -169844,6 +170225,10 @@ export namespace Prisma {
     revisionNumber: number
     notes?: string | null
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    customerAcceptedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt: Date | string
     lastEventId?: string | null
@@ -169866,6 +170251,10 @@ export namespace Prisma {
     revisionNumber: number
     notes?: string | null
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    customerAcceptedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt: Date | string
     lastEventId?: string | null
@@ -170063,6 +170452,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -170089,6 +170486,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -173057,6 +173462,10 @@ export namespace Prisma {
     revisionNumber?: IntFilter<"OsQuoteReadModel"> | number
     notes?: StringNullableFilter<"OsQuoteReadModel"> | string | null
     submittedAt?: DateTimeNullableFilter<"OsQuoteReadModel"> | Date | string | null
+    issuedAt?: DateTimeNullableFilter<"OsQuoteReadModel"> | Date | string | null
+    issuedDocumentHash?: StringNullableFilter<"OsQuoteReadModel"> | string | null
+    issuedRevisionNumber?: IntNullableFilter<"OsQuoteReadModel"> | number | null
+    customerAcceptedAt?: DateTimeNullableFilter<"OsQuoteReadModel"> | Date | string | null
     cancelledAt?: DateTimeNullableFilter<"OsQuoteReadModel"> | Date | string | null
     createdAt?: DateTimeFilter<"OsQuoteReadModel"> | Date | string
     lastEventId?: StringNullableFilter<"OsQuoteReadModel"> | string | null
@@ -173242,6 +173651,14 @@ export namespace Prisma {
     notes?: StringNullableFilter<"OsQuote"> | string | null
     version?: IntFilter<"OsQuote"> | number
     submittedAt?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
+    issuedAt?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
+    issuedDocumentHash?: StringNullableFilter<"OsQuote"> | string | null
+    issuedRevisionNumber?: IntNullableFilter<"OsQuote"> | number | null
+    validUntil?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
+    customerAcceptedAt?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
+    customerAcceptanceChannel?: StringNullableFilter<"OsQuote"> | string | null
+    customerAcceptanceEvidence?: StringNullableFilter<"OsQuote"> | string | null
+    customerAcceptedRevision?: IntNullableFilter<"OsQuote"> | number | null
     cancelledAt?: DateTimeNullableFilter<"OsQuote"> | Date | string | null
     createdAt?: DateTimeFilter<"OsQuote"> | Date | string
     updatedAt?: DateTimeFilter<"OsQuote"> | Date | string
@@ -183582,6 +183999,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -183608,6 +184033,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -185828,6 +186261,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -185854,6 +186295,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -187129,6 +187578,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -187156,6 +187613,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -187436,6 +187901,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -187463,6 +187936,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -187748,6 +188229,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -187775,6 +188264,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -188118,6 +188615,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -188145,6 +188650,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -199856,6 +200369,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -199883,6 +200404,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -200203,6 +200732,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -200230,6 +200767,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -218292,6 +218837,10 @@ export namespace Prisma {
     revisionNumber: number
     notes?: string | null
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    customerAcceptedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt: Date | string
     lastEventId?: string | null
@@ -218377,6 +218926,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -220324,6 +220881,10 @@ export namespace Prisma {
     revisionNumber?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastEventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -220346,6 +220907,10 @@ export namespace Prisma {
     revisionNumber?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastEventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -220368,6 +220933,10 @@ export namespace Prisma {
     revisionNumber?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastEventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -220577,6 +221146,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -220603,6 +221180,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -220627,6 +221212,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -223540,6 +224133,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -224079,6 +224680,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -224105,6 +224714,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -224129,6 +224746,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -224250,6 +224875,14 @@ export namespace Prisma {
     notes?: string | null
     version?: number
     submittedAt?: Date | string | null
+    issuedAt?: Date | string | null
+    issuedDocumentHash?: string | null
+    issuedRevisionNumber?: number | null
+    validUntil?: Date | string | null
+    customerAcceptedAt?: Date | string | null
+    customerAcceptanceChannel?: string | null
+    customerAcceptanceEvidence?: string | null
+    customerAcceptedRevision?: number | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -224269,6 +224902,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -224295,6 +224936,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -224319,6 +224968,14 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    issuedDocumentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedRevisionNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerAcceptanceChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptanceEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAcceptedRevision?: NullableIntFieldUpdateOperationsInput | number | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

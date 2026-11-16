@@ -89,7 +89,7 @@ describe('CT3-B commercial completeness helpers', () => {
     assert.match(opportunity, /CommercialProgressStrip/);
     assert.match(opportunity, /Qué necesita/);
     const nextStep = readFileSync(resolve('lib/commercial/next-step.ts'), 'utf8');
-    assert.match(nextStep, /hrefLabel: 'Crear cotización'/);
+    assert.match(nextStep, /hrefLabel: QUOTE_LIFECYCLE_LABELS\.prepare/);
     assert.match(nextStep, /hrefLabel: 'Ver cotización'/);
     assert.match(quote, /QuoteDocumentoCard/);
     assert.match(quote, /QuoteEnvioSection/);
@@ -101,7 +101,7 @@ describe('CT3-B commercial completeness helpers', () => {
     assert.doesNotMatch(documentos, /<table/);
   });
 
-  it('fresh opportunity without linked quote keeps Crear cotización (RC4 opp→quote)', () => {
+  it('fresh opportunity without linked quote keeps Preparar cotización (RC4 opp→quote)', () => {
     const opportunity = readFileSync(
       resolve('app/(app)/clientes/[partyId]/oportunidades/[opportunityId]/page.tsx'),
       'utf8',
@@ -113,6 +113,6 @@ describe('CT3-B commercial completeness helpers', () => {
     assert.match(opportunity, /RecordNextStep/);
     assert.match(opportunity, /newQuoteHref\(partyId, opportunityId\)/);
     const nextStepSrc = readFileSync(resolve('lib/commercial/next-step.ts'), 'utf8');
-    assert.match(nextStepSrc, /hrefLabel: 'Crear cotización'/);
+    assert.match(nextStepSrc, /hrefLabel: QUOTE_LIFECYCLE_LABELS\.prepare/);
   });
 });

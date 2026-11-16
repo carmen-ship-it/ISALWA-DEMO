@@ -40,8 +40,9 @@ function subject(id = 'subject-1'): CommercialApprovalSubjectRecord {
     id,
     organizationId: ORG,
     ownerMemberId: OWNER,
-    status: 'submitted',
+    status: 'draft',
     partyId: 'party-1',
+    revisionNumber: 1,
   };
 }
 
@@ -90,7 +91,8 @@ function rerequestStore() {
       };
     },
     async listRoleAssignmentsForMember() {
-      return [];
+      // Every synthetic approver holds the price-approval scope in its own right.
+      return [{ roleKey: 'commercial.price.approve', effectiveAt: new Date('2026-01-01'), endedAt: null }];
     },
     async listDelegationsForDelegate() {
       return [];
@@ -100,8 +102,10 @@ function rerequestStore() {
     },
     async getQuoteApprovalSubject(organizationId: string, quoteId: string) {
       if (organizationId !== ORG || !['subject-1', 'subject-2'].includes(quoteId)) return null;
-      return subject(quoteId);
+      return { ...subject(quoteId), revisionNumber: store.revision };
     },
+    /** Current revision of the quote subjects (a material change bumps it). */
+    revision: 1,
     async getOrderApprovalSubject() {
       return null;
     },
@@ -317,5 +321,33 @@ describe('re-requesting a review after it is resolved', () => {
       () => service.execute('RequestApproval', ctx(OWNER, 'corr-2'), payload),
       (err: Error) => err.message === 'ACCESS_REVOKED',
     );
+  });
+
+  it('opens a fresh request for a new quote revision instead of replaying the stale one', async () => {
+    const store = rerequestStore();
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    const payload = { approverMemberId: APPROVER, subjectType: 'quote', subjectId: 'subject-1' };
+
+    const first = await service.execute('RequestApproval', ctx(OWNER, 'corr-1'), payload);
+    // Same revision: still the identical in-flight request.
+    const same = await service.execute('RequestApproval', ctx(OWNER, 'corr-2'), payload);
+    assert.equal(same.data.approvalRequestId, first.data.approvalRequestId);
+
+    // A material change moved the quote to revision 2: the first request is stale.
+    store.revision = 2;
+    const second = await service.execute('RequestApproval', ctx(OWNER, 'corr-3'), payload);
+    assert.notEqual(second.data.approvalRequestId, first.data.approvalRequestId);
+    assert.equal(store.approvals.length, 2);
+    assert.equal(store.approvals[0]?.contextSnapshotJson.boundRevision, 1);
+    assert.equal(store.approvals[1]?.contextSnapshotJson.boundRevision, 2);
+
+    // Only the current revision can be approved; deciding releases that revision's claim.
+    await assert.rejects(
+      () => service.execute('Approve', ctx(APPROVER, 'corr-4'), { approvalRequestId: first.data.approvalRequestId as string }),
+      (err: Error) => err.message === 'CONFLICT',
+    );
+    await service.execute('Approve', ctx(APPROVER, 'corr-5'), { approvalRequestId: second.data.approvalRequestId as string });
+    assert.equal(store.approvals[1]?.status, 'approved');
+    assert.equal(store.approvals[0]?.status, 'pending');
   });
 });

@@ -36,7 +36,8 @@ function quote(overrides: Partial<QuoteRecord> = {}): QuoteRecord {
     opportunityId: null,
     ownerMemberId: OWNER,
     quoteNumber: 'Q-000001',
-    status: 'submitted',
+    // Default: issued and accepted by the customer at revision 1, i.e. convertible (T04).
+    status: 'accepted',
     currency: 'BOB',
     subtotalCentavos: 100n,
     headerDiscountCentavos: 0n,
@@ -45,6 +46,14 @@ function quote(overrides: Partial<QuoteRecord> = {}): QuoteRecord {
     notes: null,
     version: 1,
     submittedAt: NOW,
+    issuedAt: NOW,
+    issuedDocumentHash: 'hash-1',
+    issuedRevisionNumber: 1,
+    validUntil: null,
+    customerAcceptedAt: NOW,
+    customerAcceptanceChannel: 'llamada',
+    customerAcceptanceEvidence: 'Aceptó por llamada telefónica',
+    customerAcceptedRevision: 1,
     cancelledAt: null,
     createdAt: NOW,
     updatedAt: NOW,
@@ -69,6 +78,16 @@ function line(): QuoteLineRecord {
     updatedAt: NOW,
   };
 }
+
+const APPROVED_REV_1 = {
+  id: 'approval-1',
+  status: 'approved',
+  contextSnapshotJson: { boundRevision: 1 },
+  requestedByMemberId: OWNER,
+  approverMemberId: 'mem-approver',
+  decisionByMemberId: 'mem-approver',
+  decidedAt: NOW,
+};
 
 function storeFor(input: {
   actorScopes?: string[];
@@ -155,6 +174,9 @@ function storeFor(input: {
     async listQuoteLines() {
       return [line()];
     },
+    async listQuoteApprovals() {
+      return [APPROVED_REV_1];
+    },
     async countOrdersForOrg() {
       return 0;
     },
@@ -193,7 +215,7 @@ async function convert(actorMemberId: string, options: Parameters<typeof storeFo
 }
 
 describe('CreateOrder provisional authority', () => {
-  it('lets the quote owner convert a submitted quote once and marks it accepted', async () => {
+  it('lets the quote owner convert an accepted quote once', async () => {
     const row = quote();
     const orders: string[] = [];
     const store = storeFor({ quote: row });
@@ -210,7 +232,7 @@ describe('CreateOrder provisional authority', () => {
     };
     mutable.getOrderForQuote = async () => (orders[0] ? { id: orders[0] } : null);
     const service = new CommercialCommandService(store);
-    assert.equal(row.status, 'submitted');
+    assert.equal(row.status, 'accepted');
     const result = await service.execute('CreateOrder', ctx(OWNER), { quoteId: QUOTE_ID });
     assert.equal(result.data.quoteId, QUOTE_ID);
     assert.equal(orders.length, 1);
@@ -218,7 +240,7 @@ describe('CreateOrder provisional authority', () => {
     assert.deepEqual((store as unknown as { events: string[] }).events, ['order.created']);
     await assert.rejects(
       () => service.execute('CreateOrder', ctx(OWNER), { quoteId: QUOTE_ID }),
-      /VALIDATION_FAILED/,
+      /CONFLICT/,
     );
     assert.equal(orders.length, 1);
   });
@@ -377,8 +399,8 @@ describe('CreateOrder provisional authority', () => {
     );
   });
 
-  it('denies draft, cancelled, and accepted quotes', async () => {
-    for (const status of ['draft', 'cancelled', 'accepted'] as const) {
+  it('denies draft, issued-but-not-accepted, and cancelled quotes', async () => {
+    for (const status of ['draft', 'submitted', 'cancelled'] as const) {
       await assert.rejects(() => convert(OWNER, { quote: quote({ status }) }), /VALIDATION_FAILED/);
     }
   });

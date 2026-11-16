@@ -377,6 +377,10 @@ function mapQuoteRow(row: {
   revisionNumber: number;
   notes: string | null;
   submittedAt: Date | null;
+  issuedAt: Date | null;
+  issuedDocumentHash: string | null;
+  issuedRevisionNumber: number | null;
+  customerAcceptedAt: Date | null;
   cancelledAt: Date | null;
   createdAt: Date;
   lastEventId: string | null;
@@ -917,6 +921,10 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
         revisionNumber: model.revisionNumber,
         notes: model.notes,
         submittedAt: model.submittedAt,
+        issuedAt: model.issuedAt ?? null,
+        issuedDocumentHash: model.issuedDocumentHash ?? null,
+        issuedRevisionNumber: model.issuedRevisionNumber ?? null,
+        customerAcceptedAt: model.customerAcceptedAt ?? null,
         cancelledAt: model.cancelledAt,
         createdAt: model.createdAt,
         lastEventId: model.lastEventId,
@@ -936,6 +944,10 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
         revisionNumber: model.revisionNumber,
         notes: model.notes,
         submittedAt: model.submittedAt,
+        issuedAt: model.issuedAt ?? null,
+        issuedDocumentHash: model.issuedDocumentHash ?? null,
+        issuedRevisionNumber: model.issuedRevisionNumber ?? null,
+        customerAcceptedAt: model.customerAcceptedAt ?? null,
         cancelledAt: model.cancelledAt,
         lastEventId: model.lastEventId,
         lastOccurredAt: model.lastOccurredAt,

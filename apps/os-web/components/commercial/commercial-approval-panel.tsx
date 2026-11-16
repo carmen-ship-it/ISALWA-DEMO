@@ -19,6 +19,10 @@ import { approvalResponsibilityView } from '@/lib/work/approval-responsibility';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import { hrefWithClientDataMode } from '@/lib/demo/preserve-data-mode';
 import { ServerMemberTypeahead } from '@/components/operating/server-member-typeahead';
+import { latestQuoteApprovalDecision } from '@/lib/commercial/next-step';
+import { QUOTE_LIFECYCLE_COPY, QUOTE_LIFECYCLE_LABELS, selectableApprovers } from '@/lib/commercial/quote-lifecycle';
+
+export type QuoteApproverOption = { memberId: string; displayName: string };
 
 type CommercialApprovalPanelProps = {
   partyId: string;
@@ -29,6 +33,16 @@ type CommercialApprovalPanelProps = {
   /** Optional department/team labels for display — never authority. */
   memberRoleLabels?: ReadonlyMap<string, string | null>;
   approvals: SubjectApprovalItem[];
+  /**
+   * Quote approvers: active members who hold commercial.price.approve (server list).
+   * undefined = not a quote picker (orders keep the member search). null = the list could not be loaded.
+   */
+  approverOptions?: readonly QuoteApproverOption[] | null;
+  approverOptionsTruncated?: boolean;
+  /** The signed-in member. Never offered as approver for their own request. */
+  currentMemberId?: string | null;
+  /** Stored quote status. A draft with an approval is ready for Emitir cotización. */
+  quoteStatus?: string | null;
 };
 
 const fieldClass =
@@ -46,8 +60,21 @@ export function CommercialApprovalPanel({
   memberLabels,
   memberRoleLabels,
   approvals,
+  approverOptions,
+  approverOptionsTruncated = false,
+  currentMemberId = null,
+  quoteStatus = null,
 }: CommercialApprovalPanelProps) {
   const router = useRouter();
+  const listedApprovers =
+    subjectType === 'quote' && approverOptions !== undefined
+      ? selectableApprovers(approverOptions ?? [], currentMemberId)
+      : null;
+  const approvalReadyToIssue =
+    subjectType === 'quote' &&
+    quoteStatus === 'draft' &&
+    !approvals.some((row) => row.status === 'pending') &&
+    latestQuoteApprovalDecision(approvals) === 'approved';
   const [requestState, requestAction] = useActionState(
     async (_prev: { error?: string; success?: string } | null, formData: FormData) => {
       const result = await requestCommercialApprovalAction(formData);
@@ -175,32 +202,108 @@ export function CommercialApprovalPanel({
       )}
       <FormFeedback error={decisionState?.error} success={decisionState?.success} />
       <FormFeedback error={escalateState?.error} success={escalateState?.success} />
+      {approvalReadyToIssue ? (
+        <p
+          className="text-sm leading-relaxed text-[var(--isalwa-kiln)]"
+          role="status"
+          data-quote-approval-next="emitir"
+        >
+          {QUOTE_LIFECYCLE_COPY.approvedNextStep}
+        </p>
+      ) : null}
 
       {canRequest ? (
         <form action={requestAction} className="space-y-5 border-t border-[var(--isalwa-mist)] pt-8">
           <input type="hidden" name="partyId" value={partyId} />
           <input type="hidden" name="subjectType" value={subjectType} />
           <input type="hidden" name="subjectId" value={subjectId} />
-          <label className="block text-sm text-[var(--isalwa-slate)]">
-            Aprobador (misma empresa)
-            <ServerMemberTypeahead
-              id="approver-member"
-              name="approverMemberId"
-              required
-              placeholder="Buscar aprobador activo de esta empresa"
+          {listedApprovers ? (
+            <QuoteApproverSelect
+              options={listedApprovers}
+              unavailable={approverOptions === null}
+              truncated={approverOptionsTruncated}
             />
-          </label>
+          ) : (
+            <label className="block text-sm text-[var(--isalwa-slate)]">
+              Aprobador (misma empresa)
+              <ServerMemberTypeahead
+                id="approver-member"
+                name="approverMemberId"
+                required
+                placeholder="Buscar aprobador activo de esta empresa"
+                excludeMemberId={currentMemberId ?? undefined}
+              />
+            </label>
+          )}
           <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
             El cargo no concede autoridad. Elija una persona con la capacidad de aprobar en esta
             empresa. Si no hay quién, falta configuración — no se inventa un aprobador.
+            {subjectType === 'quote' ? ` ${QUOTE_LIFECYCLE_COPY.approvalDraftOnly}` : ''}
           </p>
           <label className="block text-sm text-[var(--isalwa-slate)]">
             Nota
             <input className={fieldClass} name="note" maxLength={500} />
           </label>
           <FormFeedback error={requestState?.error} success={requestState?.success} />
-          <CommandSubmitButton label="Solicitar aprobación" pendingLabel="Solicitando…" variant="secondary" />
+          <CommandSubmitButton
+            label={QUOTE_LIFECYCLE_LABELS.requestApproval}
+            pendingLabel="Solicitando…"
+            variant="secondary"
+            disabled={listedApprovers !== null && listedApprovers.length === 0}
+          />
         </form>
+      ) : null}
+    </div>
+  );
+}
+
+/** Eligible quote approvers (commercial.price.approve). No default, no free search, never the requester. */
+function QuoteApproverSelect({
+  options,
+  unavailable,
+  truncated,
+}: {
+  options: readonly QuoteApproverOption[];
+  unavailable: boolean;
+  truncated: boolean;
+}) {
+  if (unavailable) {
+    return (
+      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status" data-quote-approvers="unavailable">
+        {QUOTE_LIFECYCLE_COPY.approversUnavailable}
+      </p>
+    );
+  }
+  if (options.length === 0) {
+    return (
+      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status" data-quote-approvers="empty">
+        {QUOTE_LIFECYCLE_COPY.noApprovers}
+      </p>
+    );
+  }
+  return (
+    <div data-quote-approvers="list">
+      <label className="block text-sm text-[var(--isalwa-slate)]">
+        Aprobador (con capacidad de aprobar precios)
+        <select
+          id="approver-member"
+          name="approverMemberId"
+          required
+          defaultValue=""
+          className={fieldClass}
+        >
+          <option value="" disabled>
+            Seleccione un aprobador
+          </option>
+          {options.map((option) => (
+            <option key={option.memberId} value={option.memberId}>
+              {option.displayName}
+            </option>
+          ))}
+        </select>
+      </label>
+      {truncated ? (
+        <p className="mt-2 text-xs text-[var(--isalwa-slate)]">{QUOTE_LIFECYCLE_COPY.approversTruncated}</p>
       ) : null}
     </div>
   );

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, ContextDrawer } from '@isalwa/ui';
 import { CustomerEditForms } from '@/components/party/customer-edit-forms';
@@ -13,6 +14,7 @@ import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
 import type { ReportIssueContext } from '@/lib/issue/types';
 import type { PartyDetailResponse } from '@/lib/party/types';
 import { Cliente360LocationCreateDrawer } from '@/components/party/cliente-360-location-create-drawer';
+import type { PrepareQuoteTarget } from '@/lib/cliente/prepare-quote';
 
 type DrawerKind =
   | 'follow_up'
@@ -44,6 +46,8 @@ export type Cliente360ActionsMenuProps = {
   manualSubjectLabel: string;
   manualOrganizationId: string;
   manualSubjectId: string;
+  /** Preparar cotización: the existing opportunity → quote path for this customer. */
+  prepareQuote?: PrepareQuoteTarget;
 };
 
 const menuItemClass =
@@ -91,6 +95,16 @@ export function Cliente360ActionsMenu(props: Cliente360ActionsMenuProps) {
               </p>
             ) : (
               <>
+            {props.prepareQuote ? (
+              <Link
+                href={props.prepareQuote.href}
+                className={menuItemClass}
+                title={props.prepareQuote.hint}
+                onClick={() => setMenuOpen(false)}
+              >
+                {props.prepareQuote.label}
+              </Link>
+            ) : null}
             <button type="button" className={menuItemClass} onClick={() => open('issue')}>
               {ISSUE_COPY.reportAction}
             </button>

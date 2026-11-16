@@ -38,6 +38,14 @@ function quote(status: QuoteRecord['status']): QuoteRecord {
     notes: null,
     version: status === 'accepted' ? 2 : 1,
     submittedAt: NOW,
+    issuedAt: status === 'accepted' ? NOW : null,
+    issuedDocumentHash: status === 'accepted' ? 'hash-1' : null,
+    issuedRevisionNumber: status === 'accepted' ? 1 : null,
+    validUntil: null,
+    customerAcceptedAt: status === 'accepted' ? NOW : null,
+    customerAcceptanceChannel: status === 'accepted' ? 'whatsapp' : null,
+    customerAcceptanceEvidence: status === 'accepted' ? 'Confirmó por WhatsApp' : null,
+    customerAcceptedRevision: status === 'accepted' ? 1 : null,
     cancelledAt: null,
     createdAt: NOW,
     updatedAt: NOW,
@@ -218,6 +226,11 @@ describe('quote read model after CreateOrder', () => {
 
     const read = await query.getQuote(ownerCtx(), QUOTE_ID);
     assert.equal(read.quote.status, 'accepted');
+    // T04: the read model carries the issuance and acceptance facts from the canonical row.
+    assert.equal(read.quote.issuedDocumentHash, 'hash-1');
+    assert.equal(read.quote.issuedRevisionNumber, 1);
+    assert.equal(read.quote.issuedAt, NOW.toISOString());
+    assert.equal(read.quote.customerAcceptedAt, NOW.toISOString());
     assert.equal(read.authority.canConvertToOrder, false);
     assert.equal(read.authority.canRequestApproval, false);
   });

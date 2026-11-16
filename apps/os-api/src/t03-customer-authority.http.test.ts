@@ -8,6 +8,7 @@ import type { ProjectionRunner } from '@isalwa/os-query';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { getOsPrisma } from '@isalwa/os-database';
 import { createId } from '@isalwa/ts-utils';
+import { issueAndAcceptOverHttp } from './quote-lifecycle.http-support';
 
 /**
  * T03 (2026-10-16 18:44 clarifications): customer registration and command-by-command
@@ -72,6 +73,16 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     return seeded;
   }
 
+  /** T04: approval of the exact terms, issuance and the customer's acceptance, as the owner. */
+  async function issueAndAccept(who: string, quoteId: string): Promise<void> {
+    await issueAndAcceptOverHttp({
+      baseUrl,
+      ownerHeaders: headers(orgA.id, m[who]!),
+      approverHeaders: headers(orgA.id, m.priceApprover!),
+      quoteId,
+    });
+  }
+
   const customerBody = (name: string, extra: Record<string, unknown> = {}) => ({
     partyKind: 'organization',
     displayName: name,
@@ -109,6 +120,8 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     m.orgReassign = await seedMember(orgA.id, 'orgReassign', ['commercial.account.reassign', 'commercial.org.read']);
     m.teamMgr = await seedMember(orgA.id, 'teamMgr', ['commercial.account.reassign', 'commercial.team.read']);
     m.outsideMgr = await seedMember(orgA.id, 'outsideMgr', ['commercial.account.reassign', 'commercial.team.read']);
+    // T04: a quote is approved by a member holding commercial.price.approve, never by its owner.
+    m.priceApprover = await seedMember(orgA.id, 'priceApprover', ['commercial.price.approve']);
     m.teamSeller = await seedMember(orgA.id, 'teamSeller', ['commercial.quote.convert.own']);
     m.peopleAdmin = await seedMember(orgA.id, 'peopleAdmin', ['people.admin']);
     m.sellerB = await seedMember(orgB.id, 'sellerB', ['commercial.customer.create']);
@@ -161,7 +174,7 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     const row = await prisma().osQuote.findFirstOrThrow({ where: { id: state.quoteId } });
     assert.equal(row.ownerMemberId, m.seller!.member.id);
     assert.equal((await command('seller', 'AddQuoteLine', { quoteId: state.quoteId, description: 'Ladrillo 6H', quantity: 10, unitPriceCentavos: 150 })).status, 201);
-    assert.equal((await command('seller', 'SubmitQuote', { quoteId: state.quoteId })).status, 201);
+    await issueAndAccept('seller', state.quoteId);
   });
 
   it('shared phone: generic 409 without a reason, second customer with a reason, no merge', async () => {
@@ -200,12 +213,16 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
         contextSnapshotJson: {},
       },
     });
+    // T04: the shared quote is accepted by now (not cancellable); cancellation authority is checked on a draft.
+    const draft = await command('seller', 'CreateQuote', { partyId: state.partyId });
+    assert.equal(draft.status, 201);
+    const draftQuoteId = String((draft.body.data as Record<string, unknown>).quoteId);
     const before = await counts();
     for (const [name, body] of [
       ['CreateQuote', { partyId: state.partyId }],
       ['CreateOpportunity', { partyId: state.partyId, title: 'x' }],
       ['CreateOrder', { quoteId: state.quoteId }],
-      ['CancelQuote', { quoteId: state.quoteId }],
+      ['CancelQuote', { quoteId: draftQuoteId }],
       ['Approve', { approvalRequestId: approvalId }],
     ] as const) {
       const reply = await command('steward', name, body);
@@ -395,7 +412,7 @@ describeHttp('T03 customer authority over HTTP (disposable Postgres)', () => {
     assert.equal(created.status, 201);
     const quoteId = String((created.body.data as Record<string, unknown>).quoteId);
     assert.equal((await command('seller', 'AddQuoteLine', { quoteId, description: 'Ladrillo 6H', quantity: 4, unitPriceCentavos: 150 })).status, 201);
-    assert.equal((await command('seller', 'SubmitQuote', { quoteId })).status, 201);
+    await issueAndAccept('seller', quoteId);
     return quoteId;
   }
 

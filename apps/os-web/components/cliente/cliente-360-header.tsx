@@ -13,6 +13,7 @@ import { Cliente360ActionsMenu } from '@/components/cliente/cliente-360-actions-
 import type { ReportIssueContext } from '@/lib/issue/types';
 import type { PartyDetailResponse } from '@/lib/party/types';
 import { actionPrimaryClass, actionSecondaryClass } from '@/lib/ui/action-hierarchy';
+import type { PrepareQuoteTarget } from '@/lib/cliente/prepare-quote';
 
 const helpLinkClass =
   'text-sm font-medium text-[var(--isalwa-info)] underline-offset-4 hover:underline';
@@ -40,6 +41,8 @@ export type Cliente360HeaderProps = {
   manualSubjectLabel: string;
   manualOrganizationId: string;
   manualSubjectId: string;
+  /** Where Preparar cotización goes for this customer (existing opportunity → quote path). */
+  prepareQuote?: PrepareQuoteTarget;
 };
 
 export function Cliente360Header({
@@ -64,6 +67,7 @@ export function Cliente360Header({
   manualSubjectLabel,
   manualOrganizationId,
   manualSubjectId,
+  prepareQuote,
 }: Cliente360HeaderProps) {
   const next = displayCliente360NextAction(composition.nextAction);
   const contactName = composition.primaryContact.name;
@@ -96,6 +100,7 @@ export function Cliente360Header({
     manualSubjectLabel,
     manualOrganizationId: allowMutations ? manualOrganizationId : '',
     manualSubjectId: allowMutations ? manualSubjectId : '',
+    prepareQuote: allowMutations ? prepareQuote : undefined,
   };
 
   return (
@@ -144,6 +149,16 @@ export function Cliente360Header({
               <Link href={newOpportunityHref(partyId)} className={actionPrimaryClass}>
                 Nueva oportunidad
               </Link>
+              {prepareQuote ? (
+                <Link
+                  href={prepareQuote.href}
+                  className={actionSecondaryClass}
+                  title={prepareQuote.hint}
+                  data-prepare-quote={prepareQuote.kind}
+                >
+                  {prepareQuote.label}
+                </Link>
+              ) : null}
               <Link href={clienteSectionHref(partyId, 'trabajo')} className={actionSecondaryClass}>
                 {FOLLOW_UP_COPY.action}
               </Link>

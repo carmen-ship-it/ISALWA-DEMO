@@ -14,6 +14,7 @@ export const COMMERCIAL_COMMAND_NAMES = [
   'UpdateQuote',
   'SubmitQuote',
   'RecordQuoteManualSend',
+  'RecordQuoteCustomerAcceptance',
   'CancelQuote',
   'CreateOrder',
   'CancelOrder',
@@ -99,6 +100,8 @@ export const UpdateQuotePayloadSchema = z.object({
   quoteId: z.string().min(1),
   notes: z.string().nullable().optional(),
   headerDiscountCentavos: centavosSchema.optional(),
+  /** Explicit validity end (ISO date or datetime). null clears it. Part of the exact terms an approval binds. */
+  validUntil: z.string().min(1).nullable().optional(),
 });
 
 export const SubmitQuotePayloadSchema = z.object({
@@ -113,6 +116,22 @@ export const RecordQuoteManualSendPayloadSchema = z.object({
   quoteId: z.string().min(1),
   channel: z.enum(QUOTE_MANUAL_SEND_CHANNELS),
   note: z.string().max(2000).optional(),
+});
+
+/**
+ * Human-entered customer acceptance of one issued quote revision. A delivery or
+ * read receipt is not acceptance; evidence is mandatory free text.
+ */
+export const QUOTE_ACCEPTANCE_CHANNELS = ['whatsapp', 'llamada', 'visita', 'presencial', 'otro'] as const;
+export type QuoteAcceptanceChannel = (typeof QUOTE_ACCEPTANCE_CHANNELS)[number];
+
+export const RecordQuoteCustomerAcceptancePayloadSchema = z.object({
+  quoteId: z.string().min(1),
+  channel: z.enum(QUOTE_ACCEPTANCE_CHANNELS),
+  /** Calendar date (YYYY-MM-DD) on which the customer accepted. */
+  acceptedOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  evidence: z.string().trim().min(10).max(500),
+  expectedRevision: z.number().int().min(1),
 });
 
 export const CancelQuotePayloadSchema = z.object({
@@ -165,6 +184,7 @@ export const COMMERCIAL_COMMAND_PAYLOAD_SCHEMAS: Record<CommercialCommandName, z
   UpdateQuote: UpdateQuotePayloadSchema,
   SubmitQuote: SubmitQuotePayloadSchema,
   RecordQuoteManualSend: RecordQuoteManualSendPayloadSchema,
+  RecordQuoteCustomerAcceptance: RecordQuoteCustomerAcceptancePayloadSchema,
   CancelQuote: CancelQuotePayloadSchema,
   CreateOrder: CreateOrderPayloadSchema,
   CancelOrder: CancelOrderPayloadSchema,

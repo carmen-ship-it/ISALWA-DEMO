@@ -6,6 +6,7 @@ import { CommercialStickyBar } from '@/components/commercial/commercial-sticky-b
 import { useQuoteLive } from '@/components/commercial/quote-live-frame';
 import { useQuoteSendUi } from '@/components/commercial/quote-send-ui';
 import { focusQuoteEnvioRegister } from '@/lib/commercial/quote-envio-focus';
+import { QUOTE_LIFECYCLE_COPY, QUOTE_LIFECYCLE_LABELS } from '@/lib/commercial/quote-lifecycle';
 import { QUOTE_MANUAL_SEND_COPY } from '@/lib/commercial/quote-manual-send';
 
 type QuoteProgressStickyBarProps = {
@@ -13,6 +14,8 @@ type QuoteProgressStickyBarProps = {
   lineCount: number;
   sendRecorded: boolean;
   canRecordSend: boolean;
+  /** Issued (Emitida) and not yet accepted: Registrar aceptación is the next stage. */
+  canRecordAcceptance: boolean;
   canConvertToOrder: boolean;
 };
 
@@ -25,13 +28,14 @@ type StickyAction = {
 
 /**
  * One primary thumb CTA for the quote’s current stage — not every action at once.
- * Draft → Presentar · Presented unpaid-send → Envío · Ready to order → Convertir.
+ * Draft → Emitir · Issued, not sent → Envío · Issued → Registrar aceptación · Accepted → Crear pedido.
  */
 export function QuoteProgressStickyBar({
   status,
   lineCount,
   sendRecorded,
   canRecordSend,
+  canRecordAcceptance,
   canConvertToOrder,
 }: QuoteProgressStickyBarProps) {
   const live = useQuoteLive();
@@ -45,12 +49,13 @@ export function QuoteProgressStickyBar({
   if (effectiveStatus === 'draft') {
     if (effectiveLines > 0) {
       action = {
-        label: 'Presentar cotización',
-        href: '#presentar-cotizacion',
+        label: QUOTE_LIFECYCLE_LABELS.issue,
+        href: '#cotizacion-acciones',
         copy: (
-          <p className="text-sm text-[var(--isalwa-slate)]">
-            Revise las líneas y presente la cotización.
-          </p>
+          <div className="text-sm text-[var(--isalwa-slate)]">
+            <p>Revise las líneas y emita la cotización.</p>
+            <p>Emitir necesita la aprobación de estos términos exactos.</p>
+          </div>
         ),
       };
     }
@@ -60,24 +65,27 @@ export function QuoteProgressStickyBar({
       onClick: () => focusQuoteEnvioRegister({ openDialog: true }),
       copy: (
         <div className="text-sm text-[var(--isalwa-slate)]">
-          <p>Cotización presentada</p>
+          <p>Cotización emitida</p>
           <p>Registre el envío por su canal habitual. ISALWA no envía el mensaje.</p>
         </div>
       ),
     };
-  } else if (canConvertToOrder && effectiveStatus !== 'draft') {
+  } else if (effectiveStatus === 'submitted' && canRecordAcceptance) {
     action = {
-      label: 'Convertir a Pedido',
+      label: QUOTE_LIFECYCLE_LABELS.recordAcceptance,
+      href: '#registrar-aceptacion',
+      copy: (
+        <div className="text-sm text-[var(--isalwa-slate)]">
+          <p>Cotización emitida</p>
+          <p>Registre la aceptación del cliente cuando la confirme. Entonces podrá crear el pedido.</p>
+        </div>
+      ),
+    };
+  } else if (effectiveStatus === 'accepted' && canConvertToOrder) {
+    action = {
+      label: QUOTE_LIFECYCLE_LABELS.createOrder,
       href: '#convertir-pedido',
-      copy:
-        effectiveStatus === 'accepted' ? (
-          <p className="text-sm text-[var(--isalwa-slate)]">Cliente aceptó · listo para pedido</p>
-        ) : (
-          <div className="text-sm text-[var(--isalwa-slate)]">
-            <p>Cotización presentada</p>
-            <p>Registre el seguimiento o convierta a pedido cuando corresponda.</p>
-          </div>
-        ),
+      copy: <p className="text-sm text-[var(--isalwa-slate)]">{QUOTE_LIFECYCLE_COPY.acceptedNextStep}</p>,
     };
   }
 

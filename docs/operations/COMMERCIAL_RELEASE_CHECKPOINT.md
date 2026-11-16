@@ -40,7 +40,8 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 
 ## Next command
 
-**Batch 2 (continuation §7):** TESTED LOCALLY — receipt `docs/operations/commercial-release/receipts/BATCH-2-CUSTOMER-ENTRY.md` (parent Stage A `11e4f38b`). Next: Batch 3 / T04 quotes. Do not restart from GitHub main. Preserve disposable Postgres on 54329.
+**Batch 2 (continuation §7):** TESTED LOCALLY — receipt `BATCH-2-CUSTOMER-ENTRY.md` (parent Stage A `11e4f38b`).
+**Batch 3 (continuation §8):** TESTED LOCALLY — receipt `BATCH-3-T04-QUOTES.md` (parent Batch 2 `5737c17b`). PDF hash pin and price-approve range remain gaps; independent review open. Next: Batch 4 catalog (review first) or Batch 5. Do not restart from GitHub main. Preserve disposable Postgres on 54329.
 
 **Lane B integrated locally 2026-11-13 (`receipts/INTEGRATION-LANE-B-T10.md`).** Merge `1be6d9e5` of `07e536eb`; `?datos` cleanup `c36c2346`; restored live-helper coverage `02d04326`. On `02d04326`: os-web 1319/1319, tsc clean, `next build` exit 0. Local browser check PASS on 3200/4001 with a fresh disposable database (39 migrations). Journey outside its audience is UNPROVEN in browser. Customer UI lane B2 created from this integration (see `lanes/LANE-B-T03-CUSTOMER-UI.md`). Not pushed, not deployed.
 

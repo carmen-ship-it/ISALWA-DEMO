@@ -15,6 +15,13 @@ import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import type { ProjectionRunner } from '@isalwa/os-query';
 import { getOsPrisma } from '@isalwa/os-database';
 import { createId } from '@isalwa/ts-utils';
+import {
+  approveQuoteOverHttp,
+  issueAndAcceptOverHttp,
+  seedSyntheticPriceApprover,
+  sessionHeadersFor,
+  type SyntheticSession,
+} from './quote-lifecycle.http-support';
 
 const describeHttp = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
@@ -45,6 +52,7 @@ describeHttp('os-api commercial runtime (Step 16.1A)', () => {
   let mdAdmin: { member: { id: string }; person: { id: string }; auth: { id: string } };
   let sales: { member: { id: string }; person: { id: string }; auth: { id: string } };
   let salesB: { member: { id: string }; person: { id: string }; auth: { id: string } };
+  let approver: SyntheticSession;
 
   before(async () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
@@ -74,6 +82,7 @@ describeHttp('os-api commercial runtime (Step 16.1A)', () => {
     });
     sales = await seedSalesMember(org.id, `http-sales-${Date.now()}@comm.bo`);
     salesB = await seedSalesMember(orgB.id, `http-salesb-${Date.now()}@comm.bo`);
+    approver = await seedSyntheticPriceApprover(org.id, `http-approver-${Date.now()}@comm.bo`);
   });
 
   after(async () => {
@@ -196,12 +205,33 @@ describeHttp('os-api commercial runtime (Step 16.1A)', () => {
     });
     assert.equal(lineRes.status, 201);
 
+    // T04: the exact terms are approved first, then issued, then the customer's acceptance is recorded.
+    const approverHeaders = sessionHeadersFor(org.id, approver);
+    await approveQuoteOverHttp({ baseUrl, ownerHeaders: salesHeaders, approverHeaders, quoteId });
     const submitRes = await fetch(`${baseUrl}/v1/commands/SubmitQuote`, {
       method: 'POST',
       headers: salesHeaders,
       body: JSON.stringify({ quoteId }),
     });
     assert.equal(submitRes.status, 201);
+    const draftOrderRes = await fetch(`${baseUrl}/v1/commands/CreateOrder`, {
+      method: 'POST',
+      headers: salesHeaders,
+      body: JSON.stringify({ quoteId }),
+    });
+    assert.equal(draftOrderRes.status, 400, 'an issued quote without recorded acceptance cannot be converted');
+    const acceptRes = await fetch(`${baseUrl}/v1/commands/RecordQuoteCustomerAcceptance`, {
+      method: 'POST',
+      headers: salesHeaders,
+      body: JSON.stringify({
+        quoteId,
+        channel: 'llamada',
+        acceptedOn: new Date().toISOString().slice(0, 10),
+        evidence: 'Confirmó por llamada con el vendedor',
+        expectedRevision: 2,
+      }),
+    });
+    assert.equal(acceptRes.status, 201);
 
     const orderRes = await fetch(`${baseUrl}/v1/commands/CreateOrder`, {
       method: 'POST',
@@ -310,10 +340,11 @@ describeHttp('os-api commercial runtime (Step 16.1A)', () => {
       headers: salesHeaders,
       body: JSON.stringify({ quoteId, description: 'x', quantity: 1, unitPriceCentavos: 1000 }),
     });
-    await fetch(`${baseUrl}/v1/commands/SubmitQuote`, {
-      method: 'POST',
-      headers: salesHeaders,
-      body: JSON.stringify({ quoteId }),
+    await issueAndAcceptOverHttp({
+      baseUrl,
+      ownerHeaders: salesHeaders,
+      approverHeaders: sessionHeadersFor(org.id, approver),
+      quoteId,
     });
     const orderRes = await fetch(`${baseUrl}/v1/commands/CreateOrder`, {
       method: 'POST',

@@ -7,6 +7,7 @@ import {
   QUOTE_MANUAL_SEND_COPY,
   quoteManualSendHistoryLabel,
 } from '@/lib/commercial/quote-manual-send';
+import { QUOTE_LIFECYCLE_LABELS } from '@/lib/commercial/quote-lifecycle';
 
 const root = process.cwd();
 
@@ -57,7 +58,8 @@ describe('quote manual send record', () => {
     assert.doesNotMatch(form, /WhatsAppProvider|sendMessage|twilio|meta\.graph/i);
     assert.match(page, /QuoteEnvioSection/);
     assert.match(actions, /RecordQuoteManualSend/);
-    assert.match(convert, /Cliente aceptó · Convertir a Pedido/);
+    assert.match(convert, /Cliente aceptó · \$\{QUOTE_LIFECYCLE_LABELS\.createOrder\}/);
+    assert.equal(QUOTE_LIFECYCLE_LABELS.createOrder, 'Crear pedido');
     assert.match(convert, /showModal|dialog/);
   });
 
@@ -85,8 +87,9 @@ describe('quote manual send record', () => {
       'utf8',
     );
     assert.match(page, /QuoteProgressStickyBar/);
-    assert.match(sticky, /Cotización presentada/);
-    assert.match(sticky, /Registre el seguimiento o convierta a pedido cuando corresponda/);
+    assert.match(sticky, /Cotización emitida/);
+    assert.match(sticky, /QUOTE_LIFECYCLE_LABELS\.recordAcceptance/);
+    assert.match(sticky, /Registre la aceptación del cliente/);
     assert.match(sticky, /effectiveStatus === 'accepted'/);
     assert.doesNotMatch(page, /estado sigue presentada hasta convertir/);
     assert.match(page, /createOrderAction|ConvertQuoteForm/);

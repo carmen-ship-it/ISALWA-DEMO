@@ -4,6 +4,7 @@ import { createId } from '@isalwa/ts-utils';
 import type { RequestContext } from '@isalwa/os-contracts';
 import { PartyCommandService } from '@isalwa/os-party';
 import { CommercialCommandService } from '@isalwa/os-commercial';
+import { WorkCommandService } from '@isalwa/os-work';
 import {
   CommercialProjectionConsumer,
   CommercialQueryService,
@@ -20,7 +21,9 @@ import {
   PrismaOsPartyStore,
   PrismaOsProjectionStore,
   PrismaOsWorkforceStore,
+  PrismaOsWorkStore,
 } from './index';
+import { contextFor, issueAndAcceptQuote, seedSyntheticPriceApprover } from './commercial-lifecycle-test-support';
 
 /** T03: commercial work on a customer needs the current account owner (or coverage). */
 async function ownCustomerAccount(actor: { organizationId: string; actorMemberId: string }, partyId: string) {
@@ -161,7 +164,16 @@ describePrisma('commercial projection prisma integration', () => {
       quoteLineId: String(line.data.quoteLineId),
       quantity: 3,
     });
-    await commercialSvc.execute('SubmitQuote', salesCtx, { quoteId });
+    // T04: approval of the exact terms (revision 3: line added, then updated), issue, acceptance, then order.
+    const approver = await seedSyntheticPriceApprover(getOsPrisma()!, orgId, `approver-${createId()}@proj.bo`);
+    await issueAndAcceptQuote({
+      commercialSvc,
+      workSvc: new WorkCommandService(new PrismaOsWorkStore(getOsPrisma()!)),
+      ownerCtx: salesCtx,
+      approverCtx: contextFor(orgId, approver, salesCtx.effectiveAt),
+      quoteId,
+      expectedRevision: 3,
+    });
     const order = await commercialSvc.execute('CreateOrder', salesCtx, { quoteId });
 
     return { opportunityId, quoteId, orderId: String(order.data.orderId) };

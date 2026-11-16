@@ -53,9 +53,10 @@ function subjectAuthority(
 ): CommercialSubjectAuthority {
   const grantedScopes = [...ctx.auth.roleKeys, ...ctx.auth.delegatedScopes];
   return {
+    // T04: conversion needs the recorded customer acceptance (status accepted), not an issued quote.
     canConvertToOrder:
       kind === 'quote' &&
-      status === 'submitted' &&
+      status === 'accepted' &&
       canConvertQuoteToOrder({
         actorMemberId: ctx.auth.memberId,
         grantedScopes,
@@ -104,6 +105,10 @@ function toQuoteSummary(model: StoredQuoteReadModel): QuoteSummaryReadModel {
     revisionNumber: model.revisionNumber,
     notes: model.notes,
     submittedAt: model.submittedAt?.toISOString() ?? null,
+    issuedAt: model.issuedAt?.toISOString() ?? null,
+    issuedDocumentHash: model.issuedDocumentHash ?? null,
+    issuedRevisionNumber: model.issuedRevisionNumber ?? null,
+    customerAcceptedAt: model.customerAcceptedAt?.toISOString() ?? null,
     cancelledAt: model.cancelledAt?.toISOString() ?? null,
     createdAt: model.createdAt.toISOString(),
   };

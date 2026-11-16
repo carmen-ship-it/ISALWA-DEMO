@@ -21,14 +21,14 @@ describe('mobile 390 proof contracts', () => {
     assert.equal(VIEWPORT_MAX_PX, 1440);
   });
 
-  it('Asesor quote present/send/convert: one status-aware primary + ≥44px stepper', () => {
+  it('Asesor quote issue/send/accept/create-order: one status-aware primary + ≥44px stepper', () => {
     const sticky = read('components/commercial/quote-progress-sticky-bar.tsx');
     const stepper = read('components/commercial/quantity-stepper.tsx');
     const page = read('app/(app)/clientes/[partyId]/cotizaciones/[quoteId]/page.tsx');
     assert.match(page, /QuoteProgressStickyBar/);
-    assert.match(sticky, /Presentar cotización/);
+    assert.match(sticky, /QUOTE_LIFECYCLE_LABELS\.issue/);
     assert.match(sticky, /focusQuoteEnvioRegister/);
-    assert.match(sticky, /Convertir a Pedido/);
+    assert.match(sticky, /QUOTE_LIFECYCLE_LABELS\.createOrder/);
     assert.match(stepper, /h-11 w-11/);
     assert.match(stepper, /sm:h-8 sm:w-8/);
   });

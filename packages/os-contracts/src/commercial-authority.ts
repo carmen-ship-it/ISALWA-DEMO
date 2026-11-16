@@ -93,8 +93,41 @@ export function canRequestCommercialSubjectApproval(input: {
   return input.actorMemberId === input.subjectOwnerMemberId;
 }
 
+/**
+ * T04 lifecycle (REUSE_MAP §13.5): draft → approval of exact terms → issuance
+ * (SubmitQuote) → optional manual send → customer acceptance → CreateOrder.
+ * Approval is requested before issue, so only a draft is eligible. An issued
+ * (submitted) quote can no longer be approved: the legacy "submit then approve"
+ * sequence is not kept under new labels.
+ */
 export function isQuoteApprovalEligible(status: string): boolean {
-  return status === 'submitted';
+  return status === 'draft';
+}
+
+/** Approval request context key that binds an approval to one quote revision. */
+export const QUOTE_APPROVAL_BOUND_REVISION_KEY = 'boundRevision' as const;
+
+/** True only when the approval context was bound to exactly this revision (legacy rows bind none). */
+export function quoteApprovalBindsRevision(
+  contextSnapshot: Record<string, unknown> | null | undefined,
+  revisionNumber: number,
+): boolean {
+  if (!contextSnapshot || typeof contextSnapshot !== 'object') return false;
+  const bound = contextSnapshot[QUOTE_APPROVAL_BOUND_REVISION_KEY];
+  return typeof bound === 'number' && Number.isInteger(bound) && bound === revisionNumber;
+}
+
+/**
+ * An approval authorizes issue/convert only when it was approved and was bound
+ * to exactly the quote's current revision. A material change bumps the revision
+ * and therefore voids every earlier approval.
+ */
+export function isQuoteApprovalCurrent(
+  approval: { status: string; contextSnapshotJson?: Record<string, unknown> | null } | null | undefined,
+  revisionNumber: number,
+): boolean {
+  if (!approval || approval.status !== 'approved') return false;
+  return quoteApprovalBindsRevision(approval.contextSnapshotJson, revisionNumber);
 }
 
 export function isOrderApprovalEligible(status: string): boolean {

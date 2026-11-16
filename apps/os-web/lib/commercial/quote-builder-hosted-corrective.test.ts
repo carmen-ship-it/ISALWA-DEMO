@@ -41,9 +41,9 @@ describe('Task 8 quote builder hosted corrective', () => {
   });
 
   it('draft primary action presents; presented primary records send; PDF is secondary until sent', () => {
-    assert.match(editor, /Presente la cotización para generar el documento/);
-    assert.match(editor, /label="Presentar cotización"/);
-    assert.equal(QUOTE_PDF_COPY.notReady, 'Presente la cotización para generar el documento.');
+    assert.match(editor, /QUOTE_LIFECYCLE_COPY\.issueHelper/);
+    assert.match(editor, /label=\{QUOTE_LIFECYCLE_LABELS\.issue\}/);
+    assert.equal(QUOTE_PDF_COPY.notReady, 'Emita la cotización para generar el documento. Emitir no la envía.');
     assert.match(docActions, /allowRegister \? 'secondary' : 'primary'/);
     assert.match(docActions, /data-quote-register-send="cta"/);
     assert.match(docActions, /variant="primary"/);

@@ -2,6 +2,7 @@ export type { OsCommercialStore } from './os-commercial-store';
 export { CommercialCommandService, type CommandResult } from './commercial-command-service';
 export * from './store-types';
 export * from './money';
+export * from './quote-issuance';
 export {
   ORDER_LINE_PROVENANCE,
   copyQuoteLinesToOrderLines,

@@ -7,6 +7,7 @@ import { useQuoteLive } from '@/components/commercial/quote-live-frame';
 import { QUOTE_MANUAL_SEND_COPY } from '@/lib/commercial/quote-manual-send';
 import { focusQuoteEnvioRegister } from '@/lib/commercial/quote-envio-focus';
 import { isQuotePdfReady } from '@/lib/commercial/quote-pdf-ready';
+import { QUOTE_LIFECYCLE_COPY, shortIssuedHash } from '@/lib/commercial/quote-lifecycle';
 
 type QuoteDocumentActionsProps = {
   quoteId: string;
@@ -14,6 +15,8 @@ type QuoteDocumentActionsProps = {
   quoteStatus: string;
   canRecordSend: boolean;
   sendRecorded: boolean;
+  /** sha256 of the exact terms at issuance (T04). Disclosure only: the PDF is not compared to it yet. */
+  issuedDocumentHash?: string | null;
 };
 
 /**
@@ -26,6 +29,7 @@ export function QuoteDocumentActions({
   quoteStatus,
   canRecordSend,
   sendRecorded: sendRecordedFromServer,
+  issuedDocumentHash = null,
 }: QuoteDocumentActionsProps) {
   const live = useQuoteLive();
   const sendUi = useQuoteSendUi();
@@ -34,6 +38,7 @@ export function QuoteDocumentActions({
   const isDraft = status === 'draft';
   const sendRecorded = sendRecordedFromServer || Boolean(sendUi?.sendRecorded);
   const allowRegister = canRecordSend && !sendRecorded && !isDraft;
+  const issuedHash = shortIssuedHash(issuedDocumentHash);
 
   if (isDraft) {
     return (
@@ -44,7 +49,7 @@ export function QuoteDocumentActions({
         data-quote-doc-actions="draft"
       >
         <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Presente la cotización para generar el documento.
+          Emita la cotización para generar el documento. Emitir no la envía.
         </p>
       </PageSection>
     );
@@ -95,6 +100,14 @@ export function QuoteDocumentActions({
           />
         </div>
       </div>
+      {issuedHash ? (
+        <p className="mt-4 text-xs leading-relaxed text-[var(--isalwa-slate)]" data-quote-issued-hash="">
+          <span title={issuedDocumentHash ?? undefined}>
+            {QUOTE_LIFECYCLE_COPY.documentIssuedPrefix} {issuedHash}
+          </span>
+          <span className="block">{QUOTE_LIFECYCLE_COPY.documentHashDisclosure}</span>
+        </p>
+      ) : null}
     </PageSection>
   );
 }

@@ -1,5 +1,9 @@
-import type { ListMembersQuery, MemberSummaryReadModel } from '@isalwa/os-contracts';
-import { memberHasScope } from '@isalwa/os-domain';
+import {
+  canApproveCommercialPrice,
+  type ListMembersQuery,
+  type MemberSummaryReadModel,
+} from '@isalwa/os-contracts';
+import { computeEffectiveScopes, memberHasScope } from '@isalwa/os-domain';
 import type { QueryContext } from '../query-context';
 import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
@@ -9,6 +13,9 @@ export type MemberQueryServiceDeps = {
   store: MemberQueryStorePort;
   encodeCursor: (familyName: string, memberId: string) => string;
 };
+
+/** Bound on the role-holder scan: 5 pages of 100 members. hasMore tells the UI it was cut. */
+const PRICE_APPROVER_MAX_PAGES = 5;
 
 export type ActiveMemberOption = {
   memberId: string;
@@ -103,6 +110,47 @@ export class MemberQueryService {
       { q, limit, excludeMemberId: query.excludeMemberId },
       ctx.effectiveAt,
     );
+  }
+
+  /**
+   * Active same-tenant members who hold commercial.price.approve through a role
+   * assignment (the same rule RequestApproval enforces for a quote). Name only; the
+   * caller is never offered, and an empty list is a real answer (no default approver).
+   */
+  async listPriceApproverOptions(
+    ctx: QueryContext,
+  ): Promise<{ items: ActiveMemberOption[]; hasMore: boolean }> {
+    assertQueryScope(ctx, 'member_active');
+    assertQueryTenantResource(ctx, ctx.organizationId);
+    const items: ActiveMemberOption[] = [];
+    let cursor: string | undefined;
+    let hasMore = false;
+    for (let page = 0; page < PRICE_APPROVER_MAX_PAGES; page += 1) {
+      const result = await this.deps.store.listMembers(
+        ctx.organizationId,
+        { accessStatus: 'active', employmentStatus: 'active', limit: 100, cursor },
+        ctx.effectiveAt,
+      );
+      for (const member of result.items) {
+        if (member.memberId === ctx.auth.memberId) continue;
+        const scopes = computeEffectiveScopes(
+          member.roleKeys.map((roleKey) => ({ roleKey, effectiveAt: new Date(0), endedAt: null })),
+          [],
+          ctx.effectiveAt,
+        );
+        if (canApproveCommercialPrice(scopes)) {
+          items.push({ memberId: member.memberId, displayName: member.displayName });
+        }
+      }
+      const last = result.items.at(-1);
+      if (!result.hasMore || !last) {
+        hasMore = false;
+        break;
+      }
+      hasMore = true;
+      cursor = this.deps.encodeCursor(last.familyName, last.memberId);
+    }
+    return { items, hasMore };
   }
 
   async listMembers(

@@ -12,6 +12,7 @@ import type {
   OrderLineRecord,
   OrderRecord,
   PartyRecord,
+  QuoteApprovalRecord,
   QuoteLineRecord,
   QuoteRecord,
   RoleAssignmentRecord,
@@ -232,6 +233,14 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
         notes: record.notes,
         version: record.version,
         submittedAt: record.submittedAt,
+        issuedAt: record.issuedAt,
+        issuedDocumentHash: record.issuedDocumentHash,
+        issuedRevisionNumber: record.issuedRevisionNumber,
+        validUntil: record.validUntil,
+        customerAcceptedAt: record.customerAcceptedAt,
+        customerAcceptanceChannel: record.customerAcceptanceChannel,
+        customerAcceptanceEvidence: record.customerAcceptanceEvidence,
+        customerAcceptedRevision: record.customerAcceptedRevision,
         cancelledAt: record.cancelledAt,
         createdAt: record.createdAt,
         updatedAt: record.updatedAt,
@@ -257,7 +266,16 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
         | 'subtotalCentavos'
         | 'headerDiscountCentavos'
         | 'totalCentavos'
+        | 'revisionNumber'
         | 'submittedAt'
+        | 'issuedAt'
+        | 'issuedDocumentHash'
+        | 'issuedRevisionNumber'
+        | 'validUntil'
+        | 'customerAcceptedAt'
+        | 'customerAcceptanceChannel'
+        | 'customerAcceptanceEvidence'
+        | 'customerAcceptedRevision'
         | 'cancelledAt'
         | 'version'
       >
@@ -273,6 +291,22 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
 
   async countQuotesForOrg(organizationId: string): Promise<number> {
     return this.db().osQuote.count({ where: { organizationId } });
+  }
+
+  async listQuoteApprovals(organizationId: string, quoteId: string): Promise<QuoteApprovalRecord[]> {
+    const rows = await this.db().osApprovalRequest.findMany({
+      where: { organizationId, subjectType: 'quote', subjectId: quoteId },
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      status: row.status,
+      contextSnapshotJson: (row.contextSnapshotJson ?? {}) as Record<string, unknown>,
+      requestedByMemberId: row.requestedByMemberId,
+      approverMemberId: row.approverMemberId,
+      decisionByMemberId: row.decisionByMemberId,
+      decidedAt: row.decidedAt,
+    }));
   }
 
   async insertQuoteLine(record: QuoteLineRecord): Promise<void> {
@@ -474,26 +508,35 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
 
   async insertOrder(record: OrderRecord): Promise<void> {
     await this.requireQuoteInOrg(record.organizationId, record.quoteId);
-    await this.db().osOrder.create({
-      data: {
-        id: record.id,
-        organizationId: record.organizationId,
-        partyId: record.partyId,
-        commercialAccountId: record.commercialAccountId,
-        quoteId: record.quoteId,
-        ownerMemberId: record.ownerMemberId,
-        orderNumber: record.orderNumber,
-        status: record.status,
-        currency: record.currency,
-        subtotalCentavos: record.subtotalCentavos,
-        headerDiscountCentavos: record.headerDiscountCentavos,
-        totalCentavos: record.totalCentavos,
-        version: record.version,
-        cancelledAt: record.cancelledAt,
-        createdAt: record.createdAt,
-        updatedAt: record.updatedAt,
-      },
-    });
+    try {
+      await this.db().osOrder.create({
+        data: {
+          id: record.id,
+          organizationId: record.organizationId,
+          partyId: record.partyId,
+          commercialAccountId: record.commercialAccountId,
+          quoteId: record.quoteId,
+          ownerMemberId: record.ownerMemberId,
+          orderNumber: record.orderNumber,
+          status: record.status,
+          currency: record.currency,
+          subtotalCentavos: record.subtotalCentavos,
+          headerDiscountCentavos: record.headerDiscountCentavos,
+          totalCentavos: record.totalCentavos,
+          version: record.version,
+          cancelledAt: record.cancelledAt,
+          createdAt: record.createdAt,
+          updatedAt: record.updatedAt,
+        },
+      });
+    } catch (err) {
+      // unique(organizationId, quoteId): a concurrent CreateOrder already holds this quote;
+      // unique(organizationId, orderNumber): a concurrent number race. Either way one order wins.
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        throw new Error('CONFLICT');
+      }
+      throw err;
+    }
   }
 
   async getOrderInOrg(organizationId: string, orderId: string): Promise<OrderRecord | null> {
@@ -886,6 +929,14 @@ function mapQuote(row: {
   notes: string | null;
   version: number;
   submittedAt: Date | null;
+  issuedAt: Date | null;
+  issuedDocumentHash: string | null;
+  issuedRevisionNumber: number | null;
+  validUntil: Date | null;
+  customerAcceptedAt: Date | null;
+  customerAcceptanceChannel: string | null;
+  customerAcceptanceEvidence: string | null;
+  customerAcceptedRevision: number | null;
   cancelledAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -907,6 +958,14 @@ function mapQuote(row: {
     notes: row.notes,
     version: row.version,
     submittedAt: row.submittedAt,
+    issuedAt: row.issuedAt,
+    issuedDocumentHash: row.issuedDocumentHash,
+    issuedRevisionNumber: row.issuedRevisionNumber,
+    validUntil: row.validUntil,
+    customerAcceptedAt: row.customerAcceptedAt,
+    customerAcceptanceChannel: row.customerAcceptanceChannel,
+    customerAcceptanceEvidence: row.customerAcceptanceEvidence,
+    customerAcceptedRevision: row.customerAcceptedRevision,
     cancelledAt: row.cancelledAt,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,

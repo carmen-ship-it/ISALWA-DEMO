@@ -9,6 +9,7 @@ import {
 import { formatOpportunityStatus, formatOrderStatus, formatQuoteStatus } from '@/lib/commercial/labels';
 import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { formatOptionalCentavos } from '@/lib/commercial/money';
+import { QUOTE_LIFECYCLE_LABELS } from '@/lib/commercial/quote-lifecycle';
 import { filterNavByAccess, PRIMARY_NAV } from '@/lib/navigation/nav-config';
 import { t } from '@/lib/i18n/es';
 import { formatWorkStatus } from '@/lib/work/labels';
@@ -134,7 +135,7 @@ export function paletteActions(access: PaletteAccess): PaletteItem[] {
     {
       key: 'action:quote',
       kind: 'action',
-      label: 'Crear cotización',
+      label: QUOTE_LIFECYCLE_LABELS.prepare,
       detail: 'Elija la oportunidad',
       href: '/oportunidades',
       pick: 'opportunity-quote',
@@ -458,7 +459,7 @@ export function applyPick(item: PaletteItem, pick: PalettePick): PaletteItem | n
     return { ...item, href: clienteSectionHref(item.partyId, 'trabajo'), detail: 'Registrar seguimiento' };
   }
   if (pick === 'opportunity-quote' && item.kind === 'opportunity' && item.partyId && item.opportunityId) {
-    return { ...item, href: newQuoteHref(item.partyId, item.opportunityId), detail: 'Crear cotización' };
+    return { ...item, href: newQuoteHref(item.partyId, item.opportunityId), detail: QUOTE_LIFECYCLE_LABELS.prepare };
   }
   return null;
 }

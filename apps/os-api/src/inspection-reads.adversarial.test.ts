@@ -348,6 +348,8 @@ const HTTP_CLASSIFICATION: Record<string, string> = {
   'GET /parties/:partyId/contacts/:contactId/endpoints': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
   'GET /parties/:partyId/contacts/:contactId/relationship-end-preview': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
   'GET /parties/:partyId/contacts/:contactId/followup-preferences': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
+  // Party-scoped bulk follow-up preferences (Stage A); same customer visibility as contact-scoped.
+  'GET /parties/:partyId/followup-preferences': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
   'GET /parties/:partyId/archive-preview': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
   'GET /delivery-notes': 'SCOPE-CHECKED|MIN_CUSTOMER_FIELDS|LOCAL_HTTP_PG_VERIFIED',
   'GET /delivery-notes/:id/pdf': 'SCOPE-CHECKED|MIN_CUSTOMER_FIELDS|LOCAL_HTTP_PG_VERIFIED',
@@ -360,6 +362,7 @@ const HTTP_CLASSIFICATION: Record<string, string> = {
   'GET /parties/:partyId/timeline': 'LOCAL_FUNCTION_VERIFIED',
   'GET /members': 'LOCAL_FUNCTION_VERIFIED',
   'GET /members/active-options': 'LOCAL_FUNCTION_VERIFIED',
+  'GET /members/price-approver-options': 'LOCAL_FUNCTION_VERIFIED',
   'GET /members/:memberId': 'LOCAL_FUNCTION_VERIFIED',
   'GET /capabilities': 'LOCAL_FUNCTION_VERIFIED',
   'GET /approvals': 'LOCAL_FUNCTION_VERIFIED',

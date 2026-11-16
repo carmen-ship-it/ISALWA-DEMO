@@ -209,12 +209,12 @@ describe('operational access scopes', () => {
     assert.equal(canConfirmFinance(granted), false);
   });
 
-  it('lets an assigned advisor convert only an own submitted quote', () => {
+  it('lets an assigned advisor convert only an own accepted quote', () => {
     assert.equal(
       canConvertOwnEligibleQuote({
         actorMemberId: OWNER,
         quoteOwnerMemberId: OWNER,
-        quoteStatus: 'submitted',
+        quoteStatus: 'accepted',
         grantedScopes: [COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE],
       }),
       true,
@@ -223,7 +223,7 @@ describe('operational access scopes', () => {
       canConvertOwnEligibleQuote({
         actorMemberId: OWNER,
         quoteOwnerMemberId: OWNER,
-        quoteStatus: 'submitted',
+        quoteStatus: 'accepted',
         grantedScopes: ['asesor', COMMERCIAL_ORDER_CONVERT_SCOPE],
       }),
       false,
@@ -232,12 +232,12 @@ describe('operational access scopes', () => {
       canConvertOwnEligibleQuote({
         actorMemberId: OTHER,
         quoteOwnerMemberId: OWNER,
-        quoteStatus: 'submitted',
+        quoteStatus: 'accepted',
         grantedScopes: [COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE],
       }),
       false,
     );
-    for (const quoteStatus of ['draft', 'cancelled', 'accepted', 'open']) {
+    for (const quoteStatus of ['draft', 'cancelled', 'submitted', 'open']) {
       assert.equal(
         canConvertOwnEligibleQuote({
           actorMemberId: OWNER,

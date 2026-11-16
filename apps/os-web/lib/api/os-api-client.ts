@@ -302,6 +302,12 @@ export function createOsApiClient(auth: OsAuthContext) {
           },
         },
       ),
+    /** Quote approvers: active members holding commercial.price.approve. Never includes the caller. */
+    listPriceApproverOptions: () =>
+      request<{ items: Array<{ memberId: string; displayName: string }>; hasMore?: boolean }>(
+        '/members/price-approver-options',
+        { method: 'GET' },
+      ),
     listSubjectApprovals: (subjectType: string, subjectId: string) =>
       request<{ items: Array<Record<string, unknown>> }>('/approvals/subject', {
         method: 'GET',

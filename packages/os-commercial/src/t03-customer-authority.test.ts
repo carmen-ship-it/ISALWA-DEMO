@@ -43,7 +43,8 @@ function quote(overrides: Partial<QuoteRecord> = {}): QuoteRecord {
     opportunityId: null,
     ownerMemberId: OWNER,
     quoteNumber: 'Q-000001',
-    status: 'submitted',
+    // Default: issued and accepted at revision 1, the convertible state (T04).
+    status: 'accepted',
     currency: 'BOB',
     subtotalCentavos: 100n,
     headerDiscountCentavos: 0n,
@@ -52,9 +53,30 @@ function quote(overrides: Partial<QuoteRecord> = {}): QuoteRecord {
     notes: null,
     version: 1,
     submittedAt: NOW,
+    issuedAt: NOW,
+    issuedDocumentHash: 'hash-1',
+    issuedRevisionNumber: 1,
+    validUntil: null,
+    customerAcceptedAt: NOW,
+    customerAcceptanceChannel: 'llamada',
+    customerAcceptanceEvidence: 'Aceptó por llamada telefónica',
+    customerAcceptedRevision: 1,
     cancelledAt: null,
     createdAt: NOW,
     updatedAt: NOW,
+    // A draft has not been issued or accepted.
+    ...(overrides.status === 'draft'
+      ? {
+          submittedAt: null,
+          issuedAt: null,
+          issuedDocumentHash: null,
+          issuedRevisionNumber: null,
+          customerAcceptedAt: null,
+          customerAcceptanceChannel: null,
+          customerAcceptanceEvidence: null,
+          customerAcceptedRevision: null,
+        }
+      : {}),
     ...overrides,
   };
 }
@@ -171,6 +193,9 @@ function harness(
     },
     async countQuotesForOrg() {
       return 0;
+    },
+    async listQuoteApprovals() {
+      return [{ id: 'approval-1', status: 'approved', contextSnapshotJson: { boundRevision: 1 }, requestedByMemberId: OWNER, approverMemberId: 'mem-approver', decisionByMemberId: 'mem-approver', decidedAt: NOW }];
     },
     async countOrdersForOrg() {
       return 0;

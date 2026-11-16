@@ -178,7 +178,14 @@ export class PrismaOsWorkStore implements OsWorkStore {
   ): Promise<CommercialApprovalSubjectRecord | null> {
     const row = await this.db().osQuote.findFirst({
       where: { id: quoteId, organizationId },
-      select: { id: true, organizationId: true, ownerMemberId: true, status: true, partyId: true },
+      select: {
+        id: true,
+        organizationId: true,
+        ownerMemberId: true,
+        status: true,
+        partyId: true,
+        revisionNumber: true,
+      },
     });
     return row;
   }

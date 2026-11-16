@@ -4,7 +4,20 @@ import { createId } from '@isalwa/ts-utils';
 import type { RequestContext } from '@isalwa/os-contracts';
 import { PartyCommandService } from '@isalwa/os-party';
 import { CommercialCommandService } from '@isalwa/os-commercial';
-import { getOsPrisma, PrismaOsCommercialStore, PrismaOsPartyStore, PrismaOsWorkforceStore } from './index';
+import { WorkCommandService } from '@isalwa/os-work';
+import {
+  getOsPrisma,
+  PrismaOsCommercialStore,
+  PrismaOsPartyStore,
+  PrismaOsWorkforceStore,
+  PrismaOsWorkStore,
+} from './index';
+import {
+  approveQuoteRevision,
+  contextFor,
+  issueAndAcceptQuote,
+  seedSyntheticPriceApprover,
+} from './commercial-lifecycle-test-support';
 
 const describePrisma = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
@@ -170,6 +183,11 @@ describePrisma('commercial prisma integration', () => {
     assert.equal(line.data.lineTotalCentavos, '295000');
     assert.equal(line.data.totalCentavos, '295000');
 
+    // T04: approval of the exact terms (revision 2 after one line) → issue → acceptance → order.
+    const approver = await seedSyntheticPriceApprover(prisma, org.id, `approver-${createId()}@comm.bo`);
+    const workSvc = new WorkCommandService(new PrismaOsWorkStore(prisma));
+    const approverCtx = contextFor(org.id, approver, salesCtx.effectiveAt);
+    await approveQuoteRevision({ workSvc, ownerCtx: salesCtx, approverCtx, quoteId });
     const submitted = await commercialSvc.execute(
       'SubmitQuote',
       salesCtx,
@@ -177,6 +195,22 @@ describePrisma('commercial prisma integration', () => {
       `submit-${createId()}`,
     );
     assert.equal(submitted.data.quoteId, quoteId);
+    const issued = await commercialStore.getQuoteInOrg(org.id, quoteId);
+    assert.equal(issued?.status, 'submitted');
+    assert.equal(issued?.issuedRevisionNumber, 2);
+    assert.match(issued?.issuedDocumentHash ?? '', /^[0-9a-f]{64}$/);
+    // An issued quote is not convertible until the customer's acceptance is recorded.
+    await assert.rejects(
+      () => commercialSvc.execute('CreateOrder', salesCtx, { quoteId }),
+      (err: Error) => err.message === 'VALIDATION_FAILED',
+    );
+    await commercialSvc.execute('RecordQuoteCustomerAcceptance', salesCtx, {
+      quoteId,
+      channel: 'visita',
+      acceptedOn: '2026-08-24',
+      evidence: 'Firmó la conformidad en la visita',
+      expectedRevision: 2,
+    });
 
     const order = await commercialSvc.execute(
       'CreateOrder',
@@ -189,6 +223,8 @@ describePrisma('commercial prisma integration', () => {
 
     const quoteRow = await commercialStore.getQuoteInOrg(org.id, quoteId);
     assert.equal(quoteRow?.status, 'accepted');
+    assert.equal(quoteRow?.customerAcceptedRevision, 2);
+    assert.equal(quoteRow?.customerAcceptanceChannel, 'visita');
     assert.equal(quoteRow?.commercialAccountId, commercialAccount?.id);
 
     const orderRow = await commercialStore.getOrderInOrg(org.id, String(order.data.orderId));
@@ -204,6 +240,7 @@ describePrisma('commercial prisma integration', () => {
             'quote.created',
             'quote.line_added',
             'quote.submitted',
+            'quote.customer_acceptance.recorded',
             'order.created',
           ],
         },
@@ -384,6 +421,165 @@ describePrisma('commercial prisma integration', () => {
       () => commercialSvc.execute('CreateOrder', salesCtx, { quoteId }),
       (err: Error) => err.message === 'VALIDATION_FAILED',
     );
+  });
+
+  async function seedAcceptedScenario(label: string) {
+    const org = await workforceStore.seedOrganization(`T04 ${label}`, `t04-${createId()}`);
+    const mdAdmin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `md-${createId()}@t04.bo`,
+      'MD',
+      'Admin',
+      'master_data.admin',
+    );
+    const sales = await seedSalesMember(org.id, `sales-${createId()}@t04.bo`);
+    const approver = await seedSyntheticPriceApprover(prisma, org.id, `approver-${createId()}@t04.bo`);
+    const adminCtx = ctx(org.id, mdAdmin.member.id, mdAdmin.person.id, mdAdmin.auth.id);
+    const salesCtx = ctx(org.id, sales.memberId, sales.personId, sales.authId);
+    const approverCtx = contextFor(org.id, approver, salesCtx.effectiveAt);
+    const workSvc = new WorkCommandService(new PrismaOsWorkStore(prisma));
+    const partyId = await seedCustomerParty(org.id, adminCtx, `${label} Client`, sales.memberId);
+    const quote = await commercialSvc.execute('CreateQuote', salesCtx, { partyId });
+    const quoteId = String(quote.data.quoteId);
+    await commercialSvc.execute('AddQuoteLine', salesCtx, {
+      quoteId,
+      description: 'Lavamanos',
+      quantity: 2,
+      unitPriceCentavos: 10000,
+      unitLabel: 'unidad',
+    });
+    return { org, mdAdmin, sales, approver, adminCtx, salesCtx, approverCtx, workSvc, partyId, quoteId };
+  }
+
+  it('T04: refuses self-approval and unauthorized approvers; a stale approval cannot approve or issue', async () => {
+    const t = await seedAcceptedScenario('Approval');
+    const request = (approverMemberId: string) =>
+      t.workSvc.execute('RequestApproval', t.salesCtx, {
+        approverMemberId,
+        subjectType: 'quote',
+        subjectId: t.quoteId,
+      });
+
+    await assert.rejects(() => request(t.sales.memberId), (err: Error) => err.message === 'PERMISSION_DENIED');
+    await assert.rejects(() => request(t.mdAdmin.member.id), (err: Error) => err.message === 'PERMISSION_DENIED');
+    assert.equal(await prisma.osApprovalRequest.count({ where: { organizationId: t.org.id } }), 0);
+
+    // Approval is requested while the quote is a draft and binds revision 2 (create + one line).
+    const requested = await request(t.approver.memberId);
+    const stored = await prisma.osApprovalRequest.findFirst({ where: { organizationId: t.org.id } });
+    assert.equal((stored?.contextSnapshotJson as Record<string, unknown>).boundRevision, 2);
+
+    // A material change moves the quote to revision 3: that approval is stale.
+    await commercialSvc.execute('AddQuoteLine', t.salesCtx, {
+      quoteId: t.quoteId,
+      description: 'Inodoro',
+      quantity: 1,
+      unitPriceCentavos: 50000,
+    });
+    await assert.rejects(
+      () => t.workSvc.execute('Approve', t.approverCtx, { approvalRequestId: String(requested.data.approvalRequestId) }),
+      (err: Error) => err.message === 'CONFLICT',
+    );
+    await assert.rejects(
+      () => commercialSvc.execute('SubmitQuote', t.salesCtx, { quoteId: t.quoteId }),
+      (err: Error) => err.message === 'VALIDATION_FAILED',
+    );
+
+    // An approval granted for revision 3 and then staled by another change cannot issue either.
+    await approveQuoteRevision({ workSvc: t.workSvc, ownerCtx: t.salesCtx, approverCtx: t.approverCtx, quoteId: t.quoteId });
+    await commercialSvc.execute('UpdateQuote', t.salesCtx, { quoteId: t.quoteId, notes: 'Entrega en obra' });
+    await assert.rejects(
+      () => commercialSvc.execute('SubmitQuote', t.salesCtx, { quoteId: t.quoteId }),
+      (err: Error) => err.message === 'VALIDATION_FAILED',
+    );
+    const draft = await commercialStore.getQuoteInOrg(t.org.id, t.quoteId);
+    assert.equal(draft?.status, 'draft');
+    assert.equal(draft?.issuedAt, null);
+
+    // Approving the current revision (4) lets it issue, with the hash persisted.
+    await approveQuoteRevision({ workSvc: t.workSvc, ownerCtx: t.salesCtx, approverCtx: t.approverCtx, quoteId: t.quoteId });
+    await commercialSvc.execute('SubmitQuote', t.salesCtx, { quoteId: t.quoteId });
+    const issued = await commercialStore.getQuoteInOrg(t.org.id, t.quoteId);
+    assert.equal(issued?.status, 'submitted');
+    assert.equal(issued?.issuedRevisionNumber, 4);
+    assert.ok(issued?.issuedAt);
+    assert.match(issued?.issuedDocumentHash ?? '', /^[0-9a-f]{64}$/);
+    // The legacy "submit then approve" order is gone: an issued quote can no longer request approval.
+    await assert.rejects(() => request(t.approver.memberId), (err: Error) => err.message === 'VALIDATION_FAILED');
+  });
+
+  it('T04: a second and a concurrent CreateOrder produce one order (CONFLICT, unique org+quote)', async () => {
+    const t = await seedAcceptedScenario('Concurrent');
+    await issueAndAcceptQuote({
+      commercialSvc,
+      workSvc: t.workSvc,
+      ownerCtx: t.salesCtx,
+      approverCtx: t.approverCtx,
+      quoteId: t.quoteId,
+      expectedRevision: 2,
+    });
+
+    const outcomes = await Promise.allSettled([
+      commercialSvc.execute('CreateOrder', t.salesCtx, { quoteId: t.quoteId }),
+      commercialSvc.execute('CreateOrder', t.salesCtx, { quoteId: t.quoteId }),
+    ]);
+    const fulfilled = outcomes.filter((outcome) => outcome.status === 'fulfilled');
+    const rejected = outcomes.filter((outcome): outcome is PromiseRejectedResult => outcome.status === 'rejected');
+    assert.equal(fulfilled.length, 1);
+    assert.equal(rejected.length, 1);
+    assert.equal((rejected[0]!.reason as Error).message, 'CONFLICT');
+    assert.equal(await prisma.osOrder.count({ where: { organizationId: t.org.id, quoteId: t.quoteId } }), 1);
+    assert.equal(
+      await prisma.osBusinessEvent.count({ where: { organizationId: t.org.id, eventType: 'order.created' } }),
+      1,
+    );
+
+    // A later retry is also CONFLICT, and the database itself refuses a second order for the quote.
+    await assert.rejects(
+      () => commercialSvc.execute('CreateOrder', t.salesCtx, { quoteId: t.quoteId }),
+      (err: Error) => err.message === 'CONFLICT',
+    );
+    const existing = await prisma.osOrder.findFirstOrThrow({ where: { organizationId: t.org.id, quoteId: t.quoteId } });
+    await assert.rejects(
+      () => prisma.osOrder.create({ data: { ...existing, id: createId(), orderNumber: 'O-DUPLICATE' } }),
+      (err: { code?: string }) => err.code === 'P2002',
+    );
+  });
+
+  it('T04: acceptance is recorded for the exact issued revision and is required before CreateOrder', async () => {
+    const t = await seedAcceptedScenario('Acceptance');
+    await approveQuoteRevision({ workSvc: t.workSvc, ownerCtx: t.salesCtx, approverCtx: t.approverCtx, quoteId: t.quoteId });
+    await commercialSvc.execute('SubmitQuote', t.salesCtx, { quoteId: t.quoteId });
+    const accept = (overrides: Record<string, unknown> = {}) =>
+      commercialSvc.execute('RecordQuoteCustomerAcceptance', t.salesCtx, {
+        quoteId: t.quoteId,
+        channel: 'whatsapp',
+        acceptedOn: '2026-08-24',
+        evidence: 'Respondió “acepto” al presupuesto por WhatsApp',
+        expectedRevision: 2,
+        ...overrides,
+      });
+
+    await assert.rejects(
+      () => commercialSvc.execute('CreateOrder', t.salesCtx, { quoteId: t.quoteId }),
+      (err: Error) => err.message === 'VALIDATION_FAILED',
+    );
+    await assert.rejects(() => accept({ expectedRevision: 1 }), (err: Error) => err.message === 'CONFLICT');
+    await accept();
+    const row = await commercialStore.getQuoteInOrg(t.org.id, t.quoteId);
+    assert.equal(row?.status, 'accepted');
+    assert.equal(row?.customerAcceptedRevision, 2);
+    assert.equal(row?.customerAcceptanceChannel, 'whatsapp');
+    assert.equal(row?.customerAcceptedAt?.toISOString().slice(0, 10), '2026-08-24');
+    assert.equal(await prisma.osOrder.count({ where: { organizationId: t.org.id } }), 0);
+
+    // A material change after acceptance is impossible: only a draft is editable.
+    await assert.rejects(
+      () => commercialSvc.execute('UpdateQuote', t.salesCtx, { quoteId: t.quoteId, notes: 'cambio' }),
+      (err: Error) => err.message === 'VALIDATION_FAILED',
+    );
+    await commercialSvc.execute('CreateOrder', t.salesCtx, { quoteId: t.quoteId });
+    assert.equal(await prisma.osOrder.count({ where: { organizationId: t.org.id } }), 1);
   });
 });
 

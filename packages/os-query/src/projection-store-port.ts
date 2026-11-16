@@ -76,6 +76,11 @@ export type StoredQuoteReadModel = {
   revisionNumber: number;
   notes: string | null;
   submittedAt: Date | null;
+  /** T04. Optional so existing fixtures stay valid; absent reads as not issued / not accepted. */
+  issuedAt?: Date | null;
+  issuedDocumentHash?: string | null;
+  issuedRevisionNumber?: number | null;
+  customerAcceptedAt?: Date | null;
   cancelledAt: Date | null;
   createdAt: Date;
   lastEventId: string | null;

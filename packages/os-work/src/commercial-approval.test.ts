@@ -12,6 +12,8 @@ const ORG = 'org-a';
 const OWNER = 'mem-owner';
 const OTHER = 'mem-other';
 const APPROVER = 'mem-approver';
+const GERENTE = 'mem-gerente';
+const NO_SCOPE = 'mem-no-price-scope';
 const DELEGATE = 'mem-delegate';
 const NOW = new Date('2026-09-13T12:00:00.000Z');
 
@@ -33,8 +35,9 @@ function subject(
     id: 'subject-1',
     organizationId: ORG,
     ownerMemberId: OWNER,
-    status: 'submitted',
+    status: 'draft',
     partyId: 'party-1',
+    revisionNumber: 1,
     ...overrides,
   };
 }
@@ -63,6 +66,10 @@ function approvalStore(input: {
       if (memberId === OTHER) {
         return [{ roleKey: 'people.admin', effectiveAt: new Date('2026-01-01'), endedAt: null }];
       }
+      // Only these members hold commercial.price.approve in their own right.
+      if ([OWNER, APPROVER, GERENTE].includes(memberId)) {
+        return [{ roleKey: 'commercial.price.approve', effectiveAt: new Date('2026-01-01'), endedAt: null }];
+      }
       return [];
     },
     async listDelegationsForDelegate(memberId: string) {
@@ -90,8 +97,9 @@ function approvalStore(input: {
     async partyExistsInOrg() {
       return false;
     },
+    quoteRow: (input.quote === undefined ? subject() : input.quote) as CommercialApprovalSubjectRecord | null,
     async getQuoteApprovalSubject(organizationId: string, quoteId: string) {
-      const row = input.quote === undefined ? subject() : input.quote;
+      const row = store.quoteRow;
       if (!row || organizationId !== row.organizationId || quoteId !== row.id) return null;
       return row;
     },
@@ -142,7 +150,7 @@ function approvalStore(input: {
 }
 
 describe('quote and order approval subjects', () => {
-  it('accepts a submitted quote and an open order in the same tenant', async () => {
+  it('accepts a draft quote (approval before issue) and an open order in the same tenant', async () => {
     const store = approvalStore({}) as unknown as OsWorkStore;
     await validateApprovalSubject(store, ORG, 'quote', 'subject-1');
     await validateApprovalSubject(store, ORG, 'order', 'subject-1');
@@ -159,7 +167,7 @@ describe('quote and order approval subjects', () => {
 
   it('denies an invalid subject type and ineligible lifecycle', async () => {
     const store = approvalStore({
-      quote: subject({ status: 'draft' }),
+      quote: subject({ status: 'submitted' }),
       order: subject({ status: 'cancelled' }),
     }) as unknown as OsWorkStore;
     await assert.rejects(() => validateApprovalSubject(store, ORG, 'commercial_account', 'subject-1'), /VALIDATION_FAILED/);
@@ -252,7 +260,6 @@ describe('manual commercial approval commands', () => {
   });
 
   it('lets the current approver escalate to an explicitly selected Gerencia member', async () => {
-    const GERENTE = 'mem-gerente';
     const store = approvalStore({});
     const service = new WorkCommandService(store as unknown as OsWorkStore);
     const requested = await service.execute('RequestApproval', ctx(OWNER), {
@@ -295,5 +302,111 @@ describe('manual commercial approval commands', () => {
     const end = source.indexOf('private async approve');
     assert.doesNotMatch(source.slice(start, end), /CreateOrder|insertOrder|order\.created/);
     assert.doesNotMatch(source, /commercial\.(team|org)\.read/);
+  });
+});
+
+describe('T04 quote approval: draft-first, no self-approval, exact revision', () => {
+  const request = (approver: string) => ({
+    approverMemberId: approver,
+    subjectType: 'quote',
+    subjectId: 'subject-1',
+  });
+
+  it('lets a draft quote request approval and binds the exact revision', async () => {
+    const store = approvalStore({ quote: subject({ revisionNumber: 4 }) });
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    await service.execute('RequestApproval', ctx(OWNER), request(APPROVER));
+    assert.equal(store.approvals[0]?.contextSnapshotJson.boundRevision, 4);
+    assert.equal(store.approvals[0]?.approverMemberId, APPROVER);
+  });
+
+  it('refuses a request for a quote that was already issued', async () => {
+    const store = approvalStore({ quote: subject({ status: 'submitted' }) });
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    await assert.rejects(() => service.execute('RequestApproval', ctx(OWNER), request(APPROVER)), /VALIDATION_FAILED/);
+    assert.equal(store.approvals.length, 0);
+  });
+
+  it('refuses self-approval even when the requester holds commercial.price.approve', async () => {
+    const store = approvalStore({});
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    await assert.rejects(() => service.execute('RequestApproval', ctx(OWNER), request(OWNER)), /PERMISSION_DENIED/);
+    assert.equal(store.approvals.length, 0);
+    assert.equal(store.events.length, 0);
+  });
+
+  it('refuses an approver without commercial.price.approve, including people.admin', async () => {
+    const store = approvalStore({});
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    for (const approver of [NO_SCOPE, OTHER]) {
+      await assert.rejects(
+        () => service.execute('RequestApproval', ctx(OWNER), request(approver)),
+        /PERMISSION_DENIED/,
+        approver,
+      );
+    }
+    assert.equal(store.approvals.length, 0);
+  });
+
+  it('approves while the bound revision is still the quote revision', async () => {
+    const store = approvalStore({});
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    const requested = await service.execute('RequestApproval', ctx(OWNER), request(APPROVER));
+    const decided = await service.execute('Approve', ctx(APPROVER), {
+      approvalRequestId: requested.data.approvalRequestId,
+    });
+    assert.equal(decided.data.decision, 'approved');
+    assert.equal(store.approvals[0]?.status, 'approved');
+  });
+
+  it('refuses a stale approval: a material change moved the quote revision', async () => {
+    const store = approvalStore({});
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    const requested = await service.execute('RequestApproval', ctx(OWNER), request(APPROVER));
+    store.quoteRow = subject({ revisionNumber: 2 });
+    await assert.rejects(
+      () => service.execute('Approve', ctx(APPROVER), { approvalRequestId: requested.data.approvalRequestId }),
+      /CONFLICT/,
+    );
+    assert.equal(store.approvals[0]?.status, 'pending');
+    assert.equal(store.events.includes('approval.approved'), false);
+  });
+
+  it('refuses to approve a quote that was issued after the request', async () => {
+    const store = approvalStore({});
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    const requested = await service.execute('RequestApproval', ctx(OWNER), request(APPROVER));
+    store.quoteRow = subject({ status: 'submitted' });
+    await assert.rejects(
+      () => service.execute('Approve', ctx(APPROVER), { approvalRequestId: requested.data.approvalRequestId }),
+      /CONFLICT/,
+    );
+  });
+
+  it('still lets the approver reject a stale request', async () => {
+    const store = approvalStore({});
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    const requested = await service.execute('RequestApproval', ctx(OWNER), request(APPROVER));
+    store.quoteRow = subject({ revisionNumber: 2 });
+    await service.execute('Reject', ctx(APPROVER), {
+      approvalRequestId: requested.data.approvalRequestId,
+      reason: 'Cambió el precio',
+    });
+    assert.equal(store.approvals[0]?.status, 'rejected');
+  });
+
+  it('refuses to escalate a quote approval to a member without commercial.price.approve or to the requester', async () => {
+    const store = approvalStore({});
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    const requested = await service.execute('RequestApproval', ctx(OWNER), request(APPROVER));
+    const approvalRequestId = requested.data.approvalRequestId;
+    for (const newApproverMemberId of [NO_SCOPE, OWNER]) {
+      await assert.rejects(
+        () => service.execute('EscalateApproval', ctx(APPROVER), { approvalRequestId, newApproverMemberId }),
+        /PERMISSION_DENIED/,
+        newApproverMemberId,
+      );
+    }
+    assert.equal(store.approvals[0]?.approverMemberId, APPROVER);
   });
 });

@@ -19,7 +19,10 @@ import {
   coverageWindowsOverlap,
   isGrantableCoverageAction,
   LEGACY_COVERAGE_ACTIONS,
+  isQuoteApprovalCurrent,
+  QUOTE_ACCEPTANCE_CHANNELS,
   type CustomerCoverageGrant,
+  type QuoteAcceptanceChannel,
 } from '@isalwa/os-contracts';
 import {
   assertMemberActive,
@@ -49,6 +52,7 @@ import {
 } from './money';
 import type { OsCommercialStore } from './os-commercial-store';
 import { copyQuoteLinesToOrderLines } from './order-lines';
+import { quoteIssuedDocumentHash } from './quote-issuance';
 import type { OpportunityRecord, OrderRecord, QuoteLineRecord, QuoteRecord } from './store-types';
 
 export type CommandResult = {
@@ -254,6 +258,9 @@ export class CommercialCommandService {
         break;
       case 'RecordQuoteManualSend':
         result = await this.recordQuoteManualSend(ctx, payload, store);
+        break;
+      case 'RecordQuoteCustomerAcceptance':
+        result = await this.recordQuoteCustomerAcceptance(ctx, payload, store);
         break;
       case 'CancelQuote':
         result = await this.cancelQuote(ctx, payload, store);
@@ -548,8 +555,10 @@ export class CommercialCommandService {
     store: OsCommercialStore,
     organizationId: string,
     quote: QuoteRecord,
+    materialChange = true,
   ): Promise<QuoteRecord> {
     this.refuseForeign(quote, organizationId);
+    const revisionNumber = materialChange ? quote.revisionNumber + 1 : quote.revisionNumber;
     const lines = await store.listQuoteLines(organizationId, quote.id);
     const totals = computeQuoteTotals(lines, quote.headerDiscountCentavos);
     await store.updateQuote(
@@ -558,6 +567,9 @@ export class CommercialCommandService {
       {
         subtotalCentavos: totals.subtotalCentavos,
         totalCentavos: totals.totalCentavos,
+        // A line change is a material change to the exact terms: a new revision,
+        // so any approval bound to the previous revision no longer applies.
+        revisionNumber,
         version: quote.version + 1,
       },
       quote.version,
@@ -566,6 +578,7 @@ export class CommercialCommandService {
       ...quote,
       subtotalCentavos: totals.subtotalCentavos,
       totalCentavos: totals.totalCentavos,
+      revisionNumber,
       version: quote.version + 1,
     };
   }
@@ -598,6 +611,8 @@ export class CommercialCommandService {
       subtotalCentavos: centavosToString(quote.subtotalCentavos),
       headerDiscountCentavos: centavosToString(quote.headerDiscountCentavos),
       totalCentavos: centavosToString(quote.totalCentavos),
+      revisionNumber: quote.revisionNumber,
+      validUntil: quote.validUntil ? quote.validUntil.toISOString() : null,
     };
   }
 
@@ -860,6 +875,14 @@ export class CommercialCommandService {
       notes: payload.notes ? String(payload.notes) : null,
       version: 0,
       submittedAt: null,
+      issuedAt: null,
+      issuedDocumentHash: null,
+      issuedRevisionNumber: null,
+      validUntil: null,
+      customerAcceptedAt: null,
+      customerAcceptanceChannel: null,
+      customerAcceptanceEvidence: null,
+      customerAcceptedRevision: null,
       cancelledAt: null,
       createdAt: now,
       updatedAt: now,
@@ -971,7 +994,7 @@ export class CommercialCommandService {
       discountCentavos,
     );
 
-    await store.updateQuoteLine(ctx.organizationId, line.id, {
+    const next = {
       description: payload.description != null ? String(payload.description) : line.description,
       quantity,
       unitLabel:
@@ -989,8 +1012,22 @@ export class CommercialCommandService {
             ? null
             : String(payload.productRef)
           : line.productRef,
-    });
-    const updatedQuote = await this.recalculateQuoteTotals(store, ctx.organizationId, quote);
+    };
+    // Only a real change to the line's terms is a new revision; an exact no-op keeps approvals valid.
+    const materialChange =
+      next.description !== line.description ||
+      next.quantity !== line.quantity ||
+      next.unitLabel !== line.unitLabel ||
+      next.unitPriceCentavos !== line.unitPriceCentavos ||
+      next.discountCentavos !== line.discountCentavos ||
+      next.productRef !== line.productRef;
+    await store.updateQuoteLine(ctx.organizationId, line.id, next);
+    const updatedQuote = await this.recalculateQuoteTotals(
+      store,
+      ctx.organizationId,
+      quote,
+      materialChange,
+    );
 
     return this.emit(
       ctx,
@@ -1054,22 +1091,32 @@ export class CommercialCommandService {
         : quote.headerDiscountCentavos;
     if (headerDiscountCentavos < 0n) throw new Error('VALIDATION_FAILED');
 
+    const notes =
+      payload.notes !== undefined ? (payload.notes == null ? null : String(payload.notes)) : quote.notes;
+    const validUntil =
+      payload.validUntil !== undefined ? parseValidUntil(payload.validUntil) : quote.validUntil;
+
     const lines = await store.listQuoteLines(ctx.organizationId, quote.id);
     const totals = computeQuoteTotals(lines, headerDiscountCentavos);
+
+    // Notes, header discount and validity are part of the exact terms. A change to any of
+    // them is a new revision; an exact no-op keeps the revision (and its approval).
+    const materialChange =
+      notes !== quote.notes ||
+      headerDiscountCentavos !== quote.headerDiscountCentavos ||
+      (validUntil?.getTime() ?? null) !== (quote.validUntil?.getTime() ?? null);
+    const revisionNumber = materialChange ? quote.revisionNumber + 1 : quote.revisionNumber;
 
     await store.updateQuote(
       ctx.organizationId,
       quote.id,
       {
-        notes:
-          payload.notes !== undefined
-            ? payload.notes == null
-              ? null
-              : String(payload.notes)
-            : quote.notes,
+        notes,
         headerDiscountCentavos,
         subtotalCentavos: totals.subtotalCentavos,
         totalCentavos: totals.totalCentavos,
+        validUntil,
+        revisionNumber,
         version: quote.version + 1,
       },
       quote.version,
@@ -1077,15 +1124,12 @@ export class CommercialCommandService {
 
     const after = {
       ...quote,
-      notes:
-        payload.notes !== undefined
-          ? payload.notes == null
-            ? null
-            : String(payload.notes)
-          : quote.notes,
+      notes,
       headerDiscountCentavos,
       subtotalCentavos: totals.subtotalCentavos,
       totalCentavos: totals.totalCentavos,
+      validUntil,
+      revisionNumber,
       version: quote.version + 1,
     };
 
@@ -1099,6 +1143,12 @@ export class CommercialCommandService {
     );
   }
 
+  /**
+   * Issue ("Emitir cotización"). Approval is requested and decided while the quote is a
+   * draft; issuing rechecks that an approved approval is bound to exactly the current
+   * revision, then freezes the material terms under a sha256 of their stable JSON snapshot.
+   * Issue is separate from send and from acceptance.
+   */
   private async submitQuote(
     ctx: RequestContext,
     payload: Record<string, unknown>,
@@ -1108,9 +1158,22 @@ export class CommercialCommandService {
     const quoteId = String(payload.quoteId);
     const quote = await this.requireQuote(store, ctx.organizationId, quoteId);
     await this.assertCanEditOwnedRecord(ctx, store, snap, quote, quote.status === 'draft');
+    if (quote.issuedAt) throw new Error('CONFLICT');
 
     const lines = await store.listQuoteLines(ctx.organizationId, quote.id);
     if (lines.length === 0) throw new Error('VALIDATION_FAILED');
+    await this.requireCurrentQuoteApproval(store, ctx.organizationId, quote);
+
+    const issuedDocumentHash = quoteIssuedDocumentHash({
+      quoteNumber: quote.quoteNumber,
+      revisionNumber: quote.revisionNumber,
+      partyId: quote.partyId,
+      currency: quote.currency,
+      notes: quote.notes,
+      validUntil: quote.validUntil,
+      headerDiscountCentavos: quote.headerDiscountCentavos,
+      lines,
+    });
 
     await store.updateQuote(
       ctx.organizationId,
@@ -1118,6 +1181,9 @@ export class CommercialCommandService {
       {
         status: 'submitted',
         submittedAt: ctx.effectiveAt,
+        issuedAt: ctx.effectiveAt,
+        issuedRevisionNumber: quote.revisionNumber,
+        issuedDocumentHash,
         version: quote.version + 1,
       },
       quote.version,
@@ -1133,6 +1199,117 @@ export class CommercialCommandService {
         quoteId,
         quoteNumber: quote.quoteNumber,
         totalCentavos: centavosToString(quote.totalCentavos),
+        revisionNumber: quote.revisionNumber,
+        issuedRevisionNumber: quote.revisionNumber,
+        issuedDocumentHash,
+        issuedAt: ctx.effectiveAt.toISOString(),
+        validUntil: quote.validUntil ? quote.validUntil.toISOString() : null,
+      },
+    );
+  }
+
+  /**
+   * An approved approval bound to exactly this revision, or VALIDATION_FAILED. A material
+   * change after the approval bumps the revision, so the approval is stale and refused here
+   * (issue) and at conversion alike.
+   */
+  private async requireCurrentQuoteApproval(
+    store: OsCommercialStore,
+    organizationId: string,
+    quote: QuoteRecord,
+  ): Promise<void> {
+    const approvals = await store.listQuoteApprovals(organizationId, quote.id);
+    if (!approvals.some((approval) => isQuoteApprovalCurrent(approval, quote.revisionNumber))) {
+      throw new Error('VALIDATION_FAILED');
+    }
+  }
+
+  /**
+   * Human-recorded customer acceptance of the exact issued revision. A delivery/read receipt
+   * or an ambiguous "ok" is not acceptance: the channel, the date and the evidence are
+   * entered by a person. Expired terms need clarification instead of acceptance.
+   */
+  private async recordQuoteCustomerAcceptance(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsCommercialStore,
+  ): Promise<CommandResult> {
+    const snap = await this.authorize(ctx, 'RecordQuoteCustomerAcceptance', ctx.organizationId);
+    const quoteId = String(payload.quoteId);
+    const quote = await this.requireQuote(store, ctx.organizationId, quoteId);
+    await this.assertCanEditOwnedRecord(
+      ctx,
+      store,
+      snap,
+      quote,
+      quote.status === 'submitted' && quote.issuedAt != null,
+    );
+
+    const expectedRevision = Number(payload.expectedRevision);
+    if (
+      !Number.isInteger(expectedRevision) ||
+      expectedRevision !== quote.revisionNumber ||
+      quote.issuedRevisionNumber !== quote.revisionNumber
+    ) {
+      throw new Error('CONFLICT');
+    }
+
+    const acceptedOn = String(payload.acceptedOn ?? '');
+    const acceptedDay = Date.parse(`${acceptedOn}T00:00:00.000Z`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(acceptedOn) || Number.isNaN(acceptedDay)) {
+      throw new Error('VALIDATION_FAILED');
+    }
+    const DAY_MS = 86_400_000;
+    const issuedDay = Math.floor((quote.issuedAt as Date).getTime() / DAY_MS) * DAY_MS;
+    const today = Math.floor(ctx.effectiveAt.getTime() / DAY_MS) * DAY_MS;
+    // One day of tolerance for the customer's local calendar date versus UTC.
+    if (acceptedDay > today + DAY_MS || acceptedDay < issuedDay - DAY_MS) {
+      throw new Error('VALIDATION_FAILED');
+    }
+    if (quote.validUntil && acceptedDay > quote.validUntil.getTime()) {
+      throw new Error('VALIDATION_FAILED');
+    }
+
+    const channel = String(payload.channel ?? '');
+    if (!QUOTE_ACCEPTANCE_CHANNELS.includes(channel as QuoteAcceptanceChannel)) {
+      throw new Error('VALIDATION_FAILED');
+    }
+    const evidence = String(payload.evidence ?? '').trim();
+    if (evidence.length < 10 || evidence.length > 500) throw new Error('VALIDATION_FAILED');
+
+    const acceptedAt = new Date(acceptedDay);
+    await store.updateQuote(
+      ctx.organizationId,
+      quote.id,
+      {
+        status: 'accepted',
+        customerAcceptedAt: acceptedAt,
+        customerAcceptanceChannel: channel,
+        customerAcceptanceEvidence: evidence,
+        customerAcceptedRevision: quote.revisionNumber,
+        version: quote.version + 1,
+      },
+      quote.version,
+    );
+
+    return this.emit(
+      ctx,
+      store,
+      'quote.customer_acceptance.recorded',
+      'quote',
+      quoteId,
+      {
+        quoteId,
+        quoteNumber: quote.quoteNumber,
+        partyId: quote.partyId,
+        revisionNumber: quote.revisionNumber,
+        issuedDocumentHash: quote.issuedDocumentHash,
+        channel,
+        acceptedOn,
+        evidence,
+        providerAcknowledgement: false,
+        recordedAt: ctx.effectiveAt.toISOString(),
+        recordedByMemberId: snap.memberId,
       },
     );
   }
@@ -1244,7 +1421,16 @@ export class CommercialCommandService {
     );
     const access = await this.customerAccess(ctx, store, snap, quote.partyId);
     if (!access.knowable && quote.ownerMemberId !== snap.memberId) throw new Error('NOT_FOUND');
-    if (quote.status !== 'submitted') throw new Error('VALIDATION_FAILED');
+    // T04: conversion needs the recorded customer acceptance of this exact issued revision.
+    if (quote.status !== 'accepted') throw new Error('VALIDATION_FAILED');
+    if (
+      !quote.issuedAt ||
+      !quote.customerAcceptedAt ||
+      quote.customerAcceptedRevision !== quote.revisionNumber ||
+      quote.issuedRevisionNumber !== quote.revisionNumber
+    ) {
+      throw new Error('VALIDATION_FAILED');
+    }
     const scopes = [...snap.roleKeys, ...snap.delegatedScopes];
     const account = quote.commercialAccountId
       ? await store.getCommercialAccountInOrg(
@@ -1290,6 +1476,8 @@ export class CommercialCommandService {
       asOf: ctx.effectiveAt,
     });
     if (!ownConvert && !rangeConvert && !coverageConvert) throw new Error('PERMISSION_DENIED');
+    // After authority: the approval must still bind exactly the accepted revision.
+    await this.requireCurrentQuoteApproval(store, ctx.organizationId, quote);
     const viaCoverage = !ownConvert && !rangeConvert;
     const coverage = coverageAuditForConvert({
       actorMemberId: snap.memberId,
@@ -1339,10 +1527,11 @@ export class CommercialCommandService {
     };
     await store.insertOrder(order);
     await store.insertOrderLines(orderLines);
+    // The quote is already accepted; this version bump makes a racing conversion lose.
     await store.updateQuote(
       ctx.organizationId,
       quote.id,
-      { status: 'accepted', version: quote.version + 1 },
+      { version: quote.version + 1 },
       quote.version,
     );
 
@@ -1666,4 +1855,16 @@ export class CommercialCommandService {
       { grantId: revoked.id, revokedAt: revokedAt.toISOString() },
     );
   }
+}
+
+/** Accepts an ISO date (YYYY-MM-DD) or datetime. A bare date means the end of that UTC day. */
+function parseValidUntil(value: unknown): Date | null {
+  if (value == null) return null;
+  const text = String(value).trim();
+  if (!text) throw new Error('VALIDATION_FAILED');
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(text)
+    ? new Date(`${text}T23:59:59.999Z`)
+    : new Date(text);
+  if (Number.isNaN(date.getTime())) throw new Error('VALIDATION_FAILED');
+  return date;
 }

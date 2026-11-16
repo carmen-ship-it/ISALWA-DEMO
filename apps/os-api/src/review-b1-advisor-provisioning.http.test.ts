@@ -8,6 +8,7 @@ import type { ProjectionRunner } from '@isalwa/os-query';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { getOsPrisma } from '@isalwa/os-database';
 import { createId } from '@isalwa/ts-utils';
+import { issueAndAcceptOverHttp, seedSyntheticPriceApprover } from './quote-lifecycle.http-support';
 
 /**
  * B1 (23:47 §B.1): an advisor provisioned by the initial plan registers a customer,
@@ -37,6 +38,7 @@ describeHttp('B1 advisor provisioning and onboarding over HTTP (disposable Postg
   const prisma = () => getOsPrisma()!;
   let org: { id: string };
   const m: Record<string, Seeded> = {};
+  let approver: Seeded;
   const phone = () => `7${String(Date.now()).slice(-6)}${Math.floor(Math.random() * 10)}`;
 
   function headers(who: Seeded): Record<string, string> {
@@ -116,8 +118,15 @@ describeHttp('B1 advisor provisioning and onboarding over HTTP (disposable Postg
     assert.notEqual(draftConvert.status, 201, 'a draft quote is not eligible for conversion');
     const line = await command(who, 'AddQuoteLine', { quoteId, description: 'Ladrillo 6H', quantity: 100, unitPriceCentavos: 150 });
     assert.equal(line.status, 201, `line: ${JSON.stringify(line.body)}`);
-    const submitted = await command(who, 'SubmitQuote', { quoteId });
-    assert.equal(submitted.status, 201, `submit: ${JSON.stringify(submitted.body)}`);
+    // T04: approval of the exact terms by a price approver, issuance, then the customer's acceptance.
+    const unaccepted = await command(who, 'CreateOrder', { quoteId });
+    assert.notEqual(unaccepted.status, 201, 'a quote that was never issued and accepted is not convertible');
+    await issueAndAcceptOverHttp({
+      baseUrl,
+      ownerHeaders: headers(m[who]!),
+      approverHeaders: headers(approver),
+      quoteId,
+    });
     const order = await command(who, 'CreateOrder', { quoteId });
     assert.equal(order.status, 201, `convert: ${JSON.stringify(order.body)}`);
     const quoteRow = await prisma().osQuote.findUniqueOrThrow({ where: { id: quoteId } });
@@ -139,6 +148,7 @@ describeHttp('B1 advisor provisioning and onboarding over HTTP (disposable Postg
     m.gerente = await seedMember('gerente', GERENTE_SCOPES);
     m.asesor = await seedMember('asesor', ADVISOR_SCOPES, ['sales_rep']);
     m.other = await seedMember('other', ADVISOR_SCOPES, ['sales_rep']);
+    approver = await seedSyntheticPriceApprover(org.id, `approver-${createId()}@b1.invalid`);
   });
 
   after(async () => {

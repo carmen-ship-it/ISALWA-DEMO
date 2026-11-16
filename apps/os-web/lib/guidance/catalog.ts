@@ -63,24 +63,27 @@ export const CREATE_QUOTE_CONSEQUENCE = guidanceNote({
 export const SEND_QUOTE_CHECKLIST = guidanceNote({
   id: 'send-quote-checklist',
   kind: 'consejo',
-  title: 'Antes de presentar la cotización',
-  items: ['Revise el cliente, las líneas y las cantidades.', 'Si hace falta aprobación, solicítela.'],
+  title: 'Antes de emitir la cotización',
+  items: [
+    'Revise el cliente, las líneas y las cantidades.',
+    'Solicite la aprobación de estos términos exactos antes de emitir.',
+  ],
 });
 
 export const SEND_QUOTE_NEEDS_LINES = guidanceNote({
   id: 'send-quote-needs-lines',
   kind: 'consejo',
-  title: 'Antes de presentar la cotización',
+  title: 'Antes de emitir la cotización',
   items: ['Agregue el ítem, la cantidad, la unidad y el precio, y guarde la línea.'],
 });
 
 export const SEND_QUOTE_DOES_NOT_GRANT_APPROVAL = guidanceNote({
   id: 'send-quote-does-not-grant-approval',
   kind: 'regla',
-  title: 'Presentar no envía el mensaje',
+  title: 'Emitir no envía el mensaje',
   items: [
     'ISALWA no envía WhatsApp ni correo.',
-    'Si hace falta aprobación, solicítela. Presentar no la otorga.',
+    'Emitir necesita la aprobación de los términos exactos. Emitir no la otorga.',
   ],
 });
 
@@ -94,15 +97,15 @@ export const APPROVE_DOES_NOT_CREATE_ORDER = guidanceNote({
 export const CONVERT_QUOTE_CHECKLIST = guidanceNote({
   id: 'convert-quote-checklist',
   kind: 'consejo',
-  title: 'Antes de convertir a pedido',
+  title: 'Antes de crear el pedido',
   items: ['Confirme que esta es la cotización correcta.'],
 });
 
 export const CONVERT_CREATES_ORDER = guidanceNote({
   id: 'convert-creates-order',
   kind: 'regla',
-  title: 'Convertir crea un pedido',
-  items: ['Convertir crea un pedido desde una cotización enviada. No emite factura ni nota de entrega.'],
+  title: 'Crear pedido',
+  items: ['Crear pedido crea un pedido desde una cotización aceptada por el cliente. No emite factura ni nota de entrega.'],
 });
 
 export const CARGO_IS_NOT_AUTHORITY = guidanceNote({

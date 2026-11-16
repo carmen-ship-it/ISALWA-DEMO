@@ -8,6 +8,7 @@ import { ConvertQuoteForm } from '@/components/commercial/convert-quote-form';
 import { QuoteDetailActions } from '@/components/commercial/quote-detail-actions';
 import { QuoteDocumentoCard } from '@/components/commercial/quote-documento-card';
 import { QuoteDocumentActions } from '@/components/commercial/quote-document-actions';
+import { QuoteAcceptanceSection } from '@/components/commercial/quote-acceptance-section';
 import { QuoteEditor } from '@/components/commercial/quote-editor';
 import { QuoteBuilderUiProvider } from '@/components/commercial/quote-builder-ui';
 import {
@@ -23,10 +24,12 @@ import { StaleProjectionBanner } from '@/components/work/stale-projection-banner
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { commercialProgressSteps } from '@/lib/commercial/commercial-progress';
 import { formatTimestamp } from '@/lib/commercial/labels';
 import { canRegisterQuoteFollowUp } from '@/lib/commercial/quote-follow-up';
 import { canRecordQuoteManualSend } from '@/lib/commercial/quote-manual-send';
+import { canRecordQuoteAcceptance } from '@/lib/commercial/quote-lifecycle';
 import { findLatestQuoteSendRecord } from '@/lib/commercial/quote-send-status';
 import { formatCentavos } from '@/lib/commercial/money';
 import { lineProvenanceView } from '@/lib/commercial/product-picker';
@@ -133,7 +136,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
       { displayName: string; businessRoleLabel: string | null }
     >();
     let approvals: SubjectApprovalItem[] = [];
-    if (quote.status === 'submitted' || quote.status === 'accepted') {
+    if (quote.status === 'draft' || quote.status === 'submitted' || quote.status === 'accepted') {
       try {
         const history = await client.listSubjectApprovals('quote', quote.quoteId);
         approvals = history.items as SubjectApprovalItem[];
@@ -152,6 +155,21 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         approvalMemberLabels = new Map();
         approvalResponsibility = new Map();
         approvals = [];
+      }
+    }
+
+    // Quote approvers: only members who hold commercial.price.approve (server list). Never the requester.
+    let approverOptions: Array<{ memberId: string; displayName: string }> | null | undefined;
+    let approverOptionsTruncated = false;
+    let currentMemberId: string | null = null;
+    if (quote.status === 'draft' && authority?.canRequestApproval === true) {
+      currentMemberId = (await loadMemberCapabilities())?.memberId ?? null;
+      try {
+        const page = await client.listPriceApproverOptions();
+        approverOptions = page.items;
+        approverOptionsTruncated = page.hasMore === true;
+      } catch {
+        approverOptions = null;
       }
     }
 
@@ -278,6 +296,8 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
       hasOrder: Boolean(relatedOrder),
     });
     const isDraft = quote.status === 'draft';
+    const acceptanceAllowed = canRecordQuoteAcceptance(quote);
+    const orderConvertible = authority?.canConvertToOrder === true && !relatedOrder;
     const totalLabel = formatCentavos(quote.totalCentavos, quote.currency);
 
     const pageBody = (
@@ -297,7 +317,8 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
               canRegisterFollowUp={followUpAllowed}
               canEdit={isDraft}
               canCancel={isDraft}
-              canConvertToOrder={authority?.canConvertToOrder === true}
+              canRecordAcceptance={acceptanceAllowed}
+              canConvertToOrder={orderConvertible}
             />
           }
         />
@@ -317,6 +338,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
               quoteStatus={quote.status}
               canRecordSend={manualSendAllowed}
               sendRecorded={Boolean(sendRecord)}
+              issuedDocumentHash={quote.issuedDocumentHash ?? null}
             />
           </div>
         ) : null}
@@ -333,7 +355,8 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
           lineCount={lines.length}
           sendRecorded={Boolean(sendRecord)}
           canRecordSend={manualSendAllowed}
-          canConvertToOrder={authority?.canConvertToOrder === true}
+          canRecordAcceptance={acceptanceAllowed}
+          canConvertToOrder={orderConvertible}
         />
 
         <PageSection card className="bg-white p-8 md:p-10" data-section-tone="active">
@@ -370,10 +393,12 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
               <dt className="isalwa-section-label">Creada</dt>
               <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatTimestamp(quote.createdAt)}</dd>
             </div>
-            {quote.submittedAt ? (
+            {(quote.issuedAt ?? quote.submittedAt) ? (
               <div>
-                <dt className="isalwa-section-label">Presentada</dt>
-                <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatTimestamp(quote.submittedAt)}</dd>
+                <dt className="isalwa-section-label">Emitida</dt>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                  {formatTimestamp((quote.issuedAt ?? quote.submittedAt) as string)}
+                </dd>
               </div>
             ) : null}
             {quote.cancelledAt ? (
@@ -431,6 +456,26 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                 <EventWorkOfferPanel offer={quoteWorkOffer} />
               </div>
             ) : null}
+          </PageSection>
+        ) : null}
+
+        {quote.status === 'submitted' || quote.status === 'accepted' ? (
+          <PageSection
+            id="registrar-aceptacion"
+            card
+            className="mt-10 scroll-mt-32 bg-white p-8 md:p-10"
+            data-section-tone="active"
+          >
+            <SectionHeader
+              title={
+                <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
+                  Aceptación del cliente
+                </h2>
+              }
+            />
+            <div className="mt-6">
+              <QuoteAcceptanceSection partyId={partyId} quote={quote} />
+            </div>
           </PageSection>
         ) : null}
 
@@ -517,7 +562,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         </QuoteLiveLines>
         ) : null}
 
-        {authority?.canConvertToOrder ? (
+        {orderConvertible ? (
           <PageSection id="convertir-pedido" card className="mt-10 scroll-mt-32 bg-white p-8 md:p-10" data-section-tone="active">
             <SectionHeader
               title={
@@ -557,7 +602,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
           </PageSection>
         ) : null}
 
-        {quote.status === 'submitted' || approvals.length > 0 ? (
+        {quote.status === 'draft' || quote.status === 'submitted' || approvals.length > 0 ? (
           <PageSection id="aprobacion" card className="mt-10 scroll-mt-32 bg-white p-8 md:p-10" data-section-tone="attention">
             <SectionHeader
               title={
@@ -567,7 +612,8 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
               }
             />
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              La aprobación registra una decisión humana. No convierte la cotización ni cambia el precio.
+              La aprobación registra una decisión humana sobre los términos exactos del borrador. No emite
+              la cotización, no la envía ni crea un pedido.
             </p>
             <div className="mt-8">
               <CommercialApprovalPanel
@@ -585,6 +631,10 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                   )
                 }
                 approvals={approvals}
+                approverOptions={approverOptions}
+                approverOptionsTruncated={approverOptionsTruncated}
+                currentMemberId={currentMemberId}
+                quoteStatus={quote.status}
               />
             </div>
           </PageSection>

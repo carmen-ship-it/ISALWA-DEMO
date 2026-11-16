@@ -3,6 +3,8 @@
  * Does not invent follow-ups, calls, or pipeline rules — only what the stored status already implies.
  */
 
+import { QUOTE_LIFECYCLE_LABELS } from '@/lib/commercial/quote-lifecycle';
+
 export const COMMERCIAL_NEXT_STEP_LABEL = 'Próxima acción';
 
 /** Presentation only. Does not change a stored reason. */
@@ -156,7 +158,7 @@ export function opportunityNextStep(input: OpportunityNextStepInput): Commercial
       return {
         statement: 'Prepare una cotización para esta oportunidad.',
         href: input.newQuoteHref,
-        hrefLabel: 'Crear cotización',
+        hrefLabel: QUOTE_LIFECYCLE_LABELS.prepare,
         waiting: false,
       };
     }
@@ -186,7 +188,7 @@ export function quoteNextStep(input: QuoteNextStepInput): CommercialNextStep | n
       return {
         statement:
           (input.lineCount ?? 0) > 0
-            ? 'Revise la cotización y preséntela.'
+            ? 'Revise la cotización, solicite la aprobación y emítala.'
             : 'Agregue productos a la cotización.',
         href: null,
         hrefLabel: null,
@@ -271,7 +273,7 @@ export function quoteNextStep(input: QuoteNextStepInput): CommercialNextStep | n
       }
       if (input.canConvertToOrder) {
         return {
-          statement: 'Cotización aceptada. Puede convertirla a pedido.',
+          statement: 'Cotización aceptada. Puede crear el pedido.',
           href: null,
           hrefLabel: null,
           waiting: false,

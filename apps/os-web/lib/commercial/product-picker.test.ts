@@ -240,7 +240,7 @@ describe('quote product picker', () => {
     }
     assert.match(editor, /quoteLinesAreEditable\(quote\.status\)/);
     assert.match(editor, /submitQuoteAction/);
-    assert.match(editor, /Presentar cotización/);
+    assert.match(editor, /QUOTE_LIFECYCLE_LABELS\.issue/);
     assert.doesNotMatch(editor, /RegisterFollowUpForm|createFollowUpAction/);
   });
 

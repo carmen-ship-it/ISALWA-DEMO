@@ -89,6 +89,18 @@ export class MembersController {
     }
   }
 
+  /** Members who may be asked to approve a quote (commercial.price.approve by role). Excludes the caller. */
+  @Get('price-approver-options')
+  async listPriceApproverOptions(@Req() req: Request) {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const ctx = await buildQueryContext(session, this.workforceStore);
+      return await this.memberQuery.listPriceApproverOptions(ctx);
+    } catch (err) {
+      throw toHttp(err);
+    }
+  }
+
   @Get(':memberId/access-history')
   async getMemberAccessHistory(@Param('memberId') memberId: string, @Req() req: Request) {
     try {

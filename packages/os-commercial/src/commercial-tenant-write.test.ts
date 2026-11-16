@@ -78,12 +78,33 @@ function quote(overrides: Partial<QuoteRecord> = {}): QuoteRecord {
     notes: null,
     version: 1,
     submittedAt: null,
+    issuedAt: null,
+    issuedDocumentHash: null,
+    issuedRevisionNumber: null,
+    validUntil: null,
+    customerAcceptedAt: null,
+    customerAcceptanceChannel: null,
+    customerAcceptanceEvidence: null,
+    customerAcceptedRevision: null,
     cancelledAt: null,
     createdAt: NOW,
     updatedAt: NOW,
     ...overrides,
   };
 }
+
+/** An issued quote the customer accepted at revision 1: the only convertible state (T04). */
+const ACCEPTED_FIELDS: Partial<QuoteRecord> = {
+  status: 'accepted',
+  submittedAt: NOW,
+  issuedAt: NOW,
+  issuedDocumentHash: 'hash-1',
+  issuedRevisionNumber: 1,
+  customerAcceptedAt: NOW,
+  customerAcceptanceChannel: 'llamada',
+  customerAcceptanceEvidence: 'Aceptó por llamada telefónica',
+  customerAcceptedRevision: 1,
+};
 
 function line(overrides: Partial<QuoteLineRecord> = {}): QuoteLineRecord {
   return {
@@ -263,6 +284,19 @@ function harness(input: {
     },
     async countQuotesForOrg() {
       return 0;
+    },
+    async listQuoteApprovals() {
+      return [
+        {
+          id: 'approval-1',
+          status: 'approved',
+          contextSnapshotJson: { boundRevision: 1 },
+          requestedByMemberId: OWNER,
+          approverMemberId: 'mem-approver',
+          decisionByMemberId: 'mem-approver',
+          decidedAt: NOW,
+        },
+      ];
     },
     async insertQuoteLine() {
       record('insertQuoteLine');
@@ -566,7 +600,7 @@ describe('commercial tenant writes', () => {
       organizationId: ORG_A,
       partyId: 'party-a',
       ownerMemberId: OWNER,
-      status: 'submitted',
+      ...ACCEPTED_FIELDS,
     });
     const denied: Array<{
       command: CommercialCommandName;
@@ -640,13 +674,13 @@ describe('commercial tenant writes', () => {
     assert.deepEqual(reassign.writes, []);
   });
 
-  it('keeps own-submitted conversion and does not let commercial.team.read or people.admin convert', async () => {
+  it('keeps own-accepted conversion and does not let commercial.team.read or people.admin convert', async () => {
     const submitted = quote({
       id: 'quote-a',
       organizationId: ORG_A,
       partyId: 'party-a',
       ownerMemberId: OWNER,
-      status: 'submitted',
+      ...ACCEPTED_FIELDS,
     });
     const sessionLine = line({ id: 'line-a', organizationId: ORG_A, quoteId: 'quote-a' });
 

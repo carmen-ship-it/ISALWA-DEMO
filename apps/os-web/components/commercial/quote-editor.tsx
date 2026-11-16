@@ -19,6 +19,7 @@ import { CommandSubmitButton } from '@/components/commercial/command-submit-butt
 import { FormFeedback } from '@/components/commercial/form-feedback';
 import { QuantityStepper } from '@/components/commercial/quantity-stepper';
 import { QuoteProductPicker } from '@/components/commercial/quote-product-picker';
+import { QUOTE_LIFECYCLE_COPY, QUOTE_LIFECYCLE_LABELS } from '@/lib/commercial/quote-lifecycle';
 import { GuidanceCompactDisclosure } from '@/components/guidance/guidance-disclosure';
 import { guidanceForSendQuote } from '@/lib/guidance/select';
 import {
@@ -367,7 +368,7 @@ export function QuoteEditor({
       live?.recordSubmitted();
       setSent(true);
       setPresentCommandId(newClientCommandId());
-      return { error: null, success: 'Cotización presentada.' };
+      return { error: null, success: QUOTE_LIFECYCLE_COPY.issued };
     }
     return { error: result.error, success: null };
   }, feedbackInitial);
@@ -399,7 +400,7 @@ export function QuoteEditor({
           <FormFeedback error={null} success={submitState.success ?? cancelState.success} />
           {submitState.success ? (
             <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              Descargue la cotización y envíela por su canal habitual.
+              {QUOTE_LIFECYCLE_COPY.issuedNotSent}
             </p>
           ) : null}
         </div>
@@ -437,21 +438,19 @@ export function QuoteEditor({
           </div>
           <div className="flex min-w-0 flex-col items-stretch gap-2 sm:items-end">
             <p className="max-w-sm text-sm leading-relaxed text-[var(--isalwa-slate)] sm:text-right">
-              {hasLines
-                ? 'Presente la cotización para generar el documento.'
-                : 'Agregue productos a la cotización.'}
+              {hasLines ? QUOTE_LIFECYCLE_COPY.issueHelper : 'Agregue productos a la cotización.'}
             </p>
             <div className="flex flex-wrap gap-2 sm:justify-end">
               <Button type="submit" form="quote-header-form" variant="secondary">
-                Guardar cambios
+                {QUOTE_LIFECYCLE_LABELS.saveDraft}
               </Button>
               <form id="quote-submit-form" action={submitAction}>
                 <input type="hidden" name="partyId" value={partyId} />
                 <input type="hidden" name="quoteId" value={quote.quoteId} />
                 <input type="hidden" name="idempotencyKey" value={presentCommandId} />
                 <CommandSubmitButton
-                  label="Presentar cotización"
-                  pendingLabel="Presentando…"
+                  label={QUOTE_LIFECYCLE_LABELS.issue}
+                  pendingLabel={QUOTE_LIFECYCLE_LABELS.issuePending}
                   disabled={quote.lines.length === 0}
                 />
               </form>
@@ -542,7 +541,7 @@ export function QuoteEditor({
         </form>
       </PageSection>
 
-      <PageSection id="presentar-cotizacion" card className="scroll-mt-32 bg-white p-6 md:p-8">
+      <PageSection id="emitir-cotizacion" card className="scroll-mt-32 bg-white p-6 md:p-8">
         <GuidanceCompactDisclosure title="Reglas del flujo" notes={ruleGuidance} />
         <form
           id="cancelar-cotizacion"

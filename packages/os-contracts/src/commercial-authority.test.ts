@@ -10,7 +10,9 @@ import {
   canReassignCommercialAccountOwner,
   canRequestCommercialSubjectApproval,
   isOrderApprovalEligible,
+  isQuoteApprovalCurrent,
   isQuoteApprovalEligible,
+  quoteApprovalBindsRevision,
 } from './index';
 
 const OWNER = 'mem-owner';
@@ -86,7 +88,7 @@ describe('provisional commercial authority', () => {
       canConvertOwnEligibleQuote({
         actorMemberId: OWNER,
         quoteOwnerMemberId: OWNER,
-        quoteStatus: 'submitted',
+        quoteStatus: 'accepted',
         grantedScopes: [COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE],
       }),
       true,
@@ -138,12 +140,25 @@ describe('provisional commercial authority', () => {
     );
   });
 
-  it('keeps approval subjects to submitted quotes and open orders', () => {
-    assert.equal(isQuoteApprovalEligible('submitted'), true);
-    assert.equal(isQuoteApprovalEligible('draft'), false);
+  it('lets only a draft quote request approval (approval before issue) and an open order', () => {
+    assert.equal(isQuoteApprovalEligible('draft'), true);
+    assert.equal(isQuoteApprovalEligible('submitted'), false);
     assert.equal(isQuoteApprovalEligible('cancelled'), false);
     assert.equal(isQuoteApprovalEligible('accepted'), false);
     assert.equal(isOrderApprovalEligible('open'), true);
     assert.equal(isOrderApprovalEligible('cancelled'), false);
+  });
+
+  it('binds a quote approval to exactly one revision', () => {
+    assert.equal(quoteApprovalBindsRevision({ boundRevision: 3 }, 3), true);
+    assert.equal(quoteApprovalBindsRevision({ boundRevision: 3 }, 4), false);
+    assert.equal(quoteApprovalBindsRevision({}, 1), false);
+    assert.equal(quoteApprovalBindsRevision({ boundRevision: '3' }, 3), false);
+    assert.equal(quoteApprovalBindsRevision(null, 1), false);
+    assert.equal(isQuoteApprovalCurrent({ status: 'approved', contextSnapshotJson: { boundRevision: 2 } }, 2), true);
+    assert.equal(isQuoteApprovalCurrent({ status: 'approved', contextSnapshotJson: { boundRevision: 2 } }, 3), false);
+    assert.equal(isQuoteApprovalCurrent({ status: 'pending', contextSnapshotJson: { boundRevision: 2 } }, 2), false);
+    assert.equal(isQuoteApprovalCurrent({ status: 'rejected', contextSnapshotJson: { boundRevision: 2 } }, 2), false);
+    assert.equal(isQuoteApprovalCurrent(null, 1), false);
   });
 });

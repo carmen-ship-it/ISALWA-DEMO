@@ -95,7 +95,7 @@ describe('capability separation', () => {
       canConvertOwnEligibleQuote({
         actorMemberId: 'mem-owner',
         quoteOwnerMemberId: 'mem-owner',
-        quoteStatus: 'submitted',
+        quoteStatus: 'accepted',
         grantedScopes: TEAM_READ,
       }),
       false,

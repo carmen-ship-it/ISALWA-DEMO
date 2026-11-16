@@ -8,6 +8,7 @@ import { OS_PROJECTION_RUNNER, OS_STORE } from './os-store.module';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { getOsPrisma } from '@isalwa/os-database';
 import { createId } from '@isalwa/ts-utils';
+import { issueAndAcceptOverHttp, seedSyntheticPriceApprover } from './quote-lifecycle.http-support';
 
 /**
  * NEW-B1-D1: opportunity, quote, quote PDF and order detail answer a same-tenant
@@ -100,7 +101,13 @@ describeHttp('NEW-B1-D1 commercial detail has no existence oracle (disposable Po
     const quote = await command('owner', 'CreateQuote', { partyId });
     ids.quote = String(dataOf(quote).quoteId);
     assert.equal((await command('owner', 'AddQuoteLine', { quoteId: ids.quote, description: 'Ladrillo 6H', quantity: 10, unitPriceCentavos: 150 })).status, 201);
-    assert.equal((await command('owner', 'SubmitQuote', { quoteId: ids.quote })).status, 201);
+    const approver = await seedSyntheticPriceApprover(org.id, `approver-${createId()}@d1.invalid`);
+    await issueAndAcceptOverHttp({
+      baseUrl,
+      ownerHeaders: headers(m.owner!),
+      approverHeaders: headers(approver),
+      quoteId: ids.quote,
+    });
     const order = await command('owner', 'CreateOrder', { quoteId: ids.quote });
     assert.equal(order.status, 201, JSON.stringify(order.body));
     ids.order = String(dataOf(order).orderId);

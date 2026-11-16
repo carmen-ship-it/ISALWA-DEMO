@@ -12,6 +12,7 @@ export const OS_COMMERCIAL_EVENT_TYPES = [
   'quote.line_removed',
   'quote.submitted',
   'quote.send_recorded',
+  'quote.customer_acceptance.recorded',
   'quote.cancelled',
   'order.created',
   'order.cancelled',

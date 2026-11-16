@@ -12,7 +12,7 @@ export const QUOTE_PDF_COPY = {
   view: 'Ver PDF',
   preparing: 'Preparando…',
   notReady:
-    'Presente la cotización para generar el documento.',
+    'Emita la cotización para generar el documento. Emitir no la envía.',
   available: 'PDF disponible',
   documento: 'Documento',
   manualSend:

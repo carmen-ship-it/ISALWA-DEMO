@@ -6,10 +6,13 @@
 
 import { formatQuoteStatus } from '@/lib/commercial/labels';
 import { quoteHref } from '@/lib/commercial/navigation';
+import { QUOTE_LIFECYCLE_LABELS } from '@/lib/commercial/quote-lifecycle';
 import { formatApprovalStatus } from '@/lib/work/labels';
 
 export const POST_APPROVAL_QUOTE_LINK_LABEL = 'Ver cotización';
-export const POST_APPROVAL_CONVERT_LABEL = 'Convertir a Pedido';
+export const POST_APPROVAL_CONVERT_LABEL = QUOTE_LIFECYCLE_LABELS.createOrder;
+export const POST_APPROVAL_ISSUE_NEXT_STEP =
+  'Aprobación registrada. El siguiente paso es Emitir cotización. La aprobación no crea un pedido.';
 export const POST_APPROVAL_CANCELLED_EXPLANATION =
   'Cotización cancelada. No se puede enviar ni convertir.';
 
@@ -80,7 +83,20 @@ export function postApprovalContinue(input: PostApprovalContinueInput): PostAppr
     };
   }
 
-  const offerConvert = quoteStatus === 'submitted' && input.canConvertToOrder;
+  if (quoteStatus === 'draft' && input.approvalStatus === 'approved') {
+    return {
+      showContinue: true,
+      decisionLabel,
+      quoteLinkLabel: POST_APPROVAL_QUOTE_LINK_LABEL,
+      quoteHref: href,
+      convertLabel: null,
+      convertHref: null,
+      stateExplanation: POST_APPROVAL_ISSUE_NEXT_STEP,
+    };
+  }
+
+  // Crear pedido needs the recorded customer acceptance (accepted), not an issued quote.
+  const offerConvert = quoteStatus === 'accepted' && input.canConvertToOrder;
   if (offerConvert) {
     return {
       showContinue: true,

@@ -3,10 +3,14 @@ import {
   ApprovalRequestContextSchema,
   COMMAND_REQUIRED_SCOPES,
   COMMERCIAL_ORG_READ_SCOPE,
+  canApproveCommercialPrice,
   canManageCustomerAccountWork,
   canPerformCustomerWork,
   canRecordPurchasing,
   canRequestCommercialSubjectApproval,
+  isQuoteApprovalEligible,
+  quoteApprovalBindsRevision,
+  QUOTE_APPROVAL_BOUND_REVISION_KEY,
   classifyWorkForReassignment,
 } from '@isalwa/os-contracts';
 import {
@@ -187,7 +191,11 @@ export class WorkCommandService {
     // so it stays in the idempotency table. It must never reach the business
     // event, whose unique (organization, idempotency key) row lives forever and
     // would block the next request for the same subject.
-    const claimKey = openRequestClaimKey(command, payload);
+    const quoteSubject =
+      command === 'RequestApproval' && String(payload.subjectType ?? '') === 'quote'
+        ? await this.store.getQuoteApprovalSubject(ctx.organizationId, String(payload.subjectId ?? ''))
+        : null;
+    const claimKey = openRequestClaimKey(command, payload, quoteSubject?.revisionNumber);
     const replayKey = claimKey ?? idempotencyKey;
 
     if (replayKey) {
@@ -617,6 +625,15 @@ export class WorkCommandService {
         throw new Error('PERMISSION_DENIED');
       }
     }
+    if (subjectType === 'quote') {
+      // The requester cannot approve their own terms, and only a member who holds
+      // commercial.price.approve in their own right can be asked. No default approver.
+      if (approverMemberId === ctx.actorMemberId) throw new Error('PERMISSION_DENIED');
+      if (!(await this.holdsPriceApprove(store, ctx, approverMemberId))) {
+        throw new Error('PERMISSION_DENIED');
+      }
+      if (!Number.isInteger(commercialSubject?.revisionNumber)) throw new Error('VALIDATION_FAILED');
+    }
 
     const parsedContext = payload.context
       ? ApprovalRequestContextSchema.safeParse(payload.context)
@@ -633,6 +650,11 @@ export class WorkCommandService {
       workItemId,
       subjectType,
       subjectId,
+      // The approval binds the exact quote revision it was requested for; a later
+      // material change bumps the revision and voids it.
+      ...(subjectType === 'quote'
+        ? { [QUOTE_APPROVAL_BOUND_REVISION_KEY]: commercialSubject?.revisionNumber }
+        : {}),
     };
 
     await store.insertApprovalRequest({
@@ -658,6 +680,21 @@ export class WorkCommandService {
       subjectId,
       ...(commercialSubject?.partyId ? { partyId: commercialSubject.partyId } : {}),
     });
+  }
+
+  /** commercial.price.approve held independently by role assignment (not delegable, not cargo-derived). */
+  private async holdsPriceApprove(
+    store: OsWorkStore,
+    ctx: RequestContext,
+    memberId: string,
+  ): Promise<boolean> {
+    const roles = await store.listRoleAssignmentsForMember(memberId, ctx.organizationId);
+    const scopes = computeEffectiveScopes(
+      roles.map((r) => ({ roleKey: r.roleKey, effectiveAt: r.effectiveAt, endedAt: r.endedAt })),
+      [],
+      ctx.effectiveAt,
+    );
+    return canApproveCommercialPrice(scopes);
   }
 
   private async canDecideApproval(
@@ -692,6 +729,20 @@ export class WorkCommandService {
       throw new Error('PERMISSION_DENIED');
     }
 
+    if (decision === 'approved' && approval.subjectType === 'quote') {
+      if (ctx.actorMemberId === approval.requestedByMemberId) throw new Error('PERMISSION_DENIED');
+      const quote = await store.getQuoteApprovalSubject(ctx.organizationId, approval.subjectId);
+      if (!quote) throw new Error('NOT_FOUND');
+      // Stale: the terms changed (or the quote left draft) after this approval was requested.
+      if (
+        !isQuoteApprovalEligible(quote.status) ||
+        typeof quote.revisionNumber !== 'number' ||
+        !quoteApprovalBindsRevision(approval.contextSnapshotJson, quote.revisionNumber)
+      ) {
+        throw new Error('CONFLICT');
+      }
+    }
+
     const decided = await store.decidePendingApprovalRequest(ctx.organizationId, approvalRequestId, {
       status: decision,
       decisionByMemberId: ctx.actorMemberId,
@@ -699,10 +750,15 @@ export class WorkCommandService {
       decidedAt: ctx.effectiveAt,
     });
     if (!decided) throw new Error('CONFLICT');
+    const boundRevision = approval.contextSnapshotJson?.[QUOTE_APPROVAL_BOUND_REVISION_KEY];
     await this.releaseOpenClaim(
       store,
       ctx.organizationId,
-      approvalOpenClaimKey(approval.subjectType, approval.subjectId),
+      approvalOpenClaimKey(
+        approval.subjectType,
+        approval.subjectId,
+        approval.subjectType === 'quote' && typeof boundRevision === 'number' ? boundRevision : null,
+      ),
     );
 
     const eventType = decision === 'approved' ? 'approval.approved' : 'approval.rejected';
@@ -791,6 +847,12 @@ export class WorkCommandService {
     const newApprover = await store.getMemberInOrg(ctx.organizationId, newApproverMemberId);
     if (!newApprover || newApprover.accessStatus !== 'active') {
       throw new Error('VALIDATION_FAILED');
+    }
+    if (approval.subjectType === 'quote') {
+      if (newApproverMemberId === approval.requestedByMemberId) throw new Error('PERMISSION_DENIED');
+      if (!(await this.holdsPriceApprove(store, ctx, newApproverMemberId))) {
+        throw new Error('PERMISSION_DENIED');
+      }
     }
 
     const priorApproverMemberId = approval.approverMemberId;

@@ -181,6 +181,7 @@ export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_act
   UpdateQuote: 'member_active',
   SubmitQuote: 'member_active',
   RecordQuoteManualSend: 'member_active',
+  RecordQuoteCustomerAcceptance: 'member_active',
   CancelQuote: 'member_active',
   CreateOrder: 'member_active',
   CancelOrder: 'member_active',

@@ -12,6 +12,7 @@ import { approvalHref } from '@/lib/work/navigation';
 import { partyHref } from '@/lib/party/navigation';
 import { parseBobInputToCentavos, parseQuantityInput } from '@/lib/commercial/parse-money-input';
 import { resolveAddQuoteLineDraft } from '@/lib/commercial/product-picker';
+import { QUOTE_LIFECYCLE_COPY, isQuoteAcceptanceChannel } from '@/lib/commercial/quote-lifecycle';
 import { coverageWindowFromForm, parseCoverageActions } from '@/lib/commercial/coverage-actions';
 import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 import { redirectKeepingDataMode } from '@/lib/demo/redirect-data-mode';
@@ -433,6 +434,51 @@ export async function recordQuoteManualSendAction(
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
   }
+}
+
+/**
+ * Human-recorded customer acceptance of one issued quote revision (T04).
+ * The revision is the one the person saw (hidden field from the read model); the command
+ * refuses with CONFLICT when the quote moved on. Never calls a provider.
+ */
+export async function recordQuoteCustomerAcceptanceAction(
+  formData: FormData,
+): Promise<CommandActionResult> {
+  const partyId = String(formData.get('partyId') ?? '').trim();
+  const quoteId = String(formData.get('quoteId') ?? '').trim();
+  const channel = String(formData.get('channel') ?? '').trim();
+  const acceptedOn = String(formData.get('acceptedOn') ?? '').trim();
+  const evidence = String(formData.get('evidence') ?? '').trim();
+  const expectedRevision = Number(String(formData.get('expectedRevision') ?? '').trim());
+
+  if (!quoteId) return { ok: false, error: QUOTE_LIFECYCLE_COPY.quoteInvalid };
+  if (!isQuoteAcceptanceChannel(channel)) {
+    return { ok: false, error: QUOTE_LIFECYCLE_COPY.channelRequired };
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(acceptedOn)) {
+    return { ok: false, error: QUOTE_LIFECYCLE_COPY.dateRequired };
+  }
+  if (evidence.length < 10) return { ok: false, error: QUOTE_LIFECYCLE_COPY.evidenceTooShort };
+  if (!Number.isInteger(expectedRevision) || expectedRevision < 1) {
+    return { ok: false, error: QUOTE_LIFECYCLE_COPY.revisionInvalid };
+  }
+
+  const idempotencyKey = String(formData.get('idempotencyKey') ?? '').trim() || createId();
+  const result = await runCommand((client) =>
+    client
+      .executeCommand(
+        'RecordQuoteCustomerAcceptance',
+        { quoteId, channel, acceptedOn, evidence, expectedRevision },
+        idempotencyKey,
+      )
+      .then((r) => r.data),
+  );
+  if (result.ok && partyId) {
+    revalidateCliente360(partyId);
+    revalidatePath(quoteHref(partyId, quoteId));
+    revalidatePath('/cotizaciones');
+  }
+  return result;
 }
 
 export async function requestCommercialApprovalAction(formData: FormData): Promise<CommandActionResult> {

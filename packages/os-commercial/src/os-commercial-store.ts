@@ -9,6 +9,7 @@ import type {
   OrderLineRecord,
   OrderRecord,
   PartyRecord,
+  QuoteApprovalRecord,
   QuoteLineRecord,
   QuoteRecord,
   RoleAssignmentRecord,
@@ -71,7 +72,16 @@ export interface OsCommercialStore {
         | 'subtotalCentavos'
         | 'headerDiscountCentavos'
         | 'totalCentavos'
+        | 'revisionNumber'
         | 'submittedAt'
+        | 'issuedAt'
+        | 'issuedDocumentHash'
+        | 'issuedRevisionNumber'
+        | 'validUntil'
+        | 'customerAcceptedAt'
+        | 'customerAcceptanceChannel'
+        | 'customerAcceptanceEvidence'
+        | 'customerAcceptedRevision'
         | 'cancelledAt'
         | 'version'
       >
@@ -79,6 +89,11 @@ export interface OsCommercialStore {
     expectedVersion: number,
   ): Promise<void>;
   countQuotesForOrg(organizationId: string): Promise<number>;
+  /**
+   * Approval requests (any status) recorded for this quote in this organization.
+   * The existing approval model is read, never written, by the commercial domain.
+   */
+  listQuoteApprovals(organizationId: string, quoteId: string): Promise<QuoteApprovalRecord[]>;
 
   insertQuoteLine(record: QuoteLineRecord): Promise<void>;
   getQuoteLineInOrg(organizationId: string, quoteLineId: string): Promise<QuoteLineRecord | null>;

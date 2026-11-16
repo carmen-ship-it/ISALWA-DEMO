@@ -87,9 +87,31 @@ export type QuoteRecord = {
   notes: string | null;
   version: number;
   submittedAt: Date | null;
+  /** T04 issuance (SubmitQuote). Null for drafts and for legacy submitted quotes. */
+  issuedAt: Date | null;
+  issuedDocumentHash: string | null;
+  issuedRevisionNumber: number | null;
+  /** Explicit validity end; part of the exact terms an approval binds. */
+  validUntil: Date | null;
+  /** Human-recorded customer acceptance of customerAcceptedRevision. */
+  customerAcceptedAt: Date | null;
+  customerAcceptanceChannel: string | null;
+  customerAcceptanceEvidence: string | null;
+  customerAcceptedRevision: number | null;
   cancelledAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
+};
+
+/** Approval request as the commercial domain needs it: status plus the revision it was bound to. */
+export type QuoteApprovalRecord = {
+  id: string;
+  status: string;
+  contextSnapshotJson: Record<string, unknown>;
+  requestedByMemberId: string;
+  approverMemberId: string;
+  decisionByMemberId: string | null;
+  decidedAt: Date | null;
 };
 
 export type QuoteLineRecord = {

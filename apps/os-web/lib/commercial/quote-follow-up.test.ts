@@ -66,7 +66,7 @@ describe('CC-4 submitted quote follow-up', () => {
     assert.equal(canRegisterQuoteFollowUp('cancelled'), false);
     assert.doesNotMatch(quoteEditor, /RegisterFollowUpForm/);
     assert.doesNotMatch(quoteEditor, /createFollowUpAction/);
-    assert.match(quoteEditor, /Presentar cotización/);
+    assert.match(quoteEditor, /QUOTE_LIFECYCLE_LABELS\.issue/);
     assert.match(quoteEditor, /submitQuoteAction/);
   });
 

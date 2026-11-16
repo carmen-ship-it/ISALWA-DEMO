@@ -24,7 +24,7 @@ describe('command palette authorization', () => {
     const plain = paletteActions({ canCreateCustomer: false, canInvite: false }).map((item) => item.label);
     assert.deepEqual(plain, [
       'Nueva oportunidad',
-      'Crear cotización',
+      'Preparar cotización',
       'Registrar seguimiento',
       'Reportar incidencia',
       'Registrar conversación',
@@ -158,14 +158,14 @@ describe('contextual palette actions', () => {
     const picked = contextualPaletteActions('/clientes/nuevo', staff);
     assert.equal(picked.find((item) => item.label === 'Nueva oportunidad')?.detail, 'Elija el cliente');
     assert.equal(picked.find((item) => item.label === 'Registrar seguimiento')?.detail, 'Elija el cliente');
-    assert.equal(picked.find((item) => item.label === 'Crear cotización')?.detail, 'Elija la oportunidad');
+    assert.equal(picked.find((item) => item.label === 'Preparar cotización')?.detail, 'Elija la oportunidad');
   });
 
   it('opens a new opportunity and follow-up on the customer already open', () => {
     const items = contextualPaletteActions('/clientes/pty_1', staff);
     const opportunity = items.find((item) => item.label === 'Nueva oportunidad');
     const followUp = items.find((item) => item.label === 'Registrar seguimiento');
-    const quote = items.find((item) => item.label === 'Crear cotización');
+    const quote = items.find((item) => item.label === 'Preparar cotización');
 
     assert.equal(opportunity?.href, '/clientes/pty_1/oportunidades/nueva');
     assert.equal(opportunity?.pick, undefined);
@@ -184,13 +184,13 @@ describe('contextual palette actions', () => {
 
   it('creates a quote from the opportunity already open without inferring commercial fields', () => {
     const items = contextualPaletteActions('/clientes/pty%201/oportunidades/opp%202', admin);
-    const quote = items.find((item) => item.label === 'Crear cotización');
+    const quote = items.find((item) => item.label === 'Preparar cotización');
     const opportunity = items.find((item) => item.label === 'Nueva oportunidad');
     const followUp = items.find((item) => item.label === 'Registrar seguimiento');
 
     assert.equal(quote?.href, '/clientes/pty%201/oportunidades/opp%202/cotizaciones/nueva');
     assert.equal(quote?.pick, undefined);
-    assert.equal(quote?.label, 'Crear cotización');
+    assert.equal(quote?.label, 'Preparar cotización');
     assert.equal(quote?.label.includes('pty'), false);
     assert.equal(quote?.label.includes('opp'), false);
     assert.equal(opportunity?.pick, 'customer-opportunity');

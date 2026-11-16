@@ -96,7 +96,8 @@ describeHttp('NEW-R4-3 timeline and detail agree under coverage over HTTP (dispo
     org = await store.seedOrganization('R4 Timeline Org', `r4-tl-${createId()}`);
     m.admin = await seedMember('admin', ['people.admin']);
     m.owner = await seedMember('owner', ['sales_rep']);
-    m.approver = await seedMember('approver', ['sales_rep']);
+    // T04: a quote approval is requested on the draft and only a price approver may receive it.
+    m.approver = await seedMember('approver', ['sales_rep', 'commercial.price.approve']);
     m.cover = await seedMember('cover', ['sales_rep']);
     m.dataOnly = await seedMember('dataonly', ['sales_rep']);
     m.outsider = await seedMember('outsider', ['sales_rep']);
@@ -112,8 +113,6 @@ describeHttp('NEW-R4-3 timeline and detail agree under coverage over HTTP (dispo
     ids.quote = String(data(quote).quoteId);
     const line = await command('owner', 'AddQuoteLine', { quoteId: ids.quote, description: 'Ladrillo 6H', quantity: 10, unitPriceCentavos: 150 });
     assert.equal(line.status, 201, `line: ${JSON.stringify(line.body)}`);
-    const submitted = await command('owner', 'SubmitQuote', { quoteId: ids.quote });
-    assert.equal(submitted.status, 201, `submit: ${JSON.stringify(submitted.body)}`);
     const quiet = await command('owner', 'CreateQuote', { partyId: ids.party });
     assert.equal(quiet.status, 201, `quiet: ${JSON.stringify(quiet.body)}`);
     ids.quietQuote = String(data(quiet).quoteId);

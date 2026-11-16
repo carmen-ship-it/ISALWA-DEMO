@@ -88,8 +88,8 @@ export function guidanceForSendQuote(situation: SendQuoteSituation): readonly Gu
 }
 
 export function guidanceForConvertQuote(situation: ConvertQuoteSituation = {}): readonly GuidanceNoteModel[] {
-  const status = situation.quoteStatus ?? 'submitted';
-  if (status !== 'submitted') {
+  const status = situation.quoteStatus ?? 'accepted';
+  if (status !== 'accepted') {
     return [CONVERT_CREATES_ORDER, APPROVE_DOES_NOT_CREATE_ORDER, CARGO_IS_NOT_AUTHORITY];
   }
   return [
@@ -126,13 +126,13 @@ export function ayudaSections(): readonly GuidanceSection[] {
     },
     {
       id: 'before-send-quote',
-      title: 'Antes de enviar cotización',
+      title: 'Antes de emitir cotización',
       notes: guidanceForSendQuote({ lineCount: 1 }),
     },
     {
       id: 'before-convert',
-      title: 'Antes de convertir',
-      notes: guidanceForConvertQuote({ quoteStatus: 'submitted' }),
+      title: 'Antes de crear el pedido',
+      notes: guidanceForConvertQuote({ quoteStatus: 'accepted' }),
     },
     {
       id: 'before-reported-payment',

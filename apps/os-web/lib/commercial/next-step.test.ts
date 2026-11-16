@@ -23,7 +23,7 @@ describe('commercial next-step', () => {
       opportunityId: 'opp-1',
       newQuoteHref: '/clientes/party-1/oportunidades/opp-1/cotizaciones/nueva',
     });
-    assert.equal(step?.hrefLabel, 'Crear cotización');
+    assert.equal(step?.hrefLabel, 'Preparar cotización');
     assert.equal(step?.href, '/clientes/party-1/oportunidades/opp-1/cotizaciones/nueva');
     assert.equal(step?.waiting, false);
     assert.match(step?.statement ?? '', /cotización/i);
@@ -56,7 +56,7 @@ describe('commercial next-step', () => {
     assert.match(step?.statement ?? '', /borrador/i);
   });
 
-  it('keeps Crear cotización when the linked quote href is blank', () => {
+  it('keeps Preparar cotización when the linked quote href is blank', () => {
     const step = opportunityNextStep({
       status: 'open',
       partyId: 'party-1',
@@ -64,7 +64,7 @@ describe('commercial next-step', () => {
       newQuoteHref: '/nueva',
       linkedQuoteHref: '   ',
     });
-    assert.equal(step?.hrefLabel, 'Crear cotización');
+    assert.equal(step?.hrefLabel, 'Preparar cotización');
     assert.equal(step?.href, '/nueva');
   });
 
@@ -107,7 +107,7 @@ describe('commercial next-step', () => {
     assert.doesNotMatch(step?.statement ?? '', /llamar|whatsapp|visita/i);
   });
 
-  it('keeps draft quotes on complete-and-send without inventing approval', () => {
+  it('keeps draft quotes on complete, approve and issue without inventing an approver', () => {
     const empty = quoteNextStep({
       status: 'draft',
       partyId: 'party-1',
@@ -136,7 +136,7 @@ describe('commercial next-step', () => {
       followUpHref: null,
       lineCount: 2,
     });
-    assert.equal(ready?.statement, 'Revise la cotización y preséntela.');
+    assert.equal(ready?.statement, 'Revise la cotización, solicite la aprobación y emítala.');
   });
 
   it('explains pending approval without claiming a pedido was created', () => {
@@ -243,7 +243,7 @@ describe('commercial next-step', () => {
       followUpHref: null,
     });
     assert.equal(step?.waiting, false);
-    assert.match(step?.statement ?? '', /convertirla a pedido/i);
+    assert.match(step?.statement ?? '', /crear el pedido/i);
   });
 
   it('prefers the related pedido when one already exists', () => {

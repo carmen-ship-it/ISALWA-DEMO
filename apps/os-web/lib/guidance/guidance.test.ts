@@ -99,7 +99,7 @@ describe('quote guidance', () => {
     assert.match(text, /Confirme que esta es la oportunidad correcta/);
     assert.match(text, /Crear deja un borrador\. No envía la cotización/);
     assert.match(text, /Aprobar registra la decisión\. No crea un pedido/);
-    assert.match(text, /Convertir crea un pedido desde una cotización enviada/);
+    assert.match(text, /Crear pedido crea un pedido desde una cotización aceptada por el cliente/);
     assert.match(text, /No emite factura ni nota de entrega/);
   });
 
@@ -112,20 +112,20 @@ describe('quote guidance', () => {
     for (const notes of [empty, ready]) {
       const text = guidanceText(notes);
       assert.match(text, /Revise el cliente, las líneas y las cantidades/);
-      assert.match(text, /Presentar no la otorga/);
+      assert.match(text, /Emitir no la otorga/);
       assert.match(text, /Aprobar registra la decisión\. No crea un pedido/);
       assert.match(text, /No emite factura ni nota de entrega/);
     }
   });
 
-  it('offers the convert checklist only for a submitted quote', () => {
-    const submitted = guidanceForConvertQuote({ quoteStatus: 'submitted' });
+  it('offers the convert checklist only for an accepted quote', () => {
+    const submitted = guidanceForConvertQuote({ quoteStatus: 'accepted' });
     const draft = guidanceForConvertQuote({ quoteStatus: 'draft' });
     assert.equal(submitted.some((note) => note.id === 'convert-quote-checklist' && note.kind === 'consejo'), true);
     assert.equal(draft.some((note) => note.kind === 'consejo'), false);
     for (const notes of [submitted, draft]) {
       const text = guidanceText(notes);
-      assert.match(text, /Convertir crea un pedido desde una cotización enviada\. No emite factura ni nota de entrega/);
+      assert.match(text, /Crear pedido crea un pedido desde una cotización aceptada por el cliente\. No emite factura ni nota de entrega/);
       assert.match(text, /Aprobar registra la decisión\. No crea un pedido/);
       assert.match(text, /El cargo no asigna la cuenta ni autoriza convertir/);
     }
@@ -284,7 +284,7 @@ describe('workflow attachment', () => {
     assert.match(createQuote, /createQuoteAction/);
     assert.match(editor, /guidanceForSendQuote/);
     assert.match(editor, /submitQuoteAction/);
-    assert.match(editor, /Presentar cotización/);
+    assert.match(editor, /QUOTE_LIFECYCLE_LABELS\.issue/);
     assert.doesNotMatch(editor, /RegisterFollowUpForm|createFollowUpAction/);
     assert.match(ayuda, /ayudaSections/);
     assert.doesNotMatch([createCustomer, search, convert, reassign, createQuote, editor, ayuda].join('\n'), /\/mapa/);

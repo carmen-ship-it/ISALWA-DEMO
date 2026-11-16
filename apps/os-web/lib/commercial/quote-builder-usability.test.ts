@@ -9,6 +9,7 @@ import {
   starterProductByKey,
 } from './starter-quote-products';
 import { quoteNextStep } from './next-step';
+import { QUOTE_LIFECYCLE_COPY, QUOTE_LIFECYCLE_LABELS } from './quote-lifecycle';
 
 const editor = readFileSync(resolve('components/commercial/quote-editor.tsx'), 'utf8');
 const picker = readFileSync(resolve('components/commercial/quote-product-picker.tsx'), 'utf8');
@@ -85,7 +86,7 @@ describe('Task 8 quote builder usability', () => {
   it('keeps next action state-aware and removes duplicated instruction blocks', () => {
     assert.match(builderUi, /Agregue productos a la cotización/);
     assert.match(builderUi, /Complete cantidad, unidad y precio y guarde la línea/);
-    assert.match(builderUi, /Revise la cotización y preséntela/);
+    assert.match(builderUi, /Revise la cotización, solicite la aprobación y emítala/);
     assert.match(page, /QuotePageNextStep/);
     assert.match(editor, /note\.kind === 'regla'/);
     assert.match(editor, /GuidanceCompactDisclosure/);
@@ -109,9 +110,14 @@ describe('Task 8 quote builder usability', () => {
   });
 
   it('presents without claiming external send and surfaces PDF after present', () => {
-    assert.match(editor, /label="Presentar cotización"/);
+    assert.match(editor, /label=\{QUOTE_LIFECYCLE_LABELS\.issue\}/);
+    assert.match(editor, /pendingLabel=\{QUOTE_LIFECYCLE_LABELS\.issuePending\}/);
+    assert.equal(QUOTE_LIFECYCLE_LABELS.issue, 'Emitir cotización');
+    assert.equal(QUOTE_LIFECYCLE_LABELS.issuePending, 'Emitiendo…');
+    assert.doesNotMatch(editor, /Presentar|Presentando/);
     assert.match(editor, /disabled=\{quote\.lines\.length === 0\}/);
-    assert.match(editor, /Descargue la cotización y envíela por su canal habitual/);
+    assert.match(editor, /QUOTE_LIFECYCLE_COPY\.issuedNotSent/);
+    assert.match(QUOTE_LIFECYCLE_COPY.issuedNotSent, /Descargue la cotización y envíela por su canal habitual/);
     assert.doesNotMatch(editor, /enviamos por WhatsApp|ISALWA envió|mensaje enviado automáticamente/i);
     assert.match(page, /QuoteDocumentActions/);
     assert.match(page, /canRecordSend=\{manualSendAllowed\}/);
@@ -131,8 +137,12 @@ describe('Task 8 hosted corrective layout', () => {
 
   it('exposes one primary draft action path and explains PDF unavailable', () => {
     assert.match(editor, /data-quote-total="primary"/);
-    assert.match(editor, /Presente la cotización para generar el documento/);
-    assert.match(editor, /label="Presentar cotización"/);
+    assert.match(editor, /QUOTE_LIFECYCLE_COPY\.issueHelper/);
+    assert.match(QUOTE_LIFECYCLE_COPY.issueHelper, /Emitir no envía la cotización/);
+    assert.match(QUOTE_LIFECYCLE_COPY.issueHelper, /aprobación de estos términos exactos/);
+    assert.match(editor, /QUOTE_LIFECYCLE_LABELS\.saveDraft/);
+    assert.equal(QUOTE_LIFECYCLE_LABELS.saveDraft, 'Guardar borrador');
+    assert.match(editor, /label=\{QUOTE_LIFECYCLE_LABELS\.issue\}/);
     assert.equal((editor.match(/data-quote-total=/g) ?? []).length, 1);
   });
 });

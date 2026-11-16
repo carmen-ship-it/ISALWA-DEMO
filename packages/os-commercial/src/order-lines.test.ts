@@ -177,7 +177,8 @@ function quote(overrides: Partial<QuoteRecord> = {}): QuoteRecord {
     opportunityId: null,
     ownerMemberId: OWNER,
     quoteNumber: 'Q-000001',
-    status: 'submitted',
+    // Issued and accepted at revision 1: the convertible state (T04).
+    status: 'accepted',
     currency: 'BOB',
     subtotalCentavos: 375000n,
     headerDiscountCentavos: 0n,
@@ -186,6 +187,14 @@ function quote(overrides: Partial<QuoteRecord> = {}): QuoteRecord {
     notes: null,
     version: 1,
     submittedAt: NOW,
+    issuedAt: NOW,
+    issuedDocumentHash: 'hash-1',
+    issuedRevisionNumber: 1,
+    validUntil: null,
+    customerAcceptedAt: NOW,
+    customerAcceptanceChannel: 'llamada',
+    customerAcceptanceEvidence: 'Aceptó por llamada telefónica',
+    customerAcceptedRevision: 1,
     cancelledAt: null,
     createdAt: NOW,
     updatedAt: NOW,
@@ -236,6 +245,19 @@ function conversionStore(input: {
       return input.lines.filter(
         (line) => line.organizationId === organizationId && line.quoteId === quoteId,
       );
+    },
+    async listQuoteApprovals() {
+      return [
+        {
+          id: 'approval-1',
+          status: 'approved',
+          contextSnapshotJson: { boundRevision: 1 },
+          requestedByMemberId: OWNER,
+          approverMemberId: 'mem-approver',
+          decisionByMemberId: 'mem-approver',
+          decidedAt: NOW,
+        },
+      ];
     },
     async countOrdersForOrg() {
       return orders.length;
@@ -322,13 +344,13 @@ describe('CreateOrder line copy', () => {
     assert.equal(harness.inserted[0].unitPriceCentavosSnapshot, 150000n);
     await assert.rejects(
       () => service.execute('CreateOrder', ctx(), { quoteId: QUOTE_ID }),
-      /VALIDATION_FAILED/,
+      /CONFLICT/,
     );
     assert.equal(harness.inserted.length, 2);
     assert.equal(harness.orders.length, 1);
   });
 
-  it('blocks a duplicate order even while the quote is still submitted', async () => {
+  it('blocks a duplicate order for an accepted quote', async () => {
     const harness = conversionStore({ lines: [quoteLine()], existingOrder: true });
     const service = new CommercialCommandService(harness.store);
     await assert.rejects(

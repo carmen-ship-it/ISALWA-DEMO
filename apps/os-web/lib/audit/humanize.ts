@@ -34,6 +34,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   'quote.updated': 'Cotización actualizada',
   'quote.submitted': 'Cotización presentada',
   'quote.send_recorded': 'Cotización registrada como enviada',
+  'quote.customer_acceptance.recorded': 'Aceptación del cliente registrada',
   'order.created': 'Pedido creado',
   'order.updated': 'Pedido actualizado',
   'issue.reported': 'Incidencia reportada',

@@ -12,12 +12,14 @@ describe('quote phone progress', () => {
       resolve(root, 'components/commercial/quote-progress-sticky-bar.tsx'),
       'utf8',
     );
-    assert.match(sticky, /Presentar cotización/);
-    assert.match(sticky, /#presentar-cotizacion/);
+    assert.match(sticky, /QUOTE_LIFECYCLE_LABELS\.issue/);
+    assert.match(sticky, /#cotizacion-acciones/);
+    assert.match(sticky, /QUOTE_LIFECYCLE_LABELS\.recordAcceptance/);
+    assert.match(sticky, /#registrar-aceptacion/);
     assert.match(sticky, /focusQuoteEnvioRegister/);
     assert.match(sticky, /QUOTE_MANUAL_SEND_COPY\.action/);
     assert.match(sticky, /#convertir-pedido/);
-    assert.match(sticky, /Convertir a Pedido/);
+    assert.match(sticky, /QUOTE_LIFECYCLE_LABELS\.createOrder/);
     assert.match(sticky, /effectiveStatus === 'draft'/);
     assert.match(sticky, /!effectiveSend && canRecordSend/);
   });

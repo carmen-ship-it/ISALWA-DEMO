@@ -19,6 +19,7 @@ export const UI_5A_COMMERCIAL_COMMANDS = [
   'RemoveQuoteLine',
   'UpdateQuote',
   'SubmitQuote',
+  'RecordQuoteCustomerAcceptance',
   'CancelQuote',
 ] as const satisfies readonly CommercialCommandName[];
 

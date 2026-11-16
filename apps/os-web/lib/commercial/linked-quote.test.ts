@@ -15,7 +15,7 @@ function quote(
 }
 
 describe('selectLinkedQuote', () => {
-  it('selects nothing when no quote is linked so the caller keeps Crear cotización', () => {
+  it('selects nothing when no quote is linked so the caller keeps Preparar cotización', () => {
     assert.equal(selectLinkedQuote([], 'opp-1'), null);
     assert.equal(selectLinkedQuote(null, 'opp-1'), null);
     assert.equal(selectLinkedQuote(undefined, 'opp-1'), null);
@@ -27,7 +27,7 @@ describe('selectLinkedQuote', () => {
       newQuoteHref: '/clientes/party-1/oportunidades/opp-1/cotizaciones/nueva',
       linkedQuoteHref: null,
     });
-    assert.equal(step?.hrefLabel, 'Crear cotización');
+    assert.equal(step?.hrefLabel, 'Preparar cotización');
     assert.match(step?.statement ?? '', /Prepare una cotización/i);
   });
 

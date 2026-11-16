@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@isalwa/ui';
+import { QUOTE_LIFECYCLE_LABELS } from '@/lib/commercial/quote-lifecycle';
 import { QUOTE_MANUAL_SEND_COPY } from '@/lib/commercial/quote-manual-send';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 
@@ -14,6 +15,8 @@ type QuoteDetailActionsProps = {
   canRegisterFollowUp: boolean;
   canEdit: boolean;
   canCancel: boolean;
+  /** Issued and not yet accepted. */
+  canRecordAcceptance?: boolean;
   canConvertToOrder: boolean;
   onOpenSend?: () => void;
 };
@@ -29,6 +32,7 @@ export function QuoteDetailActions({
   canRegisterFollowUp,
   canEdit,
   canCancel,
+  canRecordAcceptance = false,
   canConvertToOrder,
   onOpenSend: _onOpenSend,
 }: QuoteDetailActionsProps) {
@@ -101,6 +105,16 @@ export function QuoteDetailActions({
                   Cancelar
                 </a>
               ) : null}
+              {canRecordAcceptance ? (
+                <a
+                  href="#registrar-aceptacion"
+                  role="menuitem"
+                  className={menuItemClass}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {QUOTE_LIFECYCLE_LABELS.recordAcceptance}
+                </a>
+              ) : null}
               {canConvertToOrder ? (
                 <a
                   href="#convertir-pedido"
@@ -109,11 +123,11 @@ export function QuoteDetailActions({
                   onClick={() => setMenuOpen(false)}
                 >
                   {quoteStatus === 'accepted'
-                    ? 'Cliente aceptó · Convertir a Pedido'
-                    : 'Convertir a Pedido'}
+                    ? `Cliente aceptó · ${QUOTE_LIFECYCLE_LABELS.createOrder}`
+                    : QUOTE_LIFECYCLE_LABELS.createOrder}
                 </a>
               ) : null}
-              {!canRegisterFollowUp && !canEdit && !canCancel && !canConvertToOrder ? (
+              {!canRegisterFollowUp && !canEdit && !canCancel && !canRecordAcceptance && !canConvertToOrder ? (
                 <p className="px-3 py-2 text-sm text-[var(--isalwa-slate)]">
                   No hay acciones adicionales.
                 </p>
