@@ -247,4 +247,31 @@ describeHttp('T03 customer authority flags over HTTP (disposable Postgres)', () 
     assert.deepEqual(body.customerAuthority, READER_FLAGS);
     assert.equal((body.party as Record<string, unknown>).legalName, null);
   });
+
+  it('an archived customer: the editor flags match what the master-data commands accept (archive stops commercial work, not maintenance)', async () => {
+    const archivedId = createId();
+    await prisma().osParty.create({
+      data: { id: archivedId, organizationId: org.id, partyKind: 'organization', displayName: 'Ferretería Archivada', status: 'inactive' },
+    });
+    await prisma().osCommercialAccount.create({
+      data: { id: createId(), organizationId: org.id, partyId: archivedId, ownerMemberId: m.owner!.member.id },
+    });
+    const res = await fetch(`${baseUrl}/v1/parties/${archivedId}`, { headers: headers(m.owner!) });
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as Record<string, unknown>;
+    assert.equal((body.party as Record<string, unknown>).status, 'inactive');
+    assert.deepEqual(body.customerAuthority as Flags, EDITOR_FLAGS);
+    const rename = await command('owner', 'UpdateParty', {
+      partyId: archivedId,
+      expectedVersion: 0,
+      displayName: 'Ferretería Archivada Uno',
+      changeReason: 'Nombre comercial corregido en archivo',
+    });
+    assert.equal(rename.status, 201, JSON.stringify(rename.body));
+    const addContact = await command('owner', 'UpdateContact', { organizationPartyId: archivedId, givenName: 'Rosa', familyName: 'Archivo' });
+    assert.equal(addContact.status, 201, JSON.stringify(addContact.body));
+    const reader = await fetch(`${baseUrl}/v1/parties/${archivedId}`, { headers: headers(m.orgReader!) });
+    assert.deepEqual(((await reader.json()) as Record<string, unknown>).customerAuthority as Flags, READER_FLAGS);
+  });
 });
+

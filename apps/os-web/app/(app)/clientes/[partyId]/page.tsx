@@ -18,7 +18,6 @@ import { CorrectionRequestForm } from '@/components/issue/correction-request-for
 import { CustomerArchivePanel } from '@/components/party/customer-archive-panel';
 import { ContactFollowupPanel } from '@/components/party/contact-followup-panel';
 import { ContactRelationshipPanel } from '@/components/party/contact-relationship-panel';
-import { CustomerEditForms } from '@/components/party/customer-edit-forms';
 import { TemporaryCoveragePanel } from '@/components/party/temporary-coverage-panel';
 import { CustomerLocationPanel } from '@/components/party/customer-location-panel';
 import { PageHeader } from '@/components/shell/page-header';
@@ -46,7 +45,8 @@ import type { IssueListItem } from '@/lib/issue/types';
 import type { ContactFollowupPreferenceItem, ContactRelationshipEndPreview, CustomerArchivePreview } from '@isalwa/os-contracts';
 import type { ContactEndpointHistoryResponse } from '@/lib/party/types';
 import { COMMITMENT_COPY } from '@/lib/commitments/copy';
-import { commercialOwnerView, contactRelationEnd } from '@/lib/party/customer-self-service';
+import { commercialOwnerView, contactRelationEnd, emptyFollowupItems, NO_RECORDED_DATE } from '@/lib/party/customer-self-service';
+import { coverageLastDayLabel } from '@/lib/commercial/coverage-actions';
 import { composeCliente360FromLoaded } from '@/lib/party/next-action';
 import { memberLabel, memberWithCargoLine } from '@/lib/work/member-resolver';
 import { formatTimestamp } from '@/lib/work/labels';
@@ -116,6 +116,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
   const rawParams = await searchParams;
   const tab = parseCliente360Tab(rawParams.tab);
   const contactosCursor = typeof rawParams.contactosCursor === 'string' ? rawParams.contactosCursor : null;
+  const managedContactId = typeof rawParams.contacto === 'string' ? rawParams.contacto : null;
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
@@ -203,35 +204,40 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
       canRevealEndpoint: !evaluation.active && detail.customerAuthority?.canRevealEndpoint === true,
       canResolveIdentityReview: !evaluation.active && detail.customerAuthority?.canResolveIdentityReview === true,
     };
-    const endpointHistories = new Map<string, ContactEndpointHistoryResponse['items']>();
-    if (endpointAuthority.canReviewEndpointHistory) {
-      await Promise.all(
-        contacts.map(async (contact) => {
-          try {
-            const history = await client.listContactEndpointHistory(partyId, contact.id);
-            endpointHistories.set(contact.id, history.items);
-          } catch {
-            endpointHistories.set(contact.id, []);
-          }
-        }),
-      );
+    const customerActive = party.status === 'active';
+    const isCurrentContact = (contact: (typeof contacts)[number]) =>
+      customerActive && contact.status === 'active' && !contact.relationEndedAt;
+    const managedContact = managedContactId ? (contacts.find((item) => item.id === managedContactId) ?? null) : null;
+    let managedHistory: ContactEndpointHistoryResponse['items'] | null = null;
+    if (managedContact && endpointAuthority.canReviewEndpointHistory) {
+      try {
+        managedHistory = (await client.listContactEndpointHistory(partyId, managedContact.id)).items;
+      } catch {
+        managedHistory = null;
+      }
     }
     const canEndContactRelationship =
       !evaluation.active && detail.customerAuthority?.canEndContactRelationship === true;
-    const relationshipPreviews = new Map<string, ContactRelationshipEndPreview>();
-    if (canEndContactRelationship) {
-      await Promise.all(
-        contacts
-          .filter((contact) => contact.status === 'active')
-          .map(async (contact) => {
-            try {
-              relationshipPreviews.set(contact.id, await client.getContactRelationshipEndPreview(partyId, contact.id));
-            } catch {
-              // The preview is the gate. A refusal hides the end form.
-            }
-          }),
-      );
+    let managedPreview: ContactRelationshipEndPreview | null = null;
+    if (managedContact && canEndContactRelationship && isCurrentContact(managedContact)) {
+      try {
+        managedPreview = await client.getContactRelationshipEndPreview(partyId, managedContact.id);
+      } catch {
+        // The preview is the gate. A refusal hides the end form.
+      }
     }
+    const canManageAnyContact =
+      endpointAuthority.canReviewEndpointHistory ||
+      (customerActive &&
+        (endpointAuthority.canChangeEndpoints ||
+          endpointAuthority.canResolveIdentityReview ||
+          canEndContactRelationship ||
+          detail.customerAuthority?.canSetFollowupPreference === true));
+    const manageContactHref = (contactId: string) => {
+      const query = new URLSearchParams({ tab: 'resumen', contacto: contactId });
+      if (contactosCursor) query.set('contactosCursor', contactosCursor);
+      return `${partyHref(partyId)}?${query.toString()}#contacto-${contactId}`;
+    };
     const relationEndByContact = new Map<string, { endedOn?: string; reason?: string; reasonNote?: string }>();
     if (timeline.status === 'ok') {
       for (const entry of timeline.data.items) {
@@ -257,17 +263,15 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
     }
     const canSetFollowupPreference =
       !evaluation.active && detail.customerAuthority?.canSetFollowupPreference === true;
-    const followupByContact = new Map<string, ContactFollowupPreferenceItem[]>();
-    await Promise.all(
-      contacts.map(async (contact) => {
-        try {
-          const prefs = await client.getContactFollowupPreferences(partyId, contact.id);
-          followupByContact.set(contact.id, prefs.items);
-        } catch {
-          // Customer read is required. A refusal hides the preference.
-        }
-      }),
-    );
+    let followupByContact: Map<string, ContactFollowupPreferenceItem[]> | null = new Map();
+    try {
+      const prefs = await client.getCustomerFollowupPreferences(partyId);
+      for (const entry of prefs.contacts) followupByContact.set(entry.contactId, entry.items);
+    } catch {
+      followupByContact = null;
+    }
+    const followupItems = (contactId: string): ContactFollowupPreferenceItem[] | null =>
+      followupByContact === null ? null : (followupByContact.get(contactId) ?? emptyFollowupItems());
     const canReassignOwner =
       !evaluation.active && detail.commercialAuthority?.canReassignOwner === true;
     const ownerResolvedLabel = commercialAccount?.ownerMemberId
@@ -367,7 +371,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
             status={party.status}
             composition={composition}
             party={party}
-            contacts={contacts}
+            contacts={contacts.filter(isCurrentContact)}
             canEditParty={canEditParty}
             canEditLegalName={detail.customerAuthority?.canEditLegalName === true}
             canEditContacts={canEditContacts}
@@ -413,15 +417,6 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 </div>
               </dl>
               <Cliente360OwnerLine owner={owner} note={composition.owner.note} />
-              {canEditParty ? (
-                <CustomerEditForms
-                  party={party}
-                  contacts={[]}
-                  canEditParty
-                  canEditContacts={false}
-                  canEditLegalName={detail.customerAuthority?.canEditLegalName === true}
-                />
-              ) : null}
               {commercialAccount?.id && commercialAccount.ownerMemberId ? (
                 <TemporaryCoveragePanel
                   partyId={partyId}
@@ -439,8 +434,8 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                     assignedByLabel: grant.recordedByMemberId
                       ? memberLabel(memberLabels, grant.recordedByMemberId)
                       : null,
-                    startsAtLabel: formatTimestamp(grant.startsAt) ?? grant.startsAt,
-                    endsAtLabel: grant.endsAt ? (formatTimestamp(grant.endsAt) ?? grant.endsAt) : '—',
+                    startsAtLabel: formatTimestamp(grant.startsAt) ?? NO_RECORDED_DATE,
+                    endsAtLabel: coverageLastDayLabel(grant.endsAt),
                     status: grant.status,
                     coveredActions: grant.coveredActions,
                     canRevoke: grant.canRevoke,
@@ -480,35 +475,41 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                   <p className="mt-2 text-sm text-[var(--isalwa-slate)]">No hay contactos registrados.</p>
                 ) : (
                   <ul className="mt-3 min-w-0 divide-y divide-[var(--isalwa-mist)]">
-                    {contacts.map((item) => (
-                      <ListRow key={item.id} as="li" className="min-w-0 px-1 py-2">
-                        <p className="break-words font-medium text-[var(--isalwa-kiln)]">
-                          {contactDisplayName(item.givenName, item.familyName)}
-                        </p>
-                        <ContactEndpointPanel
-                          partyId={partyId}
-                          contact={item}
-                          authority={endpointAuthority}
-                          history={endpointAuthority.canReviewEndpointHistory ? (endpointHistories.get(item.id) ?? []) : null}
-                        />
-                        <ContactFollowupPanel
-                          partyId={partyId}
-                          contactId={item.id}
-                          active={item.status === 'active'}
-                          canSet={canSetFollowupPreference}
-                          items={followupByContact.get(item.id) ?? []}
-                        />
-                        <ContactRelationshipPanel
-                          partyId={partyId}
-                          contactId={item.id}
-                          status={item.status}
-                          expectedVersion={item.version}
-                          canEnd={canEndContactRelationship}
-                          preview={relationshipPreviews.get(item.id) ?? null}
-                          {...contactRelationEnd(item, relationEndByContact.get(item.id))}
-                        />
-                      </ListRow>
-                    ))}
+                    {contacts.map((item) => {
+                      const managing = managedContact?.id === item.id;
+                      const current = isCurrentContact(item);
+                      return (
+                        <ListRow key={item.id} as="li" id={`contacto-${item.id}`} className="min-w-0 px-1 py-2">
+                          <p className="break-words font-medium text-[var(--isalwa-kiln)]">
+                            {contactDisplayName(item.givenName, item.familyName)}
+                          </p>
+                          <ContactEndpointPanel
+                            partyId={partyId}
+                            contact={item}
+                            authority={endpointAuthority}
+                            current={current}
+                            history={managing ? managedHistory : undefined}
+                            manageHref={canManageAnyContact ? manageContactHref(item.id) : null}
+                          />
+                          <ContactFollowupPanel
+                            partyId={partyId}
+                            contactId={item.id}
+                            active={managing && current}
+                            canSet={canSetFollowupPreference && managing && current}
+                            items={followupItems(item.id)}
+                          />
+                          <ContactRelationshipPanel
+                            partyId={partyId}
+                            contactId={item.id}
+                            status={item.status}
+                            expectedVersion={item.version}
+                            canEnd={canEndContactRelationship && managing && current}
+                            preview={managing ? managedPreview : null}
+                            {...contactRelationEnd(item, relationEndByContact.get(item.id))}
+                          />
+                        </ListRow>
+                      );
+                    })}
                   </ul>
                 )}
               </div>

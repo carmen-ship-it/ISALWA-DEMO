@@ -5,6 +5,7 @@ import { useActionState } from 'react';
 import type { ContactFollowupPreferenceItem } from '@isalwa/os-contracts';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import { submittedValues, usePreservedForm, type PreservedFormState } from '@/lib/commercial/use-preserved-form';
 import { setContactFollowupPreferenceAction } from '@/lib/party/actions';
 import { FOLLOWUP_PREFERENCE_LABELS } from '@/lib/party/customer-self-service';
 
@@ -22,10 +23,20 @@ export function ContactFollowupPanel({
 }: {
   partyId: string;
   contactId: string;
+  /** A current contact of an active customer, and the contact being managed. */
   active: boolean;
   canSet: boolean;
-  items: ContactFollowupPreferenceItem[];
+  /** null when the preferences could not be read: never shown as "no preference". */
+  items: ContactFollowupPreferenceItem[] | null;
 }) {
+  if (items === null) {
+    return (
+      <div className="mt-2 space-y-2 text-sm">
+        <p className="isalwa-section-label">Seguimiento</p>
+        <p className="text-[var(--isalwa-slate)]">No pudimos cargar estos datos.</p>
+      </div>
+    );
+  }
   if (items.length === 0 && !canSet) return null;
   return (
     <div className="mt-2 space-y-2 text-sm">
@@ -55,12 +66,13 @@ function FollowupChannelForm({
   canSet: boolean;
 }) {
   const router = useRouter();
-  const [state, action] = useActionState(async (_prev: { error?: string; success?: string } | null, formData: FormData) => {
+  const [state, action] = useActionState(async (_prev: PreservedFormState, formData: FormData): Promise<PreservedFormState> => {
     const result = await setContactFollowupPreferenceAction(formData);
-    if (!result.ok) return { error: result.error };
+    if (!result.ok) return { error: result.error, fieldErrors: result.fieldErrors, values: submittedValues(formData) };
     router.refresh();
     return { success: 'Preferencia registrada.' };
   }, null);
+  const formRef = usePreservedForm(state);
   const current = item.preference ? FOLLOWUP_PREFERENCE_LABELS[item.preference] ?? item.preference : 'Sin preferencia registrada';
 
   return (
@@ -69,7 +81,7 @@ function FollowupChannelForm({
         {CHANNEL_LABELS[item.channel] ?? item.channel}: {current}
       </p>
       {canSet ? (
-        <form action={action} className="mt-2 space-y-2">
+        <form ref={formRef} action={action} className="mt-2 space-y-2">
           <FormFeedback error={state?.error} success={state?.success} />
           <input type="hidden" name="partyId" value={partyId} />
           <input type="hidden" name="contactId" value={contactId} />

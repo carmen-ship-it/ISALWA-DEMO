@@ -159,6 +159,16 @@ export type OsPartyRoleAssignment = $Result.DefaultSelection<Prisma.$OsPartyRole
  */
 export type OsContact = $Result.DefaultSelection<Prisma.$OsContactPayload>
 /**
+ * Model OsContactEndpointAssociation
+ * T03 C6: restricted, dated history of which number belonged to which contact. Rows are ended, never overwritten.
+ */
+export type OsContactEndpointAssociation = $Result.DefaultSelection<Prisma.$OsContactEndpointAssociationPayload>
+/**
+ * Model OsContactIdentityReview
+ * T03 C7: a number matching an ended association on another record waits for an authorized identity decision.
+ */
+export type OsContactIdentityReview = $Result.DefaultSelection<Prisma.$OsContactIdentityReviewPayload>
+/**
  * Model OsFiscalIdentity
  * 
  */
@@ -462,6 +472,11 @@ export type OsCoordinationDecision = $Result.DefaultSelection<Prisma.$OsCoordina
  * Reopening creates a new resolution cycle row.
  */
 export type OsIssue = $Result.DefaultSelection<Prisma.$OsIssuePayload>
+/**
+ * Model OsIssueCorrectionRequest
+ * T03 L4: restricted customer-data correction request carried by one issue. Never writes data itself.
+ */
+export type OsIssueCorrectionRequest = $Result.DefaultSelection<Prisma.$OsIssueCorrectionRequestPayload>
 /**
  * Model OsIssueReference
  * External entity reference linked to an issue (order, party, quote, etc.).
@@ -915,6 +930,26 @@ export class PrismaClient<
     * ```
     */
   get osContact(): Prisma.OsContactDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.osContactEndpointAssociation`: Exposes CRUD operations for the **OsContactEndpointAssociation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsContactEndpointAssociations
+    * const osContactEndpointAssociations = await prisma.osContactEndpointAssociation.findMany()
+    * ```
+    */
+  get osContactEndpointAssociation(): Prisma.OsContactEndpointAssociationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.osContactIdentityReview`: Exposes CRUD operations for the **OsContactIdentityReview** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsContactIdentityReviews
+    * const osContactIdentityReviews = await prisma.osContactIdentityReview.findMany()
+    * ```
+    */
+  get osContactIdentityReview(): Prisma.OsContactIdentityReviewDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.osFiscalIdentity`: Exposes CRUD operations for the **OsFiscalIdentity** model.
@@ -1497,6 +1532,16 @@ export class PrismaClient<
   get osIssue(): Prisma.OsIssueDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.osIssueCorrectionRequest`: Exposes CRUD operations for the **OsIssueCorrectionRequest** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsIssueCorrectionRequests
+    * const osIssueCorrectionRequests = await prisma.osIssueCorrectionRequest.findMany()
+    * ```
+    */
+  get osIssueCorrectionRequest(): Prisma.OsIssueCorrectionRequestDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.osIssueReference`: Exposes CRUD operations for the **OsIssueReference** model.
     * Example usage:
     * ```ts
@@ -2055,6 +2100,8 @@ export namespace Prisma {
     OsOrder: 'OsOrder',
     OsPartyRoleAssignment: 'OsPartyRoleAssignment',
     OsContact: 'OsContact',
+    OsContactEndpointAssociation: 'OsContactEndpointAssociation',
+    OsContactIdentityReview: 'OsContactIdentityReview',
     OsFiscalIdentity: 'OsFiscalIdentity',
     OsCommercialAccount: 'OsCommercialAccount',
     OsLead: 'OsLead',
@@ -2113,6 +2160,7 @@ export namespace Prisma {
     OsCustomerCoverageGrant: 'OsCustomerCoverageGrant',
     OsCoordinationDecision: 'OsCoordinationDecision',
     OsIssue: 'OsIssue',
+    OsIssueCorrectionRequest: 'OsIssueCorrectionRequest',
     OsIssueReference: 'OsIssueReference',
     OsIssueJournalEntry: 'OsIssueJournalEntry',
     OsIssueWorkLink: 'OsIssueWorkLink',
@@ -2140,7 +2188,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry" | "osReportedOperationalFact" | "osCommitment" | "osInternalNotification" | "osCatalogProduct" | "osCatalogProductProvenance" | "osCatalogProductAttribute" | "osCatalogProductStatusEvent" | "osOrderLine" | "osOperationalCase" | "osOperationalCaseFact" | "osOperationalCaseFactReversal" | "osOperationalReleaseDecision" | "osOperationalReleaseDecisionReversal" | "osProductionQuema" | "osProductionQuemaTime" | "osProductionQuemaProduct" | "osProductionTraceEntry" | "osCustomerConversation" | "osWarehouseExit" | "osWarehouseOutboundNote" | "osWarehouseOutboundNoteLine" | "osDelivery" | "osDeliveryNote" | "osDeliveryNoteLine" | "osDeliveryEvidence" | "customerCommittedDate" | "customerCommittedDateRevision" | "productionInternalTargetDate" | "productionInternalTargetRevision" | "productionDateIssue" | "customerDateInformedRecord" | "osOrderAllocation" | "osFinishedGoodsReceipt" | "osPurchaseRequest" | "osPurchaseRequestStatusHistory" | "osPurchaseRequestNote" | "osPriceList" | "osPriceEntry" | "osSpecialOrderClassification" | "osCustomerCoverageGrant" | "osCoordinationDecision" | "osIssue" | "osIssueReference" | "osIssueJournalEntry" | "osIssueWorkLink" | "osIssueRelation" | "osIssueResolutionCycle" | "osProductFeedback" | "osIssueOwnershipHistory" | "osRateLimitBucket" | "osContactFollowupPreference"
+      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osContactEndpointAssociation" | "osContactIdentityReview" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry" | "osReportedOperationalFact" | "osCommitment" | "osInternalNotification" | "osCatalogProduct" | "osCatalogProductProvenance" | "osCatalogProductAttribute" | "osCatalogProductStatusEvent" | "osOrderLine" | "osOperationalCase" | "osOperationalCaseFact" | "osOperationalCaseFactReversal" | "osOperationalReleaseDecision" | "osOperationalReleaseDecisionReversal" | "osProductionQuema" | "osProductionQuemaTime" | "osProductionQuemaProduct" | "osProductionTraceEntry" | "osCustomerConversation" | "osWarehouseExit" | "osWarehouseOutboundNote" | "osWarehouseOutboundNoteLine" | "osDelivery" | "osDeliveryNote" | "osDeliveryNoteLine" | "osDeliveryEvidence" | "customerCommittedDate" | "customerCommittedDateRevision" | "productionInternalTargetDate" | "productionInternalTargetRevision" | "productionDateIssue" | "customerDateInformedRecord" | "osOrderAllocation" | "osFinishedGoodsReceipt" | "osPurchaseRequest" | "osPurchaseRequestStatusHistory" | "osPurchaseRequestNote" | "osPriceList" | "osPriceEntry" | "osSpecialOrderClassification" | "osCustomerCoverageGrant" | "osCoordinationDecision" | "osIssue" | "osIssueCorrectionRequest" | "osIssueReference" | "osIssueJournalEntry" | "osIssueWorkLink" | "osIssueRelation" | "osIssueResolutionCycle" | "osProductFeedback" | "osIssueOwnershipHistory" | "osRateLimitBucket" | "osContactFollowupPreference"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4287,6 +4335,154 @@ export namespace Prisma {
           count: {
             args: Prisma.OsContactCountArgs<ExtArgs>
             result: $Utils.Optional<OsContactCountAggregateOutputType> | number
+          }
+        }
+      }
+      OsContactEndpointAssociation: {
+        payload: Prisma.$OsContactEndpointAssociationPayload<ExtArgs>
+        fields: Prisma.OsContactEndpointAssociationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsContactEndpointAssociationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactEndpointAssociationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsContactEndpointAssociationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactEndpointAssociationPayload>
+          }
+          findFirst: {
+            args: Prisma.OsContactEndpointAssociationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactEndpointAssociationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsContactEndpointAssociationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactEndpointAssociationPayload>
+          }
+          findMany: {
+            args: Prisma.OsContactEndpointAssociationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactEndpointAssociationPayload>[]
+          }
+          create: {
+            args: Prisma.OsContactEndpointAssociationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactEndpointAssociationPayload>
+          }
+          createMany: {
+            args: Prisma.OsContactEndpointAssociationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsContactEndpointAssociationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactEndpointAssociationPayload>[]
+          }
+          delete: {
+            args: Prisma.OsContactEndpointAssociationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactEndpointAssociationPayload>
+          }
+          update: {
+            args: Prisma.OsContactEndpointAssociationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactEndpointAssociationPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsContactEndpointAssociationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsContactEndpointAssociationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsContactEndpointAssociationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactEndpointAssociationPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsContactEndpointAssociationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactEndpointAssociationPayload>
+          }
+          aggregate: {
+            args: Prisma.OsContactEndpointAssociationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsContactEndpointAssociation>
+          }
+          groupBy: {
+            args: Prisma.OsContactEndpointAssociationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsContactEndpointAssociationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsContactEndpointAssociationCountArgs<ExtArgs>
+            result: $Utils.Optional<OsContactEndpointAssociationCountAggregateOutputType> | number
+          }
+        }
+      }
+      OsContactIdentityReview: {
+        payload: Prisma.$OsContactIdentityReviewPayload<ExtArgs>
+        fields: Prisma.OsContactIdentityReviewFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsContactIdentityReviewFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactIdentityReviewPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsContactIdentityReviewFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactIdentityReviewPayload>
+          }
+          findFirst: {
+            args: Prisma.OsContactIdentityReviewFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactIdentityReviewPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsContactIdentityReviewFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactIdentityReviewPayload>
+          }
+          findMany: {
+            args: Prisma.OsContactIdentityReviewFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactIdentityReviewPayload>[]
+          }
+          create: {
+            args: Prisma.OsContactIdentityReviewCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactIdentityReviewPayload>
+          }
+          createMany: {
+            args: Prisma.OsContactIdentityReviewCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsContactIdentityReviewCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactIdentityReviewPayload>[]
+          }
+          delete: {
+            args: Prisma.OsContactIdentityReviewDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactIdentityReviewPayload>
+          }
+          update: {
+            args: Prisma.OsContactIdentityReviewUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactIdentityReviewPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsContactIdentityReviewDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsContactIdentityReviewUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsContactIdentityReviewUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactIdentityReviewPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsContactIdentityReviewUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsContactIdentityReviewPayload>
+          }
+          aggregate: {
+            args: Prisma.OsContactIdentityReviewAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsContactIdentityReview>
+          }
+          groupBy: {
+            args: Prisma.OsContactIdentityReviewGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsContactIdentityReviewGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsContactIdentityReviewCountArgs<ExtArgs>
+            result: $Utils.Optional<OsContactIdentityReviewCountAggregateOutputType> | number
           }
         }
       }
@@ -8582,6 +8778,80 @@ export namespace Prisma {
           }
         }
       }
+      OsIssueCorrectionRequest: {
+        payload: Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>
+        fields: Prisma.OsIssueCorrectionRequestFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsIssueCorrectionRequestFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsIssueCorrectionRequestPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsIssueCorrectionRequestFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsIssueCorrectionRequestPayload>
+          }
+          findFirst: {
+            args: Prisma.OsIssueCorrectionRequestFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsIssueCorrectionRequestPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsIssueCorrectionRequestFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsIssueCorrectionRequestPayload>
+          }
+          findMany: {
+            args: Prisma.OsIssueCorrectionRequestFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsIssueCorrectionRequestPayload>[]
+          }
+          create: {
+            args: Prisma.OsIssueCorrectionRequestCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsIssueCorrectionRequestPayload>
+          }
+          createMany: {
+            args: Prisma.OsIssueCorrectionRequestCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsIssueCorrectionRequestCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsIssueCorrectionRequestPayload>[]
+          }
+          delete: {
+            args: Prisma.OsIssueCorrectionRequestDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsIssueCorrectionRequestPayload>
+          }
+          update: {
+            args: Prisma.OsIssueCorrectionRequestUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsIssueCorrectionRequestPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsIssueCorrectionRequestDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsIssueCorrectionRequestUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsIssueCorrectionRequestUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsIssueCorrectionRequestPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsIssueCorrectionRequestUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsIssueCorrectionRequestPayload>
+          }
+          aggregate: {
+            args: Prisma.OsIssueCorrectionRequestAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsIssueCorrectionRequest>
+          }
+          groupBy: {
+            args: Prisma.OsIssueCorrectionRequestGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsIssueCorrectionRequestGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsIssueCorrectionRequestCountArgs<ExtArgs>
+            result: $Utils.Optional<OsIssueCorrectionRequestCountAggregateOutputType> | number
+          }
+        }
+      }
       OsIssueReference: {
         payload: Prisma.$OsIssueReferencePayload<ExtArgs>
         fields: Prisma.OsIssueReferenceFieldRefs
@@ -9373,6 +9643,8 @@ export namespace Prisma {
     osOrder?: OsOrderOmit
     osPartyRoleAssignment?: OsPartyRoleAssignmentOmit
     osContact?: OsContactOmit
+    osContactEndpointAssociation?: OsContactEndpointAssociationOmit
+    osContactIdentityReview?: OsContactIdentityReviewOmit
     osFiscalIdentity?: OsFiscalIdentityOmit
     osCommercialAccount?: OsCommercialAccountOmit
     osLead?: OsLeadOmit
@@ -9431,6 +9703,7 @@ export namespace Prisma {
     osCustomerCoverageGrant?: OsCustomerCoverageGrantOmit
     osCoordinationDecision?: OsCoordinationDecisionOmit
     osIssue?: OsIssueOmit
+    osIssueCorrectionRequest?: OsIssueCorrectionRequestOmit
     osIssueReference?: OsIssueReferenceOmit
     osIssueJournalEntry?: OsIssueJournalEntryOmit
     osIssueWorkLink?: OsIssueWorkLinkOmit
@@ -9592,6 +9865,7 @@ export namespace Prisma {
     coordinationDecisions: number
     customerCoverageGrants: number
     issues: number
+    issueCorrectionRequests: number
     issueReferences: number
     issueJournalEntries: number
     issueWorkLinks: number
@@ -9600,6 +9874,8 @@ export namespace Prisma {
     productFeedback: number
     issueOwnershipHistory: number
     contactFollowupPreferences: number
+    contactEndpointAssociations: number
+    contactIdentityReviews: number
   }
 
   export type OsOrganizationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9675,6 +9951,7 @@ export namespace Prisma {
     coordinationDecisions?: boolean | OsOrganizationCountOutputTypeCountCoordinationDecisionsArgs
     customerCoverageGrants?: boolean | OsOrganizationCountOutputTypeCountCustomerCoverageGrantsArgs
     issues?: boolean | OsOrganizationCountOutputTypeCountIssuesArgs
+    issueCorrectionRequests?: boolean | OsOrganizationCountOutputTypeCountIssueCorrectionRequestsArgs
     issueReferences?: boolean | OsOrganizationCountOutputTypeCountIssueReferencesArgs
     issueJournalEntries?: boolean | OsOrganizationCountOutputTypeCountIssueJournalEntriesArgs
     issueWorkLinks?: boolean | OsOrganizationCountOutputTypeCountIssueWorkLinksArgs
@@ -9683,6 +9960,8 @@ export namespace Prisma {
     productFeedback?: boolean | OsOrganizationCountOutputTypeCountProductFeedbackArgs
     issueOwnershipHistory?: boolean | OsOrganizationCountOutputTypeCountIssueOwnershipHistoryArgs
     contactFollowupPreferences?: boolean | OsOrganizationCountOutputTypeCountContactFollowupPreferencesArgs
+    contactEndpointAssociations?: boolean | OsOrganizationCountOutputTypeCountContactEndpointAssociationsArgs
+    contactIdentityReviews?: boolean | OsOrganizationCountOutputTypeCountContactIdentityReviewsArgs
   }
 
   // Custom InputTypes
@@ -10203,6 +10482,13 @@ export namespace Prisma {
   /**
    * OsOrganizationCountOutputType without action
    */
+  export type OsOrganizationCountOutputTypeCountIssueCorrectionRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsIssueCorrectionRequestWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
   export type OsOrganizationCountOutputTypeCountIssueReferencesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OsIssueReferenceWhereInput
   }
@@ -10254,6 +10540,20 @@ export namespace Prisma {
    */
   export type OsOrganizationCountOutputTypeCountContactFollowupPreferencesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OsContactFollowupPreferenceWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountContactEndpointAssociationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsContactEndpointAssociationWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountContactIdentityReviewsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsContactIdentityReviewWhereInput
   }
 
 
@@ -10820,10 +11120,12 @@ export namespace Prisma {
 
   export type OsContactCountOutputType = {
     followupPreferences: number
+    endpointAssociations: number
   }
 
   export type OsContactCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     followupPreferences?: boolean | OsContactCountOutputTypeCountFollowupPreferencesArgs
+    endpointAssociations?: boolean | OsContactCountOutputTypeCountEndpointAssociationsArgs
   }
 
   // Custom InputTypes
@@ -10842,6 +11144,44 @@ export namespace Prisma {
    */
   export type OsContactCountOutputTypeCountFollowupPreferencesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OsContactFollowupPreferenceWhereInput
+  }
+
+  /**
+   * OsContactCountOutputType without action
+   */
+  export type OsContactCountOutputTypeCountEndpointAssociationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsContactEndpointAssociationWhereInput
+  }
+
+
+  /**
+   * Count Type OsContactEndpointAssociationCountOutputType
+   */
+
+  export type OsContactEndpointAssociationCountOutputType = {
+    identityReviews: number
+  }
+
+  export type OsContactEndpointAssociationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    identityReviews?: boolean | OsContactEndpointAssociationCountOutputTypeCountIdentityReviewsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * OsContactEndpointAssociationCountOutputType without action
+   */
+  export type OsContactEndpointAssociationCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociationCountOutputType
+     */
+    select?: OsContactEndpointAssociationCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * OsContactEndpointAssociationCountOutputType without action
+   */
+  export type OsContactEndpointAssociationCountOutputTypeCountIdentityReviewsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsContactIdentityReviewWhereInput
   }
 
 
@@ -11709,6 +12049,7 @@ export namespace Prisma {
     coordinationDecisions?: boolean | OsOrganization$coordinationDecisionsArgs<ExtArgs>
     customerCoverageGrants?: boolean | OsOrganization$customerCoverageGrantsArgs<ExtArgs>
     issues?: boolean | OsOrganization$issuesArgs<ExtArgs>
+    issueCorrectionRequests?: boolean | OsOrganization$issueCorrectionRequestsArgs<ExtArgs>
     issueReferences?: boolean | OsOrganization$issueReferencesArgs<ExtArgs>
     issueJournalEntries?: boolean | OsOrganization$issueJournalEntriesArgs<ExtArgs>
     issueWorkLinks?: boolean | OsOrganization$issueWorkLinksArgs<ExtArgs>
@@ -11717,6 +12058,8 @@ export namespace Prisma {
     productFeedback?: boolean | OsOrganization$productFeedbackArgs<ExtArgs>
     issueOwnershipHistory?: boolean | OsOrganization$issueOwnershipHistoryArgs<ExtArgs>
     contactFollowupPreferences?: boolean | OsOrganization$contactFollowupPreferencesArgs<ExtArgs>
+    contactEndpointAssociations?: boolean | OsOrganization$contactEndpointAssociationsArgs<ExtArgs>
+    contactIdentityReviews?: boolean | OsOrganization$contactIdentityReviewsArgs<ExtArgs>
     _count?: boolean | OsOrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["osOrganization"]>
 
@@ -11827,6 +12170,7 @@ export namespace Prisma {
     coordinationDecisions?: boolean | OsOrganization$coordinationDecisionsArgs<ExtArgs>
     customerCoverageGrants?: boolean | OsOrganization$customerCoverageGrantsArgs<ExtArgs>
     issues?: boolean | OsOrganization$issuesArgs<ExtArgs>
+    issueCorrectionRequests?: boolean | OsOrganization$issueCorrectionRequestsArgs<ExtArgs>
     issueReferences?: boolean | OsOrganization$issueReferencesArgs<ExtArgs>
     issueJournalEntries?: boolean | OsOrganization$issueJournalEntriesArgs<ExtArgs>
     issueWorkLinks?: boolean | OsOrganization$issueWorkLinksArgs<ExtArgs>
@@ -11835,6 +12179,8 @@ export namespace Prisma {
     productFeedback?: boolean | OsOrganization$productFeedbackArgs<ExtArgs>
     issueOwnershipHistory?: boolean | OsOrganization$issueOwnershipHistoryArgs<ExtArgs>
     contactFollowupPreferences?: boolean | OsOrganization$contactFollowupPreferencesArgs<ExtArgs>
+    contactEndpointAssociations?: boolean | OsOrganization$contactEndpointAssociationsArgs<ExtArgs>
+    contactIdentityReviews?: boolean | OsOrganization$contactIdentityReviewsArgs<ExtArgs>
     _count?: boolean | OsOrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OsOrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -11915,6 +12261,7 @@ export namespace Prisma {
       coordinationDecisions: Prisma.$OsCoordinationDecisionPayload<ExtArgs>[]
       customerCoverageGrants: Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>[]
       issues: Prisma.$OsIssuePayload<ExtArgs>[]
+      issueCorrectionRequests: Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>[]
       issueReferences: Prisma.$OsIssueReferencePayload<ExtArgs>[]
       issueJournalEntries: Prisma.$OsIssueJournalEntryPayload<ExtArgs>[]
       issueWorkLinks: Prisma.$OsIssueWorkLinkPayload<ExtArgs>[]
@@ -11923,6 +12270,8 @@ export namespace Prisma {
       productFeedback: Prisma.$OsProductFeedbackPayload<ExtArgs>[]
       issueOwnershipHistory: Prisma.$OsIssueOwnershipHistoryPayload<ExtArgs>[]
       contactFollowupPreferences: Prisma.$OsContactFollowupPreferencePayload<ExtArgs>[]
+      contactEndpointAssociations: Prisma.$OsContactEndpointAssociationPayload<ExtArgs>[]
+      contactIdentityReviews: Prisma.$OsContactIdentityReviewPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12399,6 +12748,7 @@ export namespace Prisma {
     coordinationDecisions<T extends OsOrganization$coordinationDecisionsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$coordinationDecisionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customerCoverageGrants<T extends OsOrganization$customerCoverageGrantsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$customerCoverageGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     issues<T extends OsOrganization$issuesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$issuesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsIssuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    issueCorrectionRequests<T extends OsOrganization$issueCorrectionRequestsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$issueCorrectionRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     issueReferences<T extends OsOrganization$issueReferencesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$issueReferencesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsIssueReferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     issueJournalEntries<T extends OsOrganization$issueJournalEntriesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$issueJournalEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsIssueJournalEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     issueWorkLinks<T extends OsOrganization$issueWorkLinksArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$issueWorkLinksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsIssueWorkLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -12407,6 +12757,8 @@ export namespace Prisma {
     productFeedback<T extends OsOrganization$productFeedbackArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$productFeedbackArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsProductFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     issueOwnershipHistory<T extends OsOrganization$issueOwnershipHistoryArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$issueOwnershipHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsIssueOwnershipHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     contactFollowupPreferences<T extends OsOrganization$contactFollowupPreferencesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$contactFollowupPreferencesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactFollowupPreferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    contactEndpointAssociations<T extends OsOrganization$contactEndpointAssociationsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$contactEndpointAssociationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    contactIdentityReviews<T extends OsOrganization$contactIdentityReviewsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$contactIdentityReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14560,6 +14912,30 @@ export namespace Prisma {
   }
 
   /**
+   * OsOrganization.issueCorrectionRequests
+   */
+  export type OsOrganization$issueCorrectionRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestInclude<ExtArgs> | null
+    where?: OsIssueCorrectionRequestWhereInput
+    orderBy?: OsIssueCorrectionRequestOrderByWithRelationInput | OsIssueCorrectionRequestOrderByWithRelationInput[]
+    cursor?: OsIssueCorrectionRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsIssueCorrectionRequestScalarFieldEnum | OsIssueCorrectionRequestScalarFieldEnum[]
+  }
+
+  /**
    * OsOrganization.issueReferences
    */
   export type OsOrganization$issueReferencesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -14749,6 +15125,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OsContactFollowupPreferenceScalarFieldEnum | OsContactFollowupPreferenceScalarFieldEnum[]
+  }
+
+  /**
+   * OsOrganization.contactEndpointAssociations
+   */
+  export type OsOrganization$contactEndpointAssociationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationInclude<ExtArgs> | null
+    where?: OsContactEndpointAssociationWhereInput
+    orderBy?: OsContactEndpointAssociationOrderByWithRelationInput | OsContactEndpointAssociationOrderByWithRelationInput[]
+    cursor?: OsContactEndpointAssociationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsContactEndpointAssociationScalarFieldEnum | OsContactEndpointAssociationScalarFieldEnum[]
+  }
+
+  /**
+   * OsOrganization.contactIdentityReviews
+   */
+  export type OsOrganization$contactIdentityReviewsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewInclude<ExtArgs> | null
+    where?: OsContactIdentityReviewWhereInput
+    orderBy?: OsContactIdentityReviewOrderByWithRelationInput | OsContactIdentityReviewOrderByWithRelationInput[]
+    cursor?: OsContactIdentityReviewWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsContactIdentityReviewScalarFieldEnum | OsContactIdentityReviewScalarFieldEnum[]
   }
 
   /**
@@ -46769,6 +47193,12 @@ export namespace Prisma {
     relationEndReason: string | null
     phoneRetiredAt: Date | null
     phoneRetiredReason: string | null
+    phoneDisplay: string | null
+    whatsappDisplay: string | null
+    phoneStatus: string | null
+    whatsappStatus: string | null
+    whatsappRetiredAt: Date | null
+    whatsappRetiredReason: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -46790,6 +47220,12 @@ export namespace Prisma {
     relationEndReason: string | null
     phoneRetiredAt: Date | null
     phoneRetiredReason: string | null
+    phoneDisplay: string | null
+    whatsappDisplay: string | null
+    phoneStatus: string | null
+    whatsappStatus: string | null
+    whatsappRetiredAt: Date | null
+    whatsappRetiredReason: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -46811,6 +47247,12 @@ export namespace Prisma {
     relationEndReason: number
     phoneRetiredAt: number
     phoneRetiredReason: number
+    phoneDisplay: number
+    whatsappDisplay: number
+    phoneStatus: number
+    whatsappStatus: number
+    whatsappRetiredAt: number
+    whatsappRetiredReason: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -46842,6 +47284,12 @@ export namespace Prisma {
     relationEndReason?: true
     phoneRetiredAt?: true
     phoneRetiredReason?: true
+    phoneDisplay?: true
+    whatsappDisplay?: true
+    phoneStatus?: true
+    whatsappStatus?: true
+    whatsappRetiredAt?: true
+    whatsappRetiredReason?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -46863,6 +47311,12 @@ export namespace Prisma {
     relationEndReason?: true
     phoneRetiredAt?: true
     phoneRetiredReason?: true
+    phoneDisplay?: true
+    whatsappDisplay?: true
+    phoneStatus?: true
+    whatsappStatus?: true
+    whatsappRetiredAt?: true
+    whatsappRetiredReason?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -46884,6 +47338,12 @@ export namespace Prisma {
     relationEndReason?: true
     phoneRetiredAt?: true
     phoneRetiredReason?: true
+    phoneDisplay?: true
+    whatsappDisplay?: true
+    phoneStatus?: true
+    whatsappStatus?: true
+    whatsappRetiredAt?: true
+    whatsappRetiredReason?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -46992,6 +47452,12 @@ export namespace Prisma {
     relationEndReason: string | null
     phoneRetiredAt: Date | null
     phoneRetiredReason: string | null
+    phoneDisplay: string | null
+    whatsappDisplay: string | null
+    phoneStatus: string | null
+    whatsappStatus: string | null
+    whatsappRetiredAt: Date | null
+    whatsappRetiredReason: string | null
     createdAt: Date
     updatedAt: Date
     _count: OsContactCountAggregateOutputType | null
@@ -47032,11 +47498,18 @@ export namespace Prisma {
     relationEndReason?: boolean
     phoneRetiredAt?: boolean
     phoneRetiredReason?: boolean
+    phoneDisplay?: boolean
+    whatsappDisplay?: boolean
+    phoneStatus?: boolean
+    whatsappStatus?: boolean
+    whatsappRetiredAt?: boolean
+    whatsappRetiredReason?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
     organizationParty?: boolean | OsPartyDefaultArgs<ExtArgs>
     followupPreferences?: boolean | OsContact$followupPreferencesArgs<ExtArgs>
+    endpointAssociations?: boolean | OsContact$endpointAssociationsArgs<ExtArgs>
     _count?: boolean | OsContactCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["osContact"]>
 
@@ -47057,6 +47530,12 @@ export namespace Prisma {
     relationEndReason?: boolean
     phoneRetiredAt?: boolean
     phoneRetiredReason?: boolean
+    phoneDisplay?: boolean
+    whatsappDisplay?: boolean
+    phoneStatus?: boolean
+    whatsappStatus?: boolean
+    whatsappRetiredAt?: boolean
+    whatsappRetiredReason?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
@@ -47080,6 +47559,12 @@ export namespace Prisma {
     relationEndReason?: boolean
     phoneRetiredAt?: boolean
     phoneRetiredReason?: boolean
+    phoneDisplay?: boolean
+    whatsappDisplay?: boolean
+    phoneStatus?: boolean
+    whatsappStatus?: boolean
+    whatsappRetiredAt?: boolean
+    whatsappRetiredReason?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
@@ -47103,15 +47588,22 @@ export namespace Prisma {
     relationEndReason?: boolean
     phoneRetiredAt?: boolean
     phoneRetiredReason?: boolean
+    phoneDisplay?: boolean
+    whatsappDisplay?: boolean
+    phoneStatus?: boolean
+    whatsappStatus?: boolean
+    whatsappRetiredAt?: boolean
+    whatsappRetiredReason?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type OsContactOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "organizationPartyId" | "personPartyId" | "givenName" | "familyName" | "email" | "phone" | "whatsapp" | "title" | "status" | "version" | "relationEndedAt" | "relationEndReason" | "phoneRetiredAt" | "phoneRetiredReason" | "createdAt" | "updatedAt", ExtArgs["result"]["osContact"]>
+  export type OsContactOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "organizationPartyId" | "personPartyId" | "givenName" | "familyName" | "email" | "phone" | "whatsapp" | "title" | "status" | "version" | "relationEndedAt" | "relationEndReason" | "phoneRetiredAt" | "phoneRetiredReason" | "phoneDisplay" | "whatsappDisplay" | "phoneStatus" | "whatsappStatus" | "whatsappRetiredAt" | "whatsappRetiredReason" | "createdAt" | "updatedAt", ExtArgs["result"]["osContact"]>
   export type OsContactInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
     organizationParty?: boolean | OsPartyDefaultArgs<ExtArgs>
     followupPreferences?: boolean | OsContact$followupPreferencesArgs<ExtArgs>
+    endpointAssociations?: boolean | OsContact$endpointAssociationsArgs<ExtArgs>
     _count?: boolean | OsContactCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OsContactIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -47129,6 +47621,7 @@ export namespace Prisma {
       organization: Prisma.$OsOrganizationPayload<ExtArgs>
       organizationParty: Prisma.$OsPartyPayload<ExtArgs>
       followupPreferences: Prisma.$OsContactFollowupPreferencePayload<ExtArgs>[]
+      endpointAssociations: Prisma.$OsContactEndpointAssociationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -47153,6 +47646,15 @@ export namespace Prisma {
        */
       phoneRetiredAt: Date | null
       phoneRetiredReason: string | null
+      /**
+       * T03 C5: entered text kept next to the E.164 value; per-channel status (unverified | verified | identity_review).
+       */
+      phoneDisplay: string | null
+      whatsappDisplay: string | null
+      phoneStatus: string | null
+      whatsappStatus: string | null
+      whatsappRetiredAt: Date | null
+      whatsappRetiredReason: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["osContact"]>
@@ -47552,6 +48054,7 @@ export namespace Prisma {
     organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     organizationParty<T extends OsPartyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsPartyDefaultArgs<ExtArgs>>): Prisma__OsPartyClient<$Result.GetResult<Prisma.$OsPartyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     followupPreferences<T extends OsContact$followupPreferencesArgs<ExtArgs> = {}>(args?: Subset<T, OsContact$followupPreferencesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactFollowupPreferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    endpointAssociations<T extends OsContact$endpointAssociationsArgs<ExtArgs> = {}>(args?: Subset<T, OsContact$endpointAssociationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -47597,6 +48100,12 @@ export namespace Prisma {
     readonly relationEndReason: FieldRef<"OsContact", 'String'>
     readonly phoneRetiredAt: FieldRef<"OsContact", 'DateTime'>
     readonly phoneRetiredReason: FieldRef<"OsContact", 'String'>
+    readonly phoneDisplay: FieldRef<"OsContact", 'String'>
+    readonly whatsappDisplay: FieldRef<"OsContact", 'String'>
+    readonly phoneStatus: FieldRef<"OsContact", 'String'>
+    readonly whatsappStatus: FieldRef<"OsContact", 'String'>
+    readonly whatsappRetiredAt: FieldRef<"OsContact", 'DateTime'>
+    readonly whatsappRetiredReason: FieldRef<"OsContact", 'String'>
     readonly createdAt: FieldRef<"OsContact", 'DateTime'>
     readonly updatedAt: FieldRef<"OsContact", 'DateTime'>
   }
@@ -48019,6 +48528,30 @@ export namespace Prisma {
   }
 
   /**
+   * OsContact.endpointAssociations
+   */
+  export type OsContact$endpointAssociationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationInclude<ExtArgs> | null
+    where?: OsContactEndpointAssociationWhereInput
+    orderBy?: OsContactEndpointAssociationOrderByWithRelationInput | OsContactEndpointAssociationOrderByWithRelationInput[]
+    cursor?: OsContactEndpointAssociationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsContactEndpointAssociationScalarFieldEnum | OsContactEndpointAssociationScalarFieldEnum[]
+  }
+
+  /**
    * OsContact without action
    */
   export type OsContactDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -48034,6 +48567,2389 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: OsContactInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OsContactEndpointAssociation
+   */
+
+  export type AggregateOsContactEndpointAssociation = {
+    _count: OsContactEndpointAssociationCountAggregateOutputType | null
+    _min: OsContactEndpointAssociationMinAggregateOutputType | null
+    _max: OsContactEndpointAssociationMaxAggregateOutputType | null
+  }
+
+  export type OsContactEndpointAssociationMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    partyId: string | null
+    contactId: string | null
+    channel: string | null
+    numberE164: string | null
+    country: string | null
+    enteredText: string | null
+    startedAt: Date | null
+    endedAt: Date | null
+    endReason: string | null
+    verificationMethod: string | null
+    recordedByMemberId: string | null
+    createdAt: Date | null
+  }
+
+  export type OsContactEndpointAssociationMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    partyId: string | null
+    contactId: string | null
+    channel: string | null
+    numberE164: string | null
+    country: string | null
+    enteredText: string | null
+    startedAt: Date | null
+    endedAt: Date | null
+    endReason: string | null
+    verificationMethod: string | null
+    recordedByMemberId: string | null
+    createdAt: Date | null
+  }
+
+  export type OsContactEndpointAssociationCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    partyId: number
+    contactId: number
+    channel: number
+    numberE164: number
+    country: number
+    enteredText: number
+    startedAt: number
+    endedAt: number
+    endReason: number
+    verificationMethod: number
+    recordedByMemberId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type OsContactEndpointAssociationMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    partyId?: true
+    contactId?: true
+    channel?: true
+    numberE164?: true
+    country?: true
+    enteredText?: true
+    startedAt?: true
+    endedAt?: true
+    endReason?: true
+    verificationMethod?: true
+    recordedByMemberId?: true
+    createdAt?: true
+  }
+
+  export type OsContactEndpointAssociationMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    partyId?: true
+    contactId?: true
+    channel?: true
+    numberE164?: true
+    country?: true
+    enteredText?: true
+    startedAt?: true
+    endedAt?: true
+    endReason?: true
+    verificationMethod?: true
+    recordedByMemberId?: true
+    createdAt?: true
+  }
+
+  export type OsContactEndpointAssociationCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    partyId?: true
+    contactId?: true
+    channel?: true
+    numberE164?: true
+    country?: true
+    enteredText?: true
+    startedAt?: true
+    endedAt?: true
+    endReason?: true
+    verificationMethod?: true
+    recordedByMemberId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type OsContactEndpointAssociationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsContactEndpointAssociation to aggregate.
+     */
+    where?: OsContactEndpointAssociationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsContactEndpointAssociations to fetch.
+     */
+    orderBy?: OsContactEndpointAssociationOrderByWithRelationInput | OsContactEndpointAssociationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsContactEndpointAssociationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsContactEndpointAssociations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsContactEndpointAssociations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsContactEndpointAssociations
+    **/
+    _count?: true | OsContactEndpointAssociationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsContactEndpointAssociationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsContactEndpointAssociationMaxAggregateInputType
+  }
+
+  export type GetOsContactEndpointAssociationAggregateType<T extends OsContactEndpointAssociationAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsContactEndpointAssociation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsContactEndpointAssociation[P]>
+      : GetScalarType<T[P], AggregateOsContactEndpointAssociation[P]>
+  }
+
+
+
+
+  export type OsContactEndpointAssociationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsContactEndpointAssociationWhereInput
+    orderBy?: OsContactEndpointAssociationOrderByWithAggregationInput | OsContactEndpointAssociationOrderByWithAggregationInput[]
+    by: OsContactEndpointAssociationScalarFieldEnum[] | OsContactEndpointAssociationScalarFieldEnum
+    having?: OsContactEndpointAssociationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsContactEndpointAssociationCountAggregateInputType | true
+    _min?: OsContactEndpointAssociationMinAggregateInputType
+    _max?: OsContactEndpointAssociationMaxAggregateInputType
+  }
+
+  export type OsContactEndpointAssociationGroupByOutputType = {
+    id: string
+    organizationId: string
+    partyId: string
+    contactId: string
+    channel: string
+    numberE164: string
+    country: string | null
+    enteredText: string | null
+    startedAt: Date
+    endedAt: Date | null
+    endReason: string | null
+    verificationMethod: string | null
+    recordedByMemberId: string | null
+    createdAt: Date
+    _count: OsContactEndpointAssociationCountAggregateOutputType | null
+    _min: OsContactEndpointAssociationMinAggregateOutputType | null
+    _max: OsContactEndpointAssociationMaxAggregateOutputType | null
+  }
+
+  type GetOsContactEndpointAssociationGroupByPayload<T extends OsContactEndpointAssociationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsContactEndpointAssociationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsContactEndpointAssociationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsContactEndpointAssociationGroupByOutputType[P]>
+            : GetScalarType<T[P], OsContactEndpointAssociationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsContactEndpointAssociationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    contactId?: boolean
+    channel?: boolean
+    numberE164?: boolean
+    country?: boolean
+    enteredText?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    endReason?: boolean
+    verificationMethod?: boolean
+    recordedByMemberId?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    contact?: boolean | OsContactDefaultArgs<ExtArgs>
+    identityReviews?: boolean | OsContactEndpointAssociation$identityReviewsArgs<ExtArgs>
+    _count?: boolean | OsContactEndpointAssociationCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osContactEndpointAssociation"]>
+
+  export type OsContactEndpointAssociationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    contactId?: boolean
+    channel?: boolean
+    numberE164?: boolean
+    country?: boolean
+    enteredText?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    endReason?: boolean
+    verificationMethod?: boolean
+    recordedByMemberId?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    contact?: boolean | OsContactDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osContactEndpointAssociation"]>
+
+  export type OsContactEndpointAssociationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    contactId?: boolean
+    channel?: boolean
+    numberE164?: boolean
+    country?: boolean
+    enteredText?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    endReason?: boolean
+    verificationMethod?: boolean
+    recordedByMemberId?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    contact?: boolean | OsContactDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osContactEndpointAssociation"]>
+
+  export type OsContactEndpointAssociationSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    contactId?: boolean
+    channel?: boolean
+    numberE164?: boolean
+    country?: boolean
+    enteredText?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    endReason?: boolean
+    verificationMethod?: boolean
+    recordedByMemberId?: boolean
+    createdAt?: boolean
+  }
+
+  export type OsContactEndpointAssociationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "partyId" | "contactId" | "channel" | "numberE164" | "country" | "enteredText" | "startedAt" | "endedAt" | "endReason" | "verificationMethod" | "recordedByMemberId" | "createdAt", ExtArgs["result"]["osContactEndpointAssociation"]>
+  export type OsContactEndpointAssociationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    contact?: boolean | OsContactDefaultArgs<ExtArgs>
+    identityReviews?: boolean | OsContactEndpointAssociation$identityReviewsArgs<ExtArgs>
+    _count?: boolean | OsContactEndpointAssociationCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type OsContactEndpointAssociationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    contact?: boolean | OsContactDefaultArgs<ExtArgs>
+  }
+  export type OsContactEndpointAssociationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    contact?: boolean | OsContactDefaultArgs<ExtArgs>
+  }
+
+  export type $OsContactEndpointAssociationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsContactEndpointAssociation"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+      contact: Prisma.$OsContactPayload<ExtArgs>
+      identityReviews: Prisma.$OsContactIdentityReviewPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      partyId: string
+      contactId: string
+      channel: string
+      numberE164: string
+      country: string | null
+      enteredText: string | null
+      startedAt: Date
+      endedAt: Date | null
+      endReason: string | null
+      verificationMethod: string | null
+      recordedByMemberId: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["osContactEndpointAssociation"]>
+    composites: {}
+  }
+
+  type OsContactEndpointAssociationGetPayload<S extends boolean | null | undefined | OsContactEndpointAssociationDefaultArgs> = $Result.GetResult<Prisma.$OsContactEndpointAssociationPayload, S>
+
+  type OsContactEndpointAssociationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsContactEndpointAssociationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsContactEndpointAssociationCountAggregateInputType | true
+    }
+
+  export interface OsContactEndpointAssociationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsContactEndpointAssociation'], meta: { name: 'OsContactEndpointAssociation' } }
+    /**
+     * Find zero or one OsContactEndpointAssociation that matches the filter.
+     * @param {OsContactEndpointAssociationFindUniqueArgs} args - Arguments to find a OsContactEndpointAssociation
+     * @example
+     * // Get one OsContactEndpointAssociation
+     * const osContactEndpointAssociation = await prisma.osContactEndpointAssociation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsContactEndpointAssociationFindUniqueArgs>(args: SelectSubset<T, OsContactEndpointAssociationFindUniqueArgs<ExtArgs>>): Prisma__OsContactEndpointAssociationClient<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsContactEndpointAssociation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsContactEndpointAssociationFindUniqueOrThrowArgs} args - Arguments to find a OsContactEndpointAssociation
+     * @example
+     * // Get one OsContactEndpointAssociation
+     * const osContactEndpointAssociation = await prisma.osContactEndpointAssociation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsContactEndpointAssociationFindUniqueOrThrowArgs>(args: SelectSubset<T, OsContactEndpointAssociationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsContactEndpointAssociationClient<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsContactEndpointAssociation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactEndpointAssociationFindFirstArgs} args - Arguments to find a OsContactEndpointAssociation
+     * @example
+     * // Get one OsContactEndpointAssociation
+     * const osContactEndpointAssociation = await prisma.osContactEndpointAssociation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsContactEndpointAssociationFindFirstArgs>(args?: SelectSubset<T, OsContactEndpointAssociationFindFirstArgs<ExtArgs>>): Prisma__OsContactEndpointAssociationClient<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsContactEndpointAssociation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactEndpointAssociationFindFirstOrThrowArgs} args - Arguments to find a OsContactEndpointAssociation
+     * @example
+     * // Get one OsContactEndpointAssociation
+     * const osContactEndpointAssociation = await prisma.osContactEndpointAssociation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsContactEndpointAssociationFindFirstOrThrowArgs>(args?: SelectSubset<T, OsContactEndpointAssociationFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsContactEndpointAssociationClient<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsContactEndpointAssociations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactEndpointAssociationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsContactEndpointAssociations
+     * const osContactEndpointAssociations = await prisma.osContactEndpointAssociation.findMany()
+     * 
+     * // Get first 10 OsContactEndpointAssociations
+     * const osContactEndpointAssociations = await prisma.osContactEndpointAssociation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const osContactEndpointAssociationWithIdOnly = await prisma.osContactEndpointAssociation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OsContactEndpointAssociationFindManyArgs>(args?: SelectSubset<T, OsContactEndpointAssociationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsContactEndpointAssociation.
+     * @param {OsContactEndpointAssociationCreateArgs} args - Arguments to create a OsContactEndpointAssociation.
+     * @example
+     * // Create one OsContactEndpointAssociation
+     * const OsContactEndpointAssociation = await prisma.osContactEndpointAssociation.create({
+     *   data: {
+     *     // ... data to create a OsContactEndpointAssociation
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsContactEndpointAssociationCreateArgs>(args: SelectSubset<T, OsContactEndpointAssociationCreateArgs<ExtArgs>>): Prisma__OsContactEndpointAssociationClient<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsContactEndpointAssociations.
+     * @param {OsContactEndpointAssociationCreateManyArgs} args - Arguments to create many OsContactEndpointAssociations.
+     * @example
+     * // Create many OsContactEndpointAssociations
+     * const osContactEndpointAssociation = await prisma.osContactEndpointAssociation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsContactEndpointAssociationCreateManyArgs>(args?: SelectSubset<T, OsContactEndpointAssociationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsContactEndpointAssociations and returns the data saved in the database.
+     * @param {OsContactEndpointAssociationCreateManyAndReturnArgs} args - Arguments to create many OsContactEndpointAssociations.
+     * @example
+     * // Create many OsContactEndpointAssociations
+     * const osContactEndpointAssociation = await prisma.osContactEndpointAssociation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsContactEndpointAssociations and only return the `id`
+     * const osContactEndpointAssociationWithIdOnly = await prisma.osContactEndpointAssociation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsContactEndpointAssociationCreateManyAndReturnArgs>(args?: SelectSubset<T, OsContactEndpointAssociationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsContactEndpointAssociation.
+     * @param {OsContactEndpointAssociationDeleteArgs} args - Arguments to delete one OsContactEndpointAssociation.
+     * @example
+     * // Delete one OsContactEndpointAssociation
+     * const OsContactEndpointAssociation = await prisma.osContactEndpointAssociation.delete({
+     *   where: {
+     *     // ... filter to delete one OsContactEndpointAssociation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsContactEndpointAssociationDeleteArgs>(args: SelectSubset<T, OsContactEndpointAssociationDeleteArgs<ExtArgs>>): Prisma__OsContactEndpointAssociationClient<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsContactEndpointAssociation.
+     * @param {OsContactEndpointAssociationUpdateArgs} args - Arguments to update one OsContactEndpointAssociation.
+     * @example
+     * // Update one OsContactEndpointAssociation
+     * const osContactEndpointAssociation = await prisma.osContactEndpointAssociation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsContactEndpointAssociationUpdateArgs>(args: SelectSubset<T, OsContactEndpointAssociationUpdateArgs<ExtArgs>>): Prisma__OsContactEndpointAssociationClient<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsContactEndpointAssociations.
+     * @param {OsContactEndpointAssociationDeleteManyArgs} args - Arguments to filter OsContactEndpointAssociations to delete.
+     * @example
+     * // Delete a few OsContactEndpointAssociations
+     * const { count } = await prisma.osContactEndpointAssociation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsContactEndpointAssociationDeleteManyArgs>(args?: SelectSubset<T, OsContactEndpointAssociationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsContactEndpointAssociations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactEndpointAssociationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsContactEndpointAssociations
+     * const osContactEndpointAssociation = await prisma.osContactEndpointAssociation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsContactEndpointAssociationUpdateManyArgs>(args: SelectSubset<T, OsContactEndpointAssociationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsContactEndpointAssociations and returns the data updated in the database.
+     * @param {OsContactEndpointAssociationUpdateManyAndReturnArgs} args - Arguments to update many OsContactEndpointAssociations.
+     * @example
+     * // Update many OsContactEndpointAssociations
+     * const osContactEndpointAssociation = await prisma.osContactEndpointAssociation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsContactEndpointAssociations and only return the `id`
+     * const osContactEndpointAssociationWithIdOnly = await prisma.osContactEndpointAssociation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsContactEndpointAssociationUpdateManyAndReturnArgs>(args: SelectSubset<T, OsContactEndpointAssociationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsContactEndpointAssociation.
+     * @param {OsContactEndpointAssociationUpsertArgs} args - Arguments to update or create a OsContactEndpointAssociation.
+     * @example
+     * // Update or create a OsContactEndpointAssociation
+     * const osContactEndpointAssociation = await prisma.osContactEndpointAssociation.upsert({
+     *   create: {
+     *     // ... data to create a OsContactEndpointAssociation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsContactEndpointAssociation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsContactEndpointAssociationUpsertArgs>(args: SelectSubset<T, OsContactEndpointAssociationUpsertArgs<ExtArgs>>): Prisma__OsContactEndpointAssociationClient<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsContactEndpointAssociations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactEndpointAssociationCountArgs} args - Arguments to filter OsContactEndpointAssociations to count.
+     * @example
+     * // Count the number of OsContactEndpointAssociations
+     * const count = await prisma.osContactEndpointAssociation.count({
+     *   where: {
+     *     // ... the filter for the OsContactEndpointAssociations we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsContactEndpointAssociationCountArgs>(
+      args?: Subset<T, OsContactEndpointAssociationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsContactEndpointAssociationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsContactEndpointAssociation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactEndpointAssociationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsContactEndpointAssociationAggregateArgs>(args: Subset<T, OsContactEndpointAssociationAggregateArgs>): Prisma.PrismaPromise<GetOsContactEndpointAssociationAggregateType<T>>
+
+    /**
+     * Group by OsContactEndpointAssociation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactEndpointAssociationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsContactEndpointAssociationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsContactEndpointAssociationGroupByArgs['orderBy'] }
+        : { orderBy?: OsContactEndpointAssociationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsContactEndpointAssociationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsContactEndpointAssociationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsContactEndpointAssociation model
+   */
+  readonly fields: OsContactEndpointAssociationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsContactEndpointAssociation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsContactEndpointAssociationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    contact<T extends OsContactDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsContactDefaultArgs<ExtArgs>>): Prisma__OsContactClient<$Result.GetResult<Prisma.$OsContactPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    identityReviews<T extends OsContactEndpointAssociation$identityReviewsArgs<ExtArgs> = {}>(args?: Subset<T, OsContactEndpointAssociation$identityReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsContactEndpointAssociation model
+   */
+  interface OsContactEndpointAssociationFieldRefs {
+    readonly id: FieldRef<"OsContactEndpointAssociation", 'String'>
+    readonly organizationId: FieldRef<"OsContactEndpointAssociation", 'String'>
+    readonly partyId: FieldRef<"OsContactEndpointAssociation", 'String'>
+    readonly contactId: FieldRef<"OsContactEndpointAssociation", 'String'>
+    readonly channel: FieldRef<"OsContactEndpointAssociation", 'String'>
+    readonly numberE164: FieldRef<"OsContactEndpointAssociation", 'String'>
+    readonly country: FieldRef<"OsContactEndpointAssociation", 'String'>
+    readonly enteredText: FieldRef<"OsContactEndpointAssociation", 'String'>
+    readonly startedAt: FieldRef<"OsContactEndpointAssociation", 'DateTime'>
+    readonly endedAt: FieldRef<"OsContactEndpointAssociation", 'DateTime'>
+    readonly endReason: FieldRef<"OsContactEndpointAssociation", 'String'>
+    readonly verificationMethod: FieldRef<"OsContactEndpointAssociation", 'String'>
+    readonly recordedByMemberId: FieldRef<"OsContactEndpointAssociation", 'String'>
+    readonly createdAt: FieldRef<"OsContactEndpointAssociation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsContactEndpointAssociation findUnique
+   */
+  export type OsContactEndpointAssociationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsContactEndpointAssociation to fetch.
+     */
+    where: OsContactEndpointAssociationWhereUniqueInput
+  }
+
+  /**
+   * OsContactEndpointAssociation findUniqueOrThrow
+   */
+  export type OsContactEndpointAssociationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsContactEndpointAssociation to fetch.
+     */
+    where: OsContactEndpointAssociationWhereUniqueInput
+  }
+
+  /**
+   * OsContactEndpointAssociation findFirst
+   */
+  export type OsContactEndpointAssociationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsContactEndpointAssociation to fetch.
+     */
+    where?: OsContactEndpointAssociationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsContactEndpointAssociations to fetch.
+     */
+    orderBy?: OsContactEndpointAssociationOrderByWithRelationInput | OsContactEndpointAssociationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsContactEndpointAssociations.
+     */
+    cursor?: OsContactEndpointAssociationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsContactEndpointAssociations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsContactEndpointAssociations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsContactEndpointAssociations.
+     */
+    distinct?: OsContactEndpointAssociationScalarFieldEnum | OsContactEndpointAssociationScalarFieldEnum[]
+  }
+
+  /**
+   * OsContactEndpointAssociation findFirstOrThrow
+   */
+  export type OsContactEndpointAssociationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsContactEndpointAssociation to fetch.
+     */
+    where?: OsContactEndpointAssociationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsContactEndpointAssociations to fetch.
+     */
+    orderBy?: OsContactEndpointAssociationOrderByWithRelationInput | OsContactEndpointAssociationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsContactEndpointAssociations.
+     */
+    cursor?: OsContactEndpointAssociationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsContactEndpointAssociations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsContactEndpointAssociations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsContactEndpointAssociations.
+     */
+    distinct?: OsContactEndpointAssociationScalarFieldEnum | OsContactEndpointAssociationScalarFieldEnum[]
+  }
+
+  /**
+   * OsContactEndpointAssociation findMany
+   */
+  export type OsContactEndpointAssociationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsContactEndpointAssociations to fetch.
+     */
+    where?: OsContactEndpointAssociationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsContactEndpointAssociations to fetch.
+     */
+    orderBy?: OsContactEndpointAssociationOrderByWithRelationInput | OsContactEndpointAssociationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsContactEndpointAssociations.
+     */
+    cursor?: OsContactEndpointAssociationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsContactEndpointAssociations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsContactEndpointAssociations.
+     */
+    skip?: number
+    distinct?: OsContactEndpointAssociationScalarFieldEnum | OsContactEndpointAssociationScalarFieldEnum[]
+  }
+
+  /**
+   * OsContactEndpointAssociation create
+   */
+  export type OsContactEndpointAssociationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsContactEndpointAssociation.
+     */
+    data: XOR<OsContactEndpointAssociationCreateInput, OsContactEndpointAssociationUncheckedCreateInput>
+  }
+
+  /**
+   * OsContactEndpointAssociation createMany
+   */
+  export type OsContactEndpointAssociationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsContactEndpointAssociations.
+     */
+    data: OsContactEndpointAssociationCreateManyInput | OsContactEndpointAssociationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsContactEndpointAssociation createManyAndReturn
+   */
+  export type OsContactEndpointAssociationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsContactEndpointAssociations.
+     */
+    data: OsContactEndpointAssociationCreateManyInput | OsContactEndpointAssociationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsContactEndpointAssociation update
+   */
+  export type OsContactEndpointAssociationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsContactEndpointAssociation.
+     */
+    data: XOR<OsContactEndpointAssociationUpdateInput, OsContactEndpointAssociationUncheckedUpdateInput>
+    /**
+     * Choose, which OsContactEndpointAssociation to update.
+     */
+    where: OsContactEndpointAssociationWhereUniqueInput
+  }
+
+  /**
+   * OsContactEndpointAssociation updateMany
+   */
+  export type OsContactEndpointAssociationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsContactEndpointAssociations.
+     */
+    data: XOR<OsContactEndpointAssociationUpdateManyMutationInput, OsContactEndpointAssociationUncheckedUpdateManyInput>
+    /**
+     * Filter which OsContactEndpointAssociations to update
+     */
+    where?: OsContactEndpointAssociationWhereInput
+    /**
+     * Limit how many OsContactEndpointAssociations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsContactEndpointAssociation updateManyAndReturn
+   */
+  export type OsContactEndpointAssociationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * The data used to update OsContactEndpointAssociations.
+     */
+    data: XOR<OsContactEndpointAssociationUpdateManyMutationInput, OsContactEndpointAssociationUncheckedUpdateManyInput>
+    /**
+     * Filter which OsContactEndpointAssociations to update
+     */
+    where?: OsContactEndpointAssociationWhereInput
+    /**
+     * Limit how many OsContactEndpointAssociations to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsContactEndpointAssociation upsert
+   */
+  export type OsContactEndpointAssociationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsContactEndpointAssociation to update in case it exists.
+     */
+    where: OsContactEndpointAssociationWhereUniqueInput
+    /**
+     * In case the OsContactEndpointAssociation found by the `where` argument doesn't exist, create a new OsContactEndpointAssociation with this data.
+     */
+    create: XOR<OsContactEndpointAssociationCreateInput, OsContactEndpointAssociationUncheckedCreateInput>
+    /**
+     * In case the OsContactEndpointAssociation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsContactEndpointAssociationUpdateInput, OsContactEndpointAssociationUncheckedUpdateInput>
+  }
+
+  /**
+   * OsContactEndpointAssociation delete
+   */
+  export type OsContactEndpointAssociationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationInclude<ExtArgs> | null
+    /**
+     * Filter which OsContactEndpointAssociation to delete.
+     */
+    where: OsContactEndpointAssociationWhereUniqueInput
+  }
+
+  /**
+   * OsContactEndpointAssociation deleteMany
+   */
+  export type OsContactEndpointAssociationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsContactEndpointAssociations to delete
+     */
+    where?: OsContactEndpointAssociationWhereInput
+    /**
+     * Limit how many OsContactEndpointAssociations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsContactEndpointAssociation.identityReviews
+   */
+  export type OsContactEndpointAssociation$identityReviewsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewInclude<ExtArgs> | null
+    where?: OsContactIdentityReviewWhereInput
+    orderBy?: OsContactIdentityReviewOrderByWithRelationInput | OsContactIdentityReviewOrderByWithRelationInput[]
+    cursor?: OsContactIdentityReviewWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsContactIdentityReviewScalarFieldEnum | OsContactIdentityReviewScalarFieldEnum[]
+  }
+
+  /**
+   * OsContactEndpointAssociation without action
+   */
+  export type OsContactEndpointAssociationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactEndpointAssociation
+     */
+    select?: OsContactEndpointAssociationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactEndpointAssociation
+     */
+    omit?: OsContactEndpointAssociationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactEndpointAssociationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OsContactIdentityReview
+   */
+
+  export type AggregateOsContactIdentityReview = {
+    _count: OsContactIdentityReviewCountAggregateOutputType | null
+    _min: OsContactIdentityReviewMinAggregateOutputType | null
+    _max: OsContactIdentityReviewMaxAggregateOutputType | null
+  }
+
+  export type OsContactIdentityReviewMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    partyId: string | null
+    contactId: string | null
+    channel: string | null
+    associationId: string | null
+    matchedAssociationId: string | null
+    status: string | null
+    openedAt: Date | null
+    resolvedAt: Date | null
+    resolvedByMemberId: string | null
+    verificationMethod: string | null
+    note: string | null
+  }
+
+  export type OsContactIdentityReviewMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    partyId: string | null
+    contactId: string | null
+    channel: string | null
+    associationId: string | null
+    matchedAssociationId: string | null
+    status: string | null
+    openedAt: Date | null
+    resolvedAt: Date | null
+    resolvedByMemberId: string | null
+    verificationMethod: string | null
+    note: string | null
+  }
+
+  export type OsContactIdentityReviewCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    partyId: number
+    contactId: number
+    channel: number
+    associationId: number
+    matchedAssociationId: number
+    status: number
+    openedAt: number
+    resolvedAt: number
+    resolvedByMemberId: number
+    verificationMethod: number
+    note: number
+    _all: number
+  }
+
+
+  export type OsContactIdentityReviewMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    partyId?: true
+    contactId?: true
+    channel?: true
+    associationId?: true
+    matchedAssociationId?: true
+    status?: true
+    openedAt?: true
+    resolvedAt?: true
+    resolvedByMemberId?: true
+    verificationMethod?: true
+    note?: true
+  }
+
+  export type OsContactIdentityReviewMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    partyId?: true
+    contactId?: true
+    channel?: true
+    associationId?: true
+    matchedAssociationId?: true
+    status?: true
+    openedAt?: true
+    resolvedAt?: true
+    resolvedByMemberId?: true
+    verificationMethod?: true
+    note?: true
+  }
+
+  export type OsContactIdentityReviewCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    partyId?: true
+    contactId?: true
+    channel?: true
+    associationId?: true
+    matchedAssociationId?: true
+    status?: true
+    openedAt?: true
+    resolvedAt?: true
+    resolvedByMemberId?: true
+    verificationMethod?: true
+    note?: true
+    _all?: true
+  }
+
+  export type OsContactIdentityReviewAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsContactIdentityReview to aggregate.
+     */
+    where?: OsContactIdentityReviewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsContactIdentityReviews to fetch.
+     */
+    orderBy?: OsContactIdentityReviewOrderByWithRelationInput | OsContactIdentityReviewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsContactIdentityReviewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsContactIdentityReviews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsContactIdentityReviews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsContactIdentityReviews
+    **/
+    _count?: true | OsContactIdentityReviewCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsContactIdentityReviewMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsContactIdentityReviewMaxAggregateInputType
+  }
+
+  export type GetOsContactIdentityReviewAggregateType<T extends OsContactIdentityReviewAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsContactIdentityReview]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsContactIdentityReview[P]>
+      : GetScalarType<T[P], AggregateOsContactIdentityReview[P]>
+  }
+
+
+
+
+  export type OsContactIdentityReviewGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsContactIdentityReviewWhereInput
+    orderBy?: OsContactIdentityReviewOrderByWithAggregationInput | OsContactIdentityReviewOrderByWithAggregationInput[]
+    by: OsContactIdentityReviewScalarFieldEnum[] | OsContactIdentityReviewScalarFieldEnum
+    having?: OsContactIdentityReviewScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsContactIdentityReviewCountAggregateInputType | true
+    _min?: OsContactIdentityReviewMinAggregateInputType
+    _max?: OsContactIdentityReviewMaxAggregateInputType
+  }
+
+  export type OsContactIdentityReviewGroupByOutputType = {
+    id: string
+    organizationId: string
+    partyId: string
+    contactId: string
+    channel: string
+    associationId: string
+    matchedAssociationId: string
+    status: string
+    openedAt: Date
+    resolvedAt: Date | null
+    resolvedByMemberId: string | null
+    verificationMethod: string | null
+    note: string | null
+    _count: OsContactIdentityReviewCountAggregateOutputType | null
+    _min: OsContactIdentityReviewMinAggregateOutputType | null
+    _max: OsContactIdentityReviewMaxAggregateOutputType | null
+  }
+
+  type GetOsContactIdentityReviewGroupByPayload<T extends OsContactIdentityReviewGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsContactIdentityReviewGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsContactIdentityReviewGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsContactIdentityReviewGroupByOutputType[P]>
+            : GetScalarType<T[P], OsContactIdentityReviewGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsContactIdentityReviewSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    contactId?: boolean
+    channel?: boolean
+    associationId?: boolean
+    matchedAssociationId?: boolean
+    status?: boolean
+    openedAt?: boolean
+    resolvedAt?: boolean
+    resolvedByMemberId?: boolean
+    verificationMethod?: boolean
+    note?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    association?: boolean | OsContactEndpointAssociationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osContactIdentityReview"]>
+
+  export type OsContactIdentityReviewSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    contactId?: boolean
+    channel?: boolean
+    associationId?: boolean
+    matchedAssociationId?: boolean
+    status?: boolean
+    openedAt?: boolean
+    resolvedAt?: boolean
+    resolvedByMemberId?: boolean
+    verificationMethod?: boolean
+    note?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    association?: boolean | OsContactEndpointAssociationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osContactIdentityReview"]>
+
+  export type OsContactIdentityReviewSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    contactId?: boolean
+    channel?: boolean
+    associationId?: boolean
+    matchedAssociationId?: boolean
+    status?: boolean
+    openedAt?: boolean
+    resolvedAt?: boolean
+    resolvedByMemberId?: boolean
+    verificationMethod?: boolean
+    note?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    association?: boolean | OsContactEndpointAssociationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osContactIdentityReview"]>
+
+  export type OsContactIdentityReviewSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    contactId?: boolean
+    channel?: boolean
+    associationId?: boolean
+    matchedAssociationId?: boolean
+    status?: boolean
+    openedAt?: boolean
+    resolvedAt?: boolean
+    resolvedByMemberId?: boolean
+    verificationMethod?: boolean
+    note?: boolean
+  }
+
+  export type OsContactIdentityReviewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "partyId" | "contactId" | "channel" | "associationId" | "matchedAssociationId" | "status" | "openedAt" | "resolvedAt" | "resolvedByMemberId" | "verificationMethod" | "note", ExtArgs["result"]["osContactIdentityReview"]>
+  export type OsContactIdentityReviewInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    association?: boolean | OsContactEndpointAssociationDefaultArgs<ExtArgs>
+  }
+  export type OsContactIdentityReviewIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    association?: boolean | OsContactEndpointAssociationDefaultArgs<ExtArgs>
+  }
+  export type OsContactIdentityReviewIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    association?: boolean | OsContactEndpointAssociationDefaultArgs<ExtArgs>
+  }
+
+  export type $OsContactIdentityReviewPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsContactIdentityReview"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+      association: Prisma.$OsContactEndpointAssociationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      partyId: string
+      contactId: string
+      channel: string
+      associationId: string
+      matchedAssociationId: string
+      status: string
+      openedAt: Date
+      resolvedAt: Date | null
+      resolvedByMemberId: string | null
+      verificationMethod: string | null
+      note: string | null
+    }, ExtArgs["result"]["osContactIdentityReview"]>
+    composites: {}
+  }
+
+  type OsContactIdentityReviewGetPayload<S extends boolean | null | undefined | OsContactIdentityReviewDefaultArgs> = $Result.GetResult<Prisma.$OsContactIdentityReviewPayload, S>
+
+  type OsContactIdentityReviewCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsContactIdentityReviewFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsContactIdentityReviewCountAggregateInputType | true
+    }
+
+  export interface OsContactIdentityReviewDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsContactIdentityReview'], meta: { name: 'OsContactIdentityReview' } }
+    /**
+     * Find zero or one OsContactIdentityReview that matches the filter.
+     * @param {OsContactIdentityReviewFindUniqueArgs} args - Arguments to find a OsContactIdentityReview
+     * @example
+     * // Get one OsContactIdentityReview
+     * const osContactIdentityReview = await prisma.osContactIdentityReview.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsContactIdentityReviewFindUniqueArgs>(args: SelectSubset<T, OsContactIdentityReviewFindUniqueArgs<ExtArgs>>): Prisma__OsContactIdentityReviewClient<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsContactIdentityReview that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsContactIdentityReviewFindUniqueOrThrowArgs} args - Arguments to find a OsContactIdentityReview
+     * @example
+     * // Get one OsContactIdentityReview
+     * const osContactIdentityReview = await prisma.osContactIdentityReview.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsContactIdentityReviewFindUniqueOrThrowArgs>(args: SelectSubset<T, OsContactIdentityReviewFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsContactIdentityReviewClient<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsContactIdentityReview that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactIdentityReviewFindFirstArgs} args - Arguments to find a OsContactIdentityReview
+     * @example
+     * // Get one OsContactIdentityReview
+     * const osContactIdentityReview = await prisma.osContactIdentityReview.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsContactIdentityReviewFindFirstArgs>(args?: SelectSubset<T, OsContactIdentityReviewFindFirstArgs<ExtArgs>>): Prisma__OsContactIdentityReviewClient<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsContactIdentityReview that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactIdentityReviewFindFirstOrThrowArgs} args - Arguments to find a OsContactIdentityReview
+     * @example
+     * // Get one OsContactIdentityReview
+     * const osContactIdentityReview = await prisma.osContactIdentityReview.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsContactIdentityReviewFindFirstOrThrowArgs>(args?: SelectSubset<T, OsContactIdentityReviewFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsContactIdentityReviewClient<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsContactIdentityReviews that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactIdentityReviewFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsContactIdentityReviews
+     * const osContactIdentityReviews = await prisma.osContactIdentityReview.findMany()
+     * 
+     * // Get first 10 OsContactIdentityReviews
+     * const osContactIdentityReviews = await prisma.osContactIdentityReview.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const osContactIdentityReviewWithIdOnly = await prisma.osContactIdentityReview.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OsContactIdentityReviewFindManyArgs>(args?: SelectSubset<T, OsContactIdentityReviewFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsContactIdentityReview.
+     * @param {OsContactIdentityReviewCreateArgs} args - Arguments to create a OsContactIdentityReview.
+     * @example
+     * // Create one OsContactIdentityReview
+     * const OsContactIdentityReview = await prisma.osContactIdentityReview.create({
+     *   data: {
+     *     // ... data to create a OsContactIdentityReview
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsContactIdentityReviewCreateArgs>(args: SelectSubset<T, OsContactIdentityReviewCreateArgs<ExtArgs>>): Prisma__OsContactIdentityReviewClient<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsContactIdentityReviews.
+     * @param {OsContactIdentityReviewCreateManyArgs} args - Arguments to create many OsContactIdentityReviews.
+     * @example
+     * // Create many OsContactIdentityReviews
+     * const osContactIdentityReview = await prisma.osContactIdentityReview.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsContactIdentityReviewCreateManyArgs>(args?: SelectSubset<T, OsContactIdentityReviewCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsContactIdentityReviews and returns the data saved in the database.
+     * @param {OsContactIdentityReviewCreateManyAndReturnArgs} args - Arguments to create many OsContactIdentityReviews.
+     * @example
+     * // Create many OsContactIdentityReviews
+     * const osContactIdentityReview = await prisma.osContactIdentityReview.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsContactIdentityReviews and only return the `id`
+     * const osContactIdentityReviewWithIdOnly = await prisma.osContactIdentityReview.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsContactIdentityReviewCreateManyAndReturnArgs>(args?: SelectSubset<T, OsContactIdentityReviewCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsContactIdentityReview.
+     * @param {OsContactIdentityReviewDeleteArgs} args - Arguments to delete one OsContactIdentityReview.
+     * @example
+     * // Delete one OsContactIdentityReview
+     * const OsContactIdentityReview = await prisma.osContactIdentityReview.delete({
+     *   where: {
+     *     // ... filter to delete one OsContactIdentityReview
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsContactIdentityReviewDeleteArgs>(args: SelectSubset<T, OsContactIdentityReviewDeleteArgs<ExtArgs>>): Prisma__OsContactIdentityReviewClient<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsContactIdentityReview.
+     * @param {OsContactIdentityReviewUpdateArgs} args - Arguments to update one OsContactIdentityReview.
+     * @example
+     * // Update one OsContactIdentityReview
+     * const osContactIdentityReview = await prisma.osContactIdentityReview.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsContactIdentityReviewUpdateArgs>(args: SelectSubset<T, OsContactIdentityReviewUpdateArgs<ExtArgs>>): Prisma__OsContactIdentityReviewClient<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsContactIdentityReviews.
+     * @param {OsContactIdentityReviewDeleteManyArgs} args - Arguments to filter OsContactIdentityReviews to delete.
+     * @example
+     * // Delete a few OsContactIdentityReviews
+     * const { count } = await prisma.osContactIdentityReview.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsContactIdentityReviewDeleteManyArgs>(args?: SelectSubset<T, OsContactIdentityReviewDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsContactIdentityReviews.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactIdentityReviewUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsContactIdentityReviews
+     * const osContactIdentityReview = await prisma.osContactIdentityReview.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsContactIdentityReviewUpdateManyArgs>(args: SelectSubset<T, OsContactIdentityReviewUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsContactIdentityReviews and returns the data updated in the database.
+     * @param {OsContactIdentityReviewUpdateManyAndReturnArgs} args - Arguments to update many OsContactIdentityReviews.
+     * @example
+     * // Update many OsContactIdentityReviews
+     * const osContactIdentityReview = await prisma.osContactIdentityReview.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsContactIdentityReviews and only return the `id`
+     * const osContactIdentityReviewWithIdOnly = await prisma.osContactIdentityReview.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsContactIdentityReviewUpdateManyAndReturnArgs>(args: SelectSubset<T, OsContactIdentityReviewUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsContactIdentityReview.
+     * @param {OsContactIdentityReviewUpsertArgs} args - Arguments to update or create a OsContactIdentityReview.
+     * @example
+     * // Update or create a OsContactIdentityReview
+     * const osContactIdentityReview = await prisma.osContactIdentityReview.upsert({
+     *   create: {
+     *     // ... data to create a OsContactIdentityReview
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsContactIdentityReview we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsContactIdentityReviewUpsertArgs>(args: SelectSubset<T, OsContactIdentityReviewUpsertArgs<ExtArgs>>): Prisma__OsContactIdentityReviewClient<$Result.GetResult<Prisma.$OsContactIdentityReviewPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsContactIdentityReviews.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactIdentityReviewCountArgs} args - Arguments to filter OsContactIdentityReviews to count.
+     * @example
+     * // Count the number of OsContactIdentityReviews
+     * const count = await prisma.osContactIdentityReview.count({
+     *   where: {
+     *     // ... the filter for the OsContactIdentityReviews we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsContactIdentityReviewCountArgs>(
+      args?: Subset<T, OsContactIdentityReviewCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsContactIdentityReviewCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsContactIdentityReview.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactIdentityReviewAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsContactIdentityReviewAggregateArgs>(args: Subset<T, OsContactIdentityReviewAggregateArgs>): Prisma.PrismaPromise<GetOsContactIdentityReviewAggregateType<T>>
+
+    /**
+     * Group by OsContactIdentityReview.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsContactIdentityReviewGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsContactIdentityReviewGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsContactIdentityReviewGroupByArgs['orderBy'] }
+        : { orderBy?: OsContactIdentityReviewGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsContactIdentityReviewGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsContactIdentityReviewGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsContactIdentityReview model
+   */
+  readonly fields: OsContactIdentityReviewFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsContactIdentityReview.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsContactIdentityReviewClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    association<T extends OsContactEndpointAssociationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsContactEndpointAssociationDefaultArgs<ExtArgs>>): Prisma__OsContactEndpointAssociationClient<$Result.GetResult<Prisma.$OsContactEndpointAssociationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsContactIdentityReview model
+   */
+  interface OsContactIdentityReviewFieldRefs {
+    readonly id: FieldRef<"OsContactIdentityReview", 'String'>
+    readonly organizationId: FieldRef<"OsContactIdentityReview", 'String'>
+    readonly partyId: FieldRef<"OsContactIdentityReview", 'String'>
+    readonly contactId: FieldRef<"OsContactIdentityReview", 'String'>
+    readonly channel: FieldRef<"OsContactIdentityReview", 'String'>
+    readonly associationId: FieldRef<"OsContactIdentityReview", 'String'>
+    readonly matchedAssociationId: FieldRef<"OsContactIdentityReview", 'String'>
+    readonly status: FieldRef<"OsContactIdentityReview", 'String'>
+    readonly openedAt: FieldRef<"OsContactIdentityReview", 'DateTime'>
+    readonly resolvedAt: FieldRef<"OsContactIdentityReview", 'DateTime'>
+    readonly resolvedByMemberId: FieldRef<"OsContactIdentityReview", 'String'>
+    readonly verificationMethod: FieldRef<"OsContactIdentityReview", 'String'>
+    readonly note: FieldRef<"OsContactIdentityReview", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsContactIdentityReview findUnique
+   */
+  export type OsContactIdentityReviewFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewInclude<ExtArgs> | null
+    /**
+     * Filter, which OsContactIdentityReview to fetch.
+     */
+    where: OsContactIdentityReviewWhereUniqueInput
+  }
+
+  /**
+   * OsContactIdentityReview findUniqueOrThrow
+   */
+  export type OsContactIdentityReviewFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewInclude<ExtArgs> | null
+    /**
+     * Filter, which OsContactIdentityReview to fetch.
+     */
+    where: OsContactIdentityReviewWhereUniqueInput
+  }
+
+  /**
+   * OsContactIdentityReview findFirst
+   */
+  export type OsContactIdentityReviewFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewInclude<ExtArgs> | null
+    /**
+     * Filter, which OsContactIdentityReview to fetch.
+     */
+    where?: OsContactIdentityReviewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsContactIdentityReviews to fetch.
+     */
+    orderBy?: OsContactIdentityReviewOrderByWithRelationInput | OsContactIdentityReviewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsContactIdentityReviews.
+     */
+    cursor?: OsContactIdentityReviewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsContactIdentityReviews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsContactIdentityReviews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsContactIdentityReviews.
+     */
+    distinct?: OsContactIdentityReviewScalarFieldEnum | OsContactIdentityReviewScalarFieldEnum[]
+  }
+
+  /**
+   * OsContactIdentityReview findFirstOrThrow
+   */
+  export type OsContactIdentityReviewFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewInclude<ExtArgs> | null
+    /**
+     * Filter, which OsContactIdentityReview to fetch.
+     */
+    where?: OsContactIdentityReviewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsContactIdentityReviews to fetch.
+     */
+    orderBy?: OsContactIdentityReviewOrderByWithRelationInput | OsContactIdentityReviewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsContactIdentityReviews.
+     */
+    cursor?: OsContactIdentityReviewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsContactIdentityReviews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsContactIdentityReviews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsContactIdentityReviews.
+     */
+    distinct?: OsContactIdentityReviewScalarFieldEnum | OsContactIdentityReviewScalarFieldEnum[]
+  }
+
+  /**
+   * OsContactIdentityReview findMany
+   */
+  export type OsContactIdentityReviewFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewInclude<ExtArgs> | null
+    /**
+     * Filter, which OsContactIdentityReviews to fetch.
+     */
+    where?: OsContactIdentityReviewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsContactIdentityReviews to fetch.
+     */
+    orderBy?: OsContactIdentityReviewOrderByWithRelationInput | OsContactIdentityReviewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsContactIdentityReviews.
+     */
+    cursor?: OsContactIdentityReviewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsContactIdentityReviews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsContactIdentityReviews.
+     */
+    skip?: number
+    distinct?: OsContactIdentityReviewScalarFieldEnum | OsContactIdentityReviewScalarFieldEnum[]
+  }
+
+  /**
+   * OsContactIdentityReview create
+   */
+  export type OsContactIdentityReviewCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsContactIdentityReview.
+     */
+    data: XOR<OsContactIdentityReviewCreateInput, OsContactIdentityReviewUncheckedCreateInput>
+  }
+
+  /**
+   * OsContactIdentityReview createMany
+   */
+  export type OsContactIdentityReviewCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsContactIdentityReviews.
+     */
+    data: OsContactIdentityReviewCreateManyInput | OsContactIdentityReviewCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsContactIdentityReview createManyAndReturn
+   */
+  export type OsContactIdentityReviewCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsContactIdentityReviews.
+     */
+    data: OsContactIdentityReviewCreateManyInput | OsContactIdentityReviewCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsContactIdentityReview update
+   */
+  export type OsContactIdentityReviewUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsContactIdentityReview.
+     */
+    data: XOR<OsContactIdentityReviewUpdateInput, OsContactIdentityReviewUncheckedUpdateInput>
+    /**
+     * Choose, which OsContactIdentityReview to update.
+     */
+    where: OsContactIdentityReviewWhereUniqueInput
+  }
+
+  /**
+   * OsContactIdentityReview updateMany
+   */
+  export type OsContactIdentityReviewUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsContactIdentityReviews.
+     */
+    data: XOR<OsContactIdentityReviewUpdateManyMutationInput, OsContactIdentityReviewUncheckedUpdateManyInput>
+    /**
+     * Filter which OsContactIdentityReviews to update
+     */
+    where?: OsContactIdentityReviewWhereInput
+    /**
+     * Limit how many OsContactIdentityReviews to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsContactIdentityReview updateManyAndReturn
+   */
+  export type OsContactIdentityReviewUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * The data used to update OsContactIdentityReviews.
+     */
+    data: XOR<OsContactIdentityReviewUpdateManyMutationInput, OsContactIdentityReviewUncheckedUpdateManyInput>
+    /**
+     * Filter which OsContactIdentityReviews to update
+     */
+    where?: OsContactIdentityReviewWhereInput
+    /**
+     * Limit how many OsContactIdentityReviews to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsContactIdentityReview upsert
+   */
+  export type OsContactIdentityReviewUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsContactIdentityReview to update in case it exists.
+     */
+    where: OsContactIdentityReviewWhereUniqueInput
+    /**
+     * In case the OsContactIdentityReview found by the `where` argument doesn't exist, create a new OsContactIdentityReview with this data.
+     */
+    create: XOR<OsContactIdentityReviewCreateInput, OsContactIdentityReviewUncheckedCreateInput>
+    /**
+     * In case the OsContactIdentityReview was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsContactIdentityReviewUpdateInput, OsContactIdentityReviewUncheckedUpdateInput>
+  }
+
+  /**
+   * OsContactIdentityReview delete
+   */
+  export type OsContactIdentityReviewDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewInclude<ExtArgs> | null
+    /**
+     * Filter which OsContactIdentityReview to delete.
+     */
+    where: OsContactIdentityReviewWhereUniqueInput
+  }
+
+  /**
+   * OsContactIdentityReview deleteMany
+   */
+  export type OsContactIdentityReviewDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsContactIdentityReviews to delete
+     */
+    where?: OsContactIdentityReviewWhereInput
+    /**
+     * Limit how many OsContactIdentityReviews to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsContactIdentityReview without action
+   */
+  export type OsContactIdentityReviewDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsContactIdentityReview
+     */
+    select?: OsContactIdentityReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsContactIdentityReview
+     */
+    omit?: OsContactIdentityReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsContactIdentityReviewInclude<ExtArgs> | null
   }
 
 
@@ -115660,6 +118576,7 @@ export namespace Prisma {
     relationsTo?: boolean | OsIssue$relationsToArgs<ExtArgs>
     resolutionCycles?: boolean | OsIssue$resolutionCyclesArgs<ExtArgs>
     ownershipHistory?: boolean | OsIssue$ownershipHistoryArgs<ExtArgs>
+    correctionRequest?: boolean | OsIssue$correctionRequestArgs<ExtArgs>
     _count?: boolean | OsIssueCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["osIssue"]>
 
@@ -115744,6 +118661,7 @@ export namespace Prisma {
     relationsTo?: boolean | OsIssue$relationsToArgs<ExtArgs>
     resolutionCycles?: boolean | OsIssue$resolutionCyclesArgs<ExtArgs>
     ownershipHistory?: boolean | OsIssue$ownershipHistoryArgs<ExtArgs>
+    correctionRequest?: boolean | OsIssue$correctionRequestArgs<ExtArgs>
     _count?: boolean | OsIssueCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OsIssueIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -115764,6 +118682,7 @@ export namespace Prisma {
       relationsTo: Prisma.$OsIssueRelationPayload<ExtArgs>[]
       resolutionCycles: Prisma.$OsIssueResolutionCyclePayload<ExtArgs>[]
       ownershipHistory: Prisma.$OsIssueOwnershipHistoryPayload<ExtArgs>[]
+      correctionRequest: Prisma.$OsIssueCorrectionRequestPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -116188,6 +119107,7 @@ export namespace Prisma {
     relationsTo<T extends OsIssue$relationsToArgs<ExtArgs> = {}>(args?: Subset<T, OsIssue$relationsToArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsIssueRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     resolutionCycles<T extends OsIssue$resolutionCyclesArgs<ExtArgs> = {}>(args?: Subset<T, OsIssue$resolutionCyclesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsIssueResolutionCyclePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ownershipHistory<T extends OsIssue$ownershipHistoryArgs<ExtArgs> = {}>(args?: Subset<T, OsIssue$ownershipHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsIssueOwnershipHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    correctionRequest<T extends OsIssue$correctionRequestArgs<ExtArgs> = {}>(args?: Subset<T, OsIssue$correctionRequestArgs<ExtArgs>>): Prisma__OsIssueCorrectionRequestClient<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -116801,6 +119721,25 @@ export namespace Prisma {
   }
 
   /**
+   * OsIssue.correctionRequest
+   */
+  export type OsIssue$correctionRequestArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestInclude<ExtArgs> | null
+    where?: OsIssueCorrectionRequestWhereInput
+  }
+
+  /**
    * OsIssue without action
    */
   export type OsIssueDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -116816,6 +119755,1262 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: OsIssueInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OsIssueCorrectionRequest
+   */
+
+  export type AggregateOsIssueCorrectionRequest = {
+    _count: OsIssueCorrectionRequestCountAggregateOutputType | null
+    _avg: OsIssueCorrectionRequestAvgAggregateOutputType | null
+    _sum: OsIssueCorrectionRequestSumAggregateOutputType | null
+    _min: OsIssueCorrectionRequestMinAggregateOutputType | null
+    _max: OsIssueCorrectionRequestMaxAggregateOutputType | null
+  }
+
+  export type OsIssueCorrectionRequestAvgAggregateOutputType = {
+    targetVersionAtRequest: number | null
+  }
+
+  export type OsIssueCorrectionRequestSumAggregateOutputType = {
+    targetVersionAtRequest: number | null
+  }
+
+  export type OsIssueCorrectionRequestMinAggregateOutputType = {
+    issueId: string | null
+    organizationId: string | null
+    partyId: string | null
+    contactId: string | null
+    locationId: string | null
+    field: string | null
+    proposedValue: string | null
+    source: string | null
+    decision: string | null
+    appliedEventId: string | null
+    decisionReason: string | null
+    decidedByMemberId: string | null
+    decidedAt: Date | null
+    createdAt: Date | null
+    targetVersionAtRequest: number | null
+    valueMatched: boolean | null
+    differenceExplanation: string | null
+  }
+
+  export type OsIssueCorrectionRequestMaxAggregateOutputType = {
+    issueId: string | null
+    organizationId: string | null
+    partyId: string | null
+    contactId: string | null
+    locationId: string | null
+    field: string | null
+    proposedValue: string | null
+    source: string | null
+    decision: string | null
+    appliedEventId: string | null
+    decisionReason: string | null
+    decidedByMemberId: string | null
+    decidedAt: Date | null
+    createdAt: Date | null
+    targetVersionAtRequest: number | null
+    valueMatched: boolean | null
+    differenceExplanation: string | null
+  }
+
+  export type OsIssueCorrectionRequestCountAggregateOutputType = {
+    issueId: number
+    organizationId: number
+    partyId: number
+    contactId: number
+    locationId: number
+    field: number
+    proposedValue: number
+    source: number
+    decision: number
+    appliedEventId: number
+    decisionReason: number
+    decidedByMemberId: number
+    decidedAt: number
+    createdAt: number
+    targetVersionAtRequest: number
+    valueMatched: number
+    differenceExplanation: number
+    _all: number
+  }
+
+
+  export type OsIssueCorrectionRequestAvgAggregateInputType = {
+    targetVersionAtRequest?: true
+  }
+
+  export type OsIssueCorrectionRequestSumAggregateInputType = {
+    targetVersionAtRequest?: true
+  }
+
+  export type OsIssueCorrectionRequestMinAggregateInputType = {
+    issueId?: true
+    organizationId?: true
+    partyId?: true
+    contactId?: true
+    locationId?: true
+    field?: true
+    proposedValue?: true
+    source?: true
+    decision?: true
+    appliedEventId?: true
+    decisionReason?: true
+    decidedByMemberId?: true
+    decidedAt?: true
+    createdAt?: true
+    targetVersionAtRequest?: true
+    valueMatched?: true
+    differenceExplanation?: true
+  }
+
+  export type OsIssueCorrectionRequestMaxAggregateInputType = {
+    issueId?: true
+    organizationId?: true
+    partyId?: true
+    contactId?: true
+    locationId?: true
+    field?: true
+    proposedValue?: true
+    source?: true
+    decision?: true
+    appliedEventId?: true
+    decisionReason?: true
+    decidedByMemberId?: true
+    decidedAt?: true
+    createdAt?: true
+    targetVersionAtRequest?: true
+    valueMatched?: true
+    differenceExplanation?: true
+  }
+
+  export type OsIssueCorrectionRequestCountAggregateInputType = {
+    issueId?: true
+    organizationId?: true
+    partyId?: true
+    contactId?: true
+    locationId?: true
+    field?: true
+    proposedValue?: true
+    source?: true
+    decision?: true
+    appliedEventId?: true
+    decisionReason?: true
+    decidedByMemberId?: true
+    decidedAt?: true
+    createdAt?: true
+    targetVersionAtRequest?: true
+    valueMatched?: true
+    differenceExplanation?: true
+    _all?: true
+  }
+
+  export type OsIssueCorrectionRequestAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsIssueCorrectionRequest to aggregate.
+     */
+    where?: OsIssueCorrectionRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsIssueCorrectionRequests to fetch.
+     */
+    orderBy?: OsIssueCorrectionRequestOrderByWithRelationInput | OsIssueCorrectionRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsIssueCorrectionRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsIssueCorrectionRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsIssueCorrectionRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsIssueCorrectionRequests
+    **/
+    _count?: true | OsIssueCorrectionRequestCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OsIssueCorrectionRequestAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OsIssueCorrectionRequestSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsIssueCorrectionRequestMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsIssueCorrectionRequestMaxAggregateInputType
+  }
+
+  export type GetOsIssueCorrectionRequestAggregateType<T extends OsIssueCorrectionRequestAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsIssueCorrectionRequest]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsIssueCorrectionRequest[P]>
+      : GetScalarType<T[P], AggregateOsIssueCorrectionRequest[P]>
+  }
+
+
+
+
+  export type OsIssueCorrectionRequestGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsIssueCorrectionRequestWhereInput
+    orderBy?: OsIssueCorrectionRequestOrderByWithAggregationInput | OsIssueCorrectionRequestOrderByWithAggregationInput[]
+    by: OsIssueCorrectionRequestScalarFieldEnum[] | OsIssueCorrectionRequestScalarFieldEnum
+    having?: OsIssueCorrectionRequestScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsIssueCorrectionRequestCountAggregateInputType | true
+    _avg?: OsIssueCorrectionRequestAvgAggregateInputType
+    _sum?: OsIssueCorrectionRequestSumAggregateInputType
+    _min?: OsIssueCorrectionRequestMinAggregateInputType
+    _max?: OsIssueCorrectionRequestMaxAggregateInputType
+  }
+
+  export type OsIssueCorrectionRequestGroupByOutputType = {
+    issueId: string
+    organizationId: string
+    partyId: string
+    contactId: string | null
+    locationId: string | null
+    field: string
+    proposedValue: string
+    source: string
+    decision: string | null
+    appliedEventId: string | null
+    decisionReason: string | null
+    decidedByMemberId: string | null
+    decidedAt: Date | null
+    createdAt: Date
+    targetVersionAtRequest: number | null
+    valueMatched: boolean | null
+    differenceExplanation: string | null
+    _count: OsIssueCorrectionRequestCountAggregateOutputType | null
+    _avg: OsIssueCorrectionRequestAvgAggregateOutputType | null
+    _sum: OsIssueCorrectionRequestSumAggregateOutputType | null
+    _min: OsIssueCorrectionRequestMinAggregateOutputType | null
+    _max: OsIssueCorrectionRequestMaxAggregateOutputType | null
+  }
+
+  type GetOsIssueCorrectionRequestGroupByPayload<T extends OsIssueCorrectionRequestGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsIssueCorrectionRequestGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsIssueCorrectionRequestGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsIssueCorrectionRequestGroupByOutputType[P]>
+            : GetScalarType<T[P], OsIssueCorrectionRequestGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsIssueCorrectionRequestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    issueId?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    contactId?: boolean
+    locationId?: boolean
+    field?: boolean
+    proposedValue?: boolean
+    source?: boolean
+    decision?: boolean
+    appliedEventId?: boolean
+    decisionReason?: boolean
+    decidedByMemberId?: boolean
+    decidedAt?: boolean
+    createdAt?: boolean
+    targetVersionAtRequest?: boolean
+    valueMatched?: boolean
+    differenceExplanation?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    issue?: boolean | OsIssueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osIssueCorrectionRequest"]>
+
+  export type OsIssueCorrectionRequestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    issueId?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    contactId?: boolean
+    locationId?: boolean
+    field?: boolean
+    proposedValue?: boolean
+    source?: boolean
+    decision?: boolean
+    appliedEventId?: boolean
+    decisionReason?: boolean
+    decidedByMemberId?: boolean
+    decidedAt?: boolean
+    createdAt?: boolean
+    targetVersionAtRequest?: boolean
+    valueMatched?: boolean
+    differenceExplanation?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    issue?: boolean | OsIssueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osIssueCorrectionRequest"]>
+
+  export type OsIssueCorrectionRequestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    issueId?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    contactId?: boolean
+    locationId?: boolean
+    field?: boolean
+    proposedValue?: boolean
+    source?: boolean
+    decision?: boolean
+    appliedEventId?: boolean
+    decisionReason?: boolean
+    decidedByMemberId?: boolean
+    decidedAt?: boolean
+    createdAt?: boolean
+    targetVersionAtRequest?: boolean
+    valueMatched?: boolean
+    differenceExplanation?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    issue?: boolean | OsIssueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osIssueCorrectionRequest"]>
+
+  export type OsIssueCorrectionRequestSelectScalar = {
+    issueId?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    contactId?: boolean
+    locationId?: boolean
+    field?: boolean
+    proposedValue?: boolean
+    source?: boolean
+    decision?: boolean
+    appliedEventId?: boolean
+    decisionReason?: boolean
+    decidedByMemberId?: boolean
+    decidedAt?: boolean
+    createdAt?: boolean
+    targetVersionAtRequest?: boolean
+    valueMatched?: boolean
+    differenceExplanation?: boolean
+  }
+
+  export type OsIssueCorrectionRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"issueId" | "organizationId" | "partyId" | "contactId" | "locationId" | "field" | "proposedValue" | "source" | "decision" | "appliedEventId" | "decisionReason" | "decidedByMemberId" | "decidedAt" | "createdAt" | "targetVersionAtRequest" | "valueMatched" | "differenceExplanation", ExtArgs["result"]["osIssueCorrectionRequest"]>
+  export type OsIssueCorrectionRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    issue?: boolean | OsIssueDefaultArgs<ExtArgs>
+  }
+  export type OsIssueCorrectionRequestIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    issue?: boolean | OsIssueDefaultArgs<ExtArgs>
+  }
+  export type OsIssueCorrectionRequestIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    issue?: boolean | OsIssueDefaultArgs<ExtArgs>
+  }
+
+  export type $OsIssueCorrectionRequestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsIssueCorrectionRequest"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+      issue: Prisma.$OsIssuePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      issueId: string
+      organizationId: string
+      partyId: string
+      contactId: string | null
+      locationId: string | null
+      field: string
+      proposedValue: string
+      source: string
+      decision: string | null
+      appliedEventId: string | null
+      decisionReason: string | null
+      decidedByMemberId: string | null
+      decidedAt: Date | null
+      createdAt: Date
+      targetVersionAtRequest: number | null
+      valueMatched: boolean | null
+      differenceExplanation: string | null
+    }, ExtArgs["result"]["osIssueCorrectionRequest"]>
+    composites: {}
+  }
+
+  type OsIssueCorrectionRequestGetPayload<S extends boolean | null | undefined | OsIssueCorrectionRequestDefaultArgs> = $Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload, S>
+
+  type OsIssueCorrectionRequestCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsIssueCorrectionRequestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsIssueCorrectionRequestCountAggregateInputType | true
+    }
+
+  export interface OsIssueCorrectionRequestDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsIssueCorrectionRequest'], meta: { name: 'OsIssueCorrectionRequest' } }
+    /**
+     * Find zero or one OsIssueCorrectionRequest that matches the filter.
+     * @param {OsIssueCorrectionRequestFindUniqueArgs} args - Arguments to find a OsIssueCorrectionRequest
+     * @example
+     * // Get one OsIssueCorrectionRequest
+     * const osIssueCorrectionRequest = await prisma.osIssueCorrectionRequest.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsIssueCorrectionRequestFindUniqueArgs>(args: SelectSubset<T, OsIssueCorrectionRequestFindUniqueArgs<ExtArgs>>): Prisma__OsIssueCorrectionRequestClient<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsIssueCorrectionRequest that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsIssueCorrectionRequestFindUniqueOrThrowArgs} args - Arguments to find a OsIssueCorrectionRequest
+     * @example
+     * // Get one OsIssueCorrectionRequest
+     * const osIssueCorrectionRequest = await prisma.osIssueCorrectionRequest.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsIssueCorrectionRequestFindUniqueOrThrowArgs>(args: SelectSubset<T, OsIssueCorrectionRequestFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsIssueCorrectionRequestClient<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsIssueCorrectionRequest that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsIssueCorrectionRequestFindFirstArgs} args - Arguments to find a OsIssueCorrectionRequest
+     * @example
+     * // Get one OsIssueCorrectionRequest
+     * const osIssueCorrectionRequest = await prisma.osIssueCorrectionRequest.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsIssueCorrectionRequestFindFirstArgs>(args?: SelectSubset<T, OsIssueCorrectionRequestFindFirstArgs<ExtArgs>>): Prisma__OsIssueCorrectionRequestClient<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsIssueCorrectionRequest that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsIssueCorrectionRequestFindFirstOrThrowArgs} args - Arguments to find a OsIssueCorrectionRequest
+     * @example
+     * // Get one OsIssueCorrectionRequest
+     * const osIssueCorrectionRequest = await prisma.osIssueCorrectionRequest.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsIssueCorrectionRequestFindFirstOrThrowArgs>(args?: SelectSubset<T, OsIssueCorrectionRequestFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsIssueCorrectionRequestClient<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsIssueCorrectionRequests that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsIssueCorrectionRequestFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsIssueCorrectionRequests
+     * const osIssueCorrectionRequests = await prisma.osIssueCorrectionRequest.findMany()
+     * 
+     * // Get first 10 OsIssueCorrectionRequests
+     * const osIssueCorrectionRequests = await prisma.osIssueCorrectionRequest.findMany({ take: 10 })
+     * 
+     * // Only select the `issueId`
+     * const osIssueCorrectionRequestWithIssueIdOnly = await prisma.osIssueCorrectionRequest.findMany({ select: { issueId: true } })
+     * 
+     */
+    findMany<T extends OsIssueCorrectionRequestFindManyArgs>(args?: SelectSubset<T, OsIssueCorrectionRequestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsIssueCorrectionRequest.
+     * @param {OsIssueCorrectionRequestCreateArgs} args - Arguments to create a OsIssueCorrectionRequest.
+     * @example
+     * // Create one OsIssueCorrectionRequest
+     * const OsIssueCorrectionRequest = await prisma.osIssueCorrectionRequest.create({
+     *   data: {
+     *     // ... data to create a OsIssueCorrectionRequest
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsIssueCorrectionRequestCreateArgs>(args: SelectSubset<T, OsIssueCorrectionRequestCreateArgs<ExtArgs>>): Prisma__OsIssueCorrectionRequestClient<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsIssueCorrectionRequests.
+     * @param {OsIssueCorrectionRequestCreateManyArgs} args - Arguments to create many OsIssueCorrectionRequests.
+     * @example
+     * // Create many OsIssueCorrectionRequests
+     * const osIssueCorrectionRequest = await prisma.osIssueCorrectionRequest.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsIssueCorrectionRequestCreateManyArgs>(args?: SelectSubset<T, OsIssueCorrectionRequestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsIssueCorrectionRequests and returns the data saved in the database.
+     * @param {OsIssueCorrectionRequestCreateManyAndReturnArgs} args - Arguments to create many OsIssueCorrectionRequests.
+     * @example
+     * // Create many OsIssueCorrectionRequests
+     * const osIssueCorrectionRequest = await prisma.osIssueCorrectionRequest.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsIssueCorrectionRequests and only return the `issueId`
+     * const osIssueCorrectionRequestWithIssueIdOnly = await prisma.osIssueCorrectionRequest.createManyAndReturn({
+     *   select: { issueId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsIssueCorrectionRequestCreateManyAndReturnArgs>(args?: SelectSubset<T, OsIssueCorrectionRequestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsIssueCorrectionRequest.
+     * @param {OsIssueCorrectionRequestDeleteArgs} args - Arguments to delete one OsIssueCorrectionRequest.
+     * @example
+     * // Delete one OsIssueCorrectionRequest
+     * const OsIssueCorrectionRequest = await prisma.osIssueCorrectionRequest.delete({
+     *   where: {
+     *     // ... filter to delete one OsIssueCorrectionRequest
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsIssueCorrectionRequestDeleteArgs>(args: SelectSubset<T, OsIssueCorrectionRequestDeleteArgs<ExtArgs>>): Prisma__OsIssueCorrectionRequestClient<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsIssueCorrectionRequest.
+     * @param {OsIssueCorrectionRequestUpdateArgs} args - Arguments to update one OsIssueCorrectionRequest.
+     * @example
+     * // Update one OsIssueCorrectionRequest
+     * const osIssueCorrectionRequest = await prisma.osIssueCorrectionRequest.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsIssueCorrectionRequestUpdateArgs>(args: SelectSubset<T, OsIssueCorrectionRequestUpdateArgs<ExtArgs>>): Prisma__OsIssueCorrectionRequestClient<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsIssueCorrectionRequests.
+     * @param {OsIssueCorrectionRequestDeleteManyArgs} args - Arguments to filter OsIssueCorrectionRequests to delete.
+     * @example
+     * // Delete a few OsIssueCorrectionRequests
+     * const { count } = await prisma.osIssueCorrectionRequest.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsIssueCorrectionRequestDeleteManyArgs>(args?: SelectSubset<T, OsIssueCorrectionRequestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsIssueCorrectionRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsIssueCorrectionRequestUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsIssueCorrectionRequests
+     * const osIssueCorrectionRequest = await prisma.osIssueCorrectionRequest.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsIssueCorrectionRequestUpdateManyArgs>(args: SelectSubset<T, OsIssueCorrectionRequestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsIssueCorrectionRequests and returns the data updated in the database.
+     * @param {OsIssueCorrectionRequestUpdateManyAndReturnArgs} args - Arguments to update many OsIssueCorrectionRequests.
+     * @example
+     * // Update many OsIssueCorrectionRequests
+     * const osIssueCorrectionRequest = await prisma.osIssueCorrectionRequest.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsIssueCorrectionRequests and only return the `issueId`
+     * const osIssueCorrectionRequestWithIssueIdOnly = await prisma.osIssueCorrectionRequest.updateManyAndReturn({
+     *   select: { issueId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsIssueCorrectionRequestUpdateManyAndReturnArgs>(args: SelectSubset<T, OsIssueCorrectionRequestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsIssueCorrectionRequest.
+     * @param {OsIssueCorrectionRequestUpsertArgs} args - Arguments to update or create a OsIssueCorrectionRequest.
+     * @example
+     * // Update or create a OsIssueCorrectionRequest
+     * const osIssueCorrectionRequest = await prisma.osIssueCorrectionRequest.upsert({
+     *   create: {
+     *     // ... data to create a OsIssueCorrectionRequest
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsIssueCorrectionRequest we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsIssueCorrectionRequestUpsertArgs>(args: SelectSubset<T, OsIssueCorrectionRequestUpsertArgs<ExtArgs>>): Prisma__OsIssueCorrectionRequestClient<$Result.GetResult<Prisma.$OsIssueCorrectionRequestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsIssueCorrectionRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsIssueCorrectionRequestCountArgs} args - Arguments to filter OsIssueCorrectionRequests to count.
+     * @example
+     * // Count the number of OsIssueCorrectionRequests
+     * const count = await prisma.osIssueCorrectionRequest.count({
+     *   where: {
+     *     // ... the filter for the OsIssueCorrectionRequests we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsIssueCorrectionRequestCountArgs>(
+      args?: Subset<T, OsIssueCorrectionRequestCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsIssueCorrectionRequestCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsIssueCorrectionRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsIssueCorrectionRequestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsIssueCorrectionRequestAggregateArgs>(args: Subset<T, OsIssueCorrectionRequestAggregateArgs>): Prisma.PrismaPromise<GetOsIssueCorrectionRequestAggregateType<T>>
+
+    /**
+     * Group by OsIssueCorrectionRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsIssueCorrectionRequestGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsIssueCorrectionRequestGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsIssueCorrectionRequestGroupByArgs['orderBy'] }
+        : { orderBy?: OsIssueCorrectionRequestGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsIssueCorrectionRequestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsIssueCorrectionRequestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsIssueCorrectionRequest model
+   */
+  readonly fields: OsIssueCorrectionRequestFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsIssueCorrectionRequest.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsIssueCorrectionRequestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    issue<T extends OsIssueDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsIssueDefaultArgs<ExtArgs>>): Prisma__OsIssueClient<$Result.GetResult<Prisma.$OsIssuePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsIssueCorrectionRequest model
+   */
+  interface OsIssueCorrectionRequestFieldRefs {
+    readonly issueId: FieldRef<"OsIssueCorrectionRequest", 'String'>
+    readonly organizationId: FieldRef<"OsIssueCorrectionRequest", 'String'>
+    readonly partyId: FieldRef<"OsIssueCorrectionRequest", 'String'>
+    readonly contactId: FieldRef<"OsIssueCorrectionRequest", 'String'>
+    readonly locationId: FieldRef<"OsIssueCorrectionRequest", 'String'>
+    readonly field: FieldRef<"OsIssueCorrectionRequest", 'String'>
+    readonly proposedValue: FieldRef<"OsIssueCorrectionRequest", 'String'>
+    readonly source: FieldRef<"OsIssueCorrectionRequest", 'String'>
+    readonly decision: FieldRef<"OsIssueCorrectionRequest", 'String'>
+    readonly appliedEventId: FieldRef<"OsIssueCorrectionRequest", 'String'>
+    readonly decisionReason: FieldRef<"OsIssueCorrectionRequest", 'String'>
+    readonly decidedByMemberId: FieldRef<"OsIssueCorrectionRequest", 'String'>
+    readonly decidedAt: FieldRef<"OsIssueCorrectionRequest", 'DateTime'>
+    readonly createdAt: FieldRef<"OsIssueCorrectionRequest", 'DateTime'>
+    readonly targetVersionAtRequest: FieldRef<"OsIssueCorrectionRequest", 'Int'>
+    readonly valueMatched: FieldRef<"OsIssueCorrectionRequest", 'Boolean'>
+    readonly differenceExplanation: FieldRef<"OsIssueCorrectionRequest", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsIssueCorrectionRequest findUnique
+   */
+  export type OsIssueCorrectionRequestFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which OsIssueCorrectionRequest to fetch.
+     */
+    where: OsIssueCorrectionRequestWhereUniqueInput
+  }
+
+  /**
+   * OsIssueCorrectionRequest findUniqueOrThrow
+   */
+  export type OsIssueCorrectionRequestFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which OsIssueCorrectionRequest to fetch.
+     */
+    where: OsIssueCorrectionRequestWhereUniqueInput
+  }
+
+  /**
+   * OsIssueCorrectionRequest findFirst
+   */
+  export type OsIssueCorrectionRequestFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which OsIssueCorrectionRequest to fetch.
+     */
+    where?: OsIssueCorrectionRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsIssueCorrectionRequests to fetch.
+     */
+    orderBy?: OsIssueCorrectionRequestOrderByWithRelationInput | OsIssueCorrectionRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsIssueCorrectionRequests.
+     */
+    cursor?: OsIssueCorrectionRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsIssueCorrectionRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsIssueCorrectionRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsIssueCorrectionRequests.
+     */
+    distinct?: OsIssueCorrectionRequestScalarFieldEnum | OsIssueCorrectionRequestScalarFieldEnum[]
+  }
+
+  /**
+   * OsIssueCorrectionRequest findFirstOrThrow
+   */
+  export type OsIssueCorrectionRequestFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which OsIssueCorrectionRequest to fetch.
+     */
+    where?: OsIssueCorrectionRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsIssueCorrectionRequests to fetch.
+     */
+    orderBy?: OsIssueCorrectionRequestOrderByWithRelationInput | OsIssueCorrectionRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsIssueCorrectionRequests.
+     */
+    cursor?: OsIssueCorrectionRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsIssueCorrectionRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsIssueCorrectionRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsIssueCorrectionRequests.
+     */
+    distinct?: OsIssueCorrectionRequestScalarFieldEnum | OsIssueCorrectionRequestScalarFieldEnum[]
+  }
+
+  /**
+   * OsIssueCorrectionRequest findMany
+   */
+  export type OsIssueCorrectionRequestFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which OsIssueCorrectionRequests to fetch.
+     */
+    where?: OsIssueCorrectionRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsIssueCorrectionRequests to fetch.
+     */
+    orderBy?: OsIssueCorrectionRequestOrderByWithRelationInput | OsIssueCorrectionRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsIssueCorrectionRequests.
+     */
+    cursor?: OsIssueCorrectionRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsIssueCorrectionRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsIssueCorrectionRequests.
+     */
+    skip?: number
+    distinct?: OsIssueCorrectionRequestScalarFieldEnum | OsIssueCorrectionRequestScalarFieldEnum[]
+  }
+
+  /**
+   * OsIssueCorrectionRequest create
+   */
+  export type OsIssueCorrectionRequestCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsIssueCorrectionRequest.
+     */
+    data: XOR<OsIssueCorrectionRequestCreateInput, OsIssueCorrectionRequestUncheckedCreateInput>
+  }
+
+  /**
+   * OsIssueCorrectionRequest createMany
+   */
+  export type OsIssueCorrectionRequestCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsIssueCorrectionRequests.
+     */
+    data: OsIssueCorrectionRequestCreateManyInput | OsIssueCorrectionRequestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsIssueCorrectionRequest createManyAndReturn
+   */
+  export type OsIssueCorrectionRequestCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsIssueCorrectionRequests.
+     */
+    data: OsIssueCorrectionRequestCreateManyInput | OsIssueCorrectionRequestCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsIssueCorrectionRequest update
+   */
+  export type OsIssueCorrectionRequestUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsIssueCorrectionRequest.
+     */
+    data: XOR<OsIssueCorrectionRequestUpdateInput, OsIssueCorrectionRequestUncheckedUpdateInput>
+    /**
+     * Choose, which OsIssueCorrectionRequest to update.
+     */
+    where: OsIssueCorrectionRequestWhereUniqueInput
+  }
+
+  /**
+   * OsIssueCorrectionRequest updateMany
+   */
+  export type OsIssueCorrectionRequestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsIssueCorrectionRequests.
+     */
+    data: XOR<OsIssueCorrectionRequestUpdateManyMutationInput, OsIssueCorrectionRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which OsIssueCorrectionRequests to update
+     */
+    where?: OsIssueCorrectionRequestWhereInput
+    /**
+     * Limit how many OsIssueCorrectionRequests to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsIssueCorrectionRequest updateManyAndReturn
+   */
+  export type OsIssueCorrectionRequestUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * The data used to update OsIssueCorrectionRequests.
+     */
+    data: XOR<OsIssueCorrectionRequestUpdateManyMutationInput, OsIssueCorrectionRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which OsIssueCorrectionRequests to update
+     */
+    where?: OsIssueCorrectionRequestWhereInput
+    /**
+     * Limit how many OsIssueCorrectionRequests to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsIssueCorrectionRequest upsert
+   */
+  export type OsIssueCorrectionRequestUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsIssueCorrectionRequest to update in case it exists.
+     */
+    where: OsIssueCorrectionRequestWhereUniqueInput
+    /**
+     * In case the OsIssueCorrectionRequest found by the `where` argument doesn't exist, create a new OsIssueCorrectionRequest with this data.
+     */
+    create: XOR<OsIssueCorrectionRequestCreateInput, OsIssueCorrectionRequestUncheckedCreateInput>
+    /**
+     * In case the OsIssueCorrectionRequest was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsIssueCorrectionRequestUpdateInput, OsIssueCorrectionRequestUncheckedUpdateInput>
+  }
+
+  /**
+   * OsIssueCorrectionRequest delete
+   */
+  export type OsIssueCorrectionRequestDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestInclude<ExtArgs> | null
+    /**
+     * Filter which OsIssueCorrectionRequest to delete.
+     */
+    where: OsIssueCorrectionRequestWhereUniqueInput
+  }
+
+  /**
+   * OsIssueCorrectionRequest deleteMany
+   */
+  export type OsIssueCorrectionRequestDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsIssueCorrectionRequests to delete
+     */
+    where?: OsIssueCorrectionRequestWhereInput
+    /**
+     * Limit how many OsIssueCorrectionRequests to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsIssueCorrectionRequest without action
+   */
+  export type OsIssueCorrectionRequestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsIssueCorrectionRequest
+     */
+    select?: OsIssueCorrectionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsIssueCorrectionRequest
+     */
+    omit?: OsIssueCorrectionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsIssueCorrectionRequestInclude<ExtArgs> | null
   }
 
 
@@ -127337,11 +131532,56 @@ export namespace Prisma {
     relationEndReason: 'relationEndReason',
     phoneRetiredAt: 'phoneRetiredAt',
     phoneRetiredReason: 'phoneRetiredReason',
+    phoneDisplay: 'phoneDisplay',
+    whatsappDisplay: 'whatsappDisplay',
+    phoneStatus: 'phoneStatus',
+    whatsappStatus: 'whatsappStatus',
+    whatsappRetiredAt: 'whatsappRetiredAt',
+    whatsappRetiredReason: 'whatsappRetiredReason',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type OsContactScalarFieldEnum = (typeof OsContactScalarFieldEnum)[keyof typeof OsContactScalarFieldEnum]
+
+
+  export const OsContactEndpointAssociationScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    partyId: 'partyId',
+    contactId: 'contactId',
+    channel: 'channel',
+    numberE164: 'numberE164',
+    country: 'country',
+    enteredText: 'enteredText',
+    startedAt: 'startedAt',
+    endedAt: 'endedAt',
+    endReason: 'endReason',
+    verificationMethod: 'verificationMethod',
+    recordedByMemberId: 'recordedByMemberId',
+    createdAt: 'createdAt'
+  };
+
+  export type OsContactEndpointAssociationScalarFieldEnum = (typeof OsContactEndpointAssociationScalarFieldEnum)[keyof typeof OsContactEndpointAssociationScalarFieldEnum]
+
+
+  export const OsContactIdentityReviewScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    partyId: 'partyId',
+    contactId: 'contactId',
+    channel: 'channel',
+    associationId: 'associationId',
+    matchedAssociationId: 'matchedAssociationId',
+    status: 'status',
+    openedAt: 'openedAt',
+    resolvedAt: 'resolvedAt',
+    resolvedByMemberId: 'resolvedByMemberId',
+    verificationMethod: 'verificationMethod',
+    note: 'note'
+  };
+
+  export type OsContactIdentityReviewScalarFieldEnum = (typeof OsContactIdentityReviewScalarFieldEnum)[keyof typeof OsContactIdentityReviewScalarFieldEnum]
 
 
   export const OsFiscalIdentityScalarFieldEnum: {
@@ -128443,6 +132683,29 @@ export namespace Prisma {
   export type OsIssueScalarFieldEnum = (typeof OsIssueScalarFieldEnum)[keyof typeof OsIssueScalarFieldEnum]
 
 
+  export const OsIssueCorrectionRequestScalarFieldEnum: {
+    issueId: 'issueId',
+    organizationId: 'organizationId',
+    partyId: 'partyId',
+    contactId: 'contactId',
+    locationId: 'locationId',
+    field: 'field',
+    proposedValue: 'proposedValue',
+    source: 'source',
+    decision: 'decision',
+    appliedEventId: 'appliedEventId',
+    decisionReason: 'decisionReason',
+    decidedByMemberId: 'decidedByMemberId',
+    decidedAt: 'decidedAt',
+    createdAt: 'createdAt',
+    targetVersionAtRequest: 'targetVersionAtRequest',
+    valueMatched: 'valueMatched',
+    differenceExplanation: 'differenceExplanation'
+  };
+
+  export type OsIssueCorrectionRequestScalarFieldEnum = (typeof OsIssueCorrectionRequestScalarFieldEnum)[keyof typeof OsIssueCorrectionRequestScalarFieldEnum]
+
+
   export const OsIssueReferenceScalarFieldEnum: {
     id: 'id',
     organizationId: 'organizationId',
@@ -128805,6 +133068,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionListRelationFilter
     customerCoverageGrants?: OsCustomerCoverageGrantListRelationFilter
     issues?: OsIssueListRelationFilter
+    issueCorrectionRequests?: OsIssueCorrectionRequestListRelationFilter
     issueReferences?: OsIssueReferenceListRelationFilter
     issueJournalEntries?: OsIssueJournalEntryListRelationFilter
     issueWorkLinks?: OsIssueWorkLinkListRelationFilter
@@ -128813,6 +133077,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackListRelationFilter
     issueOwnershipHistory?: OsIssueOwnershipHistoryListRelationFilter
     contactFollowupPreferences?: OsContactFollowupPreferenceListRelationFilter
+    contactEndpointAssociations?: OsContactEndpointAssociationListRelationFilter
+    contactIdentityReviews?: OsContactIdentityReviewListRelationFilter
   }
 
   export type OsOrganizationOrderByWithRelationInput = {
@@ -128896,6 +133162,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionOrderByRelationAggregateInput
     customerCoverageGrants?: OsCustomerCoverageGrantOrderByRelationAggregateInput
     issues?: OsIssueOrderByRelationAggregateInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestOrderByRelationAggregateInput
     issueReferences?: OsIssueReferenceOrderByRelationAggregateInput
     issueJournalEntries?: OsIssueJournalEntryOrderByRelationAggregateInput
     issueWorkLinks?: OsIssueWorkLinkOrderByRelationAggregateInput
@@ -128904,6 +133171,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackOrderByRelationAggregateInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryOrderByRelationAggregateInput
     contactFollowupPreferences?: OsContactFollowupPreferenceOrderByRelationAggregateInput
+    contactEndpointAssociations?: OsContactEndpointAssociationOrderByRelationAggregateInput
+    contactIdentityReviews?: OsContactIdentityReviewOrderByRelationAggregateInput
   }
 
   export type OsOrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -128990,6 +133259,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionListRelationFilter
     customerCoverageGrants?: OsCustomerCoverageGrantListRelationFilter
     issues?: OsIssueListRelationFilter
+    issueCorrectionRequests?: OsIssueCorrectionRequestListRelationFilter
     issueReferences?: OsIssueReferenceListRelationFilter
     issueJournalEntries?: OsIssueJournalEntryListRelationFilter
     issueWorkLinks?: OsIssueWorkLinkListRelationFilter
@@ -128998,6 +133268,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackListRelationFilter
     issueOwnershipHistory?: OsIssueOwnershipHistoryListRelationFilter
     contactFollowupPreferences?: OsContactFollowupPreferenceListRelationFilter
+    contactEndpointAssociations?: OsContactEndpointAssociationListRelationFilter
+    contactIdentityReviews?: OsContactIdentityReviewListRelationFilter
   }, "id" | "slug">
 
   export type OsOrganizationOrderByWithAggregationInput = {
@@ -131413,11 +135685,18 @@ export namespace Prisma {
     relationEndReason?: StringNullableFilter<"OsContact"> | string | null
     phoneRetiredAt?: DateTimeNullableFilter<"OsContact"> | Date | string | null
     phoneRetiredReason?: StringNullableFilter<"OsContact"> | string | null
+    phoneDisplay?: StringNullableFilter<"OsContact"> | string | null
+    whatsappDisplay?: StringNullableFilter<"OsContact"> | string | null
+    phoneStatus?: StringNullableFilter<"OsContact"> | string | null
+    whatsappStatus?: StringNullableFilter<"OsContact"> | string | null
+    whatsappRetiredAt?: DateTimeNullableFilter<"OsContact"> | Date | string | null
+    whatsappRetiredReason?: StringNullableFilter<"OsContact"> | string | null
     createdAt?: DateTimeFilter<"OsContact"> | Date | string
     updatedAt?: DateTimeFilter<"OsContact"> | Date | string
     organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
     organizationParty?: XOR<OsPartyScalarRelationFilter, OsPartyWhereInput>
     followupPreferences?: OsContactFollowupPreferenceListRelationFilter
+    endpointAssociations?: OsContactEndpointAssociationListRelationFilter
   }
 
   export type OsContactOrderByWithRelationInput = {
@@ -131437,11 +135716,18 @@ export namespace Prisma {
     relationEndReason?: SortOrderInput | SortOrder
     phoneRetiredAt?: SortOrderInput | SortOrder
     phoneRetiredReason?: SortOrderInput | SortOrder
+    phoneDisplay?: SortOrderInput | SortOrder
+    whatsappDisplay?: SortOrderInput | SortOrder
+    phoneStatus?: SortOrderInput | SortOrder
+    whatsappStatus?: SortOrderInput | SortOrder
+    whatsappRetiredAt?: SortOrderInput | SortOrder
+    whatsappRetiredReason?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     organization?: OsOrganizationOrderByWithRelationInput
     organizationParty?: OsPartyOrderByWithRelationInput
     followupPreferences?: OsContactFollowupPreferenceOrderByRelationAggregateInput
+    endpointAssociations?: OsContactEndpointAssociationOrderByRelationAggregateInput
   }
 
   export type OsContactWhereUniqueInput = Prisma.AtLeast<{
@@ -131464,11 +135750,18 @@ export namespace Prisma {
     relationEndReason?: StringNullableFilter<"OsContact"> | string | null
     phoneRetiredAt?: DateTimeNullableFilter<"OsContact"> | Date | string | null
     phoneRetiredReason?: StringNullableFilter<"OsContact"> | string | null
+    phoneDisplay?: StringNullableFilter<"OsContact"> | string | null
+    whatsappDisplay?: StringNullableFilter<"OsContact"> | string | null
+    phoneStatus?: StringNullableFilter<"OsContact"> | string | null
+    whatsappStatus?: StringNullableFilter<"OsContact"> | string | null
+    whatsappRetiredAt?: DateTimeNullableFilter<"OsContact"> | Date | string | null
+    whatsappRetiredReason?: StringNullableFilter<"OsContact"> | string | null
     createdAt?: DateTimeFilter<"OsContact"> | Date | string
     updatedAt?: DateTimeFilter<"OsContact"> | Date | string
     organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
     organizationParty?: XOR<OsPartyScalarRelationFilter, OsPartyWhereInput>
     followupPreferences?: OsContactFollowupPreferenceListRelationFilter
+    endpointAssociations?: OsContactEndpointAssociationListRelationFilter
   }, "id">
 
   export type OsContactOrderByWithAggregationInput = {
@@ -131488,6 +135781,12 @@ export namespace Prisma {
     relationEndReason?: SortOrderInput | SortOrder
     phoneRetiredAt?: SortOrderInput | SortOrder
     phoneRetiredReason?: SortOrderInput | SortOrder
+    phoneDisplay?: SortOrderInput | SortOrder
+    whatsappDisplay?: SortOrderInput | SortOrder
+    phoneStatus?: SortOrderInput | SortOrder
+    whatsappStatus?: SortOrderInput | SortOrder
+    whatsappRetiredAt?: SortOrderInput | SortOrder
+    whatsappRetiredReason?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: OsContactCountOrderByAggregateInput
@@ -131517,8 +135816,218 @@ export namespace Prisma {
     relationEndReason?: StringNullableWithAggregatesFilter<"OsContact"> | string | null
     phoneRetiredAt?: DateTimeNullableWithAggregatesFilter<"OsContact"> | Date | string | null
     phoneRetiredReason?: StringNullableWithAggregatesFilter<"OsContact"> | string | null
+    phoneDisplay?: StringNullableWithAggregatesFilter<"OsContact"> | string | null
+    whatsappDisplay?: StringNullableWithAggregatesFilter<"OsContact"> | string | null
+    phoneStatus?: StringNullableWithAggregatesFilter<"OsContact"> | string | null
+    whatsappStatus?: StringNullableWithAggregatesFilter<"OsContact"> | string | null
+    whatsappRetiredAt?: DateTimeNullableWithAggregatesFilter<"OsContact"> | Date | string | null
+    whatsappRetiredReason?: StringNullableWithAggregatesFilter<"OsContact"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"OsContact"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"OsContact"> | Date | string
+  }
+
+  export type OsContactEndpointAssociationWhereInput = {
+    AND?: OsContactEndpointAssociationWhereInput | OsContactEndpointAssociationWhereInput[]
+    OR?: OsContactEndpointAssociationWhereInput[]
+    NOT?: OsContactEndpointAssociationWhereInput | OsContactEndpointAssociationWhereInput[]
+    id?: StringFilter<"OsContactEndpointAssociation"> | string
+    organizationId?: StringFilter<"OsContactEndpointAssociation"> | string
+    partyId?: StringFilter<"OsContactEndpointAssociation"> | string
+    contactId?: StringFilter<"OsContactEndpointAssociation"> | string
+    channel?: StringFilter<"OsContactEndpointAssociation"> | string
+    numberE164?: StringFilter<"OsContactEndpointAssociation"> | string
+    country?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    enteredText?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    startedAt?: DateTimeFilter<"OsContactEndpointAssociation"> | Date | string
+    endedAt?: DateTimeNullableFilter<"OsContactEndpointAssociation"> | Date | string | null
+    endReason?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    verificationMethod?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    recordedByMemberId?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    createdAt?: DateTimeFilter<"OsContactEndpointAssociation"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    contact?: XOR<OsContactScalarRelationFilter, OsContactWhereInput>
+    identityReviews?: OsContactIdentityReviewListRelationFilter
+  }
+
+  export type OsContactEndpointAssociationOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    channel?: SortOrder
+    numberE164?: SortOrder
+    country?: SortOrderInput | SortOrder
+    enteredText?: SortOrderInput | SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrderInput | SortOrder
+    endReason?: SortOrderInput | SortOrder
+    verificationMethod?: SortOrderInput | SortOrder
+    recordedByMemberId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+    contact?: OsContactOrderByWithRelationInput
+    identityReviews?: OsContactIdentityReviewOrderByRelationAggregateInput
+  }
+
+  export type OsContactEndpointAssociationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OsContactEndpointAssociationWhereInput | OsContactEndpointAssociationWhereInput[]
+    OR?: OsContactEndpointAssociationWhereInput[]
+    NOT?: OsContactEndpointAssociationWhereInput | OsContactEndpointAssociationWhereInput[]
+    organizationId?: StringFilter<"OsContactEndpointAssociation"> | string
+    partyId?: StringFilter<"OsContactEndpointAssociation"> | string
+    contactId?: StringFilter<"OsContactEndpointAssociation"> | string
+    channel?: StringFilter<"OsContactEndpointAssociation"> | string
+    numberE164?: StringFilter<"OsContactEndpointAssociation"> | string
+    country?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    enteredText?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    startedAt?: DateTimeFilter<"OsContactEndpointAssociation"> | Date | string
+    endedAt?: DateTimeNullableFilter<"OsContactEndpointAssociation"> | Date | string | null
+    endReason?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    verificationMethod?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    recordedByMemberId?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    createdAt?: DateTimeFilter<"OsContactEndpointAssociation"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    contact?: XOR<OsContactScalarRelationFilter, OsContactWhereInput>
+    identityReviews?: OsContactIdentityReviewListRelationFilter
+  }, "id">
+
+  export type OsContactEndpointAssociationOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    channel?: SortOrder
+    numberE164?: SortOrder
+    country?: SortOrderInput | SortOrder
+    enteredText?: SortOrderInput | SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrderInput | SortOrder
+    endReason?: SortOrderInput | SortOrder
+    verificationMethod?: SortOrderInput | SortOrder
+    recordedByMemberId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: OsContactEndpointAssociationCountOrderByAggregateInput
+    _max?: OsContactEndpointAssociationMaxOrderByAggregateInput
+    _min?: OsContactEndpointAssociationMinOrderByAggregateInput
+  }
+
+  export type OsContactEndpointAssociationScalarWhereWithAggregatesInput = {
+    AND?: OsContactEndpointAssociationScalarWhereWithAggregatesInput | OsContactEndpointAssociationScalarWhereWithAggregatesInput[]
+    OR?: OsContactEndpointAssociationScalarWhereWithAggregatesInput[]
+    NOT?: OsContactEndpointAssociationScalarWhereWithAggregatesInput | OsContactEndpointAssociationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OsContactEndpointAssociation"> | string
+    organizationId?: StringWithAggregatesFilter<"OsContactEndpointAssociation"> | string
+    partyId?: StringWithAggregatesFilter<"OsContactEndpointAssociation"> | string
+    contactId?: StringWithAggregatesFilter<"OsContactEndpointAssociation"> | string
+    channel?: StringWithAggregatesFilter<"OsContactEndpointAssociation"> | string
+    numberE164?: StringWithAggregatesFilter<"OsContactEndpointAssociation"> | string
+    country?: StringNullableWithAggregatesFilter<"OsContactEndpointAssociation"> | string | null
+    enteredText?: StringNullableWithAggregatesFilter<"OsContactEndpointAssociation"> | string | null
+    startedAt?: DateTimeWithAggregatesFilter<"OsContactEndpointAssociation"> | Date | string
+    endedAt?: DateTimeNullableWithAggregatesFilter<"OsContactEndpointAssociation"> | Date | string | null
+    endReason?: StringNullableWithAggregatesFilter<"OsContactEndpointAssociation"> | string | null
+    verificationMethod?: StringNullableWithAggregatesFilter<"OsContactEndpointAssociation"> | string | null
+    recordedByMemberId?: StringNullableWithAggregatesFilter<"OsContactEndpointAssociation"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"OsContactEndpointAssociation"> | Date | string
+  }
+
+  export type OsContactIdentityReviewWhereInput = {
+    AND?: OsContactIdentityReviewWhereInput | OsContactIdentityReviewWhereInput[]
+    OR?: OsContactIdentityReviewWhereInput[]
+    NOT?: OsContactIdentityReviewWhereInput | OsContactIdentityReviewWhereInput[]
+    id?: StringFilter<"OsContactIdentityReview"> | string
+    organizationId?: StringFilter<"OsContactIdentityReview"> | string
+    partyId?: StringFilter<"OsContactIdentityReview"> | string
+    contactId?: StringFilter<"OsContactIdentityReview"> | string
+    channel?: StringFilter<"OsContactIdentityReview"> | string
+    associationId?: StringFilter<"OsContactIdentityReview"> | string
+    matchedAssociationId?: StringFilter<"OsContactIdentityReview"> | string
+    status?: StringFilter<"OsContactIdentityReview"> | string
+    openedAt?: DateTimeFilter<"OsContactIdentityReview"> | Date | string
+    resolvedAt?: DateTimeNullableFilter<"OsContactIdentityReview"> | Date | string | null
+    resolvedByMemberId?: StringNullableFilter<"OsContactIdentityReview"> | string | null
+    verificationMethod?: StringNullableFilter<"OsContactIdentityReview"> | string | null
+    note?: StringNullableFilter<"OsContactIdentityReview"> | string | null
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    association?: XOR<OsContactEndpointAssociationScalarRelationFilter, OsContactEndpointAssociationWhereInput>
+  }
+
+  export type OsContactIdentityReviewOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    channel?: SortOrder
+    associationId?: SortOrder
+    matchedAssociationId?: SortOrder
+    status?: SortOrder
+    openedAt?: SortOrder
+    resolvedAt?: SortOrderInput | SortOrder
+    resolvedByMemberId?: SortOrderInput | SortOrder
+    verificationMethod?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+    association?: OsContactEndpointAssociationOrderByWithRelationInput
+  }
+
+  export type OsContactIdentityReviewWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OsContactIdentityReviewWhereInput | OsContactIdentityReviewWhereInput[]
+    OR?: OsContactIdentityReviewWhereInput[]
+    NOT?: OsContactIdentityReviewWhereInput | OsContactIdentityReviewWhereInput[]
+    organizationId?: StringFilter<"OsContactIdentityReview"> | string
+    partyId?: StringFilter<"OsContactIdentityReview"> | string
+    contactId?: StringFilter<"OsContactIdentityReview"> | string
+    channel?: StringFilter<"OsContactIdentityReview"> | string
+    associationId?: StringFilter<"OsContactIdentityReview"> | string
+    matchedAssociationId?: StringFilter<"OsContactIdentityReview"> | string
+    status?: StringFilter<"OsContactIdentityReview"> | string
+    openedAt?: DateTimeFilter<"OsContactIdentityReview"> | Date | string
+    resolvedAt?: DateTimeNullableFilter<"OsContactIdentityReview"> | Date | string | null
+    resolvedByMemberId?: StringNullableFilter<"OsContactIdentityReview"> | string | null
+    verificationMethod?: StringNullableFilter<"OsContactIdentityReview"> | string | null
+    note?: StringNullableFilter<"OsContactIdentityReview"> | string | null
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    association?: XOR<OsContactEndpointAssociationScalarRelationFilter, OsContactEndpointAssociationWhereInput>
+  }, "id">
+
+  export type OsContactIdentityReviewOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    channel?: SortOrder
+    associationId?: SortOrder
+    matchedAssociationId?: SortOrder
+    status?: SortOrder
+    openedAt?: SortOrder
+    resolvedAt?: SortOrderInput | SortOrder
+    resolvedByMemberId?: SortOrderInput | SortOrder
+    verificationMethod?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    _count?: OsContactIdentityReviewCountOrderByAggregateInput
+    _max?: OsContactIdentityReviewMaxOrderByAggregateInput
+    _min?: OsContactIdentityReviewMinOrderByAggregateInput
+  }
+
+  export type OsContactIdentityReviewScalarWhereWithAggregatesInput = {
+    AND?: OsContactIdentityReviewScalarWhereWithAggregatesInput | OsContactIdentityReviewScalarWhereWithAggregatesInput[]
+    OR?: OsContactIdentityReviewScalarWhereWithAggregatesInput[]
+    NOT?: OsContactIdentityReviewScalarWhereWithAggregatesInput | OsContactIdentityReviewScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OsContactIdentityReview"> | string
+    organizationId?: StringWithAggregatesFilter<"OsContactIdentityReview"> | string
+    partyId?: StringWithAggregatesFilter<"OsContactIdentityReview"> | string
+    contactId?: StringWithAggregatesFilter<"OsContactIdentityReview"> | string
+    channel?: StringWithAggregatesFilter<"OsContactIdentityReview"> | string
+    associationId?: StringWithAggregatesFilter<"OsContactIdentityReview"> | string
+    matchedAssociationId?: StringWithAggregatesFilter<"OsContactIdentityReview"> | string
+    status?: StringWithAggregatesFilter<"OsContactIdentityReview"> | string
+    openedAt?: DateTimeWithAggregatesFilter<"OsContactIdentityReview"> | Date | string
+    resolvedAt?: DateTimeNullableWithAggregatesFilter<"OsContactIdentityReview"> | Date | string | null
+    resolvedByMemberId?: StringNullableWithAggregatesFilter<"OsContactIdentityReview"> | string | null
+    verificationMethod?: StringNullableWithAggregatesFilter<"OsContactIdentityReview"> | string | null
+    note?: StringNullableWithAggregatesFilter<"OsContactIdentityReview"> | string | null
   }
 
   export type OsFiscalIdentityWhereInput = {
@@ -137108,6 +141617,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationListRelationFilter
     resolutionCycles?: OsIssueResolutionCycleListRelationFilter
     ownershipHistory?: OsIssueOwnershipHistoryListRelationFilter
+    correctionRequest?: XOR<OsIssueCorrectionRequestNullableScalarRelationFilter, OsIssueCorrectionRequestWhereInput> | null
   }
 
   export type OsIssueOrderByWithRelationInput = {
@@ -137139,6 +141649,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationOrderByRelationAggregateInput
     resolutionCycles?: OsIssueResolutionCycleOrderByRelationAggregateInput
     ownershipHistory?: OsIssueOwnershipHistoryOrderByRelationAggregateInput
+    correctionRequest?: OsIssueCorrectionRequestOrderByWithRelationInput
   }
 
   export type OsIssueWhereUniqueInput = Prisma.AtLeast<{
@@ -137173,6 +141684,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationListRelationFilter
     resolutionCycles?: OsIssueResolutionCycleListRelationFilter
     ownershipHistory?: OsIssueOwnershipHistoryListRelationFilter
+    correctionRequest?: XOR<OsIssueCorrectionRequestNullableScalarRelationFilter, OsIssueCorrectionRequestWhereInput> | null
   }, "id">
 
   export type OsIssueOrderByWithAggregationInput = {
@@ -137227,6 +141739,126 @@ export namespace Prisma {
     outcomeRecordedAt?: DateTimeNullableWithAggregatesFilter<"OsIssue"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"OsIssue"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"OsIssue"> | Date | string
+  }
+
+  export type OsIssueCorrectionRequestWhereInput = {
+    AND?: OsIssueCorrectionRequestWhereInput | OsIssueCorrectionRequestWhereInput[]
+    OR?: OsIssueCorrectionRequestWhereInput[]
+    NOT?: OsIssueCorrectionRequestWhereInput | OsIssueCorrectionRequestWhereInput[]
+    issueId?: StringFilter<"OsIssueCorrectionRequest"> | string
+    organizationId?: StringFilter<"OsIssueCorrectionRequest"> | string
+    partyId?: StringFilter<"OsIssueCorrectionRequest"> | string
+    contactId?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    locationId?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    field?: StringFilter<"OsIssueCorrectionRequest"> | string
+    proposedValue?: StringFilter<"OsIssueCorrectionRequest"> | string
+    source?: StringFilter<"OsIssueCorrectionRequest"> | string
+    decision?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    appliedEventId?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    decisionReason?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    decidedByMemberId?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    decidedAt?: DateTimeNullableFilter<"OsIssueCorrectionRequest"> | Date | string | null
+    createdAt?: DateTimeFilter<"OsIssueCorrectionRequest"> | Date | string
+    targetVersionAtRequest?: IntNullableFilter<"OsIssueCorrectionRequest"> | number | null
+    valueMatched?: BoolNullableFilter<"OsIssueCorrectionRequest"> | boolean | null
+    differenceExplanation?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    issue?: XOR<OsIssueScalarRelationFilter, OsIssueWhereInput>
+  }
+
+  export type OsIssueCorrectionRequestOrderByWithRelationInput = {
+    issueId?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrderInput | SortOrder
+    locationId?: SortOrderInput | SortOrder
+    field?: SortOrder
+    proposedValue?: SortOrder
+    source?: SortOrder
+    decision?: SortOrderInput | SortOrder
+    appliedEventId?: SortOrderInput | SortOrder
+    decisionReason?: SortOrderInput | SortOrder
+    decidedByMemberId?: SortOrderInput | SortOrder
+    decidedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    targetVersionAtRequest?: SortOrderInput | SortOrder
+    valueMatched?: SortOrderInput | SortOrder
+    differenceExplanation?: SortOrderInput | SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+    issue?: OsIssueOrderByWithRelationInput
+  }
+
+  export type OsIssueCorrectionRequestWhereUniqueInput = Prisma.AtLeast<{
+    issueId?: string
+    AND?: OsIssueCorrectionRequestWhereInput | OsIssueCorrectionRequestWhereInput[]
+    OR?: OsIssueCorrectionRequestWhereInput[]
+    NOT?: OsIssueCorrectionRequestWhereInput | OsIssueCorrectionRequestWhereInput[]
+    organizationId?: StringFilter<"OsIssueCorrectionRequest"> | string
+    partyId?: StringFilter<"OsIssueCorrectionRequest"> | string
+    contactId?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    locationId?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    field?: StringFilter<"OsIssueCorrectionRequest"> | string
+    proposedValue?: StringFilter<"OsIssueCorrectionRequest"> | string
+    source?: StringFilter<"OsIssueCorrectionRequest"> | string
+    decision?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    appliedEventId?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    decisionReason?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    decidedByMemberId?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    decidedAt?: DateTimeNullableFilter<"OsIssueCorrectionRequest"> | Date | string | null
+    createdAt?: DateTimeFilter<"OsIssueCorrectionRequest"> | Date | string
+    targetVersionAtRequest?: IntNullableFilter<"OsIssueCorrectionRequest"> | number | null
+    valueMatched?: BoolNullableFilter<"OsIssueCorrectionRequest"> | boolean | null
+    differenceExplanation?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    issue?: XOR<OsIssueScalarRelationFilter, OsIssueWhereInput>
+  }, "issueId">
+
+  export type OsIssueCorrectionRequestOrderByWithAggregationInput = {
+    issueId?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrderInput | SortOrder
+    locationId?: SortOrderInput | SortOrder
+    field?: SortOrder
+    proposedValue?: SortOrder
+    source?: SortOrder
+    decision?: SortOrderInput | SortOrder
+    appliedEventId?: SortOrderInput | SortOrder
+    decisionReason?: SortOrderInput | SortOrder
+    decidedByMemberId?: SortOrderInput | SortOrder
+    decidedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    targetVersionAtRequest?: SortOrderInput | SortOrder
+    valueMatched?: SortOrderInput | SortOrder
+    differenceExplanation?: SortOrderInput | SortOrder
+    _count?: OsIssueCorrectionRequestCountOrderByAggregateInput
+    _avg?: OsIssueCorrectionRequestAvgOrderByAggregateInput
+    _max?: OsIssueCorrectionRequestMaxOrderByAggregateInput
+    _min?: OsIssueCorrectionRequestMinOrderByAggregateInput
+    _sum?: OsIssueCorrectionRequestSumOrderByAggregateInput
+  }
+
+  export type OsIssueCorrectionRequestScalarWhereWithAggregatesInput = {
+    AND?: OsIssueCorrectionRequestScalarWhereWithAggregatesInput | OsIssueCorrectionRequestScalarWhereWithAggregatesInput[]
+    OR?: OsIssueCorrectionRequestScalarWhereWithAggregatesInput[]
+    NOT?: OsIssueCorrectionRequestScalarWhereWithAggregatesInput | OsIssueCorrectionRequestScalarWhereWithAggregatesInput[]
+    issueId?: StringWithAggregatesFilter<"OsIssueCorrectionRequest"> | string
+    organizationId?: StringWithAggregatesFilter<"OsIssueCorrectionRequest"> | string
+    partyId?: StringWithAggregatesFilter<"OsIssueCorrectionRequest"> | string
+    contactId?: StringNullableWithAggregatesFilter<"OsIssueCorrectionRequest"> | string | null
+    locationId?: StringNullableWithAggregatesFilter<"OsIssueCorrectionRequest"> | string | null
+    field?: StringWithAggregatesFilter<"OsIssueCorrectionRequest"> | string
+    proposedValue?: StringWithAggregatesFilter<"OsIssueCorrectionRequest"> | string
+    source?: StringWithAggregatesFilter<"OsIssueCorrectionRequest"> | string
+    decision?: StringNullableWithAggregatesFilter<"OsIssueCorrectionRequest"> | string | null
+    appliedEventId?: StringNullableWithAggregatesFilter<"OsIssueCorrectionRequest"> | string | null
+    decisionReason?: StringNullableWithAggregatesFilter<"OsIssueCorrectionRequest"> | string | null
+    decidedByMemberId?: StringNullableWithAggregatesFilter<"OsIssueCorrectionRequest"> | string | null
+    decidedAt?: DateTimeNullableWithAggregatesFilter<"OsIssueCorrectionRequest"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"OsIssueCorrectionRequest"> | Date | string
+    targetVersionAtRequest?: IntNullableWithAggregatesFilter<"OsIssueCorrectionRequest"> | number | null
+    valueMatched?: BoolNullableWithAggregatesFilter<"OsIssueCorrectionRequest"> | boolean | null
+    differenceExplanation?: StringNullableWithAggregatesFilter<"OsIssueCorrectionRequest"> | string | null
   }
 
   export type OsIssueReferenceWhereInput = {
@@ -137997,6 +142629,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -138005,6 +142638,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateInput = {
@@ -138088,6 +142723,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -138096,6 +142732,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUpdateInput = {
@@ -138179,6 +142817,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -138187,6 +142826,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateInput = {
@@ -138270,6 +142911,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -138278,6 +142920,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateManyInput = {
@@ -140876,11 +145520,18 @@ export namespace Prisma {
     relationEndReason?: string | null
     phoneRetiredAt?: Date | string | null
     phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization: OsOrganizationCreateNestedOneWithoutContactsInput
     organizationParty: OsPartyCreateNestedOneWithoutContactsInput
     followupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutContactInput
+    endpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutContactInput
   }
 
   export type OsContactUncheckedCreateInput = {
@@ -140900,9 +145551,16 @@ export namespace Prisma {
     relationEndReason?: string | null
     phoneRetiredAt?: Date | string | null
     phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     followupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutContactInput
+    endpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutContactInput
   }
 
   export type OsContactUpdateInput = {
@@ -140920,11 +145578,18 @@ export namespace Prisma {
     relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
     phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OsOrganizationUpdateOneRequiredWithoutContactsNestedInput
     organizationParty?: OsPartyUpdateOneRequiredWithoutContactsNestedInput
     followupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutContactNestedInput
+    endpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutContactNestedInput
   }
 
   export type OsContactUncheckedUpdateInput = {
@@ -140944,9 +145609,16 @@ export namespace Prisma {
     relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
     phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     followupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutContactNestedInput
+    endpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutContactNestedInput
   }
 
   export type OsContactCreateManyInput = {
@@ -140966,6 +145638,12 @@ export namespace Prisma {
     relationEndReason?: string | null
     phoneRetiredAt?: Date | string | null
     phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -140985,6 +145663,12 @@ export namespace Prisma {
     relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
     phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -141006,8 +145690,245 @@ export namespace Prisma {
     relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
     phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsContactEndpointAssociationCreateInput = {
+    id: string
+    partyId: string
+    channel: string
+    numberE164: string
+    country?: string | null
+    enteredText?: string | null
+    startedAt: Date | string
+    endedAt?: Date | string | null
+    endReason?: string | null
+    verificationMethod?: string | null
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutContactEndpointAssociationsInput
+    contact: OsContactCreateNestedOneWithoutEndpointAssociationsInput
+    identityReviews?: OsContactIdentityReviewCreateNestedManyWithoutAssociationInput
+  }
+
+  export type OsContactEndpointAssociationUncheckedCreateInput = {
+    id: string
+    organizationId: string
+    partyId: string
+    contactId: string
+    channel: string
+    numberE164: string
+    country?: string | null
+    enteredText?: string | null
+    startedAt: Date | string
+    endedAt?: Date | string | null
+    endReason?: string | null
+    verificationMethod?: string | null
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+    identityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutAssociationInput
+  }
+
+  export type OsContactEndpointAssociationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    numberE164?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredText?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endReason?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutContactEndpointAssociationsNestedInput
+    contact?: OsContactUpdateOneRequiredWithoutEndpointAssociationsNestedInput
+    identityReviews?: OsContactIdentityReviewUpdateManyWithoutAssociationNestedInput
+  }
+
+  export type OsContactEndpointAssociationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    numberE164?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredText?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endReason?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    identityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutAssociationNestedInput
+  }
+
+  export type OsContactEndpointAssociationCreateManyInput = {
+    id: string
+    organizationId: string
+    partyId: string
+    contactId: string
+    channel: string
+    numberE164: string
+    country?: string | null
+    enteredText?: string | null
+    startedAt: Date | string
+    endedAt?: Date | string | null
+    endReason?: string | null
+    verificationMethod?: string | null
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type OsContactEndpointAssociationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    numberE164?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredText?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endReason?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsContactEndpointAssociationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    numberE164?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredText?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endReason?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsContactIdentityReviewCreateInput = {
+    id: string
+    partyId: string
+    contactId: string
+    channel: string
+    matchedAssociationId: string
+    status?: string
+    openedAt: Date | string
+    resolvedAt?: Date | string | null
+    resolvedByMemberId?: string | null
+    verificationMethod?: string | null
+    note?: string | null
+    organization: OsOrganizationCreateNestedOneWithoutContactIdentityReviewsInput
+    association: OsContactEndpointAssociationCreateNestedOneWithoutIdentityReviewsInput
+  }
+
+  export type OsContactIdentityReviewUncheckedCreateInput = {
+    id: string
+    organizationId: string
+    partyId: string
+    contactId: string
+    channel: string
+    associationId: string
+    matchedAssociationId: string
+    status?: string
+    openedAt: Date | string
+    resolvedAt?: Date | string | null
+    resolvedByMemberId?: string | null
+    verificationMethod?: string | null
+    note?: string | null
+  }
+
+  export type OsContactIdentityReviewUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    matchedAssociationId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    organization?: OsOrganizationUpdateOneRequiredWithoutContactIdentityReviewsNestedInput
+    association?: OsContactEndpointAssociationUpdateOneRequiredWithoutIdentityReviewsNestedInput
+  }
+
+  export type OsContactIdentityReviewUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    associationId?: StringFieldUpdateOperationsInput | string
+    matchedAssociationId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsContactIdentityReviewCreateManyInput = {
+    id: string
+    organizationId: string
+    partyId: string
+    contactId: string
+    channel: string
+    associationId: string
+    matchedAssociationId: string
+    status?: string
+    openedAt: Date | string
+    resolvedAt?: Date | string | null
+    resolvedByMemberId?: string | null
+    verificationMethod?: string | null
+    note?: string | null
+  }
+
+  export type OsContactIdentityReviewUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    matchedAssociationId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsContactIdentityReviewUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    associationId?: StringFieldUpdateOperationsInput | string
+    matchedAssociationId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OsFiscalIdentityCreateInput = {
@@ -147351,6 +152272,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueUncheckedCreateInput = {
@@ -147381,6 +152303,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUncheckedCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueUpdateInput = {
@@ -147411,6 +152334,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUpdateOneWithoutIssueNestedInput
   }
 
   export type OsIssueUncheckedUpdateInput = {
@@ -147441,6 +152365,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUncheckedUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedUpdateOneWithoutIssueNestedInput
   }
 
   export type OsIssueCreateManyInput = {
@@ -147509,6 +152434,144 @@ export namespace Prisma {
     outcomeRecordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsIssueCorrectionRequestCreateInput = {
+    partyId: string
+    contactId?: string | null
+    locationId?: string | null
+    field: string
+    proposedValue: string
+    source: string
+    decision?: string | null
+    appliedEventId?: string | null
+    decisionReason?: string | null
+    decidedByMemberId?: string | null
+    decidedAt?: Date | string | null
+    createdAt?: Date | string
+    targetVersionAtRequest?: number | null
+    valueMatched?: boolean | null
+    differenceExplanation?: string | null
+    organization: OsOrganizationCreateNestedOneWithoutIssueCorrectionRequestsInput
+    issue: OsIssueCreateNestedOneWithoutCorrectionRequestInput
+  }
+
+  export type OsIssueCorrectionRequestUncheckedCreateInput = {
+    issueId: string
+    organizationId: string
+    partyId: string
+    contactId?: string | null
+    locationId?: string | null
+    field: string
+    proposedValue: string
+    source: string
+    decision?: string | null
+    appliedEventId?: string | null
+    decisionReason?: string | null
+    decidedByMemberId?: string | null
+    decidedAt?: Date | string | null
+    createdAt?: Date | string
+    targetVersionAtRequest?: number | null
+    valueMatched?: boolean | null
+    differenceExplanation?: string | null
+  }
+
+  export type OsIssueCorrectionRequestUpdateInput = {
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    field?: StringFieldUpdateOperationsInput | string
+    proposedValue?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    decision?: NullableStringFieldUpdateOperationsInput | string | null
+    appliedEventId?: NullableStringFieldUpdateOperationsInput | string | null
+    decisionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    targetVersionAtRequest?: NullableIntFieldUpdateOperationsInput | number | null
+    valueMatched?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    differenceExplanation?: NullableStringFieldUpdateOperationsInput | string | null
+    organization?: OsOrganizationUpdateOneRequiredWithoutIssueCorrectionRequestsNestedInput
+    issue?: OsIssueUpdateOneRequiredWithoutCorrectionRequestNestedInput
+  }
+
+  export type OsIssueCorrectionRequestUncheckedUpdateInput = {
+    issueId?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    field?: StringFieldUpdateOperationsInput | string
+    proposedValue?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    decision?: NullableStringFieldUpdateOperationsInput | string | null
+    appliedEventId?: NullableStringFieldUpdateOperationsInput | string | null
+    decisionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    targetVersionAtRequest?: NullableIntFieldUpdateOperationsInput | number | null
+    valueMatched?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    differenceExplanation?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsIssueCorrectionRequestCreateManyInput = {
+    issueId: string
+    organizationId: string
+    partyId: string
+    contactId?: string | null
+    locationId?: string | null
+    field: string
+    proposedValue: string
+    source: string
+    decision?: string | null
+    appliedEventId?: string | null
+    decisionReason?: string | null
+    decidedByMemberId?: string | null
+    decidedAt?: Date | string | null
+    createdAt?: Date | string
+    targetVersionAtRequest?: number | null
+    valueMatched?: boolean | null
+    differenceExplanation?: string | null
+  }
+
+  export type OsIssueCorrectionRequestUpdateManyMutationInput = {
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    field?: StringFieldUpdateOperationsInput | string
+    proposedValue?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    decision?: NullableStringFieldUpdateOperationsInput | string | null
+    appliedEventId?: NullableStringFieldUpdateOperationsInput | string | null
+    decisionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    targetVersionAtRequest?: NullableIntFieldUpdateOperationsInput | number | null
+    valueMatched?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    differenceExplanation?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsIssueCorrectionRequestUncheckedUpdateManyInput = {
+    issueId?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    field?: StringFieldUpdateOperationsInput | string
+    proposedValue?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    decision?: NullableStringFieldUpdateOperationsInput | string | null
+    appliedEventId?: NullableStringFieldUpdateOperationsInput | string | null
+    decisionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    targetVersionAtRequest?: NullableIntFieldUpdateOperationsInput | number | null
+    valueMatched?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    differenceExplanation?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OsIssueReferenceCreateInput = {
@@ -148681,6 +153744,12 @@ export namespace Prisma {
     none?: OsIssueWhereInput
   }
 
+  export type OsIssueCorrectionRequestListRelationFilter = {
+    every?: OsIssueCorrectionRequestWhereInput
+    some?: OsIssueCorrectionRequestWhereInput
+    none?: OsIssueCorrectionRequestWhereInput
+  }
+
   export type OsIssueReferenceListRelationFilter = {
     every?: OsIssueReferenceWhereInput
     some?: OsIssueReferenceWhereInput
@@ -148727,6 +153796,18 @@ export namespace Prisma {
     every?: OsContactFollowupPreferenceWhereInput
     some?: OsContactFollowupPreferenceWhereInput
     none?: OsContactFollowupPreferenceWhereInput
+  }
+
+  export type OsContactEndpointAssociationListRelationFilter = {
+    every?: OsContactEndpointAssociationWhereInput
+    some?: OsContactEndpointAssociationWhereInput
+    none?: OsContactEndpointAssociationWhereInput
+  }
+
+  export type OsContactIdentityReviewListRelationFilter = {
+    every?: OsContactIdentityReviewWhereInput
+    some?: OsContactIdentityReviewWhereInput
+    none?: OsContactIdentityReviewWhereInput
   }
 
   export type OsOrganizationMemberOrderByRelationAggregateInput = {
@@ -149017,6 +154098,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type OsIssueCorrectionRequestOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type OsIssueReferenceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -149046,6 +154131,14 @@ export namespace Prisma {
   }
 
   export type OsContactFollowupPreferenceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsContactEndpointAssociationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsContactIdentityReviewOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -150680,6 +155773,12 @@ export namespace Prisma {
     relationEndReason?: SortOrder
     phoneRetiredAt?: SortOrder
     phoneRetiredReason?: SortOrder
+    phoneDisplay?: SortOrder
+    whatsappDisplay?: SortOrder
+    phoneStatus?: SortOrder
+    whatsappStatus?: SortOrder
+    whatsappRetiredAt?: SortOrder
+    whatsappRetiredReason?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -150705,6 +155804,12 @@ export namespace Prisma {
     relationEndReason?: SortOrder
     phoneRetiredAt?: SortOrder
     phoneRetiredReason?: SortOrder
+    phoneDisplay?: SortOrder
+    whatsappDisplay?: SortOrder
+    phoneStatus?: SortOrder
+    whatsappStatus?: SortOrder
+    whatsappRetiredAt?: SortOrder
+    whatsappRetiredReason?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -150726,12 +155831,127 @@ export namespace Prisma {
     relationEndReason?: SortOrder
     phoneRetiredAt?: SortOrder
     phoneRetiredReason?: SortOrder
+    phoneDisplay?: SortOrder
+    whatsappDisplay?: SortOrder
+    phoneStatus?: SortOrder
+    whatsappStatus?: SortOrder
+    whatsappRetiredAt?: SortOrder
+    whatsappRetiredReason?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type OsContactSumOrderByAggregateInput = {
     version?: SortOrder
+  }
+
+  export type OsContactScalarRelationFilter = {
+    is?: OsContactWhereInput
+    isNot?: OsContactWhereInput
+  }
+
+  export type OsContactEndpointAssociationCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    channel?: SortOrder
+    numberE164?: SortOrder
+    country?: SortOrder
+    enteredText?: SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrder
+    endReason?: SortOrder
+    verificationMethod?: SortOrder
+    recordedByMemberId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsContactEndpointAssociationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    channel?: SortOrder
+    numberE164?: SortOrder
+    country?: SortOrder
+    enteredText?: SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrder
+    endReason?: SortOrder
+    verificationMethod?: SortOrder
+    recordedByMemberId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsContactEndpointAssociationMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    channel?: SortOrder
+    numberE164?: SortOrder
+    country?: SortOrder
+    enteredText?: SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrder
+    endReason?: SortOrder
+    verificationMethod?: SortOrder
+    recordedByMemberId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsContactEndpointAssociationScalarRelationFilter = {
+    is?: OsContactEndpointAssociationWhereInput
+    isNot?: OsContactEndpointAssociationWhereInput
+  }
+
+  export type OsContactIdentityReviewCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    channel?: SortOrder
+    associationId?: SortOrder
+    matchedAssociationId?: SortOrder
+    status?: SortOrder
+    openedAt?: SortOrder
+    resolvedAt?: SortOrder
+    resolvedByMemberId?: SortOrder
+    verificationMethod?: SortOrder
+    note?: SortOrder
+  }
+
+  export type OsContactIdentityReviewMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    channel?: SortOrder
+    associationId?: SortOrder
+    matchedAssociationId?: SortOrder
+    status?: SortOrder
+    openedAt?: SortOrder
+    resolvedAt?: SortOrder
+    resolvedByMemberId?: SortOrder
+    verificationMethod?: SortOrder
+    note?: SortOrder
+  }
+
+  export type OsContactIdentityReviewMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    channel?: SortOrder
+    associationId?: SortOrder
+    matchedAssociationId?: SortOrder
+    status?: SortOrder
+    openedAt?: SortOrder
+    resolvedAt?: SortOrder
+    resolvedByMemberId?: SortOrder
+    verificationMethod?: SortOrder
+    note?: SortOrder
   }
 
   export type OsFiscalIdentityCountOrderByAggregateInput = {
@@ -153943,6 +159163,11 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type OsIssueCorrectionRequestNullableScalarRelationFilter = {
+    is?: OsIssueCorrectionRequestWhereInput | null
+    isNot?: OsIssueCorrectionRequestWhereInput | null
+  }
+
   export type OsIssueCountOrderByAggregateInput = {
     id?: SortOrder
     organizationId?: SortOrder
@@ -154023,6 +159248,74 @@ export namespace Prisma {
   export type OsIssueScalarRelationFilter = {
     is?: OsIssueWhereInput
     isNot?: OsIssueWhereInput
+  }
+
+  export type OsIssueCorrectionRequestCountOrderByAggregateInput = {
+    issueId?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    locationId?: SortOrder
+    field?: SortOrder
+    proposedValue?: SortOrder
+    source?: SortOrder
+    decision?: SortOrder
+    appliedEventId?: SortOrder
+    decisionReason?: SortOrder
+    decidedByMemberId?: SortOrder
+    decidedAt?: SortOrder
+    createdAt?: SortOrder
+    targetVersionAtRequest?: SortOrder
+    valueMatched?: SortOrder
+    differenceExplanation?: SortOrder
+  }
+
+  export type OsIssueCorrectionRequestAvgOrderByAggregateInput = {
+    targetVersionAtRequest?: SortOrder
+  }
+
+  export type OsIssueCorrectionRequestMaxOrderByAggregateInput = {
+    issueId?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    locationId?: SortOrder
+    field?: SortOrder
+    proposedValue?: SortOrder
+    source?: SortOrder
+    decision?: SortOrder
+    appliedEventId?: SortOrder
+    decisionReason?: SortOrder
+    decidedByMemberId?: SortOrder
+    decidedAt?: SortOrder
+    createdAt?: SortOrder
+    targetVersionAtRequest?: SortOrder
+    valueMatched?: SortOrder
+    differenceExplanation?: SortOrder
+  }
+
+  export type OsIssueCorrectionRequestMinOrderByAggregateInput = {
+    issueId?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    contactId?: SortOrder
+    locationId?: SortOrder
+    field?: SortOrder
+    proposedValue?: SortOrder
+    source?: SortOrder
+    decision?: SortOrder
+    appliedEventId?: SortOrder
+    decisionReason?: SortOrder
+    decidedByMemberId?: SortOrder
+    decidedAt?: SortOrder
+    createdAt?: SortOrder
+    targetVersionAtRequest?: SortOrder
+    valueMatched?: SortOrder
+    differenceExplanation?: SortOrder
+  }
+
+  export type OsIssueCorrectionRequestSumOrderByAggregateInput = {
+    targetVersionAtRequest?: SortOrder
   }
 
   export type OsIssueReferenceOrganizationIdIssueIdReferenceTypeReferenceIdCompoundUniqueInput = {
@@ -154338,11 +159631,6 @@ export namespace Prisma {
 
   export type OsRateLimitBucketSumOrderByAggregateInput = {
     count?: SortOrder
-  }
-
-  export type OsContactScalarRelationFilter = {
-    is?: OsContactWhereInput
-    isNot?: OsContactWhereInput
   }
 
   export type OsContactFollowupPreferenceOrganizationIdContactIdChannelCompoundUniqueInput = {
@@ -154902,6 +160190,13 @@ export namespace Prisma {
     connect?: OsIssueWhereUniqueInput | OsIssueWhereUniqueInput[]
   }
 
+  export type OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsIssueCorrectionRequestCreateWithoutOrganizationInput, OsIssueCorrectionRequestUncheckedCreateWithoutOrganizationInput> | OsIssueCorrectionRequestCreateWithoutOrganizationInput[] | OsIssueCorrectionRequestUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsIssueCorrectionRequestCreateOrConnectWithoutOrganizationInput | OsIssueCorrectionRequestCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsIssueCorrectionRequestCreateManyOrganizationInputEnvelope
+    connect?: OsIssueCorrectionRequestWhereUniqueInput | OsIssueCorrectionRequestWhereUniqueInput[]
+  }
+
   export type OsIssueReferenceCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<OsIssueReferenceCreateWithoutOrganizationInput, OsIssueReferenceUncheckedCreateWithoutOrganizationInput> | OsIssueReferenceCreateWithoutOrganizationInput[] | OsIssueReferenceUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsIssueReferenceCreateOrConnectWithoutOrganizationInput | OsIssueReferenceCreateOrConnectWithoutOrganizationInput[]
@@ -154956,6 +160251,20 @@ export namespace Prisma {
     connectOrCreate?: OsContactFollowupPreferenceCreateOrConnectWithoutOrganizationInput | OsContactFollowupPreferenceCreateOrConnectWithoutOrganizationInput[]
     createMany?: OsContactFollowupPreferenceCreateManyOrganizationInputEnvelope
     connect?: OsContactFollowupPreferenceWhereUniqueInput | OsContactFollowupPreferenceWhereUniqueInput[]
+  }
+
+  export type OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsContactEndpointAssociationCreateWithoutOrganizationInput, OsContactEndpointAssociationUncheckedCreateWithoutOrganizationInput> | OsContactEndpointAssociationCreateWithoutOrganizationInput[] | OsContactEndpointAssociationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsContactEndpointAssociationCreateOrConnectWithoutOrganizationInput | OsContactEndpointAssociationCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsContactEndpointAssociationCreateManyOrganizationInputEnvelope
+    connect?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+  }
+
+  export type OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsContactIdentityReviewCreateWithoutOrganizationInput, OsContactIdentityReviewUncheckedCreateWithoutOrganizationInput> | OsContactIdentityReviewCreateWithoutOrganizationInput[] | OsContactIdentityReviewUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsContactIdentityReviewCreateOrConnectWithoutOrganizationInput | OsContactIdentityReviewCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsContactIdentityReviewCreateManyOrganizationInputEnvelope
+    connect?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
   }
 
   export type OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput = {
@@ -155462,6 +160771,13 @@ export namespace Prisma {
     connect?: OsIssueWhereUniqueInput | OsIssueWhereUniqueInput[]
   }
 
+  export type OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsIssueCorrectionRequestCreateWithoutOrganizationInput, OsIssueCorrectionRequestUncheckedCreateWithoutOrganizationInput> | OsIssueCorrectionRequestCreateWithoutOrganizationInput[] | OsIssueCorrectionRequestUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsIssueCorrectionRequestCreateOrConnectWithoutOrganizationInput | OsIssueCorrectionRequestCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsIssueCorrectionRequestCreateManyOrganizationInputEnvelope
+    connect?: OsIssueCorrectionRequestWhereUniqueInput | OsIssueCorrectionRequestWhereUniqueInput[]
+  }
+
   export type OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<OsIssueReferenceCreateWithoutOrganizationInput, OsIssueReferenceUncheckedCreateWithoutOrganizationInput> | OsIssueReferenceCreateWithoutOrganizationInput[] | OsIssueReferenceUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsIssueReferenceCreateOrConnectWithoutOrganizationInput | OsIssueReferenceCreateOrConnectWithoutOrganizationInput[]
@@ -155516,6 +160832,20 @@ export namespace Prisma {
     connectOrCreate?: OsContactFollowupPreferenceCreateOrConnectWithoutOrganizationInput | OsContactFollowupPreferenceCreateOrConnectWithoutOrganizationInput[]
     createMany?: OsContactFollowupPreferenceCreateManyOrganizationInputEnvelope
     connect?: OsContactFollowupPreferenceWhereUniqueInput | OsContactFollowupPreferenceWhereUniqueInput[]
+  }
+
+  export type OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsContactEndpointAssociationCreateWithoutOrganizationInput, OsContactEndpointAssociationUncheckedCreateWithoutOrganizationInput> | OsContactEndpointAssociationCreateWithoutOrganizationInput[] | OsContactEndpointAssociationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsContactEndpointAssociationCreateOrConnectWithoutOrganizationInput | OsContactEndpointAssociationCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsContactEndpointAssociationCreateManyOrganizationInputEnvelope
+    connect?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+  }
+
+  export type OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsContactIdentityReviewCreateWithoutOrganizationInput, OsContactIdentityReviewUncheckedCreateWithoutOrganizationInput> | OsContactIdentityReviewCreateWithoutOrganizationInput[] | OsContactIdentityReviewUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsContactIdentityReviewCreateOrConnectWithoutOrganizationInput | OsContactIdentityReviewCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsContactIdentityReviewCreateManyOrganizationInputEnvelope
+    connect?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -156534,6 +161864,20 @@ export namespace Prisma {
     deleteMany?: OsIssueScalarWhereInput | OsIssueScalarWhereInput[]
   }
 
+  export type OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsIssueCorrectionRequestCreateWithoutOrganizationInput, OsIssueCorrectionRequestUncheckedCreateWithoutOrganizationInput> | OsIssueCorrectionRequestCreateWithoutOrganizationInput[] | OsIssueCorrectionRequestUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsIssueCorrectionRequestCreateOrConnectWithoutOrganizationInput | OsIssueCorrectionRequestCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsIssueCorrectionRequestUpsertWithWhereUniqueWithoutOrganizationInput | OsIssueCorrectionRequestUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsIssueCorrectionRequestCreateManyOrganizationInputEnvelope
+    set?: OsIssueCorrectionRequestWhereUniqueInput | OsIssueCorrectionRequestWhereUniqueInput[]
+    disconnect?: OsIssueCorrectionRequestWhereUniqueInput | OsIssueCorrectionRequestWhereUniqueInput[]
+    delete?: OsIssueCorrectionRequestWhereUniqueInput | OsIssueCorrectionRequestWhereUniqueInput[]
+    connect?: OsIssueCorrectionRequestWhereUniqueInput | OsIssueCorrectionRequestWhereUniqueInput[]
+    update?: OsIssueCorrectionRequestUpdateWithWhereUniqueWithoutOrganizationInput | OsIssueCorrectionRequestUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsIssueCorrectionRequestUpdateManyWithWhereWithoutOrganizationInput | OsIssueCorrectionRequestUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsIssueCorrectionRequestScalarWhereInput | OsIssueCorrectionRequestScalarWhereInput[]
+  }
+
   export type OsIssueReferenceUpdateManyWithoutOrganizationNestedInput = {
     create?: XOR<OsIssueReferenceCreateWithoutOrganizationInput, OsIssueReferenceUncheckedCreateWithoutOrganizationInput> | OsIssueReferenceCreateWithoutOrganizationInput[] | OsIssueReferenceUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsIssueReferenceCreateOrConnectWithoutOrganizationInput | OsIssueReferenceCreateOrConnectWithoutOrganizationInput[]
@@ -156644,6 +161988,34 @@ export namespace Prisma {
     update?: OsContactFollowupPreferenceUpdateWithWhereUniqueWithoutOrganizationInput | OsContactFollowupPreferenceUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OsContactFollowupPreferenceUpdateManyWithWhereWithoutOrganizationInput | OsContactFollowupPreferenceUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OsContactFollowupPreferenceScalarWhereInput | OsContactFollowupPreferenceScalarWhereInput[]
+  }
+
+  export type OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsContactEndpointAssociationCreateWithoutOrganizationInput, OsContactEndpointAssociationUncheckedCreateWithoutOrganizationInput> | OsContactEndpointAssociationCreateWithoutOrganizationInput[] | OsContactEndpointAssociationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsContactEndpointAssociationCreateOrConnectWithoutOrganizationInput | OsContactEndpointAssociationCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsContactEndpointAssociationUpsertWithWhereUniqueWithoutOrganizationInput | OsContactEndpointAssociationUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsContactEndpointAssociationCreateManyOrganizationInputEnvelope
+    set?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    disconnect?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    delete?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    connect?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    update?: OsContactEndpointAssociationUpdateWithWhereUniqueWithoutOrganizationInput | OsContactEndpointAssociationUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsContactEndpointAssociationUpdateManyWithWhereWithoutOrganizationInput | OsContactEndpointAssociationUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsContactEndpointAssociationScalarWhereInput | OsContactEndpointAssociationScalarWhereInput[]
+  }
+
+  export type OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsContactIdentityReviewCreateWithoutOrganizationInput, OsContactIdentityReviewUncheckedCreateWithoutOrganizationInput> | OsContactIdentityReviewCreateWithoutOrganizationInput[] | OsContactIdentityReviewUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsContactIdentityReviewCreateOrConnectWithoutOrganizationInput | OsContactIdentityReviewCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsContactIdentityReviewUpsertWithWhereUniqueWithoutOrganizationInput | OsContactIdentityReviewUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsContactIdentityReviewCreateManyOrganizationInputEnvelope
+    set?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    disconnect?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    delete?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    connect?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    update?: OsContactIdentityReviewUpdateWithWhereUniqueWithoutOrganizationInput | OsContactIdentityReviewUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsContactIdentityReviewUpdateManyWithWhereWithoutOrganizationInput | OsContactIdentityReviewUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsContactIdentityReviewScalarWhereInput | OsContactIdentityReviewScalarWhereInput[]
   }
 
   export type OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput = {
@@ -157654,6 +163026,20 @@ export namespace Prisma {
     deleteMany?: OsIssueScalarWhereInput | OsIssueScalarWhereInput[]
   }
 
+  export type OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsIssueCorrectionRequestCreateWithoutOrganizationInput, OsIssueCorrectionRequestUncheckedCreateWithoutOrganizationInput> | OsIssueCorrectionRequestCreateWithoutOrganizationInput[] | OsIssueCorrectionRequestUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsIssueCorrectionRequestCreateOrConnectWithoutOrganizationInput | OsIssueCorrectionRequestCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsIssueCorrectionRequestUpsertWithWhereUniqueWithoutOrganizationInput | OsIssueCorrectionRequestUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsIssueCorrectionRequestCreateManyOrganizationInputEnvelope
+    set?: OsIssueCorrectionRequestWhereUniqueInput | OsIssueCorrectionRequestWhereUniqueInput[]
+    disconnect?: OsIssueCorrectionRequestWhereUniqueInput | OsIssueCorrectionRequestWhereUniqueInput[]
+    delete?: OsIssueCorrectionRequestWhereUniqueInput | OsIssueCorrectionRequestWhereUniqueInput[]
+    connect?: OsIssueCorrectionRequestWhereUniqueInput | OsIssueCorrectionRequestWhereUniqueInput[]
+    update?: OsIssueCorrectionRequestUpdateWithWhereUniqueWithoutOrganizationInput | OsIssueCorrectionRequestUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsIssueCorrectionRequestUpdateManyWithWhereWithoutOrganizationInput | OsIssueCorrectionRequestUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsIssueCorrectionRequestScalarWhereInput | OsIssueCorrectionRequestScalarWhereInput[]
+  }
+
   export type OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput = {
     create?: XOR<OsIssueReferenceCreateWithoutOrganizationInput, OsIssueReferenceUncheckedCreateWithoutOrganizationInput> | OsIssueReferenceCreateWithoutOrganizationInput[] | OsIssueReferenceUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsIssueReferenceCreateOrConnectWithoutOrganizationInput | OsIssueReferenceCreateOrConnectWithoutOrganizationInput[]
@@ -157764,6 +163150,34 @@ export namespace Prisma {
     update?: OsContactFollowupPreferenceUpdateWithWhereUniqueWithoutOrganizationInput | OsContactFollowupPreferenceUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OsContactFollowupPreferenceUpdateManyWithWhereWithoutOrganizationInput | OsContactFollowupPreferenceUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OsContactFollowupPreferenceScalarWhereInput | OsContactFollowupPreferenceScalarWhereInput[]
+  }
+
+  export type OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsContactEndpointAssociationCreateWithoutOrganizationInput, OsContactEndpointAssociationUncheckedCreateWithoutOrganizationInput> | OsContactEndpointAssociationCreateWithoutOrganizationInput[] | OsContactEndpointAssociationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsContactEndpointAssociationCreateOrConnectWithoutOrganizationInput | OsContactEndpointAssociationCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsContactEndpointAssociationUpsertWithWhereUniqueWithoutOrganizationInput | OsContactEndpointAssociationUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsContactEndpointAssociationCreateManyOrganizationInputEnvelope
+    set?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    disconnect?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    delete?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    connect?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    update?: OsContactEndpointAssociationUpdateWithWhereUniqueWithoutOrganizationInput | OsContactEndpointAssociationUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsContactEndpointAssociationUpdateManyWithWhereWithoutOrganizationInput | OsContactEndpointAssociationUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsContactEndpointAssociationScalarWhereInput | OsContactEndpointAssociationScalarWhereInput[]
+  }
+
+  export type OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsContactIdentityReviewCreateWithoutOrganizationInput, OsContactIdentityReviewUncheckedCreateWithoutOrganizationInput> | OsContactIdentityReviewCreateWithoutOrganizationInput[] | OsContactIdentityReviewUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsContactIdentityReviewCreateOrConnectWithoutOrganizationInput | OsContactIdentityReviewCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsContactIdentityReviewUpsertWithWhereUniqueWithoutOrganizationInput | OsContactIdentityReviewUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsContactIdentityReviewCreateManyOrganizationInputEnvelope
+    set?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    disconnect?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    delete?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    connect?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    update?: OsContactIdentityReviewUpdateWithWhereUniqueWithoutOrganizationInput | OsContactIdentityReviewUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsContactIdentityReviewUpdateManyWithWhereWithoutOrganizationInput | OsContactIdentityReviewUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsContactIdentityReviewScalarWhereInput | OsContactIdentityReviewScalarWhereInput[]
   }
 
   export type OsOrganizationMemberCreateNestedManyWithoutPersonInput = {
@@ -159991,11 +165405,25 @@ export namespace Prisma {
     connect?: OsContactFollowupPreferenceWhereUniqueInput | OsContactFollowupPreferenceWhereUniqueInput[]
   }
 
+  export type OsContactEndpointAssociationCreateNestedManyWithoutContactInput = {
+    create?: XOR<OsContactEndpointAssociationCreateWithoutContactInput, OsContactEndpointAssociationUncheckedCreateWithoutContactInput> | OsContactEndpointAssociationCreateWithoutContactInput[] | OsContactEndpointAssociationUncheckedCreateWithoutContactInput[]
+    connectOrCreate?: OsContactEndpointAssociationCreateOrConnectWithoutContactInput | OsContactEndpointAssociationCreateOrConnectWithoutContactInput[]
+    createMany?: OsContactEndpointAssociationCreateManyContactInputEnvelope
+    connect?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+  }
+
   export type OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutContactInput = {
     create?: XOR<OsContactFollowupPreferenceCreateWithoutContactInput, OsContactFollowupPreferenceUncheckedCreateWithoutContactInput> | OsContactFollowupPreferenceCreateWithoutContactInput[] | OsContactFollowupPreferenceUncheckedCreateWithoutContactInput[]
     connectOrCreate?: OsContactFollowupPreferenceCreateOrConnectWithoutContactInput | OsContactFollowupPreferenceCreateOrConnectWithoutContactInput[]
     createMany?: OsContactFollowupPreferenceCreateManyContactInputEnvelope
     connect?: OsContactFollowupPreferenceWhereUniqueInput | OsContactFollowupPreferenceWhereUniqueInput[]
+  }
+
+  export type OsContactEndpointAssociationUncheckedCreateNestedManyWithoutContactInput = {
+    create?: XOR<OsContactEndpointAssociationCreateWithoutContactInput, OsContactEndpointAssociationUncheckedCreateWithoutContactInput> | OsContactEndpointAssociationCreateWithoutContactInput[] | OsContactEndpointAssociationUncheckedCreateWithoutContactInput[]
+    connectOrCreate?: OsContactEndpointAssociationCreateOrConnectWithoutContactInput | OsContactEndpointAssociationCreateOrConnectWithoutContactInput[]
+    createMany?: OsContactEndpointAssociationCreateManyContactInputEnvelope
+    connect?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
   }
 
   export type OsOrganizationUpdateOneRequiredWithoutContactsNestedInput = {
@@ -160028,6 +165456,20 @@ export namespace Prisma {
     deleteMany?: OsContactFollowupPreferenceScalarWhereInput | OsContactFollowupPreferenceScalarWhereInput[]
   }
 
+  export type OsContactEndpointAssociationUpdateManyWithoutContactNestedInput = {
+    create?: XOR<OsContactEndpointAssociationCreateWithoutContactInput, OsContactEndpointAssociationUncheckedCreateWithoutContactInput> | OsContactEndpointAssociationCreateWithoutContactInput[] | OsContactEndpointAssociationUncheckedCreateWithoutContactInput[]
+    connectOrCreate?: OsContactEndpointAssociationCreateOrConnectWithoutContactInput | OsContactEndpointAssociationCreateOrConnectWithoutContactInput[]
+    upsert?: OsContactEndpointAssociationUpsertWithWhereUniqueWithoutContactInput | OsContactEndpointAssociationUpsertWithWhereUniqueWithoutContactInput[]
+    createMany?: OsContactEndpointAssociationCreateManyContactInputEnvelope
+    set?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    disconnect?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    delete?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    connect?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    update?: OsContactEndpointAssociationUpdateWithWhereUniqueWithoutContactInput | OsContactEndpointAssociationUpdateWithWhereUniqueWithoutContactInput[]
+    updateMany?: OsContactEndpointAssociationUpdateManyWithWhereWithoutContactInput | OsContactEndpointAssociationUpdateManyWithWhereWithoutContactInput[]
+    deleteMany?: OsContactEndpointAssociationScalarWhereInput | OsContactEndpointAssociationScalarWhereInput[]
+  }
+
   export type OsContactFollowupPreferenceUncheckedUpdateManyWithoutContactNestedInput = {
     create?: XOR<OsContactFollowupPreferenceCreateWithoutContactInput, OsContactFollowupPreferenceUncheckedCreateWithoutContactInput> | OsContactFollowupPreferenceCreateWithoutContactInput[] | OsContactFollowupPreferenceUncheckedCreateWithoutContactInput[]
     connectOrCreate?: OsContactFollowupPreferenceCreateOrConnectWithoutContactInput | OsContactFollowupPreferenceCreateOrConnectWithoutContactInput[]
@@ -160040,6 +165482,118 @@ export namespace Prisma {
     update?: OsContactFollowupPreferenceUpdateWithWhereUniqueWithoutContactInput | OsContactFollowupPreferenceUpdateWithWhereUniqueWithoutContactInput[]
     updateMany?: OsContactFollowupPreferenceUpdateManyWithWhereWithoutContactInput | OsContactFollowupPreferenceUpdateManyWithWhereWithoutContactInput[]
     deleteMany?: OsContactFollowupPreferenceScalarWhereInput | OsContactFollowupPreferenceScalarWhereInput[]
+  }
+
+  export type OsContactEndpointAssociationUncheckedUpdateManyWithoutContactNestedInput = {
+    create?: XOR<OsContactEndpointAssociationCreateWithoutContactInput, OsContactEndpointAssociationUncheckedCreateWithoutContactInput> | OsContactEndpointAssociationCreateWithoutContactInput[] | OsContactEndpointAssociationUncheckedCreateWithoutContactInput[]
+    connectOrCreate?: OsContactEndpointAssociationCreateOrConnectWithoutContactInput | OsContactEndpointAssociationCreateOrConnectWithoutContactInput[]
+    upsert?: OsContactEndpointAssociationUpsertWithWhereUniqueWithoutContactInput | OsContactEndpointAssociationUpsertWithWhereUniqueWithoutContactInput[]
+    createMany?: OsContactEndpointAssociationCreateManyContactInputEnvelope
+    set?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    disconnect?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    delete?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    connect?: OsContactEndpointAssociationWhereUniqueInput | OsContactEndpointAssociationWhereUniqueInput[]
+    update?: OsContactEndpointAssociationUpdateWithWhereUniqueWithoutContactInput | OsContactEndpointAssociationUpdateWithWhereUniqueWithoutContactInput[]
+    updateMany?: OsContactEndpointAssociationUpdateManyWithWhereWithoutContactInput | OsContactEndpointAssociationUpdateManyWithWhereWithoutContactInput[]
+    deleteMany?: OsContactEndpointAssociationScalarWhereInput | OsContactEndpointAssociationScalarWhereInput[]
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutContactEndpointAssociationsInput = {
+    create?: XOR<OsOrganizationCreateWithoutContactEndpointAssociationsInput, OsOrganizationUncheckedCreateWithoutContactEndpointAssociationsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutContactEndpointAssociationsInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsContactCreateNestedOneWithoutEndpointAssociationsInput = {
+    create?: XOR<OsContactCreateWithoutEndpointAssociationsInput, OsContactUncheckedCreateWithoutEndpointAssociationsInput>
+    connectOrCreate?: OsContactCreateOrConnectWithoutEndpointAssociationsInput
+    connect?: OsContactWhereUniqueInput
+  }
+
+  export type OsContactIdentityReviewCreateNestedManyWithoutAssociationInput = {
+    create?: XOR<OsContactIdentityReviewCreateWithoutAssociationInput, OsContactIdentityReviewUncheckedCreateWithoutAssociationInput> | OsContactIdentityReviewCreateWithoutAssociationInput[] | OsContactIdentityReviewUncheckedCreateWithoutAssociationInput[]
+    connectOrCreate?: OsContactIdentityReviewCreateOrConnectWithoutAssociationInput | OsContactIdentityReviewCreateOrConnectWithoutAssociationInput[]
+    createMany?: OsContactIdentityReviewCreateManyAssociationInputEnvelope
+    connect?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+  }
+
+  export type OsContactIdentityReviewUncheckedCreateNestedManyWithoutAssociationInput = {
+    create?: XOR<OsContactIdentityReviewCreateWithoutAssociationInput, OsContactIdentityReviewUncheckedCreateWithoutAssociationInput> | OsContactIdentityReviewCreateWithoutAssociationInput[] | OsContactIdentityReviewUncheckedCreateWithoutAssociationInput[]
+    connectOrCreate?: OsContactIdentityReviewCreateOrConnectWithoutAssociationInput | OsContactIdentityReviewCreateOrConnectWithoutAssociationInput[]
+    createMany?: OsContactIdentityReviewCreateManyAssociationInputEnvelope
+    connect?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutContactEndpointAssociationsNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutContactEndpointAssociationsInput, OsOrganizationUncheckedCreateWithoutContactEndpointAssociationsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutContactEndpointAssociationsInput
+    upsert?: OsOrganizationUpsertWithoutContactEndpointAssociationsInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutContactEndpointAssociationsInput, OsOrganizationUpdateWithoutContactEndpointAssociationsInput>, OsOrganizationUncheckedUpdateWithoutContactEndpointAssociationsInput>
+  }
+
+  export type OsContactUpdateOneRequiredWithoutEndpointAssociationsNestedInput = {
+    create?: XOR<OsContactCreateWithoutEndpointAssociationsInput, OsContactUncheckedCreateWithoutEndpointAssociationsInput>
+    connectOrCreate?: OsContactCreateOrConnectWithoutEndpointAssociationsInput
+    upsert?: OsContactUpsertWithoutEndpointAssociationsInput
+    connect?: OsContactWhereUniqueInput
+    update?: XOR<XOR<OsContactUpdateToOneWithWhereWithoutEndpointAssociationsInput, OsContactUpdateWithoutEndpointAssociationsInput>, OsContactUncheckedUpdateWithoutEndpointAssociationsInput>
+  }
+
+  export type OsContactIdentityReviewUpdateManyWithoutAssociationNestedInput = {
+    create?: XOR<OsContactIdentityReviewCreateWithoutAssociationInput, OsContactIdentityReviewUncheckedCreateWithoutAssociationInput> | OsContactIdentityReviewCreateWithoutAssociationInput[] | OsContactIdentityReviewUncheckedCreateWithoutAssociationInput[]
+    connectOrCreate?: OsContactIdentityReviewCreateOrConnectWithoutAssociationInput | OsContactIdentityReviewCreateOrConnectWithoutAssociationInput[]
+    upsert?: OsContactIdentityReviewUpsertWithWhereUniqueWithoutAssociationInput | OsContactIdentityReviewUpsertWithWhereUniqueWithoutAssociationInput[]
+    createMany?: OsContactIdentityReviewCreateManyAssociationInputEnvelope
+    set?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    disconnect?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    delete?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    connect?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    update?: OsContactIdentityReviewUpdateWithWhereUniqueWithoutAssociationInput | OsContactIdentityReviewUpdateWithWhereUniqueWithoutAssociationInput[]
+    updateMany?: OsContactIdentityReviewUpdateManyWithWhereWithoutAssociationInput | OsContactIdentityReviewUpdateManyWithWhereWithoutAssociationInput[]
+    deleteMany?: OsContactIdentityReviewScalarWhereInput | OsContactIdentityReviewScalarWhereInput[]
+  }
+
+  export type OsContactIdentityReviewUncheckedUpdateManyWithoutAssociationNestedInput = {
+    create?: XOR<OsContactIdentityReviewCreateWithoutAssociationInput, OsContactIdentityReviewUncheckedCreateWithoutAssociationInput> | OsContactIdentityReviewCreateWithoutAssociationInput[] | OsContactIdentityReviewUncheckedCreateWithoutAssociationInput[]
+    connectOrCreate?: OsContactIdentityReviewCreateOrConnectWithoutAssociationInput | OsContactIdentityReviewCreateOrConnectWithoutAssociationInput[]
+    upsert?: OsContactIdentityReviewUpsertWithWhereUniqueWithoutAssociationInput | OsContactIdentityReviewUpsertWithWhereUniqueWithoutAssociationInput[]
+    createMany?: OsContactIdentityReviewCreateManyAssociationInputEnvelope
+    set?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    disconnect?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    delete?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    connect?: OsContactIdentityReviewWhereUniqueInput | OsContactIdentityReviewWhereUniqueInput[]
+    update?: OsContactIdentityReviewUpdateWithWhereUniqueWithoutAssociationInput | OsContactIdentityReviewUpdateWithWhereUniqueWithoutAssociationInput[]
+    updateMany?: OsContactIdentityReviewUpdateManyWithWhereWithoutAssociationInput | OsContactIdentityReviewUpdateManyWithWhereWithoutAssociationInput[]
+    deleteMany?: OsContactIdentityReviewScalarWhereInput | OsContactIdentityReviewScalarWhereInput[]
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutContactIdentityReviewsInput = {
+    create?: XOR<OsOrganizationCreateWithoutContactIdentityReviewsInput, OsOrganizationUncheckedCreateWithoutContactIdentityReviewsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutContactIdentityReviewsInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsContactEndpointAssociationCreateNestedOneWithoutIdentityReviewsInput = {
+    create?: XOR<OsContactEndpointAssociationCreateWithoutIdentityReviewsInput, OsContactEndpointAssociationUncheckedCreateWithoutIdentityReviewsInput>
+    connectOrCreate?: OsContactEndpointAssociationCreateOrConnectWithoutIdentityReviewsInput
+    connect?: OsContactEndpointAssociationWhereUniqueInput
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutContactIdentityReviewsNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutContactIdentityReviewsInput, OsOrganizationUncheckedCreateWithoutContactIdentityReviewsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutContactIdentityReviewsInput
+    upsert?: OsOrganizationUpsertWithoutContactIdentityReviewsInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutContactIdentityReviewsInput, OsOrganizationUpdateWithoutContactIdentityReviewsInput>, OsOrganizationUncheckedUpdateWithoutContactIdentityReviewsInput>
+  }
+
+  export type OsContactEndpointAssociationUpdateOneRequiredWithoutIdentityReviewsNestedInput = {
+    create?: XOR<OsContactEndpointAssociationCreateWithoutIdentityReviewsInput, OsContactEndpointAssociationUncheckedCreateWithoutIdentityReviewsInput>
+    connectOrCreate?: OsContactEndpointAssociationCreateOrConnectWithoutIdentityReviewsInput
+    upsert?: OsContactEndpointAssociationUpsertWithoutIdentityReviewsInput
+    connect?: OsContactEndpointAssociationWhereUniqueInput
+    update?: XOR<XOR<OsContactEndpointAssociationUpdateToOneWithWhereWithoutIdentityReviewsInput, OsContactEndpointAssociationUpdateWithoutIdentityReviewsInput>, OsContactEndpointAssociationUncheckedUpdateWithoutIdentityReviewsInput>
   }
 
   export type OsOrganizationCreateNestedOneWithoutFiscalIdentitiesInput = {
@@ -162222,6 +167776,12 @@ export namespace Prisma {
     connect?: OsIssueOwnershipHistoryWhereUniqueInput | OsIssueOwnershipHistoryWhereUniqueInput[]
   }
 
+  export type OsIssueCorrectionRequestCreateNestedOneWithoutIssueInput = {
+    create?: XOR<OsIssueCorrectionRequestCreateWithoutIssueInput, OsIssueCorrectionRequestUncheckedCreateWithoutIssueInput>
+    connectOrCreate?: OsIssueCorrectionRequestCreateOrConnectWithoutIssueInput
+    connect?: OsIssueCorrectionRequestWhereUniqueInput
+  }
+
   export type OsIssueReferenceUncheckedCreateNestedManyWithoutIssueInput = {
     create?: XOR<OsIssueReferenceCreateWithoutIssueInput, OsIssueReferenceUncheckedCreateWithoutIssueInput> | OsIssueReferenceCreateWithoutIssueInput[] | OsIssueReferenceUncheckedCreateWithoutIssueInput[]
     connectOrCreate?: OsIssueReferenceCreateOrConnectWithoutIssueInput | OsIssueReferenceCreateOrConnectWithoutIssueInput[]
@@ -162269,6 +167829,12 @@ export namespace Prisma {
     connectOrCreate?: OsIssueOwnershipHistoryCreateOrConnectWithoutIssueInput | OsIssueOwnershipHistoryCreateOrConnectWithoutIssueInput[]
     createMany?: OsIssueOwnershipHistoryCreateManyIssueInputEnvelope
     connect?: OsIssueOwnershipHistoryWhereUniqueInput | OsIssueOwnershipHistoryWhereUniqueInput[]
+  }
+
+  export type OsIssueCorrectionRequestUncheckedCreateNestedOneWithoutIssueInput = {
+    create?: XOR<OsIssueCorrectionRequestCreateWithoutIssueInput, OsIssueCorrectionRequestUncheckedCreateWithoutIssueInput>
+    connectOrCreate?: OsIssueCorrectionRequestCreateOrConnectWithoutIssueInput
+    connect?: OsIssueCorrectionRequestWhereUniqueInput
   }
 
   export type OsOrganizationUpdateOneRequiredWithoutIssuesNestedInput = {
@@ -162377,6 +167943,16 @@ export namespace Prisma {
     deleteMany?: OsIssueOwnershipHistoryScalarWhereInput | OsIssueOwnershipHistoryScalarWhereInput[]
   }
 
+  export type OsIssueCorrectionRequestUpdateOneWithoutIssueNestedInput = {
+    create?: XOR<OsIssueCorrectionRequestCreateWithoutIssueInput, OsIssueCorrectionRequestUncheckedCreateWithoutIssueInput>
+    connectOrCreate?: OsIssueCorrectionRequestCreateOrConnectWithoutIssueInput
+    upsert?: OsIssueCorrectionRequestUpsertWithoutIssueInput
+    disconnect?: OsIssueCorrectionRequestWhereInput | boolean
+    delete?: OsIssueCorrectionRequestWhereInput | boolean
+    connect?: OsIssueCorrectionRequestWhereUniqueInput
+    update?: XOR<XOR<OsIssueCorrectionRequestUpdateToOneWithWhereWithoutIssueInput, OsIssueCorrectionRequestUpdateWithoutIssueInput>, OsIssueCorrectionRequestUncheckedUpdateWithoutIssueInput>
+  }
+
   export type OsIssueReferenceUncheckedUpdateManyWithoutIssueNestedInput = {
     create?: XOR<OsIssueReferenceCreateWithoutIssueInput, OsIssueReferenceUncheckedCreateWithoutIssueInput> | OsIssueReferenceCreateWithoutIssueInput[] | OsIssueReferenceUncheckedCreateWithoutIssueInput[]
     connectOrCreate?: OsIssueReferenceCreateOrConnectWithoutIssueInput | OsIssueReferenceCreateOrConnectWithoutIssueInput[]
@@ -162473,6 +168049,44 @@ export namespace Prisma {
     update?: OsIssueOwnershipHistoryUpdateWithWhereUniqueWithoutIssueInput | OsIssueOwnershipHistoryUpdateWithWhereUniqueWithoutIssueInput[]
     updateMany?: OsIssueOwnershipHistoryUpdateManyWithWhereWithoutIssueInput | OsIssueOwnershipHistoryUpdateManyWithWhereWithoutIssueInput[]
     deleteMany?: OsIssueOwnershipHistoryScalarWhereInput | OsIssueOwnershipHistoryScalarWhereInput[]
+  }
+
+  export type OsIssueCorrectionRequestUncheckedUpdateOneWithoutIssueNestedInput = {
+    create?: XOR<OsIssueCorrectionRequestCreateWithoutIssueInput, OsIssueCorrectionRequestUncheckedCreateWithoutIssueInput>
+    connectOrCreate?: OsIssueCorrectionRequestCreateOrConnectWithoutIssueInput
+    upsert?: OsIssueCorrectionRequestUpsertWithoutIssueInput
+    disconnect?: OsIssueCorrectionRequestWhereInput | boolean
+    delete?: OsIssueCorrectionRequestWhereInput | boolean
+    connect?: OsIssueCorrectionRequestWhereUniqueInput
+    update?: XOR<XOR<OsIssueCorrectionRequestUpdateToOneWithWhereWithoutIssueInput, OsIssueCorrectionRequestUpdateWithoutIssueInput>, OsIssueCorrectionRequestUncheckedUpdateWithoutIssueInput>
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutIssueCorrectionRequestsInput = {
+    create?: XOR<OsOrganizationCreateWithoutIssueCorrectionRequestsInput, OsOrganizationUncheckedCreateWithoutIssueCorrectionRequestsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutIssueCorrectionRequestsInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsIssueCreateNestedOneWithoutCorrectionRequestInput = {
+    create?: XOR<OsIssueCreateWithoutCorrectionRequestInput, OsIssueUncheckedCreateWithoutCorrectionRequestInput>
+    connectOrCreate?: OsIssueCreateOrConnectWithoutCorrectionRequestInput
+    connect?: OsIssueWhereUniqueInput
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutIssueCorrectionRequestsNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutIssueCorrectionRequestsInput, OsOrganizationUncheckedCreateWithoutIssueCorrectionRequestsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutIssueCorrectionRequestsInput
+    upsert?: OsOrganizationUpsertWithoutIssueCorrectionRequestsInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutIssueCorrectionRequestsInput, OsOrganizationUpdateWithoutIssueCorrectionRequestsInput>, OsOrganizationUncheckedUpdateWithoutIssueCorrectionRequestsInput>
+  }
+
+  export type OsIssueUpdateOneRequiredWithoutCorrectionRequestNestedInput = {
+    create?: XOR<OsIssueCreateWithoutCorrectionRequestInput, OsIssueUncheckedCreateWithoutCorrectionRequestInput>
+    connectOrCreate?: OsIssueCreateOrConnectWithoutCorrectionRequestInput
+    upsert?: OsIssueUpsertWithoutCorrectionRequestInput
+    connect?: OsIssueWhereUniqueInput
+    update?: XOR<XOR<OsIssueUpdateToOneWithWhereWithoutCorrectionRequestInput, OsIssueUpdateWithoutCorrectionRequestInput>, OsIssueUncheckedUpdateWithoutCorrectionRequestInput>
   }
 
   export type OsOrganizationCreateNestedOneWithoutIssueReferencesInput = {
@@ -163606,10 +169220,17 @@ export namespace Prisma {
     relationEndReason?: string | null
     phoneRetiredAt?: Date | string | null
     phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organizationParty: OsPartyCreateNestedOneWithoutContactsInput
     followupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutContactInput
+    endpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutContactInput
   }
 
   export type OsContactUncheckedCreateWithoutOrganizationInput = {
@@ -163628,9 +169249,16 @@ export namespace Prisma {
     relationEndReason?: string | null
     phoneRetiredAt?: Date | string | null
     phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     followupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutContactInput
+    endpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutContactInput
   }
 
   export type OsContactCreateOrConnectWithoutOrganizationInput = {
@@ -165926,6 +171554,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueUncheckedCreateWithoutOrganizationInput = {
@@ -165955,6 +171584,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUncheckedCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueCreateOrConnectWithoutOrganizationInput = {
@@ -165964,6 +171594,54 @@ export namespace Prisma {
 
   export type OsIssueCreateManyOrganizationInputEnvelope = {
     data: OsIssueCreateManyOrganizationInput | OsIssueCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsIssueCorrectionRequestCreateWithoutOrganizationInput = {
+    partyId: string
+    contactId?: string | null
+    locationId?: string | null
+    field: string
+    proposedValue: string
+    source: string
+    decision?: string | null
+    appliedEventId?: string | null
+    decisionReason?: string | null
+    decidedByMemberId?: string | null
+    decidedAt?: Date | string | null
+    createdAt?: Date | string
+    targetVersionAtRequest?: number | null
+    valueMatched?: boolean | null
+    differenceExplanation?: string | null
+    issue: OsIssueCreateNestedOneWithoutCorrectionRequestInput
+  }
+
+  export type OsIssueCorrectionRequestUncheckedCreateWithoutOrganizationInput = {
+    issueId: string
+    partyId: string
+    contactId?: string | null
+    locationId?: string | null
+    field: string
+    proposedValue: string
+    source: string
+    decision?: string | null
+    appliedEventId?: string | null
+    decisionReason?: string | null
+    decidedByMemberId?: string | null
+    decidedAt?: Date | string | null
+    createdAt?: Date | string
+    targetVersionAtRequest?: number | null
+    valueMatched?: boolean | null
+    differenceExplanation?: string | null
+  }
+
+  export type OsIssueCorrectionRequestCreateOrConnectWithoutOrganizationInput = {
+    where: OsIssueCorrectionRequestWhereUniqueInput
+    create: XOR<OsIssueCorrectionRequestCreateWithoutOrganizationInput, OsIssueCorrectionRequestUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsIssueCorrectionRequestCreateManyOrganizationInputEnvelope = {
+    data: OsIssueCorrectionRequestCreateManyOrganizationInput | OsIssueCorrectionRequestCreateManyOrganizationInput[]
     skipDuplicates?: boolean
   }
 
@@ -166220,6 +171898,90 @@ export namespace Prisma {
 
   export type OsContactFollowupPreferenceCreateManyOrganizationInputEnvelope = {
     data: OsContactFollowupPreferenceCreateManyOrganizationInput | OsContactFollowupPreferenceCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsContactEndpointAssociationCreateWithoutOrganizationInput = {
+    id: string
+    partyId: string
+    channel: string
+    numberE164: string
+    country?: string | null
+    enteredText?: string | null
+    startedAt: Date | string
+    endedAt?: Date | string | null
+    endReason?: string | null
+    verificationMethod?: string | null
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+    contact: OsContactCreateNestedOneWithoutEndpointAssociationsInput
+    identityReviews?: OsContactIdentityReviewCreateNestedManyWithoutAssociationInput
+  }
+
+  export type OsContactEndpointAssociationUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    partyId: string
+    contactId: string
+    channel: string
+    numberE164: string
+    country?: string | null
+    enteredText?: string | null
+    startedAt: Date | string
+    endedAt?: Date | string | null
+    endReason?: string | null
+    verificationMethod?: string | null
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+    identityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutAssociationInput
+  }
+
+  export type OsContactEndpointAssociationCreateOrConnectWithoutOrganizationInput = {
+    where: OsContactEndpointAssociationWhereUniqueInput
+    create: XOR<OsContactEndpointAssociationCreateWithoutOrganizationInput, OsContactEndpointAssociationUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsContactEndpointAssociationCreateManyOrganizationInputEnvelope = {
+    data: OsContactEndpointAssociationCreateManyOrganizationInput | OsContactEndpointAssociationCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsContactIdentityReviewCreateWithoutOrganizationInput = {
+    id: string
+    partyId: string
+    contactId: string
+    channel: string
+    matchedAssociationId: string
+    status?: string
+    openedAt: Date | string
+    resolvedAt?: Date | string | null
+    resolvedByMemberId?: string | null
+    verificationMethod?: string | null
+    note?: string | null
+    association: OsContactEndpointAssociationCreateNestedOneWithoutIdentityReviewsInput
+  }
+
+  export type OsContactIdentityReviewUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    partyId: string
+    contactId: string
+    channel: string
+    associationId: string
+    matchedAssociationId: string
+    status?: string
+    openedAt: Date | string
+    resolvedAt?: Date | string | null
+    resolvedByMemberId?: string | null
+    verificationMethod?: string | null
+    note?: string | null
+  }
+
+  export type OsContactIdentityReviewCreateOrConnectWithoutOrganizationInput = {
+    where: OsContactIdentityReviewWhereUniqueInput
+    create: XOR<OsContactIdentityReviewCreateWithoutOrganizationInput, OsContactIdentityReviewUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsContactIdentityReviewCreateManyOrganizationInputEnvelope = {
+    data: OsContactIdentityReviewCreateManyOrganizationInput | OsContactIdentityReviewCreateManyOrganizationInput[]
     skipDuplicates?: boolean
   }
 
@@ -166746,6 +172508,12 @@ export namespace Prisma {
     relationEndReason?: StringNullableFilter<"OsContact"> | string | null
     phoneRetiredAt?: DateTimeNullableFilter<"OsContact"> | Date | string | null
     phoneRetiredReason?: StringNullableFilter<"OsContact"> | string | null
+    phoneDisplay?: StringNullableFilter<"OsContact"> | string | null
+    whatsappDisplay?: StringNullableFilter<"OsContact"> | string | null
+    phoneStatus?: StringNullableFilter<"OsContact"> | string | null
+    whatsappStatus?: StringNullableFilter<"OsContact"> | string | null
+    whatsappRetiredAt?: DateTimeNullableFilter<"OsContact"> | Date | string | null
+    whatsappRetiredReason?: StringNullableFilter<"OsContact"> | string | null
     createdAt?: DateTimeFilter<"OsContact"> | Date | string
     updatedAt?: DateTimeFilter<"OsContact"> | Date | string
   }
@@ -168701,6 +174469,45 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"OsIssue"> | Date | string
   }
 
+  export type OsIssueCorrectionRequestUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsIssueCorrectionRequestWhereUniqueInput
+    update: XOR<OsIssueCorrectionRequestUpdateWithoutOrganizationInput, OsIssueCorrectionRequestUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsIssueCorrectionRequestCreateWithoutOrganizationInput, OsIssueCorrectionRequestUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsIssueCorrectionRequestUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsIssueCorrectionRequestWhereUniqueInput
+    data: XOR<OsIssueCorrectionRequestUpdateWithoutOrganizationInput, OsIssueCorrectionRequestUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsIssueCorrectionRequestUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsIssueCorrectionRequestScalarWhereInput
+    data: XOR<OsIssueCorrectionRequestUpdateManyMutationInput, OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsIssueCorrectionRequestScalarWhereInput = {
+    AND?: OsIssueCorrectionRequestScalarWhereInput | OsIssueCorrectionRequestScalarWhereInput[]
+    OR?: OsIssueCorrectionRequestScalarWhereInput[]
+    NOT?: OsIssueCorrectionRequestScalarWhereInput | OsIssueCorrectionRequestScalarWhereInput[]
+    issueId?: StringFilter<"OsIssueCorrectionRequest"> | string
+    organizationId?: StringFilter<"OsIssueCorrectionRequest"> | string
+    partyId?: StringFilter<"OsIssueCorrectionRequest"> | string
+    contactId?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    locationId?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    field?: StringFilter<"OsIssueCorrectionRequest"> | string
+    proposedValue?: StringFilter<"OsIssueCorrectionRequest"> | string
+    source?: StringFilter<"OsIssueCorrectionRequest"> | string
+    decision?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    appliedEventId?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    decisionReason?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    decidedByMemberId?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+    decidedAt?: DateTimeNullableFilter<"OsIssueCorrectionRequest"> | Date | string | null
+    createdAt?: DateTimeFilter<"OsIssueCorrectionRequest"> | Date | string
+    targetVersionAtRequest?: IntNullableFilter<"OsIssueCorrectionRequest"> | number | null
+    valueMatched?: BoolNullableFilter<"OsIssueCorrectionRequest"> | boolean | null
+    differenceExplanation?: StringNullableFilter<"OsIssueCorrectionRequest"> | string | null
+  }
+
   export type OsIssueReferenceUpsertWithWhereUniqueWithoutOrganizationInput = {
     where: OsIssueReferenceWhereUniqueInput
     update: XOR<OsIssueReferenceUpdateWithoutOrganizationInput, OsIssueReferenceUncheckedUpdateWithoutOrganizationInput>
@@ -168949,6 +174756,77 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"OsContactFollowupPreference"> | Date | string
   }
 
+  export type OsContactEndpointAssociationUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsContactEndpointAssociationWhereUniqueInput
+    update: XOR<OsContactEndpointAssociationUpdateWithoutOrganizationInput, OsContactEndpointAssociationUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsContactEndpointAssociationCreateWithoutOrganizationInput, OsContactEndpointAssociationUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsContactEndpointAssociationUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsContactEndpointAssociationWhereUniqueInput
+    data: XOR<OsContactEndpointAssociationUpdateWithoutOrganizationInput, OsContactEndpointAssociationUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsContactEndpointAssociationUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsContactEndpointAssociationScalarWhereInput
+    data: XOR<OsContactEndpointAssociationUpdateManyMutationInput, OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsContactEndpointAssociationScalarWhereInput = {
+    AND?: OsContactEndpointAssociationScalarWhereInput | OsContactEndpointAssociationScalarWhereInput[]
+    OR?: OsContactEndpointAssociationScalarWhereInput[]
+    NOT?: OsContactEndpointAssociationScalarWhereInput | OsContactEndpointAssociationScalarWhereInput[]
+    id?: StringFilter<"OsContactEndpointAssociation"> | string
+    organizationId?: StringFilter<"OsContactEndpointAssociation"> | string
+    partyId?: StringFilter<"OsContactEndpointAssociation"> | string
+    contactId?: StringFilter<"OsContactEndpointAssociation"> | string
+    channel?: StringFilter<"OsContactEndpointAssociation"> | string
+    numberE164?: StringFilter<"OsContactEndpointAssociation"> | string
+    country?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    enteredText?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    startedAt?: DateTimeFilter<"OsContactEndpointAssociation"> | Date | string
+    endedAt?: DateTimeNullableFilter<"OsContactEndpointAssociation"> | Date | string | null
+    endReason?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    verificationMethod?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    recordedByMemberId?: StringNullableFilter<"OsContactEndpointAssociation"> | string | null
+    createdAt?: DateTimeFilter<"OsContactEndpointAssociation"> | Date | string
+  }
+
+  export type OsContactIdentityReviewUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsContactIdentityReviewWhereUniqueInput
+    update: XOR<OsContactIdentityReviewUpdateWithoutOrganizationInput, OsContactIdentityReviewUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsContactIdentityReviewCreateWithoutOrganizationInput, OsContactIdentityReviewUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsContactIdentityReviewUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsContactIdentityReviewWhereUniqueInput
+    data: XOR<OsContactIdentityReviewUpdateWithoutOrganizationInput, OsContactIdentityReviewUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsContactIdentityReviewUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsContactIdentityReviewScalarWhereInput
+    data: XOR<OsContactIdentityReviewUpdateManyMutationInput, OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsContactIdentityReviewScalarWhereInput = {
+    AND?: OsContactIdentityReviewScalarWhereInput | OsContactIdentityReviewScalarWhereInput[]
+    OR?: OsContactIdentityReviewScalarWhereInput[]
+    NOT?: OsContactIdentityReviewScalarWhereInput | OsContactIdentityReviewScalarWhereInput[]
+    id?: StringFilter<"OsContactIdentityReview"> | string
+    organizationId?: StringFilter<"OsContactIdentityReview"> | string
+    partyId?: StringFilter<"OsContactIdentityReview"> | string
+    contactId?: StringFilter<"OsContactIdentityReview"> | string
+    channel?: StringFilter<"OsContactIdentityReview"> | string
+    associationId?: StringFilter<"OsContactIdentityReview"> | string
+    matchedAssociationId?: StringFilter<"OsContactIdentityReview"> | string
+    status?: StringFilter<"OsContactIdentityReview"> | string
+    openedAt?: DateTimeFilter<"OsContactIdentityReview"> | Date | string
+    resolvedAt?: DateTimeNullableFilter<"OsContactIdentityReview"> | Date | string | null
+    resolvedByMemberId?: StringNullableFilter<"OsContactIdentityReview"> | string | null
+    verificationMethod?: StringNullableFilter<"OsContactIdentityReview"> | string | null
+    note?: StringNullableFilter<"OsContactIdentityReview"> | string | null
+  }
+
   export type OsOrganizationMemberCreateWithoutPersonInput = {
     id: string
     employmentStatus: string
@@ -169162,6 +175040,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -169170,6 +175049,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutMembersInput = {
@@ -169252,6 +175133,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -169260,6 +175142,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutMembersInput = {
@@ -169609,6 +175493,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -169617,6 +175502,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutMembersInput = {
@@ -169699,6 +175586,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -169707,6 +175595,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPersonUpsertWithoutMembersInput = {
@@ -169988,6 +175878,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -169996,6 +175887,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutDepartmentsInput = {
@@ -170078,6 +175971,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -170086,6 +175980,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutDepartmentsInput = {
@@ -170267,6 +176163,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -170275,6 +176172,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutDepartmentsInput = {
@@ -170357,6 +176256,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -170365,6 +176265,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsDepartmentUpsertWithoutChildrenInput = {
@@ -170510,6 +176412,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -170518,6 +176421,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutTerritoriesInput = {
@@ -170600,6 +176505,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -170608,6 +176514,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutTerritoriesInput = {
@@ -170757,6 +176665,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -170765,6 +176674,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutTerritoriesInput = {
@@ -170847,6 +176758,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -170855,6 +176767,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsTerritoryUpsertWithoutChildrenInput = {
@@ -170982,6 +176896,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -170990,6 +176905,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutRoleAssignmentsInput = {
@@ -171072,6 +176989,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -171080,6 +176998,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutRoleAssignmentsInput = {
@@ -171221,6 +177141,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -171229,6 +177150,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutRoleAssignmentsInput = {
@@ -171311,6 +177234,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -171319,6 +177243,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutRoleAssignmentsInput = {
@@ -171450,6 +177376,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -171458,6 +177385,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutDepartmentAssignmentsInput = {
@@ -171540,6 +177469,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -171548,6 +177478,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutDepartmentAssignmentsInput = {
@@ -171714,6 +177646,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -171722,6 +177655,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutDepartmentAssignmentsInput = {
@@ -171804,6 +177739,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -171812,6 +177748,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutDepartmentAssignmentsInput = {
@@ -171974,6 +177912,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -171982,6 +177921,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutManagerAssignmentsInput = {
@@ -172064,6 +178005,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -172072,6 +178014,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutManagerAssignmentsInput = {
@@ -172256,6 +178200,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -172264,6 +178209,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutManagerAssignmentsInput = {
@@ -172346,6 +178293,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -172354,6 +178302,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutManagedByInput = {
@@ -172534,6 +178484,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -172542,6 +178493,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutDelegationsInput = {
@@ -172624,6 +178577,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -172632,6 +178586,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutDelegationsInput = {
@@ -172816,6 +178772,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -172824,6 +178781,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutDelegationsInput = {
@@ -172906,6 +178865,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -172914,6 +178874,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutDelegationsGrantedInput = {
@@ -173094,6 +179056,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -173102,6 +179065,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutWorkItemsInput = {
@@ -173184,6 +179149,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -173192,6 +179158,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutWorkItemsInput = {
@@ -173403,6 +179371,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -173411,6 +179380,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutWorkItemsInput = {
@@ -173493,6 +179464,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -173501,6 +179473,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutOwnedWorkItemsInput = {
@@ -173664,6 +179638,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -173672,6 +179647,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutWorkOwnershipHistoryInput = {
@@ -173754,6 +179731,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -173762,6 +179740,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutWorkOwnershipHistoryInput = {
@@ -173905,6 +179885,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -173913,6 +179894,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutWorkOwnershipHistoryInput = {
@@ -173995,6 +179978,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -174003,6 +179987,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsWorkItemUpsertWithoutOwnershipHistoryInput = {
@@ -174136,6 +180122,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -174144,6 +180131,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutApprovalRequestsInput = {
@@ -174226,6 +180215,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -174234,6 +180224,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutApprovalRequestsInput = {
@@ -174377,6 +180369,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -174385,6 +180378,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutApprovalRequestsInput = {
@@ -174467,6 +180462,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -174475,6 +180471,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsWorkItemUpsertWithoutApprovalRequestsInput = {
@@ -174608,6 +180606,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -174616,6 +180615,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutBusinessEventsInput = {
@@ -174698,6 +180699,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -174706,6 +180708,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutBusinessEventsInput = {
@@ -174804,6 +180808,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -174812,6 +180817,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutBusinessEventsInput = {
@@ -174894,6 +180901,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -174902,6 +180910,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutAuditLogsInput = {
@@ -174984,6 +180994,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -174992,6 +181003,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutAuditLogsInput = {
@@ -175074,6 +181087,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -175082,6 +181096,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutAuditLogsInput = {
@@ -175180,6 +181196,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -175188,6 +181205,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutAuditLogsInput = {
@@ -175270,6 +181289,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -175278,6 +181298,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOutboxMessagesInput = {
@@ -175360,6 +181382,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -175368,6 +181391,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOutboxMessagesInput = {
@@ -175450,6 +181475,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -175458,6 +181484,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOutboxMessagesInput = {
@@ -175556,6 +181584,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -175564,6 +181593,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOutboxMessagesInput = {
@@ -175646,6 +181677,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -175654,6 +181686,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOutboxConsumerDedupInput = {
@@ -175736,6 +181770,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -175744,6 +181779,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOutboxConsumerDedupInput = {
@@ -175826,6 +181863,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -175834,6 +181872,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOutboxConsumerDedupInput = {
@@ -175932,6 +181972,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -175940,6 +181981,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOutboxConsumerDedupInput = {
@@ -176022,6 +182065,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -176030,6 +182074,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutIdempotencyKeysInput = {
@@ -176112,6 +182158,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -176120,6 +182167,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutIdempotencyKeysInput = {
@@ -176202,6 +182251,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -176210,6 +182260,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutIdempotencyKeysInput = {
@@ -176308,6 +182360,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -176316,6 +182369,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutIdempotencyKeysInput = {
@@ -176398,6 +182453,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -176406,6 +182462,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCapabilityStatesInput = {
@@ -176488,6 +182546,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -176496,6 +182555,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCapabilityStatesInput = {
@@ -176578,6 +182639,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -176586,6 +182648,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCapabilityStatesInput = {
@@ -176684,6 +182748,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -176692,6 +182757,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCapabilityStatesInput = {
@@ -176774,6 +182841,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -176782,6 +182850,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPartiesInput = {
@@ -176864,6 +182934,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -176872,6 +182943,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartiesInput = {
@@ -176954,6 +183027,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -176962,6 +183036,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartiesInput = {
@@ -177131,10 +183207,17 @@ export namespace Prisma {
     relationEndReason?: string | null
     phoneRetiredAt?: Date | string | null
     phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization: OsOrganizationCreateNestedOneWithoutContactsInput
     followupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutContactInput
+    endpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutContactInput
   }
 
   export type OsContactUncheckedCreateWithoutOrganizationPartyInput = {
@@ -177153,9 +183236,16 @@ export namespace Prisma {
     relationEndReason?: string | null
     phoneRetiredAt?: Date | string | null
     phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     followupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutContactInput
+    endpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutContactInput
   }
 
   export type OsContactCreateOrConnectWithoutOrganizationPartyInput = {
@@ -177675,6 +183765,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -177683,6 +183774,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartiesInput = {
@@ -177765,6 +183858,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -177773,6 +183867,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutMergedFromInput = {
@@ -178142,6 +184238,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -178150,6 +184247,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutLocationsInput = {
@@ -178232,6 +184331,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -178240,6 +184340,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutLocationsInput = {
@@ -178395,6 +184497,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -178403,6 +184506,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutLocationsInput = {
@@ -178485,6 +184590,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -178493,6 +184599,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutLocationsInput = {
@@ -178638,6 +184746,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -178646,6 +184755,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutImportBatchesInput = {
@@ -178728,6 +184839,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -178736,6 +184848,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutImportBatchesInput = {
@@ -178866,6 +184980,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -178874,6 +184989,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutImportBatchesInput = {
@@ -178956,6 +185073,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -178964,6 +185082,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsImportRowUpsertWithWhereUniqueWithoutBatchInput = {
@@ -179097,6 +185217,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -179105,6 +185226,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutImportRowsInput = {
@@ -179187,6 +185310,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -179195,6 +185319,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutImportRowsInput = {
@@ -179334,6 +185460,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -179342,6 +185469,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutImportRowsInput = {
@@ -179424,6 +185553,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -179432,6 +185562,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOpportunitiesInput = {
@@ -179514,6 +185646,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -179522,6 +185655,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOpportunitiesInput = {
@@ -179604,6 +185739,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -179612,6 +185748,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOpportunitiesInput = {
@@ -179825,6 +185963,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -179833,6 +185972,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOpportunitiesInput = {
@@ -179915,6 +186056,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -179923,6 +186065,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutOpportunitiesInput = {
@@ -180084,6 +186228,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -180092,6 +186237,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuotesInput = {
@@ -180174,6 +186321,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -180182,6 +186330,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuotesInput = {
@@ -180512,6 +186662,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -180520,6 +186671,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuotesInput = {
@@ -180602,6 +186755,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -180610,6 +186764,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutQuotesInput = {
@@ -180848,6 +187004,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -180856,6 +187013,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuoteLinesInput = {
@@ -180938,6 +187097,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -180946,6 +187106,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuoteLinesInput = {
@@ -181143,6 +187305,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -181151,6 +187314,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuoteLinesInput = {
@@ -181233,6 +187398,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -181241,6 +187407,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsQuoteUpsertWithoutLinesInput = {
@@ -181398,6 +187566,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -181406,6 +187575,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrdersInput = {
@@ -181488,6 +187659,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -181496,6 +187668,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrdersInput = {
@@ -181750,6 +187924,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -181758,6 +187933,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrdersInput = {
@@ -181840,6 +188017,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -181848,6 +188026,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutOrdersInput = {
@@ -182068,6 +188248,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -182076,6 +188257,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyRoleAssignmentsInput = {
@@ -182158,6 +188341,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -182166,6 +188350,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyRoleAssignmentsInput = {
@@ -182321,6 +188507,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -182329,6 +188516,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyRoleAssignmentsInput = {
@@ -182411,6 +188600,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -182419,6 +188609,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutRoleAssignmentsInput = {
@@ -182564,6 +188756,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -182572,6 +188765,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutContactsInput = {
@@ -182654,6 +188849,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -182662,6 +188858,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutContactsInput = {
@@ -182760,6 +188958,50 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type OsContactEndpointAssociationCreateWithoutContactInput = {
+    id: string
+    partyId: string
+    channel: string
+    numberE164: string
+    country?: string | null
+    enteredText?: string | null
+    startedAt: Date | string
+    endedAt?: Date | string | null
+    endReason?: string | null
+    verificationMethod?: string | null
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutContactEndpointAssociationsInput
+    identityReviews?: OsContactIdentityReviewCreateNestedManyWithoutAssociationInput
+  }
+
+  export type OsContactEndpointAssociationUncheckedCreateWithoutContactInput = {
+    id: string
+    organizationId: string
+    partyId: string
+    channel: string
+    numberE164: string
+    country?: string | null
+    enteredText?: string | null
+    startedAt: Date | string
+    endedAt?: Date | string | null
+    endReason?: string | null
+    verificationMethod?: string | null
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+    identityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutAssociationInput
+  }
+
+  export type OsContactEndpointAssociationCreateOrConnectWithoutContactInput = {
+    where: OsContactEndpointAssociationWhereUniqueInput
+    create: XOR<OsContactEndpointAssociationCreateWithoutContactInput, OsContactEndpointAssociationUncheckedCreateWithoutContactInput>
+  }
+
+  export type OsContactEndpointAssociationCreateManyContactInputEnvelope = {
+    data: OsContactEndpointAssociationCreateManyContactInput | OsContactEndpointAssociationCreateManyContactInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OsOrganizationUpsertWithoutContactsInput = {
     update: XOR<OsOrganizationUpdateWithoutContactsInput, OsOrganizationUncheckedUpdateWithoutContactsInput>
     create: XOR<OsOrganizationCreateWithoutContactsInput, OsOrganizationUncheckedCreateWithoutContactsInput>
@@ -182851,6 +189093,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -182859,6 +189102,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutContactsInput = {
@@ -182941,6 +189186,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -182949,6 +189195,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutContactsInput = {
@@ -183028,6 +189276,1066 @@ export namespace Prisma {
   export type OsContactFollowupPreferenceUpdateManyWithWhereWithoutContactInput = {
     where: OsContactFollowupPreferenceScalarWhereInput
     data: XOR<OsContactFollowupPreferenceUpdateManyMutationInput, OsContactFollowupPreferenceUncheckedUpdateManyWithoutContactInput>
+  }
+
+  export type OsContactEndpointAssociationUpsertWithWhereUniqueWithoutContactInput = {
+    where: OsContactEndpointAssociationWhereUniqueInput
+    update: XOR<OsContactEndpointAssociationUpdateWithoutContactInput, OsContactEndpointAssociationUncheckedUpdateWithoutContactInput>
+    create: XOR<OsContactEndpointAssociationCreateWithoutContactInput, OsContactEndpointAssociationUncheckedCreateWithoutContactInput>
+  }
+
+  export type OsContactEndpointAssociationUpdateWithWhereUniqueWithoutContactInput = {
+    where: OsContactEndpointAssociationWhereUniqueInput
+    data: XOR<OsContactEndpointAssociationUpdateWithoutContactInput, OsContactEndpointAssociationUncheckedUpdateWithoutContactInput>
+  }
+
+  export type OsContactEndpointAssociationUpdateManyWithWhereWithoutContactInput = {
+    where: OsContactEndpointAssociationScalarWhereInput
+    data: XOR<OsContactEndpointAssociationUpdateManyMutationInput, OsContactEndpointAssociationUncheckedUpdateManyWithoutContactInput>
+  }
+
+  export type OsOrganizationCreateWithoutContactEndpointAssociationsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
+    issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
+    issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
+    issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
+    issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
+    issueRelations?: OsIssueRelationCreateNestedManyWithoutOrganizationInput
+    issueResolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutOrganizationInput
+    productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutContactEndpointAssociationsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
+    issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
+    issueRelations?: OsIssueRelationUncheckedCreateNestedManyWithoutOrganizationInput
+    issueResolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutOrganizationInput
+    productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutContactEndpointAssociationsInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutContactEndpointAssociationsInput, OsOrganizationUncheckedCreateWithoutContactEndpointAssociationsInput>
+  }
+
+  export type OsContactCreateWithoutEndpointAssociationsInput = {
+    id: string
+    personPartyId?: string | null
+    givenName: string
+    familyName: string
+    email?: string | null
+    phone?: string | null
+    whatsapp?: string | null
+    title?: string | null
+    status?: string
+    version?: number
+    relationEndedAt?: Date | string | null
+    relationEndReason?: string | null
+    phoneRetiredAt?: Date | string | null
+    phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutContactsInput
+    organizationParty: OsPartyCreateNestedOneWithoutContactsInput
+    followupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutContactInput
+  }
+
+  export type OsContactUncheckedCreateWithoutEndpointAssociationsInput = {
+    id: string
+    organizationId: string
+    organizationPartyId: string
+    personPartyId?: string | null
+    givenName: string
+    familyName: string
+    email?: string | null
+    phone?: string | null
+    whatsapp?: string | null
+    title?: string | null
+    status?: string
+    version?: number
+    relationEndedAt?: Date | string | null
+    relationEndReason?: string | null
+    phoneRetiredAt?: Date | string | null
+    phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    followupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutContactInput
+  }
+
+  export type OsContactCreateOrConnectWithoutEndpointAssociationsInput = {
+    where: OsContactWhereUniqueInput
+    create: XOR<OsContactCreateWithoutEndpointAssociationsInput, OsContactUncheckedCreateWithoutEndpointAssociationsInput>
+  }
+
+  export type OsContactIdentityReviewCreateWithoutAssociationInput = {
+    id: string
+    partyId: string
+    contactId: string
+    channel: string
+    matchedAssociationId: string
+    status?: string
+    openedAt: Date | string
+    resolvedAt?: Date | string | null
+    resolvedByMemberId?: string | null
+    verificationMethod?: string | null
+    note?: string | null
+    organization: OsOrganizationCreateNestedOneWithoutContactIdentityReviewsInput
+  }
+
+  export type OsContactIdentityReviewUncheckedCreateWithoutAssociationInput = {
+    id: string
+    organizationId: string
+    partyId: string
+    contactId: string
+    channel: string
+    matchedAssociationId: string
+    status?: string
+    openedAt: Date | string
+    resolvedAt?: Date | string | null
+    resolvedByMemberId?: string | null
+    verificationMethod?: string | null
+    note?: string | null
+  }
+
+  export type OsContactIdentityReviewCreateOrConnectWithoutAssociationInput = {
+    where: OsContactIdentityReviewWhereUniqueInput
+    create: XOR<OsContactIdentityReviewCreateWithoutAssociationInput, OsContactIdentityReviewUncheckedCreateWithoutAssociationInput>
+  }
+
+  export type OsContactIdentityReviewCreateManyAssociationInputEnvelope = {
+    data: OsContactIdentityReviewCreateManyAssociationInput | OsContactIdentityReviewCreateManyAssociationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsOrganizationUpsertWithoutContactEndpointAssociationsInput = {
+    update: XOR<OsOrganizationUpdateWithoutContactEndpointAssociationsInput, OsOrganizationUncheckedUpdateWithoutContactEndpointAssociationsInput>
+    create: XOR<OsOrganizationCreateWithoutContactEndpointAssociationsInput, OsOrganizationUncheckedCreateWithoutContactEndpointAssociationsInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutContactEndpointAssociationsInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutContactEndpointAssociationsInput, OsOrganizationUncheckedUpdateWithoutContactEndpointAssociationsInput>
+  }
+
+  export type OsOrganizationUpdateWithoutContactEndpointAssociationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
+    issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
+    issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
+    issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
+    issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
+    issueRelations?: OsIssueRelationUpdateManyWithoutOrganizationNestedInput
+    issueResolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutOrganizationNestedInput
+    productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutContactEndpointAssociationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
+    issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueRelations?: OsIssueRelationUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueResolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutOrganizationNestedInput
+    productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsContactUpsertWithoutEndpointAssociationsInput = {
+    update: XOR<OsContactUpdateWithoutEndpointAssociationsInput, OsContactUncheckedUpdateWithoutEndpointAssociationsInput>
+    create: XOR<OsContactCreateWithoutEndpointAssociationsInput, OsContactUncheckedCreateWithoutEndpointAssociationsInput>
+    where?: OsContactWhereInput
+  }
+
+  export type OsContactUpdateToOneWithWhereWithoutEndpointAssociationsInput = {
+    where?: OsContactWhereInput
+    data: XOR<OsContactUpdateWithoutEndpointAssociationsInput, OsContactUncheckedUpdateWithoutEndpointAssociationsInput>
+  }
+
+  export type OsContactUpdateWithoutEndpointAssociationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    personPartyId?: NullableStringFieldUpdateOperationsInput | string | null
+    givenName?: StringFieldUpdateOperationsInput | string
+    familyName?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    relationEndedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutContactsNestedInput
+    organizationParty?: OsPartyUpdateOneRequiredWithoutContactsNestedInput
+    followupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutContactNestedInput
+  }
+
+  export type OsContactUncheckedUpdateWithoutEndpointAssociationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    organizationPartyId?: StringFieldUpdateOperationsInput | string
+    personPartyId?: NullableStringFieldUpdateOperationsInput | string | null
+    givenName?: StringFieldUpdateOperationsInput | string
+    familyName?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    relationEndedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    followupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutContactNestedInput
+  }
+
+  export type OsContactIdentityReviewUpsertWithWhereUniqueWithoutAssociationInput = {
+    where: OsContactIdentityReviewWhereUniqueInput
+    update: XOR<OsContactIdentityReviewUpdateWithoutAssociationInput, OsContactIdentityReviewUncheckedUpdateWithoutAssociationInput>
+    create: XOR<OsContactIdentityReviewCreateWithoutAssociationInput, OsContactIdentityReviewUncheckedCreateWithoutAssociationInput>
+  }
+
+  export type OsContactIdentityReviewUpdateWithWhereUniqueWithoutAssociationInput = {
+    where: OsContactIdentityReviewWhereUniqueInput
+    data: XOR<OsContactIdentityReviewUpdateWithoutAssociationInput, OsContactIdentityReviewUncheckedUpdateWithoutAssociationInput>
+  }
+
+  export type OsContactIdentityReviewUpdateManyWithWhereWithoutAssociationInput = {
+    where: OsContactIdentityReviewScalarWhereInput
+    data: XOR<OsContactIdentityReviewUpdateManyMutationInput, OsContactIdentityReviewUncheckedUpdateManyWithoutAssociationInput>
+  }
+
+  export type OsOrganizationCreateWithoutContactIdentityReviewsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
+    issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
+    issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
+    issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
+    issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
+    issueRelations?: OsIssueRelationCreateNestedManyWithoutOrganizationInput
+    issueResolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutOrganizationInput
+    productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutContactIdentityReviewsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
+    issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
+    issueRelations?: OsIssueRelationUncheckedCreateNestedManyWithoutOrganizationInput
+    issueResolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutOrganizationInput
+    productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutContactIdentityReviewsInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutContactIdentityReviewsInput, OsOrganizationUncheckedCreateWithoutContactIdentityReviewsInput>
+  }
+
+  export type OsContactEndpointAssociationCreateWithoutIdentityReviewsInput = {
+    id: string
+    partyId: string
+    channel: string
+    numberE164: string
+    country?: string | null
+    enteredText?: string | null
+    startedAt: Date | string
+    endedAt?: Date | string | null
+    endReason?: string | null
+    verificationMethod?: string | null
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutContactEndpointAssociationsInput
+    contact: OsContactCreateNestedOneWithoutEndpointAssociationsInput
+  }
+
+  export type OsContactEndpointAssociationUncheckedCreateWithoutIdentityReviewsInput = {
+    id: string
+    organizationId: string
+    partyId: string
+    contactId: string
+    channel: string
+    numberE164: string
+    country?: string | null
+    enteredText?: string | null
+    startedAt: Date | string
+    endedAt?: Date | string | null
+    endReason?: string | null
+    verificationMethod?: string | null
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type OsContactEndpointAssociationCreateOrConnectWithoutIdentityReviewsInput = {
+    where: OsContactEndpointAssociationWhereUniqueInput
+    create: XOR<OsContactEndpointAssociationCreateWithoutIdentityReviewsInput, OsContactEndpointAssociationUncheckedCreateWithoutIdentityReviewsInput>
+  }
+
+  export type OsOrganizationUpsertWithoutContactIdentityReviewsInput = {
+    update: XOR<OsOrganizationUpdateWithoutContactIdentityReviewsInput, OsOrganizationUncheckedUpdateWithoutContactIdentityReviewsInput>
+    create: XOR<OsOrganizationCreateWithoutContactIdentityReviewsInput, OsOrganizationUncheckedCreateWithoutContactIdentityReviewsInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutContactIdentityReviewsInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutContactIdentityReviewsInput, OsOrganizationUncheckedUpdateWithoutContactIdentityReviewsInput>
+  }
+
+  export type OsOrganizationUpdateWithoutContactIdentityReviewsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
+    issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
+    issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
+    issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
+    issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
+    issueRelations?: OsIssueRelationUpdateManyWithoutOrganizationNestedInput
+    issueResolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutOrganizationNestedInput
+    productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutContactIdentityReviewsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
+    issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueRelations?: OsIssueRelationUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueResolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutOrganizationNestedInput
+    productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsContactEndpointAssociationUpsertWithoutIdentityReviewsInput = {
+    update: XOR<OsContactEndpointAssociationUpdateWithoutIdentityReviewsInput, OsContactEndpointAssociationUncheckedUpdateWithoutIdentityReviewsInput>
+    create: XOR<OsContactEndpointAssociationCreateWithoutIdentityReviewsInput, OsContactEndpointAssociationUncheckedCreateWithoutIdentityReviewsInput>
+    where?: OsContactEndpointAssociationWhereInput
+  }
+
+  export type OsContactEndpointAssociationUpdateToOneWithWhereWithoutIdentityReviewsInput = {
+    where?: OsContactEndpointAssociationWhereInput
+    data: XOR<OsContactEndpointAssociationUpdateWithoutIdentityReviewsInput, OsContactEndpointAssociationUncheckedUpdateWithoutIdentityReviewsInput>
+  }
+
+  export type OsContactEndpointAssociationUpdateWithoutIdentityReviewsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    numberE164?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredText?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endReason?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutContactEndpointAssociationsNestedInput
+    contact?: OsContactUpdateOneRequiredWithoutEndpointAssociationsNestedInput
+  }
+
+  export type OsContactEndpointAssociationUncheckedUpdateWithoutIdentityReviewsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    numberE164?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredText?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endReason?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OsOrganizationCreateWithoutFiscalIdentitiesInput = {
@@ -183110,6 +190418,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -183118,6 +190427,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutFiscalIdentitiesInput = {
@@ -183200,6 +190511,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -183208,6 +190520,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutFiscalIdentitiesInput = {
@@ -183363,6 +190677,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -183371,6 +190686,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutFiscalIdentitiesInput = {
@@ -183453,6 +190770,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -183461,6 +190779,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutFiscalIdentitiesInput = {
@@ -183606,6 +190926,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -183614,6 +190935,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCommercialAccountsInput = {
@@ -183696,6 +191019,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -183704,6 +191028,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCommercialAccountsInput = {
@@ -183859,6 +191185,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -183867,6 +191194,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCommercialAccountsInput = {
@@ -183949,6 +191278,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -183957,6 +191287,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutCommercialAccountsInput = {
@@ -184102,6 +191434,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -184110,6 +191443,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutLeadsInput = {
@@ -184192,6 +191527,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -184200,6 +191536,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutLeadsInput = {
@@ -184355,6 +191693,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -184363,6 +191702,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutLeadsInput = {
@@ -184445,6 +191786,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -184453,6 +191795,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutResolvedLeadsInput = {
@@ -184598,6 +191942,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -184606,6 +191951,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyDuplicateCandidatesInput = {
@@ -184688,6 +192035,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -184696,6 +192044,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyDuplicateCandidatesInput = {
@@ -184908,6 +192258,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -184916,6 +192267,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyDuplicateCandidatesInput = {
@@ -184998,6 +192351,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -185006,6 +192360,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutDuplicateCandidatesAInput = {
@@ -185214,6 +192570,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -185222,6 +192579,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyMergeRequestsInput = {
@@ -185304,6 +192663,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -185312,6 +192672,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyMergeRequestsInput = {
@@ -185524,6 +192886,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -185532,6 +192895,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyMergeRequestsInput = {
@@ -185614,6 +192979,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -185622,6 +192988,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutMergeRequestsSourceInput = {
@@ -185830,6 +193198,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -185838,6 +193207,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProjectionCheckpointsInput = {
@@ -185920,6 +193291,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -185928,6 +193300,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProjectionCheckpointsInput = {
@@ -186026,6 +193400,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -186034,6 +193409,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProjectionCheckpointsInput = {
@@ -186116,6 +193493,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -186124,6 +193502,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutProjectionFreshnessInput = {
@@ -186206,6 +193586,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -186214,6 +193595,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProjectionFreshnessInput = {
@@ -186296,6 +193679,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -186304,6 +193688,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProjectionFreshnessInput = {
@@ -186402,6 +193788,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -186410,6 +193797,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProjectionFreshnessInput = {
@@ -186492,6 +193881,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -186500,6 +193890,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPartyReadModelsInput = {
@@ -186582,6 +193974,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -186590,6 +193983,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyReadModelsInput = {
@@ -186672,6 +194067,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -186680,6 +194076,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyReadModelsInput = {
@@ -186778,6 +194176,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -186786,6 +194185,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyReadModelsInput = {
@@ -186868,6 +194269,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -186876,6 +194278,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutWorkReadModelsInput = {
@@ -186958,6 +194362,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -186966,6 +194371,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutWorkReadModelsInput = {
@@ -187048,6 +194455,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -187056,6 +194464,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutWorkReadModelsInput = {
@@ -187154,6 +194564,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -187162,6 +194573,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutWorkReadModelsInput = {
@@ -187244,6 +194657,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -187252,6 +194666,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutApprovalReadModelsInput = {
@@ -187334,6 +194750,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -187342,6 +194759,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutApprovalReadModelsInput = {
@@ -187424,6 +194843,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -187432,6 +194852,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutApprovalReadModelsInput = {
@@ -187530,6 +194952,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -187538,6 +194961,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutApprovalReadModelsInput = {
@@ -187620,6 +195045,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -187628,6 +195054,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutAttentionReadModelsInput = {
@@ -187710,6 +195138,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -187718,6 +195147,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutAttentionReadModelsInput = {
@@ -187800,6 +195231,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -187808,6 +195240,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutAttentionReadModelsInput = {
@@ -187906,6 +195340,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -187914,6 +195349,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutAttentionReadModelsInput = {
@@ -187996,6 +195433,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -188004,6 +195442,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOpportunityReadModelsInput = {
@@ -188086,6 +195526,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -188094,6 +195535,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOpportunityReadModelsInput = {
@@ -188176,6 +195619,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -188184,6 +195628,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOpportunityReadModelsInput = {
@@ -188282,6 +195728,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -188290,6 +195737,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOpportunityReadModelsInput = {
@@ -188372,6 +195821,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -188380,6 +195830,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutQuoteReadModelsInput = {
@@ -188462,6 +195914,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -188470,6 +195923,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuoteReadModelsInput = {
@@ -188552,6 +196007,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -188560,6 +196016,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuoteReadModelsInput = {
@@ -188658,6 +196116,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -188666,6 +196125,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuoteReadModelsInput = {
@@ -188748,6 +196209,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -188756,6 +196218,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutQuoteLineReadModelsInput = {
@@ -188838,6 +196302,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -188846,6 +196311,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuoteLineReadModelsInput = {
@@ -188928,6 +196395,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -188936,6 +196404,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuoteLineReadModelsInput = {
@@ -189034,6 +196504,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -189042,6 +196513,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuoteLineReadModelsInput = {
@@ -189124,6 +196597,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -189132,6 +196606,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOrderReadModelsInput = {
@@ -189214,6 +196690,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -189222,6 +196699,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrderReadModelsInput = {
@@ -189304,6 +196783,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -189312,6 +196792,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrderReadModelsInput = {
@@ -189410,6 +196892,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -189418,6 +196901,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrderReadModelsInput = {
@@ -189500,6 +196985,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -189508,6 +196994,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPartyTimelineEntriesInput = {
@@ -189590,6 +197078,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -189598,6 +197087,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyTimelineEntriesInput = {
@@ -189680,6 +197171,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -189688,6 +197180,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyTimelineEntriesInput = {
@@ -189786,6 +197280,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -189794,6 +197289,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyTimelineEntriesInput = {
@@ -189876,6 +197373,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -189884,6 +197382,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutReportedOperationalFactsInput = {
@@ -189966,6 +197466,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -189974,6 +197475,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutReportedOperationalFactsInput = {
@@ -190056,6 +197559,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -190064,6 +197568,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutReportedOperationalFactsInput = {
@@ -190261,6 +197767,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -190269,6 +197776,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutReportedOperationalFactsInput = {
@@ -190351,6 +197860,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -190359,6 +197869,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsReportedOperationalFactUpsertWithoutCorrectionsInput = {
@@ -190510,6 +198022,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -190518,6 +198031,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCommitmentsInput = {
@@ -190600,6 +198115,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -190608,6 +198124,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCommitmentsInput = {
@@ -190706,6 +198224,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -190714,6 +198233,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCommitmentsInput = {
@@ -190796,6 +198317,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -190804,6 +198326,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutInternalNotificationsInput = {
@@ -190886,6 +198410,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -190894,6 +198419,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutInternalNotificationsInput = {
@@ -190976,6 +198503,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -190984,6 +198512,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutInternalNotificationsInput = {
@@ -191082,6 +198612,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -191090,6 +198621,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutInternalNotificationsInput = {
@@ -191172,6 +198705,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -191180,6 +198714,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCatalogProductsInput = {
@@ -191262,6 +198798,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -191270,6 +198807,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCatalogProductsInput = {
@@ -191352,6 +198891,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -191360,6 +198900,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCatalogProductsInput = {
@@ -191579,6 +199121,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -191587,6 +199130,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCatalogProductsInput = {
@@ -191669,6 +199214,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -191677,6 +199223,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsCatalogProductProvenanceUpsertWithWhereUniqueWithoutProductInput = {
@@ -192140,6 +199688,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -192148,6 +199697,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrderLinesInput = {
@@ -192230,6 +199781,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -192238,6 +199790,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrderLinesInput = {
@@ -192469,6 +200023,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -192477,6 +200032,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrderLinesInput = {
@@ -192559,6 +200116,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -192567,6 +200125,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrderUpsertWithoutLinesInput = {
@@ -192800,6 +200360,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -192808,6 +200369,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalCasesInput = {
@@ -192890,6 +200453,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -192898,6 +200462,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalCasesInput = {
@@ -193096,6 +200662,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -193104,6 +200671,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalCasesInput = {
@@ -193186,6 +200755,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -193194,6 +200764,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalCaseFactUpsertWithWhereUniqueWithoutOperationalCaseInput = {
@@ -193308,6 +200880,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -193316,6 +200889,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalCaseFactsInput = {
@@ -193398,6 +200973,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -193406,6 +200982,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalCaseFactsInput = {
@@ -193660,6 +201238,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -193668,6 +201247,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalCaseFactsInput = {
@@ -193750,6 +201331,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -193758,6 +201340,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalCaseUpsertWithoutFactsInput = {
@@ -193959,6 +201543,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -193967,6 +201552,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalCaseFactReversalsInput = {
@@ -194049,6 +201636,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -194057,6 +201645,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalCaseFactReversalsInput = {
@@ -194203,6 +201793,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -194211,6 +201802,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalCaseFactReversalsInput = {
@@ -194293,6 +201886,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -194301,6 +201895,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalCaseFactUpsertWithoutReversalsInput = {
@@ -194437,6 +202033,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -194445,6 +202042,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalReleaseDecisionsInput = {
@@ -194527,6 +202126,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -194535,6 +202135,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalReleaseDecisionsInput = {
@@ -194785,6 +202387,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -194793,6 +202396,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalReleaseDecisionsInput = {
@@ -194875,6 +202480,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -194883,6 +202489,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalCaseUpsertWithoutReleaseDecisionsInput = {
@@ -195082,6 +202690,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -195090,6 +202699,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalReleaseDecisionReversalsInput = {
@@ -195172,6 +202783,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -195180,6 +202792,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalReleaseDecisionReversalsInput = {
@@ -195324,6 +202938,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -195332,6 +202947,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalReleaseDecisionReversalsInput = {
@@ -195414,6 +203031,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -195422,6 +203040,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalReleaseDecisionUpsertWithoutReversalsInput = {
@@ -195556,6 +203176,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -195564,6 +203185,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionQuemasInput = {
@@ -195646,6 +203269,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -195654,6 +203278,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionQuemasInput = {
@@ -195910,6 +203536,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -195918,6 +203545,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionQuemasInput = {
@@ -196000,6 +203629,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -196008,6 +203638,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsProductionQuemaTimeUpsertWithWhereUniqueWithoutQuemaInput = {
@@ -196138,6 +203770,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -196146,6 +203779,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionQuemaTimesInput = {
@@ -196228,6 +203863,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -196236,6 +203872,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionQuemaTimesInput = {
@@ -196444,6 +204082,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -196452,6 +204091,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionQuemaTimesInput = {
@@ -196534,6 +204175,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -196542,6 +204184,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsProductionQuemaUpsertWithoutTimesInput = {
@@ -196720,6 +204364,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -196728,6 +204373,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionQuemaProductsInput = {
@@ -196810,6 +204457,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -196818,6 +204466,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionQuemaProductsInput = {
@@ -197030,6 +204680,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -197038,6 +204689,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionQuemaProductsInput = {
@@ -197120,6 +204773,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -197128,6 +204782,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsProductionQuemaUpsertWithoutProductsInput = {
@@ -197308,6 +204964,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -197316,6 +204973,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionTraceEntriesInput = {
@@ -197398,6 +205057,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -197406,6 +205066,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionTraceEntriesInput = {
@@ -197674,6 +205336,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -197682,6 +205345,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionTraceEntriesInput = {
@@ -197764,6 +205429,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -197772,6 +205438,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsProductionQuemaUpsertWithoutProcessRowsInput = {
@@ -197980,6 +205648,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -197988,6 +205657,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerConversationsInput = {
@@ -198070,6 +205741,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -198078,6 +205750,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerConversationsInput = {
@@ -198176,6 +205850,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -198184,6 +205859,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerConversationsInput = {
@@ -198266,6 +205943,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -198274,6 +205952,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCustomerCommittedDatesInput = {
@@ -198356,6 +206036,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -198364,6 +206045,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerCommittedDatesInput = {
@@ -198446,6 +206129,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -198454,6 +206138,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerCommittedDatesInput = {
@@ -198584,6 +206270,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -198592,6 +206279,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerCommittedDatesInput = {
@@ -198674,6 +206363,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -198682,6 +206372,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type CustomerCommittedDateRevisionUpsertWithWhereUniqueWithoutCommittedDateInput = {
@@ -198817,6 +206509,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -198825,6 +206518,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerCommittedDateRevisionsInput = {
@@ -198907,6 +206602,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -198915,6 +206611,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerCommittedDateRevisionsInput = {
@@ -199056,6 +206754,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -199064,6 +206763,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerCommittedDateRevisionsInput = {
@@ -199146,6 +206847,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -199154,6 +206856,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutProductionInternalTargetDatesInput = {
@@ -199236,6 +206940,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -199244,6 +206949,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionInternalTargetDatesInput = {
@@ -199326,6 +207033,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -199334,6 +207042,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionInternalTargetDatesInput = {
@@ -199464,6 +207174,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -199472,6 +207183,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionInternalTargetDatesInput = {
@@ -199554,6 +207267,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -199562,6 +207276,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type ProductionInternalTargetRevisionUpsertWithWhereUniqueWithoutTargetDateInput = {
@@ -199695,6 +207411,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -199703,6 +207420,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionInternalTargetRevisionsInput = {
@@ -199785,6 +207504,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -199793,6 +207513,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionInternalTargetRevisionsInput = {
@@ -199932,6 +207654,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -199940,6 +207663,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionInternalTargetRevisionsInput = {
@@ -200022,6 +207747,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -200030,6 +207756,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutProductionDateIssuesInput = {
@@ -200112,6 +207840,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -200120,6 +207849,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionDateIssuesInput = {
@@ -200202,6 +207933,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -200210,6 +207942,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionDateIssuesInput = {
@@ -200340,6 +208074,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -200348,6 +208083,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionDateIssuesInput = {
@@ -200430,6 +208167,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -200438,6 +208176,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type CustomerDateInformedRecordUpsertWithWhereUniqueWithoutIssueInput = {
@@ -200569,6 +208309,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -200577,6 +208318,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerDateInformedRecordsInput = {
@@ -200659,6 +208402,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -200667,6 +208411,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerDateInformedRecordsInput = {
@@ -200804,6 +208550,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -200812,6 +208559,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerDateInformedRecordsInput = {
@@ -200894,6 +208643,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -200902,6 +208652,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOrderAllocationsInput = {
@@ -200984,6 +208736,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -200992,6 +208745,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrderAllocationsInput = {
@@ -201074,6 +208829,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -201082,6 +208838,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrderAllocationsInput = {
@@ -201180,6 +208938,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -201188,6 +208947,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrderAllocationsInput = {
@@ -201270,6 +209031,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -201278,6 +209040,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutFinishedGoodsReceiptsInput = {
@@ -201360,6 +209124,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -201368,6 +209133,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutFinishedGoodsReceiptsInput = {
@@ -201450,6 +209217,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -201458,6 +209226,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutFinishedGoodsReceiptsInput = {
@@ -201556,6 +209326,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -201564,6 +209335,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutFinishedGoodsReceiptsInput = {
@@ -201646,6 +209419,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -201654,6 +209428,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPurchaseRequestsInput = {
@@ -201736,6 +209512,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -201744,6 +209521,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPurchaseRequestsInput = {
@@ -201826,6 +209605,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -201834,6 +209614,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPurchaseRequestsInput = {
@@ -201998,6 +209780,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -202006,6 +209789,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPurchaseRequestsInput = {
@@ -202088,6 +209873,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -202096,6 +209882,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPurchaseRequestStatusHistoryUpsertWithWhereUniqueWithoutPurchaseRequestInput = {
@@ -202489,6 +210277,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -202497,6 +210286,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPriceListsInput = {
@@ -202579,6 +210370,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -202587,6 +210379,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPriceListsInput = {
@@ -202724,6 +210518,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -202732,6 +210527,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPriceListsInput = {
@@ -202814,6 +210611,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -202822,6 +210620,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPriceEntryUpsertWithWhereUniqueWithoutPriceListInput = {
@@ -202920,6 +210720,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -202928,6 +210729,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPriceEntriesInput = {
@@ -203010,6 +210813,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -203018,6 +210822,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPriceEntriesInput = {
@@ -203194,6 +211000,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -203202,6 +211009,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPriceEntriesInput = {
@@ -203284,6 +211093,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -203292,6 +211102,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPriceListUpsertWithoutEntriesInput = {
@@ -203464,6 +211276,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -203472,6 +211285,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutSpecialOrderClassificationsInput = {
@@ -203554,6 +211369,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -203562,6 +211378,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutSpecialOrderClassificationsInput = {
@@ -203660,6 +211478,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -203668,6 +211487,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutSpecialOrderClassificationsInput = {
@@ -203750,6 +211571,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -203758,6 +211580,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCustomerCoverageGrantsInput = {
@@ -203840,6 +211664,7 @@ export namespace Prisma {
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -203848,6 +211673,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerCoverageGrantsInput = {
@@ -203930,6 +211757,7 @@ export namespace Prisma {
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -203938,6 +211766,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerCoverageGrantsInput = {
@@ -204036,6 +211866,7 @@ export namespace Prisma {
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -204044,6 +211875,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerCoverageGrantsInput = {
@@ -204126,6 +211959,7 @@ export namespace Prisma {
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -204134,6 +211968,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCoordinationDecisionsInput = {
@@ -204216,6 +212052,7 @@ export namespace Prisma {
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -204224,6 +212061,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCoordinationDecisionsInput = {
@@ -204306,6 +212145,7 @@ export namespace Prisma {
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -204314,6 +212154,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCoordinationDecisionsInput = {
@@ -204412,6 +212254,7 @@ export namespace Prisma {
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -204420,6 +212263,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCoordinationDecisionsInput = {
@@ -204502,6 +212347,7 @@ export namespace Prisma {
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -204510,6 +212356,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutIssuesInput = {
@@ -204592,6 +212440,7 @@ export namespace Prisma {
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -204600,6 +212449,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutIssuesInput = {
@@ -204682,6 +212533,7 @@ export namespace Prisma {
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -204690,6 +212542,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutIssuesInput = {
@@ -204917,6 +212771,49 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type OsIssueCorrectionRequestCreateWithoutIssueInput = {
+    partyId: string
+    contactId?: string | null
+    locationId?: string | null
+    field: string
+    proposedValue: string
+    source: string
+    decision?: string | null
+    appliedEventId?: string | null
+    decisionReason?: string | null
+    decidedByMemberId?: string | null
+    decidedAt?: Date | string | null
+    createdAt?: Date | string
+    targetVersionAtRequest?: number | null
+    valueMatched?: boolean | null
+    differenceExplanation?: string | null
+    organization: OsOrganizationCreateNestedOneWithoutIssueCorrectionRequestsInput
+  }
+
+  export type OsIssueCorrectionRequestUncheckedCreateWithoutIssueInput = {
+    organizationId: string
+    partyId: string
+    contactId?: string | null
+    locationId?: string | null
+    field: string
+    proposedValue: string
+    source: string
+    decision?: string | null
+    appliedEventId?: string | null
+    decisionReason?: string | null
+    decidedByMemberId?: string | null
+    decidedAt?: Date | string | null
+    createdAt?: Date | string
+    targetVersionAtRequest?: number | null
+    valueMatched?: boolean | null
+    differenceExplanation?: string | null
+  }
+
+  export type OsIssueCorrectionRequestCreateOrConnectWithoutIssueInput = {
+    where: OsIssueCorrectionRequestWhereUniqueInput
+    create: XOR<OsIssueCorrectionRequestCreateWithoutIssueInput, OsIssueCorrectionRequestUncheckedCreateWithoutIssueInput>
+  }
+
   export type OsOrganizationUpsertWithoutIssuesInput = {
     update: XOR<OsOrganizationUpdateWithoutIssuesInput, OsOrganizationUncheckedUpdateWithoutIssuesInput>
     create: XOR<OsOrganizationCreateWithoutIssuesInput, OsOrganizationUncheckedCreateWithoutIssuesInput>
@@ -205008,6 +212905,7 @@ export namespace Prisma {
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -205016,6 +212914,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutIssuesInput = {
@@ -205098,6 +212998,7 @@ export namespace Prisma {
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -205106,6 +213007,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsIssueReferenceUpsertWithWhereUniqueWithoutIssueInput = {
@@ -205220,6 +213123,579 @@ export namespace Prisma {
     data: XOR<OsIssueOwnershipHistoryUpdateManyMutationInput, OsIssueOwnershipHistoryUncheckedUpdateManyWithoutIssueInput>
   }
 
+  export type OsIssueCorrectionRequestUpsertWithoutIssueInput = {
+    update: XOR<OsIssueCorrectionRequestUpdateWithoutIssueInput, OsIssueCorrectionRequestUncheckedUpdateWithoutIssueInput>
+    create: XOR<OsIssueCorrectionRequestCreateWithoutIssueInput, OsIssueCorrectionRequestUncheckedCreateWithoutIssueInput>
+    where?: OsIssueCorrectionRequestWhereInput
+  }
+
+  export type OsIssueCorrectionRequestUpdateToOneWithWhereWithoutIssueInput = {
+    where?: OsIssueCorrectionRequestWhereInput
+    data: XOR<OsIssueCorrectionRequestUpdateWithoutIssueInput, OsIssueCorrectionRequestUncheckedUpdateWithoutIssueInput>
+  }
+
+  export type OsIssueCorrectionRequestUpdateWithoutIssueInput = {
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    field?: StringFieldUpdateOperationsInput | string
+    proposedValue?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    decision?: NullableStringFieldUpdateOperationsInput | string | null
+    appliedEventId?: NullableStringFieldUpdateOperationsInput | string | null
+    decisionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    targetVersionAtRequest?: NullableIntFieldUpdateOperationsInput | number | null
+    valueMatched?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    differenceExplanation?: NullableStringFieldUpdateOperationsInput | string | null
+    organization?: OsOrganizationUpdateOneRequiredWithoutIssueCorrectionRequestsNestedInput
+  }
+
+  export type OsIssueCorrectionRequestUncheckedUpdateWithoutIssueInput = {
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    field?: StringFieldUpdateOperationsInput | string
+    proposedValue?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    decision?: NullableStringFieldUpdateOperationsInput | string | null
+    appliedEventId?: NullableStringFieldUpdateOperationsInput | string | null
+    decisionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    targetVersionAtRequest?: NullableIntFieldUpdateOperationsInput | number | null
+    valueMatched?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    differenceExplanation?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsOrganizationCreateWithoutIssueCorrectionRequestsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
+    issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
+    issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
+    issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
+    issueRelations?: OsIssueRelationCreateNestedManyWithoutOrganizationInput
+    issueResolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutOrganizationInput
+    productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutIssueCorrectionRequestsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
+    issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
+    issueRelations?: OsIssueRelationUncheckedCreateNestedManyWithoutOrganizationInput
+    issueResolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutOrganizationInput
+    productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutIssueCorrectionRequestsInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutIssueCorrectionRequestsInput, OsOrganizationUncheckedCreateWithoutIssueCorrectionRequestsInput>
+  }
+
+  export type OsIssueCreateWithoutCorrectionRequestInput = {
+    id: string
+    version?: number
+    status: string
+    title?: string | null
+    description: string
+    reportedByMemberId: string
+    reportedAt: Date | string
+    currentOwnerMemberId?: string | null
+    confirmedCause?: string | null
+    confirmedCauseByMemberId?: string | null
+    confirmedCauseAt?: Date | string | null
+    resolution?: string | null
+    resolvedByMemberId?: string | null
+    resolvedAt?: Date | string | null
+    outcome?: string | null
+    outcomeRecordedByMemberId?: string | null
+    outcomeRecordedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutIssuesInput
+    references?: OsIssueReferenceCreateNestedManyWithoutIssueInput
+    journalEntries?: OsIssueJournalEntryCreateNestedManyWithoutIssueInput
+    workLinks?: OsIssueWorkLinkCreateNestedManyWithoutIssueInput
+    relationsFrom?: OsIssueRelationCreateNestedManyWithoutFromIssueInput
+    relationsTo?: OsIssueRelationCreateNestedManyWithoutToIssueInput
+    resolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutIssueInput
+    ownershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutIssueInput
+  }
+
+  export type OsIssueUncheckedCreateWithoutCorrectionRequestInput = {
+    id: string
+    organizationId: string
+    version?: number
+    status: string
+    title?: string | null
+    description: string
+    reportedByMemberId: string
+    reportedAt: Date | string
+    currentOwnerMemberId?: string | null
+    confirmedCause?: string | null
+    confirmedCauseByMemberId?: string | null
+    confirmedCauseAt?: Date | string | null
+    resolution?: string | null
+    resolvedByMemberId?: string | null
+    resolvedAt?: Date | string | null
+    outcome?: string | null
+    outcomeRecordedByMemberId?: string | null
+    outcomeRecordedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    references?: OsIssueReferenceUncheckedCreateNestedManyWithoutIssueInput
+    journalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutIssueInput
+    workLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutIssueInput
+    relationsFrom?: OsIssueRelationUncheckedCreateNestedManyWithoutFromIssueInput
+    relationsTo?: OsIssueRelationUncheckedCreateNestedManyWithoutToIssueInput
+    resolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutIssueInput
+    ownershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutIssueInput
+  }
+
+  export type OsIssueCreateOrConnectWithoutCorrectionRequestInput = {
+    where: OsIssueWhereUniqueInput
+    create: XOR<OsIssueCreateWithoutCorrectionRequestInput, OsIssueUncheckedCreateWithoutCorrectionRequestInput>
+  }
+
+  export type OsOrganizationUpsertWithoutIssueCorrectionRequestsInput = {
+    update: XOR<OsOrganizationUpdateWithoutIssueCorrectionRequestsInput, OsOrganizationUncheckedUpdateWithoutIssueCorrectionRequestsInput>
+    create: XOR<OsOrganizationCreateWithoutIssueCorrectionRequestsInput, OsOrganizationUncheckedCreateWithoutIssueCorrectionRequestsInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutIssueCorrectionRequestsInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutIssueCorrectionRequestsInput, OsOrganizationUncheckedUpdateWithoutIssueCorrectionRequestsInput>
+  }
+
+  export type OsOrganizationUpdateWithoutIssueCorrectionRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
+    issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
+    issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
+    issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
+    issueRelations?: OsIssueRelationUpdateManyWithoutOrganizationNestedInput
+    issueResolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutOrganizationNestedInput
+    productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutIssueCorrectionRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
+    issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueRelations?: OsIssueRelationUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueResolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutOrganizationNestedInput
+    productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsIssueUpsertWithoutCorrectionRequestInput = {
+    update: XOR<OsIssueUpdateWithoutCorrectionRequestInput, OsIssueUncheckedUpdateWithoutCorrectionRequestInput>
+    create: XOR<OsIssueCreateWithoutCorrectionRequestInput, OsIssueUncheckedCreateWithoutCorrectionRequestInput>
+    where?: OsIssueWhereInput
+  }
+
+  export type OsIssueUpdateToOneWithWhereWithoutCorrectionRequestInput = {
+    where?: OsIssueWhereInput
+    data: XOR<OsIssueUpdateWithoutCorrectionRequestInput, OsIssueUncheckedUpdateWithoutCorrectionRequestInput>
+  }
+
+  export type OsIssueUpdateWithoutCorrectionRequestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    reportedByMemberId?: StringFieldUpdateOperationsInput | string
+    reportedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    currentOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    confirmedCause?: NullableStringFieldUpdateOperationsInput | string | null
+    confirmedCauseByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    confirmedCauseAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolution?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    outcome?: NullableStringFieldUpdateOperationsInput | string | null
+    outcomeRecordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    outcomeRecordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutIssuesNestedInput
+    references?: OsIssueReferenceUpdateManyWithoutIssueNestedInput
+    journalEntries?: OsIssueJournalEntryUpdateManyWithoutIssueNestedInput
+    workLinks?: OsIssueWorkLinkUpdateManyWithoutIssueNestedInput
+    relationsFrom?: OsIssueRelationUpdateManyWithoutFromIssueNestedInput
+    relationsTo?: OsIssueRelationUpdateManyWithoutToIssueNestedInput
+    resolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutIssueNestedInput
+    ownershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutIssueNestedInput
+  }
+
+  export type OsIssueUncheckedUpdateWithoutCorrectionRequestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    reportedByMemberId?: StringFieldUpdateOperationsInput | string
+    reportedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    currentOwnerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    confirmedCause?: NullableStringFieldUpdateOperationsInput | string | null
+    confirmedCauseByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    confirmedCauseAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolution?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    outcome?: NullableStringFieldUpdateOperationsInput | string | null
+    outcomeRecordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    outcomeRecordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    references?: OsIssueReferenceUncheckedUpdateManyWithoutIssueNestedInput
+    journalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutIssueNestedInput
+    workLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutIssueNestedInput
+    relationsFrom?: OsIssueRelationUncheckedUpdateManyWithoutFromIssueNestedInput
+    relationsTo?: OsIssueRelationUncheckedUpdateManyWithoutToIssueNestedInput
+    resolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutIssueNestedInput
+    ownershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutIssueNestedInput
+  }
+
   export type OsOrganizationCreateWithoutIssueReferencesInput = {
     id: string
     legalName: string
@@ -205301,6 +213777,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
     issueRelations?: OsIssueRelationCreateNestedManyWithoutOrganizationInput
@@ -205308,6 +213785,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutIssueReferencesInput = {
@@ -205391,6 +213870,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
     issueRelations?: OsIssueRelationUncheckedCreateNestedManyWithoutOrganizationInput
@@ -205398,6 +213878,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutIssueReferencesInput = {
@@ -205432,6 +213914,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueUncheckedCreateWithoutReferencesInput = {
@@ -205461,6 +213944,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUncheckedCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueCreateOrConnectWithoutReferencesInput = {
@@ -205560,6 +214044,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
     issueRelations?: OsIssueRelationUpdateManyWithoutOrganizationNestedInput
@@ -205567,6 +214052,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutIssueReferencesInput = {
@@ -205650,6 +214137,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
     issueRelations?: OsIssueRelationUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -205657,6 +214145,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsIssueUpsertWithoutReferencesInput = {
@@ -205697,6 +214187,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUpdateOneWithoutIssueNestedInput
   }
 
   export type OsIssueUncheckedUpdateWithoutReferencesInput = {
@@ -205726,6 +214217,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUncheckedUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedUpdateOneWithoutIssueNestedInput
   }
 
   export type OsOrganizationCreateWithoutIssueJournalEntriesInput = {
@@ -205809,6 +214301,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
     issueRelations?: OsIssueRelationCreateNestedManyWithoutOrganizationInput
@@ -205816,6 +214309,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutIssueJournalEntriesInput = {
@@ -205899,6 +214394,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
     issueRelations?: OsIssueRelationUncheckedCreateNestedManyWithoutOrganizationInput
@@ -205906,6 +214402,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutIssueJournalEntriesInput = {
@@ -205940,6 +214438,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueUncheckedCreateWithoutJournalEntriesInput = {
@@ -205969,6 +214468,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUncheckedCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueCreateOrConnectWithoutJournalEntriesInput = {
@@ -206068,6 +214568,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
     issueRelations?: OsIssueRelationUpdateManyWithoutOrganizationNestedInput
@@ -206075,6 +214576,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutIssueJournalEntriesInput = {
@@ -206158,6 +214661,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
     issueRelations?: OsIssueRelationUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -206165,6 +214669,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsIssueUpsertWithoutJournalEntriesInput = {
@@ -206205,6 +214711,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUpdateOneWithoutIssueNestedInput
   }
 
   export type OsIssueUncheckedUpdateWithoutJournalEntriesInput = {
@@ -206234,6 +214741,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUncheckedUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedUpdateOneWithoutIssueNestedInput
   }
 
   export type OsOrganizationCreateWithoutIssueWorkLinksInput = {
@@ -206317,6 +214825,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueRelations?: OsIssueRelationCreateNestedManyWithoutOrganizationInput
@@ -206324,6 +214833,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutIssueWorkLinksInput = {
@@ -206407,6 +214918,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueRelations?: OsIssueRelationUncheckedCreateNestedManyWithoutOrganizationInput
@@ -206414,6 +214926,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutIssueWorkLinksInput = {
@@ -206448,6 +214962,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueUncheckedCreateWithoutWorkLinksInput = {
@@ -206477,6 +214992,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUncheckedCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueCreateOrConnectWithoutWorkLinksInput = {
@@ -206576,6 +215092,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueRelations?: OsIssueRelationUpdateManyWithoutOrganizationNestedInput
@@ -206583,6 +215100,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutIssueWorkLinksInput = {
@@ -206666,6 +215185,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueRelations?: OsIssueRelationUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -206673,6 +215193,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsIssueUpsertWithoutWorkLinksInput = {
@@ -206713,6 +215235,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUpdateOneWithoutIssueNestedInput
   }
 
   export type OsIssueUncheckedUpdateWithoutWorkLinksInput = {
@@ -206742,6 +215265,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUncheckedUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedUpdateOneWithoutIssueNestedInput
   }
 
   export type OsOrganizationCreateWithoutIssueRelationsInput = {
@@ -206825,6 +215349,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -206832,6 +215357,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutIssueRelationsInput = {
@@ -206915,6 +215442,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -206922,6 +215450,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutIssueRelationsInput = {
@@ -206956,6 +215486,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueUncheckedCreateWithoutRelationsFromInput = {
@@ -206985,6 +215516,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUncheckedCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueCreateOrConnectWithoutRelationsFromInput = {
@@ -207019,6 +215551,7 @@ export namespace Prisma {
     relationsFrom?: OsIssueRelationCreateNestedManyWithoutFromIssueInput
     resolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueUncheckedCreateWithoutRelationsToInput = {
@@ -207048,6 +215581,7 @@ export namespace Prisma {
     relationsFrom?: OsIssueRelationUncheckedCreateNestedManyWithoutFromIssueInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueCreateOrConnectWithoutRelationsToInput = {
@@ -207147,6 +215681,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -207154,6 +215689,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutIssueRelationsInput = {
@@ -207237,6 +215774,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -207244,6 +215782,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsIssueUpsertWithoutRelationsFromInput = {
@@ -207284,6 +215824,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUpdateOneWithoutIssueNestedInput
   }
 
   export type OsIssueUncheckedUpdateWithoutRelationsFromInput = {
@@ -207313,6 +215854,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUncheckedUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedUpdateOneWithoutIssueNestedInput
   }
 
   export type OsIssueUpsertWithoutRelationsToInput = {
@@ -207353,6 +215895,7 @@ export namespace Prisma {
     relationsFrom?: OsIssueRelationUpdateManyWithoutFromIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUpdateOneWithoutIssueNestedInput
   }
 
   export type OsIssueUncheckedUpdateWithoutRelationsToInput = {
@@ -207382,6 +215925,7 @@ export namespace Prisma {
     relationsFrom?: OsIssueRelationUncheckedUpdateManyWithoutFromIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedUpdateOneWithoutIssueNestedInput
   }
 
   export type OsOrganizationCreateWithoutIssueResolutionCyclesInput = {
@@ -207465,6 +216009,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -207472,6 +216017,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutIssueResolutionCyclesInput = {
@@ -207555,6 +216102,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -207562,6 +216110,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutIssueResolutionCyclesInput = {
@@ -207596,6 +216146,7 @@ export namespace Prisma {
     relationsFrom?: OsIssueRelationCreateNestedManyWithoutFromIssueInput
     relationsTo?: OsIssueRelationCreateNestedManyWithoutToIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueUncheckedCreateWithoutResolutionCyclesInput = {
@@ -207625,6 +216176,7 @@ export namespace Prisma {
     relationsFrom?: OsIssueRelationUncheckedCreateNestedManyWithoutFromIssueInput
     relationsTo?: OsIssueRelationUncheckedCreateNestedManyWithoutToIssueInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueCreateOrConnectWithoutResolutionCyclesInput = {
@@ -207724,6 +216276,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -207731,6 +216284,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutIssueResolutionCyclesInput = {
@@ -207814,6 +216369,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -207821,6 +216377,8 @@ export namespace Prisma {
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsIssueUpsertWithoutResolutionCyclesInput = {
@@ -207861,6 +216419,7 @@ export namespace Prisma {
     relationsFrom?: OsIssueRelationUpdateManyWithoutFromIssueNestedInput
     relationsTo?: OsIssueRelationUpdateManyWithoutToIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUpdateOneWithoutIssueNestedInput
   }
 
   export type OsIssueUncheckedUpdateWithoutResolutionCyclesInput = {
@@ -207890,6 +216449,7 @@ export namespace Prisma {
     relationsFrom?: OsIssueRelationUncheckedUpdateManyWithoutFromIssueNestedInput
     relationsTo?: OsIssueRelationUncheckedUpdateManyWithoutToIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedUpdateOneWithoutIssueNestedInput
   }
 
   export type OsOrganizationCreateWithoutProductFeedbackInput = {
@@ -207973,6 +216533,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -207980,6 +216541,8 @@ export namespace Prisma {
     issueResolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductFeedbackInput = {
@@ -208063,6 +216626,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -208070,6 +216634,8 @@ export namespace Prisma {
     issueResolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductFeedbackInput = {
@@ -208169,6 +216735,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -208176,6 +216743,8 @@ export namespace Prisma {
     issueResolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductFeedbackInput = {
@@ -208259,6 +216828,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -208266,6 +216836,8 @@ export namespace Prisma {
     issueResolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutIssueOwnershipHistoryInput = {
@@ -208349,6 +216921,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -208356,6 +216929,8 @@ export namespace Prisma {
     issueResolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutOrganizationInput
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutIssueOwnershipHistoryInput = {
@@ -208439,6 +217014,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -208446,6 +217022,8 @@ export namespace Prisma {
     issueResolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutOrganizationInput
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutIssueOwnershipHistoryInput = {
@@ -208480,6 +217058,7 @@ export namespace Prisma {
     relationsFrom?: OsIssueRelationCreateNestedManyWithoutFromIssueInput
     relationsTo?: OsIssueRelationCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueUncheckedCreateWithoutOwnershipHistoryInput = {
@@ -208509,6 +217088,7 @@ export namespace Prisma {
     relationsFrom?: OsIssueRelationUncheckedCreateNestedManyWithoutFromIssueInput
     relationsTo?: OsIssueRelationUncheckedCreateNestedManyWithoutToIssueInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutIssueInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedCreateNestedOneWithoutIssueInput
   }
 
   export type OsIssueCreateOrConnectWithoutOwnershipHistoryInput = {
@@ -208608,6 +217188,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -208615,6 +217196,8 @@ export namespace Prisma {
     issueResolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutOrganizationNestedInput
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutIssueOwnershipHistoryInput = {
@@ -208698,6 +217281,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -208705,6 +217289,8 @@ export namespace Prisma {
     issueResolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutOrganizationNestedInput
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsIssueUpsertWithoutOwnershipHistoryInput = {
@@ -208745,6 +217331,7 @@ export namespace Prisma {
     relationsFrom?: OsIssueRelationUpdateManyWithoutFromIssueNestedInput
     relationsTo?: OsIssueRelationUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUpdateOneWithoutIssueNestedInput
   }
 
   export type OsIssueUncheckedUpdateWithoutOwnershipHistoryInput = {
@@ -208774,6 +217361,7 @@ export namespace Prisma {
     relationsFrom?: OsIssueRelationUncheckedUpdateManyWithoutFromIssueNestedInput
     relationsTo?: OsIssueRelationUncheckedUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedUpdateOneWithoutIssueNestedInput
   }
 
   export type OsOrganizationCreateWithoutContactFollowupPreferencesInput = {
@@ -208857,6 +217445,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
@@ -208864,6 +217453,8 @@ export namespace Prisma {
     issueResolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutOrganizationInput
     productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutContactFollowupPreferencesInput = {
@@ -208947,6 +217538,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
     issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
     issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -208954,6 +217546,8 @@ export namespace Prisma {
     issueResolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutOrganizationInput
     productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutContactFollowupPreferencesInput = {
@@ -208976,10 +217570,17 @@ export namespace Prisma {
     relationEndReason?: string | null
     phoneRetiredAt?: Date | string | null
     phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization: OsOrganizationCreateNestedOneWithoutContactsInput
     organizationParty: OsPartyCreateNestedOneWithoutContactsInput
+    endpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutContactInput
   }
 
   export type OsContactUncheckedCreateWithoutFollowupPreferencesInput = {
@@ -208999,8 +217600,15 @@ export namespace Prisma {
     relationEndReason?: string | null
     phoneRetiredAt?: Date | string | null
     phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    endpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutContactInput
   }
 
   export type OsContactCreateOrConnectWithoutFollowupPreferencesInput = {
@@ -209100,6 +217708,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
@@ -209107,6 +217716,8 @@ export namespace Prisma {
     issueResolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutOrganizationNestedInput
     productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutContactFollowupPreferencesInput = {
@@ -209190,6 +217801,7 @@ export namespace Prisma {
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
     issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -209197,6 +217809,8 @@ export namespace Prisma {
     issueResolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutOrganizationNestedInput
     productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
     issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsContactUpsertWithoutFollowupPreferencesInput = {
@@ -209225,10 +217839,17 @@ export namespace Prisma {
     relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
     phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OsOrganizationUpdateOneRequiredWithoutContactsNestedInput
     organizationParty?: OsPartyUpdateOneRequiredWithoutContactsNestedInput
+    endpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutContactNestedInput
   }
 
   export type OsContactUncheckedUpdateWithoutFollowupPreferencesInput = {
@@ -209248,8 +217869,15 @@ export namespace Prisma {
     relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
     phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutContactNestedInput
   }
 
   export type OsOrganizationMemberCreateManyOrganizationInput = {
@@ -209435,6 +218063,12 @@ export namespace Prisma {
     relationEndReason?: string | null
     phoneRetiredAt?: Date | string | null
     phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -210290,6 +218924,25 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type OsIssueCorrectionRequestCreateManyOrganizationInput = {
+    issueId: string
+    partyId: string
+    contactId?: string | null
+    locationId?: string | null
+    field: string
+    proposedValue: string
+    source: string
+    decision?: string | null
+    appliedEventId?: string | null
+    decisionReason?: string | null
+    decidedByMemberId?: string | null
+    decidedAt?: Date | string | null
+    createdAt?: Date | string
+    targetVersionAtRequest?: number | null
+    valueMatched?: boolean | null
+    differenceExplanation?: string | null
+  }
+
   export type OsIssueReferenceCreateManyOrganizationInput = {
     id: string
     issueId: string
@@ -210376,6 +219029,37 @@ export namespace Prisma {
     version?: number
     recordedByMemberId: string
     updatedAt?: Date | string
+  }
+
+  export type OsContactEndpointAssociationCreateManyOrganizationInput = {
+    id: string
+    partyId: string
+    contactId: string
+    channel: string
+    numberE164: string
+    country?: string | null
+    enteredText?: string | null
+    startedAt: Date | string
+    endedAt?: Date | string | null
+    endReason?: string | null
+    verificationMethod?: string | null
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type OsContactIdentityReviewCreateManyOrganizationInput = {
+    id: string
+    partyId: string
+    contactId: string
+    channel: string
+    associationId: string
+    matchedAssociationId: string
+    status?: string
+    openedAt: Date | string
+    resolvedAt?: Date | string | null
+    resolvedByMemberId?: string | null
+    verificationMethod?: string | null
+    note?: string | null
   }
 
   export type OsOrganizationMemberUpdateWithoutOrganizationInput = {
@@ -210946,10 +219630,17 @@ export namespace Prisma {
     relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
     phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organizationParty?: OsPartyUpdateOneRequiredWithoutContactsNestedInput
     followupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutContactNestedInput
+    endpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutContactNestedInput
   }
 
   export type OsContactUncheckedUpdateWithoutOrganizationInput = {
@@ -210968,9 +219659,16 @@ export namespace Prisma {
     relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
     phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     followupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutContactNestedInput
+    endpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutContactNestedInput
   }
 
   export type OsContactUncheckedUpdateManyWithoutOrganizationInput = {
@@ -210989,6 +219687,12 @@ export namespace Prisma {
     relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
     phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -213565,6 +222269,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUpdateOneWithoutIssueNestedInput
   }
 
   export type OsIssueUncheckedUpdateWithoutOrganizationInput = {
@@ -213594,6 +222299,7 @@ export namespace Prisma {
     relationsTo?: OsIssueRelationUncheckedUpdateManyWithoutToIssueNestedInput
     resolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutIssueNestedInput
     ownershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutIssueNestedInput
+    correctionRequest?: OsIssueCorrectionRequestUncheckedUpdateOneWithoutIssueNestedInput
   }
 
   export type OsIssueUncheckedUpdateManyWithoutOrganizationInput = {
@@ -213616,6 +222322,63 @@ export namespace Prisma {
     outcomeRecordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsIssueCorrectionRequestUpdateWithoutOrganizationInput = {
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    field?: StringFieldUpdateOperationsInput | string
+    proposedValue?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    decision?: NullableStringFieldUpdateOperationsInput | string | null
+    appliedEventId?: NullableStringFieldUpdateOperationsInput | string | null
+    decisionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    targetVersionAtRequest?: NullableIntFieldUpdateOperationsInput | number | null
+    valueMatched?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    differenceExplanation?: NullableStringFieldUpdateOperationsInput | string | null
+    issue?: OsIssueUpdateOneRequiredWithoutCorrectionRequestNestedInput
+  }
+
+  export type OsIssueCorrectionRequestUncheckedUpdateWithoutOrganizationInput = {
+    issueId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    field?: StringFieldUpdateOperationsInput | string
+    proposedValue?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    decision?: NullableStringFieldUpdateOperationsInput | string | null
+    appliedEventId?: NullableStringFieldUpdateOperationsInput | string | null
+    decisionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    targetVersionAtRequest?: NullableIntFieldUpdateOperationsInput | number | null
+    valueMatched?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    differenceExplanation?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationInput = {
+    issueId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    field?: StringFieldUpdateOperationsInput | string
+    proposedValue?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    decision?: NullableStringFieldUpdateOperationsInput | string | null
+    appliedEventId?: NullableStringFieldUpdateOperationsInput | string | null
+    decisionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    targetVersionAtRequest?: NullableIntFieldUpdateOperationsInput | number | null
+    valueMatched?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    differenceExplanation?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OsIssueReferenceUpdateWithoutOrganizationInput = {
@@ -213880,6 +222643,101 @@ export namespace Prisma {
     version?: IntFieldUpdateOperationsInput | number
     recordedByMemberId?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsContactEndpointAssociationUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    numberE164?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredText?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endReason?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contact?: OsContactUpdateOneRequiredWithoutEndpointAssociationsNestedInput
+    identityReviews?: OsContactIdentityReviewUpdateManyWithoutAssociationNestedInput
+  }
+
+  export type OsContactEndpointAssociationUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    numberE164?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredText?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endReason?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    identityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutAssociationNestedInput
+  }
+
+  export type OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    numberE164?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredText?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endReason?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsContactIdentityReviewUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    matchedAssociationId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    association?: OsContactEndpointAssociationUpdateOneRequiredWithoutIdentityReviewsNestedInput
+  }
+
+  export type OsContactIdentityReviewUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    associationId?: StringFieldUpdateOperationsInput | string
+    matchedAssociationId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    associationId?: StringFieldUpdateOperationsInput | string
+    matchedAssociationId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OsOrganizationMemberCreateManyPersonInput = {
@@ -214547,6 +223405,12 @@ export namespace Prisma {
     relationEndReason?: string | null
     phoneRetiredAt?: Date | string | null
     phoneRetiredReason?: string | null
+    phoneDisplay?: string | null
+    whatsappDisplay?: string | null
+    phoneStatus?: string | null
+    whatsappStatus?: string | null
+    whatsappRetiredAt?: Date | string | null
+    whatsappRetiredReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -214805,10 +223669,17 @@ export namespace Prisma {
     relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
     phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OsOrganizationUpdateOneRequiredWithoutContactsNestedInput
     followupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutContactNestedInput
+    endpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutContactNestedInput
   }
 
   export type OsContactUncheckedUpdateWithoutOrganizationPartyInput = {
@@ -214827,9 +223698,16 @@ export namespace Prisma {
     relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
     phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     followupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutContactNestedInput
+    endpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutContactNestedInput
   }
 
   export type OsContactUncheckedUpdateManyWithoutOrganizationPartyInput = {
@@ -214848,6 +223726,12 @@ export namespace Prisma {
     relationEndReason?: NullableStringFieldUpdateOperationsInput | string | null
     phoneRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     phoneRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappDisplay?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappRetiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    whatsappRetiredReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -215804,6 +224688,22 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type OsContactEndpointAssociationCreateManyContactInput = {
+    id: string
+    organizationId: string
+    partyId: string
+    channel: string
+    numberE164: string
+    country?: string | null
+    enteredText?: string | null
+    startedAt: Date | string
+    endedAt?: Date | string | null
+    endReason?: string | null
+    verificationMethod?: string | null
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+  }
+
   export type OsContactFollowupPreferenceUpdateWithoutContactInput = {
     id?: StringFieldUpdateOperationsInput | string
     channel?: StringFieldUpdateOperationsInput | string
@@ -215838,6 +224738,116 @@ export namespace Prisma {
     version?: IntFieldUpdateOperationsInput | number
     recordedByMemberId?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsContactEndpointAssociationUpdateWithoutContactInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    numberE164?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredText?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endReason?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutContactEndpointAssociationsNestedInput
+    identityReviews?: OsContactIdentityReviewUpdateManyWithoutAssociationNestedInput
+  }
+
+  export type OsContactEndpointAssociationUncheckedUpdateWithoutContactInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    numberE164?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredText?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endReason?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    identityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutAssociationNestedInput
+  }
+
+  export type OsContactEndpointAssociationUncheckedUpdateManyWithoutContactInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    numberE164?: StringFieldUpdateOperationsInput | string
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredText?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endReason?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsContactIdentityReviewCreateManyAssociationInput = {
+    id: string
+    organizationId: string
+    partyId: string
+    contactId: string
+    channel: string
+    matchedAssociationId: string
+    status?: string
+    openedAt: Date | string
+    resolvedAt?: Date | string | null
+    resolvedByMemberId?: string | null
+    verificationMethod?: string | null
+    note?: string | null
+  }
+
+  export type OsContactIdentityReviewUpdateWithoutAssociationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    matchedAssociationId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    organization?: OsOrganizationUpdateOneRequiredWithoutContactIdentityReviewsNestedInput
+  }
+
+  export type OsContactIdentityReviewUncheckedUpdateWithoutAssociationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    matchedAssociationId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsContactIdentityReviewUncheckedUpdateManyWithoutAssociationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    matchedAssociationId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OsReportedOperationalFactCreateManyCorrectsFactInput = {

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { grantableCoverageActionsFor } from '@isalwa/os-contracts';
 import {
+  coverageLastDayLabel,
   coverageActionChoices,
   coverageGrantStatusLabel,
   coverageWindowFromForm,
@@ -61,5 +62,13 @@ describe('T03 coverage window from the form (30-day engineering default)', () =>
     assert.equal(coverageWindowFromForm({ endsOn: '2026-11-17' }, now).ok, false);
     assert.equal(coverageWindowFromForm({ endsOn: '2026-10-17' }, now).ok, false);
     assert.equal(coverageWindowFromForm({ endsOn: '2026-02-30' }, now).ok, false);
+  });
+});
+
+describe('T03 coverage end shown as the last covered day', () => {
+  it('reads the exclusive La Paz midnight end as the day before, never 00:00 of the next day', () => {
+    assert.equal(coverageLastDayLabel('2026-10-26T04:00:00.000Z'), 'Hasta el 25/10/2026');
+    assert.equal(coverageLastDayLabel(null), 'Sin fecha de fin');
+    assert.equal(coverageLastDayLabel('no-date'), 'Sin fecha registrada');
   });
 });

@@ -69,6 +69,8 @@ export type IssueDetail = {
   linkedWorkItems: string[];
   relations: IssueRelation[];
   version: number;
+  /** T03 L4: decided only through the correction form. Absent from older API responses. */
+  isCorrectionRequest?: boolean;
 };
 
 export type IssueListResponse = {

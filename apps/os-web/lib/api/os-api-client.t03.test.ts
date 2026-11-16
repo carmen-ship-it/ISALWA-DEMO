@@ -43,12 +43,14 @@ describe('os-api-client T03 methods', () => {
     await client().getContactRelationshipEndPreview('party 1', 'contact/2');
     await client().getContactFollowupPreferences('party-1', 'contact-2');
     await client().getCustomerArchivePreview('party-1');
+    await client().getCustomerFollowupPreferences('party/1');
     assert.deepEqual(
       calls.map((c) => [c.method, c.url]),
       [
         ['GET', 'http://api.test/v1/parties/party%201/contacts/contact%2F2/relationship-end-preview'],
         ['GET', 'http://api.test/v1/parties/party-1/contacts/contact-2/followup-preferences'],
         ['GET', 'http://api.test/v1/parties/party-1/archive-preview'],
+        ['GET', 'http://api.test/v1/parties/party%2F1/followup-preferences'],
       ],
     );
   });

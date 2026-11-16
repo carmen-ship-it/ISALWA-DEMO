@@ -5,6 +5,7 @@ import { useActionState } from 'react';
 import type { CustomerArchivePreview } from '@isalwa/os-contracts';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import { submittedValues, usePreservedForm, type PreservedFormState } from '@/lib/commercial/use-preserved-form';
 import { deactivatePartyAction, reactivatePartyAction } from '@/lib/party/actions';
 import {
   PARTY_ARCHIVE_REASON_LABELS,
@@ -52,14 +53,15 @@ export function CustomerArchivePanel({
 
 function ArchiveForm({ partyId, expectedVersion, blocked }: { partyId: string; expectedVersion: number; blocked: boolean }) {
   const router = useRouter();
-  const [state, action] = useActionState(async (_prev: { error?: string; success?: string } | null, formData: FormData) => {
+  const [state, action] = useActionState(async (_prev: PreservedFormState, formData: FormData): Promise<PreservedFormState> => {
     const result = await deactivatePartyAction(formData);
-    if (!result.ok) return { error: result.error };
+    if (!result.ok) return { error: result.error, fieldErrors: result.fieldErrors, values: submittedValues(formData) };
     router.refresh();
     return { success: 'Cliente archivado.' };
   }, null);
+  const formRef = usePreservedForm(state);
   return (
-    <form action={action} className="space-y-2">
+    <form ref={formRef} action={action} className="space-y-2">
       {blocked ? <p className="text-sm text-[var(--isalwa-kiln)]">Hay obligaciones abiertas. Resuélvalas antes de archivar.</p> : null}
       <FormFeedback error={state?.error} success={state?.success} />
       <input type="hidden" name="partyId" value={partyId} />
@@ -88,14 +90,15 @@ function ArchiveForm({ partyId, expectedVersion, blocked }: { partyId: string; e
 
 function ReactivateForm({ partyId, expectedVersion }: { partyId: string; expectedVersion: number }) {
   const router = useRouter();
-  const [state, action] = useActionState(async (_prev: { error?: string; success?: string } | null, formData: FormData) => {
+  const [state, action] = useActionState(async (_prev: PreservedFormState, formData: FormData): Promise<PreservedFormState> => {
     const result = await reactivatePartyAction(formData);
-    if (!result.ok) return { error: result.error };
+    if (!result.ok) return { error: result.error, fieldErrors: result.fieldErrors, values: submittedValues(formData) };
     router.refresh();
     return { success: 'Cliente reactivado. No se restauran coberturas, precios ni consentimientos.' };
   }, null);
+  const formRef = usePreservedForm(state);
   return (
-    <form action={action} className="space-y-2">
+    <form ref={formRef} action={action} className="space-y-2">
       <p className="text-xs text-[var(--isalwa-slate)]">
         Reactivar deja las coberturas, los precios y las preferencias de seguimiento como están.
       </p>

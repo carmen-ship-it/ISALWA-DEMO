@@ -351,6 +351,10 @@ export function createOsApiClient(auth: OsAuthContext) {
       request<{ partyId: string; contactId: string; items: ContactFollowupPreferenceItem[] }>(
         `/parties/${encodeURIComponent(partyId)}/contacts/${encodeURIComponent(contactId)}/followup-preferences`,
       ),
+    getCustomerFollowupPreferences: (partyId: string) =>
+      request<{ partyId: string; contacts: { contactId: string; items: ContactFollowupPreferenceItem[] }[] }>(
+        `/parties/${encodeURIComponent(partyId)}/followup-preferences`,
+      ),
     getCustomerArchivePreview: (partyId: string) =>
       request<CustomerArchivePreview>(`/parties/${encodeURIComponent(partyId)}/archive-preview`),
     /** T03 C9 client import. Every import command, including the reads, is a POST command. */

@@ -1,9 +1,11 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useActionState, useState, type ReactNode } from 'react';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import { submittedValues, usePreservedForm, type PreservedFormState } from '@/lib/commercial/use-preserved-form';
 import {
   changeContactPhoneAction,
   resolveContactIdentityReviewAction,
@@ -37,7 +39,7 @@ export type ContactEndpointAuthority = {
   canResolveIdentityReview: boolean;
 };
 
-type PhoneFormState = { error?: string; success?: string } | null;
+type PhoneFormState = PreservedFormState;
 
 function channelLabel(channel: string): string {
   return CONTACT_CHANNEL_OPTIONS.find((option) => option.value === channel)?.label ?? channel;
@@ -120,13 +122,23 @@ export function ContactEndpointPanel({
   contact,
   authority,
   history,
+  current,
+  manageHref,
 }: {
   partyId: string;
   contact: Contact;
   authority: ContactEndpointAuthority;
-  /** Present only when the server allowed masked history. Never contains a full number. */
-  history: HistoryItem[] | null;
+  /**
+   * Loaded only for the contact being managed, and only when the server allowed masked history.
+   * Never contains a full number. `undefined` means this contact is not the one being managed.
+   */
+  history?: HistoryItem[] | null;
+  /** A current contact of an active customer. Former contacts and archived customers get no change forms. */
+  current: boolean;
+  /** Link that opens this contact's forms and history; null when nothing is offered. */
+  manageHref: string | null;
 }) {
+  const managing = history !== undefined;
   const phoneReview = contact.phoneStatus === 'identity_review';
   const whatsappReview = contact.whatsappStatus === 'identity_review';
   const hidden = (
@@ -148,20 +160,29 @@ export function ContactEndpointPanel({
         {statusLabel(contact.whatsappStatus) ? ` · ${statusLabel(contact.whatsappStatus)}` : ''}
       </p>
       {phoneReview || whatsappReview ? <p className="text-[var(--isalwa-kiln)]">{IDENTITY_REVIEW_NOTICE}</p> : null}
-      {authority.canResolveIdentityReview && phoneReview ? (
+      {!managing && manageHref ? (
+        <Link href={manageHref} scroll={false} className="inline-flex min-h-11 items-center font-medium text-[var(--isalwa-glaze)] underline">
+          Gestionar contacto
+        </Link>
+      ) : null}
+      {managing && current && authority.canResolveIdentityReview && phoneReview ? (
         <IdentityReviewForm partyId={partyId} contact={contact} channel="phone" />
       ) : null}
-      {authority.canResolveIdentityReview && whatsappReview ? (
+      {managing && current && authority.canResolveIdentityReview && whatsappReview ? (
         <IdentityReviewForm partyId={partyId} contact={contact} channel="whatsapp" />
       ) : null}
-      {authority.canChangeEndpoints ? <ChangeAndRetireForms contact={contact} hidden={hidden} /> : null}
-      {authority.canReviewEndpointHistory ? (
-        <EndpointHistory
-          partyId={partyId}
-          contactId={contact.id}
-          items={history ?? []}
-          canReveal={authority.canRevealEndpoint}
-        />
+      {managing && current && authority.canChangeEndpoints ? <ChangeAndRetireForms contact={contact} hidden={hidden} /> : null}
+      {managing && authority.canReviewEndpointHistory ? (
+        history === null ? (
+          <p className="text-[var(--isalwa-slate)]">No pudimos cargar estos datos.</p>
+        ) : (
+          <EndpointHistory
+            partyId={partyId}
+            contactId={contact.id}
+            items={history}
+            canReveal={authority.canRevealEndpoint}
+          />
+        )
       ) : null}
     </div>
   );
@@ -170,23 +191,25 @@ export function ContactEndpointPanel({
 function ChangeAndRetireForms({ contact, hidden }: { contact: Contact; hidden: ReactNode }) {
   const router = useRouter();
   const idPrefix = `endpoint-${contact.id}`;
-  const [changeState, changeAction] = useActionState(async (_prev: PhoneFormState, formData: FormData) => {
+  const [changeState, changeAction] = useActionState(async (_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> => {
     const result = await changeContactPhoneAction(formData);
-    if (!result.ok) return { error: result.error };
+    if (!result.ok) return { error: result.error, fieldErrors: result.fieldErrors, values: submittedValues(formData) };
     router.refresh();
     return { success: 'Número actualizado. El anterior queda en el historial.' };
   }, null);
-  const [retireState, retireAction] = useActionState(async (_prev: PhoneFormState, formData: FormData) => {
+  const [retireState, retireAction] = useActionState(async (_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> => {
     const result = await retireContactPhoneAction(formData);
-    if (!result.ok) return { error: result.error };
+    if (!result.ok) return { error: result.error, fieldErrors: result.fieldErrors, values: submittedValues(formData) };
     router.refresh();
     return { success: 'Número retirado. Ya no se usa como destino actual.' };
   }, null);
+  const changeRef = usePreservedForm(changeState);
+  const retireRef = usePreservedForm(retireState);
   const canRetire = Boolean(contact.phone || contact.whatsapp);
 
   return (
     <div className="space-y-4 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-3">
-      <form action={changeAction} className="space-y-3">
+      <form ref={changeRef} action={changeAction} className="space-y-3">
         <p className="font-medium text-[var(--isalwa-kiln)]">Cambiar número</p>
         <FormFeedback error={changeState?.error} success={changeState?.success} />
         {hidden}
@@ -225,7 +248,7 @@ function ChangeAndRetireForms({ contact, hidden }: { contact: Contact; hidden: R
         <CommandSubmitButton label="Cambiar número" variant="secondary" />
       </form>
       {canRetire ? (
-        <form action={retireAction} className="space-y-3 border-t border-[var(--isalwa-mist)] pt-3">
+        <form ref={retireRef} action={retireAction} className="space-y-3 border-t border-[var(--isalwa-mist)] pt-3">
           <p className="font-medium text-[var(--isalwa-kiln)]">Retirar número</p>
           <p className="text-xs text-[var(--isalwa-slate)]">
             Retirar deja el contacto y su historial, y saca el número de los destinos actuales.
@@ -252,15 +275,16 @@ function IdentityReviewForm({
 }) {
   const router = useRouter();
   const prefix = `identity-${contact.id}-${channel}`;
-  const [state, action] = useActionState(async (_prev: PhoneFormState, formData: FormData) => {
+  const [state, action] = useActionState(async (_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> => {
     const result = await resolveContactIdentityReviewAction(formData);
-    if (!result.ok) return { error: result.error };
+    if (!result.ok) return { error: result.error, fieldErrors: result.fieldErrors, values: submittedValues(formData) };
     router.refresh();
     return { success: 'Revisión de identidad registrada.' };
   }, null);
+  const formRef = usePreservedForm(state);
 
   return (
-    <form action={action} className="space-y-3 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-3">
+    <form ref={formRef} action={action} className="space-y-3 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-3">
       <p className="font-medium text-[var(--isalwa-kiln)]">Revisión de identidad · {channelLabel(channel)}</p>
       <FormFeedback error={state?.error} success={state?.success} />
       <input type="hidden" name="partyId" value={partyId} />

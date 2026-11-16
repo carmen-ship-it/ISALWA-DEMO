@@ -146,6 +146,19 @@ describeHttp('T03 correction requests over HTTP (disposable Postgres)', () => {
     assert.equal((await correction('reader')).status, 404);
   });
 
+  it('the issue detail marks a correction request without its contents, so no generic resolve is offered', async () => {
+    const res = await fetch(`${baseUrl}/v1/issues/${ids.issue}`, { headers: headers(m.manager!) });
+    assert.equal(res.status, 200);
+    const text = await res.text();
+    assert.equal((JSON.parse(text).issue as Record<string, unknown>).isCorrectionRequest, true);
+    assert.equal(text.includes(PROPOSED), false);
+    const plain = await command('owner', 'ReportIssue', { description: 'Incidencia común sin corrección' });
+    assert.equal(plain.status, 201, JSON.stringify(plain.body));
+    const plainId = String((plain.body.data as Record<string, unknown>).issueId);
+    const plainRes = await fetch(`${baseUrl}/v1/issues/${plainId}`, { headers: headers(m.owner!) });
+    assert.equal(((await plainRes.json()).issue as Record<string, unknown>).isCorrectionRequest, false);
+  });
+
   it('assigns only a responsible person who may apply the change', async () => {
     const toStranger = await command('manager', 'AssignIssueOwner', {
       issueId: ids.issue,

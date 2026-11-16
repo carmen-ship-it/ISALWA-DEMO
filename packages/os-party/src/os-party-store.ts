@@ -103,6 +103,8 @@ export interface OsPartyStore {
     expectedVersion: number,
   ): Promise<void>;
   listFollowupPreferences(organizationId: string, contactId: string): Promise<ContactFollowupPreferenceRecord[]>;
+  /** Every recorded preference of this customer's contacts, in one read. */
+  listFollowupPreferencesForParty(organizationId: string, partyId: string): Promise<ContactFollowupPreferenceRecord[]>;
   /** T03 L3: read in the caller's transaction so the archive check and the write see the same state. */
   customerArchiveFacts(organizationId: string, partyId: string): Promise<CustomerArchiveFacts>;
   /** Inserts when `expectedVersion` is 0, else updates that version; a mismatch throws CONFLICT. */

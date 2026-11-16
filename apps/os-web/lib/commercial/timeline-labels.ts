@@ -45,6 +45,8 @@ const EVENT_LABELS: Record<string, string> = {
   'warehouse_exit.recorded': 'Salida registrada',
   'customer_delivery.recorded': 'Entrega registrada',
   'commercial_account.owner_reassigned': 'Responsable comercial cambiado',
+  'customer_coverage.granted': 'Cobertura temporal asignada',
+  'customer_coverage.revoked': 'Cobertura temporal revocada',
   'finished_goods.received': 'Ingreso a almacén de productos terminados',
   'finished_goods.corrected': 'Corrección de ingreso a almacén',
   'work.created': 'Trabajo creado',

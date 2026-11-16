@@ -1,0 +1,48 @@
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ T03 correction requests over HTTP (disposable Postgres)
+  ✔ a reporter who cannot know the customer gets 404 and nothing is stored (14.324291ms)
+  ✔ stores the restricted record and links the customer; the event carries no proposed value (22.168375ms)
+  ✔ the correction read needs customer knowledge; the value is shown only to permitted viewers (21.572375ms)
+  ✔ the issue detail marks a correction request without its contents, so no generic resolve is offered (32.079625ms)
+  ✔ assigns only a responsible person who may apply the change (62.709791ms)
+  ✔ "applied" must cite the matching customer event; the request itself changed nothing (112.531875ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ the outcome is the decision: RecordIssueOutcome is refused (10.316292ms)
+✔ T03 correction requests over HTTP (disposable Postgres) (1636.202625ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+▶ T03 customer authority flags over HTTP (disposable Postgres)
+  ✔ editors get edit flags and the legal name; only the data steward may change the legal name (67.798959ms)
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":9,"published":9,"retried":0,"deadLetter":0,"duplicates":0}
+  ✔ readers without edit authority get no edit flags and no legal name in the body (19.979875ms)
+  ✔ the flags match what the commands accept (32.109375ms)
+  ✔ C2: the timeline shows names, reasons and numbers only to viewers who may edit the customer (81.853333ms)
+  ✔ an owner without the customer edit permission reads the customer but gets no edit flags (9.663292ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ an archived customer: the editor flags match what the master-data commands accept (archive stops commercial work, not maintenance) (45.655833ms)
+✔ T03 customer authority flags over HTTP (disposable Postgres) (386.036125ms)
+{"level":"info","component":"outbox-worker","message":"outbox worker host started","pollIntervalMs":5000}
+{"level":"info","component":"attention-clock","message":"attention clock started","pollIntervalMs":60000}
+{"level":"info","component":"outbox-worker","message":"outbox dispatch tick","claimed":2,"published":2,"retried":0,"deadLetter":0,"duplicates":0}
+▶ T03 contact follow-up preferences over HTTP (disposable Postgres)
+  ✔ every reader of the customer sees one entry per channel, none recorded yet (35.869042ms)
+  ✔ refuses unconfirmed senders, relaxing without a staff record, unauthorized actors and stale versions; stores nothing (43.100125ms)
+  ✔ records a restriction with who, source and version; a replay adds nothing (31.522709ms)
+  ✔ relaxing needs the current version; the earlier record stays in history (22.745667ms)
+  ✔ a former contact's preference cannot be changed (43.158583ms)
+  ✔ the timeline gives the note only to customer editors (65.302875ms)
+{"level":"info","component":"attention-clock","message":"attention clock stopped"}
+{"level":"info","component":"outbox-worker","message":"outbox worker host stopped"}
+  ✔ the customer-level read returns every recorded contact preference in one request, under the same visibility (77.346666ms)
+✔ T03 contact follow-up preferences over HTTP (disposable Postgres) (484.74275ms)
+ℹ tests 20
+ℹ suites 3
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4188.791167

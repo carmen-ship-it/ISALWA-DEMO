@@ -7,9 +7,11 @@ import {
   FOLLOWUP_PREFERENCES,
   followupPreferenceInputProblem,
   partyChangeNeedsReason,
+  type ContactFollowupPreferenceItem,
   type PartyChangeKind,
   type PartyKind,
 } from '@isalwa/os-contracts';
+import { formatBoliviaDate } from '@/lib/experience/format';
 
 /** Existing command scope. Not a salesperson create permission. */
 export const MASTER_DATA_ADMIN_SCOPE = 'master_data.admin' as const;
@@ -238,9 +240,16 @@ export function formerContactLine(input: {
   reasonNote?: string | null;
 }): string | null {
   if (input.status === 'active') return null;
-  const reason = input.reason ? CONTACT_RELATION_END_LABELS[input.reason] : null;
-  return ['Contacto anterior', input.endedOn || null, reason, input.reasonNote?.trim() || null].filter(Boolean).join(' · ');
+  const reason = input.reason ? (CONTACT_RELATION_END_LABELS[input.reason] ?? 'Motivo no registrado') : null;
+  const ended = Boolean(input.endedOn || input.reason);
+  const day = input.endedOn ? formatBoliviaDate(input.endedOn) : null;
+  return [ended ? 'Contacto anterior' : 'Contacto inactivo', day ?? NO_RECORDED_DATE, reason, input.reasonNote?.trim() || null]
+    .filter(Boolean)
+    .join(' · ');
 }
+
+/** Shown when no record carries the date. Never "today" or an empty slot. */
+export const NO_RECORDED_DATE = 'Sin fecha registrada';
 
 /**
  * End date and reason for a former contact. The timeline event wins when it is in
@@ -261,6 +270,18 @@ export function contactRelationEnd(
   };
 }
 
+/**
+ * The server accepts an optional note only between 10 and 500 characters, and requires one for
+ * `other`. A short optional note is refused here, by field, instead of as a generic save error.
+ */
+function reasonNoteProblem(reason: string, reasonNote: string): string | null {
+  if (reason === 'other' && reasonNote.length === 0) return 'Describa el motivo (entre 10 y 500 caracteres).';
+  if (reasonNote.length > 0 && (reasonNote.length < 10 || reasonNote.length > 500)) {
+    return 'El detalle debe tener entre 10 y 500 caracteres, o quedar vacío.';
+  }
+  return null;
+}
+
 export function buildEndContactRelationshipPayload(input: {
   partyId: string;
   contactId: string;
@@ -269,14 +290,13 @@ export function buildEndContactRelationshipPayload(input: {
   reasonNote?: string | null;
   endedOn?: string | null;
   today?: string;
-}): { ok: true; payload: Record<string, unknown> } | { ok: false; error: string } {
+}): { ok: true; payload: Record<string, unknown> } | { ok: false; error: string; fieldErrors?: Record<string, string> } {
   if (!(CONTACT_RELATION_END_REASONS as readonly string[]).includes(input.reason)) {
-    return { ok: false, error: 'Elija el motivo.' };
+    return { ok: false, error: 'Elija el motivo.', fieldErrors: { reason: 'Elija el motivo.' } };
   }
   const reasonNote = input.reasonNote?.trim() ?? '';
-  if (input.reason === 'other' && (reasonNote.length < 10 || reasonNote.length > 500)) {
-    return { ok: false, error: 'Describa el motivo (entre 10 y 500 caracteres).' };
-  }
+  const noteProblem = reasonNoteProblem(input.reason, reasonNote);
+  if (noteProblem) return { ok: false, error: noteProblem, fieldErrors: { reasonNote: noteProblem } };
   const endedOn = input.endedOn?.trim() ?? '';
   if (endedOn && !/^\d{4}-\d{2}-\d{2}$/.test(endedOn)) return { ok: false, error: 'La fecha no es válida.' };
   if (endedOn && endedOn > (input.today ?? laPazToday())) return { ok: false, error: 'La fecha no puede ser futura.' };
@@ -324,12 +344,13 @@ export function buildDeactivatePartyPayload(input: {
   expectedVersion: number;
   reason: string;
   reasonNote?: string | null;
-}): { ok: true; payload: Record<string, unknown> } | { ok: false; error: string } {
-  if (!(PARTY_ARCHIVE_REASONS as readonly string[]).includes(input.reason)) return { ok: false, error: 'Elija el motivo.' };
-  const reasonNote = input.reasonNote?.trim() ?? '';
-  if (input.reason === 'other' && (reasonNote.length < 10 || reasonNote.length > 500)) {
-    return { ok: false, error: 'Describa el motivo (entre 10 y 500 caracteres).' };
+}): { ok: true; payload: Record<string, unknown> } | { ok: false; error: string; fieldErrors?: Record<string, string> } {
+  if (!(PARTY_ARCHIVE_REASONS as readonly string[]).includes(input.reason)) {
+    return { ok: false, error: 'Elija el motivo.', fieldErrors: { reason: 'Elija el motivo.' } };
   }
+  const reasonNote = input.reasonNote?.trim() ?? '';
+  const noteProblem = reasonNoteProblem(input.reason, reasonNote);
+  if (noteProblem) return { ok: false, error: noteProblem, fieldErrors: { reasonNote: noteProblem } };
   if (!input.partyId || !Number.isInteger(input.expectedVersion) || input.expectedVersion < 0) {
     return { ok: false, error: 'No se pudo guardar. Actualice la página e intente de nuevo.' };
   }
@@ -348,15 +369,28 @@ export function buildReactivatePartyPayload(input: {
   partyId: string;
   expectedVersion: number;
   reasonNote: string;
-}): { ok: true; payload: Record<string, unknown> } | { ok: false; error: string } {
+}): { ok: true; payload: Record<string, unknown> } | { ok: false; error: string; fieldErrors?: Record<string, string> } {
   const reasonNote = input.reasonNote.trim();
   if (reasonNote.length < 10 || reasonNote.length > 500) {
-    return { ok: false, error: 'Escriba el motivo (entre 10 y 500 caracteres).' };
+    const error = 'Escriba el motivo (entre 10 y 500 caracteres).';
+    return { ok: false, error, fieldErrors: { reasonNote: error } };
   }
   if (!input.partyId || !Number.isInteger(input.expectedVersion) || input.expectedVersion < 0) {
     return { ok: false, error: 'No se pudo guardar. Actualice la página e intente de nuevo.' };
   }
   return { ok: true, payload: { partyId: input.partyId, expectedVersion: input.expectedVersion, reasonNote } };
+}
+
+/** A contact with no recorded preference: one empty entry per channel, as the per-contact read returns. */
+export function emptyFollowupItems(): ContactFollowupPreferenceItem[] {
+  return FOLLOWUP_CHANNELS.map((channel) => ({
+    channel,
+    preference: null,
+    source: null,
+    identityConfirmed: false,
+    version: 0,
+    updatedAt: null,
+  }));
 }
 
 export const FOLLOWUP_PREFERENCE_LABELS: Record<string, string> = {

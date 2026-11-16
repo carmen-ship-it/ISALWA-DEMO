@@ -95,16 +95,19 @@ model OsOrganization {
   coordinationDecisions       OsCoordinationDecision[]
   customerCoverageGrants      OsCustomerCoverageGrant[]
 
-  issues                OsIssue[]
-  issueReferences       OsIssueReference[]
-  issueJournalEntries   OsIssueJournalEntry[]
-  issueWorkLinks        OsIssueWorkLink[]
-  issueRelations        OsIssueRelation[]
-  issueResolutionCycles OsIssueResolutionCycle[]
-  productFeedback       OsProductFeedback[]
-  issueOwnershipHistory OsIssueOwnershipHistory[]
+  issues                  OsIssue[]
+  issueCorrectionRequests OsIssueCorrectionRequest[]
+  issueReferences         OsIssueReference[]
+  issueJournalEntries     OsIssueJournalEntry[]
+  issueWorkLinks          OsIssueWorkLink[]
+  issueRelations          OsIssueRelation[]
+  issueResolutionCycles   OsIssueResolutionCycle[]
+  productFeedback         OsProductFeedback[]
+  issueOwnershipHistory   OsIssueOwnershipHistory[]
 
-  contactFollowupPreferences OsContactFollowupPreference[]
+  contactFollowupPreferences  OsContactFollowupPreference[]
+  contactEndpointAssociations OsContactEndpointAssociation[]
+  contactIdentityReviews      OsContactIdentityReview[]
 
   @@map("os_organizations")
 }
@@ -674,33 +677,90 @@ model OsPartyRoleAssignment {
 }
 
 model OsContact {
-  id                  String    @id
-  organizationId      String    @map("organization_id")
-  organizationPartyId String    @map("organization_party_id")
-  personPartyId       String?   @map("person_party_id")
-  givenName           String    @map("given_name")
-  familyName          String    @map("family_name")
-  email               String?
-  phone               String?
-  whatsapp            String?
-  title               String?
-  status              String    @default("active")
-  version             Int       @default(0)
+  id                    String    @id
+  organizationId        String    @map("organization_id")
+  organizationPartyId   String    @map("organization_party_id")
+  personPartyId         String?   @map("person_party_id")
+  givenName             String    @map("given_name")
+  familyName            String    @map("family_name")
+  email                 String?
+  phone                 String?
+  whatsapp              String?
+  title                 String?
+  status                String    @default("active")
+  version               Int       @default(0)
   /// A2 §5 Finalizar relación: the person stays; only this company relation ends.
-  relationEndedAt     DateTime? @map("relation_ended_at")
-  relationEndReason   String?   @map("relation_end_reason")
+  relationEndedAt       DateTime? @map("relation_ended_at")
+  relationEndReason     String?   @map("relation_end_reason")
   /// A2 §5 retired number: excluded from follow-ups, jobs and default selection.
-  phoneRetiredAt      DateTime? @map("phone_retired_at")
-  phoneRetiredReason  String?   @map("phone_retired_reason")
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  phoneRetiredAt        DateTime? @map("phone_retired_at")
+  phoneRetiredReason    String?   @map("phone_retired_reason")
+  /// T03 C5: entered text kept next to the E.164 value; per-channel status (unverified | verified | identity_review).
+  phoneDisplay          String?   @map("phone_display")
+  whatsappDisplay       String?   @map("whatsapp_display")
+  phoneStatus           String?   @map("phone_status")
+  whatsappStatus        String?   @map("whatsapp_status")
+  whatsappRetiredAt     DateTime? @map("whatsapp_retired_at")
+  whatsappRetiredReason String?   @map("whatsapp_retired_reason")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
 
-  organization        OsOrganization                @relation(fields: [organizationId], references: [id])
-  organizationParty   OsParty                       @relation("OrgPartyContacts", fields: [organizationPartyId], references: [id])
-  followupPreferences OsContactFollowupPreference[]
+  organization         OsOrganization                 @relation(fields: [organizationId], references: [id])
+  organizationParty    OsParty                        @relation("OrgPartyContacts", fields: [organizationPartyId], references: [id])
+  followupPreferences  OsContactFollowupPreference[]
+  endpointAssociations OsContactEndpointAssociation[]
 
   @@index([organizationPartyId])
   @@map("os_contacts")
+}
+
+/// T03 C6: restricted, dated history of which number belonged to which contact. Rows are ended, never overwritten.
+model OsContactEndpointAssociation {
+  id                 String    @id
+  organizationId     String    @map("organization_id")
+  partyId            String    @map("party_id")
+  contactId          String    @map("contact_id")
+  channel            String
+  numberE164         String    @map("number_e164")
+  country            String?
+  enteredText        String?   @map("entered_text")
+  startedAt          DateTime  @map("started_at")
+  endedAt            DateTime? @map("ended_at")
+  endReason          String?   @map("end_reason")
+  verificationMethod String?   @map("verification_method")
+  recordedByMemberId String?   @map("recorded_by_member_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  organization    OsOrganization            @relation(fields: [organizationId], references: [id])
+  contact         OsContact                 @relation(fields: [contactId], references: [id])
+  identityReviews OsContactIdentityReview[]
+
+  @@index([organizationId, numberE164], map: "os_contact_endpoint_associations_number_idx")
+  @@index([organizationId, contactId, channel, startedAt], map: "os_contact_endpoint_associations_contact_idx")
+  @@map("os_contact_endpoint_associations")
+}
+
+/// T03 C7: a number matching an ended association on another record waits for an authorized identity decision.
+model OsContactIdentityReview {
+  id                   String    @id
+  organizationId       String    @map("organization_id")
+  partyId              String    @map("party_id")
+  contactId            String    @map("contact_id")
+  channel              String
+  associationId        String    @map("association_id")
+  matchedAssociationId String    @map("matched_association_id")
+  status               String    @default("open")
+  openedAt             DateTime  @map("opened_at")
+  resolvedAt           DateTime? @map("resolved_at")
+  resolvedByMemberId   String?   @map("resolved_by_member_id")
+  verificationMethod   String?   @map("verification_method")
+  note                 String?
+
+  organization OsOrganization               @relation(fields: [organizationId], references: [id])
+  association  OsContactEndpointAssociation @relation(fields: [associationId], references: [id])
+
+  @@index([organizationId, contactId, channel, status], map: "os_contact_identity_reviews_contact_idx")
+  @@map("os_contact_identity_reviews")
 }
 
 model OsFiscalIdentity {
@@ -2100,20 +2160,48 @@ model OsIssue {
   createdAt                 DateTime  @default(now()) @map("created_at")
   updatedAt                 DateTime  @updatedAt @map("updated_at")
 
-  organization     OsOrganization            @relation(fields: [organizationId], references: [id])
-  references       OsIssueReference[]
-  journalEntries   OsIssueJournalEntry[]
-  workLinks        OsIssueWorkLink[]
-  relationsFrom    OsIssueRelation[]         @relation("IssueRelationFrom")
-  relationsTo      OsIssueRelation[]         @relation("IssueRelationTo")
-  resolutionCycles OsIssueResolutionCycle[]
-  ownershipHistory OsIssueOwnershipHistory[]
+  organization      OsOrganization            @relation(fields: [organizationId], references: [id])
+  references        OsIssueReference[]
+  journalEntries    OsIssueJournalEntry[]
+  workLinks         OsIssueWorkLink[]
+  relationsFrom     OsIssueRelation[]         @relation("IssueRelationFrom")
+  relationsTo       OsIssueRelation[]         @relation("IssueRelationTo")
+  resolutionCycles  OsIssueResolutionCycle[]
+  ownershipHistory  OsIssueOwnershipHistory[]
+  correctionRequest OsIssueCorrectionRequest?
 
   @@index([organizationId, status])
   @@index([organizationId, currentOwnerMemberId])
   @@index([organizationId, reportedByMemberId])
   @@index([organizationId, createdAt])
   @@map("os_issues")
+}
+
+/// T03 L4: restricted customer-data correction request carried by one issue. Never writes data itself.
+model OsIssueCorrectionRequest {
+  issueId                String    @id @map("issue_id")
+  organizationId         String    @map("organization_id")
+  partyId                String    @map("party_id")
+  contactId              String?   @map("contact_id")
+  locationId             String?   @map("location_id")
+  field                  String
+  proposedValue          String    @map("proposed_value")
+  source                 String
+  decision               String?
+  appliedEventId         String?   @map("applied_event_id")
+  decisionReason         String?   @map("decision_reason")
+  decidedByMemberId      String?   @map("decided_by_member_id")
+  decidedAt              DateTime? @map("decided_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  targetVersionAtRequest Int?      @map("target_version_at_request")
+  valueMatched           Boolean?  @map("value_matched")
+  differenceExplanation  String?   @map("difference_explanation")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  issue        OsIssue        @relation(fields: [issueId], references: [id])
+
+  @@index([organizationId, partyId])
+  @@map("os_issue_correction_requests")
 }
 
 /// External entity reference linked to an issue (order, party, quote, etc.).

@@ -1,5 +1,7 @@
 import { COVERAGE_MAX_DURATION_DAYS, isGrantableCoverageAction } from '@isalwa/os-contracts';
 import { dueDateInputToIso } from '@/lib/commitments/draft';
+import { formatBoliviaDate } from '@/lib/experience/format';
+import { NO_RECORDED_DATE } from '@/lib/party/customer-self-service';
 
 export type CoverageActionChoice = { action: string; label: string; hint: string };
 
@@ -66,4 +68,15 @@ export function coverageWindowFromForm(
     return { ok: false, error: `El apoyo temporal dura como máximo ${COVERAGE_MAX_DURATION_DAYS} días. Para más tiempo, registre un nuevo apoyo al terminar este.` };
   }
   return { ok: true, ...(startsAt ? { startsAt: startsAt.toISOString() } : {}), endsAt: endsAt.toISOString() };
+}
+
+/**
+ * `endsAt` is the exclusive end: midnight in La Paz after the last covered day. People read the
+ * last covered day, never the next day at 00:00.
+ */
+export function coverageLastDayLabel(endsAt: string | null): string {
+  if (!endsAt) return 'Sin fecha de fin';
+  const end = Date.parse(endsAt);
+  if (Number.isNaN(end)) return NO_RECORDED_DATE;
+  return `Hasta el ${formatBoliviaDate(new Date(end - 1)) ?? NO_RECORDED_DATE}`;
 }

@@ -31,7 +31,7 @@ import {
   type ContactEndpointHistoryItem,
   type ContactRelationshipEndPreview,
 } from '@isalwa/os-contracts';
-import { customerAuthorityFlags, type OsPartyStore } from '@isalwa/os-party';
+import { customerAuthorityFlags, type ContactFollowupPreferenceRecord, type OsPartyStore } from '@isalwa/os-party';
 import type { OsCommercialStore } from '@isalwa/os-commercial';
 import type { PrismaOsCommitmentStore } from '@isalwa/os-database';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
@@ -437,20 +437,43 @@ export class PartiesController {
         throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
       }
       const rows = await this.partyStore.listFollowupPreferences(session.organizationId, contactId);
+      return { partyId, contactId, items: followupItems(rows) };
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';
+      const status =
+        code === 'AUTH_REQUIRED'
+          ? HttpStatus.UNAUTHORIZED
+          : code === 'NOT_FOUND'
+            ? HttpStatus.NOT_FOUND
+          : code === 'TENANT_FORBIDDEN' ||
+              code === 'PERMISSION_DENIED' ||
+              code === 'ACCESS_REVOKED'
+            ? HttpStatus.FORBIDDEN
+            : code === 'VALIDATION_FAILED'
+              ? HttpStatus.BAD_REQUEST
+              : HttpStatus.INTERNAL_SERVER_ERROR;
+      throw new HttpException({ code }, status);
+    }
+  }
+
+  /**
+   * T03 L2: the recorded follow-up preferences of every contact of this customer in one read, so
+   * the customer page does not ask once per contact. Contacts without a record are omitted.
+   */
+  @Get(':partyId/followup-preferences')
+  async customerFollowupPreferences(
+    @Param('partyId') partyId: string,
+    @Req() req: Request,
+  ): Promise<{ partyId: string; contacts: { contactId: string; items: ContactFollowupPreferenceItem[] }[] }> {
+    try {
+      const { session } = await this.readableCustomer(req, partyId);
+      const rows = await this.partyStore.listFollowupPreferencesForParty(session.organizationId, partyId);
+      const byContact = new Map<string, typeof rows>();
+      for (const row of rows) byContact.set(row.contactId, [...(byContact.get(row.contactId) ?? []), row]);
       return {
         partyId,
-        contactId,
-        items: FOLLOWUP_CHANNELS.map((channel) => {
-          const row = rows.find((r) => r.channel === channel);
-          return {
-            channel,
-            preference: row?.preference ?? null,
-            source: row?.source ?? null,
-            identityConfirmed: row?.identityConfirmed ?? false,
-            version: row?.version ?? 0,
-            updatedAt: row ? row.updatedAt.toISOString() : null,
-          };
-        }),
+        contacts: [...byContact.entries()].map(([contactId, contactRows]) => ({ contactId, items: followupItems(contactRows) })),
       };
     } catch (err) {
       if (err instanceof HttpException) throw err;
@@ -630,4 +653,18 @@ export class PartiesController {
       throw new HttpException({ code }, status);
     }
   }
+}
+
+function followupItems(rows: ContactFollowupPreferenceRecord[]): ContactFollowupPreferenceItem[] {
+  return FOLLOWUP_CHANNELS.map((channel) => {
+    const row = rows.find((r) => r.channel === channel);
+    return {
+      channel,
+      preference: row?.preference ?? null,
+      source: row?.source ?? null,
+      identityConfirmed: row?.identityConfirmed ?? false,
+      version: row?.version ?? 0,
+      updatedAt: row ? row.updatedAt.toISOString() : null,
+    };
+  });
 }

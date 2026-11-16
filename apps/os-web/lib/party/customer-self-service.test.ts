@@ -8,6 +8,9 @@ import {
   UpdateContactPayloadSchema,
   UpdateLocationPayloadSchema,
   UpdatePartyPayloadSchema,
+  DeactivatePartyPayloadSchema,
+  EndContactRelationshipPayloadSchema,
+  ReactivatePartyPayloadSchema,
 } from '@isalwa/os-contracts';
 import {
   CUSTOMER_SELF_SERVICE_COMMANDS,
@@ -23,6 +26,10 @@ import {
   buildCreateLocationPayload,
   buildEndContactRelationshipPayload,
   buildSetFollowupPreferencePayload,
+  buildDeactivatePartyPayload,
+  buildReactivatePartyPayload,
+  emptyFollowupItems,
+  NO_RECORDED_DATE,
   contactRelationEnd,
   formerContactLine,
   buildDeactivateLocationPayload,
@@ -306,8 +313,11 @@ describe('T03 ending a contact relationship', () => {
     assert.equal(formerContactLine({ status: 'active', reason: 'left_company' }), null);
     assert.equal(
       formerContactLine({ status: 'inactive', endedOn: '2026-10-01', reason: 'left_company', reasonNote: 'Pasó a otra empresa' }),
-      'Contacto anterior · 2026-10-01 · Dejó la empresa · Pasó a otra empresa',
+      'Contacto anterior · 01/10/2026 · Dejó la empresa · Pasó a otra empresa',
     );
+    assert.equal(formerContactLine({ status: 'inactive', reason: 'left_company' }), `Contacto anterior · ${NO_RECORDED_DATE} · Dejó la empresa`);
+    assert.equal(formerContactLine({ status: 'inactive' }), `Contacto inactivo · ${NO_RECORDED_DATE}`);
+    assert.doesNotMatch(readUi('../../components/party/contact-relationship-panel.tsx'), /\{item\.state\}|\{item\.dueAt\}|` · \$\{item\.dueAt\}`/);
     assert.doesNotMatch(readUi('../../components/party/contact-relationship-panel.tsx'), /cancelar envío|envíos pendientes/i);
     assert.match(readUi('../../components/party/contact-relationship-panel.tsx'), /Compromisos abiertos del cliente/);
   });
@@ -361,5 +371,70 @@ describe('T03 archive and reactivation', () => {
     const forbidden: readonly string[] = CUSTOMER_SELF_SERVICE_FORBIDDEN_COMMANDS;
     assert.equal(forbidden.includes('DeactivateParty'), false);
     assert.equal(forbidden.includes('ReactivateParty'), false);
+  });
+});
+
+describe('T03 customer finishing (Stage A)', () => {
+  it('refuses a short optional note by field instead of sending it to a generic server refusal', () => {
+    const base = { partyId: 'p', contactId: 'c', expectedVersion: 1, reason: 'left_company', today: '2026-11-13' };
+    const short = buildEndContactRelationshipPayload({ ...base, reasonNote: 'corto' });
+    assert.equal(short.ok, false);
+    assert.deepEqual(!short.ok && short.fieldErrors, { reasonNote: 'El detalle debe tener entre 10 y 500 caracteres, o quedar vacío.' });
+    assert.equal(EndContactRelationshipPayloadSchema.safeParse({ partyId: 'p', contactId: 'c', expectedVersion: 1, reason: 'left_company', reasonNote: 'corto' }).success, false);
+    const empty = buildEndContactRelationshipPayload({ ...base, reasonNote: '   ' });
+    assert.equal(empty.ok && 'reasonNote' in empty.payload, false);
+    const missingOther = buildEndContactRelationshipPayload({ ...base, reason: 'other' });
+    assert.equal(!missingOther.ok && missingOther.fieldErrors?.reasonNote !== undefined, true);
+  });
+
+  it('builds archive and reactivation payloads the server accepts, and refuses what it refuses', () => {
+    const archive = buildDeactivatePartyPayload({ partyId: 'p', expectedVersion: 3, reason: 'no_longer_operating', reasonNote: '' });
+    assert.deepEqual(archive, { ok: true, payload: { partyId: 'p', expectedVersion: 3, reason: 'no_longer_operating' } });
+    assert.equal(archive.ok && DeactivatePartyPayloadSchema.safeParse(archive.payload).success, true);
+    const archiveOther = buildDeactivatePartyPayload({ partyId: 'p', expectedVersion: 3, reason: 'other', reasonNote: 'Cerró su local en el mercado' });
+    assert.equal(archiveOther.ok && DeactivatePartyPayloadSchema.safeParse(archiveOther.payload).success, true);
+    for (const bad of [
+      { reason: 'other', reasonNote: '' },
+      { reason: 'no_longer_operating', reasonNote: 'corto' },
+      { reason: 'closed', reasonNote: '' },
+    ]) {
+      assert.equal(buildDeactivatePartyPayload({ partyId: 'p', expectedVersion: 3, ...bad }).ok, false, JSON.stringify(bad));
+    }
+    const reactivate = buildReactivatePartyPayload({ partyId: 'p', expectedVersion: 4, reasonNote: '  Volvió a comprar en noviembre  ' });
+    assert.deepEqual(reactivate, { ok: true, payload: { partyId: 'p', expectedVersion: 4, reasonNote: 'Volvió a comprar en noviembre' } });
+    assert.equal(reactivate.ok && ReactivatePartyPayloadSchema.safeParse(reactivate.payload).success, true);
+    const short = buildReactivatePartyPayload({ partyId: 'p', expectedVersion: 4, reasonNote: 'volvió' });
+    assert.equal(!short.ok && short.fieldErrors?.reasonNote !== undefined, true);
+  });
+
+  it('gives a contact without a record one empty entry per channel', () => {
+    assert.deepEqual(
+      emptyFollowupItems().map((item) => [item.channel, item.preference, item.version]),
+      [['whatsapp', null, 0], ['phone', null, 0], ['email', null, 0]],
+    );
+  });
+
+  it('loads per-contact data only for the managed contact and offers no forms to former contacts', () => {
+    const page = readUi('../../app/(app)/clientes/[partyId]/page.tsx');
+    assert.doesNotMatch(page, /getContactFollowupPreferences/);
+    assert.match(page, /getCustomerFollowupPreferences\(partyId\)/);
+    assert.doesNotMatch(page, /contacts\.map\(async/);
+    assert.match(page, /managedContact && endpointAuthority\.canReviewEndpointHistory/);
+    assert.match(page, /managedContact && canEndContactRelationship && isCurrentContact\(managedContact\)/);
+    assert.match(page, /customerActive && contact\.status === 'active' && !contact\.relationEndedAt/);
+    assert.match(page, /contacts=\{contacts\.filter\(isCurrentContact\)\}/);
+    const panel = readUi('../../components/party/contact-endpoint-panel.tsx');
+    assert.match(panel, /managing && current && authority\.canChangeEndpoints/);
+    assert.match(panel, /managing && current && authority\.canResolveIdentityReview && phoneReview/);
+  });
+
+  it('keeps one commercial-name form, in the actions drawer', () => {
+    const page = readUi('../../app/(app)/clientes/[partyId]/page.tsx');
+    assert.doesNotMatch(page, /<CustomerEditForms/);
+  });
+
+  it('never shows a failed load as an empty value', () => {
+    assert.match(readUi('../../components/party/contact-followup-panel.tsx'), /items === null[\s\S]*No pudimos cargar estos datos\./);
+    assert.match(readUi('../../components/party/contact-endpoint-panel.tsx'), /history === null[\s\S]*No pudimos cargar estos datos\./);
   });
 });

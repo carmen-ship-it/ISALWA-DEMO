@@ -184,6 +184,7 @@ export function formatTimestamp(iso: string | null): string | null {
   if (Number.isNaN(date.getTime())) return null;
   return new Intl.DateTimeFormat('es-BO', {
     dateStyle: 'medium',
+    timeZone: 'America/La_Paz',
   }).format(date);
 }
 

@@ -372,18 +372,15 @@ export class PrismaOsPartyStore implements OsPartyStore {
       where: { organizationId, contactId },
       orderBy: { channel: 'asc' },
     });
-    return rows.map((row) => ({
-      id: row.id,
-      organizationId: row.organizationId,
-      contactId: row.contactId,
-      channel: row.channel as ContactFollowupPreferenceRecord['channel'],
-      preference: row.preference as ContactFollowupPreferenceRecord['preference'],
-      source: row.source as ContactFollowupPreferenceRecord['source'],
-      identityConfirmed: row.identityConfirmed,
-      version: row.version,
-      recordedByMemberId: row.recordedByMemberId,
-      updatedAt: row.updatedAt,
-    }));
+    return rows.map(followupPreferenceRecord);
+  }
+
+  async listFollowupPreferencesForParty(organizationId: string, partyId: string): Promise<ContactFollowupPreferenceRecord[]> {
+    const rows = await this.db().osContactFollowupPreference.findMany({
+      where: { organizationId, contact: { organizationId, organizationPartyId: partyId } },
+      orderBy: [{ contactId: 'asc' }, { channel: 'asc' }],
+    });
+    return rows.map(followupPreferenceRecord);
   }
 
   async customerArchiveFacts(organizationId: string, partyId: string): Promise<CustomerArchiveFacts> {
@@ -1072,6 +1069,32 @@ function mapContact(row: {
     whatsappRetiredReason: row.whatsappRetiredReason ?? null,
     relationEndedAt: row.relationEndedAt ?? null,
     relationEndReason: row.relationEndReason ?? null,
+  };
+}
+
+function followupPreferenceRecord(row: {
+  id: string;
+  organizationId: string;
+  contactId: string;
+  channel: string;
+  preference: string;
+  source: string;
+  identityConfirmed: boolean;
+  version: number;
+  recordedByMemberId: string;
+  updatedAt: Date;
+}): ContactFollowupPreferenceRecord {
+  return {
+    id: row.id,
+    organizationId: row.organizationId,
+    contactId: row.contactId,
+    channel: row.channel as ContactFollowupPreferenceRecord['channel'],
+    preference: row.preference as ContactFollowupPreferenceRecord['preference'],
+    source: row.source as ContactFollowupPreferenceRecord['source'],
+    identityConfirmed: row.identityConfirmed,
+    version: row.version,
+    recordedByMemberId: row.recordedByMemberId,
+    updatedAt: row.updatedAt,
   };
 }
 

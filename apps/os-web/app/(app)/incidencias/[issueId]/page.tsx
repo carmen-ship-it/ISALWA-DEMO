@@ -33,6 +33,7 @@ import {
   parseJournalTrail,
 } from '@/lib/issue/journal-page';
 import { issueHref } from '@/lib/issue/navigation';
+import { partyHref } from '@/lib/party/navigation';
 import { resolveMemberLabels, memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { workItemHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
@@ -53,6 +54,7 @@ function formatTimestamp(iso: string | null): string {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      timeZone: 'America/La_Paz',
     });
   } catch {
     return '—';
@@ -66,6 +68,7 @@ function formatDate(iso: string | null): string {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
+      timeZone: 'America/La_Paz',
     });
   } catch {
     return '—';
@@ -100,8 +103,12 @@ function ReferenceList({ references }: { references: IssueReference[] }) {
           <span className="text-[var(--isalwa-slate)]">{formatReferenceType(ref.referenceType)}</span>
           {ref.label ? (
             <span className="ml-2 text-[var(--isalwa-kiln)]">{ref.label}</span>
+          ) : ref.referenceType === 'party' ? (
+            <Link href={partyHref(ref.referenceId)} className="ml-2 font-medium text-[var(--isalwa-glaze)] underline">
+              Abrir cliente
+            </Link>
           ) : (
-            <span className="ml-2 text-[var(--isalwa-slate)]">{ref.referenceId}</span>
+            <span className="ml-2 text-[var(--isalwa-slate)]">Sin nombre visible</span>
           )}
         </li>
       ))}
@@ -185,11 +192,13 @@ export default async function IssueDetailPage({ params, searchParams }: IssueDet
       ? memberLabel(memberLabels, issue.ownerMemberId)
       : null;
     let correction: CorrectionRequestView | null = null;
+    let correctionRead: 'ok' | 'refused' | 'failed' = 'ok';
     try {
       correction = (await client.getIssueCorrection(issueId)).correction;
     } catch (err) {
-      if (!(err instanceof OsApiError && (err.kind === 'not_found' || err.kind === 'forbidden'))) throw err;
+      correctionRead = err instanceof OsApiError && (err.kind === 'not_found' || err.kind === 'forbidden') ? 'refused' : 'failed';
     }
+    const correctionUnavailable = !correction && (issue.isCorrectionRequest === true || correctionRead === 'failed');
     let correctionEvents: Awaited<ReturnType<typeof client.listIssueCorrectionCandidates>>['events'] = [];
     let correctionCursor: string | null = null;
     if (correction?.canDecide && !isTerminalStatus) {
@@ -237,6 +246,22 @@ export default async function IssueDetailPage({ params, searchParams }: IssueDet
                 initialCursor={correctionCursor}
               />
             ) : null}
+          </PageSection>
+        ) : correctionUnavailable ? (
+          <PageSection card className="p-6 md:p-8" data-section-tone="attention">
+            <SectionHeader kicker="Corrección" title="Solicitud de corrección" />
+            {correctionRead === 'failed' ? (
+              <div className="mt-4 space-y-3">
+                <p className="text-sm text-[var(--isalwa-kiln)]" role="alert">No pudimos cargar estos datos.</p>
+                <Link href={issueHref(issue.issueId)}>
+                  <Button type="button" variant="secondary">Reintentar</Button>
+                </Link>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
+                Esta solicitud la decide una persona con autorización sobre los datos de este cliente.
+              </p>
+            )}
           </PageSection>
         ) : canResolve ? (
           <PageSection card className="p-6 md:p-8" data-section-tone="attention">

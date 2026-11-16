@@ -236,4 +236,31 @@ describeHttp('T03 contact follow-up preferences over HTTP (disposable Postgres)'
     assert.deepEqual(workOnly.map((i) => i.facts.to).sort(), ['allowed', 'no_unsolicited_followups']);
     assert.equal(workOnly.some((i) => i.facts.note !== undefined), false);
   });
+
+  it('the customer-level read returns every recorded contact preference in one request, under the same visibility', async () => {
+    const second = await command('owner', 'UpdateContact', { organizationPartyId: ids.party, givenName: 'Segundo', familyName: 'Contacto' });
+    assert.equal(second.status, 201, JSON.stringify(second.body));
+    const contactIds = (await prisma().osContact.findMany({ where: { organizationId: org.id, organizationPartyId: ids.party }, select: { id: true } })).map((c) => c.id);
+    assert.equal(contactIds.length, 2);
+    const other = await register('Cliente Vecino L2', '70009003');
+    const otherPref = await command('owner', 'SetContactFollowupPreference', restrict({ partyId: other.partyId, contactId: other.contactId }));
+    assert.equal(otherPref.status, 201, JSON.stringify(otherPref.body));
+    const readAll = async (who: string, partyId = ids.party!) => {
+      const res = await fetch(`${baseUrl}/v1/parties/${partyId}/followup-preferences`, { headers: headers(m[who]!) });
+      const text = await res.text();
+      return { status: res.status, text, body: text ? JSON.parse(text) : {} };
+    };
+    for (const who of ['owner', 'workOnly']) {
+      const all = await readAll(who);
+      assert.equal(all.status, 200, all.text);
+      const single = await read(who);
+      assert.deepEqual(all.body, { partyId: ids.party, contacts: [{ contactId: ids.contact, items: single.body.items }] });
+      assert.equal(all.text.includes(NOTE) || all.text.includes(ALLOW_NOTE), false, 'notes stay in the restricted timeline');
+    }
+    const stranger = await readAll('stranger');
+    const missing = await readAll('stranger', createId());
+    assert.deepEqual([stranger.status, stranger.body], [404, { code: 'NOT_FOUND' }]);
+    assert.deepEqual([missing.status, missing.body], [stranger.status, stranger.body]);
+  });
 });
+

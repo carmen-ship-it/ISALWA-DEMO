@@ -1,0 +1,29 @@
+{
+  "cases": {
+    "formerLine": [
+      "Contacto anterior · 15/11/2026 · Dejó la empresa · Se jubiló del mostrador (sintético)"
+    ],
+    "brunoChangeForms": 0,
+    "inlineNameForms": 0,
+    "anaChangeForm": 1,
+    "brunoChangeWhileManaging": 0,
+    "shortNoteError": "El detalle debe tener entre 10 y 500 caracteres, o quedar vacío.",
+    "keptReason": "role_changed",
+    "keptNote": "corto",
+    "afterEndAnaLine": [],
+    "anaChangeAfterEnd": 0,
+    "brunoFollowupSave": 0,
+    "archivedStatus": 3,
+    "archivedChangeNumber": 0,
+    "reactivateVisible": 1,
+    "afterReactivateActive": 5,
+    "readerGenericResolve": 0,
+    "readerCorrectionCopy": 0,
+    "issueManagerGenericResolve": 0,
+    "issueManagerCorrectionSection": 1,
+    "otherTenant": 1,
+    "readerChangeNumber": 0,
+    "readerManage": 0
+  },
+  "ok": true
+}

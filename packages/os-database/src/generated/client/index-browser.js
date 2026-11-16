@@ -500,8 +500,47 @@ exports.Prisma.OsContactScalarFieldEnum = {
   relationEndReason: 'relationEndReason',
   phoneRetiredAt: 'phoneRetiredAt',
   phoneRetiredReason: 'phoneRetiredReason',
+  phoneDisplay: 'phoneDisplay',
+  whatsappDisplay: 'whatsappDisplay',
+  phoneStatus: 'phoneStatus',
+  whatsappStatus: 'whatsappStatus',
+  whatsappRetiredAt: 'whatsappRetiredAt',
+  whatsappRetiredReason: 'whatsappRetiredReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OsContactEndpointAssociationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  partyId: 'partyId',
+  contactId: 'contactId',
+  channel: 'channel',
+  numberE164: 'numberE164',
+  country: 'country',
+  enteredText: 'enteredText',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  endReason: 'endReason',
+  verificationMethod: 'verificationMethod',
+  recordedByMemberId: 'recordedByMemberId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsContactIdentityReviewScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  partyId: 'partyId',
+  contactId: 'contactId',
+  channel: 'channel',
+  associationId: 'associationId',
+  matchedAssociationId: 'matchedAssociationId',
+  status: 'status',
+  openedAt: 'openedAt',
+  resolvedAt: 'resolvedAt',
+  resolvedByMemberId: 'resolvedByMemberId',
+  verificationMethod: 'verificationMethod',
+  note: 'note'
 };
 
 exports.Prisma.OsFiscalIdentityScalarFieldEnum = {
@@ -1429,6 +1468,26 @@ exports.Prisma.OsIssueScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.OsIssueCorrectionRequestScalarFieldEnum = {
+  issueId: 'issueId',
+  organizationId: 'organizationId',
+  partyId: 'partyId',
+  contactId: 'contactId',
+  locationId: 'locationId',
+  field: 'field',
+  proposedValue: 'proposedValue',
+  source: 'source',
+  decision: 'decision',
+  appliedEventId: 'appliedEventId',
+  decisionReason: 'decisionReason',
+  decidedByMemberId: 'decidedByMemberId',
+  decidedAt: 'decidedAt',
+  createdAt: 'createdAt',
+  targetVersionAtRequest: 'targetVersionAtRequest',
+  valueMatched: 'valueMatched',
+  differenceExplanation: 'differenceExplanation'
+};
+
 exports.Prisma.OsIssueReferenceScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
@@ -1594,6 +1653,8 @@ exports.Prisma.ModelName = {
   OsOrder: 'OsOrder',
   OsPartyRoleAssignment: 'OsPartyRoleAssignment',
   OsContact: 'OsContact',
+  OsContactEndpointAssociation: 'OsContactEndpointAssociation',
+  OsContactIdentityReview: 'OsContactIdentityReview',
   OsFiscalIdentity: 'OsFiscalIdentity',
   OsCommercialAccount: 'OsCommercialAccount',
   OsLead: 'OsLead',
@@ -1652,6 +1713,7 @@ exports.Prisma.ModelName = {
   OsCustomerCoverageGrant: 'OsCustomerCoverageGrant',
   OsCoordinationDecision: 'OsCoordinationDecision',
   OsIssue: 'OsIssue',
+  OsIssueCorrectionRequest: 'OsIssueCorrectionRequest',
   OsIssueReference: 'OsIssueReference',
   OsIssueJournalEntry: 'OsIssueJournalEntry',
   OsIssueWorkLink: 'OsIssueWorkLink',

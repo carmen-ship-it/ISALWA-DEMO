@@ -36,9 +36,11 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 
 ## Last confirmed step
 
-T02 committed: shared customer-visibility predicate (search/detail/contacts/locations/timeline/conversations), duplicate-counterpart redaction, HTTP+PG proof for the 8 remaining operational GETs (ledger pending = 0), Postgres-shared rate limit (`os_rate_limit_buckets`, migration 34) for search/commands/invitations.
+**Stage A customer finishing 2026-11-16 (`receipts/STAGE-A-CUSTOMER-FINISHING.md`).** Finished the dirty acceptance follow-ups on `ct3/v1-repairs` after `aada5396`: archived/former gating, preserved forms, correction non-fallback, bulk follow-up read, former-contact line dates. Checks on `isalwa_stage_a_disposable` @ 54329: HTTP 20/20, os-web 1340/1340, tsc clean, `next build` exit 0, party-filter mutation caught and restored, local browser actions `ok: true`. Continuation instruction saved as `commercial-release/CONTINUATION-2026-11-16.md`; journey map `commercial-release/COMMERCIAL_JOURNEY_READINESS.md`. Not independently reviewed. Not pushed, not deployed.
 
 ## Next command
+
+**Batch 2 (continuation §7):** finish customer entry / everyday self-service gaps on `/clientes` (search → safe match → register → Cliente 360 → correct/request correction → reload). Then Batch 3 / T04 quotes. Do not restart from GitHub main. Preserve disposable Postgres on 54329.
 
 **Lane B integrated locally 2026-11-13 (`receipts/INTEGRATION-LANE-B-T10.md`).** Merge `1be6d9e5` of `07e536eb`; `?datos` cleanup `c36c2346`; restored live-helper coverage `02d04326`. On `02d04326`: os-web 1319/1319, tsc clean, `next build` exit 0. Local browser check PASS on 3200/4001 with a fresh disposable database (39 migrations). Journey outside its audience is UNPROVEN in browser. Customer UI lane B2 created from this integration (see `lanes/LANE-B-T03-CUSTOMER-UI.md`). Not pushed, not deployed.
 

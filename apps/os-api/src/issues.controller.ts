@@ -378,7 +378,8 @@ export class IssuesController {
     @Query('journalLimit') journalLimit?: string,
     @Query('journalCursor') journalCursor?: string,
   ): Promise<{
-    issue: ReturnType<typeof toIssueDetailResponse>['issue'];
+    /** T03 L4: a correction request is decided only through its correction form, never the generic resolve. */
+    issue: ReturnType<typeof toIssueDetailResponse>['issue'] & { isCorrectionRequest: boolean };
     journalMeta: { hasMore: boolean; nextCursor: string | null; limit: number };
   }> {
     try {
@@ -425,8 +426,10 @@ export class IssuesController {
         relations,
         workLinks,
       });
+      const isCorrectionRequest = Boolean(await this.issueStore.getCorrectionRequest(session.organizationId, issue.id));
       return {
         ...body,
+        issue: { ...body.issue, isCorrectionRequest },
         journalMeta: {
           hasMore: jHasMore,
           nextCursor: jHasMore ? String(jOffset + page.length) : null,

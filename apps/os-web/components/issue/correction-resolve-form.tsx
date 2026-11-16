@@ -11,6 +11,8 @@ import {
   resolveCorrectionAction,
 } from '@/components/issue/correction-actions';
 import { CORRECTION_FIELD_LABELS, CORRECTION_STATE_LABELS } from '@/components/issue/correction-request';
+import { formatTimestamp } from '@/lib/commercial/labels';
+import { NO_RECORDED_DATE } from '@/lib/party/customer-self-service';
 
 const fieldClass =
   'mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
@@ -85,7 +87,7 @@ export function CorrectionResolveForm({
           {events.map((event) => (
             <label key={event.eventId} className="block text-sm text-[var(--isalwa-slate)]">
               <input type="radio" name="eventId" value={event.eventId} className="mr-2" />
-              {event.occurredAt} · {event.fields.map((field) => CORRECTION_FIELD_LABELS[field] ?? field).join(', ')}
+              {formatTimestamp(event.occurredAt) ?? NO_RECORDED_DATE} · {event.fields.map((field) => CORRECTION_FIELD_LABELS[field] ?? field).join(', ')}
             </label>
           ))}
           {cursor ? (
