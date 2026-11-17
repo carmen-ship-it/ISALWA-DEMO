@@ -32,12 +32,14 @@ Outside repository: `/Users/carmen/projects/isalwa-transfer-readiness/export/`
 
 Superseded: `isalwa-source-a8f3fc3a.tar.gz`. Older `isalwa-source-44958998.tar.gz` must **not** be deployed.
 
-## Vercel account
+## Vercel account (updated 2026-11-17)
 
-- MCP user auth succeeded; `list_teams` returned **0 teams** for this connection.
-- Scope `carmen-ship-its-projects` (`team_DEQabB6VsHaNsPpEd8VuC6Nw`) returned **403** until team authorization completes.
-- One-time team consent URL was issued (expires ~10 minutes from issuance); without that grant, projects cannot be listed or created.
-- No `vercel` CLI installed locally.
+- CLI: `~/.local/bin/vercel` **65.17.0**, authenticated as **`carmen-ship-it`** (Hobby).
+- Team: `carmen-ship-its-projects` (`team_DEQabB6VsHaNsPpEd8VuC6Nw`).
+- Existing projects include `isalwa-architect` (Architect interview app — **not** the commercial evaluation) and unrelated portals. No prior commercial os-web evaluation project.
+- **Created (empty, not deployed):** `isalwa-os-web-evaluation` · id `prj_ZTLDQycMoNpAq9hlOFlfg3mSbJz6` · Node 26.x · Framework Other · no production URL yet.
+- MCP team grant for the Cursor connection may still need a one-time consent URL; CLI can operate independently.
+- **No deployment** of `7ddf258b` yet — independent review + API/DB/auth destinations still open.
 
 ## Single exact deploy blocker (hosted journeys)
 
