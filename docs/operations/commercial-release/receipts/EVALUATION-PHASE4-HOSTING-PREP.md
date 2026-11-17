@@ -1,6 +1,6 @@
 # Phase 4 — Hosting preparation for evaluation candidate
 
-Date: 2026-11-17. Candidate: `a8f3fc3a` / tree `69fcc360` (evaluation notice + inventory on top of product HEAD `b5a78be6`). Stage A remains `11e4f38b`. Dirty Batch 5B **not** included.
+Date: 2026-11-17 (updated after Batch 5B landed). Candidate: `7ddf258b` / tree `9c42e782` (evaluation notice/docs + Batch 5B). Stage A remains `11e4f38b`. Prior export `a8f3fc3a` superseded.
 
 States: **COMMITTED** (candidate) · allowlisted export **BUILT** (outside repo) · Vercel **NOT DEPLOYED** · API host **UNDECIDED** · hosted auth **NOT VERIFIED** · Isa/Álvaro invitations **NOT STARTED**.
 
@@ -11,7 +11,7 @@ States: **COMMITTED** (candidate) · allowlisted export **BUILT** (outside repo)
 | Web | `apps/os-web` Next.js | Yes | Needs `NEXT_PUBLIC_OS_API_URL` → live API `/v1` |
 | API | `apps/os-api` Nest | **No** (long-running) | In-process outbox + projection + attention clock |
 | Worker | Same process as API | With API | Not a Cron substitute without reviewed redesign |
-| Postgres | Prisma, **44** migrations on candidate | Separate free/paid DB | New empty DB + `migrate deploy` + synthetic seed only |
+| Postgres | Prisma, **45** migrations on candidate | Separate free/paid DB | New empty DB + `migrate deploy` + synthetic seed only |
 | Auth | Supabase Auth | Separate | Hosted must use `OS_AUTH_MODE=supabase`; no Entrar (desarrollo) |
 | Private files | Payment evidence in API/DB | N/A | No object storage provider |
 
@@ -21,16 +21,16 @@ Outside repository: `/Users/carmen/projects/isalwa-transfer-readiness/export/`
 
 | Field | Value |
 |---|---|
-| Source SHA | `a8f3fc3ab650bddea2f9596e95b1d052b7c1b32d` |
-| Tree | `69fcc3608090e41b68624a1de7512d88049dc6ae` |
-| File | `isalwa-source-a8f3fc3a.tar.gz` |
-| SHA-256 | `cd72caa66c4b0c7c81f5b4e05018b96271d0593de86586973d87b1a4b58ac42b` |
-| File count | 1859 |
-| Migration dirs | 44 |
-| Scan | `export-scan-a8f3fc3a.txt` — 0 private-key / JWT-like / sk_live / AKIA hits (counts only; no values printed) |
-| Excluded | `.git`, `docs/**`, project-memory, `.env*`, secrets, Batch 5B WIP, apps/architect & apps/api stripped from extract |
+| Source SHA | `7ddf258bab696e3fa3a0767d9205a03f42a46af5` |
+| Tree | `9c42e782ab362d858601134e71ce2e28db7d38c0` |
+| File | `isalwa-source-7ddf258b.tar.gz` |
+| SHA-256 | `f945d0e311b14c6772e5b3f0ec24ab68fd19205295e24342144bf1cfb9cd2eaf` |
+| File count | 1868 |
+| Migration dirs | 45 |
+| Scan | `export-scan-7ddf258b.txt` — 0 private-key / JWT-like / sk_live / AKIA hits (counts only; no values printed) |
+| Excluded | `.git`, `docs/**`, project-memory, `.env*`, secrets, apps/architect & apps/api stripped from extract |
 
-Older `isalwa-source-44958998.tar.gz` must **not** be deployed.
+Superseded: `isalwa-source-a8f3fc3a.tar.gz`. Older `isalwa-source-44958998.tar.gz` must **not** be deployed.
 
 ## Vercel account
 
@@ -56,7 +56,7 @@ Additional blockers: team Vercel grant (H4), Supabase project active + redirect 
 1. Complete Vercel team grant for `carmen-ship-its-projects`.  
 2. Create project `isalwa-os-web-evaluation` from the allowlisted tarball (CLI upload or single-commit private repo — **not** `ct3/v1-repairs` history).  
 3. Set evaluation env: `NEXT_PUBLIC_OS_EVALUATION_NOTICE=1`, `NEXT_PUBLIC_OS_AUTH_MODE=supabase`, `OS_RUNTIME_PROFILE=evaluation`, API URL to the chosen API host.  
-4. Provision empty Postgres 16, migrate 44, synthetic seed only.  
+4. Provision empty Postgres 16, migrate **45**, synthetic seed only.  
 5. Host API with workers enabled; verify `/v1/health`.  
 6. Invite Isa/Álvaro with purpose-specific roles after emails are supplied.  
 7. Run hosted verification checklist from CONTINUATION Phase 4.

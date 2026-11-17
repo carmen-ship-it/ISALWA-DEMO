@@ -1,6 +1,6 @@
-# Evaluation inventory — candidate `a8f3fc3a`
+# Evaluation inventory — candidate `7ddf258b`
 
-Source: `ct3/v1-repairs` @ `a8f3fc3a` / tree `69fcc360` (product through `b5a78be6` + evaluation notice/docs). Stage A `11e4f38b` is included. **Excludes** uncommitted Batch 5B WIP. Not production. Not independently reviewed. Not hosted yet. Export: `isalwa-source-a8f3fc3a.tar.gz` (see `EVALUATION-PHASE4-HOSTING-PREP.md`).
+Source: `ct3/v1-repairs` @ `7ddf258b` / tree `9c42e782` (evaluation notice/docs + Batch 5B attention states / Nota interna). Stage A `11e4f38b` is included. Not production. Not independently reviewed. Not hosted yet. Export: rebuild `isalwa-source-7ddf258b.tar.gz` (see `EVALUATION-PHASE4-HOSTING-PREP.md`); older `a8f3fc3a` export is superseded.
 
 Spanish UI. Design system tokens only. Evaluation notice (when `NEXT_PUBLIC_OS_EVALUATION_NOTICE=1` or runtime profile `evaluation`):
 
@@ -18,7 +18,7 @@ Spanish UI. Design system tokens only. Evaluation notice (when `NEXT_PUBLIC_OS_E
 | Archive / reactivate | Cliente actions | Steward / archive authority |
 | Corrections | Issue correction path (no generic resolve fallback) | `issue.manage` where applicable |
 | Coverage | List/revoke grants | Coverage manage |
-| Conversaciones | `/conversaciones` Registrar atención, filters, search, Tomar conversación | Customer visibility / claim rules |
+| Conversaciones | `/conversaciones` Registrar atención, filters, search, Tomar conversación; attention states; **Nota interna** (Solo equipo); Mensaje pane blocked (WhatsApp no conectado, Enviar disabled) | Customer visibility / claim / holder-or-manager for state |
 | Cotizaciones | Draft → solicitar aprobación → Emitir → Descargar PDF (hash pinned) → Registrar aceptación → Crear pedido | Quote edit + `commercial.price.approve` + convert |
 | Pedidos | View order from accepted quote | Order read |
 | Finanzas | Report payment, per-tender verify, allocations | `payments.report` / `payments.confirm` |
@@ -38,7 +38,8 @@ Synthetic data only for evaluation. No real customer import.
 | Payment instruction share | Absent until published approved content |
 | Catalog share / verified prices | Blocked — do not claim Compartir catálogo |
 | AI proposals | Configurada sin verificar / mock; no paid authoritative answer |
-| Nota interna / five attention states | **Not in this candidate** (WIP only); do not show as working |
+| Conversation release/reassign of a held chat | Not built (held chats stay with holder; NOT_HOLDER if another tries state change) |
+| Inbound reopen / WhatsApp webhook | Rule defined; **no inbound caller** — Esperando al cliente / Resuelta only change by hand |
 | 48h follow-up / due scheduler / sound | Not built |
 | Price-approve range | Any scope holder may appear; range not modelled |
 
@@ -50,8 +51,6 @@ Synthetic data only for evaluation. No real customer import.
 - T12–T14 adapters (A01–A22, H01–H09) as live systems  
 - Independent review sign-off  
 - Render live data  
-- Dirty Batch 5B attention-state/notes work  
-
 ## Evaluator script (Isa / Álvaro)
 
 See `EVALUATION-SCRIPT-ISA-ALVARO.md`. No click-coaching inside the app.
