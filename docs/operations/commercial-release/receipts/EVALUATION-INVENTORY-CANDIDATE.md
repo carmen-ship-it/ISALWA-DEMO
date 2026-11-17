@@ -1,6 +1,6 @@
-# Evaluation inventory — candidate `b5a78be6`
+# Evaluation inventory — candidate `a8f3fc3a`
 
-Source: `ct3/v1-repairs` @ `b5a78be6` / tree `7ddfe6d6`. Stage A `11e4f38b` is included. **Excludes** uncommitted Batch 5B WIP. Not production. Not independently reviewed. Not hosted yet.
+Source: `ct3/v1-repairs` @ `a8f3fc3a` / tree `69fcc360` (product through `b5a78be6` + evaluation notice/docs). Stage A `11e4f38b` is included. **Excludes** uncommitted Batch 5B WIP. Not production. Not independently reviewed. Not hosted yet. Export: `isalwa-source-a8f3fc3a.tar.gz` (see `EVALUATION-PHASE4-HOSTING-PREP.md`).
 
 Spanish UI. Design system tokens only. Evaluation notice (when `NEXT_PUBLIC_OS_EVALUATION_NOTICE=1` or runtime profile `evaluation`):
 
