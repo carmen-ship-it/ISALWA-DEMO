@@ -84,6 +84,6 @@ git diff --check
 ### Follow-up commit
 
 - Base candidate: `c81626016a781129ef323186ac315757e265edf9`
-- Commit SHA: `36c3dde1ffcf780bf7b9035e1bf6ff4a2994e53e`
-- Tree SHA: `e60c32b07a765c2277064a1264f8a19ed0ff44e3`
+- Commit SHA: `edde41f82855a9ef56626a79481f00a787d9ed61`
+- Tree SHA: `53529f23ff74f826ca656fd2fd5b20e8773baf98`
 - Changed files: `apps/os-web/lib/commercial/post-approval-continue.test.ts`, `docs/operations/commercial-release/receipts/EVALUATION-FIXTURE-SEED.md`
