@@ -23,6 +23,11 @@ model OsCustomerConversation {
   assignedAt             DateTime? @map("assigned_at")
   /// Set once the saved next step became an OsCommitment (no foreign key; opaque link).
   nextStepCommitmentId   String?   @map("next_step_commitment_id")
+  /// Where the conversation is with the team (Batch 5B). Not an AI state. CHECK-constrained.
+  attentionState         String    @default("new") @map("attention_state")
+  attentionStateChangedAt DateTime? @map("attention_state_changed_at")
+  /// Set when a human took over or changed the state; automated replies stay paused.
+  automationPausedAt     DateTime? @map("automation_paused_at")
   opportunityId          String?   @map("opportunity_id")
   quoteId                String?   @map("quote_id")
   orderId                String?   @map("order_id")
@@ -36,9 +41,52 @@ model OsCustomerConversation {
   createdAt              DateTime  @default(now()) @map("created_at")
 
   organization OsOrganization @relation(fields: [organizationId], references: [id])
+  notes        OsCustomerConversationNote[]
+  stateChanges OsCustomerConversationStateChange[]
 
   @@index([organizationId, customerId, occurredAt(sort: Desc)])
   @@index([organizationId, occurredAt(sort: Desc)])
   @@index([organizationId, assignedMemberId])
   @@map("os_customer_conversations")
+}
+
+/// Team-only note on a conversation (Batch 5B "Nota interna / Solo equipo"). Append-only.
+/// Never an outbound message: no channel, direction, provider id or delivery column exists.
+model OsCustomerConversationNote {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  conversationId String   @map("conversation_id")
+  authorMemberId String   @map("author_member_id")
+  authorLabel    String   @map("author_label")
+  body           String
+  visibility     String   @default("team_only")
+  /// Browser-generated per draft; repeating a save returns the same note.
+  requestKey     String   @map("request_key")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization         @relation(fields: [organizationId], references: [id])
+  conversation OsCustomerConversation @relation(fields: [conversationId], references: [id])
+
+  @@unique([organizationId, conversationId, authorMemberId, requestKey])
+  @@index([organizationId, conversationId, createdAt])
+  @@map("os_customer_conversation_notes")
+}
+
+/// Append-only history of attention state changes (who, when, from, to, why).
+model OsCustomerConversationStateChange {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  conversationId String   @map("conversation_id")
+  fromState      String   @map("from_state")
+  toState        String   @map("to_state")
+  /// take | manual | inbound (inbound is reserved; no inbound path exists yet).
+  cause          String
+  actorMemberId  String?  @map("actor_member_id")
+  changedAt      DateTime @default(now()) @map("changed_at")
+
+  organization OsOrganization         @relation(fields: [organizationId], references: [id])
+  conversation OsCustomerConversation @relation(fields: [conversationId], references: [id])
+
+  @@index([organizationId, conversationId, changedAt])
+  @@map("os_customer_conversation_state_changes")
 }

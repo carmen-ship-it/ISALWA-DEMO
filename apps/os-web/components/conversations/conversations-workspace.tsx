@@ -11,11 +11,24 @@ import {
 import { ConversationContextPanel } from '@/components/conversations/conversation-context-panel';
 import { ConversationList } from '@/components/conversations/conversation-list';
 import { ConversationThread } from '@/components/conversations/conversation-thread';
+import type { AttentionState, ConversationInternalNote } from '@isalwa/os-contracts';
 import { mergeConversationSources } from '@/lib/conversations/adapters';
 import {
+  addConversationNoteAction,
+  changeConversationStateAction,
+  listConversationNotesAction,
   searchConversationCustomerIdsAction,
   takeConversationAction,
 } from '@/lib/conversations/actions';
+import {
+  EMPTY_COMPOSER_DRAFT,
+  applyNoteEdit,
+  applyNoteSaveOutcome,
+  newNoteRequestKey,
+  validateNoteDraft,
+  type ComposerDraft,
+} from '@/lib/conversations/composer';
+import type { ConversationNotesState } from '@/components/conversations/conversation-notes';
 import { CONVERSATIONS_COPY } from '@/lib/conversations/copy';
 import {
   CONVERSATION_FILTERS,
@@ -43,10 +56,14 @@ function parseFilter(raw: string | null): ConversationFilter {
 }
 
 const SEARCH_DEBOUNCE_MS = 250;
+const NO_CONVERSATIONS: readonly Conversation[] = [];
+
+/** State written in this session, applied over the server rows until the refresh lands. */
+type StateOverride = { attentionState: AttentionState; automationPaused: boolean };
 
 export function ConversationsWorkspace({
   actor,
-  initialConversations = [],
+  initialConversations = NO_CONVERSATIONS,
   ignoredSuggestionIdsByConversation = {},
 }: ConversationsWorkspaceProps) {
   const router = useRouter();
@@ -68,6 +85,16 @@ export function ConversationsWorkspace({
   >({});
   const [takingId, setTakingId] = useState<string | null>(null);
   const [takeError, setTakeError] = useState<{ id: string; message: string } | null>(null);
+  const [stateOverrides, setStateOverrides] = useState<Record<string, StateOverride>>({});
+  const [statePending, setStatePending] = useState<{ id: string; to: AttentionState } | null>(null);
+  const [stateError, setStateError] = useState<{ id: string; message: string } | null>(null);
+  // Composer drafts live here, per conversation, so a failed save, a mode switch or opening
+  // another conversation never loses what was typed.
+  const [drafts, setDrafts] = useState<Record<string, ComposerDraft>>({});
+  const [notes, setNotes] = useState<Record<string, ConversationNotesState>>({});
+  const [noteSaving, setNoteSaving] = useState<string | null>(null);
+  const [noteError, setNoteError] = useState<{ id: string; message: string } | null>(null);
+  const [noteSaved, setNoteSaved] = useState<string | null>(null);
   const [queryDraft, setQueryDraft] = useState(query);
   const [phoneCustomerIds, setPhoneCustomerIds] = useState<ReadonlySet<string>>(new Set());
   const scrollMemory = useRef<Record<string, number>>({});
@@ -80,11 +107,20 @@ export function ConversationsWorkspace({
         organizationId,
         recorded,
         initial: initialConversations,
-      }).map((item) =>
-        taken[item.id] && !item.assignedMemberId ? { ...item, ...taken[item.id] } : item,
-      ),
-    [organizationId, recorded, initialConversations, taken],
+      }).map((item) => {
+        const withAssignment =
+          taken[item.id] && !item.assignedMemberId ? { ...item, ...taken[item.id] } : item;
+        const override = stateOverrides[item.id];
+        return override ? { ...withAssignment, ...override } : withAssignment;
+      }),
+    [organizationId, recorded, initialConversations, taken, stateOverrides],
   );
+
+  // A refresh brings the stored rows: drop what this session had applied on top of them.
+  useEffect(() => {
+    setStateOverrides({});
+    setTaken({});
+  }, [initialConversations]);
 
   // The search box is typed locally and written to the URL after a pause, so reload and
   // back/forward keep it. A phone is resolved by the authorized customer search.
@@ -210,6 +246,14 @@ export function ConversationsWorkspace({
           assignedLabel: result.assignedLabel,
         },
       }));
+      setStateOverrides((current) => ({
+        ...current,
+        [conversation.id]: {
+          attentionState: result.attentionState,
+          automationPaused: result.automationPaused,
+        },
+      }));
+      setStateError(null);
       router.refresh();
       return;
     }
@@ -218,9 +262,109 @@ export function ConversationsWorkspace({
     if (result.alreadyAssigned) router.refresh();
   }
 
+  async function onChangeState(conversation: Conversation, to: AttentionState) {
+    setStatePending({ id: conversation.id, to });
+    setStateError(null);
+    const result = await changeConversationStateAction({
+      conversationId: conversation.id,
+      customerId: conversation.partyId,
+      to,
+    });
+    setStatePending(null);
+    if (result.ok) {
+      setStateOverrides((current) => ({
+        ...current,
+        [conversation.id]: {
+          attentionState: result.attentionState,
+          automationPaused: result.automationPaused,
+        },
+      }));
+      router.refresh();
+      return;
+    }
+    setStateError({ id: conversation.id, message: result.error });
+    // The stored state is not what the screen showed: refresh so the person sees the real one.
+    if (result.stale) router.refresh();
+  }
+
+  function updateDraft(
+    conversationId: string,
+    change: Partial<ComposerDraft> | ((draft: ComposerDraft) => ComposerDraft),
+  ) {
+    setDrafts((current) => {
+      const draft = current[conversationId] ?? EMPTY_COMPOSER_DRAFT;
+      return {
+        ...current,
+        [conversationId]: typeof change === 'function' ? change(draft) : { ...draft, ...change },
+      };
+    });
+  }
+
+  async function loadNotes(conversationId: string) {
+    setNotes((current) => ({ ...current, [conversationId]: { status: 'loading' } }));
+    const result = await listConversationNotesAction(conversationId);
+    setNotes((current) => ({
+      ...current,
+      [conversationId]: result.ok ? { status: 'ready', items: result.notes } : { status: 'error' },
+    }));
+  }
+
+  async function onSaveNote(conversation: Conversation) {
+    const draft = drafts[conversation.id] ?? EMPTY_COMPOSER_DRAFT;
+    const checked = validateNoteDraft(draft.note);
+    if (!checked.ok) {
+      setNoteError({ id: conversation.id, message: checked.error });
+      return;
+    }
+    // One key per text: a retry after a failure is the same note, an edit is a new one.
+    const requestKey = draft.noteKey ?? newNoteRequestKey();
+    if (!draft.noteKey) updateDraft(conversation.id, { noteKey: requestKey });
+    setNoteSaving(conversation.id);
+    setNoteError(null);
+    setNoteSaved(null);
+    const result = await addConversationNoteAction({
+      conversationId: conversation.id,
+      body: checked.body,
+      requestKey,
+    });
+    setNoteSaving(null);
+    // A failure leaves the draft exactly as typed; only a success clears it.
+    updateDraft(conversation.id, (current) => applyNoteSaveOutcome(current, result));
+    if (!result.ok) {
+      setNoteError({ id: conversation.id, message: result.error });
+      return;
+    }
+    const saved: ConversationInternalNote = result.note;
+    setNotes((current) => {
+      const existing = current[conversation.id];
+      const items = existing?.status === 'ready' ? existing.items : [];
+      return {
+        ...current,
+        [conversation.id]: {
+          status: 'ready',
+          items: items.some((item) => item.id === saved.id) ? items : [...items, saved],
+        },
+      };
+    });
+    setNoteSaved(conversation.id);
+  }
+
   // Take is offered only to a signed-in company member, never in a view-as preview, and
   // never for the owner-demo fixtures that are not stored rows.
   const canTake = Boolean(actor) && Boolean(selected) && !selected?.isDemo;
+  // State and notes exist only for stored conversations, for a signed-in company member
+  // (never a view-as preview, where `actor` is null).
+  const canAct = canTake;
+  const selectedStoredId = selected?.id ?? null;
+  const selectedDraft = (selectedStoredId && drafts[selectedStoredId]) || EMPTY_COMPOSER_DRAFT;
+
+  // Notes load once per conversation, when it is first shown.
+  useEffect(() => {
+    if (!canAct || !selectedStoredId || notes[selectedStoredId]) return;
+    void loadNotes(selectedStoredId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load on first selection only
+  }, [canAct, selectedStoredId]);
+
   const threadProps = {
     conversation: selected,
     canTake,
@@ -228,6 +372,41 @@ export function ConversationsWorkspace({
     takeError: takeError && takeError.id === selected?.id ? takeError.message : null,
     onTake: selected ? () => void onTake(selected) : undefined,
     onRegister: () => openRegister(true),
+    attention: {
+      canChange: canAct,
+      pendingTo: statePending && statePending.id === selected?.id ? statePending.to : null,
+      error: stateError && stateError.id === selected?.id ? stateError.message : null,
+      onChange: (to: AttentionState) => {
+        if (selected) void onChangeState(selected, to);
+      },
+    },
+    notes:
+      canAct && selected
+        ? {
+            state: notes[selected.id] ?? ({ status: 'loading' } as const),
+            onRetry: () => void loadNotes(selected.id),
+          }
+        : null,
+    composer: {
+      draft: selectedDraft,
+      canNote: canAct,
+      saving: noteSaving === selected?.id,
+      error: noteError && noteError.id === selected?.id ? noteError.message : null,
+      saved: noteSaved === selected?.id,
+      onModeChange: (mode: ComposerDraft['mode']) => {
+        if (selected) updateDraft(selected.id, { mode });
+      },
+      onNoteChange: (text: string) => {
+        if (!selected) return;
+        // New text is a new note: reset its key and the previous outcome.
+        updateDraft(selected.id, (current) => applyNoteEdit(current, text));
+        setNoteError(null);
+        setNoteSaved(null);
+      },
+      onSaveNote: () => {
+        if (selected) void onSaveNote(selected);
+      },
+    },
   };
 
   return (

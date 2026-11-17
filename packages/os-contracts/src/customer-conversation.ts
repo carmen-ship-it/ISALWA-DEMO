@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { AttentionState, ConversationAiState } from './customer-conversation-attention';
 
 /**
  * Provider-neutral customer conversation.
@@ -62,6 +63,9 @@ export const CUSTOMER_CONVERSATION_ROW_COLUMNS = [
   'assigned_label',
   'assigned_at',
   'next_step_commitment_id',
+  'attention_state',
+  'attention_state_changed_at',
+  'automation_paused_at',
   'opportunity_id',
   'quote_id',
   'order_id',
@@ -175,6 +179,16 @@ export type ManualCustomerConversation = {
   assignedAt: string | null;
   /** Set once the saved next step became a real commitment. */
   nextStepCommitmentId: string | null;
+  /**
+   * Where the conversation is with the team (Batch 5B). A record request cannot set it:
+   * it starts as `new` and only the take and state commands change it.
+   */
+  attentionState: AttentionState;
+  attentionStateChangedAt: string | null;
+  /** Set when a human took over or changed the state. Automated replies stay paused. */
+  automationPausedAt: string | null;
+  /** Separate from attention state. No AI is configured, so this is always null. */
+  aiState: ConversationAiState;
   opportunityId: string | null;
   quoteId: string | null;
   orderId: string | null;
@@ -233,6 +247,9 @@ export type CustomerConversationRow = {
   assigned_label: string | null;
   assigned_at: string | null;
   next_step_commitment_id: string | null;
+  attention_state: AttentionState;
+  attention_state_changed_at: string | null;
+  automation_paused_at: string | null;
   opportunity_id: string | null;
   quote_id: string | null;
   order_id: string | null;
@@ -282,6 +299,10 @@ function seal(parsed: z.output<typeof RecordCustomerConversationSchema>): Manual
     assignedLabel: null,
     assignedAt: null,
     nextStepCommitmentId: null,
+    attentionState: 'new',
+    attentionStateChangedAt: null,
+    automationPausedAt: null,
+    aiState: null,
     opportunityId: parsed.opportunityId,
     quoteId: parsed.quoteId,
     orderId: parsed.orderId,
@@ -435,6 +456,9 @@ export function buildCustomerConversationRow(
     assigned_label: record.assignedLabel,
     assigned_at: record.assignedAt,
     next_step_commitment_id: record.nextStepCommitmentId,
+    attention_state: record.attentionState,
+    attention_state_changed_at: record.attentionStateChangedAt,
+    automation_paused_at: record.automationPausedAt,
     opportunity_id: record.opportunityId,
     quote_id: record.quoteId,
     order_id: record.orderId,

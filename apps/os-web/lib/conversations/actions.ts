@@ -2,7 +2,12 @@
 
 import { createId } from '@isalwa/ts-utils';
 import { revalidatePath } from 'next/cache';
-import type { ConversationNextStep, ManualCustomerConversation } from '@isalwa/os-contracts';
+import type {
+  AttentionState,
+  ConversationInternalNote,
+  ConversationNextStep,
+  ManualCustomerConversation,
+} from '@isalwa/os-contracts';
 import { recordManualCustomerConversation } from '@isalwa/os-contracts';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { createOsApiClient, type CustomerConversationNextStepOutcome } from '@/lib/api/os-api-client';
@@ -14,6 +19,7 @@ import {
   nextStepFailureMessage,
 } from './manual-conversation';
 import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
+import { noteSaveErrorMessage, stateChangeErrorMessage, validateNoteDraft } from './composer';
 import { buildIgnoreSuggestionAdmissionInput } from './suggestion-decision';
 import type { ConversationSuggestion } from './suggestion-types';
 
@@ -35,8 +41,27 @@ export type RetryConversationNextStepResult =
   | { ok: false; error: string };
 
 export type TakeConversationResult =
-  | { ok: true; assignedMemberId: string; assignedLabel: string }
+  | {
+      ok: true;
+      assignedMemberId: string;
+      assignedLabel: string;
+      attentionState: AttentionState;
+      automationPaused: boolean;
+    }
   | { ok: false; error: string; alreadyAssigned: boolean };
+
+export type ChangeConversationStateResult =
+  | { ok: true; attentionState: AttentionState; automationPaused: boolean }
+  /** `stale` means the stored state is not what the screen showed: refresh before trying again. */
+  | { ok: false; error: string; stale: boolean };
+
+export type ListConversationNotesResult =
+  | { ok: true; notes: ConversationInternalNote[] }
+  | { ok: false; error: string };
+
+export type AddConversationNoteResult =
+  | { ok: true; note: ConversationInternalNote }
+  | { ok: false; error: string };
 
 function toNextStepResult(
   outcome: CustomerConversationNextStepOutcome | null | undefined,
@@ -139,12 +164,95 @@ export async function takeConversationAction(input: {
       ok: true,
       assignedMemberId: taken.item.assignedMemberId ?? '',
       assignedLabel: taken.item.assignedLabel ?? '',
+      attentionState: taken.item.attentionState,
+      automationPaused: Boolean(taken.item.automationPausedAt),
     };
   } catch (err) {
     if (err instanceof OsApiError && err.code === 'ALREADY_ASSIGNED') {
       return { ok: false, error: MANUAL_CONVERSATION_COPY.alreadyTaken, alreadyAssigned: true };
     }
     return { ok: false, error: mapCommandError(err), alreadyAssigned: false };
+  }
+}
+
+/**
+ * Change the attention state. Server-enforced: a held conversation changes only by its holder or
+ * a manager, "En atención" needs a holder, and two simultaneous changes have one winner.
+ * Never assigns, never sends anything, never touches the account owner.
+ */
+export async function changeConversationStateAction(input: {
+  conversationId: string;
+  customerId: string;
+  to: AttentionState;
+}): Promise<ChangeConversationStateResult> {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return { ok: false, error: previewGate.error, stale: false };
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, error: MANUAL_CONVERSATION_COPY.sessionNeeded, stale: false };
+  try {
+    const changed = await createOsApiClient(auth).transitionCustomerConversationState(
+      input.conversationId,
+      input.to,
+    );
+    revalidateConversationPaths(input.customerId);
+    return {
+      ok: true,
+      attentionState: changed.item.attentionState,
+      automationPaused: Boolean(changed.item.automationPausedAt),
+    };
+  } catch (err) {
+    if (err instanceof OsApiError) {
+      const message = stateChangeErrorMessage(
+        err.code,
+        typeof err.details?.assignedLabel === 'string' ? err.details.assignedLabel : null,
+      );
+      if (message) return { ok: false, error: message, stale: err.code === 'STATE_CHANGED' };
+    }
+    return { ok: false, error: mapCommandError(err), stale: false };
+  }
+}
+
+/** Team-only notes of a stored conversation. Needs the company session; nothing is public. */
+export async function listConversationNotesAction(
+  conversationId: string,
+): Promise<ListConversationNotesResult> {
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, error: MANUAL_CONVERSATION_COPY.sessionNeeded };
+  try {
+    const listed = await createOsApiClient(auth).listCustomerConversationNotes(conversationId);
+    return { ok: true, notes: listed.items ?? [] };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+/**
+ * Nota interna ("Solo equipo"). Its own server path: it calls only the notes endpoint, never a
+ * channel or a send. `requestKey` makes a retry of the same draft the same note.
+ */
+export async function addConversationNoteAction(input: {
+  conversationId: string;
+  body: string;
+  requestKey: string;
+}): Promise<AddConversationNoteResult> {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
+  const checked = validateNoteDraft(input.body);
+  if (!checked.ok) return { ok: false, error: checked.error };
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, error: MANUAL_CONVERSATION_COPY.sessionNeeded };
+  try {
+    const saved = await createOsApiClient(auth).addCustomerConversationNote(input.conversationId, {
+      body: checked.body,
+      requestKey: input.requestKey,
+    });
+    return { ok: true, note: saved.item };
+  } catch (err) {
+    if (err instanceof OsApiError) {
+      const message = noteSaveErrorMessage(err.code);
+      if (message) return { ok: false, error: message };
+    }
+    return { ok: false, error: mapCommandError(err) };
   }
 }
 

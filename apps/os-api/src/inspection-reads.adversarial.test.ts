@@ -344,6 +344,8 @@ const HTTP_CLASSIFICATION: Record<string, string> = {
   // their local proof is still missing and the label says so.
   'GET /ai/capability': 'MEMBER_ACTIVE|NO_CUSTOMER_DATA|LOCAL_HTTP_PG_VERIFIED',
   'GET /customer-conversations': 'CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
+  // Team-only notes: same customer read boundary as the conversation; proven in batch5b-conversation-state-notes.http.test.ts.
+  'GET /customer-conversations/:conversationId/notes': 'CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
   'GET /parties/:partyId/contacts': 'CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',
   // Masked history; customer read boundary plus the customer edit rule, proven in t03-contact-phone.http.test.ts.
   'GET /parties/:partyId/contacts/:contactId/endpoints': 'AUTH_PATH_VERIFIED_LOCAL|CUSTOMER_VISIBILITY|LOCAL_HTTP_PG_VERIFIED',

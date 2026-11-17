@@ -20,7 +20,17 @@ import {
   CUSTOMER_CONVERSATION_CHANNELS,
   CUSTOMER_CONVERSATION_PROVENANCE,
   CUSTOMER_CONVERSATION_SOURCE,
+  AddInternalNoteSchema,
   ConversationNextStepSchema,
+  INTERNAL_NOTE_VISIBILITY,
+  TransitionAttentionStateSchema,
+  assertInternalNoteShape,
+  attentionStateAfterTake,
+  checkAttentionTransition,
+  humanActionPausesAutomation,
+  isAttentionState,
+  type AttentionState,
+  type ConversationInternalNote,
   WHATSAPP_NUMBER_PENDING,
   recordManualCustomerConversation,
   type CustomerConversationAdmission,
@@ -120,6 +130,9 @@ function toManual(row: {
   assignedLabel: string | null;
   assignedAt: Date | null;
   nextStepCommitmentId: string | null;
+  attentionState: string;
+  attentionStateChangedAt: Date | null;
+  automationPausedAt: Date | null;
   opportunityId: string | null;
   quoteId: string | null;
   orderId: string | null;
@@ -163,6 +176,34 @@ function toManual(row: {
     assignedLabel: row.assignedLabel,
     assignedAt: row.assignedAt ? row.assignedAt.toISOString() : null,
     nextStepCommitmentId: row.nextStepCommitmentId,
+    attentionState: isAttentionState(row.attentionState) ? row.attentionState : 'new',
+    attentionStateChangedAt: row.attentionStateChangedAt
+      ? row.attentionStateChangedAt.toISOString()
+      : null,
+    automationPausedAt: row.automationPausedAt ? row.automationPausedAt.toISOString() : null,
+  };
+}
+
+function toNote(row: {
+  id: string;
+  organizationId: string;
+  conversationId: string;
+  authorMemberId: string;
+  authorLabel: string;
+  body: string;
+  visibility: string;
+  createdAt: Date;
+}): ConversationInternalNote {
+  assertInternalNoteShape({ visibility: row.visibility });
+  return {
+    id: row.id,
+    organizationId: row.organizationId,
+    conversationId: row.conversationId,
+    authorMemberId: row.authorMemberId,
+    authorLabel: row.authorLabel,
+    body: row.body,
+    visibility: INTERNAL_NOTE_VISIBILITY,
+    createdAt: row.createdAt.toISOString(),
   };
 }
 
@@ -405,13 +446,51 @@ export class CustomerConversationsController {
       const assignedLabel =
         [person?.givenName, person?.familyName].filter(Boolean).join(' ').trim() ||
         'Miembro del equipo';
-      const claimed = await prisma.osCustomerConversation.updateMany({
-        where: { id: row.id, organizationId: session.organizationId, assignedMemberId: null },
-        data: {
-          assignedMemberId: session.actorMemberId,
-          assignedLabel,
-          assignedAt: new Date(),
-        },
+      const now = new Date();
+      // One transaction: the claim, the state it starts, and the history row. The claim holds
+      // the row lock, so the state read below cannot change before commit.
+      const claimed = await prisma.$transaction(async (tx) => {
+        const claim = await tx.osCustomerConversation.updateMany({
+          where: { id: row.id, organizationId: session.organizationId, assignedMemberId: null },
+          data: {
+            assignedMemberId: session.actorMemberId,
+            assignedLabel,
+            assignedAt: now,
+          },
+        });
+        if (claim.count !== 1) return claim;
+        const current = await tx.osCustomerConversation.findFirst({
+          where: { id: row.id, organizationId: session.organizationId },
+          select: { attentionState: true, automationPausedAt: true },
+        });
+        const from: AttentionState = isAttentionState(current?.attentionState)
+          ? current.attentionState
+          : 'new';
+        const to = attentionStateAfterTake(from);
+        await tx.osCustomerConversation.update({
+          where: { id: row.id },
+          data: {
+            ...(to !== from ? { attentionState: to, attentionStateChangedAt: now } : {}),
+            ...(humanActionPausesAutomation('take') && !current?.automationPausedAt
+              ? { automationPausedAt: now }
+              : {}),
+          },
+        });
+        if (to !== from) {
+          await tx.osCustomerConversationStateChange.create({
+            data: {
+              id: createId(),
+              organizationId: session.organizationId,
+              conversationId: row.id,
+              fromState: from,
+              toState: to,
+              cause: 'take',
+              actorMemberId: session.actorMemberId,
+              changedAt: now,
+            },
+          });
+        }
+        return claim;
       });
       if (claimed.count === 1) return present();
       const winner = await prisma.osCustomerConversation.findFirst({
@@ -423,6 +502,209 @@ export class CustomerConversationsController {
         { code: 'ALREADY_ASSIGNED', assignedLabel: winner?.assignedLabel ?? null },
         HttpStatus.CONFLICT,
       );
+    } catch (err) {
+      throw conversationHttpError(err);
+    }
+  }
+
+  /** Direct reports of the actor, for the team-lead rule. Empty without the team scope. */
+  private async directReportIds(
+    session: Awaited<ReturnType<typeof resolveSession>>,
+  ): Promise<string[]> {
+    if (!session.grantedScopes.includes('commercial.team.read')) return [];
+    const reports = await this.workforceStore.listActiveDirectReportAssignments(
+      session.organizationId,
+      session.actorMemberId,
+      new Date(),
+    );
+    return reports.map((report) => report.memberId);
+  }
+
+  /**
+   * Change the attention state (Nueva / En atención / Esperando al cliente / Esperando al
+   * equipo / Resuelta). Allowed for an unassigned conversation (the shared queue stays usable),
+   * for the member holding it, and for a manager over the holder (same rule as commercial
+   * visibility over an owner). "En atención" needs a holder. The write is a compare-and-set on
+   * the state that was read, so two simultaneous changes have one winner. It never assigns,
+   * never touches the account owner and never sends anything.
+   */
+  @Post(':conversationId/state')
+  async transitionState(
+    @Param('conversationId') conversationId: string,
+    @Req() req: Request,
+    @Body() body: unknown,
+  ): Promise<{ item: ManualCustomerConversation; changed: boolean }> {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const { prisma, row } = await this.readableConversation(session, conversationId);
+      const parsed = TransitionAttentionStateSchema.safeParse(body);
+      if (!parsed.success) throw new HttpException('Invalid state', HttpStatus.BAD_REQUEST);
+
+      const reload = async () => {
+        const fresh = await prisma.osCustomerConversation.findFirst({
+          where: { id: row.id, organizationId: session.organizationId },
+        });
+        const item = fresh ? toManual(fresh) : null;
+        if (!item) throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+        return item;
+      };
+
+      if (row.assignedMemberId && row.assignedMemberId !== session.actorMemberId) {
+        const allowed = memberCanSeeConversation({
+          actorMemberId: session.actorMemberId,
+          grantedScopes: session.grantedScopes,
+          // The holder plays the "owner" role of the visibility rule: managers of the holder.
+          accountOwnerMemberId: row.assignedMemberId,
+          directReportMemberIds: await this.directReportIds(session),
+        });
+        if (!allowed) {
+          throw new HttpException(
+            { code: 'NOT_HOLDER', assignedLabel: row.assignedLabel },
+            HttpStatus.FORBIDDEN,
+          );
+        }
+      }
+
+      const from: AttentionState = isAttentionState(row.attentionState) ? row.attentionState : 'new';
+      const to = parsed.data.to;
+      if (from === to) return { item: await reload(), changed: false };
+      const check = checkAttentionTransition({ from, to, held: Boolean(row.assignedMemberId) });
+      if (!check.ok) {
+        throw new HttpException(
+          {
+            code: check.reason === 'holder_required' ? 'HOLDER_REQUIRED' : 'TRANSITION_NOT_ALLOWED',
+          },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const now = new Date();
+      const won = await prisma.$transaction(async (tx) => {
+        const cas = await tx.osCustomerConversation.updateMany({
+          where: {
+            id: row.id,
+            organizationId: session.organizationId,
+            attentionState: from,
+            assignedMemberId: row.assignedMemberId,
+          },
+          data: {
+            attentionState: to,
+            attentionStateChangedAt: now,
+            ...(humanActionPausesAutomation('manual') && !row.automationPausedAt
+              ? { automationPausedAt: now }
+              : {}),
+          },
+        });
+        if (cas.count !== 1) return false;
+        await tx.osCustomerConversationStateChange.create({
+          data: {
+            id: createId(),
+            organizationId: session.organizationId,
+            conversationId: row.id,
+            fromState: from,
+            toState: to,
+            cause: 'manual',
+            actorMemberId: session.actorMemberId,
+            changedAt: now,
+          },
+        });
+        return true;
+      });
+      if (!won) {
+        const winner = await reload();
+        if (winner.attentionState === to) return { item: winner, changed: false };
+        throw new HttpException({ code: 'STATE_CHANGED' }, HttpStatus.CONFLICT);
+      }
+      return { item: await reload(), changed: true };
+    } catch (err) {
+      throw conversationHttpError(err);
+    }
+  }
+
+  /** Team-only notes of a conversation. Same readability as the conversation itself. */
+  @Get(':conversationId/notes')
+  async listNotes(
+    @Param('conversationId') conversationId: string,
+    @Req() req: Request,
+  ): Promise<{ items: ConversationInternalNote[] }> {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const { prisma, row } = await this.readableConversation(session, conversationId);
+      const notes = await prisma.osCustomerConversationNote.findMany({
+        where: { organizationId: session.organizationId, conversationId: row.id },
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      });
+      return { items: notes.map(toNote) };
+    } catch (err) {
+      throw conversationHttpError(err);
+    }
+  }
+
+  /**
+   * Nota interna ("Solo equipo"). Writes one append-only row and nothing else: it never
+   * touches the state, the assignment, a provider, or the outbound path (there is none).
+   * The request key makes a repeated save the same note.
+   */
+  @Post(':conversationId/notes')
+  async addNote(
+    @Param('conversationId') conversationId: string,
+    @Req() req: Request,
+    @Body() body: unknown,
+  ): Promise<{ item: ConversationInternalNote }> {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const { prisma, row } = await this.readableConversation(session, conversationId);
+      const parsed = AddInternalNoteSchema.safeParse(body);
+      if (!parsed.success) throw new HttpException('Invalid note', HttpStatus.BAD_REQUEST);
+      const { body: text, requestKey } = parsed.data;
+
+      const keyed = {
+        organizationId_conversationId_authorMemberId_requestKey: {
+          organizationId: session.organizationId,
+          conversationId: row.id,
+          authorMemberId: session.actorMemberId,
+          requestKey,
+        },
+      };
+      const replay = async (): Promise<{ item: ConversationInternalNote } | null> => {
+        const earlier = await prisma.osCustomerConversationNote.findUnique({ where: keyed });
+        if (!earlier) return null;
+        // The same key with other words is a different note: refuse instead of dropping it.
+        if (earlier.body !== text) {
+          throw new HttpException({ code: 'REQUEST_KEY_REUSED' }, HttpStatus.CONFLICT);
+        }
+        return { item: toNote(earlier) };
+      };
+      const earlier = await replay();
+      if (earlier) return earlier;
+
+      const person = await prisma.osPerson.findUnique({
+        where: { id: session.personId },
+        select: { givenName: true, familyName: true },
+      });
+      const authorLabel =
+        [person?.givenName, person?.familyName].filter(Boolean).join(' ').trim() ||
+        'Miembro del equipo';
+      try {
+        const created = await prisma.osCustomerConversationNote.create({
+          data: {
+            id: createId(),
+            organizationId: session.organizationId,
+            conversationId: row.id,
+            authorMemberId: session.actorMemberId,
+            authorLabel,
+            body: text,
+            visibility: INTERNAL_NOTE_VISIBILITY,
+            requestKey,
+          },
+        });
+        return { item: toNote(created) };
+      } catch (err) {
+        // A simultaneous identical save lost the unique race: answer with the winner.
+        const winner = await replay();
+        if (winner) return winner;
+        throw err;
+      }
     } catch (err) {
       throw conversationHttpError(err);
     }

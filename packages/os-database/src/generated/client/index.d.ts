@@ -386,6 +386,17 @@ export type OsProductionTraceEntry = $Result.DefaultSelection<Prisma.$OsProducti
  */
 export type OsCustomerConversation = $Result.DefaultSelection<Prisma.$OsCustomerConversationPayload>
 /**
+ * Model OsCustomerConversationNote
+ * Team-only note on a conversation (Batch 5B "Nota interna / Solo equipo"). Append-only.
+ * Never an outbound message: no channel, direction, provider id or delivery column exists.
+ */
+export type OsCustomerConversationNote = $Result.DefaultSelection<Prisma.$OsCustomerConversationNotePayload>
+/**
+ * Model OsCustomerConversationStateChange
+ * Append-only history of attention state changes (who, when, from, to, why).
+ */
+export type OsCustomerConversationStateChange = $Result.DefaultSelection<Prisma.$OsCustomerConversationStateChangePayload>
+/**
  * Model OsWarehouseExit
  * 
  */
@@ -1387,6 +1398,26 @@ export class PrismaClient<
   get osCustomerConversation(): Prisma.OsCustomerConversationDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.osCustomerConversationNote`: Exposes CRUD operations for the **OsCustomerConversationNote** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsCustomerConversationNotes
+    * const osCustomerConversationNotes = await prisma.osCustomerConversationNote.findMany()
+    * ```
+    */
+  get osCustomerConversationNote(): Prisma.OsCustomerConversationNoteDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.osCustomerConversationStateChange`: Exposes CRUD operations for the **OsCustomerConversationStateChange** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsCustomerConversationStateChanges
+    * const osCustomerConversationStateChanges = await prisma.osCustomerConversationStateChange.findMany()
+    * ```
+    */
+  get osCustomerConversationStateChange(): Prisma.OsCustomerConversationStateChangeDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.osWarehouseExit`: Exposes CRUD operations for the **OsWarehouseExit** model.
     * Example usage:
     * ```ts
@@ -2237,6 +2268,8 @@ export namespace Prisma {
     OsProductionQuemaProduct: 'OsProductionQuemaProduct',
     OsProductionTraceEntry: 'OsProductionTraceEntry',
     OsCustomerConversation: 'OsCustomerConversation',
+    OsCustomerConversationNote: 'OsCustomerConversationNote',
+    OsCustomerConversationStateChange: 'OsCustomerConversationStateChange',
     OsWarehouseExit: 'OsWarehouseExit',
     OsWarehouseOutboundNote: 'OsWarehouseOutboundNote',
     OsWarehouseOutboundNoteLine: 'OsWarehouseOutboundNoteLine',
@@ -2289,7 +2322,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osContactEndpointAssociation" | "osContactIdentityReview" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry" | "osReportedOperationalFact" | "osPaymentTender" | "osPaymentTenderEvent" | "osPaymentEvidence" | "osPaymentAllocation" | "osPaymentInstructionVersion" | "osCommitment" | "osCommitmentChange" | "osInternalNotification" | "osCatalogProduct" | "osCatalogProductProvenance" | "osCatalogProductAttribute" | "osCatalogProductStatusEvent" | "osOrderLine" | "osOperationalCase" | "osOperationalCaseFact" | "osOperationalCaseFactReversal" | "osOperationalReleaseDecision" | "osOperationalReleaseDecisionReversal" | "osProductionQuema" | "osProductionQuemaTime" | "osProductionQuemaProduct" | "osProductionTraceEntry" | "osCustomerConversation" | "osWarehouseExit" | "osWarehouseOutboundNote" | "osWarehouseOutboundNoteLine" | "osDelivery" | "osDeliveryNote" | "osDeliveryNoteLine" | "osDeliveryEvidence" | "customerCommittedDate" | "customerCommittedDateRevision" | "productionInternalTargetDate" | "productionInternalTargetRevision" | "productionDateIssue" | "customerDateInformedRecord" | "osOrderAllocation" | "osFinishedGoodsReceipt" | "osPurchaseRequest" | "osPurchaseRequestStatusHistory" | "osPurchaseRequestNote" | "osPriceList" | "osPriceEntry" | "osSpecialOrderClassification" | "osCustomerCoverageGrant" | "osCoordinationDecision" | "osIssue" | "osIssueCorrectionRequest" | "osIssueReference" | "osIssueJournalEntry" | "osIssueWorkLink" | "osIssueRelation" | "osIssueResolutionCycle" | "osProductFeedback" | "osIssueOwnershipHistory" | "osRateLimitBucket" | "osContactFollowupPreference"
+      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osContactEndpointAssociation" | "osContactIdentityReview" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry" | "osReportedOperationalFact" | "osPaymentTender" | "osPaymentTenderEvent" | "osPaymentEvidence" | "osPaymentAllocation" | "osPaymentInstructionVersion" | "osCommitment" | "osCommitmentChange" | "osInternalNotification" | "osCatalogProduct" | "osCatalogProductProvenance" | "osCatalogProductAttribute" | "osCatalogProductStatusEvent" | "osOrderLine" | "osOperationalCase" | "osOperationalCaseFact" | "osOperationalCaseFactReversal" | "osOperationalReleaseDecision" | "osOperationalReleaseDecisionReversal" | "osProductionQuema" | "osProductionQuemaTime" | "osProductionQuemaProduct" | "osProductionTraceEntry" | "osCustomerConversation" | "osCustomerConversationNote" | "osCustomerConversationStateChange" | "osWarehouseExit" | "osWarehouseOutboundNote" | "osWarehouseOutboundNoteLine" | "osDelivery" | "osDeliveryNote" | "osDeliveryNoteLine" | "osDeliveryEvidence" | "customerCommittedDate" | "customerCommittedDateRevision" | "productionInternalTargetDate" | "productionInternalTargetRevision" | "productionDateIssue" | "customerDateInformedRecord" | "osOrderAllocation" | "osFinishedGoodsReceipt" | "osPurchaseRequest" | "osPurchaseRequestStatusHistory" | "osPurchaseRequestNote" | "osPriceList" | "osPriceEntry" | "osSpecialOrderClassification" | "osCustomerCoverageGrant" | "osCoordinationDecision" | "osIssue" | "osIssueCorrectionRequest" | "osIssueReference" | "osIssueJournalEntry" | "osIssueWorkLink" | "osIssueRelation" | "osIssueResolutionCycle" | "osProductFeedback" | "osIssueOwnershipHistory" | "osRateLimitBucket" | "osContactFollowupPreference"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -7547,6 +7580,154 @@ export namespace Prisma {
           }
         }
       }
+      OsCustomerConversationNote: {
+        payload: Prisma.$OsCustomerConversationNotePayload<ExtArgs>
+        fields: Prisma.OsCustomerConversationNoteFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsCustomerConversationNoteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationNotePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsCustomerConversationNoteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationNotePayload>
+          }
+          findFirst: {
+            args: Prisma.OsCustomerConversationNoteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationNotePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsCustomerConversationNoteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationNotePayload>
+          }
+          findMany: {
+            args: Prisma.OsCustomerConversationNoteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationNotePayload>[]
+          }
+          create: {
+            args: Prisma.OsCustomerConversationNoteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationNotePayload>
+          }
+          createMany: {
+            args: Prisma.OsCustomerConversationNoteCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsCustomerConversationNoteCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationNotePayload>[]
+          }
+          delete: {
+            args: Prisma.OsCustomerConversationNoteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationNotePayload>
+          }
+          update: {
+            args: Prisma.OsCustomerConversationNoteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationNotePayload>
+          }
+          deleteMany: {
+            args: Prisma.OsCustomerConversationNoteDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsCustomerConversationNoteUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsCustomerConversationNoteUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationNotePayload>[]
+          }
+          upsert: {
+            args: Prisma.OsCustomerConversationNoteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationNotePayload>
+          }
+          aggregate: {
+            args: Prisma.OsCustomerConversationNoteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsCustomerConversationNote>
+          }
+          groupBy: {
+            args: Prisma.OsCustomerConversationNoteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsCustomerConversationNoteGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsCustomerConversationNoteCountArgs<ExtArgs>
+            result: $Utils.Optional<OsCustomerConversationNoteCountAggregateOutputType> | number
+          }
+        }
+      }
+      OsCustomerConversationStateChange: {
+        payload: Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>
+        fields: Prisma.OsCustomerConversationStateChangeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsCustomerConversationStateChangeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationStateChangePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsCustomerConversationStateChangeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationStateChangePayload>
+          }
+          findFirst: {
+            args: Prisma.OsCustomerConversationStateChangeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationStateChangePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsCustomerConversationStateChangeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationStateChangePayload>
+          }
+          findMany: {
+            args: Prisma.OsCustomerConversationStateChangeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationStateChangePayload>[]
+          }
+          create: {
+            args: Prisma.OsCustomerConversationStateChangeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationStateChangePayload>
+          }
+          createMany: {
+            args: Prisma.OsCustomerConversationStateChangeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsCustomerConversationStateChangeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationStateChangePayload>[]
+          }
+          delete: {
+            args: Prisma.OsCustomerConversationStateChangeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationStateChangePayload>
+          }
+          update: {
+            args: Prisma.OsCustomerConversationStateChangeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationStateChangePayload>
+          }
+          deleteMany: {
+            args: Prisma.OsCustomerConversationStateChangeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsCustomerConversationStateChangeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsCustomerConversationStateChangeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationStateChangePayload>[]
+          }
+          upsert: {
+            args: Prisma.OsCustomerConversationStateChangeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerConversationStateChangePayload>
+          }
+          aggregate: {
+            args: Prisma.OsCustomerConversationStateChangeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsCustomerConversationStateChange>
+          }
+          groupBy: {
+            args: Prisma.OsCustomerConversationStateChangeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsCustomerConversationStateChangeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsCustomerConversationStateChangeCountArgs<ExtArgs>
+            result: $Utils.Optional<OsCustomerConversationStateChangeCountAggregateOutputType> | number
+          }
+        }
+      }
       OsWarehouseExit: {
         payload: Prisma.$OsWarehouseExitPayload<ExtArgs>
         fields: Prisma.OsWarehouseExitFieldRefs
@@ -10230,6 +10411,8 @@ export namespace Prisma {
     osProductionQuemaProduct?: OsProductionQuemaProductOmit
     osProductionTraceEntry?: OsProductionTraceEntryOmit
     osCustomerConversation?: OsCustomerConversationOmit
+    osCustomerConversationNote?: OsCustomerConversationNoteOmit
+    osCustomerConversationStateChange?: OsCustomerConversationStateChangeOmit
     osWarehouseExit?: OsWarehouseExitOmit
     osWarehouseOutboundNote?: OsWarehouseOutboundNoteOmit
     osWarehouseOutboundNoteLine?: OsWarehouseOutboundNoteLineOmit
@@ -10407,6 +10590,8 @@ export namespace Prisma {
     productionQuemaProducts: number
     productionTraceEntries: number
     customerConversations: number
+    customerConversationNotes: number
+    customerConversationStateChanges: number
     customerCommittedDates: number
     customerCommittedDateRevisions: number
     productionInternalTargetDates: number
@@ -10499,6 +10684,8 @@ export namespace Prisma {
     productionQuemaProducts?: boolean | OsOrganizationCountOutputTypeCountProductionQuemaProductsArgs
     productionTraceEntries?: boolean | OsOrganizationCountOutputTypeCountProductionTraceEntriesArgs
     customerConversations?: boolean | OsOrganizationCountOutputTypeCountCustomerConversationsArgs
+    customerConversationNotes?: boolean | OsOrganizationCountOutputTypeCountCustomerConversationNotesArgs
+    customerConversationStateChanges?: boolean | OsOrganizationCountOutputTypeCountCustomerConversationStateChangesArgs
     customerCommittedDates?: boolean | OsOrganizationCountOutputTypeCountCustomerCommittedDatesArgs
     customerCommittedDateRevisions?: boolean | OsOrganizationCountOutputTypeCountCustomerCommittedDateRevisionsArgs
     productionInternalTargetDates?: boolean | OsOrganizationCountOutputTypeCountProductionInternalTargetDatesArgs
@@ -10977,6 +11164,20 @@ export namespace Prisma {
    */
   export type OsOrganizationCountOutputTypeCountCustomerConversationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OsCustomerConversationWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountCustomerConversationNotesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCustomerConversationNoteWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountCustomerConversationStateChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCustomerConversationStateChangeWhereInput
   }
 
   /**
@@ -12276,6 +12477,46 @@ export namespace Prisma {
 
 
   /**
+   * Count Type OsCustomerConversationCountOutputType
+   */
+
+  export type OsCustomerConversationCountOutputType = {
+    notes: number
+    stateChanges: number
+  }
+
+  export type OsCustomerConversationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    notes?: boolean | OsCustomerConversationCountOutputTypeCountNotesArgs
+    stateChanges?: boolean | OsCustomerConversationCountOutputTypeCountStateChangesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * OsCustomerConversationCountOutputType without action
+   */
+  export type OsCustomerConversationCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationCountOutputType
+     */
+    select?: OsCustomerConversationCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * OsCustomerConversationCountOutputType without action
+   */
+  export type OsCustomerConversationCountOutputTypeCountNotesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCustomerConversationNoteWhereInput
+  }
+
+  /**
+   * OsCustomerConversationCountOutputType without action
+   */
+  export type OsCustomerConversationCountOutputTypeCountStateChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCustomerConversationStateChangeWhereInput
+  }
+
+
+  /**
    * Count Type CustomerCommittedDateCountOutputType
    */
 
@@ -12779,6 +13020,8 @@ export namespace Prisma {
     productionQuemaProducts?: boolean | OsOrganization$productionQuemaProductsArgs<ExtArgs>
     productionTraceEntries?: boolean | OsOrganization$productionTraceEntriesArgs<ExtArgs>
     customerConversations?: boolean | OsOrganization$customerConversationsArgs<ExtArgs>
+    customerConversationNotes?: boolean | OsOrganization$customerConversationNotesArgs<ExtArgs>
+    customerConversationStateChanges?: boolean | OsOrganization$customerConversationStateChangesArgs<ExtArgs>
     customerCommittedDates?: boolean | OsOrganization$customerCommittedDatesArgs<ExtArgs>
     customerCommittedDateRevisions?: boolean | OsOrganization$customerCommittedDateRevisionsArgs<ExtArgs>
     productionInternalTargetDates?: boolean | OsOrganization$productionInternalTargetDatesArgs<ExtArgs>
@@ -12906,6 +13149,8 @@ export namespace Prisma {
     productionQuemaProducts?: boolean | OsOrganization$productionQuemaProductsArgs<ExtArgs>
     productionTraceEntries?: boolean | OsOrganization$productionTraceEntriesArgs<ExtArgs>
     customerConversations?: boolean | OsOrganization$customerConversationsArgs<ExtArgs>
+    customerConversationNotes?: boolean | OsOrganization$customerConversationNotesArgs<ExtArgs>
+    customerConversationStateChanges?: boolean | OsOrganization$customerConversationStateChangesArgs<ExtArgs>
     customerCommittedDates?: boolean | OsOrganization$customerCommittedDatesArgs<ExtArgs>
     customerCommittedDateRevisions?: boolean | OsOrganization$customerCommittedDateRevisionsArgs<ExtArgs>
     productionInternalTargetDates?: boolean | OsOrganization$productionInternalTargetDatesArgs<ExtArgs>
@@ -13003,6 +13248,8 @@ export namespace Prisma {
       productionQuemaProducts: Prisma.$OsProductionQuemaProductPayload<ExtArgs>[]
       productionTraceEntries: Prisma.$OsProductionTraceEntryPayload<ExtArgs>[]
       customerConversations: Prisma.$OsCustomerConversationPayload<ExtArgs>[]
+      customerConversationNotes: Prisma.$OsCustomerConversationNotePayload<ExtArgs>[]
+      customerConversationStateChanges: Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>[]
       customerCommittedDates: Prisma.$CustomerCommittedDatePayload<ExtArgs>[]
       customerCommittedDateRevisions: Prisma.$CustomerCommittedDateRevisionPayload<ExtArgs>[]
       productionInternalTargetDates: Prisma.$ProductionInternalTargetDatePayload<ExtArgs>[]
@@ -13496,6 +13743,8 @@ export namespace Prisma {
     productionQuemaProducts<T extends OsOrganization$productionQuemaProductsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$productionQuemaProductsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsProductionQuemaProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     productionTraceEntries<T extends OsOrganization$productionTraceEntriesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$productionTraceEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsProductionTraceEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customerConversations<T extends OsOrganization$customerConversationsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$customerConversationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    customerConversationNotes<T extends OsOrganization$customerConversationNotesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$customerConversationNotesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    customerConversationStateChanges<T extends OsOrganization$customerConversationStateChangesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$customerConversationStateChangesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customerCommittedDates<T extends OsOrganization$customerCommittedDatesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$customerCommittedDatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerCommittedDatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customerCommittedDateRevisions<T extends OsOrganization$customerCommittedDateRevisionsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$customerCommittedDateRevisionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerCommittedDateRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     productionInternalTargetDates<T extends OsOrganization$productionInternalTargetDatesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$productionInternalTargetDatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductionInternalTargetDatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -15456,6 +15705,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OsCustomerConversationScalarFieldEnum | OsCustomerConversationScalarFieldEnum[]
+  }
+
+  /**
+   * OsOrganization.customerConversationNotes
+   */
+  export type OsOrganization$customerConversationNotesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteInclude<ExtArgs> | null
+    where?: OsCustomerConversationNoteWhereInput
+    orderBy?: OsCustomerConversationNoteOrderByWithRelationInput | OsCustomerConversationNoteOrderByWithRelationInput[]
+    cursor?: OsCustomerConversationNoteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsCustomerConversationNoteScalarFieldEnum | OsCustomerConversationNoteScalarFieldEnum[]
+  }
+
+  /**
+   * OsOrganization.customerConversationStateChanges
+   */
+  export type OsOrganization$customerConversationStateChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeInclude<ExtArgs> | null
+    where?: OsCustomerConversationStateChangeWhereInput
+    orderBy?: OsCustomerConversationStateChangeOrderByWithRelationInput | OsCustomerConversationStateChangeOrderByWithRelationInput[]
+    cursor?: OsCustomerConversationStateChangeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsCustomerConversationStateChangeScalarFieldEnum | OsCustomerConversationStateChangeScalarFieldEnum[]
   }
 
   /**
@@ -99164,6 +99461,9 @@ export namespace Prisma {
     assignedLabel: string | null
     assignedAt: Date | null
     nextStepCommitmentId: string | null
+    attentionState: string | null
+    attentionStateChangedAt: Date | null
+    automationPausedAt: Date | null
     opportunityId: string | null
     quoteId: string | null
     orderId: string | null
@@ -99194,6 +99494,9 @@ export namespace Prisma {
     assignedLabel: string | null
     assignedAt: Date | null
     nextStepCommitmentId: string | null
+    attentionState: string | null
+    attentionStateChangedAt: Date | null
+    automationPausedAt: Date | null
     opportunityId: string | null
     quoteId: string | null
     orderId: string | null
@@ -99224,6 +99527,9 @@ export namespace Prisma {
     assignedLabel: number
     assignedAt: number
     nextStepCommitmentId: number
+    attentionState: number
+    attentionStateChangedAt: number
+    automationPausedAt: number
     opportunityId: number
     quoteId: number
     orderId: number
@@ -99256,6 +99562,9 @@ export namespace Prisma {
     assignedLabel?: true
     assignedAt?: true
     nextStepCommitmentId?: true
+    attentionState?: true
+    attentionStateChangedAt?: true
+    automationPausedAt?: true
     opportunityId?: true
     quoteId?: true
     orderId?: true
@@ -99286,6 +99595,9 @@ export namespace Prisma {
     assignedLabel?: true
     assignedAt?: true
     nextStepCommitmentId?: true
+    attentionState?: true
+    attentionStateChangedAt?: true
+    automationPausedAt?: true
     opportunityId?: true
     quoteId?: true
     orderId?: true
@@ -99316,6 +99628,9 @@ export namespace Prisma {
     assignedLabel?: true
     assignedAt?: true
     nextStepCommitmentId?: true
+    attentionState?: true
+    attentionStateChangedAt?: true
+    automationPausedAt?: true
     opportunityId?: true
     quoteId?: true
     orderId?: true
@@ -99419,6 +99734,9 @@ export namespace Prisma {
     assignedLabel: string | null
     assignedAt: Date | null
     nextStepCommitmentId: string | null
+    attentionState: string
+    attentionStateChangedAt: Date | null
+    automationPausedAt: Date | null
     opportunityId: string | null
     quoteId: string | null
     orderId: string | null
@@ -99466,6 +99784,9 @@ export namespace Prisma {
     assignedLabel?: boolean
     assignedAt?: boolean
     nextStepCommitmentId?: boolean
+    attentionState?: boolean
+    attentionStateChangedAt?: boolean
+    automationPausedAt?: boolean
     opportunityId?: boolean
     quoteId?: boolean
     orderId?: boolean
@@ -99478,6 +99799,9 @@ export namespace Prisma {
     advisorNumberStatus?: boolean
     createdAt?: boolean
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    notes?: boolean | OsCustomerConversation$notesArgs<ExtArgs>
+    stateChanges?: boolean | OsCustomerConversation$stateChangesArgs<ExtArgs>
+    _count?: boolean | OsCustomerConversationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["osCustomerConversation"]>
 
   export type OsCustomerConversationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -99497,6 +99821,9 @@ export namespace Prisma {
     assignedLabel?: boolean
     assignedAt?: boolean
     nextStepCommitmentId?: boolean
+    attentionState?: boolean
+    attentionStateChangedAt?: boolean
+    automationPausedAt?: boolean
     opportunityId?: boolean
     quoteId?: boolean
     orderId?: boolean
@@ -99528,6 +99855,9 @@ export namespace Prisma {
     assignedLabel?: boolean
     assignedAt?: boolean
     nextStepCommitmentId?: boolean
+    attentionState?: boolean
+    attentionStateChangedAt?: boolean
+    automationPausedAt?: boolean
     opportunityId?: boolean
     quoteId?: boolean
     orderId?: boolean
@@ -99559,6 +99889,9 @@ export namespace Prisma {
     assignedLabel?: boolean
     assignedAt?: boolean
     nextStepCommitmentId?: boolean
+    attentionState?: boolean
+    attentionStateChangedAt?: boolean
+    automationPausedAt?: boolean
     opportunityId?: boolean
     quoteId?: boolean
     orderId?: boolean
@@ -99572,9 +99905,12 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type OsCustomerConversationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "customerId" | "customerLabel" | "contactLabel" | "channel" | "occurredAt" | "enteredByMemberId" | "enteredByLabel" | "summary" | "pastedEvidence" | "reason" | "assignedMemberId" | "assignedLabel" | "assignedAt" | "nextStepCommitmentId" | "opportunityId" | "quoteId" | "orderId" | "customerQuestion" | "commitmentCandidate" | "possibleRequestedDate" | "nextAction" | "source" | "provenance" | "advisorNumberStatus" | "createdAt", ExtArgs["result"]["osCustomerConversation"]>
+  export type OsCustomerConversationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "customerId" | "customerLabel" | "contactLabel" | "channel" | "occurredAt" | "enteredByMemberId" | "enteredByLabel" | "summary" | "pastedEvidence" | "reason" | "assignedMemberId" | "assignedLabel" | "assignedAt" | "nextStepCommitmentId" | "attentionState" | "attentionStateChangedAt" | "automationPausedAt" | "opportunityId" | "quoteId" | "orderId" | "customerQuestion" | "commitmentCandidate" | "possibleRequestedDate" | "nextAction" | "source" | "provenance" | "advisorNumberStatus" | "createdAt", ExtArgs["result"]["osCustomerConversation"]>
   export type OsCustomerConversationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    notes?: boolean | OsCustomerConversation$notesArgs<ExtArgs>
+    stateChanges?: boolean | OsCustomerConversation$stateChangesArgs<ExtArgs>
+    _count?: boolean | OsCustomerConversationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OsCustomerConversationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
@@ -99587,6 +99923,8 @@ export namespace Prisma {
     name: "OsCustomerConversation"
     objects: {
       organization: Prisma.$OsOrganizationPayload<ExtArgs>
+      notes: Prisma.$OsCustomerConversationNotePayload<ExtArgs>[]
+      stateChanges: Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -99611,6 +99949,15 @@ export namespace Prisma {
        * Set once the saved next step became an OsCommitment (no foreign key; opaque link).
        */
       nextStepCommitmentId: string | null
+      /**
+       * Where the conversation is with the team (Batch 5B). Not an AI state. CHECK-constrained.
+       */
+      attentionState: string
+      attentionStateChangedAt: Date | null
+      /**
+       * Set when a human took over or changed the state; automated replies stay paused.
+       */
+      automationPausedAt: Date | null
       opportunityId: string | null
       quoteId: string | null
       orderId: string | null
@@ -100017,6 +100364,8 @@ export namespace Prisma {
   export interface Prisma__OsCustomerConversationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    notes<T extends OsCustomerConversation$notesArgs<ExtArgs> = {}>(args?: Subset<T, OsCustomerConversation$notesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    stateChanges<T extends OsCustomerConversation$stateChangesArgs<ExtArgs> = {}>(args?: Subset<T, OsCustomerConversation$stateChangesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -100062,6 +100411,9 @@ export namespace Prisma {
     readonly assignedLabel: FieldRef<"OsCustomerConversation", 'String'>
     readonly assignedAt: FieldRef<"OsCustomerConversation", 'DateTime'>
     readonly nextStepCommitmentId: FieldRef<"OsCustomerConversation", 'String'>
+    readonly attentionState: FieldRef<"OsCustomerConversation", 'String'>
+    readonly attentionStateChangedAt: FieldRef<"OsCustomerConversation", 'DateTime'>
+    readonly automationPausedAt: FieldRef<"OsCustomerConversation", 'DateTime'>
     readonly opportunityId: FieldRef<"OsCustomerConversation", 'String'>
     readonly quoteId: FieldRef<"OsCustomerConversation", 'String'>
     readonly orderId: FieldRef<"OsCustomerConversation", 'String'>
@@ -100469,6 +100821,54 @@ export namespace Prisma {
   }
 
   /**
+   * OsCustomerConversation.notes
+   */
+  export type OsCustomerConversation$notesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteInclude<ExtArgs> | null
+    where?: OsCustomerConversationNoteWhereInput
+    orderBy?: OsCustomerConversationNoteOrderByWithRelationInput | OsCustomerConversationNoteOrderByWithRelationInput[]
+    cursor?: OsCustomerConversationNoteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsCustomerConversationNoteScalarFieldEnum | OsCustomerConversationNoteScalarFieldEnum[]
+  }
+
+  /**
+   * OsCustomerConversation.stateChanges
+   */
+  export type OsCustomerConversation$stateChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeInclude<ExtArgs> | null
+    where?: OsCustomerConversationStateChangeWhereInput
+    orderBy?: OsCustomerConversationStateChangeOrderByWithRelationInput | OsCustomerConversationStateChangeOrderByWithRelationInput[]
+    cursor?: OsCustomerConversationStateChangeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsCustomerConversationStateChangeScalarFieldEnum | OsCustomerConversationStateChangeScalarFieldEnum[]
+  }
+
+  /**
    * OsCustomerConversation without action
    */
   export type OsCustomerConversationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -100484,6 +100884,2235 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: OsCustomerConversationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OsCustomerConversationNote
+   */
+
+  export type AggregateOsCustomerConversationNote = {
+    _count: OsCustomerConversationNoteCountAggregateOutputType | null
+    _min: OsCustomerConversationNoteMinAggregateOutputType | null
+    _max: OsCustomerConversationNoteMaxAggregateOutputType | null
+  }
+
+  export type OsCustomerConversationNoteMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    conversationId: string | null
+    authorMemberId: string | null
+    authorLabel: string | null
+    body: string | null
+    visibility: string | null
+    requestKey: string | null
+    createdAt: Date | null
+  }
+
+  export type OsCustomerConversationNoteMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    conversationId: string | null
+    authorMemberId: string | null
+    authorLabel: string | null
+    body: string | null
+    visibility: string | null
+    requestKey: string | null
+    createdAt: Date | null
+  }
+
+  export type OsCustomerConversationNoteCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    conversationId: number
+    authorMemberId: number
+    authorLabel: number
+    body: number
+    visibility: number
+    requestKey: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type OsCustomerConversationNoteMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    conversationId?: true
+    authorMemberId?: true
+    authorLabel?: true
+    body?: true
+    visibility?: true
+    requestKey?: true
+    createdAt?: true
+  }
+
+  export type OsCustomerConversationNoteMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    conversationId?: true
+    authorMemberId?: true
+    authorLabel?: true
+    body?: true
+    visibility?: true
+    requestKey?: true
+    createdAt?: true
+  }
+
+  export type OsCustomerConversationNoteCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    conversationId?: true
+    authorMemberId?: true
+    authorLabel?: true
+    body?: true
+    visibility?: true
+    requestKey?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type OsCustomerConversationNoteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsCustomerConversationNote to aggregate.
+     */
+    where?: OsCustomerConversationNoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCustomerConversationNotes to fetch.
+     */
+    orderBy?: OsCustomerConversationNoteOrderByWithRelationInput | OsCustomerConversationNoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsCustomerConversationNoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCustomerConversationNotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCustomerConversationNotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsCustomerConversationNotes
+    **/
+    _count?: true | OsCustomerConversationNoteCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsCustomerConversationNoteMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsCustomerConversationNoteMaxAggregateInputType
+  }
+
+  export type GetOsCustomerConversationNoteAggregateType<T extends OsCustomerConversationNoteAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsCustomerConversationNote]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsCustomerConversationNote[P]>
+      : GetScalarType<T[P], AggregateOsCustomerConversationNote[P]>
+  }
+
+
+
+
+  export type OsCustomerConversationNoteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCustomerConversationNoteWhereInput
+    orderBy?: OsCustomerConversationNoteOrderByWithAggregationInput | OsCustomerConversationNoteOrderByWithAggregationInput[]
+    by: OsCustomerConversationNoteScalarFieldEnum[] | OsCustomerConversationNoteScalarFieldEnum
+    having?: OsCustomerConversationNoteScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsCustomerConversationNoteCountAggregateInputType | true
+    _min?: OsCustomerConversationNoteMinAggregateInputType
+    _max?: OsCustomerConversationNoteMaxAggregateInputType
+  }
+
+  export type OsCustomerConversationNoteGroupByOutputType = {
+    id: string
+    organizationId: string
+    conversationId: string
+    authorMemberId: string
+    authorLabel: string
+    body: string
+    visibility: string
+    requestKey: string
+    createdAt: Date
+    _count: OsCustomerConversationNoteCountAggregateOutputType | null
+    _min: OsCustomerConversationNoteMinAggregateOutputType | null
+    _max: OsCustomerConversationNoteMaxAggregateOutputType | null
+  }
+
+  type GetOsCustomerConversationNoteGroupByPayload<T extends OsCustomerConversationNoteGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsCustomerConversationNoteGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsCustomerConversationNoteGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsCustomerConversationNoteGroupByOutputType[P]>
+            : GetScalarType<T[P], OsCustomerConversationNoteGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsCustomerConversationNoteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    conversationId?: boolean
+    authorMemberId?: boolean
+    authorLabel?: boolean
+    body?: boolean
+    visibility?: boolean
+    requestKey?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    conversation?: boolean | OsCustomerConversationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCustomerConversationNote"]>
+
+  export type OsCustomerConversationNoteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    conversationId?: boolean
+    authorMemberId?: boolean
+    authorLabel?: boolean
+    body?: boolean
+    visibility?: boolean
+    requestKey?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    conversation?: boolean | OsCustomerConversationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCustomerConversationNote"]>
+
+  export type OsCustomerConversationNoteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    conversationId?: boolean
+    authorMemberId?: boolean
+    authorLabel?: boolean
+    body?: boolean
+    visibility?: boolean
+    requestKey?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    conversation?: boolean | OsCustomerConversationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCustomerConversationNote"]>
+
+  export type OsCustomerConversationNoteSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    conversationId?: boolean
+    authorMemberId?: boolean
+    authorLabel?: boolean
+    body?: boolean
+    visibility?: boolean
+    requestKey?: boolean
+    createdAt?: boolean
+  }
+
+  export type OsCustomerConversationNoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "conversationId" | "authorMemberId" | "authorLabel" | "body" | "visibility" | "requestKey" | "createdAt", ExtArgs["result"]["osCustomerConversationNote"]>
+  export type OsCustomerConversationNoteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    conversation?: boolean | OsCustomerConversationDefaultArgs<ExtArgs>
+  }
+  export type OsCustomerConversationNoteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    conversation?: boolean | OsCustomerConversationDefaultArgs<ExtArgs>
+  }
+  export type OsCustomerConversationNoteIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    conversation?: boolean | OsCustomerConversationDefaultArgs<ExtArgs>
+  }
+
+  export type $OsCustomerConversationNotePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsCustomerConversationNote"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+      conversation: Prisma.$OsCustomerConversationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      conversationId: string
+      authorMemberId: string
+      authorLabel: string
+      body: string
+      visibility: string
+      /**
+       * Browser-generated per draft; repeating a save returns the same note.
+       */
+      requestKey: string
+      createdAt: Date
+    }, ExtArgs["result"]["osCustomerConversationNote"]>
+    composites: {}
+  }
+
+  type OsCustomerConversationNoteGetPayload<S extends boolean | null | undefined | OsCustomerConversationNoteDefaultArgs> = $Result.GetResult<Prisma.$OsCustomerConversationNotePayload, S>
+
+  type OsCustomerConversationNoteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsCustomerConversationNoteFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsCustomerConversationNoteCountAggregateInputType | true
+    }
+
+  export interface OsCustomerConversationNoteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsCustomerConversationNote'], meta: { name: 'OsCustomerConversationNote' } }
+    /**
+     * Find zero or one OsCustomerConversationNote that matches the filter.
+     * @param {OsCustomerConversationNoteFindUniqueArgs} args - Arguments to find a OsCustomerConversationNote
+     * @example
+     * // Get one OsCustomerConversationNote
+     * const osCustomerConversationNote = await prisma.osCustomerConversationNote.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsCustomerConversationNoteFindUniqueArgs>(args: SelectSubset<T, OsCustomerConversationNoteFindUniqueArgs<ExtArgs>>): Prisma__OsCustomerConversationNoteClient<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsCustomerConversationNote that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsCustomerConversationNoteFindUniqueOrThrowArgs} args - Arguments to find a OsCustomerConversationNote
+     * @example
+     * // Get one OsCustomerConversationNote
+     * const osCustomerConversationNote = await prisma.osCustomerConversationNote.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsCustomerConversationNoteFindUniqueOrThrowArgs>(args: SelectSubset<T, OsCustomerConversationNoteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsCustomerConversationNoteClient<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsCustomerConversationNote that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationNoteFindFirstArgs} args - Arguments to find a OsCustomerConversationNote
+     * @example
+     * // Get one OsCustomerConversationNote
+     * const osCustomerConversationNote = await prisma.osCustomerConversationNote.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsCustomerConversationNoteFindFirstArgs>(args?: SelectSubset<T, OsCustomerConversationNoteFindFirstArgs<ExtArgs>>): Prisma__OsCustomerConversationNoteClient<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsCustomerConversationNote that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationNoteFindFirstOrThrowArgs} args - Arguments to find a OsCustomerConversationNote
+     * @example
+     * // Get one OsCustomerConversationNote
+     * const osCustomerConversationNote = await prisma.osCustomerConversationNote.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsCustomerConversationNoteFindFirstOrThrowArgs>(args?: SelectSubset<T, OsCustomerConversationNoteFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsCustomerConversationNoteClient<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsCustomerConversationNotes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationNoteFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsCustomerConversationNotes
+     * const osCustomerConversationNotes = await prisma.osCustomerConversationNote.findMany()
+     * 
+     * // Get first 10 OsCustomerConversationNotes
+     * const osCustomerConversationNotes = await prisma.osCustomerConversationNote.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const osCustomerConversationNoteWithIdOnly = await prisma.osCustomerConversationNote.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OsCustomerConversationNoteFindManyArgs>(args?: SelectSubset<T, OsCustomerConversationNoteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsCustomerConversationNote.
+     * @param {OsCustomerConversationNoteCreateArgs} args - Arguments to create a OsCustomerConversationNote.
+     * @example
+     * // Create one OsCustomerConversationNote
+     * const OsCustomerConversationNote = await prisma.osCustomerConversationNote.create({
+     *   data: {
+     *     // ... data to create a OsCustomerConversationNote
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsCustomerConversationNoteCreateArgs>(args: SelectSubset<T, OsCustomerConversationNoteCreateArgs<ExtArgs>>): Prisma__OsCustomerConversationNoteClient<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsCustomerConversationNotes.
+     * @param {OsCustomerConversationNoteCreateManyArgs} args - Arguments to create many OsCustomerConversationNotes.
+     * @example
+     * // Create many OsCustomerConversationNotes
+     * const osCustomerConversationNote = await prisma.osCustomerConversationNote.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsCustomerConversationNoteCreateManyArgs>(args?: SelectSubset<T, OsCustomerConversationNoteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsCustomerConversationNotes and returns the data saved in the database.
+     * @param {OsCustomerConversationNoteCreateManyAndReturnArgs} args - Arguments to create many OsCustomerConversationNotes.
+     * @example
+     * // Create many OsCustomerConversationNotes
+     * const osCustomerConversationNote = await prisma.osCustomerConversationNote.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsCustomerConversationNotes and only return the `id`
+     * const osCustomerConversationNoteWithIdOnly = await prisma.osCustomerConversationNote.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsCustomerConversationNoteCreateManyAndReturnArgs>(args?: SelectSubset<T, OsCustomerConversationNoteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsCustomerConversationNote.
+     * @param {OsCustomerConversationNoteDeleteArgs} args - Arguments to delete one OsCustomerConversationNote.
+     * @example
+     * // Delete one OsCustomerConversationNote
+     * const OsCustomerConversationNote = await prisma.osCustomerConversationNote.delete({
+     *   where: {
+     *     // ... filter to delete one OsCustomerConversationNote
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsCustomerConversationNoteDeleteArgs>(args: SelectSubset<T, OsCustomerConversationNoteDeleteArgs<ExtArgs>>): Prisma__OsCustomerConversationNoteClient<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsCustomerConversationNote.
+     * @param {OsCustomerConversationNoteUpdateArgs} args - Arguments to update one OsCustomerConversationNote.
+     * @example
+     * // Update one OsCustomerConversationNote
+     * const osCustomerConversationNote = await prisma.osCustomerConversationNote.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsCustomerConversationNoteUpdateArgs>(args: SelectSubset<T, OsCustomerConversationNoteUpdateArgs<ExtArgs>>): Prisma__OsCustomerConversationNoteClient<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsCustomerConversationNotes.
+     * @param {OsCustomerConversationNoteDeleteManyArgs} args - Arguments to filter OsCustomerConversationNotes to delete.
+     * @example
+     * // Delete a few OsCustomerConversationNotes
+     * const { count } = await prisma.osCustomerConversationNote.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsCustomerConversationNoteDeleteManyArgs>(args?: SelectSubset<T, OsCustomerConversationNoteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsCustomerConversationNotes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationNoteUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsCustomerConversationNotes
+     * const osCustomerConversationNote = await prisma.osCustomerConversationNote.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsCustomerConversationNoteUpdateManyArgs>(args: SelectSubset<T, OsCustomerConversationNoteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsCustomerConversationNotes and returns the data updated in the database.
+     * @param {OsCustomerConversationNoteUpdateManyAndReturnArgs} args - Arguments to update many OsCustomerConversationNotes.
+     * @example
+     * // Update many OsCustomerConversationNotes
+     * const osCustomerConversationNote = await prisma.osCustomerConversationNote.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsCustomerConversationNotes and only return the `id`
+     * const osCustomerConversationNoteWithIdOnly = await prisma.osCustomerConversationNote.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsCustomerConversationNoteUpdateManyAndReturnArgs>(args: SelectSubset<T, OsCustomerConversationNoteUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsCustomerConversationNote.
+     * @param {OsCustomerConversationNoteUpsertArgs} args - Arguments to update or create a OsCustomerConversationNote.
+     * @example
+     * // Update or create a OsCustomerConversationNote
+     * const osCustomerConversationNote = await prisma.osCustomerConversationNote.upsert({
+     *   create: {
+     *     // ... data to create a OsCustomerConversationNote
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsCustomerConversationNote we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsCustomerConversationNoteUpsertArgs>(args: SelectSubset<T, OsCustomerConversationNoteUpsertArgs<ExtArgs>>): Prisma__OsCustomerConversationNoteClient<$Result.GetResult<Prisma.$OsCustomerConversationNotePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsCustomerConversationNotes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationNoteCountArgs} args - Arguments to filter OsCustomerConversationNotes to count.
+     * @example
+     * // Count the number of OsCustomerConversationNotes
+     * const count = await prisma.osCustomerConversationNote.count({
+     *   where: {
+     *     // ... the filter for the OsCustomerConversationNotes we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsCustomerConversationNoteCountArgs>(
+      args?: Subset<T, OsCustomerConversationNoteCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsCustomerConversationNoteCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsCustomerConversationNote.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationNoteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsCustomerConversationNoteAggregateArgs>(args: Subset<T, OsCustomerConversationNoteAggregateArgs>): Prisma.PrismaPromise<GetOsCustomerConversationNoteAggregateType<T>>
+
+    /**
+     * Group by OsCustomerConversationNote.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationNoteGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsCustomerConversationNoteGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsCustomerConversationNoteGroupByArgs['orderBy'] }
+        : { orderBy?: OsCustomerConversationNoteGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsCustomerConversationNoteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsCustomerConversationNoteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsCustomerConversationNote model
+   */
+  readonly fields: OsCustomerConversationNoteFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsCustomerConversationNote.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsCustomerConversationNoteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    conversation<T extends OsCustomerConversationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsCustomerConversationDefaultArgs<ExtArgs>>): Prisma__OsCustomerConversationClient<$Result.GetResult<Prisma.$OsCustomerConversationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsCustomerConversationNote model
+   */
+  interface OsCustomerConversationNoteFieldRefs {
+    readonly id: FieldRef<"OsCustomerConversationNote", 'String'>
+    readonly organizationId: FieldRef<"OsCustomerConversationNote", 'String'>
+    readonly conversationId: FieldRef<"OsCustomerConversationNote", 'String'>
+    readonly authorMemberId: FieldRef<"OsCustomerConversationNote", 'String'>
+    readonly authorLabel: FieldRef<"OsCustomerConversationNote", 'String'>
+    readonly body: FieldRef<"OsCustomerConversationNote", 'String'>
+    readonly visibility: FieldRef<"OsCustomerConversationNote", 'String'>
+    readonly requestKey: FieldRef<"OsCustomerConversationNote", 'String'>
+    readonly createdAt: FieldRef<"OsCustomerConversationNote", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsCustomerConversationNote findUnique
+   */
+  export type OsCustomerConversationNoteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerConversationNote to fetch.
+     */
+    where: OsCustomerConversationNoteWhereUniqueInput
+  }
+
+  /**
+   * OsCustomerConversationNote findUniqueOrThrow
+   */
+  export type OsCustomerConversationNoteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerConversationNote to fetch.
+     */
+    where: OsCustomerConversationNoteWhereUniqueInput
+  }
+
+  /**
+   * OsCustomerConversationNote findFirst
+   */
+  export type OsCustomerConversationNoteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerConversationNote to fetch.
+     */
+    where?: OsCustomerConversationNoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCustomerConversationNotes to fetch.
+     */
+    orderBy?: OsCustomerConversationNoteOrderByWithRelationInput | OsCustomerConversationNoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsCustomerConversationNotes.
+     */
+    cursor?: OsCustomerConversationNoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCustomerConversationNotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCustomerConversationNotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsCustomerConversationNotes.
+     */
+    distinct?: OsCustomerConversationNoteScalarFieldEnum | OsCustomerConversationNoteScalarFieldEnum[]
+  }
+
+  /**
+   * OsCustomerConversationNote findFirstOrThrow
+   */
+  export type OsCustomerConversationNoteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerConversationNote to fetch.
+     */
+    where?: OsCustomerConversationNoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCustomerConversationNotes to fetch.
+     */
+    orderBy?: OsCustomerConversationNoteOrderByWithRelationInput | OsCustomerConversationNoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsCustomerConversationNotes.
+     */
+    cursor?: OsCustomerConversationNoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCustomerConversationNotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCustomerConversationNotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsCustomerConversationNotes.
+     */
+    distinct?: OsCustomerConversationNoteScalarFieldEnum | OsCustomerConversationNoteScalarFieldEnum[]
+  }
+
+  /**
+   * OsCustomerConversationNote findMany
+   */
+  export type OsCustomerConversationNoteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerConversationNotes to fetch.
+     */
+    where?: OsCustomerConversationNoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCustomerConversationNotes to fetch.
+     */
+    orderBy?: OsCustomerConversationNoteOrderByWithRelationInput | OsCustomerConversationNoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsCustomerConversationNotes.
+     */
+    cursor?: OsCustomerConversationNoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCustomerConversationNotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCustomerConversationNotes.
+     */
+    skip?: number
+    distinct?: OsCustomerConversationNoteScalarFieldEnum | OsCustomerConversationNoteScalarFieldEnum[]
+  }
+
+  /**
+   * OsCustomerConversationNote create
+   */
+  export type OsCustomerConversationNoteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsCustomerConversationNote.
+     */
+    data: XOR<OsCustomerConversationNoteCreateInput, OsCustomerConversationNoteUncheckedCreateInput>
+  }
+
+  /**
+   * OsCustomerConversationNote createMany
+   */
+  export type OsCustomerConversationNoteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsCustomerConversationNotes.
+     */
+    data: OsCustomerConversationNoteCreateManyInput | OsCustomerConversationNoteCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsCustomerConversationNote createManyAndReturn
+   */
+  export type OsCustomerConversationNoteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsCustomerConversationNotes.
+     */
+    data: OsCustomerConversationNoteCreateManyInput | OsCustomerConversationNoteCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsCustomerConversationNote update
+   */
+  export type OsCustomerConversationNoteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsCustomerConversationNote.
+     */
+    data: XOR<OsCustomerConversationNoteUpdateInput, OsCustomerConversationNoteUncheckedUpdateInput>
+    /**
+     * Choose, which OsCustomerConversationNote to update.
+     */
+    where: OsCustomerConversationNoteWhereUniqueInput
+  }
+
+  /**
+   * OsCustomerConversationNote updateMany
+   */
+  export type OsCustomerConversationNoteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsCustomerConversationNotes.
+     */
+    data: XOR<OsCustomerConversationNoteUpdateManyMutationInput, OsCustomerConversationNoteUncheckedUpdateManyInput>
+    /**
+     * Filter which OsCustomerConversationNotes to update
+     */
+    where?: OsCustomerConversationNoteWhereInput
+    /**
+     * Limit how many OsCustomerConversationNotes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsCustomerConversationNote updateManyAndReturn
+   */
+  export type OsCustomerConversationNoteUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * The data used to update OsCustomerConversationNotes.
+     */
+    data: XOR<OsCustomerConversationNoteUpdateManyMutationInput, OsCustomerConversationNoteUncheckedUpdateManyInput>
+    /**
+     * Filter which OsCustomerConversationNotes to update
+     */
+    where?: OsCustomerConversationNoteWhereInput
+    /**
+     * Limit how many OsCustomerConversationNotes to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsCustomerConversationNote upsert
+   */
+  export type OsCustomerConversationNoteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsCustomerConversationNote to update in case it exists.
+     */
+    where: OsCustomerConversationNoteWhereUniqueInput
+    /**
+     * In case the OsCustomerConversationNote found by the `where` argument doesn't exist, create a new OsCustomerConversationNote with this data.
+     */
+    create: XOR<OsCustomerConversationNoteCreateInput, OsCustomerConversationNoteUncheckedCreateInput>
+    /**
+     * In case the OsCustomerConversationNote was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsCustomerConversationNoteUpdateInput, OsCustomerConversationNoteUncheckedUpdateInput>
+  }
+
+  /**
+   * OsCustomerConversationNote delete
+   */
+  export type OsCustomerConversationNoteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteInclude<ExtArgs> | null
+    /**
+     * Filter which OsCustomerConversationNote to delete.
+     */
+    where: OsCustomerConversationNoteWhereUniqueInput
+  }
+
+  /**
+   * OsCustomerConversationNote deleteMany
+   */
+  export type OsCustomerConversationNoteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsCustomerConversationNotes to delete
+     */
+    where?: OsCustomerConversationNoteWhereInput
+    /**
+     * Limit how many OsCustomerConversationNotes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsCustomerConversationNote without action
+   */
+  export type OsCustomerConversationNoteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationNote
+     */
+    select?: OsCustomerConversationNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationNote
+     */
+    omit?: OsCustomerConversationNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationNoteInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OsCustomerConversationStateChange
+   */
+
+  export type AggregateOsCustomerConversationStateChange = {
+    _count: OsCustomerConversationStateChangeCountAggregateOutputType | null
+    _min: OsCustomerConversationStateChangeMinAggregateOutputType | null
+    _max: OsCustomerConversationStateChangeMaxAggregateOutputType | null
+  }
+
+  export type OsCustomerConversationStateChangeMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    conversationId: string | null
+    fromState: string | null
+    toState: string | null
+    cause: string | null
+    actorMemberId: string | null
+    changedAt: Date | null
+  }
+
+  export type OsCustomerConversationStateChangeMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    conversationId: string | null
+    fromState: string | null
+    toState: string | null
+    cause: string | null
+    actorMemberId: string | null
+    changedAt: Date | null
+  }
+
+  export type OsCustomerConversationStateChangeCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    conversationId: number
+    fromState: number
+    toState: number
+    cause: number
+    actorMemberId: number
+    changedAt: number
+    _all: number
+  }
+
+
+  export type OsCustomerConversationStateChangeMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    conversationId?: true
+    fromState?: true
+    toState?: true
+    cause?: true
+    actorMemberId?: true
+    changedAt?: true
+  }
+
+  export type OsCustomerConversationStateChangeMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    conversationId?: true
+    fromState?: true
+    toState?: true
+    cause?: true
+    actorMemberId?: true
+    changedAt?: true
+  }
+
+  export type OsCustomerConversationStateChangeCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    conversationId?: true
+    fromState?: true
+    toState?: true
+    cause?: true
+    actorMemberId?: true
+    changedAt?: true
+    _all?: true
+  }
+
+  export type OsCustomerConversationStateChangeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsCustomerConversationStateChange to aggregate.
+     */
+    where?: OsCustomerConversationStateChangeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCustomerConversationStateChanges to fetch.
+     */
+    orderBy?: OsCustomerConversationStateChangeOrderByWithRelationInput | OsCustomerConversationStateChangeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsCustomerConversationStateChangeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCustomerConversationStateChanges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCustomerConversationStateChanges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsCustomerConversationStateChanges
+    **/
+    _count?: true | OsCustomerConversationStateChangeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsCustomerConversationStateChangeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsCustomerConversationStateChangeMaxAggregateInputType
+  }
+
+  export type GetOsCustomerConversationStateChangeAggregateType<T extends OsCustomerConversationStateChangeAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsCustomerConversationStateChange]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsCustomerConversationStateChange[P]>
+      : GetScalarType<T[P], AggregateOsCustomerConversationStateChange[P]>
+  }
+
+
+
+
+  export type OsCustomerConversationStateChangeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCustomerConversationStateChangeWhereInput
+    orderBy?: OsCustomerConversationStateChangeOrderByWithAggregationInput | OsCustomerConversationStateChangeOrderByWithAggregationInput[]
+    by: OsCustomerConversationStateChangeScalarFieldEnum[] | OsCustomerConversationStateChangeScalarFieldEnum
+    having?: OsCustomerConversationStateChangeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsCustomerConversationStateChangeCountAggregateInputType | true
+    _min?: OsCustomerConversationStateChangeMinAggregateInputType
+    _max?: OsCustomerConversationStateChangeMaxAggregateInputType
+  }
+
+  export type OsCustomerConversationStateChangeGroupByOutputType = {
+    id: string
+    organizationId: string
+    conversationId: string
+    fromState: string
+    toState: string
+    cause: string
+    actorMemberId: string | null
+    changedAt: Date
+    _count: OsCustomerConversationStateChangeCountAggregateOutputType | null
+    _min: OsCustomerConversationStateChangeMinAggregateOutputType | null
+    _max: OsCustomerConversationStateChangeMaxAggregateOutputType | null
+  }
+
+  type GetOsCustomerConversationStateChangeGroupByPayload<T extends OsCustomerConversationStateChangeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsCustomerConversationStateChangeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsCustomerConversationStateChangeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsCustomerConversationStateChangeGroupByOutputType[P]>
+            : GetScalarType<T[P], OsCustomerConversationStateChangeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsCustomerConversationStateChangeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    conversationId?: boolean
+    fromState?: boolean
+    toState?: boolean
+    cause?: boolean
+    actorMemberId?: boolean
+    changedAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    conversation?: boolean | OsCustomerConversationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCustomerConversationStateChange"]>
+
+  export type OsCustomerConversationStateChangeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    conversationId?: boolean
+    fromState?: boolean
+    toState?: boolean
+    cause?: boolean
+    actorMemberId?: boolean
+    changedAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    conversation?: boolean | OsCustomerConversationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCustomerConversationStateChange"]>
+
+  export type OsCustomerConversationStateChangeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    conversationId?: boolean
+    fromState?: boolean
+    toState?: boolean
+    cause?: boolean
+    actorMemberId?: boolean
+    changedAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    conversation?: boolean | OsCustomerConversationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCustomerConversationStateChange"]>
+
+  export type OsCustomerConversationStateChangeSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    conversationId?: boolean
+    fromState?: boolean
+    toState?: boolean
+    cause?: boolean
+    actorMemberId?: boolean
+    changedAt?: boolean
+  }
+
+  export type OsCustomerConversationStateChangeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "conversationId" | "fromState" | "toState" | "cause" | "actorMemberId" | "changedAt", ExtArgs["result"]["osCustomerConversationStateChange"]>
+  export type OsCustomerConversationStateChangeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    conversation?: boolean | OsCustomerConversationDefaultArgs<ExtArgs>
+  }
+  export type OsCustomerConversationStateChangeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    conversation?: boolean | OsCustomerConversationDefaultArgs<ExtArgs>
+  }
+  export type OsCustomerConversationStateChangeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    conversation?: boolean | OsCustomerConversationDefaultArgs<ExtArgs>
+  }
+
+  export type $OsCustomerConversationStateChangePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsCustomerConversationStateChange"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+      conversation: Prisma.$OsCustomerConversationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      conversationId: string
+      fromState: string
+      toState: string
+      /**
+       * take | manual | inbound (inbound is reserved; no inbound path exists yet).
+       */
+      cause: string
+      actorMemberId: string | null
+      changedAt: Date
+    }, ExtArgs["result"]["osCustomerConversationStateChange"]>
+    composites: {}
+  }
+
+  type OsCustomerConversationStateChangeGetPayload<S extends boolean | null | undefined | OsCustomerConversationStateChangeDefaultArgs> = $Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload, S>
+
+  type OsCustomerConversationStateChangeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsCustomerConversationStateChangeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsCustomerConversationStateChangeCountAggregateInputType | true
+    }
+
+  export interface OsCustomerConversationStateChangeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsCustomerConversationStateChange'], meta: { name: 'OsCustomerConversationStateChange' } }
+    /**
+     * Find zero or one OsCustomerConversationStateChange that matches the filter.
+     * @param {OsCustomerConversationStateChangeFindUniqueArgs} args - Arguments to find a OsCustomerConversationStateChange
+     * @example
+     * // Get one OsCustomerConversationStateChange
+     * const osCustomerConversationStateChange = await prisma.osCustomerConversationStateChange.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsCustomerConversationStateChangeFindUniqueArgs>(args: SelectSubset<T, OsCustomerConversationStateChangeFindUniqueArgs<ExtArgs>>): Prisma__OsCustomerConversationStateChangeClient<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsCustomerConversationStateChange that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsCustomerConversationStateChangeFindUniqueOrThrowArgs} args - Arguments to find a OsCustomerConversationStateChange
+     * @example
+     * // Get one OsCustomerConversationStateChange
+     * const osCustomerConversationStateChange = await prisma.osCustomerConversationStateChange.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsCustomerConversationStateChangeFindUniqueOrThrowArgs>(args: SelectSubset<T, OsCustomerConversationStateChangeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsCustomerConversationStateChangeClient<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsCustomerConversationStateChange that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationStateChangeFindFirstArgs} args - Arguments to find a OsCustomerConversationStateChange
+     * @example
+     * // Get one OsCustomerConversationStateChange
+     * const osCustomerConversationStateChange = await prisma.osCustomerConversationStateChange.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsCustomerConversationStateChangeFindFirstArgs>(args?: SelectSubset<T, OsCustomerConversationStateChangeFindFirstArgs<ExtArgs>>): Prisma__OsCustomerConversationStateChangeClient<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsCustomerConversationStateChange that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationStateChangeFindFirstOrThrowArgs} args - Arguments to find a OsCustomerConversationStateChange
+     * @example
+     * // Get one OsCustomerConversationStateChange
+     * const osCustomerConversationStateChange = await prisma.osCustomerConversationStateChange.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsCustomerConversationStateChangeFindFirstOrThrowArgs>(args?: SelectSubset<T, OsCustomerConversationStateChangeFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsCustomerConversationStateChangeClient<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsCustomerConversationStateChanges that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationStateChangeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsCustomerConversationStateChanges
+     * const osCustomerConversationStateChanges = await prisma.osCustomerConversationStateChange.findMany()
+     * 
+     * // Get first 10 OsCustomerConversationStateChanges
+     * const osCustomerConversationStateChanges = await prisma.osCustomerConversationStateChange.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const osCustomerConversationStateChangeWithIdOnly = await prisma.osCustomerConversationStateChange.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OsCustomerConversationStateChangeFindManyArgs>(args?: SelectSubset<T, OsCustomerConversationStateChangeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsCustomerConversationStateChange.
+     * @param {OsCustomerConversationStateChangeCreateArgs} args - Arguments to create a OsCustomerConversationStateChange.
+     * @example
+     * // Create one OsCustomerConversationStateChange
+     * const OsCustomerConversationStateChange = await prisma.osCustomerConversationStateChange.create({
+     *   data: {
+     *     // ... data to create a OsCustomerConversationStateChange
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsCustomerConversationStateChangeCreateArgs>(args: SelectSubset<T, OsCustomerConversationStateChangeCreateArgs<ExtArgs>>): Prisma__OsCustomerConversationStateChangeClient<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsCustomerConversationStateChanges.
+     * @param {OsCustomerConversationStateChangeCreateManyArgs} args - Arguments to create many OsCustomerConversationStateChanges.
+     * @example
+     * // Create many OsCustomerConversationStateChanges
+     * const osCustomerConversationStateChange = await prisma.osCustomerConversationStateChange.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsCustomerConversationStateChangeCreateManyArgs>(args?: SelectSubset<T, OsCustomerConversationStateChangeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsCustomerConversationStateChanges and returns the data saved in the database.
+     * @param {OsCustomerConversationStateChangeCreateManyAndReturnArgs} args - Arguments to create many OsCustomerConversationStateChanges.
+     * @example
+     * // Create many OsCustomerConversationStateChanges
+     * const osCustomerConversationStateChange = await prisma.osCustomerConversationStateChange.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsCustomerConversationStateChanges and only return the `id`
+     * const osCustomerConversationStateChangeWithIdOnly = await prisma.osCustomerConversationStateChange.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsCustomerConversationStateChangeCreateManyAndReturnArgs>(args?: SelectSubset<T, OsCustomerConversationStateChangeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsCustomerConversationStateChange.
+     * @param {OsCustomerConversationStateChangeDeleteArgs} args - Arguments to delete one OsCustomerConversationStateChange.
+     * @example
+     * // Delete one OsCustomerConversationStateChange
+     * const OsCustomerConversationStateChange = await prisma.osCustomerConversationStateChange.delete({
+     *   where: {
+     *     // ... filter to delete one OsCustomerConversationStateChange
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsCustomerConversationStateChangeDeleteArgs>(args: SelectSubset<T, OsCustomerConversationStateChangeDeleteArgs<ExtArgs>>): Prisma__OsCustomerConversationStateChangeClient<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsCustomerConversationStateChange.
+     * @param {OsCustomerConversationStateChangeUpdateArgs} args - Arguments to update one OsCustomerConversationStateChange.
+     * @example
+     * // Update one OsCustomerConversationStateChange
+     * const osCustomerConversationStateChange = await prisma.osCustomerConversationStateChange.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsCustomerConversationStateChangeUpdateArgs>(args: SelectSubset<T, OsCustomerConversationStateChangeUpdateArgs<ExtArgs>>): Prisma__OsCustomerConversationStateChangeClient<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsCustomerConversationStateChanges.
+     * @param {OsCustomerConversationStateChangeDeleteManyArgs} args - Arguments to filter OsCustomerConversationStateChanges to delete.
+     * @example
+     * // Delete a few OsCustomerConversationStateChanges
+     * const { count } = await prisma.osCustomerConversationStateChange.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsCustomerConversationStateChangeDeleteManyArgs>(args?: SelectSubset<T, OsCustomerConversationStateChangeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsCustomerConversationStateChanges.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationStateChangeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsCustomerConversationStateChanges
+     * const osCustomerConversationStateChange = await prisma.osCustomerConversationStateChange.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsCustomerConversationStateChangeUpdateManyArgs>(args: SelectSubset<T, OsCustomerConversationStateChangeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsCustomerConversationStateChanges and returns the data updated in the database.
+     * @param {OsCustomerConversationStateChangeUpdateManyAndReturnArgs} args - Arguments to update many OsCustomerConversationStateChanges.
+     * @example
+     * // Update many OsCustomerConversationStateChanges
+     * const osCustomerConversationStateChange = await prisma.osCustomerConversationStateChange.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsCustomerConversationStateChanges and only return the `id`
+     * const osCustomerConversationStateChangeWithIdOnly = await prisma.osCustomerConversationStateChange.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsCustomerConversationStateChangeUpdateManyAndReturnArgs>(args: SelectSubset<T, OsCustomerConversationStateChangeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsCustomerConversationStateChange.
+     * @param {OsCustomerConversationStateChangeUpsertArgs} args - Arguments to update or create a OsCustomerConversationStateChange.
+     * @example
+     * // Update or create a OsCustomerConversationStateChange
+     * const osCustomerConversationStateChange = await prisma.osCustomerConversationStateChange.upsert({
+     *   create: {
+     *     // ... data to create a OsCustomerConversationStateChange
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsCustomerConversationStateChange we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsCustomerConversationStateChangeUpsertArgs>(args: SelectSubset<T, OsCustomerConversationStateChangeUpsertArgs<ExtArgs>>): Prisma__OsCustomerConversationStateChangeClient<$Result.GetResult<Prisma.$OsCustomerConversationStateChangePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsCustomerConversationStateChanges.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationStateChangeCountArgs} args - Arguments to filter OsCustomerConversationStateChanges to count.
+     * @example
+     * // Count the number of OsCustomerConversationStateChanges
+     * const count = await prisma.osCustomerConversationStateChange.count({
+     *   where: {
+     *     // ... the filter for the OsCustomerConversationStateChanges we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsCustomerConversationStateChangeCountArgs>(
+      args?: Subset<T, OsCustomerConversationStateChangeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsCustomerConversationStateChangeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsCustomerConversationStateChange.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationStateChangeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsCustomerConversationStateChangeAggregateArgs>(args: Subset<T, OsCustomerConversationStateChangeAggregateArgs>): Prisma.PrismaPromise<GetOsCustomerConversationStateChangeAggregateType<T>>
+
+    /**
+     * Group by OsCustomerConversationStateChange.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerConversationStateChangeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsCustomerConversationStateChangeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsCustomerConversationStateChangeGroupByArgs['orderBy'] }
+        : { orderBy?: OsCustomerConversationStateChangeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsCustomerConversationStateChangeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsCustomerConversationStateChangeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsCustomerConversationStateChange model
+   */
+  readonly fields: OsCustomerConversationStateChangeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsCustomerConversationStateChange.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsCustomerConversationStateChangeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    conversation<T extends OsCustomerConversationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsCustomerConversationDefaultArgs<ExtArgs>>): Prisma__OsCustomerConversationClient<$Result.GetResult<Prisma.$OsCustomerConversationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsCustomerConversationStateChange model
+   */
+  interface OsCustomerConversationStateChangeFieldRefs {
+    readonly id: FieldRef<"OsCustomerConversationStateChange", 'String'>
+    readonly organizationId: FieldRef<"OsCustomerConversationStateChange", 'String'>
+    readonly conversationId: FieldRef<"OsCustomerConversationStateChange", 'String'>
+    readonly fromState: FieldRef<"OsCustomerConversationStateChange", 'String'>
+    readonly toState: FieldRef<"OsCustomerConversationStateChange", 'String'>
+    readonly cause: FieldRef<"OsCustomerConversationStateChange", 'String'>
+    readonly actorMemberId: FieldRef<"OsCustomerConversationStateChange", 'String'>
+    readonly changedAt: FieldRef<"OsCustomerConversationStateChange", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsCustomerConversationStateChange findUnique
+   */
+  export type OsCustomerConversationStateChangeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerConversationStateChange to fetch.
+     */
+    where: OsCustomerConversationStateChangeWhereUniqueInput
+  }
+
+  /**
+   * OsCustomerConversationStateChange findUniqueOrThrow
+   */
+  export type OsCustomerConversationStateChangeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerConversationStateChange to fetch.
+     */
+    where: OsCustomerConversationStateChangeWhereUniqueInput
+  }
+
+  /**
+   * OsCustomerConversationStateChange findFirst
+   */
+  export type OsCustomerConversationStateChangeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerConversationStateChange to fetch.
+     */
+    where?: OsCustomerConversationStateChangeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCustomerConversationStateChanges to fetch.
+     */
+    orderBy?: OsCustomerConversationStateChangeOrderByWithRelationInput | OsCustomerConversationStateChangeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsCustomerConversationStateChanges.
+     */
+    cursor?: OsCustomerConversationStateChangeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCustomerConversationStateChanges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCustomerConversationStateChanges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsCustomerConversationStateChanges.
+     */
+    distinct?: OsCustomerConversationStateChangeScalarFieldEnum | OsCustomerConversationStateChangeScalarFieldEnum[]
+  }
+
+  /**
+   * OsCustomerConversationStateChange findFirstOrThrow
+   */
+  export type OsCustomerConversationStateChangeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerConversationStateChange to fetch.
+     */
+    where?: OsCustomerConversationStateChangeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCustomerConversationStateChanges to fetch.
+     */
+    orderBy?: OsCustomerConversationStateChangeOrderByWithRelationInput | OsCustomerConversationStateChangeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsCustomerConversationStateChanges.
+     */
+    cursor?: OsCustomerConversationStateChangeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCustomerConversationStateChanges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCustomerConversationStateChanges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsCustomerConversationStateChanges.
+     */
+    distinct?: OsCustomerConversationStateChangeScalarFieldEnum | OsCustomerConversationStateChangeScalarFieldEnum[]
+  }
+
+  /**
+   * OsCustomerConversationStateChange findMany
+   */
+  export type OsCustomerConversationStateChangeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerConversationStateChanges to fetch.
+     */
+    where?: OsCustomerConversationStateChangeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCustomerConversationStateChanges to fetch.
+     */
+    orderBy?: OsCustomerConversationStateChangeOrderByWithRelationInput | OsCustomerConversationStateChangeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsCustomerConversationStateChanges.
+     */
+    cursor?: OsCustomerConversationStateChangeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCustomerConversationStateChanges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCustomerConversationStateChanges.
+     */
+    skip?: number
+    distinct?: OsCustomerConversationStateChangeScalarFieldEnum | OsCustomerConversationStateChangeScalarFieldEnum[]
+  }
+
+  /**
+   * OsCustomerConversationStateChange create
+   */
+  export type OsCustomerConversationStateChangeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsCustomerConversationStateChange.
+     */
+    data: XOR<OsCustomerConversationStateChangeCreateInput, OsCustomerConversationStateChangeUncheckedCreateInput>
+  }
+
+  /**
+   * OsCustomerConversationStateChange createMany
+   */
+  export type OsCustomerConversationStateChangeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsCustomerConversationStateChanges.
+     */
+    data: OsCustomerConversationStateChangeCreateManyInput | OsCustomerConversationStateChangeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsCustomerConversationStateChange createManyAndReturn
+   */
+  export type OsCustomerConversationStateChangeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsCustomerConversationStateChanges.
+     */
+    data: OsCustomerConversationStateChangeCreateManyInput | OsCustomerConversationStateChangeCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsCustomerConversationStateChange update
+   */
+  export type OsCustomerConversationStateChangeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsCustomerConversationStateChange.
+     */
+    data: XOR<OsCustomerConversationStateChangeUpdateInput, OsCustomerConversationStateChangeUncheckedUpdateInput>
+    /**
+     * Choose, which OsCustomerConversationStateChange to update.
+     */
+    where: OsCustomerConversationStateChangeWhereUniqueInput
+  }
+
+  /**
+   * OsCustomerConversationStateChange updateMany
+   */
+  export type OsCustomerConversationStateChangeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsCustomerConversationStateChanges.
+     */
+    data: XOR<OsCustomerConversationStateChangeUpdateManyMutationInput, OsCustomerConversationStateChangeUncheckedUpdateManyInput>
+    /**
+     * Filter which OsCustomerConversationStateChanges to update
+     */
+    where?: OsCustomerConversationStateChangeWhereInput
+    /**
+     * Limit how many OsCustomerConversationStateChanges to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsCustomerConversationStateChange updateManyAndReturn
+   */
+  export type OsCustomerConversationStateChangeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * The data used to update OsCustomerConversationStateChanges.
+     */
+    data: XOR<OsCustomerConversationStateChangeUpdateManyMutationInput, OsCustomerConversationStateChangeUncheckedUpdateManyInput>
+    /**
+     * Filter which OsCustomerConversationStateChanges to update
+     */
+    where?: OsCustomerConversationStateChangeWhereInput
+    /**
+     * Limit how many OsCustomerConversationStateChanges to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsCustomerConversationStateChange upsert
+   */
+  export type OsCustomerConversationStateChangeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsCustomerConversationStateChange to update in case it exists.
+     */
+    where: OsCustomerConversationStateChangeWhereUniqueInput
+    /**
+     * In case the OsCustomerConversationStateChange found by the `where` argument doesn't exist, create a new OsCustomerConversationStateChange with this data.
+     */
+    create: XOR<OsCustomerConversationStateChangeCreateInput, OsCustomerConversationStateChangeUncheckedCreateInput>
+    /**
+     * In case the OsCustomerConversationStateChange was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsCustomerConversationStateChangeUpdateInput, OsCustomerConversationStateChangeUncheckedUpdateInput>
+  }
+
+  /**
+   * OsCustomerConversationStateChange delete
+   */
+  export type OsCustomerConversationStateChangeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeInclude<ExtArgs> | null
+    /**
+     * Filter which OsCustomerConversationStateChange to delete.
+     */
+    where: OsCustomerConversationStateChangeWhereUniqueInput
+  }
+
+  /**
+   * OsCustomerConversationStateChange deleteMany
+   */
+  export type OsCustomerConversationStateChangeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsCustomerConversationStateChanges to delete
+     */
+    where?: OsCustomerConversationStateChangeWhereInput
+    /**
+     * Limit how many OsCustomerConversationStateChanges to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsCustomerConversationStateChange without action
+   */
+  export type OsCustomerConversationStateChangeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerConversationStateChange
+     */
+    select?: OsCustomerConversationStateChangeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerConversationStateChange
+     */
+    omit?: OsCustomerConversationStateChangeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerConversationStateChangeInclude<ExtArgs> | null
   }
 
 
@@ -141113,6 +143742,9 @@ export namespace Prisma {
     assignedLabel: 'assignedLabel',
     assignedAt: 'assignedAt',
     nextStepCommitmentId: 'nextStepCommitmentId',
+    attentionState: 'attentionState',
+    attentionStateChangedAt: 'attentionStateChangedAt',
+    automationPausedAt: 'automationPausedAt',
     opportunityId: 'opportunityId',
     quoteId: 'quoteId',
     orderId: 'orderId',
@@ -141127,6 +143759,35 @@ export namespace Prisma {
   };
 
   export type OsCustomerConversationScalarFieldEnum = (typeof OsCustomerConversationScalarFieldEnum)[keyof typeof OsCustomerConversationScalarFieldEnum]
+
+
+  export const OsCustomerConversationNoteScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    conversationId: 'conversationId',
+    authorMemberId: 'authorMemberId',
+    authorLabel: 'authorLabel',
+    body: 'body',
+    visibility: 'visibility',
+    requestKey: 'requestKey',
+    createdAt: 'createdAt'
+  };
+
+  export type OsCustomerConversationNoteScalarFieldEnum = (typeof OsCustomerConversationNoteScalarFieldEnum)[keyof typeof OsCustomerConversationNoteScalarFieldEnum]
+
+
+  export const OsCustomerConversationStateChangeScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    conversationId: 'conversationId',
+    fromState: 'fromState',
+    toState: 'toState',
+    cause: 'cause',
+    actorMemberId: 'actorMemberId',
+    changedAt: 'changedAt'
+  };
+
+  export type OsCustomerConversationStateChangeScalarFieldEnum = (typeof OsCustomerConversationStateChangeScalarFieldEnum)[keyof typeof OsCustomerConversationStateChangeScalarFieldEnum]
 
 
   export const OsWarehouseExitScalarFieldEnum: {
@@ -141971,6 +144632,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductListRelationFilter
     productionTraceEntries?: OsProductionTraceEntryListRelationFilter
     customerConversations?: OsCustomerConversationListRelationFilter
+    customerConversationNotes?: OsCustomerConversationNoteListRelationFilter
+    customerConversationStateChanges?: OsCustomerConversationStateChangeListRelationFilter
     customerCommittedDates?: CustomerCommittedDateListRelationFilter
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionListRelationFilter
     productionInternalTargetDates?: ProductionInternalTargetDateListRelationFilter
@@ -142071,6 +144734,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductOrderByRelationAggregateInput
     productionTraceEntries?: OsProductionTraceEntryOrderByRelationAggregateInput
     customerConversations?: OsCustomerConversationOrderByRelationAggregateInput
+    customerConversationNotes?: OsCustomerConversationNoteOrderByRelationAggregateInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeOrderByRelationAggregateInput
     customerCommittedDates?: CustomerCommittedDateOrderByRelationAggregateInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionOrderByRelationAggregateInput
     productionInternalTargetDates?: ProductionInternalTargetDateOrderByRelationAggregateInput
@@ -142174,6 +144839,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductListRelationFilter
     productionTraceEntries?: OsProductionTraceEntryListRelationFilter
     customerConversations?: OsCustomerConversationListRelationFilter
+    customerConversationNotes?: OsCustomerConversationNoteListRelationFilter
+    customerConversationStateChanges?: OsCustomerConversationStateChangeListRelationFilter
     customerCommittedDates?: CustomerCommittedDateListRelationFilter
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionListRelationFilter
     productionInternalTargetDates?: ProductionInternalTargetDateListRelationFilter
@@ -148960,6 +151627,9 @@ export namespace Prisma {
     assignedLabel?: StringNullableFilter<"OsCustomerConversation"> | string | null
     assignedAt?: DateTimeNullableFilter<"OsCustomerConversation"> | Date | string | null
     nextStepCommitmentId?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    attentionState?: StringFilter<"OsCustomerConversation"> | string
+    attentionStateChangedAt?: DateTimeNullableFilter<"OsCustomerConversation"> | Date | string | null
+    automationPausedAt?: DateTimeNullableFilter<"OsCustomerConversation"> | Date | string | null
     opportunityId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     quoteId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     orderId?: StringNullableFilter<"OsCustomerConversation"> | string | null
@@ -148972,6 +151642,8 @@ export namespace Prisma {
     advisorNumberStatus?: StringFilter<"OsCustomerConversation"> | string
     createdAt?: DateTimeFilter<"OsCustomerConversation"> | Date | string
     organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    notes?: OsCustomerConversationNoteListRelationFilter
+    stateChanges?: OsCustomerConversationStateChangeListRelationFilter
   }
 
   export type OsCustomerConversationOrderByWithRelationInput = {
@@ -148991,6 +151663,9 @@ export namespace Prisma {
     assignedLabel?: SortOrderInput | SortOrder
     assignedAt?: SortOrderInput | SortOrder
     nextStepCommitmentId?: SortOrderInput | SortOrder
+    attentionState?: SortOrder
+    attentionStateChangedAt?: SortOrderInput | SortOrder
+    automationPausedAt?: SortOrderInput | SortOrder
     opportunityId?: SortOrderInput | SortOrder
     quoteId?: SortOrderInput | SortOrder
     orderId?: SortOrderInput | SortOrder
@@ -149003,6 +151678,8 @@ export namespace Prisma {
     advisorNumberStatus?: SortOrder
     createdAt?: SortOrder
     organization?: OsOrganizationOrderByWithRelationInput
+    notes?: OsCustomerConversationNoteOrderByRelationAggregateInput
+    stateChanges?: OsCustomerConversationStateChangeOrderByRelationAggregateInput
   }
 
   export type OsCustomerConversationWhereUniqueInput = Prisma.AtLeast<{
@@ -149025,6 +151702,9 @@ export namespace Prisma {
     assignedLabel?: StringNullableFilter<"OsCustomerConversation"> | string | null
     assignedAt?: DateTimeNullableFilter<"OsCustomerConversation"> | Date | string | null
     nextStepCommitmentId?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    attentionState?: StringFilter<"OsCustomerConversation"> | string
+    attentionStateChangedAt?: DateTimeNullableFilter<"OsCustomerConversation"> | Date | string | null
+    automationPausedAt?: DateTimeNullableFilter<"OsCustomerConversation"> | Date | string | null
     opportunityId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     quoteId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     orderId?: StringNullableFilter<"OsCustomerConversation"> | string | null
@@ -149037,6 +151717,8 @@ export namespace Prisma {
     advisorNumberStatus?: StringFilter<"OsCustomerConversation"> | string
     createdAt?: DateTimeFilter<"OsCustomerConversation"> | Date | string
     organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    notes?: OsCustomerConversationNoteListRelationFilter
+    stateChanges?: OsCustomerConversationStateChangeListRelationFilter
   }, "id">
 
   export type OsCustomerConversationOrderByWithAggregationInput = {
@@ -149056,6 +151738,9 @@ export namespace Prisma {
     assignedLabel?: SortOrderInput | SortOrder
     assignedAt?: SortOrderInput | SortOrder
     nextStepCommitmentId?: SortOrderInput | SortOrder
+    attentionState?: SortOrder
+    attentionStateChangedAt?: SortOrderInput | SortOrder
+    automationPausedAt?: SortOrderInput | SortOrder
     opportunityId?: SortOrderInput | SortOrder
     quoteId?: SortOrderInput | SortOrder
     orderId?: SortOrderInput | SortOrder
@@ -149092,6 +151777,9 @@ export namespace Prisma {
     assignedLabel?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
     assignedAt?: DateTimeNullableWithAggregatesFilter<"OsCustomerConversation"> | Date | string | null
     nextStepCommitmentId?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
+    attentionState?: StringWithAggregatesFilter<"OsCustomerConversation"> | string
+    attentionStateChangedAt?: DateTimeNullableWithAggregatesFilter<"OsCustomerConversation"> | Date | string | null
+    automationPausedAt?: DateTimeNullableWithAggregatesFilter<"OsCustomerConversation"> | Date | string | null
     opportunityId?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
     quoteId?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
     orderId?: StringNullableWithAggregatesFilter<"OsCustomerConversation"> | string | null
@@ -149103,6 +151791,158 @@ export namespace Prisma {
     provenance?: StringWithAggregatesFilter<"OsCustomerConversation"> | string
     advisorNumberStatus?: StringWithAggregatesFilter<"OsCustomerConversation"> | string
     createdAt?: DateTimeWithAggregatesFilter<"OsCustomerConversation"> | Date | string
+  }
+
+  export type OsCustomerConversationNoteWhereInput = {
+    AND?: OsCustomerConversationNoteWhereInput | OsCustomerConversationNoteWhereInput[]
+    OR?: OsCustomerConversationNoteWhereInput[]
+    NOT?: OsCustomerConversationNoteWhereInput | OsCustomerConversationNoteWhereInput[]
+    id?: StringFilter<"OsCustomerConversationNote"> | string
+    organizationId?: StringFilter<"OsCustomerConversationNote"> | string
+    conversationId?: StringFilter<"OsCustomerConversationNote"> | string
+    authorMemberId?: StringFilter<"OsCustomerConversationNote"> | string
+    authorLabel?: StringFilter<"OsCustomerConversationNote"> | string
+    body?: StringFilter<"OsCustomerConversationNote"> | string
+    visibility?: StringFilter<"OsCustomerConversationNote"> | string
+    requestKey?: StringFilter<"OsCustomerConversationNote"> | string
+    createdAt?: DateTimeFilter<"OsCustomerConversationNote"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    conversation?: XOR<OsCustomerConversationScalarRelationFilter, OsCustomerConversationWhereInput>
+  }
+
+  export type OsCustomerConversationNoteOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    conversationId?: SortOrder
+    authorMemberId?: SortOrder
+    authorLabel?: SortOrder
+    body?: SortOrder
+    visibility?: SortOrder
+    requestKey?: SortOrder
+    createdAt?: SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+    conversation?: OsCustomerConversationOrderByWithRelationInput
+  }
+
+  export type OsCustomerConversationNoteWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    organizationId_conversationId_authorMemberId_requestKey?: OsCustomerConversationNoteOrganizationIdConversationIdAuthorMemberIdRequestKeyCompoundUniqueInput
+    AND?: OsCustomerConversationNoteWhereInput | OsCustomerConversationNoteWhereInput[]
+    OR?: OsCustomerConversationNoteWhereInput[]
+    NOT?: OsCustomerConversationNoteWhereInput | OsCustomerConversationNoteWhereInput[]
+    organizationId?: StringFilter<"OsCustomerConversationNote"> | string
+    conversationId?: StringFilter<"OsCustomerConversationNote"> | string
+    authorMemberId?: StringFilter<"OsCustomerConversationNote"> | string
+    authorLabel?: StringFilter<"OsCustomerConversationNote"> | string
+    body?: StringFilter<"OsCustomerConversationNote"> | string
+    visibility?: StringFilter<"OsCustomerConversationNote"> | string
+    requestKey?: StringFilter<"OsCustomerConversationNote"> | string
+    createdAt?: DateTimeFilter<"OsCustomerConversationNote"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    conversation?: XOR<OsCustomerConversationScalarRelationFilter, OsCustomerConversationWhereInput>
+  }, "id" | "organizationId_conversationId_authorMemberId_requestKey">
+
+  export type OsCustomerConversationNoteOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    conversationId?: SortOrder
+    authorMemberId?: SortOrder
+    authorLabel?: SortOrder
+    body?: SortOrder
+    visibility?: SortOrder
+    requestKey?: SortOrder
+    createdAt?: SortOrder
+    _count?: OsCustomerConversationNoteCountOrderByAggregateInput
+    _max?: OsCustomerConversationNoteMaxOrderByAggregateInput
+    _min?: OsCustomerConversationNoteMinOrderByAggregateInput
+  }
+
+  export type OsCustomerConversationNoteScalarWhereWithAggregatesInput = {
+    AND?: OsCustomerConversationNoteScalarWhereWithAggregatesInput | OsCustomerConversationNoteScalarWhereWithAggregatesInput[]
+    OR?: OsCustomerConversationNoteScalarWhereWithAggregatesInput[]
+    NOT?: OsCustomerConversationNoteScalarWhereWithAggregatesInput | OsCustomerConversationNoteScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OsCustomerConversationNote"> | string
+    organizationId?: StringWithAggregatesFilter<"OsCustomerConversationNote"> | string
+    conversationId?: StringWithAggregatesFilter<"OsCustomerConversationNote"> | string
+    authorMemberId?: StringWithAggregatesFilter<"OsCustomerConversationNote"> | string
+    authorLabel?: StringWithAggregatesFilter<"OsCustomerConversationNote"> | string
+    body?: StringWithAggregatesFilter<"OsCustomerConversationNote"> | string
+    visibility?: StringWithAggregatesFilter<"OsCustomerConversationNote"> | string
+    requestKey?: StringWithAggregatesFilter<"OsCustomerConversationNote"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"OsCustomerConversationNote"> | Date | string
+  }
+
+  export type OsCustomerConversationStateChangeWhereInput = {
+    AND?: OsCustomerConversationStateChangeWhereInput | OsCustomerConversationStateChangeWhereInput[]
+    OR?: OsCustomerConversationStateChangeWhereInput[]
+    NOT?: OsCustomerConversationStateChangeWhereInput | OsCustomerConversationStateChangeWhereInput[]
+    id?: StringFilter<"OsCustomerConversationStateChange"> | string
+    organizationId?: StringFilter<"OsCustomerConversationStateChange"> | string
+    conversationId?: StringFilter<"OsCustomerConversationStateChange"> | string
+    fromState?: StringFilter<"OsCustomerConversationStateChange"> | string
+    toState?: StringFilter<"OsCustomerConversationStateChange"> | string
+    cause?: StringFilter<"OsCustomerConversationStateChange"> | string
+    actorMemberId?: StringNullableFilter<"OsCustomerConversationStateChange"> | string | null
+    changedAt?: DateTimeFilter<"OsCustomerConversationStateChange"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    conversation?: XOR<OsCustomerConversationScalarRelationFilter, OsCustomerConversationWhereInput>
+  }
+
+  export type OsCustomerConversationStateChangeOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    conversationId?: SortOrder
+    fromState?: SortOrder
+    toState?: SortOrder
+    cause?: SortOrder
+    actorMemberId?: SortOrderInput | SortOrder
+    changedAt?: SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+    conversation?: OsCustomerConversationOrderByWithRelationInput
+  }
+
+  export type OsCustomerConversationStateChangeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OsCustomerConversationStateChangeWhereInput | OsCustomerConversationStateChangeWhereInput[]
+    OR?: OsCustomerConversationStateChangeWhereInput[]
+    NOT?: OsCustomerConversationStateChangeWhereInput | OsCustomerConversationStateChangeWhereInput[]
+    organizationId?: StringFilter<"OsCustomerConversationStateChange"> | string
+    conversationId?: StringFilter<"OsCustomerConversationStateChange"> | string
+    fromState?: StringFilter<"OsCustomerConversationStateChange"> | string
+    toState?: StringFilter<"OsCustomerConversationStateChange"> | string
+    cause?: StringFilter<"OsCustomerConversationStateChange"> | string
+    actorMemberId?: StringNullableFilter<"OsCustomerConversationStateChange"> | string | null
+    changedAt?: DateTimeFilter<"OsCustomerConversationStateChange"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    conversation?: XOR<OsCustomerConversationScalarRelationFilter, OsCustomerConversationWhereInput>
+  }, "id">
+
+  export type OsCustomerConversationStateChangeOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    conversationId?: SortOrder
+    fromState?: SortOrder
+    toState?: SortOrder
+    cause?: SortOrder
+    actorMemberId?: SortOrderInput | SortOrder
+    changedAt?: SortOrder
+    _count?: OsCustomerConversationStateChangeCountOrderByAggregateInput
+    _max?: OsCustomerConversationStateChangeMaxOrderByAggregateInput
+    _min?: OsCustomerConversationStateChangeMinOrderByAggregateInput
+  }
+
+  export type OsCustomerConversationStateChangeScalarWhereWithAggregatesInput = {
+    AND?: OsCustomerConversationStateChangeScalarWhereWithAggregatesInput | OsCustomerConversationStateChangeScalarWhereWithAggregatesInput[]
+    OR?: OsCustomerConversationStateChangeScalarWhereWithAggregatesInput[]
+    NOT?: OsCustomerConversationStateChangeScalarWhereWithAggregatesInput | OsCustomerConversationStateChangeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OsCustomerConversationStateChange"> | string
+    organizationId?: StringWithAggregatesFilter<"OsCustomerConversationStateChange"> | string
+    conversationId?: StringWithAggregatesFilter<"OsCustomerConversationStateChange"> | string
+    fromState?: StringWithAggregatesFilter<"OsCustomerConversationStateChange"> | string
+    toState?: StringWithAggregatesFilter<"OsCustomerConversationStateChange"> | string
+    cause?: StringWithAggregatesFilter<"OsCustomerConversationStateChange"> | string
+    actorMemberId?: StringNullableWithAggregatesFilter<"OsCustomerConversationStateChange"> | string | null
+    changedAt?: DateTimeWithAggregatesFilter<"OsCustomerConversationStateChange"> | Date | string
   }
 
   export type OsWarehouseExitWhereInput = {
@@ -152298,6 +155138,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -152398,6 +155240,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -152498,6 +155342,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -152598,6 +155444,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -160094,6 +162942,9 @@ export namespace Prisma {
     assignedLabel?: string | null
     assignedAt?: Date | string | null
     nextStepCommitmentId?: string | null
+    attentionState?: string
+    attentionStateChangedAt?: Date | string | null
+    automationPausedAt?: Date | string | null
     opportunityId?: string | null
     quoteId?: string | null
     orderId?: string | null
@@ -160106,6 +162957,8 @@ export namespace Prisma {
     advisorNumberStatus?: string
     createdAt?: Date | string
     organization: OsOrganizationCreateNestedOneWithoutCustomerConversationsInput
+    notes?: OsCustomerConversationNoteCreateNestedManyWithoutConversationInput
+    stateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutConversationInput
   }
 
   export type OsCustomerConversationUncheckedCreateInput = {
@@ -160125,6 +162978,9 @@ export namespace Prisma {
     assignedLabel?: string | null
     assignedAt?: Date | string | null
     nextStepCommitmentId?: string | null
+    attentionState?: string
+    attentionStateChangedAt?: Date | string | null
+    automationPausedAt?: Date | string | null
     opportunityId?: string | null
     quoteId?: string | null
     orderId?: string | null
@@ -160136,6 +162992,8 @@ export namespace Prisma {
     provenance?: string
     advisorNumberStatus?: string
     createdAt?: Date | string
+    notes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutConversationInput
+    stateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutConversationInput
   }
 
   export type OsCustomerConversationUpdateInput = {
@@ -160154,6 +163012,9 @@ export namespace Prisma {
     assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
     assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    attentionState?: StringFieldUpdateOperationsInput | string
+    attentionStateChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    automationPausedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -160166,6 +163027,8 @@ export namespace Prisma {
     advisorNumberStatus?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OsOrganizationUpdateOneRequiredWithoutCustomerConversationsNestedInput
+    notes?: OsCustomerConversationNoteUpdateManyWithoutConversationNestedInput
+    stateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutConversationNestedInput
   }
 
   export type OsCustomerConversationUncheckedUpdateInput = {
@@ -160185,6 +163048,9 @@ export namespace Prisma {
     assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
     assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    attentionState?: StringFieldUpdateOperationsInput | string
+    attentionStateChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    automationPausedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -160196,6 +163062,8 @@ export namespace Prisma {
     provenance?: StringFieldUpdateOperationsInput | string
     advisorNumberStatus?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutConversationNestedInput
+    stateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutConversationNestedInput
   }
 
   export type OsCustomerConversationCreateManyInput = {
@@ -160215,6 +163083,9 @@ export namespace Prisma {
     assignedLabel?: string | null
     assignedAt?: Date | string | null
     nextStepCommitmentId?: string | null
+    attentionState?: string
+    attentionStateChangedAt?: Date | string | null
+    automationPausedAt?: Date | string | null
     opportunityId?: string | null
     quoteId?: string | null
     orderId?: string | null
@@ -160244,6 +163115,9 @@ export namespace Prisma {
     assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
     assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    attentionState?: StringFieldUpdateOperationsInput | string
+    attentionStateChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    automationPausedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -160274,6 +163148,9 @@ export namespace Prisma {
     assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
     assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    attentionState?: StringFieldUpdateOperationsInput | string
+    attentionStateChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    automationPausedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -160285,6 +163162,163 @@ export namespace Prisma {
     provenance?: StringFieldUpdateOperationsInput | string
     advisorNumberStatus?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationNoteCreateInput = {
+    id: string
+    authorMemberId: string
+    authorLabel: string
+    body: string
+    visibility?: string
+    requestKey: string
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutCustomerConversationNotesInput
+    conversation: OsCustomerConversationCreateNestedOneWithoutNotesInput
+  }
+
+  export type OsCustomerConversationNoteUncheckedCreateInput = {
+    id: string
+    organizationId: string
+    conversationId: string
+    authorMemberId: string
+    authorLabel: string
+    body: string
+    visibility?: string
+    requestKey: string
+    createdAt?: Date | string
+  }
+
+  export type OsCustomerConversationNoteUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    authorMemberId?: StringFieldUpdateOperationsInput | string
+    authorLabel?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    visibility?: StringFieldUpdateOperationsInput | string
+    requestKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutCustomerConversationNotesNestedInput
+    conversation?: OsCustomerConversationUpdateOneRequiredWithoutNotesNestedInput
+  }
+
+  export type OsCustomerConversationNoteUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    conversationId?: StringFieldUpdateOperationsInput | string
+    authorMemberId?: StringFieldUpdateOperationsInput | string
+    authorLabel?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    visibility?: StringFieldUpdateOperationsInput | string
+    requestKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationNoteCreateManyInput = {
+    id: string
+    organizationId: string
+    conversationId: string
+    authorMemberId: string
+    authorLabel: string
+    body: string
+    visibility?: string
+    requestKey: string
+    createdAt?: Date | string
+  }
+
+  export type OsCustomerConversationNoteUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    authorMemberId?: StringFieldUpdateOperationsInput | string
+    authorLabel?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    visibility?: StringFieldUpdateOperationsInput | string
+    requestKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationNoteUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    conversationId?: StringFieldUpdateOperationsInput | string
+    authorMemberId?: StringFieldUpdateOperationsInput | string
+    authorLabel?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    visibility?: StringFieldUpdateOperationsInput | string
+    requestKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationStateChangeCreateInput = {
+    id: string
+    fromState: string
+    toState: string
+    cause: string
+    actorMemberId?: string | null
+    changedAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutCustomerConversationStateChangesInput
+    conversation: OsCustomerConversationCreateNestedOneWithoutStateChangesInput
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedCreateInput = {
+    id: string
+    organizationId: string
+    conversationId: string
+    fromState: string
+    toState: string
+    cause: string
+    actorMemberId?: string | null
+    changedAt?: Date | string
+  }
+
+  export type OsCustomerConversationStateChangeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromState?: StringFieldUpdateOperationsInput | string
+    toState?: StringFieldUpdateOperationsInput | string
+    cause?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutCustomerConversationStateChangesNestedInput
+    conversation?: OsCustomerConversationUpdateOneRequiredWithoutStateChangesNestedInput
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    conversationId?: StringFieldUpdateOperationsInput | string
+    fromState?: StringFieldUpdateOperationsInput | string
+    toState?: StringFieldUpdateOperationsInput | string
+    cause?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationStateChangeCreateManyInput = {
+    id: string
+    organizationId: string
+    conversationId: string
+    fromState: string
+    toState: string
+    cause: string
+    actorMemberId?: string | null
+    changedAt?: Date | string
+  }
+
+  export type OsCustomerConversationStateChangeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromState?: StringFieldUpdateOperationsInput | string
+    toState?: StringFieldUpdateOperationsInput | string
+    cause?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    conversationId?: StringFieldUpdateOperationsInput | string
+    fromState?: StringFieldUpdateOperationsInput | string
+    toState?: StringFieldUpdateOperationsInput | string
+    cause?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OsWarehouseExitCreateInput = {
@@ -164235,6 +167269,18 @@ export namespace Prisma {
     none?: OsCustomerConversationWhereInput
   }
 
+  export type OsCustomerConversationNoteListRelationFilter = {
+    every?: OsCustomerConversationNoteWhereInput
+    some?: OsCustomerConversationNoteWhereInput
+    none?: OsCustomerConversationNoteWhereInput
+  }
+
+  export type OsCustomerConversationStateChangeListRelationFilter = {
+    every?: OsCustomerConversationStateChangeWhereInput
+    some?: OsCustomerConversationStateChangeWhereInput
+    none?: OsCustomerConversationStateChangeWhereInput
+  }
+
   export type CustomerCommittedDateListRelationFilter = {
     every?: CustomerCommittedDateWhereInput
     some?: CustomerCommittedDateWhereInput
@@ -164640,6 +167686,14 @@ export namespace Prisma {
   }
 
   export type OsCustomerConversationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsCustomerConversationNoteOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsCustomerConversationStateChangeOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -168965,6 +172019,9 @@ export namespace Prisma {
     assignedLabel?: SortOrder
     assignedAt?: SortOrder
     nextStepCommitmentId?: SortOrder
+    attentionState?: SortOrder
+    attentionStateChangedAt?: SortOrder
+    automationPausedAt?: SortOrder
     opportunityId?: SortOrder
     quoteId?: SortOrder
     orderId?: SortOrder
@@ -168995,6 +172052,9 @@ export namespace Prisma {
     assignedLabel?: SortOrder
     assignedAt?: SortOrder
     nextStepCommitmentId?: SortOrder
+    attentionState?: SortOrder
+    attentionStateChangedAt?: SortOrder
+    automationPausedAt?: SortOrder
     opportunityId?: SortOrder
     quoteId?: SortOrder
     orderId?: SortOrder
@@ -169025,6 +172085,9 @@ export namespace Prisma {
     assignedLabel?: SortOrder
     assignedAt?: SortOrder
     nextStepCommitmentId?: SortOrder
+    attentionState?: SortOrder
+    attentionStateChangedAt?: SortOrder
+    automationPausedAt?: SortOrder
     opportunityId?: SortOrder
     quoteId?: SortOrder
     orderId?: SortOrder
@@ -169036,6 +172099,87 @@ export namespace Prisma {
     provenance?: SortOrder
     advisorNumberStatus?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type OsCustomerConversationScalarRelationFilter = {
+    is?: OsCustomerConversationWhereInput
+    isNot?: OsCustomerConversationWhereInput
+  }
+
+  export type OsCustomerConversationNoteOrganizationIdConversationIdAuthorMemberIdRequestKeyCompoundUniqueInput = {
+    organizationId: string
+    conversationId: string
+    authorMemberId: string
+    requestKey: string
+  }
+
+  export type OsCustomerConversationNoteCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    conversationId?: SortOrder
+    authorMemberId?: SortOrder
+    authorLabel?: SortOrder
+    body?: SortOrder
+    visibility?: SortOrder
+    requestKey?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsCustomerConversationNoteMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    conversationId?: SortOrder
+    authorMemberId?: SortOrder
+    authorLabel?: SortOrder
+    body?: SortOrder
+    visibility?: SortOrder
+    requestKey?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsCustomerConversationNoteMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    conversationId?: SortOrder
+    authorMemberId?: SortOrder
+    authorLabel?: SortOrder
+    body?: SortOrder
+    visibility?: SortOrder
+    requestKey?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsCustomerConversationStateChangeCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    conversationId?: SortOrder
+    fromState?: SortOrder
+    toState?: SortOrder
+    cause?: SortOrder
+    actorMemberId?: SortOrder
+    changedAt?: SortOrder
+  }
+
+  export type OsCustomerConversationStateChangeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    conversationId?: SortOrder
+    fromState?: SortOrder
+    toState?: SortOrder
+    cause?: SortOrder
+    actorMemberId?: SortOrder
+    changedAt?: SortOrder
+  }
+
+  export type OsCustomerConversationStateChangeMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    conversationId?: SortOrder
+    fromState?: SortOrder
+    toState?: SortOrder
+    cause?: SortOrder
+    actorMemberId?: SortOrder
+    changedAt?: SortOrder
   }
 
   export type OsWarehouseExitCountOrderByAggregateInput = {
@@ -171207,6 +174351,20 @@ export namespace Prisma {
     connect?: OsCustomerConversationWhereUniqueInput | OsCustomerConversationWhereUniqueInput[]
   }
 
+  export type OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsCustomerConversationNoteCreateWithoutOrganizationInput, OsCustomerConversationNoteUncheckedCreateWithoutOrganizationInput> | OsCustomerConversationNoteCreateWithoutOrganizationInput[] | OsCustomerConversationNoteUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCustomerConversationNoteCreateOrConnectWithoutOrganizationInput | OsCustomerConversationNoteCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsCustomerConversationNoteCreateManyOrganizationInputEnvelope
+    connect?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+  }
+
+  export type OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsCustomerConversationStateChangeCreateWithoutOrganizationInput, OsCustomerConversationStateChangeUncheckedCreateWithoutOrganizationInput> | OsCustomerConversationStateChangeCreateWithoutOrganizationInput[] | OsCustomerConversationStateChangeUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCustomerConversationStateChangeCreateOrConnectWithoutOrganizationInput | OsCustomerConversationStateChangeCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsCustomerConversationStateChangeCreateManyOrganizationInputEnvelope
+    connect?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+  }
+
   export type CustomerCommittedDateCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<CustomerCommittedDateCreateWithoutOrganizationInput, CustomerCommittedDateUncheckedCreateWithoutOrganizationInput> | CustomerCommittedDateCreateWithoutOrganizationInput[] | CustomerCommittedDateUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: CustomerCommittedDateCreateOrConnectWithoutOrganizationInput | CustomerCommittedDateCreateOrConnectWithoutOrganizationInput[]
@@ -171828,6 +174986,20 @@ export namespace Prisma {
     connectOrCreate?: OsCustomerConversationCreateOrConnectWithoutOrganizationInput | OsCustomerConversationCreateOrConnectWithoutOrganizationInput[]
     createMany?: OsCustomerConversationCreateManyOrganizationInputEnvelope
     connect?: OsCustomerConversationWhereUniqueInput | OsCustomerConversationWhereUniqueInput[]
+  }
+
+  export type OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsCustomerConversationNoteCreateWithoutOrganizationInput, OsCustomerConversationNoteUncheckedCreateWithoutOrganizationInput> | OsCustomerConversationNoteCreateWithoutOrganizationInput[] | OsCustomerConversationNoteUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCustomerConversationNoteCreateOrConnectWithoutOrganizationInput | OsCustomerConversationNoteCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsCustomerConversationNoteCreateManyOrganizationInputEnvelope
+    connect?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsCustomerConversationStateChangeCreateWithoutOrganizationInput, OsCustomerConversationStateChangeUncheckedCreateWithoutOrganizationInput> | OsCustomerConversationStateChangeCreateWithoutOrganizationInput[] | OsCustomerConversationStateChangeUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCustomerConversationStateChangeCreateOrConnectWithoutOrganizationInput | OsCustomerConversationStateChangeCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsCustomerConversationStateChangeCreateManyOrganizationInputEnvelope
+    connect?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
   }
 
   export type CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput = {
@@ -172900,6 +176072,34 @@ export namespace Prisma {
     update?: OsCustomerConversationUpdateWithWhereUniqueWithoutOrganizationInput | OsCustomerConversationUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OsCustomerConversationUpdateManyWithWhereWithoutOrganizationInput | OsCustomerConversationUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OsCustomerConversationScalarWhereInput | OsCustomerConversationScalarWhereInput[]
+  }
+
+  export type OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsCustomerConversationNoteCreateWithoutOrganizationInput, OsCustomerConversationNoteUncheckedCreateWithoutOrganizationInput> | OsCustomerConversationNoteCreateWithoutOrganizationInput[] | OsCustomerConversationNoteUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCustomerConversationNoteCreateOrConnectWithoutOrganizationInput | OsCustomerConversationNoteCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsCustomerConversationNoteUpsertWithWhereUniqueWithoutOrganizationInput | OsCustomerConversationNoteUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsCustomerConversationNoteCreateManyOrganizationInputEnvelope
+    set?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    disconnect?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    delete?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    connect?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    update?: OsCustomerConversationNoteUpdateWithWhereUniqueWithoutOrganizationInput | OsCustomerConversationNoteUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsCustomerConversationNoteUpdateManyWithWhereWithoutOrganizationInput | OsCustomerConversationNoteUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsCustomerConversationNoteScalarWhereInput | OsCustomerConversationNoteScalarWhereInput[]
+  }
+
+  export type OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsCustomerConversationStateChangeCreateWithoutOrganizationInput, OsCustomerConversationStateChangeUncheckedCreateWithoutOrganizationInput> | OsCustomerConversationStateChangeCreateWithoutOrganizationInput[] | OsCustomerConversationStateChangeUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCustomerConversationStateChangeCreateOrConnectWithoutOrganizationInput | OsCustomerConversationStateChangeCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsCustomerConversationStateChangeUpsertWithWhereUniqueWithoutOrganizationInput | OsCustomerConversationStateChangeUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsCustomerConversationStateChangeCreateManyOrganizationInputEnvelope
+    set?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    disconnect?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    delete?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    connect?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    update?: OsCustomerConversationStateChangeUpdateWithWhereUniqueWithoutOrganizationInput | OsCustomerConversationStateChangeUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsCustomerConversationStateChangeUpdateManyWithWhereWithoutOrganizationInput | OsCustomerConversationStateChangeUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsCustomerConversationStateChangeScalarWhereInput | OsCustomerConversationStateChangeScalarWhereInput[]
   }
 
   export type CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput = {
@@ -174146,6 +177346,34 @@ export namespace Prisma {
     update?: OsCustomerConversationUpdateWithWhereUniqueWithoutOrganizationInput | OsCustomerConversationUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OsCustomerConversationUpdateManyWithWhereWithoutOrganizationInput | OsCustomerConversationUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OsCustomerConversationScalarWhereInput | OsCustomerConversationScalarWhereInput[]
+  }
+
+  export type OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsCustomerConversationNoteCreateWithoutOrganizationInput, OsCustomerConversationNoteUncheckedCreateWithoutOrganizationInput> | OsCustomerConversationNoteCreateWithoutOrganizationInput[] | OsCustomerConversationNoteUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCustomerConversationNoteCreateOrConnectWithoutOrganizationInput | OsCustomerConversationNoteCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsCustomerConversationNoteUpsertWithWhereUniqueWithoutOrganizationInput | OsCustomerConversationNoteUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsCustomerConversationNoteCreateManyOrganizationInputEnvelope
+    set?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    disconnect?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    delete?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    connect?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    update?: OsCustomerConversationNoteUpdateWithWhereUniqueWithoutOrganizationInput | OsCustomerConversationNoteUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsCustomerConversationNoteUpdateManyWithWhereWithoutOrganizationInput | OsCustomerConversationNoteUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsCustomerConversationNoteScalarWhereInput | OsCustomerConversationNoteScalarWhereInput[]
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsCustomerConversationStateChangeCreateWithoutOrganizationInput, OsCustomerConversationStateChangeUncheckedCreateWithoutOrganizationInput> | OsCustomerConversationStateChangeCreateWithoutOrganizationInput[] | OsCustomerConversationStateChangeUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCustomerConversationStateChangeCreateOrConnectWithoutOrganizationInput | OsCustomerConversationStateChangeCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsCustomerConversationStateChangeUpsertWithWhereUniqueWithoutOrganizationInput | OsCustomerConversationStateChangeUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsCustomerConversationStateChangeCreateManyOrganizationInputEnvelope
+    set?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    disconnect?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    delete?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    connect?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    update?: OsCustomerConversationStateChangeUpdateWithWhereUniqueWithoutOrganizationInput | OsCustomerConversationStateChangeUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsCustomerConversationStateChangeUpdateManyWithWhereWithoutOrganizationInput | OsCustomerConversationStateChangeUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsCustomerConversationStateChangeScalarWhereInput | OsCustomerConversationStateChangeScalarWhereInput[]
   }
 
   export type CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput = {
@@ -179146,12 +182374,152 @@ export namespace Prisma {
     connect?: OsOrganizationWhereUniqueInput
   }
 
+  export type OsCustomerConversationNoteCreateNestedManyWithoutConversationInput = {
+    create?: XOR<OsCustomerConversationNoteCreateWithoutConversationInput, OsCustomerConversationNoteUncheckedCreateWithoutConversationInput> | OsCustomerConversationNoteCreateWithoutConversationInput[] | OsCustomerConversationNoteUncheckedCreateWithoutConversationInput[]
+    connectOrCreate?: OsCustomerConversationNoteCreateOrConnectWithoutConversationInput | OsCustomerConversationNoteCreateOrConnectWithoutConversationInput[]
+    createMany?: OsCustomerConversationNoteCreateManyConversationInputEnvelope
+    connect?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+  }
+
+  export type OsCustomerConversationStateChangeCreateNestedManyWithoutConversationInput = {
+    create?: XOR<OsCustomerConversationStateChangeCreateWithoutConversationInput, OsCustomerConversationStateChangeUncheckedCreateWithoutConversationInput> | OsCustomerConversationStateChangeCreateWithoutConversationInput[] | OsCustomerConversationStateChangeUncheckedCreateWithoutConversationInput[]
+    connectOrCreate?: OsCustomerConversationStateChangeCreateOrConnectWithoutConversationInput | OsCustomerConversationStateChangeCreateOrConnectWithoutConversationInput[]
+    createMany?: OsCustomerConversationStateChangeCreateManyConversationInputEnvelope
+    connect?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+  }
+
+  export type OsCustomerConversationNoteUncheckedCreateNestedManyWithoutConversationInput = {
+    create?: XOR<OsCustomerConversationNoteCreateWithoutConversationInput, OsCustomerConversationNoteUncheckedCreateWithoutConversationInput> | OsCustomerConversationNoteCreateWithoutConversationInput[] | OsCustomerConversationNoteUncheckedCreateWithoutConversationInput[]
+    connectOrCreate?: OsCustomerConversationNoteCreateOrConnectWithoutConversationInput | OsCustomerConversationNoteCreateOrConnectWithoutConversationInput[]
+    createMany?: OsCustomerConversationNoteCreateManyConversationInputEnvelope
+    connect?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutConversationInput = {
+    create?: XOR<OsCustomerConversationStateChangeCreateWithoutConversationInput, OsCustomerConversationStateChangeUncheckedCreateWithoutConversationInput> | OsCustomerConversationStateChangeCreateWithoutConversationInput[] | OsCustomerConversationStateChangeUncheckedCreateWithoutConversationInput[]
+    connectOrCreate?: OsCustomerConversationStateChangeCreateOrConnectWithoutConversationInput | OsCustomerConversationStateChangeCreateOrConnectWithoutConversationInput[]
+    createMany?: OsCustomerConversationStateChangeCreateManyConversationInputEnvelope
+    connect?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+  }
+
   export type OsOrganizationUpdateOneRequiredWithoutCustomerConversationsNestedInput = {
     create?: XOR<OsOrganizationCreateWithoutCustomerConversationsInput, OsOrganizationUncheckedCreateWithoutCustomerConversationsInput>
     connectOrCreate?: OsOrganizationCreateOrConnectWithoutCustomerConversationsInput
     upsert?: OsOrganizationUpsertWithoutCustomerConversationsInput
     connect?: OsOrganizationWhereUniqueInput
     update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutCustomerConversationsInput, OsOrganizationUpdateWithoutCustomerConversationsInput>, OsOrganizationUncheckedUpdateWithoutCustomerConversationsInput>
+  }
+
+  export type OsCustomerConversationNoteUpdateManyWithoutConversationNestedInput = {
+    create?: XOR<OsCustomerConversationNoteCreateWithoutConversationInput, OsCustomerConversationNoteUncheckedCreateWithoutConversationInput> | OsCustomerConversationNoteCreateWithoutConversationInput[] | OsCustomerConversationNoteUncheckedCreateWithoutConversationInput[]
+    connectOrCreate?: OsCustomerConversationNoteCreateOrConnectWithoutConversationInput | OsCustomerConversationNoteCreateOrConnectWithoutConversationInput[]
+    upsert?: OsCustomerConversationNoteUpsertWithWhereUniqueWithoutConversationInput | OsCustomerConversationNoteUpsertWithWhereUniqueWithoutConversationInput[]
+    createMany?: OsCustomerConversationNoteCreateManyConversationInputEnvelope
+    set?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    disconnect?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    delete?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    connect?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    update?: OsCustomerConversationNoteUpdateWithWhereUniqueWithoutConversationInput | OsCustomerConversationNoteUpdateWithWhereUniqueWithoutConversationInput[]
+    updateMany?: OsCustomerConversationNoteUpdateManyWithWhereWithoutConversationInput | OsCustomerConversationNoteUpdateManyWithWhereWithoutConversationInput[]
+    deleteMany?: OsCustomerConversationNoteScalarWhereInput | OsCustomerConversationNoteScalarWhereInput[]
+  }
+
+  export type OsCustomerConversationStateChangeUpdateManyWithoutConversationNestedInput = {
+    create?: XOR<OsCustomerConversationStateChangeCreateWithoutConversationInput, OsCustomerConversationStateChangeUncheckedCreateWithoutConversationInput> | OsCustomerConversationStateChangeCreateWithoutConversationInput[] | OsCustomerConversationStateChangeUncheckedCreateWithoutConversationInput[]
+    connectOrCreate?: OsCustomerConversationStateChangeCreateOrConnectWithoutConversationInput | OsCustomerConversationStateChangeCreateOrConnectWithoutConversationInput[]
+    upsert?: OsCustomerConversationStateChangeUpsertWithWhereUniqueWithoutConversationInput | OsCustomerConversationStateChangeUpsertWithWhereUniqueWithoutConversationInput[]
+    createMany?: OsCustomerConversationStateChangeCreateManyConversationInputEnvelope
+    set?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    disconnect?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    delete?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    connect?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    update?: OsCustomerConversationStateChangeUpdateWithWhereUniqueWithoutConversationInput | OsCustomerConversationStateChangeUpdateWithWhereUniqueWithoutConversationInput[]
+    updateMany?: OsCustomerConversationStateChangeUpdateManyWithWhereWithoutConversationInput | OsCustomerConversationStateChangeUpdateManyWithWhereWithoutConversationInput[]
+    deleteMany?: OsCustomerConversationStateChangeScalarWhereInput | OsCustomerConversationStateChangeScalarWhereInput[]
+  }
+
+  export type OsCustomerConversationNoteUncheckedUpdateManyWithoutConversationNestedInput = {
+    create?: XOR<OsCustomerConversationNoteCreateWithoutConversationInput, OsCustomerConversationNoteUncheckedCreateWithoutConversationInput> | OsCustomerConversationNoteCreateWithoutConversationInput[] | OsCustomerConversationNoteUncheckedCreateWithoutConversationInput[]
+    connectOrCreate?: OsCustomerConversationNoteCreateOrConnectWithoutConversationInput | OsCustomerConversationNoteCreateOrConnectWithoutConversationInput[]
+    upsert?: OsCustomerConversationNoteUpsertWithWhereUniqueWithoutConversationInput | OsCustomerConversationNoteUpsertWithWhereUniqueWithoutConversationInput[]
+    createMany?: OsCustomerConversationNoteCreateManyConversationInputEnvelope
+    set?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    disconnect?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    delete?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    connect?: OsCustomerConversationNoteWhereUniqueInput | OsCustomerConversationNoteWhereUniqueInput[]
+    update?: OsCustomerConversationNoteUpdateWithWhereUniqueWithoutConversationInput | OsCustomerConversationNoteUpdateWithWhereUniqueWithoutConversationInput[]
+    updateMany?: OsCustomerConversationNoteUpdateManyWithWhereWithoutConversationInput | OsCustomerConversationNoteUpdateManyWithWhereWithoutConversationInput[]
+    deleteMany?: OsCustomerConversationNoteScalarWhereInput | OsCustomerConversationNoteScalarWhereInput[]
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedUpdateManyWithoutConversationNestedInput = {
+    create?: XOR<OsCustomerConversationStateChangeCreateWithoutConversationInput, OsCustomerConversationStateChangeUncheckedCreateWithoutConversationInput> | OsCustomerConversationStateChangeCreateWithoutConversationInput[] | OsCustomerConversationStateChangeUncheckedCreateWithoutConversationInput[]
+    connectOrCreate?: OsCustomerConversationStateChangeCreateOrConnectWithoutConversationInput | OsCustomerConversationStateChangeCreateOrConnectWithoutConversationInput[]
+    upsert?: OsCustomerConversationStateChangeUpsertWithWhereUniqueWithoutConversationInput | OsCustomerConversationStateChangeUpsertWithWhereUniqueWithoutConversationInput[]
+    createMany?: OsCustomerConversationStateChangeCreateManyConversationInputEnvelope
+    set?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    disconnect?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    delete?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    connect?: OsCustomerConversationStateChangeWhereUniqueInput | OsCustomerConversationStateChangeWhereUniqueInput[]
+    update?: OsCustomerConversationStateChangeUpdateWithWhereUniqueWithoutConversationInput | OsCustomerConversationStateChangeUpdateWithWhereUniqueWithoutConversationInput[]
+    updateMany?: OsCustomerConversationStateChangeUpdateManyWithWhereWithoutConversationInput | OsCustomerConversationStateChangeUpdateManyWithWhereWithoutConversationInput[]
+    deleteMany?: OsCustomerConversationStateChangeScalarWhereInput | OsCustomerConversationStateChangeScalarWhereInput[]
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutCustomerConversationNotesInput = {
+    create?: XOR<OsOrganizationCreateWithoutCustomerConversationNotesInput, OsOrganizationUncheckedCreateWithoutCustomerConversationNotesInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutCustomerConversationNotesInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsCustomerConversationCreateNestedOneWithoutNotesInput = {
+    create?: XOR<OsCustomerConversationCreateWithoutNotesInput, OsCustomerConversationUncheckedCreateWithoutNotesInput>
+    connectOrCreate?: OsCustomerConversationCreateOrConnectWithoutNotesInput
+    connect?: OsCustomerConversationWhereUniqueInput
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutCustomerConversationNotesNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutCustomerConversationNotesInput, OsOrganizationUncheckedCreateWithoutCustomerConversationNotesInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutCustomerConversationNotesInput
+    upsert?: OsOrganizationUpsertWithoutCustomerConversationNotesInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutCustomerConversationNotesInput, OsOrganizationUpdateWithoutCustomerConversationNotesInput>, OsOrganizationUncheckedUpdateWithoutCustomerConversationNotesInput>
+  }
+
+  export type OsCustomerConversationUpdateOneRequiredWithoutNotesNestedInput = {
+    create?: XOR<OsCustomerConversationCreateWithoutNotesInput, OsCustomerConversationUncheckedCreateWithoutNotesInput>
+    connectOrCreate?: OsCustomerConversationCreateOrConnectWithoutNotesInput
+    upsert?: OsCustomerConversationUpsertWithoutNotesInput
+    connect?: OsCustomerConversationWhereUniqueInput
+    update?: XOR<XOR<OsCustomerConversationUpdateToOneWithWhereWithoutNotesInput, OsCustomerConversationUpdateWithoutNotesInput>, OsCustomerConversationUncheckedUpdateWithoutNotesInput>
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutCustomerConversationStateChangesInput = {
+    create?: XOR<OsOrganizationCreateWithoutCustomerConversationStateChangesInput, OsOrganizationUncheckedCreateWithoutCustomerConversationStateChangesInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutCustomerConversationStateChangesInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsCustomerConversationCreateNestedOneWithoutStateChangesInput = {
+    create?: XOR<OsCustomerConversationCreateWithoutStateChangesInput, OsCustomerConversationUncheckedCreateWithoutStateChangesInput>
+    connectOrCreate?: OsCustomerConversationCreateOrConnectWithoutStateChangesInput
+    connect?: OsCustomerConversationWhereUniqueInput
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutCustomerConversationStateChangesNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutCustomerConversationStateChangesInput, OsOrganizationUncheckedCreateWithoutCustomerConversationStateChangesInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutCustomerConversationStateChangesInput
+    upsert?: OsOrganizationUpsertWithoutCustomerConversationStateChangesInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutCustomerConversationStateChangesInput, OsOrganizationUpdateWithoutCustomerConversationStateChangesInput>, OsOrganizationUncheckedUpdateWithoutCustomerConversationStateChangesInput>
+  }
+
+  export type OsCustomerConversationUpdateOneRequiredWithoutStateChangesNestedInput = {
+    create?: XOR<OsCustomerConversationCreateWithoutStateChangesInput, OsCustomerConversationUncheckedCreateWithoutStateChangesInput>
+    connectOrCreate?: OsCustomerConversationCreateOrConnectWithoutStateChangesInput
+    upsert?: OsCustomerConversationUpsertWithoutStateChangesInput
+    connect?: OsCustomerConversationWhereUniqueInput
+    update?: XOR<XOR<OsCustomerConversationUpdateToOneWithWhereWithoutStateChangesInput, OsCustomerConversationUpdateWithoutStateChangesInput>, OsCustomerConversationUncheckedUpdateWithoutStateChangesInput>
   }
 
   export type OsOrganizationCreateNestedOneWithoutCustomerCommittedDatesInput = {
@@ -183229,6 +186597,9 @@ export namespace Prisma {
     assignedLabel?: string | null
     assignedAt?: Date | string | null
     nextStepCommitmentId?: string | null
+    attentionState?: string
+    attentionStateChangedAt?: Date | string | null
+    automationPausedAt?: Date | string | null
     opportunityId?: string | null
     quoteId?: string | null
     orderId?: string | null
@@ -183240,6 +186611,8 @@ export namespace Prisma {
     provenance?: string
     advisorNumberStatus?: string
     createdAt?: Date | string
+    notes?: OsCustomerConversationNoteCreateNestedManyWithoutConversationInput
+    stateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutConversationInput
   }
 
   export type OsCustomerConversationUncheckedCreateWithoutOrganizationInput = {
@@ -183258,6 +186631,9 @@ export namespace Prisma {
     assignedLabel?: string | null
     assignedAt?: Date | string | null
     nextStepCommitmentId?: string | null
+    attentionState?: string
+    attentionStateChangedAt?: Date | string | null
+    automationPausedAt?: Date | string | null
     opportunityId?: string | null
     quoteId?: string | null
     orderId?: string | null
@@ -183269,6 +186645,8 @@ export namespace Prisma {
     provenance?: string
     advisorNumberStatus?: string
     createdAt?: Date | string
+    notes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutConversationInput
+    stateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutConversationInput
   }
 
   export type OsCustomerConversationCreateOrConnectWithoutOrganizationInput = {
@@ -183278,6 +186656,68 @@ export namespace Prisma {
 
   export type OsCustomerConversationCreateManyOrganizationInputEnvelope = {
     data: OsCustomerConversationCreateManyOrganizationInput | OsCustomerConversationCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsCustomerConversationNoteCreateWithoutOrganizationInput = {
+    id: string
+    authorMemberId: string
+    authorLabel: string
+    body: string
+    visibility?: string
+    requestKey: string
+    createdAt?: Date | string
+    conversation: OsCustomerConversationCreateNestedOneWithoutNotesInput
+  }
+
+  export type OsCustomerConversationNoteUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    conversationId: string
+    authorMemberId: string
+    authorLabel: string
+    body: string
+    visibility?: string
+    requestKey: string
+    createdAt?: Date | string
+  }
+
+  export type OsCustomerConversationNoteCreateOrConnectWithoutOrganizationInput = {
+    where: OsCustomerConversationNoteWhereUniqueInput
+    create: XOR<OsCustomerConversationNoteCreateWithoutOrganizationInput, OsCustomerConversationNoteUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsCustomerConversationNoteCreateManyOrganizationInputEnvelope = {
+    data: OsCustomerConversationNoteCreateManyOrganizationInput | OsCustomerConversationNoteCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsCustomerConversationStateChangeCreateWithoutOrganizationInput = {
+    id: string
+    fromState: string
+    toState: string
+    cause: string
+    actorMemberId?: string | null
+    changedAt?: Date | string
+    conversation: OsCustomerConversationCreateNestedOneWithoutStateChangesInput
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    conversationId: string
+    fromState: string
+    toState: string
+    cause: string
+    actorMemberId?: string | null
+    changedAt?: Date | string
+  }
+
+  export type OsCustomerConversationStateChangeCreateOrConnectWithoutOrganizationInput = {
+    where: OsCustomerConversationStateChangeWhereUniqueInput
+    create: XOR<OsCustomerConversationStateChangeCreateWithoutOrganizationInput, OsCustomerConversationStateChangeUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsCustomerConversationStateChangeCreateManyOrganizationInputEnvelope = {
+    data: OsCustomerConversationStateChangeCreateManyOrganizationInput | OsCustomerConversationStateChangeCreateManyOrganizationInput[]
     skipDuplicates?: boolean
   }
 
@@ -186482,6 +189922,9 @@ export namespace Prisma {
     assignedLabel?: StringNullableFilter<"OsCustomerConversation"> | string | null
     assignedAt?: DateTimeNullableFilter<"OsCustomerConversation"> | Date | string | null
     nextStepCommitmentId?: StringNullableFilter<"OsCustomerConversation"> | string | null
+    attentionState?: StringFilter<"OsCustomerConversation"> | string
+    attentionStateChangedAt?: DateTimeNullableFilter<"OsCustomerConversation"> | Date | string | null
+    automationPausedAt?: DateTimeNullableFilter<"OsCustomerConversation"> | Date | string | null
     opportunityId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     quoteId?: StringNullableFilter<"OsCustomerConversation"> | string | null
     orderId?: StringNullableFilter<"OsCustomerConversation"> | string | null
@@ -186493,6 +189936,67 @@ export namespace Prisma {
     provenance?: StringFilter<"OsCustomerConversation"> | string
     advisorNumberStatus?: StringFilter<"OsCustomerConversation"> | string
     createdAt?: DateTimeFilter<"OsCustomerConversation"> | Date | string
+  }
+
+  export type OsCustomerConversationNoteUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsCustomerConversationNoteWhereUniqueInput
+    update: XOR<OsCustomerConversationNoteUpdateWithoutOrganizationInput, OsCustomerConversationNoteUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsCustomerConversationNoteCreateWithoutOrganizationInput, OsCustomerConversationNoteUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsCustomerConversationNoteUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsCustomerConversationNoteWhereUniqueInput
+    data: XOR<OsCustomerConversationNoteUpdateWithoutOrganizationInput, OsCustomerConversationNoteUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsCustomerConversationNoteUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsCustomerConversationNoteScalarWhereInput
+    data: XOR<OsCustomerConversationNoteUpdateManyMutationInput, OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsCustomerConversationNoteScalarWhereInput = {
+    AND?: OsCustomerConversationNoteScalarWhereInput | OsCustomerConversationNoteScalarWhereInput[]
+    OR?: OsCustomerConversationNoteScalarWhereInput[]
+    NOT?: OsCustomerConversationNoteScalarWhereInput | OsCustomerConversationNoteScalarWhereInput[]
+    id?: StringFilter<"OsCustomerConversationNote"> | string
+    organizationId?: StringFilter<"OsCustomerConversationNote"> | string
+    conversationId?: StringFilter<"OsCustomerConversationNote"> | string
+    authorMemberId?: StringFilter<"OsCustomerConversationNote"> | string
+    authorLabel?: StringFilter<"OsCustomerConversationNote"> | string
+    body?: StringFilter<"OsCustomerConversationNote"> | string
+    visibility?: StringFilter<"OsCustomerConversationNote"> | string
+    requestKey?: StringFilter<"OsCustomerConversationNote"> | string
+    createdAt?: DateTimeFilter<"OsCustomerConversationNote"> | Date | string
+  }
+
+  export type OsCustomerConversationStateChangeUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsCustomerConversationStateChangeWhereUniqueInput
+    update: XOR<OsCustomerConversationStateChangeUpdateWithoutOrganizationInput, OsCustomerConversationStateChangeUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsCustomerConversationStateChangeCreateWithoutOrganizationInput, OsCustomerConversationStateChangeUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsCustomerConversationStateChangeUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsCustomerConversationStateChangeWhereUniqueInput
+    data: XOR<OsCustomerConversationStateChangeUpdateWithoutOrganizationInput, OsCustomerConversationStateChangeUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsCustomerConversationStateChangeUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsCustomerConversationStateChangeScalarWhereInput
+    data: XOR<OsCustomerConversationStateChangeUpdateManyMutationInput, OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsCustomerConversationStateChangeScalarWhereInput = {
+    AND?: OsCustomerConversationStateChangeScalarWhereInput | OsCustomerConversationStateChangeScalarWhereInput[]
+    OR?: OsCustomerConversationStateChangeScalarWhereInput[]
+    NOT?: OsCustomerConversationStateChangeScalarWhereInput | OsCustomerConversationStateChangeScalarWhereInput[]
+    id?: StringFilter<"OsCustomerConversationStateChange"> | string
+    organizationId?: StringFilter<"OsCustomerConversationStateChange"> | string
+    conversationId?: StringFilter<"OsCustomerConversationStateChange"> | string
+    fromState?: StringFilter<"OsCustomerConversationStateChange"> | string
+    toState?: StringFilter<"OsCustomerConversationStateChange"> | string
+    cause?: StringFilter<"OsCustomerConversationStateChange"> | string
+    actorMemberId?: StringNullableFilter<"OsCustomerConversationStateChange"> | string | null
+    changedAt?: DateTimeFilter<"OsCustomerConversationStateChange"> | Date | string
   }
 
   export type CustomerCommittedDateUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -187590,6 +191094,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -187689,6 +191195,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -188055,6 +191563,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -188154,6 +191664,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -188452,6 +191964,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -188551,6 +192065,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -188749,6 +192265,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -188848,6 +192366,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -189010,6 +192530,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -189109,6 +192631,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -189275,6 +192799,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -189374,6 +192900,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -189518,6 +193046,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -189617,6 +193147,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -189775,6 +193307,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -189874,6 +193408,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -190022,6 +193558,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -190121,6 +193659,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -190304,6 +193844,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -190403,6 +193945,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -190582,6 +194126,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -190681,6 +194227,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -190882,6 +194430,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -190981,6 +194531,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -191178,6 +194730,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -191277,6 +194831,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -191478,6 +195034,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -191577,6 +195135,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -191774,6 +195334,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -191873,6 +195435,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -192101,6 +195665,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -192200,6 +195766,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -192380,6 +195948,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -192479,6 +196049,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -192639,6 +196211,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -192738,6 +196312,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -192888,6 +196464,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -192987,6 +196565,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -193147,6 +196727,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -193246,6 +196828,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -193396,6 +196980,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -193495,6 +197081,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -193610,6 +197198,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -193709,6 +197299,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -193808,6 +197400,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -193907,6 +197501,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -194022,6 +197618,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -194121,6 +197719,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -194220,6 +197820,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -194319,6 +197921,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -194434,6 +198038,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -194533,6 +198139,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -194632,6 +198240,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -194731,6 +198341,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -194846,6 +198458,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -194945,6 +198559,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -195044,6 +198660,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -195143,6 +198761,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -195258,6 +198878,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -195357,6 +198979,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -195456,6 +199080,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -195555,6 +199181,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -195670,6 +199298,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -195769,6 +199399,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -195868,6 +199500,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -195967,6 +199601,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -196799,6 +200435,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -196898,6 +200536,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -197302,6 +200942,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -197401,6 +201043,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -197575,6 +201219,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -197674,6 +201320,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -197838,6 +201486,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -197937,6 +201587,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -198084,6 +201736,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -198183,6 +201837,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -198333,6 +201989,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -198432,6 +202090,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -198588,6 +202248,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -198687,6 +202349,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -198786,6 +202450,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -198885,6 +202551,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -199133,6 +202801,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -199232,6 +202902,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -199412,6 +203084,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -199511,6 +203185,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -199864,6 +203540,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -199963,6 +203641,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -200220,6 +203900,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -200319,6 +204001,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -200549,6 +204233,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -200648,6 +204334,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -200838,6 +204526,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -200937,6 +204627,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -201327,6 +205019,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -201426,6 +205120,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -201713,6 +205409,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -201812,6 +205510,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -201986,6 +205686,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -202085,6 +205787,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -202249,6 +205953,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -202348,6 +206054,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -202600,6 +206308,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -202699,6 +206409,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -202896,6 +206608,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -202995,6 +206709,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -203211,6 +206927,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -203310,6 +207028,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -203492,6 +207212,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -203591,6 +207313,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -203745,6 +207469,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -203844,6 +207570,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -203987,6 +207715,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -204086,6 +207816,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -204260,6 +207992,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -204359,6 +208093,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -204523,6 +208259,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -204622,6 +208360,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -204796,6 +208536,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -204895,6 +208637,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -205059,6 +208803,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -205158,6 +208904,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -205332,6 +209080,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -205431,6 +209181,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -205595,6 +209347,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -205694,6 +209448,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -205927,6 +209683,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -206026,6 +209784,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -206255,6 +210015,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -206354,6 +210116,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -206587,6 +210351,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -206686,6 +210452,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -206915,6 +210683,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -207014,6 +210784,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -207129,6 +210901,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -207228,6 +211002,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -207327,6 +211103,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -207426,6 +211204,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -207541,6 +211321,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -207640,6 +211422,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -207739,6 +211523,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -207838,6 +211624,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -207953,6 +211741,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -208052,6 +211842,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -208151,6 +211943,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -208250,6 +212044,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -208365,6 +212161,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -208464,6 +212262,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -208563,6 +212363,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -208662,6 +212464,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -208777,6 +212581,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -208876,6 +212682,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -208975,6 +212783,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -209074,6 +212884,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -209189,6 +213001,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -209288,6 +213102,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -209387,6 +213203,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -209486,6 +213304,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -209601,6 +213421,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -209700,6 +213522,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -209799,6 +213623,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -209898,6 +213724,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -210013,6 +213841,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -210112,6 +213942,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -210211,6 +214043,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -210310,6 +214144,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -210425,6 +214261,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -210524,6 +214362,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -210623,6 +214463,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -210722,6 +214564,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -210837,6 +214681,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -210936,6 +214782,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -211035,6 +214883,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -211134,6 +214984,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -211249,6 +215101,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -211348,6 +215202,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -211447,6 +215303,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -211546,6 +215404,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -212009,6 +215869,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -212108,6 +215970,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -212454,6 +216318,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -212553,6 +216419,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -212884,6 +216752,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -212983,6 +216853,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -213244,6 +217116,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -213343,6 +217217,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -213501,6 +217377,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -213600,6 +217478,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -213748,6 +217628,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -213847,6 +217729,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -214064,6 +217948,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -214163,6 +218049,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -214376,6 +218264,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -214475,6 +218365,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -214696,6 +218588,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -214795,6 +218689,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -215012,6 +218908,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -215111,6 +219009,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -215226,6 +219126,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -215325,6 +219227,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -215424,6 +219328,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -215523,6 +219429,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -215674,6 +219582,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -215773,6 +219683,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -215888,6 +219800,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -215987,6 +219901,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -216145,6 +220061,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -216244,6 +220162,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -216392,6 +220312,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -216491,6 +220413,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -216606,6 +220530,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -216705,6 +220631,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -216804,6 +220732,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -216903,6 +220833,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -217139,6 +221071,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -217238,6 +221172,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -217718,6 +221654,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -217817,6 +221755,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -218085,6 +222025,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -218184,6 +222126,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -218454,6 +222398,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -218553,6 +222499,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -218768,6 +222716,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -218867,6 +222817,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -218998,6 +222950,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -219097,6 +223051,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -219368,6 +223324,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -219467,6 +223425,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -219685,6 +223645,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -219784,6 +223746,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -219947,6 +223911,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -220046,6 +224012,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -220199,6 +224167,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -220298,6 +224268,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -220565,6 +224537,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -220664,6 +224638,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -220880,6 +224856,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -220979,6 +224957,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -221140,6 +225120,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -221239,6 +225221,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -221390,6 +225374,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -221489,6 +225475,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -221762,6 +225750,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -221861,6 +225851,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -222008,6 +226000,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -222107,6 +226101,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -222332,6 +226328,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -222431,6 +226429,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -222626,6 +226626,8 @@ export namespace Prisma {
     productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -222725,6 +226727,8 @@ export namespace Prisma {
     productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -222954,6 +226958,8 @@ export namespace Prisma {
     productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -223053,6 +227059,8 @@ export namespace Prisma {
     productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -223250,6 +227258,8 @@ export namespace Prisma {
     productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -223349,6 +227359,8 @@ export namespace Prisma {
     productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -223634,6 +227646,8 @@ export namespace Prisma {
     productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -223733,6 +227747,8 @@ export namespace Prisma {
     productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -223958,6 +227974,8 @@ export namespace Prisma {
     productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -224057,6 +228075,8 @@ export namespace Prisma {
     productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -224088,6 +228108,68 @@ export namespace Prisma {
   export type OsOrganizationCreateOrConnectWithoutCustomerConversationsInput = {
     where: OsOrganizationWhereUniqueInput
     create: XOR<OsOrganizationCreateWithoutCustomerConversationsInput, OsOrganizationUncheckedCreateWithoutCustomerConversationsInput>
+  }
+
+  export type OsCustomerConversationNoteCreateWithoutConversationInput = {
+    id: string
+    authorMemberId: string
+    authorLabel: string
+    body: string
+    visibility?: string
+    requestKey: string
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutCustomerConversationNotesInput
+  }
+
+  export type OsCustomerConversationNoteUncheckedCreateWithoutConversationInput = {
+    id: string
+    organizationId: string
+    authorMemberId: string
+    authorLabel: string
+    body: string
+    visibility?: string
+    requestKey: string
+    createdAt?: Date | string
+  }
+
+  export type OsCustomerConversationNoteCreateOrConnectWithoutConversationInput = {
+    where: OsCustomerConversationNoteWhereUniqueInput
+    create: XOR<OsCustomerConversationNoteCreateWithoutConversationInput, OsCustomerConversationNoteUncheckedCreateWithoutConversationInput>
+  }
+
+  export type OsCustomerConversationNoteCreateManyConversationInputEnvelope = {
+    data: OsCustomerConversationNoteCreateManyConversationInput | OsCustomerConversationNoteCreateManyConversationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsCustomerConversationStateChangeCreateWithoutConversationInput = {
+    id: string
+    fromState: string
+    toState: string
+    cause: string
+    actorMemberId?: string | null
+    changedAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutCustomerConversationStateChangesInput
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedCreateWithoutConversationInput = {
+    id: string
+    organizationId: string
+    fromState: string
+    toState: string
+    cause: string
+    actorMemberId?: string | null
+    changedAt?: Date | string
+  }
+
+  export type OsCustomerConversationStateChangeCreateOrConnectWithoutConversationInput = {
+    where: OsCustomerConversationStateChangeWhereUniqueInput
+    create: XOR<OsCustomerConversationStateChangeCreateWithoutConversationInput, OsCustomerConversationStateChangeUncheckedCreateWithoutConversationInput>
+  }
+
+  export type OsCustomerConversationStateChangeCreateManyConversationInputEnvelope = {
+    data: OsCustomerConversationStateChangeCreateManyConversationInput | OsCustomerConversationStateChangeCreateManyConversationInput[]
+    skipDuplicates?: boolean
   }
 
   export type OsOrganizationUpsertWithoutCustomerConversationsInput = {
@@ -224172,6 +228254,8 @@ export namespace Prisma {
     productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -224271,6 +228355,8 @@ export namespace Prisma {
     productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -224297,6 +228383,1182 @@ export namespace Prisma {
     contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
     contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
     contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsCustomerConversationNoteUpsertWithWhereUniqueWithoutConversationInput = {
+    where: OsCustomerConversationNoteWhereUniqueInput
+    update: XOR<OsCustomerConversationNoteUpdateWithoutConversationInput, OsCustomerConversationNoteUncheckedUpdateWithoutConversationInput>
+    create: XOR<OsCustomerConversationNoteCreateWithoutConversationInput, OsCustomerConversationNoteUncheckedCreateWithoutConversationInput>
+  }
+
+  export type OsCustomerConversationNoteUpdateWithWhereUniqueWithoutConversationInput = {
+    where: OsCustomerConversationNoteWhereUniqueInput
+    data: XOR<OsCustomerConversationNoteUpdateWithoutConversationInput, OsCustomerConversationNoteUncheckedUpdateWithoutConversationInput>
+  }
+
+  export type OsCustomerConversationNoteUpdateManyWithWhereWithoutConversationInput = {
+    where: OsCustomerConversationNoteScalarWhereInput
+    data: XOR<OsCustomerConversationNoteUpdateManyMutationInput, OsCustomerConversationNoteUncheckedUpdateManyWithoutConversationInput>
+  }
+
+  export type OsCustomerConversationStateChangeUpsertWithWhereUniqueWithoutConversationInput = {
+    where: OsCustomerConversationStateChangeWhereUniqueInput
+    update: XOR<OsCustomerConversationStateChangeUpdateWithoutConversationInput, OsCustomerConversationStateChangeUncheckedUpdateWithoutConversationInput>
+    create: XOR<OsCustomerConversationStateChangeCreateWithoutConversationInput, OsCustomerConversationStateChangeUncheckedCreateWithoutConversationInput>
+  }
+
+  export type OsCustomerConversationStateChangeUpdateWithWhereUniqueWithoutConversationInput = {
+    where: OsCustomerConversationStateChangeWhereUniqueInput
+    data: XOR<OsCustomerConversationStateChangeUpdateWithoutConversationInput, OsCustomerConversationStateChangeUncheckedUpdateWithoutConversationInput>
+  }
+
+  export type OsCustomerConversationStateChangeUpdateManyWithWhereWithoutConversationInput = {
+    where: OsCustomerConversationStateChangeScalarWhereInput
+    data: XOR<OsCustomerConversationStateChangeUpdateManyMutationInput, OsCustomerConversationStateChangeUncheckedUpdateManyWithoutConversationInput>
+  }
+
+  export type OsOrganizationCreateWithoutCustomerConversationNotesInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactCreateNestedManyWithoutOrganizationInput
+    paymentTenders?: OsPaymentTenderCreateNestedManyWithoutOrganizationInput
+    paymentTenderEvents?: OsPaymentTenderEventCreateNestedManyWithoutOrganizationInput
+    paymentEvidence?: OsPaymentEvidenceCreateNestedManyWithoutOrganizationInput
+    paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
+    paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
+    issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
+    issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
+    issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
+    issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
+    issueRelations?: OsIssueRelationCreateNestedManyWithoutOrganizationInput
+    issueResolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutOrganizationInput
+    productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutCustomerConversationNotesInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentTenders?: OsPaymentTenderUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentTenderEvents?: OsPaymentTenderEventUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentEvidence?: OsPaymentEvidenceUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
+    issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
+    issueRelations?: OsIssueRelationUncheckedCreateNestedManyWithoutOrganizationInput
+    issueResolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutOrganizationInput
+    productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutCustomerConversationNotesInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutCustomerConversationNotesInput, OsOrganizationUncheckedCreateWithoutCustomerConversationNotesInput>
+  }
+
+  export type OsCustomerConversationCreateWithoutNotesInput = {
+    id: string
+    customerId: string
+    customerLabel: string
+    contactLabel?: string | null
+    channel: string
+    occurredAt: Date | string
+    enteredByMemberId?: string | null
+    enteredByLabel: string
+    summary: string
+    pastedEvidence?: string | null
+    reason?: string | null
+    assignedMemberId?: string | null
+    assignedLabel?: string | null
+    assignedAt?: Date | string | null
+    nextStepCommitmentId?: string | null
+    attentionState?: string
+    attentionStateChangedAt?: Date | string | null
+    automationPausedAt?: Date | string | null
+    opportunityId?: string | null
+    quoteId?: string | null
+    orderId?: string | null
+    customerQuestion?: string | null
+    commitmentCandidate?: string | null
+    possibleRequestedDate?: Date | string | null
+    nextAction?: string | null
+    source?: string
+    provenance?: string
+    advisorNumberStatus?: string
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutCustomerConversationsInput
+    stateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutConversationInput
+  }
+
+  export type OsCustomerConversationUncheckedCreateWithoutNotesInput = {
+    id: string
+    organizationId: string
+    customerId: string
+    customerLabel: string
+    contactLabel?: string | null
+    channel: string
+    occurredAt: Date | string
+    enteredByMemberId?: string | null
+    enteredByLabel: string
+    summary: string
+    pastedEvidence?: string | null
+    reason?: string | null
+    assignedMemberId?: string | null
+    assignedLabel?: string | null
+    assignedAt?: Date | string | null
+    nextStepCommitmentId?: string | null
+    attentionState?: string
+    attentionStateChangedAt?: Date | string | null
+    automationPausedAt?: Date | string | null
+    opportunityId?: string | null
+    quoteId?: string | null
+    orderId?: string | null
+    customerQuestion?: string | null
+    commitmentCandidate?: string | null
+    possibleRequestedDate?: Date | string | null
+    nextAction?: string | null
+    source?: string
+    provenance?: string
+    advisorNumberStatus?: string
+    createdAt?: Date | string
+    stateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutConversationInput
+  }
+
+  export type OsCustomerConversationCreateOrConnectWithoutNotesInput = {
+    where: OsCustomerConversationWhereUniqueInput
+    create: XOR<OsCustomerConversationCreateWithoutNotesInput, OsCustomerConversationUncheckedCreateWithoutNotesInput>
+  }
+
+  export type OsOrganizationUpsertWithoutCustomerConversationNotesInput = {
+    update: XOR<OsOrganizationUpdateWithoutCustomerConversationNotesInput, OsOrganizationUncheckedUpdateWithoutCustomerConversationNotesInput>
+    create: XOR<OsOrganizationCreateWithoutCustomerConversationNotesInput, OsOrganizationUncheckedCreateWithoutCustomerConversationNotesInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutCustomerConversationNotesInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutCustomerConversationNotesInput, OsOrganizationUncheckedUpdateWithoutCustomerConversationNotesInput>
+  }
+
+  export type OsOrganizationUpdateWithoutCustomerConversationNotesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUpdateManyWithoutOrganizationNestedInput
+    paymentTenders?: OsPaymentTenderUpdateManyWithoutOrganizationNestedInput
+    paymentTenderEvents?: OsPaymentTenderEventUpdateManyWithoutOrganizationNestedInput
+    paymentEvidence?: OsPaymentEvidenceUpdateManyWithoutOrganizationNestedInput
+    paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
+    paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
+    issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
+    issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
+    issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
+    issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
+    issueRelations?: OsIssueRelationUpdateManyWithoutOrganizationNestedInput
+    issueResolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutOrganizationNestedInput
+    productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutCustomerConversationNotesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentTenders?: OsPaymentTenderUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentTenderEvents?: OsPaymentTenderEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentEvidence?: OsPaymentEvidenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
+    issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueRelations?: OsIssueRelationUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueResolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutOrganizationNestedInput
+    productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsCustomerConversationUpsertWithoutNotesInput = {
+    update: XOR<OsCustomerConversationUpdateWithoutNotesInput, OsCustomerConversationUncheckedUpdateWithoutNotesInput>
+    create: XOR<OsCustomerConversationCreateWithoutNotesInput, OsCustomerConversationUncheckedCreateWithoutNotesInput>
+    where?: OsCustomerConversationWhereInput
+  }
+
+  export type OsCustomerConversationUpdateToOneWithWhereWithoutNotesInput = {
+    where?: OsCustomerConversationWhereInput
+    data: XOR<OsCustomerConversationUpdateWithoutNotesInput, OsCustomerConversationUncheckedUpdateWithoutNotesInput>
+  }
+
+  export type OsCustomerConversationUpdateWithoutNotesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    customerLabel?: StringFieldUpdateOperationsInput | string
+    contactLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    channel?: StringFieldUpdateOperationsInput | string
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    enteredByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredByLabel?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    pastedEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    attentionState?: StringFieldUpdateOperationsInput | string
+    attentionStateChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    automationPausedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
+    quoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderId?: NullableStringFieldUpdateOperationsInput | string | null
+    customerQuestion?: NullableStringFieldUpdateOperationsInput | string | null
+    commitmentCandidate?: NullableStringFieldUpdateOperationsInput | string | null
+    possibleRequestedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextAction?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    provenance?: StringFieldUpdateOperationsInput | string
+    advisorNumberStatus?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutCustomerConversationsNestedInput
+    stateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutConversationNestedInput
+  }
+
+  export type OsCustomerConversationUncheckedUpdateWithoutNotesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    customerLabel?: StringFieldUpdateOperationsInput | string
+    contactLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    channel?: StringFieldUpdateOperationsInput | string
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    enteredByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredByLabel?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    pastedEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    attentionState?: StringFieldUpdateOperationsInput | string
+    attentionStateChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    automationPausedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
+    quoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderId?: NullableStringFieldUpdateOperationsInput | string | null
+    customerQuestion?: NullableStringFieldUpdateOperationsInput | string | null
+    commitmentCandidate?: NullableStringFieldUpdateOperationsInput | string | null
+    possibleRequestedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextAction?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    provenance?: StringFieldUpdateOperationsInput | string
+    advisorNumberStatus?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutConversationNestedInput
+  }
+
+  export type OsOrganizationCreateWithoutCustomerConversationStateChangesInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactCreateNestedManyWithoutOrganizationInput
+    paymentTenders?: OsPaymentTenderCreateNestedManyWithoutOrganizationInput
+    paymentTenderEvents?: OsPaymentTenderEventCreateNestedManyWithoutOrganizationInput
+    paymentEvidence?: OsPaymentEvidenceCreateNestedManyWithoutOrganizationInput
+    paymentAllocations?: OsPaymentAllocationCreateNestedManyWithoutOrganizationInput
+    paymentInstructionVersions?: OsPaymentInstructionVersionCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
+    issues?: OsIssueCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestCreateNestedManyWithoutOrganizationInput
+    issueReferences?: OsIssueReferenceCreateNestedManyWithoutOrganizationInput
+    issueJournalEntries?: OsIssueJournalEntryCreateNestedManyWithoutOrganizationInput
+    issueWorkLinks?: OsIssueWorkLinkCreateNestedManyWithoutOrganizationInput
+    issueRelations?: OsIssueRelationCreateNestedManyWithoutOrganizationInput
+    issueResolutionCycles?: OsIssueResolutionCycleCreateNestedManyWithoutOrganizationInput
+    productFeedback?: OsProductFeedbackCreateNestedManyWithoutOrganizationInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutCustomerConversationStateChangesInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentTenders?: OsPaymentTenderUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentTenderEvents?: OsPaymentTenderEventUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentEvidence?: OsPaymentEvidenceUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentAllocations?: OsPaymentAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    commitmentChanges?: OsCommitmentChangeUncheckedCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
+    issues?: OsIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    issueReferences?: OsIssueReferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    issueJournalEntries?: OsIssueJournalEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    issueWorkLinks?: OsIssueWorkLinkUncheckedCreateNestedManyWithoutOrganizationInput
+    issueRelations?: OsIssueRelationUncheckedCreateNestedManyWithoutOrganizationInput
+    issueResolutionCycles?: OsIssueResolutionCycleUncheckedCreateNestedManyWithoutOrganizationInput
+    productFeedback?: OsProductFeedbackUncheckedCreateNestedManyWithoutOrganizationInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedCreateNestedManyWithoutOrganizationInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedCreateNestedManyWithoutOrganizationInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutCustomerConversationStateChangesInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutCustomerConversationStateChangesInput, OsOrganizationUncheckedCreateWithoutCustomerConversationStateChangesInput>
+  }
+
+  export type OsCustomerConversationCreateWithoutStateChangesInput = {
+    id: string
+    customerId: string
+    customerLabel: string
+    contactLabel?: string | null
+    channel: string
+    occurredAt: Date | string
+    enteredByMemberId?: string | null
+    enteredByLabel: string
+    summary: string
+    pastedEvidence?: string | null
+    reason?: string | null
+    assignedMemberId?: string | null
+    assignedLabel?: string | null
+    assignedAt?: Date | string | null
+    nextStepCommitmentId?: string | null
+    attentionState?: string
+    attentionStateChangedAt?: Date | string | null
+    automationPausedAt?: Date | string | null
+    opportunityId?: string | null
+    quoteId?: string | null
+    orderId?: string | null
+    customerQuestion?: string | null
+    commitmentCandidate?: string | null
+    possibleRequestedDate?: Date | string | null
+    nextAction?: string | null
+    source?: string
+    provenance?: string
+    advisorNumberStatus?: string
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutCustomerConversationsInput
+    notes?: OsCustomerConversationNoteCreateNestedManyWithoutConversationInput
+  }
+
+  export type OsCustomerConversationUncheckedCreateWithoutStateChangesInput = {
+    id: string
+    organizationId: string
+    customerId: string
+    customerLabel: string
+    contactLabel?: string | null
+    channel: string
+    occurredAt: Date | string
+    enteredByMemberId?: string | null
+    enteredByLabel: string
+    summary: string
+    pastedEvidence?: string | null
+    reason?: string | null
+    assignedMemberId?: string | null
+    assignedLabel?: string | null
+    assignedAt?: Date | string | null
+    nextStepCommitmentId?: string | null
+    attentionState?: string
+    attentionStateChangedAt?: Date | string | null
+    automationPausedAt?: Date | string | null
+    opportunityId?: string | null
+    quoteId?: string | null
+    orderId?: string | null
+    customerQuestion?: string | null
+    commitmentCandidate?: string | null
+    possibleRequestedDate?: Date | string | null
+    nextAction?: string | null
+    source?: string
+    provenance?: string
+    advisorNumberStatus?: string
+    createdAt?: Date | string
+    notes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutConversationInput
+  }
+
+  export type OsCustomerConversationCreateOrConnectWithoutStateChangesInput = {
+    where: OsCustomerConversationWhereUniqueInput
+    create: XOR<OsCustomerConversationCreateWithoutStateChangesInput, OsCustomerConversationUncheckedCreateWithoutStateChangesInput>
+  }
+
+  export type OsOrganizationUpsertWithoutCustomerConversationStateChangesInput = {
+    update: XOR<OsOrganizationUpdateWithoutCustomerConversationStateChangesInput, OsOrganizationUncheckedUpdateWithoutCustomerConversationStateChangesInput>
+    create: XOR<OsOrganizationCreateWithoutCustomerConversationStateChangesInput, OsOrganizationUncheckedCreateWithoutCustomerConversationStateChangesInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutCustomerConversationStateChangesInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutCustomerConversationStateChangesInput, OsOrganizationUncheckedUpdateWithoutCustomerConversationStateChangesInput>
+  }
+
+  export type OsOrganizationUpdateWithoutCustomerConversationStateChangesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUpdateManyWithoutOrganizationNestedInput
+    paymentTenders?: OsPaymentTenderUpdateManyWithoutOrganizationNestedInput
+    paymentTenderEvents?: OsPaymentTenderEventUpdateManyWithoutOrganizationNestedInput
+    paymentEvidence?: OsPaymentEvidenceUpdateManyWithoutOrganizationNestedInput
+    paymentAllocations?: OsPaymentAllocationUpdateManyWithoutOrganizationNestedInput
+    paymentInstructionVersions?: OsPaymentInstructionVersionUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
+    issues?: OsIssueUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUpdateManyWithoutOrganizationNestedInput
+    issueReferences?: OsIssueReferenceUpdateManyWithoutOrganizationNestedInput
+    issueJournalEntries?: OsIssueJournalEntryUpdateManyWithoutOrganizationNestedInput
+    issueWorkLinks?: OsIssueWorkLinkUpdateManyWithoutOrganizationNestedInput
+    issueRelations?: OsIssueRelationUpdateManyWithoutOrganizationNestedInput
+    issueResolutionCycles?: OsIssueResolutionCycleUpdateManyWithoutOrganizationNestedInput
+    productFeedback?: OsProductFeedbackUpdateManyWithoutOrganizationNestedInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutCustomerConversationStateChangesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentTenders?: OsPaymentTenderUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentTenderEvents?: OsPaymentTenderEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentEvidence?: OsPaymentEvidenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentAllocations?: OsPaymentAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    paymentInstructionVersions?: OsPaymentInstructionVersionUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitmentChanges?: OsCommitmentChangeUncheckedUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
+    issues?: OsIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueCorrectionRequests?: OsIssueCorrectionRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueReferences?: OsIssueReferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueJournalEntries?: OsIssueJournalEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueWorkLinks?: OsIssueWorkLinkUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueRelations?: OsIssueRelationUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueResolutionCycles?: OsIssueResolutionCycleUncheckedUpdateManyWithoutOrganizationNestedInput
+    productFeedback?: OsProductFeedbackUncheckedUpdateManyWithoutOrganizationNestedInput
+    issueOwnershipHistory?: OsIssueOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactFollowupPreferences?: OsContactFollowupPreferenceUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactEndpointAssociations?: OsContactEndpointAssociationUncheckedUpdateManyWithoutOrganizationNestedInput
+    contactIdentityReviews?: OsContactIdentityReviewUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsCustomerConversationUpsertWithoutStateChangesInput = {
+    update: XOR<OsCustomerConversationUpdateWithoutStateChangesInput, OsCustomerConversationUncheckedUpdateWithoutStateChangesInput>
+    create: XOR<OsCustomerConversationCreateWithoutStateChangesInput, OsCustomerConversationUncheckedCreateWithoutStateChangesInput>
+    where?: OsCustomerConversationWhereInput
+  }
+
+  export type OsCustomerConversationUpdateToOneWithWhereWithoutStateChangesInput = {
+    where?: OsCustomerConversationWhereInput
+    data: XOR<OsCustomerConversationUpdateWithoutStateChangesInput, OsCustomerConversationUncheckedUpdateWithoutStateChangesInput>
+  }
+
+  export type OsCustomerConversationUpdateWithoutStateChangesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    customerLabel?: StringFieldUpdateOperationsInput | string
+    contactLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    channel?: StringFieldUpdateOperationsInput | string
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    enteredByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredByLabel?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    pastedEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    attentionState?: StringFieldUpdateOperationsInput | string
+    attentionStateChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    automationPausedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
+    quoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderId?: NullableStringFieldUpdateOperationsInput | string | null
+    customerQuestion?: NullableStringFieldUpdateOperationsInput | string | null
+    commitmentCandidate?: NullableStringFieldUpdateOperationsInput | string | null
+    possibleRequestedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextAction?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    provenance?: StringFieldUpdateOperationsInput | string
+    advisorNumberStatus?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutCustomerConversationsNestedInput
+    notes?: OsCustomerConversationNoteUpdateManyWithoutConversationNestedInput
+  }
+
+  export type OsCustomerConversationUncheckedUpdateWithoutStateChangesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    customerLabel?: StringFieldUpdateOperationsInput | string
+    contactLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    channel?: StringFieldUpdateOperationsInput | string
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    enteredByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    enteredByLabel?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    pastedEvidence?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    attentionState?: StringFieldUpdateOperationsInput | string
+    attentionStateChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    automationPausedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
+    quoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderId?: NullableStringFieldUpdateOperationsInput | string | null
+    customerQuestion?: NullableStringFieldUpdateOperationsInput | string | null
+    commitmentCandidate?: NullableStringFieldUpdateOperationsInput | string | null
+    possibleRequestedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextAction?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    provenance?: StringFieldUpdateOperationsInput | string
+    advisorNumberStatus?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutConversationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCustomerCommittedDatesInput = {
@@ -224371,6 +229633,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
@@ -224470,6 +229734,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
@@ -224617,6 +229883,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
@@ -224716,6 +229984,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -224868,6 +230138,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
@@ -224967,6 +230239,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
@@ -225125,6 +230399,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
@@ -225224,6 +230500,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -225323,6 +230601,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
@@ -225422,6 +230702,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
@@ -225569,6 +230851,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
@@ -225668,6 +230952,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -225818,6 +231104,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -225917,6 +231205,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -226073,6 +231363,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -226172,6 +231464,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -226271,6 +231565,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -226370,6 +231666,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -226517,6 +231815,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -226616,6 +231916,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -226764,6 +232066,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -226863,6 +232167,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -227017,6 +232323,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -227116,6 +232424,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -227215,6 +232525,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -227314,6 +232626,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -227429,6 +232743,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -227528,6 +232844,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -227627,6 +232945,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -227726,6 +233046,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -227841,6 +233163,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -227940,6 +233264,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -228039,6 +233365,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -228138,6 +233466,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -228319,6 +233649,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -228418,6 +233750,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -228828,6 +234162,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -228927,6 +234263,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -229081,6 +234419,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -229180,6 +234520,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -229295,6 +234637,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -229394,6 +234738,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -229587,6 +234933,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -229686,6 +235034,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -229875,6 +235225,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -229974,6 +235326,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -230089,6 +235443,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -230188,6 +235544,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -230287,6 +235645,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -230386,6 +235746,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -230501,6 +235863,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -230600,6 +235964,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -230699,6 +236065,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -230798,6 +236166,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -230913,6 +236283,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -231012,6 +236384,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -231111,6 +236485,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -231210,6 +236586,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -231588,6 +236966,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -231687,6 +237067,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -231947,6 +237329,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -232046,6 +237430,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -232226,6 +237612,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -232325,6 +237713,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -232495,6 +237885,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -232594,6 +237986,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -232774,6 +238168,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -232873,6 +238269,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -233043,6 +238441,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -233142,6 +238542,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -233322,6 +238724,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -233421,6 +238825,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -233591,6 +238997,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -233690,6 +239098,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -233870,6 +239280,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -233969,6 +239381,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -234139,6 +239553,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -234238,6 +239654,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -234483,6 +239901,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -234582,6 +240002,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -234823,6 +240245,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -234922,6 +240346,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -235102,6 +240528,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -235201,6 +240629,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -235371,6 +240801,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -235470,6 +240902,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -235585,6 +241019,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -235684,6 +241120,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -235783,6 +241221,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -235882,6 +241322,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -236062,6 +241504,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -236161,6 +241605,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -236331,6 +241777,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
@@ -236430,6 +241878,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -236606,6 +242056,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
@@ -236705,6 +242157,8 @@ export namespace Prisma {
     productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
     productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationNotes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversationStateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
     customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -237708,6 +243162,9 @@ export namespace Prisma {
     assignedLabel?: string | null
     assignedAt?: Date | string | null
     nextStepCommitmentId?: string | null
+    attentionState?: string
+    attentionStateChangedAt?: Date | string | null
+    automationPausedAt?: Date | string | null
     opportunityId?: string | null
     quoteId?: string | null
     orderId?: string | null
@@ -237719,6 +243176,27 @@ export namespace Prisma {
     provenance?: string
     advisorNumberStatus?: string
     createdAt?: Date | string
+  }
+
+  export type OsCustomerConversationNoteCreateManyOrganizationInput = {
+    id: string
+    conversationId: string
+    authorMemberId: string
+    authorLabel: string
+    body: string
+    visibility?: string
+    requestKey: string
+    createdAt?: Date | string
+  }
+
+  export type OsCustomerConversationStateChangeCreateManyOrganizationInput = {
+    id: string
+    conversationId: string
+    fromState: string
+    toState: string
+    cause: string
+    actorMemberId?: string | null
+    changedAt?: Date | string
   }
 
   export type CustomerCommittedDateCreateManyOrganizationInput = {
@@ -240909,6 +246387,9 @@ export namespace Prisma {
     assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
     assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    attentionState?: StringFieldUpdateOperationsInput | string
+    attentionStateChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    automationPausedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -240920,6 +246401,8 @@ export namespace Prisma {
     provenance?: StringFieldUpdateOperationsInput | string
     advisorNumberStatus?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: OsCustomerConversationNoteUpdateManyWithoutConversationNestedInput
+    stateChanges?: OsCustomerConversationStateChangeUpdateManyWithoutConversationNestedInput
   }
 
   export type OsCustomerConversationUncheckedUpdateWithoutOrganizationInput = {
@@ -240938,6 +246421,9 @@ export namespace Prisma {
     assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
     assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    attentionState?: StringFieldUpdateOperationsInput | string
+    attentionStateChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    automationPausedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -240949,6 +246435,8 @@ export namespace Prisma {
     provenance?: StringFieldUpdateOperationsInput | string
     advisorNumberStatus?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: OsCustomerConversationNoteUncheckedUpdateManyWithoutConversationNestedInput
+    stateChanges?: OsCustomerConversationStateChangeUncheckedUpdateManyWithoutConversationNestedInput
   }
 
   export type OsCustomerConversationUncheckedUpdateManyWithoutOrganizationInput = {
@@ -240967,6 +246455,9 @@ export namespace Prisma {
     assignedLabel?: NullableStringFieldUpdateOperationsInput | string | null
     assignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextStepCommitmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    attentionState?: StringFieldUpdateOperationsInput | string
+    attentionStateChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    automationPausedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     opportunityId?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -240978,6 +246469,69 @@ export namespace Prisma {
     provenance?: StringFieldUpdateOperationsInput | string
     advisorNumberStatus?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationNoteUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    authorMemberId?: StringFieldUpdateOperationsInput | string
+    authorLabel?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    visibility?: StringFieldUpdateOperationsInput | string
+    requestKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    conversation?: OsCustomerConversationUpdateOneRequiredWithoutNotesNestedInput
+  }
+
+  export type OsCustomerConversationNoteUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    conversationId?: StringFieldUpdateOperationsInput | string
+    authorMemberId?: StringFieldUpdateOperationsInput | string
+    authorLabel?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    visibility?: StringFieldUpdateOperationsInput | string
+    requestKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationNoteUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    conversationId?: StringFieldUpdateOperationsInput | string
+    authorMemberId?: StringFieldUpdateOperationsInput | string
+    authorLabel?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    visibility?: StringFieldUpdateOperationsInput | string
+    requestKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationStateChangeUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromState?: StringFieldUpdateOperationsInput | string
+    toState?: StringFieldUpdateOperationsInput | string
+    cause?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    conversation?: OsCustomerConversationUpdateOneRequiredWithoutStateChangesNestedInput
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    conversationId?: StringFieldUpdateOperationsInput | string
+    fromState?: StringFieldUpdateOperationsInput | string
+    toState?: StringFieldUpdateOperationsInput | string
+    cause?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    conversationId?: StringFieldUpdateOperationsInput | string
+    fromState?: StringFieldUpdateOperationsInput | string
+    toState?: StringFieldUpdateOperationsInput | string
+    cause?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CustomerCommittedDateUpdateWithoutOrganizationInput = {
@@ -246082,6 +251636,90 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsCustomerConversationNoteCreateManyConversationInput = {
+    id: string
+    organizationId: string
+    authorMemberId: string
+    authorLabel: string
+    body: string
+    visibility?: string
+    requestKey: string
+    createdAt?: Date | string
+  }
+
+  export type OsCustomerConversationStateChangeCreateManyConversationInput = {
+    id: string
+    organizationId: string
+    fromState: string
+    toState: string
+    cause: string
+    actorMemberId?: string | null
+    changedAt?: Date | string
+  }
+
+  export type OsCustomerConversationNoteUpdateWithoutConversationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    authorMemberId?: StringFieldUpdateOperationsInput | string
+    authorLabel?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    visibility?: StringFieldUpdateOperationsInput | string
+    requestKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutCustomerConversationNotesNestedInput
+  }
+
+  export type OsCustomerConversationNoteUncheckedUpdateWithoutConversationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    authorMemberId?: StringFieldUpdateOperationsInput | string
+    authorLabel?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    visibility?: StringFieldUpdateOperationsInput | string
+    requestKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationNoteUncheckedUpdateManyWithoutConversationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    authorMemberId?: StringFieldUpdateOperationsInput | string
+    authorLabel?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    visibility?: StringFieldUpdateOperationsInput | string
+    requestKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationStateChangeUpdateWithoutConversationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromState?: StringFieldUpdateOperationsInput | string
+    toState?: StringFieldUpdateOperationsInput | string
+    cause?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutCustomerConversationStateChangesNestedInput
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedUpdateWithoutConversationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    fromState?: StringFieldUpdateOperationsInput | string
+    toState?: StringFieldUpdateOperationsInput | string
+    cause?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerConversationStateChangeUncheckedUpdateManyWithoutConversationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    fromState?: StringFieldUpdateOperationsInput | string
+    toState?: StringFieldUpdateOperationsInput | string
+    cause?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CustomerCommittedDateRevisionCreateManyCommittedDateInput = {

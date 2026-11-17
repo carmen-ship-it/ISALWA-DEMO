@@ -5,7 +5,11 @@
  * Demo threads are labeled DEMO·WHATSAPP and never claim a live channel.
  */
 
-import type { ManualCustomerConversation } from '@isalwa/os-contracts';
+import type {
+  AttentionState,
+  ConversationAiState,
+  ManualCustomerConversation,
+} from '@isalwa/os-contracts';
 
 export const CONVERSATION_CHANNELS = [
   'WHATSAPP',
@@ -115,6 +119,12 @@ export type Conversation = {
   assignedLabel: string | null;
   /** Commitment created from the saved next step, when it exists. */
   nextStepCommitmentId: string | null;
+  /** Where the conversation is with the team. Demo fixtures are always `new`. */
+  attentionState: AttentionState;
+  /** A human took over, so automated replies stay paused (conceptual; no automation runs yet). */
+  automationPaused: boolean;
+  /** Separate from attention state. No AI is configured, so always null. */
+  aiState: ConversationAiState;
   /** Assigned RESPONSABLE for who-to-ask; null when not yet recorded. */
   responsible: ConversationResponsibleHint | null;
 };
@@ -230,7 +240,12 @@ export function conversationMatchesFilter(
     case 'mine':
       return Boolean(actorMemberId) && conversation.assignedMemberId === actorMemberId;
     case 'needs_response':
-      return conversation.attention.needsResponse;
+      // Esperando al cliente (we answered) and Resuelta are not waiting on us.
+      return (
+        conversation.attention.needsResponse &&
+        conversation.attentionState !== 'waiting_customer' &&
+        conversation.attentionState !== 'resolved'
+      );
     case 'follow_up':
       return conversation.attention.followUp;
   }

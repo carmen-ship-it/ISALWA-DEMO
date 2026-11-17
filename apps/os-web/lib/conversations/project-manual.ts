@@ -90,6 +90,9 @@ export function projectManualConversation(
     assignedMemberId: record.assignedMemberId,
     assignedLabel: record.assignedLabel,
     nextStepCommitmentId: record.nextStepCommitmentId,
+    attentionState: record.attentionState,
+    automationPaused: Boolean(record.automationPausedAt),
+    aiState: record.aiState,
     responsible: null,
   };
 }

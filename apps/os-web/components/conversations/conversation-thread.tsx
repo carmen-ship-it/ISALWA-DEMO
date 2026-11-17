@@ -1,6 +1,18 @@
 'use client';
 
 import { Button, EmptyState, StatusPill } from '@isalwa/ui';
+import type { AttentionState } from '@isalwa/os-contracts';
+import {
+  ConversationAttentionState,
+} from '@/components/conversations/conversation-attention-state';
+import {
+  ConversationComposer,
+  type ConversationComposerProps,
+} from '@/components/conversations/conversation-composer';
+import {
+  ConversationNotes,
+  type ConversationNotesState,
+} from '@/components/conversations/conversation-notes';
 import { CONVERSATIONS_COPY } from '@/lib/conversations/copy';
 import { channelLabel, type Conversation } from '@/lib/conversations/model';
 
@@ -13,6 +25,16 @@ type ConversationThreadProps = {
   onTake?: () => void;
   /** Opens "Registrar atención". The only way to add to a thread while WhatsApp is not connected. */
   onRegister?: () => void;
+  /** Attention state controls. Absent for owner-demo fixtures, which are not stored rows. */
+  attention?: {
+    canChange: boolean;
+    pendingTo: AttentionState | null;
+    error: string | null;
+    onChange: (to: AttentionState) => void;
+  };
+  /** Team-only notes of a stored conversation (separate from the messages). */
+  notes?: { state: ConversationNotesState; onRetry: () => void } | null;
+  composer: ConversationComposerProps;
 };
 
 function formatWhen(value: string): string {
@@ -31,6 +53,9 @@ export function ConversationThread({
   takeError = null,
   onTake,
   onRegister,
+  attention,
+  notes = null,
+  composer,
 }: ConversationThreadProps) {
   if (!conversation) {
     return (
@@ -83,6 +108,15 @@ export function ConversationThread({
             {takeError}
           </p>
         ) : null}
+        {attention && !conversation.isDemo ? (
+          <ConversationAttentionState
+            conversation={conversation}
+            canChange={attention.canChange}
+            pendingTo={attention.pendingTo}
+            error={attention.error}
+            onChange={attention.onChange}
+          />
+        ) : null}
         <p className="text-xs text-[var(--isalwa-slate)]">{CONVERSATIONS_COPY.noReadTicks}</p>
       </header>
       <ul className="mt-4 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
@@ -110,21 +144,14 @@ export function ConversationThread({
           );
         })}
       </ul>
+      {notes ? <ConversationNotes notes={notes.state} onRetry={notes.onRetry} /> : null}
       {/*
-        No composer: WhatsApp is not connected, so there is nothing to send. No send control is
-        rendered, enabled or disabled, so nothing can report a fake delivery. Manual attention
-        is the path. Internal note (team only) is not built yet; see the Batch 5 receipt.
+        Composer: "Mensaje" is blocked while WhatsApp is not connected (no handler, no success
+        path); "Nota interna" saves a team-only note through its own action. They never share a
+        path. Manual attention stays available through "Registrar atención".
       */}
-      <footer className="mt-3 shrink-0 space-y-2 border-t border-[var(--isalwa-mist)] pt-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <StatusPill tone="demo">{CONVERSATIONS_COPY.whatsappNotConnected}</StatusPill>
-          {onRegister ? (
-            <Button type="button" variant="secondary" size="sm" onClick={onRegister}>
-              {CONVERSATIONS_COPY.register}
-            </Button>
-          ) : null}
-        </div>
-        <p className="text-xs text-[var(--isalwa-slate)]">{CONVERSATIONS_COPY.composerNotice}</p>
+      <footer className="mt-3 shrink-0 border-t border-[var(--isalwa-mist)] pt-3">
+        <ConversationComposer {...composer} onRegister={onRegister} />
       </footer>
     </div>
   );

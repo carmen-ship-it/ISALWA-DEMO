@@ -43,6 +43,7 @@ export * from './operational-case';
 export * from './production-trace';
 export * from './operations-scopes';
 export * from './customer-conversation';
+export * from './customer-conversation-attention';
 export * from './delivery';
 export * from './customer-committed-date';
 export * from './order-allocation';

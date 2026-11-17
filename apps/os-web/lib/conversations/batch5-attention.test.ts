@@ -137,10 +137,13 @@ describe('Registrar atención panel', () => {
 describe('Conversaciones composer honesty', () => {
   const thread = read('components/conversations/conversation-thread.tsx');
 
-  it('renders no Enviar and keeps "WhatsApp no conectado" with manual attention available', () => {
+  it('keeps "WhatsApp no conectado" with manual attention available and no send in the thread itself', () => {
+    const composer = read('components/conversations/conversation-composer.tsx');
     assert.equal(CONVERSATIONS_COPY.whatsappNotConnected, 'WhatsApp no conectado');
-    assert.match(thread, /whatsappNotConnected/);
+    assert.match(composer, /messageBlockedPill/);
+    assert.match(composer, /onRegister/);
     assert.match(thread, /onRegister/);
+    // The thread only lays out messages; it never sends. The blocked Mensaje pane is tested in batch5b-state-notes.
     assert.doesNotMatch(thread, /Enviar|<textarea|onSend|send\(/);
     assert.doesNotMatch(JSON.stringify(CONVERSATIONS_COPY), /Enviar/);
   });

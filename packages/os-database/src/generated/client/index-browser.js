@@ -1192,6 +1192,9 @@ exports.Prisma.OsCustomerConversationScalarFieldEnum = {
   assignedLabel: 'assignedLabel',
   assignedAt: 'assignedAt',
   nextStepCommitmentId: 'nextStepCommitmentId',
+  attentionState: 'attentionState',
+  attentionStateChangedAt: 'attentionStateChangedAt',
+  automationPausedAt: 'automationPausedAt',
   opportunityId: 'opportunityId',
   quoteId: 'quoteId',
   orderId: 'orderId',
@@ -1203,6 +1206,29 @@ exports.Prisma.OsCustomerConversationScalarFieldEnum = {
   provenance: 'provenance',
   advisorNumberStatus: 'advisorNumberStatus',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.OsCustomerConversationNoteScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  conversationId: 'conversationId',
+  authorMemberId: 'authorMemberId',
+  authorLabel: 'authorLabel',
+  body: 'body',
+  visibility: 'visibility',
+  requestKey: 'requestKey',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsCustomerConversationStateChangeScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  conversationId: 'conversationId',
+  fromState: 'fromState',
+  toState: 'toState',
+  cause: 'cause',
+  actorMemberId: 'actorMemberId',
+  changedAt: 'changedAt'
 };
 
 exports.Prisma.OsWarehouseExitScalarFieldEnum = {
@@ -1812,6 +1838,8 @@ exports.Prisma.ModelName = {
   OsProductionQuemaProduct: 'OsProductionQuemaProduct',
   OsProductionTraceEntry: 'OsProductionTraceEntry',
   OsCustomerConversation: 'OsCustomerConversation',
+  OsCustomerConversationNote: 'OsCustomerConversationNote',
+  OsCustomerConversationStateChange: 'OsCustomerConversationStateChange',
   OsWarehouseExit: 'OsWarehouseExit',
   OsWarehouseOutboundNote: 'OsWarehouseOutboundNote',
   OsWarehouseOutboundNoteLine: 'OsWarehouseOutboundNoteLine',

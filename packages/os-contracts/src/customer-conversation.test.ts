@@ -215,8 +215,12 @@ describe('manual customer conversation', () => {
       join(root, 'migrations/20261021000000_os_customer_conversation_attention_b5/migration.sql'),
       'utf8',
     );
+    const stateSql = readFileSync(
+      join(root, 'migrations/20261024000000_os_conversation_attention_state_notes_b5b/migration.sql'),
+      'utf8',
+    );
     for (const column of CUSTOMER_CONVERSATION_ROW_COLUMNS) {
-      assert.match(`${sql}\n${attentionSql}`, new RegExp(`\\b${column}\\b`));
+      assert.match(`${sql}\n${attentionSql}\n${stateSql}`, new RegExp(`\\b${column}\\b`));
     }
 
     assert.match(fragment, /model OsCustomerConversation/);

@@ -509,6 +509,29 @@ export function createOsApiClient(auth: OsAuthContext) {
         `/customer-conversations/${encodeURIComponent(conversationId)}/take`,
         { method: 'POST', retry: false },
       ),
+    /** Change the attention state. A conflict code says why it was refused. */
+    transitionCustomerConversationState: (
+      conversationId: string,
+      to: import('@isalwa/os-contracts').AttentionState,
+    ) =>
+      request<{ item: import('@isalwa/os-contracts').ManualCustomerConversation; changed: boolean }>(
+        `/customer-conversations/${encodeURIComponent(conversationId)}/state`,
+        { method: 'POST', body: { to }, retry: false },
+      ),
+    /** Team-only notes of a conversation. Never part of the messages. */
+    listCustomerConversationNotes: (conversationId: string) =>
+      request<{ items: import('@isalwa/os-contracts').ConversationInternalNote[] }>(
+        `/customer-conversations/${encodeURIComponent(conversationId)}/notes`,
+        { method: 'GET' },
+      ),
+    addCustomerConversationNote: (
+      conversationId: string,
+      input: import('@isalwa/os-contracts').AddInternalNoteInput,
+    ) =>
+      request<{ item: import('@isalwa/os-contracts').ConversationInternalNote }>(
+        `/customer-conversations/${encodeURIComponent(conversationId)}/notes`,
+        { method: 'POST', body: input, retry: false },
+      ),
     listWarehouseExits: (query?: Record<string, string | number | boolean>) =>
       request<{
         sourceState: string;

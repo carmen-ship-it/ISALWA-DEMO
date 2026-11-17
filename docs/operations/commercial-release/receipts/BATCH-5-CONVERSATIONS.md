@@ -40,6 +40,8 @@ Two pre-existing `os-api` failures, **not touched by this slice**: `env-validati
 
 ## Remaining gaps (not done in this slice)
 
+> Gaps 1 and 2 were built afterwards in `BATCH-5B-CONVERSATIONS.md`. The text below is the state at this slice's commit.
+
 1. **Nota interna ("Solo equipo")** — not built. There is no separate durable note record; adding one would need a new model and read path distinct from attention rows. Composer therefore has neither Mensaje nor Nota interna.
 2. **Attention states** (Nueva · En atención · Esperando al cliente · Esperando al equipo · Resuelta), AI state, human-takeover pause, reopen-on-inbound: no stored state yet.
 3. Assignment management beyond take (release, reassign by a manager, notification to the taker); `Mis chats` is empty until someone takes a conversation by design.

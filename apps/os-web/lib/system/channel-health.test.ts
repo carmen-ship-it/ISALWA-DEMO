@@ -63,6 +63,18 @@ describe('Batch 9: channel health never claims a connection that does not exist'
       'utf8',
     );
     assert.doesNotMatch(thread, /<textarea|<form|onSend|sendMessage|type="submit"/);
-    assert.match(thread, /whatsappNotConnected/);
+    // Batch 5B: the composer lives in its own component. Its Mensaje pane is blocked (disabled
+    // field, disabled Enviar, no handler); the only form is the team-only internal note.
+    const composer = readFileSync(
+      join(here, '../../components/conversations/conversation-composer.tsx'),
+      'utf8',
+    );
+    const messagePane = composer.slice(
+      composer.indexOf('function MessagePane'),
+      composer.indexOf('/** Nota interna'),
+    );
+    assert.match(messagePane, /messageBlockedPill/);
+    assert.doesNotMatch(messagePane, /<form|onSend|sendMessage|type="submit"|onSubmit/);
+    assert.doesNotMatch(composer, /onSend|sendMessage/);
   });
 });

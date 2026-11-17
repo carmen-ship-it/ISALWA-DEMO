@@ -219,6 +219,9 @@ export function ownerDemoConversationFixtures(
       assignedMemberId: null,
       assignedLabel: null,
       nextStepCommitmentId: null,
+      attentionState: 'new',
+      automationPaused: false,
+      aiState: null,
       responsible: extras.responsible,
     };
     return conversation;

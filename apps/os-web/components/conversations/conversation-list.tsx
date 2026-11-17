@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useRef, type MutableRefObject } from 'react';
 import { cx, EmptyState, SearchField, StatusPill } from '@isalwa/ui';
+import { ATTENTION_STATE_TONE, attentionStateLabel } from '@/lib/conversations/composer';
 import { CONVERSATIONS_COPY } from '@/lib/conversations/copy';
 import {
   channelLabel,
@@ -26,7 +27,19 @@ type ConversationListProps = {
 };
 
 function attentionBadges(conversation: Conversation) {
-  const badges: Array<{ key: string; label: string; tone: 'amber' | 'sky' | 'soft-teal' | 'overdue' }> = [];
+  const badges: Array<{
+    key: string;
+    label: string;
+    tone: 'amber' | 'sky' | 'soft-teal' | 'overdue' | 'neutral';
+  }> = [];
+  // Owner-demo fixtures are not stored rows and carry no real state.
+  if (!conversation.isDemo) {
+    badges.push({
+      key: 'attention_state',
+      label: attentionStateLabel(conversation.attentionState),
+      tone: ATTENTION_STATE_TONE[conversation.attentionState],
+    });
+  }
   if (conversation.attention.needsResponse) {
     badges.push({ key: 'needs_response', label: 'Necesita respuesta', tone: 'amber' });
   }
