@@ -23,7 +23,8 @@ Integrator: `/Users/carmen/projects/isalwa-wt-v1-repairs` · branch `ct3/v1-repa
 | Starting HEAD (before this commit) | `bbb156481cebc951a69e5d3084c93f379cec4d8f` |
 | Starting tree | `7260478c956f73cb2cf4f19067491f52c0af0092` |
 | Product candidate ancestor | `7ddf258bab696e3fa3a0767d9205a03f42a46af5` (ancestor of HEAD; evaluation docs after it) |
-| Recorrido commit | *filled after Phase 4 commit — do not invent* |
+| Recorrido commit | `072d2428e62bda65b178e4b365e93d0b86afe7c4` |
+| Recorrido tree | `35c1de4478a0f421a66f2a4a64c0a90c610ef406` |
 
 Reconciliation: earlier reports citing only `7ddf258b` referred to the product candidate pin. Actual worktree HEAD for this freeze was `bbb15648` (docs after 5B). Recorrido dual-layer lived only in the working tree until the bounded commit below.
 
