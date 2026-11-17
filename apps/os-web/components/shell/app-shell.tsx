@@ -15,6 +15,7 @@ import { UserMenu } from '@/components/shell/user-menu';
 import { ShellChromeBar, ShellChromeProvider } from '@/components/shell/shell-chrome';
 import { RolePreviewProvider } from '@/components/shell/role-preview-provider';
 import { RolePreviewBanner } from '@/components/shell/role-preview-banner';
+import { EvaluationEnvironmentNotice } from '@/components/shell/evaluation-environment-notice';
 import { RolePreviewDesktopControl } from '@/components/shell/role-preview-desktop-control';
 import { RolePreviewMenu } from '@/components/shell/role-preview-menu';
 import { canUseRolePreview } from '@/lib/role-preview/access';
@@ -298,6 +299,7 @@ export function AppShell({
                 </div>
               </header>
 
+              <EvaluationEnvironmentNotice />
               <RolePreviewBanner />
             </ShellChromeBar>
 
