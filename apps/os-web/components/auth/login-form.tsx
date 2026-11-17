@@ -27,7 +27,8 @@ export function LoginForm() {
         setError(result.error);
         return;
       }
-      const next = safeInternalPath(searchParams.get('next'));
+      // Evaluation walkthrough: server sets ignoreClientNext — never follow ?next=.
+      const next = result.ignoreClientNext ? null : safeInternalPath(searchParams.get('next'));
       router.replace(next ?? result.redirectTo ?? '/inicio');
       router.refresh();
     });

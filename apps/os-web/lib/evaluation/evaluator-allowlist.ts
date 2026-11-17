@@ -1,20 +1,21 @@
 /**
  * Server-only evaluator email allowlist.
- * Source: ISALWA_EVALUATOR_EMAILS (comma-separated). Never import this module from
- * Client Components — it must not appear in browser bundles.
+ * Source: ISALWA_EVALUATOR_EMAILS (comma-separated).
+ *
+ * Must never enter browser bundles, HTML, props, client logs, error messages,
+ * or any public (NEXT_PUBLIC_*) environment variable.
  */
 
-function normalizeEmail(value: string): string {
-  return value.trim().toLowerCase();
-}
+import {
+  isEmailOnEvaluatorAllowlist as matchAllowlist,
+  parseEvaluatorAllowlist,
+} from '@/lib/evaluation/evaluator-allowlist-logic';
 
-/** Parse server env without throwing; empty → no evaluators allowed. */
-export function parseEvaluatorAllowlist(raw: string | undefined | null): readonly string[] {
-  if (!raw) return [];
-  return raw
-    .split(/[,;\n]/)
-    .map(normalizeEmail)
-    .filter((email) => email.length > 3 && email.includes('@'));
+export { parseEvaluatorAllowlist } from '@/lib/evaluation/evaluator-allowlist-logic';
+
+// Explicit browser ban — middleware/Node tests can still import this module.
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  throw new Error('evaluator allowlist is server-only');
 }
 
 export function readEvaluatorAllowlistFromEnv(): readonly string[] {
@@ -25,7 +26,5 @@ export function isEmailOnEvaluatorAllowlist(
   email: string | null | undefined,
   allowlist: readonly string[] = readEvaluatorAllowlistFromEnv(),
 ): boolean {
-  if (!email) return false;
-  const needle = normalizeEmail(email);
-  return allowlist.includes(needle);
+  return matchAllowlist(email, allowlist);
 }

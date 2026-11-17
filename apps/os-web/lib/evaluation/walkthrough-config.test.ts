@@ -9,6 +9,7 @@ import {
   EVALUATION_WALKTHROUGH_TITLE,
   evaluationPostLoginPath,
   isEvaluationRuntimeProfile,
+  isFrameworkOrStaticAssetPath,
   isOperationalProductPath,
   isWalkthroughAllowedPath,
   isWalkthroughOnlyEvaluation,
@@ -16,7 +17,7 @@ import {
 import {
   isEmailOnEvaluatorAllowlist,
   parseEvaluatorAllowlist,
-} from './evaluator-allowlist';
+} from './evaluator-allowlist-logic';
 import { STORY_MODE_STEPS, STORY_PROPOSAL_NOTICE } from '@/lib/journey/story-steps';
 
 describe('evaluation walkthrough config', () => {
@@ -39,11 +40,15 @@ describe('evaluation walkthrough config', () => {
     else process.env.OS_EVALUATION_WALKTHROUGH_ONLY = prevFlag;
   });
 
-  it('enables walkthrough-only only for evaluation runtime', () => {
+  it('enables walkthrough-only only for server OS_RUNTIME_PROFILE=evaluation', () => {
     assert.equal(isEvaluationRuntimeProfile(), false);
     assert.equal(isWalkthroughOnlyEvaluation(), false);
     assert.equal(evaluationPostLoginPath(), '/inicio');
 
+    process.env.NEXT_PUBLIC_OS_RUNTIME_PROFILE = 'evaluation';
+    assert.equal(isWalkthroughOnlyEvaluation(), false);
+
+    delete process.env.NEXT_PUBLIC_OS_RUNTIME_PROFILE;
     process.env.OS_RUNTIME_PROFILE = 'evaluation';
     assert.equal(isWalkthroughOnlyEvaluation(), true);
     assert.equal(evaluationPostLoginPath(), '/evaluacion');
@@ -61,6 +66,8 @@ describe('evaluation walkthrough config', () => {
     assert.equal(isOperationalProductPath('/cotizaciones'), true);
     assert.equal(isOperationalProductPath('/api/quotes/x/pdf'), true);
     assert.equal(isOperationalProductPath('/evaluacion'), false);
+    assert.equal(isFrameworkOrStaticAssetPath('/clientes.json'), false);
+    assert.equal(isOperationalProductPath('/clientes.json'), true);
   });
 
   it('keeps exact evaluation chrome copy', () => {
@@ -83,6 +90,9 @@ describe('evaluator allowlist (server-only)', () => {
     assert.doesNotMatch(overlay, /ISALWA_EVALUATOR_EMAILS/);
     const page = readFileSync(join(process.cwd(), 'app/evaluacion/page.tsx'), 'utf8');
     assert.doesNotMatch(page, /ISALWA_EVALUATOR_EMAILS/);
+    const gate = readFileSync(join(process.cwd(), 'lib/evaluation/evaluator-allowlist.ts'), 'utf8');
+    assert.match(gate, /server-only|typeof window/);
+    assert.doesNotMatch(gate, /process\.env\.NEXT_PUBLIC_/);
   });
 });
 
@@ -101,23 +111,24 @@ describe('evaluation Journey reuses canonical 20 steps', () => {
     assert.match(overlay, /evaluation-page/);
     assert.match(overlay, /EVALUATION_OPERATIONAL_BUILT_NOTICE/);
     assert.doesNotMatch(overlay, /createOsApiClient|\bfetch\(|'use server'/);
-    // Walkthrough-only must not navigate working CTAs to operational desks.
     assert.match(overlay, /!walkthroughOnly && step\.href && step\.workingActionLabel/);
   });
 
-  it('middleware redirects operational desks in walkthrough-only mode', () => {
+  it('middleware uses walkthrough boundary and server allowlist', () => {
     const middleware = readFileSync(join(process.cwd(), 'middleware.ts'), 'utf8');
     assert.match(middleware, /isWalkthroughOnlyEvaluation/);
     assert.match(middleware, /isEmailOnEvaluatorAllowlist/);
-    assert.match(middleware, /motivo.*recorrido|motivo', 'recorrido'/);
-    assert.match(middleware, /EVALUATION_POST_LOGIN|\/evaluacion/);
+    assert.match(middleware, /decideWalkthroughBoundary/);
+    assert.match(middleware, /methodNotAllowed|405/);
     assert.doesNotMatch(middleware, /ISALWA_EVALUATOR_EMAILS/);
+    assert.doesNotMatch(middleware, /pathname\.includes\('\.'\)/);
   });
 
-  it('sign-in skips os-api membership when walkthrough-only', () => {
+  it('sign-in skips Nest membership when walkthrough-only and ignores client next', () => {
     const actions = readFileSync(join(process.cwd(), 'lib/auth/actions.ts'), 'utf8');
     assert.match(actions, /isWalkthroughOnlyEvaluation/);
     assert.match(actions, /EVALUATION_POST_LOGIN/);
+    assert.match(actions, /ignoreClientNext:\s*true/);
     assert.match(actions, /isEmailOnEvaluatorAllowlist/);
   });
 });

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { PageContainer, EmptyState, StatusPill } from '@isalwa/ui';
-import { EndSessionButton } from '@/components/auth/end-session-button';
+import { EvaluationSignOutLink } from '@/components/evaluation/evaluation-sign-out-link';
 import { getServerWebSession } from '@/lib/auth/actions';
 import { isWalkthroughOnlyEvaluation } from '@/lib/evaluation/walkthrough-config';
 
@@ -15,7 +15,7 @@ export default async function EvaluacionDenegadoPage() {
 
   const session = await getServerWebSession();
   if (!session) {
-    redirect('/login?next=/evaluacion');
+    redirect('/login');
   }
 
   return (
@@ -27,7 +27,7 @@ export default async function EvaluacionDenegadoPage() {
           action={
             <div className="flex flex-col items-start gap-4">
               <StatusPill tone="warning">Sin acceso</StatusPill>
-              <EndSessionButton label="Volver al inicio de sesión" />
+              <EvaluationSignOutLink label="Volver al inicio de sesión" variant="primary" />
             </div>
           }
         />

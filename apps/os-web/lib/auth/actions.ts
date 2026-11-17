@@ -131,7 +131,14 @@ function membershipProbeError(err: unknown): string {
   return 'No se pudo verificar el acceso a la empresa. Intente de nuevo.';
 }
 
-export async function signInAction(formData: FormData): Promise<{ error?: string; redirectTo?: string }> {
+export type SignInActionResult = {
+  error?: string;
+  redirectTo?: string;
+  /** When true, the client must ignore ?next= and use redirectTo only. */
+  ignoreClientNext?: boolean;
+};
+
+export async function signInAction(formData: FormData): Promise<SignInActionResult> {
   const email = String(formData.get('email') ?? '').trim();
   const password = String(formData.get('password') ?? '');
 
@@ -163,7 +170,8 @@ export async function signInAction(formData: FormData): Promise<{ error?: string
         }
         const cookieStore = await cookies();
         cookieStore.delete(SELECTED_ORGANIZATION_COOKIE);
-        return { redirectTo: EVALUATION_POST_LOGIN };
+        // Never honor ?next= in evaluation walkthrough mode.
+        return { redirectTo: EVALUATION_POST_LOGIN, ignoreClientNext: true };
       }
 
       // Use the token from sign-in directly — do not re-read cookies via getSession()
@@ -288,12 +296,19 @@ async function clearWebSession(): Promise<void> {
 
 export type SignOutReason = 'expired' | 'revoked';
 
-export async function signOutAction(reason?: SignOutReason): Promise<{ error?: string }> {
+/** Clears session without redirect — for Route Handlers such as /auth/sign-out. */
+export async function endWebSession(): Promise<{ error?: string }> {
   try {
     await clearWebSession();
+    return {};
   } catch {
     return { error: 'No se pudo cerrar la sesión. Intente de nuevo.' };
   }
+}
+
+export async function signOutAction(reason?: SignOutReason): Promise<{ error?: string }> {
+  const result = await endWebSession();
+  if (result.error) return result;
   const next = reason === 'expired' || reason === 'revoked' ? `/login?reason=${reason}` : '/login';
   redirect(next);
 }

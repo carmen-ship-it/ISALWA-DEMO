@@ -1,4 +1,10 @@
-export const PUBLIC_PATHS = ['/login', '/auth/complete-invite', '/auth/forgot-password', '/auth/reset-password'] as const;
+export const PUBLIC_PATHS = [
+  '/login',
+  '/auth/complete-invite',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+  '/auth/sign-out',
+] as const;
 
 export const OS_DEV_SESSION_COOKIE = 'os_dev_session';
 

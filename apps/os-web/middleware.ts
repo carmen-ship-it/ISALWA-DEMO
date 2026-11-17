@@ -4,10 +4,10 @@ import { getOsAuthMode, isSupabaseConfigured } from '@/lib/auth/config';
 import { decodeDevSession } from '@/lib/auth/dev-session';
 import { updateSupabaseSession } from '@/lib/auth/supabase/middleware';
 import { isEmailOnEvaluatorAllowlist } from '@/lib/evaluation/evaluator-allowlist';
+import { decideWalkthroughBoundary } from '@/lib/evaluation/walkthrough-boundary';
 import {
-  EVALUATION_POST_LOGIN,
   evaluationPostLoginPath,
-  isOperationalProductPath,
+  isFrameworkOrStaticAssetPath,
   isWalkthroughOnlyEvaluation,
 } from '@/lib/evaluation/walkthrough-config';
 import { expireRetiredDataModeCookies } from '@/lib/navigation/retired-data-mode';
@@ -19,6 +19,16 @@ function isPublicPath(pathname: string): boolean {
 function applyPrivateNoStore(response: NextResponse): NextResponse {
   response.headers.set('Cache-Control', 'private, no-store');
   return response;
+}
+
+function methodNotAllowed(): NextResponse {
+  return new NextResponse(null, {
+    status: 405,
+    headers: {
+      Allow: 'GET, HEAD',
+      'Cache-Control': 'private, no-store',
+    },
+  });
 }
 
 async function hasSession(request: NextRequest): Promise<{
@@ -41,12 +51,9 @@ async function hasSession(request: NextRequest): Promise<{
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const method = request.method;
 
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/favicon') ||
-    pathname.includes('.')
-  ) {
+  if (isFrameworkOrStaticAssetPath(pathname)) {
     return NextResponse.next();
   }
 
@@ -54,16 +61,39 @@ export async function middleware(request: NextRequest) {
   const { ok, response, email } = await hasSession(request);
   const postLogin = evaluationPostLoginPath();
 
-  if (isPublicPath(pathname)) {
-    if (ok && pathname === '/login') {
-      if (walkthroughOnly) {
-        if (email && isEmailOnEvaluatorAllowlist(email)) {
-          return applyPrivateNoStore(NextResponse.redirect(new URL(EVALUATION_POST_LOGIN, request.url)));
-        }
-        return applyPrivateNoStore(
-          NextResponse.redirect(new URL('/evaluacion/denegado', request.url)),
-        );
+  if (walkthroughOnly) {
+    const decision = decideWalkthroughBoundary({
+      pathname,
+      method,
+      authenticated: ok,
+      evaluatorAllowed: Boolean(email && isEmailOnEvaluatorAllowlist(email)),
+    });
+
+    switch (decision.kind) {
+      case 'passthrough':
+        return NextResponse.next();
+      case 'method_not_allowed':
+        return methodNotAllowed();
+      case 'login_redirect': {
+        const loginUrl = new URL('/login', request.url);
+        // Never attach ?next= in evaluation mode.
+        return applyPrivateNoStore(NextResponse.redirect(loginUrl));
       }
+      case 'redirect': {
+        expireRetiredDataModeCookies(request.cookies, response.cookies);
+        return applyPrivateNoStore(NextResponse.redirect(new URL(decision.location, request.url)));
+      }
+      case 'next': {
+        expireRetiredDataModeCookies(request.cookies, response.cookies);
+        return applyPrivateNoStore(response);
+      }
+      default:
+        return applyPrivateNoStore(response);
+    }
+  }
+
+  if (isPublicPath(pathname) || pathname.startsWith('/auth/')) {
+    if (ok && pathname === '/login') {
       return NextResponse.redirect(new URL(DEFAULT_POST_LOGIN, request.url));
     }
     return response;
@@ -78,35 +108,9 @@ export async function middleware(request: NextRequest) {
     return applyPrivateNoStore(NextResponse.redirect(loginUrl));
   }
 
-  if (walkthroughOnly) {
-    const allowed = Boolean(email && isEmailOnEvaluatorAllowlist(email));
-
-    if (pathname === '/evaluacion/denegado') {
-      return applyPrivateNoStore(response);
-    }
-
-    if (!allowed) {
-      return applyPrivateNoStore(
-        NextResponse.redirect(new URL('/evaluacion/denegado', request.url)),
-      );
-    }
-
-    if (pathname === EVALUATION_POST_LOGIN || pathname.startsWith(`${EVALUATION_POST_LOGIN}/`)) {
-      expireRetiredDataModeCookies(request.cookies, response.cookies);
-      return applyPrivateNoStore(response);
-    }
-
-    if (isOperationalProductPath(pathname)) {
-      const target = new URL(EVALUATION_POST_LOGIN, request.url);
-      target.searchParams.set('motivo', 'recorrido');
-      return applyPrivateNoStore(NextResponse.redirect(target));
-    }
-  }
-
   expireRetiredDataModeCookies(request.cookies, response.cookies);
 
-  // Prefer evaluation home after login when walkthrough-only (defensive).
-  if (walkthroughOnly && pathname === DEFAULT_POST_LOGIN && postLogin !== DEFAULT_POST_LOGIN) {
+  if (pathname === DEFAULT_POST_LOGIN && postLogin !== DEFAULT_POST_LOGIN) {
     return applyPrivateNoStore(NextResponse.redirect(new URL(postLogin, request.url)));
   }
 

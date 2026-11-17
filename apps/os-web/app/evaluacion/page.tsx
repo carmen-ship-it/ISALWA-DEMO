@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { PageContainer } from '@isalwa/ui';
-import { EndSessionButton } from '@/components/auth/end-session-button';
+import { EvaluationSignOutLink } from '@/components/evaluation/evaluation-sign-out-link';
 import { OwnerStoryMode } from '@/components/journey/owner-story-mode';
 import { JourneyProvider } from '@/components/journey/journey-provider';
 import { resolveWalkthroughAccess } from '@/lib/evaluation/walkthrough-access';
@@ -20,7 +20,7 @@ export default async function EvaluacionPage({
 }) {
   const access = await resolveWalkthroughAccess();
   if (access.status === 'unauthenticated') {
-    redirect('/login?next=/evaluacion');
+    redirect('/login');
   }
   if (access.status === 'denied' || access.status === 'misconfigured') {
     redirect('/evaluacion/denegado');
@@ -40,7 +40,7 @@ export default async function EvaluacionPage({
             {EVALUATION_WALKTHROUGH_TITLE}
           </h1>
         </div>
-        <EndSessionButton label="Cerrar sesión" variant="secondary" />
+        <EvaluationSignOutLink label="Cerrar sesión" variant="secondary" />
       </header>
 
       {redirectedFromOps ? (
