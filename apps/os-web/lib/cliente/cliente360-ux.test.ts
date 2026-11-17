@@ -75,11 +75,13 @@ describe('displayCliente360NextAction', () => {
     assert.equal(shown.isRegisteredAction, false);
   });
 
-  it('replaces unreadable copy with calm empty state', () => {
+  it('keeps unreadable distinct from absent (never pretends no next step)', () => {
     const shown = displayCliente360NextAction(
       nextAction({ kind: 'unreadable', statement: 'No se indica una próxima acción porque no se pudo leer el seguimiento.' }),
     );
-    assert.equal(shown.text, CLIENTE360_UX_COPY.noNextAction);
+    assert.equal(shown.isUnavailable, true);
+    assert.equal(shown.text, CLIENTE360_UX_COPY.nextActionUnavailable);
+    assert.notEqual(shown.text, CLIENTE360_UX_COPY.noNextAction);
   });
 
   it('keeps recorded follow-up statement', () => {
@@ -110,8 +112,28 @@ describe('Cliente 360 identity', () => {
     }
   });
 
-  it('keeps Próxima acción as the next-action heading', () => {
-    assert.equal(CLIENTE360_UX_COPY.nextActionHeading, 'Próxima acción');
+  it('keeps Próximo paso as the next-step heading (V2 §17.1)', () => {
+    assert.equal(CLIENTE360_UX_COPY.nextActionHeading, 'Próximo paso');
+    assert.equal(CLIENTE360_UX_COPY.noNextAction, 'Sin próximo paso registrado');
+    assert.equal(CLIENTE360_UX_COPY.noLastAttention, 'Sin atención registrada');
+    assert.equal(CLIENTE360_UX_COPY.noOpenIssues, 'Sin problemas abiertos');
+    assert.equal(CLIENTE360_UX_COPY.ownerAbsent, 'Sin responsable asignado');
+  });
+
+  it('wires status header above the tabs in the sticky Cliente 360 band', () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const header = readFileSync(
+      resolve(here, '../../components/cliente/cliente-360-header.tsx'),
+      'utf8',
+    );
+    const page = readFileSync(resolve(here, '../../app/(app)/clientes/[partyId]/page.tsx'), 'utf8');
+    assert.match(header, /Cliente360StatusHeader/);
+    assert.match(header, /statusHeader/);
+    assert.match(header, /ProximoPasoStrip/);
+    assert.match(page, /buildCliente360StatusHeader/);
+    assert.match(page, /listCustomerConversations/);
+    assert.match(page, /fetchCommercialSection/);
+    assert.doesNotMatch(page, /payment.*tab|tab: 'pago'|tab: 'pagos'/i);
   });
 });
 

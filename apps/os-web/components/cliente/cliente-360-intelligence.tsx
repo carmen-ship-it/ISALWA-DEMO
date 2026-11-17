@@ -44,8 +44,8 @@ export function Cliente360Intelligence({ facts }: Cliente360IntelligenceProps) {
       : []),
     {
       label: CLIENTE360_UX_COPY.openIssues,
-      value: String(facts.openIssues),
-      tone: facts.openIssues > 0 ? 'var(--isalwa-danger)' : undefined,
+      value: formatCount(facts.openIssues),
+      tone: facts.openIssues !== null && facts.openIssues > 0 ? 'var(--isalwa-danger)' : undefined,
     },
     {
       label: CLIENTE360_UX_COPY.lastActivity,

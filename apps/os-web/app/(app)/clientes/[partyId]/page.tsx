@@ -38,7 +38,13 @@ import { prepareQuoteTarget } from '@/lib/cliente/prepare-quote';
 import { buildCliente360Intelligence } from '@/lib/cliente/client-intelligence';
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
 import { parseCliente360Tab } from '@/lib/cliente/nav-sections';
+import {
+  buildCliente360StatusHeader,
+  countOpenIssues,
+  toAttentionSummary,
+} from '@/lib/cliente/status-header';
 import { presentHumanCopy } from '@/lib/copy/human-facing-copy';
+import { fetchCommercialSection } from '@/lib/commercial/fetch-outcome';
 import { LIST_SCALE_PREVIEW_DEFAULT, LIST_SCALE_PREVIEW_LARGE } from '@/lib/ui/list-scaling';
 import { newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
@@ -86,8 +92,6 @@ type PartyDetailPageProps = {
 const sectionClass = 'scroll-mt-40 p-5 md:p-6';
 const linkClass = 'text-sm font-medium text-[var(--isalwa-glaze)] hover:underline';
 const helpLinkClass = 'text-sm font-medium text-[var(--isalwa-info)] hover:underline';
-
-const CLOSED_ISSUE_STATUSES = new Set(['resolved', 'closed']);
 
 function activeRoleKeys(detail: Awaited<ReturnType<typeof loadCliente360>>['detail']): string[] {
   return detail.roles.map((role) => role.roleKey);
@@ -312,10 +316,9 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
     const manualOrganizationId = party.organizationId.trim();
     const issueContext = reportIssueContextFromParty(partyId, displayName);
 
-    let partyIssues: IssueListItem[] = [];
-    try {
+    const issuesOutcome = await fetchCommercialSection(async () => {
       const issuePage = await client.listIssues({ view: 'all', partyId, limit: 20 });
-      partyIssues = (issuePage.items ?? []).map((item) => ({
+      const items: IssueListItem[] = (issuePage.items ?? []).map((item) => ({
         issueId: item.issueId,
         title: item.title,
         description: item.description,
@@ -325,11 +328,16 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
         createdAt: item.createdAt,
         references: item.references ?? [],
       }));
-    } catch {
-      partyIssues = [];
-    }
+      return { items };
+    });
+    const partyIssues = issuesOutcome.status === 'ok' ? issuesOutcome.data.items : [];
+    const openIssueCount =
+      issuesOutcome.status === 'ok' ? countOpenIssues(issuesOutcome.data.items) : null;
 
-    const openIssueCount = partyIssues.filter((item) => !CLOSED_ISSUE_STATUSES.has(item.status)).length;
+    const attentionOutcome = await fetchCommercialSection(async () => {
+      const page = await client.listCustomerConversations({ partyId });
+      return { items: (page.items ?? []).map(toAttentionSummary) };
+    });
 
     let partyCommitments: Awaited<ReturnType<typeof client.listCommitments>>['items'] = [];
     try {
@@ -338,6 +346,13 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
     } catch {
       partyCommitments = [];
     }
+
+    const statusHeader = buildCliente360StatusHeader({
+      partyId,
+      composition,
+      attention: attentionOutcome,
+      issues: issuesOutcome,
+    });
 
     const intelligence = buildCliente360Intelligence({
       opportunities,
@@ -371,6 +386,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
             displayName={displayName}
             status={party.status}
             composition={composition}
+            statusHeader={statusHeader}
             party={party}
             contacts={contacts.filter(isCurrentContact)}
             canEditParty={canEditParty}

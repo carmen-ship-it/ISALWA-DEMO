@@ -45,7 +45,7 @@ Scope: the existing shell, `@isalwa/ui` and the existing map adapter, extended. 
 ## Honest gaps
 
 1. **Not browser-verified.** 44px targets, collapse behavior, the hit-area pseudo-elements, 16px fields and the map list were checked by source/CSS tests, not by rendering at 390px and 1440px.
-2. **Cliente 360 next-step header** (actual next step, owner, last attention, open issues above the tabs) is **not built** in this batch.
+2. **Cliente 360 next-step header** — closed in Batch 8B (`BATCH-8B-CLIENTE360-STATUS-HEADER.md`): next step, owner, last attention and open issues above the tabs with honest absent/error states.
 3. **"Mi equipo" / "Empresa" labels** exist as lens names on Hoy; a full authorization audit of where they appear was not done.
 4. **Persistent-label audit** (placeholders never used as labels) was not run across all 80+ forms; the 44px/16px floor is global, label markup is not re-verified per form.
 5. **Panel padding 16/24** is the existing `Panel` default; `PageSection` and ad-hoc `p-*` classes were not audited.

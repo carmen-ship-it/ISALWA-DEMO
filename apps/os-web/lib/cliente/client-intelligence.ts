@@ -19,7 +19,8 @@ export type Cliente360Intelligence = {
   openOrders: number | null;
   deliveryNotes: number | null;
   ordersFromQuotes: number | null;
-  openIssues: number;
+  /** null when the issues read failed — never a pretending zero. */
+  openIssues: number | null;
   lastActivityLabel: string | null;
 };
 
@@ -35,7 +36,7 @@ export function buildCliente360Intelligence(input: {
   quotes: FetchOutcome<QuoteListResponse>;
   orders: FetchOutcome<OrderListResponse>;
   documentLinks: DocumentLinksOutcome;
-  openIssues: number;
+  openIssues: number | null;
   composition: Cliente360Composition;
 }): Cliente360Intelligence {
   const opportunities = countItems(input.opportunities);

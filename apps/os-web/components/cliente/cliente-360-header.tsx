@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { ActionBar } from '@isalwa/ui';
 import { PartyStatusBadge } from '@/components/party/party-role-badges';
 import { ProximoPasoStrip } from '@/components/shell/proximo-paso-strip';
+import { Cliente360StatusHeader } from '@/components/cliente/cliente-360-status-header';
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
 import { displayCliente360NextAction } from '@/lib/cliente/next-action-display';
+import type { Cliente360StatusHeaderModel } from '@/lib/cliente/status-header';
 import { clienteSectionHref, newOpportunityHref } from '@/lib/commercial/navigation';
 import type { Cliente360Composition } from '@/lib/party/next-action';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
@@ -23,6 +25,8 @@ export type Cliente360HeaderProps = {
   displayName: string;
   status: string;
   composition: Cliente360Composition;
+  /** Next step / owner / last attention / open issues above the tabs. */
+  statusHeader: Cliente360StatusHeaderModel;
   party: PartyDetailResponse['party'];
   contacts: PartyDetailResponse['contacts'];
   canEditParty: boolean;
@@ -50,6 +54,7 @@ export function Cliente360Header({
   displayName,
   status,
   composition,
+  statusHeader,
   party,
   contacts,
   canEditParty,
@@ -78,7 +83,6 @@ export function Cliente360Header({
     phone ? phone : null,
     contactName ? contactName : null,
     locationSummary ? locationSummary : null,
-    ownerLabel ? `Resp. ${ownerLabel}` : null,
   ].filter((fact): fact is string => Boolean(fact));
 
   const menuProps = {
@@ -134,12 +138,6 @@ export function Cliente360Header({
                   <dd className="mt-0.5 font-medium text-[var(--isalwa-kiln)]">{locationSummary}</dd>
                 </div>
               ) : null}
-              {ownerLabel ? (
-                <div>
-                  <dt className="isalwa-section-label">Responsable</dt>
-                  <dd className="mt-0.5 font-medium text-[var(--isalwa-kiln)]">{ownerLabel}</dd>
-                </div>
-              ) : null}
             </dl>
           ) : null}
         </div>
@@ -169,14 +167,21 @@ export function Cliente360Header({
       </ActionBar>
 
       <ProximoPasoStrip
-        heading={next.isRegisteredAction ? CLIENTE360_UX_COPY.nextActionHeading : FOLLOW_UP_COPY.nextAction}
-        text={next.text}
-        href={next.href}
-        dueText={next.dueText}
-        overdue={next.overdue}
+        heading={CLIENTE360_UX_COPY.nextActionHeading}
+        text={statusHeader.nextStep.text}
+        href={statusHeader.nextStep.href}
+        dueText={statusHeader.nextStep.dueText}
+        overdue={statusHeader.nextStep.overdue}
+        tone={
+          statusHeader.nextStep.state === 'unavailable'
+            ? 'danger'
+            : statusHeader.nextStep.overdue
+              ? 'attention'
+              : 'context'
+        }
         data-tour="cliente360-next-action"
         trailing={
-          allowMutations && !next.isRegisteredAction ? (
+          allowMutations && !next.isRegisteredAction && !next.isUnavailable ? (
             <button
               type="button"
               className={helpLinkClass}
@@ -189,6 +194,8 @@ export function Cliente360Header({
           ) : null
         }
       />
+
+      <Cliente360StatusHeader model={statusHeader} />
     </div>
   );
 }

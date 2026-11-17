@@ -5,6 +5,8 @@ import { cx, StatusPill } from '@isalwa/ui';
 const linkClass =
   'text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:underline';
 
+export type ProximoPasoStripTone = 'context' | 'attention' | 'danger';
+
 export type ProximoPasoStripProps = {
   /** Heading label — caller supplies registered vs empty copy. */
   heading: string;
@@ -13,15 +15,25 @@ export type ProximoPasoStripProps = {
   href?: string | null;
   dueText?: string | null;
   overdue?: boolean;
+  /** Failed read — danger surface; never looks like a calm empty. */
+  tone?: ProximoPasoStripTone;
   /** Optional tertiary control (e.g. schedule follow-up). */
   trailing?: ReactNode;
   className?: string;
   'data-tour'?: string;
 };
 
+const TONE_SURFACE: Record<ProximoPasoStripTone, string> = {
+  context:
+    'border-[color-mix(in_srgb,var(--isalwa-sky-200)_80%,var(--isalwa-mist))] bg-[var(--isalwa-surface-context)]',
+  attention: 'border-[var(--isalwa-tint-amber-border)] bg-[var(--isalwa-surface-attention)]',
+  danger:
+    'border-[color-mix(in_srgb,var(--isalwa-danger)_28%,var(--isalwa-mist))] bg-[var(--isalwa-status-red-bg)]',
+};
+
 /**
  * Reusable PRÓXIMO PASO / siguiente paso strip shell.
- * Sky context band by default; amber attention when overdue.
+ * Sky context band by default; amber attention when overdue; danger when unread.
  * Accepts only deterministic props — does not invent actions.
  */
 export function ProximoPasoStrip({
@@ -30,17 +42,18 @@ export function ProximoPasoStrip({
   href = null,
   dueText = null,
   overdue = false,
+  tone,
   trailing,
   className,
   'data-tour': dataTour,
 }: ProximoPasoStripProps) {
+  const surfaceTone: ProximoPasoStripTone =
+    tone ?? (overdue ? 'attention' : 'context');
   return (
     <div
       className={cx(
         'rounded-[var(--isalwa-radius-panel)] border px-4 py-3 shadow-[var(--isalwa-shadow-soft)]',
-        overdue
-          ? 'border-[var(--isalwa-tint-amber-border)] bg-[var(--isalwa-surface-attention)]'
-          : 'border-[color-mix(in_srgb,var(--isalwa-sky-200)_80%,var(--isalwa-mist))] bg-[var(--isalwa-surface-context)]',
+        TONE_SURFACE[surfaceTone],
         className,
       )}
       data-tour={dataTour}
@@ -48,8 +61,11 @@ export function ProximoPasoStrip({
     >
       <div className="flex flex-wrap items-center gap-2">
         <p className="isalwa-section-label">{heading}</p>
-        {overdue ? <StatusPill tone="danger">Vencido</StatusPill> : null}
-        {!overdue && dueText ? <StatusPill tone="warning">Pendiente</StatusPill> : null}
+        {surfaceTone === 'danger' ? <StatusPill tone="danger">No disponible</StatusPill> : null}
+        {surfaceTone !== 'danger' && overdue ? <StatusPill tone="danger">Vencido</StatusPill> : null}
+        {surfaceTone !== 'danger' && !overdue && dueText ? (
+          <StatusPill tone="warning">Pendiente</StatusPill>
+        ) : null}
       </div>
       <p className="mt-1.5 font-[family-name:var(--isalwa-font-display)] text-base italic leading-snug text-[var(--isalwa-kiln)] md:text-lg">
         {href ? (
