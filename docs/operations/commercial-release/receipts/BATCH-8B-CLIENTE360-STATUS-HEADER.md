@@ -1,6 +1,6 @@
 # Receipt — Batch 8B: Cliente 360 next-step header
 
-Date: 2026-11-17. Integrator `/Users/carmen/projects/isalwa-wt-v1-repairs`, branch `ct3/v1-repairs`. Parent HEAD: `28353597`. Authority: `CONTINUATION-2026-11-16.md` §13; V2 §17.1; gap #2 in `BATCH-8-SHELL-MAP.md`.
+Date: 2026-11-17. Integrator `/Users/carmen/projects/isalwa-wt-v1-repairs`, branch `ct3/v1-repairs`. Commit: `a51358f8` (parent at commit time: `a1fceaa0`; task start was `28353597`). Authority: `CONTINUATION-2026-11-16.md` §13; V2 §17.1; gap #2 in `BATCH-8-SHELL-MAP.md`.
 
 States: **IMPLEMENTED** · **TESTED LOCALLY** (unit/static + `tsc`). Not independently reviewed. **Not browser-verified.** Not pushed, not deployed. No schema change, no API change, no new dependency. Conversation contract WIP (Batch 5B) was left untouched.
 
