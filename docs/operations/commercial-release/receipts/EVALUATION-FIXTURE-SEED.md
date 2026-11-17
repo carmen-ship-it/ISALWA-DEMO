@@ -54,3 +54,36 @@ draft → `RequestApproval` (shared reviewer, quote owner) → `Approve` (separa
 
 - Payments: one `payment` report (pending tender, transfer) is written with the same rows `RecordPaymentReport` writes (that command is an HTTP controller in os-api, not a service). It is not verified: the fixture never holds `payments.confirm`.
 - Conversations carry the exact phrase "Evaluación — conversación de ejemplo, sin conexión a Meta/WhatsApp"; no provider is connected.
+
+## Promote-hygiene follow-up (stale Enviada assertion)
+
+Independent review passed the evaluation fixture with follow-ups. The only promote blocker was a stale unit expectation that still matched “Enviada” after product wording correctly used issuance (“Emitida”), not delivery/send.
+
+| Field | Value |
+|---|---|
+| Failing stale assertion | `assert.match(result.stateExplanation ?? '', /Enviada/);` in `apps/os-web/lib/commercial/post-approval-continue.test.ts` (case: withholds Crear pedido when submitted but actor lacks convert scope) |
+| Corrected assertion | `assert.match(result.stateExplanation ?? '', /Emitida/);` — matches `formatQuoteStatus('submitted')` → `Emitida` → explanation `Cotización Emitida. La aprobación no crea un pedido.` |
+| Application behavior | unchanged (labels/services/seed/scopes/deploy untouched) |
+
+### Commands run
+
+```text
+cd apps/os-web && pnpm exec tsx --test \
+  lib/commercial/post-approval-continue.test.ts \
+  lib/commercial/status-semantics.test.ts \
+  lib/commercial/ui-4.test.ts \
+  lib/commercial/commercial-ui-hardening.test.ts \
+  lib/commercial/labels-status-tone.test.ts \
+  lib/work/aging/aging.test.ts
+# → 66 pass / 0 fail
+
+git diff --check
+# → clean (exit 0)
+```
+
+### Follow-up commit
+
+- Base candidate: `c81626016a781129ef323186ac315757e265edf9`
+- Commit SHA: `36c3dde1ffcf780bf7b9035e1bf6ff4a2994e53e`
+- Tree SHA: `e60c32b07a765c2277064a1264f8a19ed0ff44e3`
+- Changed files: `apps/os-web/lib/commercial/post-approval-continue.test.ts`, `docs/operations/commercial-release/receipts/EVALUATION-FIXTURE-SEED.md`

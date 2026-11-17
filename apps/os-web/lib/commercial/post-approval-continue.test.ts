@@ -95,7 +95,7 @@ describe('postApprovalContinue', () => {
       quoteId: 'quote-1',
     });
     assert.equal(result.convertHref, null);
-    assert.match(result.stateExplanation ?? '', /Enviada/);
+    assert.match(result.stateExplanation ?? '', /Emitida/);
     assert.match(result.stateExplanation ?? '', /no crea un pedido/i);
   });
 
