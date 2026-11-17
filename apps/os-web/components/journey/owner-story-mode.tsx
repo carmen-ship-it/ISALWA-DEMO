@@ -7,6 +7,13 @@ import { Button, cx } from '@isalwa/ui';
 import { useJourney } from '@/components/journey/journey-provider';
 import { samePathQueryNavigation } from '@/lib/navigation/same-path-navigation';
 import {
+  EVALUATION_OPERATIONAL_BUILT_NOTICE,
+  EVALUATION_POST_LOGIN,
+  EVALUATION_WALKTHROUGH_INTRO,
+  EVALUATION_WALKTHROUGH_NOTICE,
+  EVALUATION_WALKTHROUGH_TITLE,
+} from '@/lib/evaluation/walkthrough-config';
+import {
   STORY_DECISION_HEADING,
   STORY_END_BODY,
   STORY_END_BUTTON,
@@ -25,6 +32,9 @@ import {
   type StoryPanelView,
   type StoryStepStatus,
 } from '@/lib/journey/story-steps';
+
+/** Product overlay (shell) vs protected evaluation page (no operational CTAs). */
+export type StoryPresentation = 'product-overlay' | 'evaluation-page';
 
 const STEP_TONES = {
   completed: {
@@ -134,7 +144,7 @@ function LayerBlock({
 }: {
   kicker: string;
   body: string;
-  tone: 'now' | 'proposal' | 'decision' | 'external';
+  tone: 'now' | 'proposal' | 'decision' | 'external' | 'notice';
 }) {
   const classes =
     tone === 'now'
@@ -143,7 +153,9 @@ function LayerBlock({
         ? 'border-[color-mix(in_srgb,var(--isalwa-glaze)_35%,#EDF5F8)] bg-[#EDF5F8]'
         : tone === 'decision'
           ? 'border-[#B8872E]/40 bg-[#FFF5DB]'
-          : 'border-[var(--isalwa-kiln)]/25 bg-[var(--isalwa-white)]';
+          : tone === 'notice'
+            ? 'border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)]'
+            : 'border-[var(--isalwa-kiln)]/25 bg-[var(--isalwa-white)]';
   return (
     <div className={cx('rounded-[var(--isalwa-radius-panel)] border px-4 py-3', classes)}>
       <p className="text-[10px] font-bold tracking-[0.12em] text-[var(--isalwa-slate)] uppercase">
@@ -157,11 +169,13 @@ function LayerBlock({
 function StepBody({
   step,
   view,
+  walkthroughOnly,
   onOpenWorking,
   setView,
 }: {
   step: StoryModeStep;
   view: StoryPanelView;
+  walkthroughOnly: boolean;
   onOpenWorking: (href: string) => void;
   setView: (view: StoryPanelView) => void;
 }) {
@@ -212,6 +226,10 @@ function StepBody({
     step.status === 'external' ||
     Boolean(step.proposalText);
 
+  const hasWorkingCta = Boolean(step.href && step.workingActionLabel);
+  const showOperationalBuiltNotice =
+    walkthroughOnly && hasWorkingCta && (step.status === 'available' || step.status === 'partial');
+
   return (
     <div className="space-y-4" data-story-panel="step">
       <div className="flex flex-wrap items-center gap-2">
@@ -233,6 +251,14 @@ function StepBody({
 
       <LayerBlock kicker="Lo que puedes probar ahora" body={step.currentStateText} tone="now" />
 
+      {showOperationalBuiltNotice ? (
+        <LayerBlock
+          kicker="En esta evaluación"
+          body={EVALUATION_OPERATIONAL_BUILT_NOTICE}
+          tone="notice"
+        />
+      ) : null}
+
       <div className="space-y-2">
         <ProposalNotice />
         <LayerBlock kicker="Así funcionará esta etapa" body={step.proposalText} tone="proposal" />
@@ -252,10 +278,11 @@ function StepBody({
 
       {(step.status === 'proposal' ||
         step.status === 'decision' ||
-        step.status === 'external') && <FeedbackPrompt />}
+        step.status === 'external' ||
+        walkthroughOnly) && <FeedbackPrompt />}
 
       <div className="flex flex-wrap gap-2">
-        {step.href && step.workingActionLabel ? (
+        {!walkthroughOnly && step.href && step.workingActionLabel ? (
           <Link
             href={step.href}
             className="inline-flex"
@@ -279,7 +306,15 @@ function StepBody({
           </Link>
         ) : null}
 
-        {(step.status === 'proposal' || step.status === 'partial') && showProposalActions ? (
+        {walkthroughOnly && showOperationalBuiltNotice ? (
+          <Button type="button" variant="secondary" size="sm" onClick={() => setView('proposal')}>
+            Ver propuesta
+          </Button>
+        ) : null}
+
+        {!walkthroughOnly &&
+        (step.status === 'proposal' || step.status === 'partial') &&
+        showProposalActions ? (
           <Button type="button" variant="secondary" size="sm" onClick={() => setView('proposal')}>
             Ver propuesta
           </Button>
@@ -301,57 +336,94 @@ function StepBody({
   );
 }
 
-/** Full-screen guided presentation — Recorrido guiado. */
-export function OwnerStoryMode() {
+type OwnerStoryModeProps = {
+  presentation?: StoryPresentation;
+};
+
+/** Full-screen guided presentation — Recorrido guiado (product) or Evaluación guiada. */
+export function OwnerStoryMode({ presentation = 'product-overlay' }: OwnerStoryModeProps) {
+  const walkthroughOnly = presentation === 'evaluation-page';
   const { storyOpen, closeStory, canOpenJourney } = useJourney();
   const router = useRouter();
   const [current, setCurrent] = useState(1);
   const [view, setView] = useState<StoryPanelView>('step');
   const atEnd = view === 'end';
 
+  const panelOpen = walkthroughOnly ? true : storyOpen;
+  const panelAllowed = walkthroughOnly ? true : canOpenJourney;
+
+  const chromeTitle = walkthroughOnly ? EVALUATION_WALKTHROUGH_TITLE : STORY_MODE_TITLE;
+  const chromeIntro = walkthroughOnly ? EVALUATION_WALKTHROUGH_INTRO : STORY_INTRO;
+  const endHref = walkthroughOnly ? EVALUATION_POST_LOGIN : STORY_END_HREF;
+  const endButton = walkthroughOnly ? 'Volver al inicio del recorrido' : STORY_END_BUTTON;
+
   useEffect(() => {
-    if (!storyOpen) {
+    if (!panelOpen && !walkthroughOnly) {
       setCurrent(1);
       setView('step');
     }
-  }, [storyOpen]);
+  }, [panelOpen, walkthroughOnly]);
 
   useEffect(() => {
     setView('step');
   }, [current]);
 
   useEffect(() => {
-    if (!storyOpen) return;
+    if (!panelOpen) return;
     function onKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') closeStory();
+      if (event.key !== 'Escape') return;
+      if (walkthroughOnly) {
+        setView('step');
+        setCurrent(1);
+        return;
+      }
+      closeStory();
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [storyOpen, closeStory]);
+  }, [panelOpen, closeStory, walkthroughOnly]);
 
-  if (!canOpenJourney || !storyOpen) return null;
+  if (!panelAllowed || !panelOpen) return null;
 
   const step = STORY_MODE_STEPS[current - 1];
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex flex-col bg-[color-mix(in_srgb,var(--isalwa-kiln)_45%,transparent)] p-3 sm:p-6"
+      className={cx(
+        walkthroughOnly
+          ? 'flex min-h-[70vh] flex-col'
+          : 'fixed inset-0 z-[60] flex flex-col bg-[color-mix(in_srgb,var(--isalwa-kiln)_45%,transparent)] p-3 sm:p-6',
+      )}
       role="dialog"
       aria-modal="true"
-      aria-label={STORY_MODE_TITLE}
+      aria-label={chromeTitle}
       data-story-recorrido=""
+      data-story-presentation={presentation}
     >
-      <div className="mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-[var(--isalwa-radius-panel)] bg-[var(--isalwa-white)] shadow-[var(--isalwa-shadow-elevated)]">
+      <div
+        className={cx(
+          'mx-auto flex w-full max-w-3xl flex-col overflow-hidden rounded-[var(--isalwa-radius-panel)] bg-[var(--isalwa-white)] shadow-[var(--isalwa-shadow-elevated)]',
+          walkthroughOnly ? 'min-h-[70vh]' : 'h-full',
+        )}
+      >
         <header className="border-b border-[var(--isalwa-mist)] px-4 py-3 sm:px-6">
           <p className="text-[10px] font-bold tracking-[0.14em] text-[#2C8C88] uppercase">
-            {STORY_MODE_TITLE}
+            {chromeTitle}
           </p>
           <h2 className="mt-1 font-[family-name:var(--isalwa-font-display)] text-xl text-[var(--isalwa-kiln)] italic sm:text-2xl">
-            {atEnd ? STORY_END_TITLE : STORY_MODE_TITLE}
+            {atEnd ? STORY_END_TITLE : chromeTitle}
           </h2>
           {!atEnd ? (
             <>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">{STORY_INTRO}</p>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">{chromeIntro}</p>
+              {walkthroughOnly ? (
+                <p
+                  className="mt-3 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] px-3 py-2 text-xs leading-relaxed text-[var(--isalwa-kiln)]"
+                  data-evaluation-walkthrough-notice=""
+                >
+                  {EVALUATION_WALKTHROUGH_NOTICE}
+                </p>
+              ) : null}
               <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
                 Paso {current} de {STORY_MODE_STEPS.length}
               </p>
@@ -381,33 +453,49 @@ export function OwnerStoryMode() {
           {atEnd ? (
             <div className="space-y-4" data-story-panel="end">
               <p className="text-sm leading-relaxed text-[var(--isalwa-kiln)]">{STORY_END_BODY}</p>
-              <Link
-                href={STORY_END_HREF}
-                className="inline-flex"
-                onClick={(event) => {
-                  if (
-                    event.metaKey ||
-                    event.ctrlKey ||
-                    event.shiftKey ||
-                    event.altKey ||
-                    event.button !== 0
-                  ) {
-                    return;
-                  }
-                  event.preventDefault();
-                  navigateAfterClose(STORY_END_HREF, closeStory, router);
-                }}
-              >
-                <Button type="button" variant="primary" size="sm">
-                  {STORY_END_BUTTON}
+              <FeedbackPrompt />
+              {walkthroughOnly ? (
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={() => {
+                    setView('step');
+                    setCurrent(1);
+                  }}
+                >
+                  {endButton}
                 </Button>
-              </Link>
+              ) : (
+                <Link
+                  href={endHref}
+                  className="inline-flex"
+                  onClick={(event) => {
+                    if (
+                      event.metaKey ||
+                      event.ctrlKey ||
+                      event.shiftKey ||
+                      event.altKey ||
+                      event.button !== 0
+                    ) {
+                      return;
+                    }
+                    event.preventDefault();
+                    navigateAfterClose(STORY_END_HREF, closeStory, router);
+                  }}
+                >
+                  <Button type="button" variant="primary" size="sm">
+                    {STORY_END_BUTTON}
+                  </Button>
+                </Link>
+              )}
               <p className="text-xs leading-relaxed text-[var(--isalwa-slate)]">{STORY_END_FOOTNOTE}</p>
             </div>
           ) : step ? (
             <StepBody
               step={step}
               view={view}
+              walkthroughOnly={walkthroughOnly}
               setView={setView}
               onOpenWorking={(href) => navigateAfterClose(href, closeStory, router)}
             />
@@ -415,7 +503,19 @@ export function OwnerStoryMode() {
         </div>
 
         <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--isalwa-mist)] px-4 py-3 sm:px-6">
-          <Button type="button" variant="tertiary" size="sm" onClick={() => closeStory()}>
+          <Button
+            type="button"
+            variant="tertiary"
+            size="sm"
+            onClick={() => {
+              if (walkthroughOnly) {
+                setView('step');
+                setCurrent(1);
+                return;
+              }
+              closeStory();
+            }}
+          >
             Cerrar recorrido
           </Button>
           <div className="flex gap-2">

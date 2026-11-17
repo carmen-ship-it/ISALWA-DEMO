@@ -3,7 +3,7 @@
  * cookies (REUSE_MAP 11.0 owner acceptance 2).
  */
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { NextRequest } from 'next/server';
 import { encodeDevSession } from '@/lib/auth/dev-session';
 import { OS_DEV_SESSION_COOKIE } from '@/lib/auth/constants';
@@ -49,6 +49,21 @@ function assertNoDataModeState(response: Response): void {
 }
 
 describe('middleware ignores the retired data mode', () => {
+  // Ensure evaluation walkthrough env cannot leak into these product-path tests.
+  const prevProfile = process.env.OS_RUNTIME_PROFILE;
+  const prevFlag = process.env.OS_EVALUATION_WALKTHROUGH_ONLY;
+  before(() => {
+    delete process.env.OS_RUNTIME_PROFILE;
+    delete process.env.NEXT_PUBLIC_OS_RUNTIME_PROFILE;
+    delete process.env.OS_EVALUATION_WALKTHROUGH_ONLY;
+  });
+  after(() => {
+    if (prevProfile === undefined) delete process.env.OS_RUNTIME_PROFILE;
+    else process.env.OS_RUNTIME_PROFILE = prevProfile;
+    if (prevFlag === undefined) delete process.env.OS_EVALUATION_WALKTHROUGH_ONLY;
+    else process.env.OS_EVALUATION_WALKTHROUGH_ONLY = prevFlag;
+  });
+
   for (const path of ['/inicio?datos=demo', '/inicio?datos=demo&story=1', '/clientes?datos=real']) {
     it(`${path} sets no mode cookie and pins no mode header`, async () => {
       const response = await middleware(request(path, { [OS_DEV_SESSION_COOKIE]: SESSION }));

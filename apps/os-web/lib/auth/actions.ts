@@ -7,6 +7,12 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getOsAuthMode, getOsApiBaseUrl, isSupabaseConfigured } from '@/lib/auth/config';
 import { DEFAULT_POST_LOGIN, OS_DEV_SESSION_COOKIE } from '@/lib/auth/constants';
+import { isEmailOnEvaluatorAllowlist } from '@/lib/evaluation/evaluator-allowlist';
+import {
+  EVALUATION_POST_LOGIN,
+  evaluationPostLoginPath,
+  isWalkthroughOnlyEvaluation,
+} from '@/lib/evaluation/walkthrough-config';
 import {
   decodeDevSession,
   encodeDevSession,
@@ -147,6 +153,19 @@ export async function signInAction(formData: FormData): Promise<{ error?: string
         return { error: 'No se pudo iniciar sesión. Intente de nuevo.' };
       }
 
+      // Walkthrough-only evaluation: allowlisted Supabase users reach /evaluacion
+      // without os-api membership, org cookies, or operational scopes.
+      if (isWalkthroughOnlyEvaluation()) {
+        const sessionEmail = data.user.email ?? email;
+        if (!isEmailOnEvaluatorAllowlist(sessionEmail)) {
+          await supabase.auth.signOut();
+          return { error: 'No tiene acceso a esta evaluación.' };
+        }
+        const cookieStore = await cookies();
+        cookieStore.delete(SELECTED_ORGANIZATION_COOKIE);
+        return { redirectTo: EVALUATION_POST_LOGIN };
+      }
+
       // Use the token from sign-in directly — do not re-read cookies via getSession()
       // in the same Server Action (can race and false-fail membership).
       const membership = await listMembershipsWithToken(accessToken);
@@ -172,7 +191,7 @@ export async function signInAction(formData: FormData): Promise<{ error?: string
         cookieStore.delete(SELECTED_ORGANIZATION_COOKIE);
       }
 
-      return { redirectTo: DEFAULT_POST_LOGIN };
+      return { redirectTo: evaluationPostLoginPath() };
     } catch {
       return { error: 'No se pudo iniciar sesión. Intente de nuevo.' };
     }
