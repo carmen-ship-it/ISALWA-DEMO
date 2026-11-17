@@ -1,26 +1,61 @@
 /**
- * Guided presentation — "Recorrido de ISALWA".
+ * Guided presentation — "Recorrido guiado".
  *
- * Every step describes behavior ISALWA demonstrably has today (commercial release
- * batches 2–8, tested locally against a disposable database). Nothing here is a plan,
- * a provider integration or an invented record:
- *
- * - steps link to generic product pages that the person's own permissions govern;
- * - opening the Journey changes no company, creates no records and sends nothing;
- * - production, warehouse and delivery are not part of this presentation until they
- *   are demonstrated end to end; the last step lists what is not connected.
+ * Two layers per step: what can be tried now, and the designed proposal for review.
+ * Opening Recorrido changes no organization, tenant, role, records or data mode.
+ * Exact Spanish product copy is authoritative; do not paraphrase in UI.
  */
 
-export const STORY_MODE_TITLE = 'Recorrido de ISALWA' as const;
+export const STORY_MODE_TITLE = 'Recorrido guiado' as const;
+
+export const STORY_INTRO =
+  'Este recorrido muestra lo que puedes probar hoy y cómo se conectarán las siguientes etapas comerciales de ISALWA. Las vistas de propuesta sirven para revisar el flujo antes de activarlo.' as const;
+
+export const STORY_PROPOSAL_NOTICE =
+  'Vista de propuesta · Esta etapa todavía no guarda cambios ni envía información.' as const;
+
+export const STORY_DECISION_HEADING = 'Para decidir con ISALWA' as const;
+
+export const STORY_EXTERNAL_HEADING = 'Requisito antes de activarlo' as const;
+
+export const STORY_FEEDBACK_PROMPT =
+  'Durante la evaluación, anota:\n• qué refleja bien el trabajo real;\n• qué debería cambiar;\n• qué dato o regla falta;\n• qué persona debe decidirlo.' as const;
+
+export const STORY_END_TITLE = 'Fin del recorrido' as const;
+
+export const STORY_END_BODY =
+  'Ya conoces lo disponible hoy, la propuesta completa y las decisiones que ISALWA necesita confirmar antes de activar cada etapa.' as const;
+
+export const STORY_END_BUTTON = 'Volver a Hoy' as const;
+
+export const STORY_END_HREF = '/inicio' as const;
+
+export const STORY_END_FOOTNOTE =
+  'Tu opinión ayudará a ajustar el sistema antes de activarlo con datos y conexiones reales.' as const;
+
+/** Exact status labels (words + color; color alone is never the signal). */
+export const STORY_STATUS_LABELS = {
+  available: 'Disponible para probar',
+  partial: 'Disponible parcialmente',
+  proposal: 'Vista de propuesta',
+  decision: 'Decisión pendiente de ISALWA',
+  external: 'Requiere configuración externa',
+} as const;
+
+export type StoryStepStatus = keyof typeof STORY_STATUS_LABELS;
 
 export type StoryModeStep = {
   step: number;
   title: string;
-  whatHappened: string;
-  whoNormallyActs: string;
-  whatIsalwaRecorded: string;
-  ctaLabel: string;
-  href: string;
+  role: string;
+  currentStateText: string;
+  status: StoryStepStatus;
+  /** Real route CTA only when the hosted/local feature is genuinely open. */
+  workingActionLabel: string | null;
+  href: string | null;
+  proposalText: string;
+  decisionText: string | null;
+  externalRequirement: string | null;
 };
 
 /** True for product PDF download APIs — not app pages. */
@@ -29,171 +64,314 @@ export function isStoryPdfApiHref(href: string): boolean {
   return pathOnly.startsWith('/api/') && pathOnly.endsWith('/pdf');
 }
 
+export function storyPrimaryActionLabel(status: StoryStepStatus): string {
+  switch (status) {
+    case 'available':
+    case 'partial':
+      return 'Abrir esta sección';
+    case 'proposal':
+      return 'Ver propuesta';
+    case 'decision':
+      return 'Ver qué necesitamos decidir';
+    case 'external':
+      return 'Ver requisito';
+  }
+}
+
+/** Panel panel modes opened inside Recorrido (never mutate). */
+export type StoryPanelView = 'step' | 'proposal' | 'decision' | 'external' | 'end';
+
 export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
   {
     step: 1,
-    title: 'Registrar una atención',
-    whatHappened:
-      'Una persona del equipo anota una llamada, una visita, una atención presencial o un WhatsApp registrado a mano.',
-    whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded:
-      'Canal, cliente o contacto, fecha y hora, motivo y nota, con un próximo paso opcional. WhatsApp no está conectado: ISALWA no envía ni recibe mensajes por ese canal.',
-    ctaLabel: 'Ver conversaciones',
-    href: '/conversaciones',
+    title: 'Empieza con lo que requiere atención',
+    role: 'Asesor y Gerencia',
+    currentStateText:
+      'Hoy reúne el trabajo que requiere atención según tu acceso. Desde aquí puedes abrir el registro correspondiente sin buscarlo nuevamente.',
+    status: 'available',
+    workingActionLabel: 'Abrir esta sección',
+    href: '/inicio',
+    proposalText:
+      'La versión completa reunirá conversaciones pendientes, compromisos vencidos o próximos, cotizaciones pendientes, pagos por verificar y aprobaciones asignadas.',
+    decisionText: null,
+    externalRequirement: null,
   },
   {
     step: 2,
-    title: 'Reconocer o registrar al cliente',
-    whatHappened:
-      'Se busca por nombre, teléfono o empresa. Si hay una posible coincidencia, se revisa antes de crear nada.',
-    whoNormallyActs: 'Asesor con permiso para registrar clientes',
-    whatIsalwaRecorded:
-      'El cliente y su contacto con el teléfono normalizado. Un número compartido o reciclado no une identidades por sí solo.',
-    ctaLabel: 'Ver clientes',
-    href: '/clientes',
+    title: 'Atiende una conversación o registra una atención',
+    role: 'Asesor',
+    currentStateText:
+      'Puedes revisar las conversaciones y las notas internas disponibles para tu rol. La atención manual mantiene el contexto sin afirmar que un mensaje externo fue enviado.',
+    status: 'partial',
+    workingActionLabel: 'Abrir esta sección',
+    href: '/conversaciones',
+    proposalText:
+      'La bandeja completa mostrará conversaciones nuevas, en atención, esperando al cliente, esperando al equipo y resueltas. Desde una conversación se podrá preparar una cotización, registrar un pago, crear un compromiso o reportar un problema sin volver a capturar el cliente.',
+    decisionText: null,
+    externalRequirement: 'WhatsApp todavía no está conectado en esta evaluación.',
   },
   {
     step: 3,
-    title: 'Abrir la ficha del cliente',
-    whatHappened:
-      'La ficha reúne resumen, comercial, operación, trabajo, documentos e historial de ese cliente.',
-    whoNormallyActs: 'Asesor / persona con acceso al cliente',
-    whatIsalwaRecorded:
-      'Solo se muestra lo que la persona puede leer. Cambiar un nombre pide motivo, y los cambios quedan en el historial.',
-    ctaLabel: 'Ver clientes',
+    title: 'Busca o registra al cliente',
+    role: 'Asesor',
+    currentStateText:
+      'Busca por nombre, empresa o teléfono antes de crear un registro. Las coincidencias se revisan sin unir clientes automáticamente.',
+    status: 'partial',
+    workingActionLabel: 'Abrir esta sección',
     href: '/clientes',
+    proposalText:
+      'El asesor podrá registrar un cliente nuevo con empresa o nombre, contacto, teléfono, ciudad, dirección o referencia e interés de producto. Un teléfono compartido o parecido será una señal para revisar, no una fusión automática.',
+    decisionText: null,
+    externalRequirement: null,
   },
   {
     step: 4,
-    title: 'Dejar un compromiso',
-    whatHappened:
-      'Se crea un compromiso con responsable activo, fecha y hora de Bolivia y origen.',
-    whoNormallyActs: 'Asesor / responsable',
-    whatIsalwaRecorded:
-      'El compromiso y un aviso dentro de ISALWA para quien debe cumplirlo. No se envía correo ni mensaje.',
-    ctaLabel: 'Ver compromisos',
-    href: '/compromisos',
+    title: 'Consulta Cliente 360',
+    role: 'Asesor y Gerencia',
+    currentStateText:
+      'Cliente 360 reúne los datos permitidos, la persona responsable, la cobertura, el trabajo relacionado y el historial del cliente.',
+    status: 'available',
+    workingActionLabel: 'Abrir esta sección',
+    href: '/clientes',
+    proposalText:
+      'La ficha completa mantendrá las pestañas Resumen, Comercial, Operación, Trabajo, Documentos e Historial. Cada vista mostrará solamente la información permitida para la persona que inició sesión.',
+    decisionText: null,
+    externalRequirement: null,
   },
   {
     step: 5,
-    title: 'Preparar una cotización',
-    whatHappened:
-      'Desde el cliente se arma un borrador con productos o un ítem especial, precio, cantidad y descuento.',
-    whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded:
-      'Un borrador guardado con los precios que escribió una persona. No se emite ni se envía.',
-    ctaLabel: 'Ver cotizaciones',
-    href: '/cotizaciones',
+    title: 'Corrige datos con trazabilidad',
+    role: 'Asesor autorizado y Custodia de datos',
+    currentStateText:
+      'Los cambios guardan el valor anterior, el nuevo valor, la persona que actuó, el motivo y la versión. Los documentos ya emitidos conservarán sus datos originales.',
+    status: 'available',
+    workingActionLabel: 'Abrir esta sección',
+    href: '/clientes',
+    proposalText:
+      'Cuando una corrección afecte un documento emitido, el equipo podrá crear una revisión del documento sin borrar la historia original.',
+    decisionText: null,
+    externalRequirement: null,
   },
   {
     step: 6,
-    title: 'Pedir aprobación',
-    whatHappened:
-      'Cuando hace falta, se solicita la aprobación a una persona con autoridad para aprobar precios.',
-    whoNormallyActs: 'Asesor solicita; persona autorizada decide',
-    whatIsalwaRecorded:
-      'La solicitud y la decisión sobre la versión exacta. Quien solicita no se aprueba a sí mismo, y un cambio de condiciones invalida la aprobación.',
-    ctaLabel: 'Ver aprobaciones',
-    href: '/aprobaciones',
+    title: 'Gestiona teléfonos y contactos',
+    role: 'Asesor autorizado y Custodia de datos',
+    currentStateText:
+      'Puedes cambiar o retirar un número mediante el flujo específico y finalizar una relación de contacto sin borrar a la persona.',
+    status: 'available',
+    workingActionLabel: 'Abrir esta sección',
+    href: '/clientes',
+    proposalText:
+      'Un número nuevo, compartido o reciclado requerirá revisión humana antes de mostrar historial privado. Los próximos envíos usarán solamente el número confirmado.',
+    decisionText: null,
+    externalRequirement:
+      'Los envíos pendientes se podrán cancelar o revisar cuando WhatsApp esté conectado.',
   },
   {
     step: 7,
-    title: 'Emitir la cotización y descargar el PDF',
-    whatHappened:
-      'Con la aprobación vigente, se emite una versión con número y se descarga su PDF.',
-    whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded:
-      'Versión, número y huella del documento. Emitir no es enviar: descargar el PDF no marca la cotización como enviada ni aceptada.',
-    ctaLabel: 'Ver cotizaciones',
-    href: '/cotizaciones',
+    title: 'Da apoyo temporal sin cambiar al responsable',
+    role: 'Gerencia autorizada',
+    currentStateText:
+      'La cobertura permite que otra persona atienda acciones concretas durante un periodo definido. El cliente conserva una sola persona responsable.',
+    status: 'available',
+    workingActionLabel: 'Abrir esta sección',
+    href: '/clientes',
+    proposalText:
+      'La gerencia verá qué cobertura empieza, termina o necesita revisión. El apoyo podrá continuar el trabajo autorizado sin convertir a la persona de apoyo en propietaria del cliente.',
+    decisionText: null,
+    externalRequirement: null,
   },
   {
     step: 8,
-    title: 'Registrar la aceptación del cliente',
-    whatHappened:
-      'Una persona anota cómo y cuándo aceptó el cliente, con la evidencia que tiene.',
-    whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded:
-      'Versión aceptada, canal, fecha y evidencia escrita por una persona. Un acuse de lectura o un “ok” ambiguo no es aceptación.',
-    ctaLabel: 'Ver cotizaciones',
-    href: '/cotizaciones',
+    title: 'Mantén el cliente al día',
+    role: 'Asesor autorizado y Gerencia',
+    currentStateText:
+      'Las preferencias de seguimiento, solicitudes de corrección, archivo y reactivación usan controles específicos y conservan el historial.',
+    status: 'partial',
+    workingActionLabel: 'Abrir esta sección',
+    href: '/clientes',
+    proposalText:
+      'Antes de archivar, el sistema revisará pedidos, pagos, compromisos e incidencias abiertas. Reactivar no devolverá automáticamente coberturas, consentimientos, precios o aprobaciones vencidas.',
+    decisionText: null,
+    externalRequirement:
+      'Los módulos de pagos, pedidos y compromisos deberán estar conectados antes de que todas las obligaciones puedan evaluarse automáticamente.',
   },
   {
     step: 9,
-    title: 'Crear el pedido',
-    whatHappened:
-      'Con la aceptación registrada, una persona autorizada a convertir crea el pedido.',
-    whoNormallyActs: 'Persona autorizada a convertir',
-    whatIsalwaRecorded:
-      'Un solo pedido por cotización, aunque se repita el clic. No se despacha, produce ni confirma ningún pago.',
-    ctaLabel: 'Ver pedidos',
-    href: '/pedidos',
+    title: 'Consulta el catálogo de productos',
+    role: 'Asesor',
+    currentStateText:
+      'Esta evaluación todavía no tiene el catálogo comercial integrado como fuente publicada.',
+    status: 'proposal',
+    workingActionLabel: null,
+    href: null,
+    proposalText:
+      'El catálogo mostrará productos publicados, fuentes revisadas, condiciones y especificaciones confirmadas. Si no existe un precio aprobado, mostrará ‘Precio por confirmar’.',
+    decisionText:
+      'Necesitamos el catálogo PDF aprobado y la lista de precios vigente, o una persona autorizada para aprobar cada excepción de precio.',
+    externalRequirement: null,
   },
   {
     step: 10,
-    title: 'Registrar un pago reportado',
-    whatHappened:
-      'Se anota lo que el cliente dice haber pagado, en uno o varios medios, con referencias y evidencia privada.',
-    whoNormallyActs: 'Asesor',
-    whatIsalwaRecorded:
-      'Un pago reportado, no confirmado. La suma de los medios debe ser igual al total; el efectivo indica quién lo recibió o por qué aún no se sabe.',
-    ctaLabel: 'Ver finanzas',
-    href: '/finanzas',
+    title: 'Organiza la oportunidad y el próximo paso',
+    role: 'Asesor',
+    currentStateText: 'Esta etapa todavía se presenta como propuesta de flujo.',
+    status: 'proposal',
+    workingActionLabel: null,
+    href: null,
+    proposalText:
+      'La oportunidad conectará la consulta, productos o cantidades conocidas, responsable, etapa comercial y próximo paso. Una consulta no se marcará como venta hasta que exista el pedido correspondiente.',
+    decisionText: null,
+    externalRequirement: null,
   },
   {
     step: 11,
-    title: 'Verificar cada parte del pago',
-    whatHappened:
-      'Contabilidad revisa cada medio por separado y lo confirma o rechaza con motivo.',
-    whoNormallyActs: 'Contabilidad autorizada',
-    whatIsalwaRecorded:
-      'Un resultado por medio, con quién y cuándo. Una imagen o lo que dice el cliente no confirma fondos. No es un libro contable.',
-    ctaLabel: 'Ver finanzas',
-    href: '/finanzas',
+    title: 'Prepara la cotización',
+    role: 'Asesor',
+    currentStateText: 'La cotización segura todavía no está habilitada en esta evaluación.',
+    status: 'proposal',
+    workingActionLabel: null,
+    href: null,
+    proposalText:
+      'El asesor agregará productos o un ítem especial, cantidad, unidad, descripción, precio, descuento, condiciones y vigencia. Podrá guardar un borrador antes de emitirlo.',
+    decisionText: null,
+    externalRequirement:
+      'El catálogo y las reglas de precio aprobadas deben estar disponibles antes de emitir una oferta válida.',
   },
   {
     step: 12,
-    title: 'Cambiar la fecha o reasignar un compromiso',
-    whatHappened:
-      'El responsable reprograma, y quien puede, reasigna o cancela, siempre con motivo.',
-    whoNormallyActs: 'Responsable / gerente con autoridad sobre ese cliente',
-    whatIsalwaRecorded:
-      'La fecha anterior, el responsable anterior, el motivo y quién actuó. El nuevo responsable recibe el aviso.',
-    ctaLabel: 'Ver compromisos',
-    href: '/compromisos',
+    title: 'Solicita la aprobación necesaria',
+    role: 'Asesor y Aprobador autorizado',
+    currentStateText: 'La aprobación comercial todavía no está habilitada en esta evaluación.',
+    status: 'decision',
+    workingActionLabel: null,
+    href: null,
+    proposalText:
+      'Una excepción de precio o descuento se solicitará antes de presentar la cotización. La aprobación quedará ligada a los términos y a la versión exacta. Un cambio importante invalidará esa aprobación.',
+    decisionText:
+      'Necesitamos confirmar quién aprueba excepciones de precio y descuento, y qué persona real tendrá esa autoridad en la activación.',
+    externalRequirement: null,
   },
   {
     step: 13,
-    title: 'Ver los clientes en el mapa',
-    whatHappened:
-      'El mapa de clientes muestra solo clientes visibles para la persona y con coordenadas confirmadas.',
-    whoNormallyActs: 'Asesor / gerencia',
-    whatIsalwaRecorded:
-      'Los clientes sin coordenadas figuran como “Pendiente de ubicación” en la lista. Si el proveedor de mapas no está configurado, no se dibuja ningún pin.',
-    ctaLabel: 'Ver mapa',
-    href: '/mapa',
+    title: 'Emite el documento exacto',
+    role: 'Asesor',
+    currentStateText: 'El PDF comercial versionado todavía no está habilitado en esta evaluación.',
+    status: 'proposal',
+    workingActionLabel: null,
+    href: null,
+    proposalText:
+      'Emitir creará una versión inmutable de la cotización con número, fecha, vigencia, productos, cantidades, totales y condiciones. Descargar el PDF no significará que fue enviado ni aceptado.',
+    decisionText: null,
+    externalRequirement:
+      'Los datos públicos aprobados del emisor y las condiciones comerciales deben estar confirmados antes de activar el documento.',
   },
   {
     step: 14,
-    title: 'Empezar el día en Hoy',
-    whatHappened:
-      'Hoy reúne lo que la persona tiene pendiente: atención, trabajo, aprobaciones, compromisos e incidencias.',
-    whoNormallyActs: 'Todo el equipo',
-    whatIsalwaRecorded:
-      'Solo lo que la persona puede leer. Si una carga falla, Hoy lo dice y ofrece reintentar; nunca lo muestra como cero.',
-    ctaLabel: 'Ver Hoy',
-    href: '/inicio',
+    title: 'Comparte la cotización y registra la aceptación',
+    role: 'Asesor',
+    currentStateText:
+      'El envío por WhatsApp y la aceptación comercial todavía no están habilitados en esta evaluación.',
+    status: 'external',
+    workingActionLabel: null,
+    href: null,
+    proposalText:
+      'El asesor revisará el destinatario, la línea emisora, el PDF exacto y el texto antes de enviar. La aceptación identificará la cotización y la versión acordadas; una entrega o lectura no equivaldrá a aceptación.',
+    decisionText:
+      'Necesitamos confirmar si cada asesor usará su número corporativo o si ISALWA usará una línea compartida.',
+    externalRequirement:
+      'Se requiere una conexión oficial de WhatsApp, una línea autorizada y pruebas con destinatarios consentidos.',
   },
   {
     step: 15,
-    title: 'Lo que todavía no está conectado',
-    whatHappened:
-      'Esta presentación no incluye producción, almacén ni entregas, ni envíos por WhatsApp, ni respuestas automáticas.',
-    whoNormallyActs: 'Responsable del sistema',
-    whatIsalwaRecorded:
-      'Nada. Cada capacidad se activa con sus credenciales y autorización; hasta entonces el trabajo manual sigue disponible.',
-    ctaLabel: 'Ver ayuda',
-    href: '/ayuda',
+    title: 'Crea el pedido de forma explícita',
+    role: 'Asesor autorizado',
+    currentStateText:
+      'La creación comercial de pedidos todavía no está habilitada en esta evaluación.',
+    status: 'proposal',
+    workingActionLabel: null,
+    href: null,
+    proposalText:
+      'Después de registrar aceptación válida, el asesor autorizado creará un pedido único. El pedido no confirmará producción, despacho ni pago por sí solo.',
+    decisionText:
+      'Necesitamos confirmar quién puede cancelar pedidos y si una gerencia puede convertir cotizaciones de su equipo.',
+    externalRequirement: null,
+  },
+  {
+    step: 16,
+    title: 'Reporta y verifica pagos',
+    role: 'Asesor y Contabilidad',
+    currentStateText:
+      'Los pagos reportados y su verificación todavía no están habilitados en esta evaluación.',
+    status: 'proposal',
+    workingActionLabel: null,
+    href: null,
+    proposalText:
+      'El asesor registrará QR, efectivo, transferencia u otro medio con sus montos. Contabilidad verificará cada parte; una foto o comprobante no significará que los fondos están confirmados.',
+    decisionText:
+      'Necesitamos confirmar si el pago validado será requisito antes del despacho y quién puede autorizar una excepción.',
+    externalRequirement:
+      'Se requieren instrucciones de pago publicadas y responsables de Contabilidad configurados.',
+  },
+  {
+    step: 17,
+    title: 'Cumple compromisos y resuelve problemas',
+    role: 'Asesor y Responsable actual',
+    currentStateText:
+      'Los compromisos y recordatorios comerciales completos todavía no están habilitados en esta evaluación.',
+    status: 'proposal',
+    workingActionLabel: null,
+    href: null,
+    proposalText:
+      'Cada compromiso tendrá responsable, fecha, fuente, cambios y resultado. Si un cliente no responde, el sistema propondrá seguimiento interno; no enviará mensajes automáticamente.',
+    decisionText:
+      'Necesitamos confirmar horarios de atención, responsables de escalamiento y reglas de seguimiento.',
+    externalRequirement:
+      'Las notificaciones por correo o mensajería requieren remitentes y destinos autorizados.',
+  },
+  {
+    step: 18,
+    title: 'El equipo continúa sin perder contexto',
+    role: 'Asesor y Gerencia',
+    currentStateText:
+      'La cobertura de clientes y el historial ya muestran cómo otra persona autorizada puede continuar parte del trabajo.',
+    status: 'partial',
+    workingActionLabel: 'Abrir esta sección',
+    href: '/clientes',
+    proposalText:
+      'Cuando una persona esté ausente o suspendida, el trabajo pendiente quedará en una cola autorizada para reasignación. La historia conservará a la persona que realizó cada acción.',
+    decisionText: null,
+    externalRequirement: null,
+  },
+  {
+    step: 19,
+    title: 'Revisa clientes y seguimiento en el mapa',
+    role: 'Gerencia y Asesor autorizado',
+    currentStateText: 'El mapa comercial todavía no está habilitado en esta evaluación.',
+    status: 'proposal',
+    workingActionLabel: null,
+    href: null,
+    proposalText:
+      'El mapa mostrará solamente ubicaciones confirmadas y filtros permitidos por rol. Una ubicación pendiente aparecerá en lista, sin inventar una coordenada.',
+    decisionText:
+      'Necesitamos confirmar si las ubicaciones importadas con GPS se mostrarán como ubicaciones confirmadas o requerirán revisión humana.',
+    externalRequirement: 'Se requiere una configuración de mapa con credenciales restringidas.',
+  },
+  {
+    step: 20,
+    title: 'Conecta WhatsApp e IA con control humano',
+    role: 'Configuración autorizada',
+    currentStateText:
+      'No hay una línea real de WhatsApp ni respuestas automáticas activadas en esta evaluación.',
+    status: 'external',
+    workingActionLabel: null,
+    href: null,
+    proposalText:
+      'La IA podrá responder únicamente información pública aprobada, proponer borradores y entregar la atención a una persona. Nunca aprobará precios, confirmará pagos, decidirá identidad ni creará pedidos finales por sí sola.',
+    decisionText:
+      'Necesitamos confirmar la línea de WhatsApp, horario, ubicación, preguntas frecuentes publicables, responsables de escalamiento y presupuesto de IA.',
+    externalRequirement:
+      'Se requieren acceso Meta/WhatsApp, número autorizado, contenido publicado y pruebas controladas antes de activar mensajes reales.',
   },
 ] as const;
 
