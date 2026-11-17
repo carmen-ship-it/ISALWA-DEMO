@@ -105,8 +105,12 @@ Local evidence and tooling only: Stage A mutation/HTTP/browser logs, seed script
 ## Exact deploy blockers (ordered)
 
 1. **Independent review** of `7ddf258b` (packet ready) — required before deploy per instruction.  
-2. **Vercel session**: complete CLI device login + MCP team grant for `carmen-ship-its-projects`.  
+2. **Vercel project ops**: CLI installed (`~/.local/bin/vercel` 65.17.0); MCP user `carmen-ship-it` (Hobby). Team scope grant / project list still needed for deploy ops — pause briefly if the session rejects team access, then resume when Carmen re-opens the plan’s hosting step.  
 3. **API + Postgres + workers**: compatible always-on destination without purchase — unresolved.  
 4. **Supabase Auth**: confirm commercial project identity, redirects, free-tier pause risk; fix local URL secret file before configuring hosted env (do not print values).
 
 Web-only Vercel deploy is **not** sufficient and will not be called “deployed.”
+
+## Evaluator seats prepared
+
+See `EVALUATION-EVALUATOR-ROLES.md` — Asesor + Jefe comercial/cobertura; emails deferred.
