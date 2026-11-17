@@ -41,7 +41,7 @@ Contract: `docs/product/COMMERCIAL_RELEASE_V2.md` (SHA256 `cc3f1436…0581588`) 
 ## Next command
 
 **Batch 2 (continuation §7):** TESTED LOCALLY — receipt `BATCH-2-CUSTOMER-ENTRY.md` (parent Stage A `11e4f38b`).
-**Batch 3 (continuation §8):** TESTED LOCALLY — receipt `BATCH-3-T04-QUOTES.md` (parent Batch 2 `5737c17b`). PDF hash pin and price-approve range remain gaps; independent review open.
+**Batch 3 (continuation §8):** TESTED LOCALLY — receipt `BATCH-3-T04-QUOTES.md` (parent Batch 2 `5737c17b`). **Batch 3B PDF hash pin:** TESTED LOCALLY — `BATCH-3B-PDF-HASH-PIN.md` (download verifies `issuedDocumentHash` against canonical terms; mismatch → 409; PDF includes units/discounts/validity). Price-approve range and real approver identity remain gaps; independent review open.
 **Batch 4 (continuation §9):** BLOCKED — `BATCH-4-CATALOG-BLOCKED.md`.
 **Batch 5 (continuation §10):** TESTED LOCALLY — `BATCH-5-CONVERSATIONS.md` @ `6f46eede` (Registrar atención, filters, search, Tomar conversación, honest WhatsApp). Remaining: Nota interna, attention states. 
 **Batch 6 (continuation §11):** TESTED LOCALLY — `BATCH-6-PAYMENTS.md` (reported payments, per-tender verification, "Por verificar", allocations, private evidence, versioned payment instructions, customer-archive payment check). Blocked on content: no approved payment instructions. Next: Batch 7 per continuation. Do not restart from GitHub main. Preserve disposable Postgres on 54329.

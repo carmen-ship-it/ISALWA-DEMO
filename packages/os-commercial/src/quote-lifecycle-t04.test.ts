@@ -3,7 +3,12 @@ import { describe, it } from 'node:test';
 import type { RequestContext } from '@isalwa/os-contracts';
 import { CommercialCommandService } from './commercial-command-service';
 import type { OsCommercialStore } from './os-commercial-store';
-import { buildQuoteIssuedSnapshot, quoteIssuedDocumentHash, stableJson } from './quote-issuance';
+import {
+  assertIssuedDocumentHashMatches,
+  buildQuoteIssuedSnapshot,
+  quoteIssuedDocumentHash,
+  stableJson,
+} from './quote-issuance';
 import type {
   OrderLineRecord,
   OrderRecord,
@@ -338,6 +343,11 @@ describe('T04 issue (SubmitQuote / Emitir)', () => {
     assert.equal(stableJson({ b: 1, a: { d: 2, c: [3, { y: 1, x: 2 }] } }), '{"a":{"c":[3,{"x":2,"y":1}],"d":2},"b":1}');
     const snapshot = buildQuoteIssuedSnapshot(base);
     assert.equal(snapshot.totalCentavos, '20000');
+    assert.doesNotThrow(() => assertIssuedDocumentHashMatches(hash, base));
+    assert.throws(
+      () => assertIssuedDocumentHashMatches(hash, { ...base, notes: 'drift' }),
+      /ISSUED_DOCUMENT_MISMATCH/,
+    );
   });
 });
 

@@ -33,10 +33,12 @@ function toHttp(err: unknown): HttpException {
           ? HttpStatus.NOT_FOUND
           : code === 'VALIDATION_FAILED'
             ? HttpStatus.BAD_REQUEST
-            : code === 'PDF_RENDER_FAILED'
-              ? HttpStatus.INTERNAL_SERVER_ERROR
-              : HttpStatus.INTERNAL_SERVER_ERROR;
-  return new HttpException({ code: code === 'PDF_RENDER_FAILED' ? 'PDF_RENDER_FAILED' : code }, status);
+            : code === 'ISSUED_DOCUMENT_MISMATCH'
+              ? HttpStatus.CONFLICT
+              : code === 'PDF_RENDER_FAILED'
+                ? HttpStatus.INTERNAL_SERVER_ERROR
+                : HttpStatus.INTERNAL_SERVER_ERROR;
+  return new HttpException({ code }, status);
 }
 
 @Controller('opportunities')

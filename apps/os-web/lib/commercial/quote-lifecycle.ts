@@ -50,7 +50,7 @@ export const QUOTE_LIFECYCLE_COPY = {
   revisionInvalid: 'Actualice la página: no se pudo confirmar la revisión de la cotización.',
   documentIssuedPrefix: 'Documento emitido · hash',
   documentHashDisclosure:
-    'El hash identifica los términos aprobados en la emisión. El PDF se genera al descargar y todavía no se compara contra este hash.',
+    'El hash identifica los términos aprobados en la emisión. Al descargar, el servidor vuelve a calcular ese hash desde los términos canónicos y no entrega el PDF si no coincide. El nombre de contacto mostrado puede actualizarse; los importes, unidades, descuentos y vigencia no.',
 } as const;
 
 export const QUOTE_ACCEPTANCE_CHANNEL_LABELS: Record<QuoteAcceptanceChannel, string> = {

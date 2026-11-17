@@ -3,7 +3,11 @@
 export type QuotePdfLine = {
   quantity: number;
   description: string;
+  /** Optional unit (pza, m², …). Printed next to the description when present. */
+  unitLabel?: string | null;
   unitPriceLabel: string;
+  /** Optional line discount label; omitted when zero/absent. */
+  discountLabel?: string | null;
   lineTotalLabel: string;
 };
 
@@ -14,6 +18,10 @@ export type QuotePdfDocument = {
   brandName: string;
   organizationLegalName?: string | null;
   issuedAtLabel: string;
+  /** Explicit validity end from the issued terms; omitted when unset. */
+  validUntilLabel?: string | null;
+  /** Issued revision label (e.g. "Revisión 2"); omitted for drafts. */
+  issuedRevisionLabel?: string | null;
   customerName: string;
   contactName?: string | null;
   contactPhone?: string | null;
@@ -22,6 +30,8 @@ export type QuotePdfDocument = {
   notes?: string | null;
   lines: QuotePdfLine[];
   subtotalLabel: string;
+  /** Header discount; omitted when zero/absent. */
+  headerDiscountLabel?: string | null;
   totalLabel: string;
   /** Shown only when the quote is still a draft. */
   draftLabel?: string | null;

@@ -75,3 +75,18 @@ export function hashQuoteIssuedSnapshot(snapshot: Record<string, unknown>): stri
 export function quoteIssuedDocumentHash(input: QuoteIssuedSnapshotInput): string {
   return hashQuoteIssuedSnapshot(buildQuoteIssuedSnapshot(input));
 }
+
+/**
+ * Recomputes the issued-document hash from the canonical quote terms and compares it
+ * to the hash frozen at Emitir. Used by PDF download so a drifted or corrupted read
+ * cannot claim to be the issued artifact. Throws `ISSUED_DOCUMENT_MISMATCH` on failure.
+ */
+export function assertIssuedDocumentHashMatches(
+  expectedHash: string,
+  input: QuoteIssuedSnapshotInput,
+): void {
+  const actual = quoteIssuedDocumentHash(input);
+  if (actual !== expectedHash) {
+    throw new Error('ISSUED_DOCUMENT_MISMATCH');
+  }
+}

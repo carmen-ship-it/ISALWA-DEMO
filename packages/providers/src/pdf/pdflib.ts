@@ -268,8 +268,29 @@ export class PdfLibPdfProvider implements PdfProvider {
         y,
         MIST,
       );
+    } else if (doc.issuedRevisionLabel?.trim()) {
+      drawRight(
+        page,
+        doc.issuedRevisionLabel.trim(),
+        bold,
+        9,
+        PAGE_WIDTH - MARGIN_X,
+        y,
+        SLATE,
+      );
     }
-    y -= 22;
+    y -= 16;
+    if (doc.validUntilLabel?.trim()) {
+      page.drawText(`Válida hasta: ${doc.validUntilLabel.trim()}`, {
+        x: MARGIN_X,
+        y,
+        size: 10,
+        font: regular,
+        color: SLATE,
+      });
+      y -= 16;
+    }
+    y -= 6;
 
     // Customer block
     page.drawText('Cliente', {
@@ -342,8 +363,13 @@ export class PdfLibPdfProvider implements PdfProvider {
       y -= 18;
     } else {
       for (const line of doc.lines) {
-        const detailLines = wrap(line.description, regular, 9, detailWidth);
-        const rowHeight = Math.max(14, detailLines.length * 12);
+        const detail =
+          line.unitLabel?.trim()
+            ? `${line.description} (${line.unitLabel.trim()})`
+            : line.description;
+        const detailLines = wrap(detail, regular, 9, detailWidth);
+        const discountExtra = line.discountLabel?.trim() ? 12 : 0;
+        const rowHeight = Math.max(14, detailLines.length * 12) + discountExtra;
         ensureSpace(rowHeight + 8);
 
         page.drawText(String(line.quantity), {
@@ -363,6 +389,15 @@ export class PdfLibPdfProvider implements PdfProvider {
             color: INK,
           });
         });
+        if (line.discountLabel?.trim()) {
+          page.drawText(`Desc. ${line.discountLabel.trim()}`, {
+            x: colDetail,
+            y: y - detailLines.length * 12,
+            size: 8,
+            font: regular,
+            color: MIST,
+          });
+        }
 
         page.drawText(line.unitPriceLabel, {
           x: colUnit,
@@ -391,7 +426,8 @@ export class PdfLibPdfProvider implements PdfProvider {
     }
 
     y -= 12;
-    ensureSpace(48);
+    const totalsExtra = doc.headerDiscountLabel?.trim() ? 16 : 0;
+    ensureSpace(48 + totalsExtra);
     page.drawLine({
       start: { x: colUnit - 20, y: y + 10 },
       end: { x: PAGE_WIDTH - MARGIN_X, y: y + 10 },
@@ -401,6 +437,11 @@ export class PdfLibPdfProvider implements PdfProvider {
     page.drawText('Subtotal', { x: colUnit - 20, y, size: 10, font: regular, color: SLATE });
     drawRight(page, doc.subtotalLabel, regular, 10, colSub - 4, y);
     y -= 16;
+    if (doc.headerDiscountLabel?.trim()) {
+      page.drawText('Descuento', { x: colUnit - 20, y, size: 10, font: regular, color: SLATE });
+      drawRight(page, doc.headerDiscountLabel.trim(), regular, 10, colSub - 4, y);
+      y -= 16;
+    }
     page.drawText('Total', { x: colUnit - 20, y, size: 11, font: bold, color: INK });
     drawRight(page, doc.totalLabel, bold, 11, colSub - 4, y, KILN);
     y -= 12;

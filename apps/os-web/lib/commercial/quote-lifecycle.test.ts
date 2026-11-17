@@ -6,6 +6,7 @@ import { prepareQuoteTarget } from '@/lib/cliente/prepare-quote';
 import { UI_5A_COMMERCIAL_COMMANDS } from '@/lib/commercial/command-types';
 import {
   QUOTE_ACCEPTANCE_CHANNEL_OPTIONS,
+  QUOTE_LIFECYCLE_COPY,
   QUOTE_LIFECYCLE_LABELS,
   canRecordQuoteAcceptance,
   isQuoteAcceptanceChannel,
@@ -88,6 +89,8 @@ describe('T04 quote lifecycle UI contract', () => {
     const doc = read('components/commercial/quote-document-actions.tsx');
     assert.match(doc, /data-quote-issued-hash/);
     assert.match(doc, /QUOTE_LIFECYCLE_COPY\.documentHashDisclosure/);
+    assert.match(QUOTE_LIFECYCLE_COPY.documentHashDisclosure, /vuelve a calcular ese hash/);
+    assert.match(QUOTE_LIFECYCLE_COPY.documentHashDisclosure, /no entrega el PDF si no coincide/);
   });
 });
 

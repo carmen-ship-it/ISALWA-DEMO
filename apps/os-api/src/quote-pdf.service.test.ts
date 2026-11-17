@@ -2,9 +2,15 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { PDFDocument } from 'pdf-lib';
 import type { QuoteDetailReadModel } from '@isalwa/os-contracts';
+import { quoteIssuedDocumentHash, type QuoteLineRecord, type QuoteRecord } from '@isalwa/os-commercial';
 import type { ContactRecord, PartyRecord } from '@isalwa/os-party';
 import { PdfLibPdfProvider } from '@isalwa/providers';
-import { buildQuotePdfDocument, pickQuoteContact, QuotePdfService } from './quote-pdf.service';
+import {
+  buildQuotePdfDocument,
+  overlayIssuedQuoteTerms,
+  pickQuoteContact,
+  QuotePdfService,
+} from './quote-pdf.service';
 
 function quote(overrides: Partial<QuoteDetailReadModel> = {}): QuoteDetailReadModel {
   return {
@@ -136,18 +142,71 @@ describe('quote PDF document builder', () => {
   });
 });
 
+function issuedRecord(overrides: Partial<QuoteRecord> = {}): QuoteRecord {
+  return {
+    id: 'q1',
+    organizationId: 'org1',
+    partyId: 'p1',
+    commercialAccountId: null,
+    opportunityId: null,
+    ownerMemberId: 'm1',
+    quoteNumber: 'Q-000010',
+    status: 'submitted',
+    currency: 'BOB',
+    subtotalCentavos: 15000n,
+    headerDiscountCentavos: 0n,
+    totalCentavos: 15000n,
+    revisionNumber: 1,
+    notes: null,
+    version: 2,
+    submittedAt: new Date('2026-09-14T12:00:00.000Z'),
+    issuedAt: new Date('2026-09-14T12:00:00.000Z'),
+    issuedDocumentHash: null,
+    issuedRevisionNumber: 1,
+    validUntil: new Date('2026-12-01T00:00:00.000Z'),
+    customerAcceptedAt: null,
+    customerAcceptanceChannel: null,
+    customerAcceptanceEvidence: null,
+    customerAcceptedRevision: null,
+    cancelledAt: null,
+    createdAt: new Date('2026-09-13T12:00:00.000Z'),
+    updatedAt: new Date('2026-09-14T12:00:00.000Z'),
+    ...overrides,
+  };
+}
+
+function issuedLines(): QuoteLineRecord[] {
+  return [
+    {
+      id: 'l1',
+      organizationId: 'org1',
+      quoteId: 'q1',
+      lineNumber: 1,
+      description: 'Cemento',
+      quantity: 3,
+      unitLabel: 'bolsa',
+      unitPriceCentavos: 5000n,
+      discountCentavos: 0n,
+      lineTotalCentavos: 15000n,
+      productRef: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+}
+
 describe('QuotePdfService render', () => {
-  it('returns application/pdf bytes with safe filename', async () => {
-    const service = new QuotePdfService(
-      {
-        getPartyInOrg: async () => null,
-        listContactsForOrgParty: async () => ({ items: [], hasMore: false, nextCursor: null }),
-      } as never,
-      new PdfLibPdfProvider(),
-    );
-    const rendered = await service.renderAuthorizedQuote(quote({ status: 'submitted' }));
+  const partyStore = {
+    getPartyInOrg: async () => null,
+    listContactsForOrgParty: async () => ({ items: [], hasMore: false, nextCursor: null }),
+  } as never;
+
+  it('returns application/pdf bytes with safe filename for drafts', async () => {
+    const service = new QuotePdfService(partyStore, new PdfLibPdfProvider(), null);
+    const rendered = await service.renderAuthorizedQuote(quote({ status: 'draft' }));
     assert.equal(rendered.contentType, 'application/pdf');
     assert.equal(rendered.filename, 'Cotizacion-Q-000010.pdf');
+    assert.equal(rendered.issuedDocumentVerified, false);
     assert.equal(
       String.fromCharCode(
         rendered.bytes[0]!,
@@ -159,5 +218,75 @@ describe('QuotePdfService render', () => {
     );
     const loaded = await PDFDocument.load(rendered.bytes);
     assert.equal(loaded.getPageCount(), 1);
+  });
+
+  it('pins issued PDF download to the frozen document hash', async () => {
+    const lines = issuedLines();
+    const record = issuedRecord();
+    const hash = quoteIssuedDocumentHash({
+      quoteNumber: record.quoteNumber,
+      revisionNumber: record.revisionNumber,
+      partyId: record.partyId,
+      currency: record.currency,
+      notes: record.notes,
+      validUntil: record.validUntil,
+      headerDiscountCentavos: record.headerDiscountCentavos,
+      lines,
+    });
+    record.issuedDocumentHash = hash;
+
+    const service = new QuotePdfService(partyStore, new PdfLibPdfProvider(), {
+      getQuoteInOrg: async () => record,
+      listQuoteLines: async () => lines,
+    } as never);
+
+    const rendered = await service.renderAuthorizedQuote(
+      quote({
+        status: 'submitted',
+        submittedAt: '2026-09-14T12:00:00.000Z',
+        issuedAt: '2026-09-14T12:00:00.000Z',
+        issuedDocumentHash: hash,
+        issuedRevisionNumber: 1,
+      }),
+    );
+    assert.equal(rendered.issuedDocumentVerified, true);
+    assert.ok(rendered.bytes.byteLength > 500);
+
+    const drifted = { ...record, notes: 'tampered' };
+    const refusing = new QuotePdfService(partyStore, new PdfLibPdfProvider(), {
+      getQuoteInOrg: async () => drifted,
+      listQuoteLines: async () => lines,
+    } as never);
+    await assert.rejects(
+      () =>
+        refusing.renderAuthorizedQuote(
+          quote({
+            status: 'submitted',
+            issuedAt: '2026-09-14T12:00:00.000Z',
+            issuedDocumentHash: hash,
+            issuedRevisionNumber: 1,
+          }),
+        ),
+      /ISSUED_DOCUMENT_MISMATCH/,
+    );
+  });
+
+  it('includes units, validity and discounts on the printable document', () => {
+    const lines = issuedLines();
+    lines[0]!.discountCentavos = 500n;
+    lines[0]!.lineTotalCentavos = 14500n;
+    const record = issuedRecord({ headerDiscountCentavos: 1000n, totalCentavos: 13500n });
+    const detail = overlayIssuedQuoteTerms(quote({ status: 'submitted' }), record, lines);
+    const doc = buildQuotePdfDocument({
+      quote: detail,
+      party: null,
+      contacts: [],
+      organizationLegalName: null,
+    });
+    assert.equal(doc.lines[0]?.unitLabel, 'bolsa');
+    assert.equal(doc.lines[0]?.discountLabel, 'Bs. 5,00');
+    assert.equal(doc.headerDiscountLabel, 'Bs. 10,00');
+    assert.match(doc.validUntilLabel ?? '', /\d{2}\/\d{2}\/\d{4}/);
+    assert.equal(doc.issuedRevisionLabel, 'Revisión 1');
   });
 });

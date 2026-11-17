@@ -516,8 +516,9 @@ function createMemberQueryStore(): MemberQueryStorePort {
     },
     {
       provide: OS_QUOTE_PDF_SERVICE,
-      useFactory: (partyStore: OsPartyStore) => new QuotePdfService(partyStore),
-      inject: [OS_PARTY_STORE],
+      useFactory: (partyStore: OsPartyStore, commercialStore: OsCommercialStore) =>
+        new QuotePdfService(partyStore, undefined, commercialStore),
+      inject: [OS_PARTY_STORE, OS_COMMERCIAL_STORE],
     },
     {
       provide: OS_DELIVERY_STORE,
