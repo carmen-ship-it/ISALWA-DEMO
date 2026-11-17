@@ -183,7 +183,7 @@ export const es = {
       kicker: 'Comercial',
       description: 'Borradores y cotizaciones enviadas.',
       filterDraft: 'Borrador',
-      filterSubmitted: 'Enviadas',
+      filterSubmitted: 'Emitidas',
     },
     trabajo: {
       title: 'Trabajo',

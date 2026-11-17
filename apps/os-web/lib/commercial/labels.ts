@@ -17,12 +17,18 @@ export function formatOpportunityStatus(status: string): string {
   }
 }
 
+/**
+ * Lifecycle wording for the stored quote status.
+ * `submitted` means the quote was issued/presented in-system — not that a channel
+ * send occurred. Manual send evidence is a separate record; never label as "Enviada"
+ * from status alone.
+ */
 export function formatQuoteStatus(status: string): string {
   switch (status) {
     case 'draft':
       return 'Borrador';
     case 'submitted':
-      return 'Enviada';
+      return 'Emitida';
     case 'accepted':
       return 'Aceptada';
     case 'cancelled':
@@ -127,7 +133,7 @@ export function statusTone(status: string): CommercialStatusTone {
     case 'open':
       return 'open'; // Abierta / Registrado → Soft teal (active ≠ success)
     case 'submitted':
-      return 'in_progress'; // Enviada / en curso → Soft teal (active)
+      return 'in_progress'; // Emitida / en curso → Soft teal (active)
     case 'won':
     case 'accepted':
       return 'approved'; // Ganada / Aceptada → Green (success)

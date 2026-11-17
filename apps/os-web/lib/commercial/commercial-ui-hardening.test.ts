@@ -179,7 +179,7 @@ describe('cotizaciones list filters', () => {
     const options = quoteStatusFilterOptions('draft');
     assert.deepEqual(
       options.map((option) => option.label),
-      ['Borrador', 'Enviadas', 'Aceptadas', 'Canceladas'],
+      ['Borrador', 'Emitidas', 'Aceptadas', 'Canceladas'],
     );
     assert.equal(cotizacionesHref('submitted'), '/cotizaciones?status=submitted');
   });
@@ -263,8 +263,8 @@ describe('inicio commercial home', () => {
 
 describe('commercial polish helpers', () => {
   it('keeps status vocabulary consistent across record kinds', () => {
-    assert.equal(formatQuoteStatus('submitted'), 'Enviada');
-    assert.equal(formatRecordStatus('submitted', 'quote'), 'Enviada');
+    assert.equal(formatQuoteStatus('submitted'), 'Emitida');
+    assert.equal(formatRecordStatus('submitted', 'quote'), 'Emitida');
     assert.equal(formatOpportunityStatus('open'), 'Abierta');
     assert.equal(COMMERCIAL_NEXT_STEP_LABEL, 'Próxima acción');
   });

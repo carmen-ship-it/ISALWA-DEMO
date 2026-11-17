@@ -151,7 +151,7 @@ describe('approval and quote elapsed facts', () => {
       quote({ submittedAt: '2026-09-11T16:00:00.000Z' }),
       NOON,
     );
-    assert.equal(submitted?.label, 'Enviada, hace 3 días. No es un plazo incumplido.');
+    assert.equal(submitted?.label, 'Emitida, hace 3 días. No es un plazo incumplido.');
     assert.equal(submitted?.key, 'quote:submitted:quote-1');
     assert.equal(submitted?.href, '/clientes/party-1/cotizaciones/quote-1');
 
@@ -159,7 +159,7 @@ describe('approval and quote elapsed facts', () => {
       quote({ quoteId: 'quote-old', submittedAt: '2026-08-05T16:00:00.000Z' }),
       NOON,
     );
-    assert.match(old?.label ?? '', /^Enviada, hace \d+ días\. No es un plazo incumplido\.$/);
+    assert.match(old?.label ?? '', /^Emitida, hace \d+ días\. No es un plazo incumplido\.$/);
 
     assert.equal(deriveQuoteElapsedFact(quote({ status: 'draft', submittedAt: null }), NOON), null);
     assert.equal(

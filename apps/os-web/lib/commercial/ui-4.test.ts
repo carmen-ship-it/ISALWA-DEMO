@@ -73,7 +73,7 @@ describe('UI-4 opportunity presentation', () => {
 
 describe('UI-4 quotes presentation', () => {
   it('maps quote status including submitted and cancelled', () => {
-    assert.equal(formatQuoteStatus('submitted'), 'Enviada');
+    assert.equal(formatQuoteStatus('submitted'), 'Emitida');
     assert.equal(formatQuoteStatus('cancelled'), 'Cancelada');
     assert.equal(formatQuoteStatus('draft'), 'Borrador');
   });

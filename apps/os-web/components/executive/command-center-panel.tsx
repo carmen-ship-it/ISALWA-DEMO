@@ -177,7 +177,7 @@ function labelFor(kind: ExecutiveException['kind']): string {
     case 'pending_decision':
       return 'Aprobación pendiente';
     case 'submitted_quote':
-      return 'Enviada';
+      return 'Emitida';
   }
 }
 

@@ -59,8 +59,8 @@ export function QuoteList({ partyId, items, memberLabels }: QuoteListProps) {
                   </div>
                   {item.submittedAt ? (
                     <div>
-                      <dt className="sr-only">Enviada</dt>
-                      <dd>Enviada: {formatListAge(item.submittedAt) ?? '—'}</dd>
+                      <dt className="sr-only">Emitida</dt>
+                      <dd>Emitida: {formatListAge(item.submittedAt) ?? '—'}</dd>
                     </div>
                   ) : null}
                   {item.cancelledAt ? (

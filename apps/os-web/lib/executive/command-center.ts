@@ -210,7 +210,7 @@ function quoteExceptions(
         ownerMemberId: quote.ownerMemberId || null,
         partyId: quote.partyId,
         agePhrase: age?.phrase ?? null,
-        detail: age ? `Enviada. ${age.phrase}.` : 'Enviada.',
+        detail: age ? `Emitida. ${age.phrase}.` : 'Emitida.',
       };
     });
 }

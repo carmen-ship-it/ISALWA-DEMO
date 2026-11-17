@@ -46,7 +46,7 @@ describe('Task 3 shared status semantics', () => {
     // ACTIVE
     assert.equal(statusToneFromLabel('Abierta'), 'open');
     assert.equal(statusToneFromLabel('En curso'), 'in_progress');
-    assert.equal(statusToneFromLabel('Enviada'), 'in_progress');
+    assert.equal(statusToneFromLabel('Emitida'), 'in_progress');
     // ATTENTION
     assert.equal(statusToneFromLabel('Pendiente'), 'pending');
     assert.equal(statusToneFromLabel('Actualización solicitada'), 'pending');

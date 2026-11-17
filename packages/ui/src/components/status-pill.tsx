@@ -191,8 +191,9 @@ const LABEL_TONE_MAP: Record<string, StatusPillTone> = {
   aprobado: 'approved',
   completado: 'completed',
   completada: 'completed',
-  emitida: 'completed',
-  emitido: 'completed',
+  // Issued/presented commercial docs are active work, not success-green.
+  emitida: 'in_progress',
+  emitido: 'in_progress',
   entregada: 'completed',
   entregado: 'completed',
   'salida registrada': 'completed',

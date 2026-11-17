@@ -19,7 +19,7 @@ export function quoteStatusFilterOptions(
 ): QuoteStatusFilterOption[] {
   return [
     { status: 'draft', label: 'Borrador', href: '/cotizaciones?status=draft' },
-    { status: 'submitted', label: 'Enviadas', href: '/cotizaciones?status=submitted' },
+    { status: 'submitted', label: 'Emitidas', href: '/cotizaciones?status=submitted' },
     { status: 'accepted', label: 'Aceptadas', href: '/cotizaciones?status=accepted' },
     { status: 'cancelled', label: 'Canceladas', href: '/cotizaciones?status=cancelled' },
   ];

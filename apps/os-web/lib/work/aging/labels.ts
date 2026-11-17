@@ -30,5 +30,5 @@ export function quoteSubmittedAgeLabel(submittedAt: string | null, asOf: Date): 
   if (!submittedAt) return null;
   const phrase = elapsedAge(submittedAt, asOf)?.phrase ?? null;
   if (!phrase) return null;
-  return `Enviada, ${phrase}. No es un plazo incumplido.`;
+  return `Emitida, ${phrase}. No es un plazo incumplido.`;
 }
