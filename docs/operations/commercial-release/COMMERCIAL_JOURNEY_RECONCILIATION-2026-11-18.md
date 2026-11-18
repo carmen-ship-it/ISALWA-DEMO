@@ -2,26 +2,30 @@
 
 Documentation + evidence only. No product, data, role, env, or deployment changes in this task.
 
+**Phase 0 audit note (same day):** T04 independent-review provenance corrected (external PASS WITH FOLLOW-UPS; formal repo receipt absent). Recorrido availability labels **not** changed. Hosted product tip remains `904cf24a…` while docs tip advances on `ct3/v1-repairs`.
+
 ## Phase A — Source and deployment pinning
 
 | Field | Value |
 |---|---|
 | Integrator worktree | `/Users/carmen/projects/isalwa-wt-v1-repairs` |
 | Branch | `ct3/v1-repairs` |
-| HEAD (docs commit parent) | `904cf24a7acd40ad4278a229e9f9fc8fc5d9f781` |
-| Tree (docs commit parent) | `8befbec21f33da631b24d239cf0a74de7038e8ca` |
-| Index lock / other writer | none observed |
-| Unrelated dirty (preserved, not committed here) | `.cursor/settings.json`, `.tmp/`, `apps/os-api/.tmp-stage-a/`, `docs/operations/commercial-release/evidence/**`, `isalwa-transfer-readiness/` |
+| Docs tip (reconciliation commit) | `8951b5e86139b1f5e2e43a75fc20d531b4834ee7` |
+| Hosted product source (unchanged) | `904cf24a7acd40ad4278a229e9f9fc8fc5d9f781` |
+| Hosted product tree | `8befbec21f33da631b24d239cf0a74de7038e8ca` |
+| Index lock / other writer | none observed at Phase 0 start |
+| Unrelated dirty (preserved) | `.cursor/settings.json`, `.tmp/`, `apps/os-api/.tmp-stage-a/`, `docs/operations/commercial-release/evidence/**`, `isalwa-transfer-readiness/` |
 | Hosted web | https://isalwa-os-web-evaluation.vercel.app |
-| Production deployment | `dpl_E8wQPK77NNw3siDnyCXZVudfdL8S` (READY; alias production) |
+| Production deployment | `dpl_E8wQPK77NNw3siDnyCXZVudfdL8S` (READY; alias production; rechecked 2026-11-18) |
 | Approved deployed source | tip `904cf24a…` (allowlisted export `isalwa-transfer-readiness/deploy/904cf24a-evaluation`) |
 | Architecture | Vercel web → Railway API/workers `/v1` → Supabase evaluation DB + Auth |
-| Railway API | `isalwa-os-api-evaluation-production.up.railway.app/v1` — health HTTP 200 after Mac shutdown |
+| Railway API | `isalwa-os-api-evaluation-production.up.railway.app/v1` — health HTTP 200 liveness rechecked 2026-11-18 |
 | DB connectivity | Supabase session pooler `aws-1-sa-east-1.pooler.supabase.com:5432` (direct `db.*` IPv6-only) |
-| Railway spend | Hobby; **$5 soft alert only**; no hard cutoff |
+| Railway spend | Hobby; **$5 soft alert only**; no hard cutoff; no added paid resources |
 | Mac API / Cloudflare tunnel | **stopped**; not required for hosted evaluation |
 | Evaluation label | TEMPORARY HOSTED EVALUATION — NOT DURABLE / NOT LAUNCH READY |
 | Tenant | dedicated `isalwa-eval-demo-v1` only; never restore global `datos=demo` |
+| T04 review provenance | External **PASS WITH FOLLOW-UPS**; formal `REVIEW-T04-QUOTES.md` absent — `receipts/T04-INDEPENDENT-REVIEW-PROVENANCE.md` |
 
 Authority for Journey titles/status copy: `apps/os-web/lib/journey/story-steps.ts`. Product contracts: `docs/product/COMMERCIAL_RELEASE_V2.md`, A1, A2. Authority matrix: `REUSE_MAP.md` §12–§13. Hosted fixture/cutover: `receipts/EVALUATION-FIXTURE-SEED.md`, `EVALUATION-PROMOTE-904cf24a-VERCEL.md`, `EVALUATION-RAILWAY-CUTOVER-904cf24a.md`.
 
@@ -36,7 +40,7 @@ Classification rules used below: **implemented ≠ hosted ≠ verified create pa
 | **1. Empieza con lo que requiere atención** | Start of day / return to work | Asesor; Gerencia (scoped) | Open Hoy; open a pending item without re-search | Deep link to exact resource; filters preserved | **implemented** | **hosted and verified** (read/shell) | Routes `/inicio`; V2 §5.1; Recorrido step 1 `available`; promote verify PASS; railway cutover verify-2 PASS (inicio populated EVALUACIÓN) | Membership + commercial/read scopes; tenant `isalwa-eval-demo-v1` | Some Hoy subsections may show empty/error honestly; not a claim of all queues | Full team/empresa sections need broader grants | Shared seat: login → `/inicio` shows fixture attention/commercial cards; denied scopes show honest empty | integrator (keep stable); Isa/Álvaro inspect |
 | **2. Atiende una conversación o registra una atención** | WhatsApp/call/visit/manual note | Asesor | List/filter conversations; open thread; save manual attention / internal note | `OsCustomerConversation` + attention state; no provider send | **partial** (manual path local+hosted fixture; inbound/provider not) | **hosted partial** | `/conversaciones`; Batch 5/5B receipts; fixture 4 conversations with exact “sin conexión a Meta/WhatsApp”; Recorrido `partial` + WhatsApp external | Account/coverage/tenant; claim rules | Mensaje send disabled / not Meta; examples are evaluation-only | Meta/WABA; release/reassign; inbound reopen | Open conversaciones; confirm Meta disclaimer; register manual attention if UI allows for seat | integrator; Carmen Meta decision; external provider later |
 | **3. Busca o registra al cliente** | New inquiry / unknown party | Asesor | Search before create; register with bounded fields; shared-phone review without auto-merge | Party/contact/account; owner = actor when advisor | **implemented** (T03 + Batch 2) | **hosted partial** (list/search/fixture yes; full create path not proven on shared seat this pin) | `/clientes`, `/clientes/nuevo`; ACCEPTANCE-LANE-B-T03; BATCH-2-CUSTOMER-ENTRY; fixture 4 EVALUACIÓN customers | `commercial.customer.create` / edit; resource authority | Shared seat has create scope; hosted proof emphasized fixture visibility, not every create refusal case | None for foundation | Hosted: search EVALUACIÓN; create synthetic customer if authorized; outsider 404 | integrator / independent reviewer for create path |
-| **4. Consulta Cliente 360** | Need full customer context | Asesor; Gerencia | Tabs Resumen/Comercial/…; owner; coverage; history | Read models only; no silent ownership change | **implemented** | **hosted and verified** (open + navigate) | Cliente 360 pages; ACCEPTANCE-LANE-B; promote/cutover clientes PASS | Resource-scoped reads | Full tab completeness may still deepen; not all ops desks | — | Open one EVALUACIÓN customer 360; confirm owner + commercial links | Isa/Álvaro |
+| **4. Consulta Cliente 360** | Need full customer context | Asesor; Gerencia | Tabs Resumen/Comercial/…; owner; coverage; history | Read models only; no silent ownership change | **implemented** | **hosted partial** (list/contexts verified on promote/cutover; Cliente 360 open not recorded in those hosted receipts) | Cliente 360 pages in source; ACCEPTANCE-LANE-B (local); promote/cutover `/clientes` list PASS; availability matrix notes 360 path | Resource-scoped reads | Hosted 360 tab navigation not separately receipted on tip `904cf24a`; do not upgrade to live-journey verified without that proof | — | Open one EVALUACIÓN customer 360; confirm owner + commercial links; deposit hosted evidence | Isa/Álvaro (inspect); integrator (evidence) |
 | **5. Corrige datos con trazabilidad** | Wrong name/address/etc. | Asesor autorizado; steward for legal name | Edit with motive; see before/after history; issued docs unchanged | Events/audit; version conflict | **implemented** | **hosted partial** (UI present; fixture may include correction; full matrix local) | T03-EDIT-REASON-HISTORY; ACCEPTANCE legal-name/history flows | `commercial.customer.edit`; `master_data.admin` for legal name | Documents already issued keep original data | — | Edit a non-sensitive field with motive; reload history | independent reviewer spot-check hosted |
 | **6. Gestiona teléfonos y contactos** | Number change / leave company | Asesor autorizado; steward | Update/retire phone; end relation without deleting person; justified reveal | Endpoint history; relation end; cancel unsent intents when provider exists | **implemented** | **hosted partial** | T03-CONTACT-PHONE; L1 relation end; C6 endpoint history; fixture contacts | customer.edit; reveal justification | Pending WhatsApp sends not applicable until Meta | WhatsApp for pending-send cancel | Phone update + relation end on synthetic contact | integrator |
 | **7. Da apoyo temporal sin cambiar al responsable** | Absence / help needed | Gerencia autorizada (grantor) | Grant ≤30d bounded actions; revoke; owner unchanged | `OsCustomerCoverageGrant` | **implemented** | **hosted partial** (fixture 1 active coverage; grant UI local-proven) | T03 coverage receipts; ACCEPTANCE coverage grant/revoke; fixture `coverageGrantsActive=1` | `commercial.account.reassign` + reach scopes | Coverage ≠ ownership; convert needs explicit quote.convert | — | View coverage on fixture; grant/revoke only if seat has grantor scopes | Carmen/Isa for who grants in live |
@@ -61,7 +65,7 @@ Classification rules used below: **implemented ≠ hosted ≠ verified create pa
 | 1 | implemented | hosted and verified (read) |
 | 2 | partial | hosted partial |
 | 3 | implemented | hosted partial |
-| 4 | implemented | hosted and verified (read) |
+| 4 | implemented | hosted partial (list verified; 360 open not in promote/cutover receipts) |
 | 5–7 | implemented | hosted partial |
 | 8 | partial | hosted partial |
 | 9 | proposal-only / blocked | not hosted (approved catalog) |
@@ -116,7 +120,7 @@ Classification rules used below: **implemented ≠ hosted ≠ verified create pa
 | Emitida wording | **hosted and verified** (promote PASS) |
 | Named real `commercial.price.approve` holders + thresholds | **blocked by business decision** #1–#2 |
 | WhatsApp send of PDF | **blocked by external provider** + #4 |
-| Independent review of T04 packet | **not started** (`REVIEW-PACKET-T04-QUOTES.md`) |
+| Independent review of T04 lifecycle | **PASS WITH FOLLOW-UPS (external)**; formal repo receipt `REVIEW-T04-QUOTES.md` **absent** — do not treat as “not started.” Packet `REVIEW-PACKET-T04-QUOTES.md` still shows stale “NOT STARTED” and older freeze `5e7131cc`; product pin is `904cf24a` |
 
 **First missing link for activation:** ISALWA named approvers + thresholds (catalog/prices also block “real” quotes).
 
@@ -170,9 +174,9 @@ Classification rules used below: **implemented ≠ hosted ≠ verified create pa
 
 | Field | Value |
 |---|---|
-| Journey steps | 9–17, 19 copy vs fixture visibility conflict |
-| Business outcome | Recorrido matches what evaluators actually see (fixture vs proposal) |
-| Prerequisite | Carmen decides: keep Recorrido conservative **or** upgrade status to “partial / fixture visible” without claiming create paths |
+| Journey steps | Recorrido `proposal` / `decision` / `external` lag for steps **9–17 and 19** (exact statuses: 9–11 proposal, 12 decision, 13 proposal, 14 external, 15–17 proposal, 19 proposal) vs fixture visibility |
+| Business outcome | Recorrido matches what evaluators actually see (fixture vs proposal/decision/external) |
+| Prerequisite | Carmen decides: keep Recorrido conservative **or** upgrade selected statuses to “partial / fixture visible” without claiming create paths |
 | Source inputs | This reconciliation; `story-steps.ts` living-contract rules in RECORRIDO receipt |
 | Files likely | `story-steps.ts` (+ tests), worksheet — **only after explicit implementation authorization** (not this docs task) |
 | Parallel? | No (evaluation narrative) |
@@ -307,11 +311,11 @@ Meta/WhatsApp · confirmación bancaria · precios/PDF de catálogo aprobados ·
 
 ## Conflicts: Journey copy vs hosted/local behavior
 
-1. **Recorrido steps 10–17, 19** still say “no habilitado / propuesta” while hosted fixture shows opportunities, quotes (Emitida), orders, payment report, commitments, and coordinates — **visibility ≠ full create/authority proof**. Intentional conservatism until Carmen authorizes copy upgrade (`RECORRIDO-DUAL-LAYER-EVALUATION.md` living contract).
-2. **`EVALUACION_ISA_ALVARO_…` worksheet** still says Journey is NOT HOSTED; that line is **stale** relative to `904cf24a` + Railway cutover (worksheet not auto-updated).
-3. **T04 review packet** still references older frozen deploy `5e7131cc`; current production pin is `904cf24a` / `dpl_E8wQPK77…`.
-4. **Batch-3 receipt** noted “Enviada” pill debt; promote hygiene + fixture review moved product wording to **Emitida** — treat Batch-3 “Enviada” note as superseded for labels.
-5. **T04 independent review receipt** (`REVIEW-T04-QUOTES.md`) **not present**; packet remains NOT STARTED.
+1. **Recorrido steps 9–17 and 19** remain `proposal` / `decision` / `external` (see Batch R1 exact map) while hosted fixture shows opportunities, quotes (Emitida), orders, payment report, commitments, and coordinates — **visibility ≠ full create/authority proof**. Intentional conservatism until Carmen authorizes copy upgrade (`RECORRIDO-DUAL-LAYER-EVALUATION.md` living contract).
+2. **`EVALUACION_ISA_ALVARO_…` worksheet intro** previously said Journey was NOT HOSTED — **resolved in Phase 0/1**: intro now distinguishes hosted visibility vs live-journey verification vs proposal/blocked, without upgrading Recorrido step availability labels.
+3. **T04 review packet** historically showed independent review **NOT STARTED** and freeze `5e7131cc`; **Phase 0 corrected** the status line to external **PASS WITH FOLLOW-UPS** (formal `REVIEW-T04-QUOTES.md` absent). Current product pin is `904cf24a` / `dpl_E8wQPK77…`. Authority: `receipts/T04-INDEPENDENT-REVIEW-PROVENANCE.md`.
+4. **Batch-3 receipt** noted “Enviada” pill debt; promote hygiene + fixture review moved product wording to **Emitida** — treat Batch-3 / packet “Enviada” gap notes as superseded for labels.
+5. **Batch-3 / local-verify receipts** still say “independent review not done / open”; those lines are **stale relative to the external PASS WITH FOLLOW-UPS**. Do not rewrite those historical receipts’ original timestamps; use the provenance receipt as the current authority for review status.
 6. **Mi día / some Hoy subsections** may show “No pudimos cargar…” intermittently; commercial fixture cards can still populate — do not treat partial Hoy failure as full API down without checking Railway health.
 
 ## Open ISALWA decisions (unresolved — do not invent)

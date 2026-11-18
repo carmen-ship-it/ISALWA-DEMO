@@ -33,4 +33,6 @@ No product code, data, roles, env, or deployment changes.
 
 ## Independent review
 
-Packet path: the reconciliation document itself (product-evidence / documentation review).
+Packet: `review-packets/REVIEW-PACKET-JOURNEY-RECONCILIATION-2026-11-18.md`
+Receipt: `receipts/REVIEW-JOURNEY-RECONCILIATION-2026-11-18.md` — **PASS WITH FOLLOW-UPS** (0 blocking).
+T04 provenance: `receipts/T04-INDEPENDENT-REVIEW-PROVENANCE.md`

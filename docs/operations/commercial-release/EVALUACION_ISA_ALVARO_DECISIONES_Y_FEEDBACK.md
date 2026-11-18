@@ -1,12 +1,19 @@
 # Evaluación Isa / Álvaro — Decisiones y feedback
 
-Worksheet for Carmen to collect feedback during Recorrido review.  
+Worksheet for Carmen to collect feedback during Recorrido review.
 Filling this sheet does **not** change production configuration, roles, workflow, or hosted behavior. Evaluators annotate; Carmen records outcomes.
 
-Recorrido status labels such as “Disponible para probar” describe the **local release-candidate narrative**. Until hosted proof exists, treat the Journey as **IMPLEMENTED LOCALLY / NOT HOSTED / NOT LIVE JOURNEY VERIFIED**.
+Hosting context (evaluation, 2026-11-18): the Journey UI and synthetic fixture content are **hosted** at https://isalwa-os-web-evaluation.vercel.app (product source tip `904cf24a…`, Railway API). That does **not** mean every step is live-journey verified.
 
-Authority for on-product copy: `apps/os-web/lib/journey/story-steps.ts` (Recorrido guiado, 20 steps).  
-Living contract: update this worksheet whenever a Journey step’s status, CTA, decision or external requirement changes in a release batch.
+Recorrido status labels in `story-steps.ts` remain the on-product authority. Do **not** auto-upgrade “Vista de propuesta” / “Decisión pendiente” merely because fixture records are visible. Treat distinctions as:
+
+- **hosted visibility** (fixture/read shell on evaluation URL);
+- **implemented locally** (source + tests; may lack hosted create/refuse proof);
+- **live journey verified** (intended role completed the path on hosted evaluation);
+- **proposal / blocked** (needs decision, source material, or provider).
+
+Authority for on-product copy: `apps/os-web/lib/journey/story-steps.ts` (Recorrido guiado, 20 steps).
+Living contract: update this worksheet whenever a Journey step’s status, CTA, decision or external requirement changes in a **reviewed, hosted** release batch — not when local code alone advances.
 
 ## How to use
 
