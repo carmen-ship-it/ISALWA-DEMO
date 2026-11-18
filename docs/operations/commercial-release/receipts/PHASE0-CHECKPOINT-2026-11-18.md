@@ -9,7 +9,7 @@ Reviewer: independent agent (documentation/product-evidence) — packet queued
 | Pin | Value |
 |---|---|
 | Branch | `ct3/v1-repairs` |
-| Docs tip at Phase 0 start | `8951b5e86139b1f5e2e43a75fc20d531b4834ee7` |
+| Phase 0 docs commit | `9823b85ac541df40c96ed65e6ab70b8d59055907` (started from `8951b5e8…`) |
 | Hosted product source | `904cf24a7acd40ad4278a229e9f9fc8fc5d9f781` |
 | Hosted deploy | `dpl_E8wQPK77NNw3siDnyCXZVudfdL8S` READY |
 | Web | https://isalwa-os-web-evaluation.vercel.app |

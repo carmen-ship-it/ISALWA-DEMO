@@ -10,7 +10,7 @@ Documentation + evidence only. No product, data, role, env, or deployment change
 |---|---|
 | Integrator worktree | `/Users/carmen/projects/isalwa-wt-v1-repairs` |
 | Branch | `ct3/v1-repairs` |
-| Docs tip (reconciliation commit) | `8951b5e86139b1f5e2e43a75fc20d531b4834ee7` |
+| Phase 0 docs commit | `9823b85ac541df40c96ed65e6ab70b8d59055907` (from reconciliation `8951b5e8…`; branch tip may include later docs-only pin refreshes) |
 | Hosted product source (unchanged) | `904cf24a7acd40ad4278a229e9f9fc8fc5d9f781` |
 | Hosted product tree | `8befbec21f33da631b24d239cf0a74de7038e8ca` |
 | Index lock / other writer | none observed at Phase 0 start |
