@@ -54,6 +54,7 @@ describe('Batch 8 navigation: the six everyday destinations', () => {
       assert.ok(byId(id).requiresAnyScope?.length, `${id} must declare the scopes that reveal it`);
     }
     assert.equal(byId('administracion').requiresAdminProbe, true);
+    assert.equal(byId('auditoria').requiresAdminProbe, true);
   });
 });
 
@@ -85,10 +86,12 @@ describe('Batch 8 navigation: scope-controlled secondary areas', () => {
     for (const id of ['produccion', 'almacen', 'compras', 'entregas', 'finanzas']) assert.ok(ids.includes(id), id);
   });
 
-  it('Administración still depends on the admin probe, never on a scope list', () => {
+  it('Administración and Auditoría still depend on the admin probe, never on a scope list', () => {
     const scopes = [COMMERCIAL_ORG_READ_SCOPE];
     assert.equal(primaryNavIds({ showAdmin: false, grantedScopes: scopes }).includes('administracion'), false);
     assert.equal(primaryNavIds({ showAdmin: true, grantedScopes: scopes }).includes('administracion'), true);
+    assert.equal(primaryNavIds({ showAdmin: false, grantedScopes: scopes }).includes('auditoria'), false);
+    assert.equal(primaryNavIds({ showAdmin: true, grantedScopes: scopes }).includes('auditoria'), true);
   });
 
   it('hiding a link never removes the route: deep links keep their own server-side gate', () => {
