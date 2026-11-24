@@ -40,8 +40,15 @@ export const WORK_REASSIGNMENT_PENDING_AUTHORITY: readonly WorkReassignmentClass
 
 export const PRODUCTION_NEXT_ACTION_TITLE_PREFIX = 'Producción · próxima acción';
 
+/** Plant fact recorded as Work (no due date required). Distinct from a dated follow-up. */
+export const PRODUCTION_UPDATE_TITLE_PREFIX = 'Producción · actualización';
+
 export function productionNextActionMarker(orderId: string): string {
   return `[[production-next:${orderId.trim()}]]`;
+}
+
+export function productionAnnotationMarker(orderId: string): string {
+  return `[[production-annotation:${orderId.trim()}]]`;
 }
 
 const MARKER = /\[\[([a-z-]+):([^\]]*)\]\]/g;
@@ -54,7 +61,9 @@ function markerDomain(name: string, value: string): WorkReassignmentClass {
     }
     return 'unknown';
   }
-  if (name === 'production-update' || name === 'production-next') return 'production';
+  if (name === 'production-update' || name === 'production-next' || name === 'production-annotation') {
+    return 'production';
+  }
   if (name === 'compras-result') return 'purchasing';
   return 'unknown';
 }
@@ -68,6 +77,7 @@ export function classifyWorkForReassignment(work: {
   const domains = new Set<WorkReassignmentClass>();
   for (const match of text.matchAll(MARKER)) domains.add(markerDomain(match[1]!, match[2]!));
   if ((work.title ?? '').startsWith(PRODUCTION_NEXT_ACTION_TITLE_PREFIX)) domains.add('production');
+  if ((work.title ?? '').startsWith(PRODUCTION_UPDATE_TITLE_PREFIX)) domains.add('production');
   if (domains.size > 1 || domains.has('unknown')) return 'unknown';
   if (domains.size === 1) return [...domains][0]!;
 

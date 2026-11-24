@@ -167,10 +167,17 @@ export default async function ProduccionPage({
           Vista de evaluación: solo lectura. Las anotaciones de producción están deshabilitadas.
         </p>
       ) : (
-        <details className="mt-6 rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white px-4 py-3">
+        <details
+          open
+          className="mt-6 rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white px-4 py-3"
+        >
           <summary className="cursor-pointer text-sm font-semibold text-[var(--isalwa-kiln)]">
-            + Registrar actualización
+            + Registrar actualización de planta o crear seguimiento
           </summary>
+          <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+            La actualización de planta no pide fecha. El seguimiento sí: use la sección «Crear
+            seguimiento» y el campo «Fecha límite del seguimiento».
+          </p>
           <div className="mt-4">
             <ProductionPostSaleDesk
               status={identity.status}

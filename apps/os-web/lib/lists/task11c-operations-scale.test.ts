@@ -116,8 +116,8 @@ describe('Task 11C — operations scale foundation', () => {
     assert.match(page, /Buscar Pedido o cliente/);
     assert.match(page, /orderId/);
     const desk = read('components/production/production-postsale-desk.tsx');
-    assert.match(desk, /attemptKeyRef/);
-    assert.doesNotMatch(desk, /idempotencyKey:\s*null/);
+    assert.match(desk, /startTransition/);
+    assert.match(desk, /if \(pending\) return;/);
   });
 
   it('WAREHOUSE_100_RECORD_SAFE + WAREHOUSE_HISTORY_BOUNDED structural markers', () => {

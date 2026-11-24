@@ -19,8 +19,9 @@ describe('Task 9 — operations desks productization', () => {
     assert.match(table, /label: 'Revisión'/);
     assert.match(table, /label: 'Última actualización'/);
     assert.match(page, /<OpsDeskInfoBanner/);
-    assert.match(desk, /Registrar actualización de producción/);
-    assert.match(desk, /Guardar actualización/);
+    assert.match(desk, /PRODUCTION_PLANT_UPDATE_COPY\.sectionTitle|Registrar actualización de planta/);
+    assert.match(desk, /PRODUCTION_PLANT_UPDATE_COPY\.action|Guardar actualización de planta/);
+    assert.match(desk, /PRODUCTION_FOLLOW_UP_COPY\.action|Crear seguimiento/);
     assert.doesNotMatch(desk, /Confirmación humana/);
     assert.doesNotMatch(desk, /No se inventa un SLA/);
     assert.doesNotMatch(handoff, /No escriba identificadores internos/);
@@ -216,7 +217,8 @@ describe('Task 9 final hosted corrective', () => {
 
   it('Producción postsale form stays employee-facing without architecture prose', () => {
     const desk = read('components/production/production-postsale-desk.tsx');
-    assert.match(desk, /Guardar actualización/);
+    assert.match(desk, /Guardar actualización de planta|PRODUCTION_PLANT_UPDATE_COPY\.action/);
+    assert.match(desk, /Crear seguimiento|PRODUCTION_FOLLOW_UP_COPY\.action/);
     assert.doesNotMatch(desk, /Confirmación humana/);
     assert.doesNotMatch(desk, /No se inventa un SLA/);
     assert.doesNotMatch(desk, /selección humana explícita/);

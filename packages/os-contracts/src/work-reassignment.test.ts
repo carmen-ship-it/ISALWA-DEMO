@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
   PRODUCTION_NEXT_ACTION_TITLE_PREFIX,
+  PRODUCTION_UPDATE_TITLE_PREFIX,
   WORK_REASSIGNMENT_PENDING_AUTHORITY,
   classifyWorkForReassignment,
+  productionAnnotationMarker,
   productionNextActionMarker,
 } from './work-reassignment';
 
@@ -22,6 +24,8 @@ describe('classifyWorkForReassignment (R4 23:47 §A)', () => {
     assert.equal(classifyWorkForReassignment(work('party', 'x', '[[compras-result:o1]]')), 'purchasing');
     assert.equal(classifyWorkForReassignment(work('party', 'x', productionNextActionMarker('o1'))), 'production');
     assert.equal(classifyWorkForReassignment(work('party', `${PRODUCTION_NEXT_ACTION_TITLE_PREFIX}: P-1 · Vidrio`)), 'production');
+    assert.equal(classifyWorkForReassignment(work('party', 'x', productionAnnotationMarker('o1'))), 'production');
+    assert.equal(classifyWorkForReassignment(work('party', `${PRODUCTION_UPDATE_TITLE_PREFIX}: P-1 · Vidrio`)), 'production');
   });
 
   it('subjects decide only when no marker is present', () => {

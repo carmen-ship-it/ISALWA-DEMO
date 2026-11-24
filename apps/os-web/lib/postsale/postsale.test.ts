@@ -7,7 +7,13 @@ import {
   productOptionsForPedido,
   resolveLineProduct,
 } from './pedido-context';
-import { buildProductionExpectedDateWork } from './expected-date-work';
+import {
+  buildProductionExpectedDateWork,
+  buildProductionFollowUpWork,
+  buildProductionPlantUpdateWork,
+  PRODUCTION_FOLLOW_UP_COPY,
+  PRODUCTION_PLANT_UPDATE_COPY,
+} from './expected-date-work';
 
 describe('post-sale Pedido handoff', () => {
   it('builds human-readable Pedido options without opaque-only labels', () => {
@@ -167,5 +173,55 @@ describe('production expected date → Work/Attention', () => {
       }).ok,
       false,
     );
+  });
+});
+
+describe('production plant update vs follow-up', () => {
+  it('persists a plant update without dueAt', () => {
+    const result = buildProductionPlantUpdateWork({
+      annotation: 'Secado confirmado',
+      note: 'Horno 1',
+      ownerMemberId: 'mem-1',
+      partyId: 'party-1',
+      orderId: 'ord-1',
+      orderLabel: 'P-100',
+      productLabel: 'Bowl',
+      orderLineId: 'line-1',
+    });
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.equal(result.work.command, 'CreateWorkItem');
+    assert.equal(result.work.payload.dueAt, undefined);
+    assert.match(String(result.work.payload.title), new RegExp(PRODUCTION_PLANT_UPDATE_COPY.titlePrefix));
+    assert.match(String(result.work.payload.description), /\[\[production-annotation:ord-1\]\]/);
+    assert.doesNotMatch(String(result.work.payload.description), /\[\[production-next:/);
+  });
+
+  it('requires a due date to create a follow-up', () => {
+    const missing = buildProductionFollowUpWork({
+      annotation: 'Confirmar esmaltado',
+      ownerMemberId: 'mem-1',
+      partyId: 'party-1',
+      orderId: 'ord-1',
+      orderLabel: 'P-100',
+      productLabel: 'Bowl',
+    });
+    assert.equal(missing.ok, false);
+    if (missing.ok) return;
+    assert.equal(missing.error, PRODUCTION_FOLLOW_UP_COPY.needsDate);
+
+    const ok = buildProductionFollowUpWork({
+      annotation: 'Confirmar esmaltado',
+      expectedAt: '2026-10-01T09:00',
+      ownerMemberId: 'mem-1',
+      partyId: 'party-1',
+      orderId: 'ord-1',
+      orderLabel: 'P-100',
+      productLabel: 'Bowl',
+    });
+    assert.equal(ok.ok, true);
+    if (!ok.ok) return;
+    assert.equal(typeof ok.work.payload.dueAt, 'string');
+    assert.match(String(ok.work.payload.title), /próxima acción/);
   });
 });

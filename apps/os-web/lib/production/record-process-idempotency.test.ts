@@ -91,12 +91,30 @@ describe('PRODUCTION_RECORDPROCESS_IDEMPOTENCY', () => {
     );
   });
 
-  it('desk keeps attempt key stable until confirmed success', () => {
+  it('G-PROD-1: desk never reports success from the in-memory ledger', () => {
     const desk = readFileSync(join(ROOT, 'components/production/production-postsale-desk.tsx'), 'utf8');
-    assert.match(desk, /attemptKeyRef/);
-    assert.match(desk, /crypto\.randomUUID/);
-    assert.match(desk, /idempotencyKey,/);
-    assert.doesNotMatch(desk, /idempotencyKey:\s*null/);
-    assert.match(desk, /attemptKeyRef\.current = null/);
+    assert.doesNotMatch(desk, /recordProcess/);
+    assert.doesNotMatch(desk, /ProductionAccessLedger/);
+    assert.match(desk, /await createWork\(built\.work\.payload\)/);
+    assert.match(desk, /buildProductionPlantUpdateWork/);
+    assert.match(desk, /buildProductionFollowUpWork/);
+    assert.match(desk, /PRODUCTION_FOLLOW_UP_COPY\.needsDate/);
+    // success feedback only after the persisted Work command returned ok
+    const plantSuccessAt = desk.indexOf('PRODUCTION_PLANT_UPDATE_COPY.success');
+    const followSuccessAt = desk.indexOf('PRODUCTION_FOLLOW_UP_COPY.success');
+    const awaitAt = desk.indexOf('await createWork(built.work.payload)');
+    assert.ok(awaitAt > -1 && plantSuccessAt > awaitAt);
+    assert.ok(followSuccessAt > awaitAt);
+  });
+
+  it('plant update and follow-up stay separate; date only on follow-up', () => {
+    const desk = readFileSync(join(ROOT, 'components/production/production-postsale-desk.tsx'), 'utf8');
+    assert.match(desk, /Registrar actualización de planta|PRODUCTION_PLANT_UPDATE_COPY\.sectionTitle/);
+    assert.match(desk, /Crear seguimiento|PRODUCTION_FOLLOW_UP_COPY\.sectionTitle/);
+    assert.match(desk, /Fecha límite del seguimiento|PRODUCTION_FOLLOW_UP_COPY\.dueLabel/);
+    assert.match(desk, /canSaveUpdate/);
+    assert.match(desk, /canSaveFollowUp/);
+    assert.match(desk, /followUpDueAt\.trim\(\) !== ''/);
+    assert.doesNotMatch(desk, /canSave = canEnter && Boolean\(onCreateExpectedWork\) && expectedAt/);
   });
 });

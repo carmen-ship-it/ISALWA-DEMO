@@ -52,7 +52,7 @@ describe('mobile 390 proof contracts', () => {
     assert.match(table, /hideOnMobile: true/);
     assert.match(surface, /OPS_STICKY_ACTION_CLASS/);
     assert.match(desk, /OPS_STICKY_ACTION_CLASS/);
-    assert.match(desk, /Guardar actualización/);
+    assert.match(desk, /Guardar actualización de planta|PRODUCTION_PLANT_UPDATE_COPY\.action/);
   });
 
   it('Almacén: scan-row cards, no phone-only H-scroll queue', () => {

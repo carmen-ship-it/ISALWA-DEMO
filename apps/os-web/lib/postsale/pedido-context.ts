@@ -22,7 +22,6 @@ export const POSTSALE_HANDOFF_COPY = {
   humanLinkProvenance:
     'El vínculo al pedido es una selección humana explícita: aporta contexto, no convierte la producción en propiedad del pedido.',
   expectedDate: 'Fecha esperada / próxima',
-  expectedDateHint: 'Opcional. Si la registra, aparece en Trabajo y Atención al vencer.',
   note: 'Nota',
   milestone: 'Anotación operativa',
   responsible: 'Responsable',
