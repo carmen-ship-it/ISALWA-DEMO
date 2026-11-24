@@ -252,6 +252,55 @@ describe('loadInicioCommandQueues', () => {
     assert.equal(loaded.unavailable.approvals, false);
     assert.equal(loaded.unavailable.commitments, false);
   });
+
+  it('reuses passed roleKeys and session without a second auth round-trip', async () => {
+    let authCalls = 0;
+    let sessionCalls = 0;
+    const commitmentQueries: unknown[] = [];
+    const client = {
+      async getTrustedAuthorization() {
+        authCalls += 1;
+        return {
+          authIdentityId: 'auth-1',
+          personId: 'person-1',
+          memberId: 'mem-should-not-use',
+          organizationId: 'org-1',
+          accessStatus: 'active',
+          employmentStatus: 'active',
+          grantedScopes: [COMMERCIAL_TEAM_READ_SCOPE],
+        };
+      },
+      async getAuthenticatedSession() {
+        sessionCalls += 1;
+        return { memberId: 'mem-should-not-use', organizationId: 'org-1' };
+      },
+      async listWorkItems() {
+        return emptyList();
+      },
+      async listIssues() {
+        return emptyList();
+      },
+      async listCommitments(query?: unknown) {
+        commitmentQueries.push(query);
+        return { items: [] };
+      },
+      async listApprovals() {
+        return emptyList();
+      },
+    };
+
+    const loaded = await loadInicioCommandQueues(client as never, {
+      leadershipTeamReady: false,
+      leadershipOrgReady: false,
+      roleKeys: [COMMERCIAL_TEAM_READ_SCOPE],
+      session: { memberId: 'mem-reuse' },
+    });
+
+    assert.equal(loaded.lens, 'manager');
+    assert.equal(authCalls, 0);
+    assert.equal(sessionCalls, 0);
+    assert.deepEqual(commitmentQueries, [{ lifecycle: 'open' }]);
+  });
 });
 
 describe('Inicio page fail-closed per section', () => {

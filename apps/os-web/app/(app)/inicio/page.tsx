@@ -152,6 +152,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       memoryChanges,
       leadership,
       roleKeys,
+      session,
     ] = await Promise.all([
       loadShellContext(),
       safeInicioSectionFetch(() =>
@@ -184,6 +185,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       safeMemoryChanges(() => client.listMemoryChanges({ window: 'hoy' })),
       loadInicioLeadership(client),
       loadActorRoleKeys(client),
+      client.getAuthenticatedSession(),
     ]);
 
     let allowedPartyIds: Set<string> | null = null;
@@ -270,11 +272,11 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     const activeLens: InicioPageLens = resolveInicioPageLens(paramOne(params.lente), lensInput);
     const periodPreset = parseManagementPeriodPreset(paramOne(params.periodo));
     const managementPeriod = resolveManagementPeriod(periodPreset, undefined, undefined, asOf);
-    const session = await client.getAuthenticatedSession();
-
     const commandQueuesRaw = await loadInicioCommandQueues(client, {
       leadershipTeamReady: leadership.team.kind === 'ready',
       leadershipOrgReady: leadership.org.kind === 'ready',
+      roleKeys,
+      session: { memberId: session.memberId },
     });
 
     const commandQueues = {

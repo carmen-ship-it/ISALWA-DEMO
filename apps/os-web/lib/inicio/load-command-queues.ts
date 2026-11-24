@@ -53,6 +53,12 @@ export async function safeInicioSectionFetch<T>(fn: () => Promise<T>): Promise<S
 export type LoadInicioCommandQueuesInput = {
   leadershipTeamReady: boolean;
   leadershipOrgReady: boolean;
+  /**
+   * When the page already resolved role keys / session in a shared Promise.all,
+   * pass them here to avoid a second auth/membership round-trip on Inicio.
+   */
+  roleKeys?: readonly string[];
+  session?: { memberId: string };
 };
 
 export async function loadInicioCommandQueues(
@@ -66,13 +72,16 @@ export async function loadInicioCommandQueues(
   >,
   input: LoadInicioCommandQueuesInput,
 ): Promise<InicioCommandQueues> {
-  const roleKeys = await loadActorRoleKeys(client as OsApiClient);
+  const roleKeys =
+    input.roleKeys !== undefined
+      ? [...input.roleKeys]
+      : await loadActorRoleKeys(client as OsApiClient);
   const lens = resolveInicioRoleLens({
     roleKeys,
     leadershipTeamReady: input.leadershipTeamReady,
     leadershipOrgReady: input.leadershipOrgReady,
   });
-  const session = await client.getAuthenticatedSession();
+  const session = input.session ?? (await client.getAuthenticatedSession());
   const asOf = new Date();
 
   const [workResult, issuesResult, commitmentsResult, approvalsResult] = await Promise.all([
