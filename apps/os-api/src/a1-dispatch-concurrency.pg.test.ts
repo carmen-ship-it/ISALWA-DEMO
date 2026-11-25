@@ -125,11 +125,13 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
         organizationId: orgId,
         orderId,
         lineNumber: 1,
-        description: 'Pieza A1',
+        descriptionSnapshot: 'Pieza A1',
         quantity: LINE_QTY,
         unitPriceCentavosSnapshot: 1000n,
-        lineTotalCentavosSnapshot: 10000n,
+        lineTotalCentavos: 10000n,
+        provenance: 'quote_conversion_snapshot',
         productRefSnapshot: 'SKU-A1',
+        copiedAt: new Date(),
       },
     });
     await prisma().osDeliveryNote.create({
@@ -213,11 +215,13 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
         organizationId: orgId,
         orderId: order2,
         lineNumber: 1,
-        description: 'Pieza',
+        descriptionSnapshot: 'Pieza',
         quantity: 5,
         unitPriceCentavosSnapshot: 1000n,
-        lineTotalCentavosSnapshot: 5000n,
+        lineTotalCentavos: 5000n,
+        provenance: 'quote_conversion_snapshot',
         productRefSnapshot: 'SKU-B',
+        copiedAt: new Date(),
       },
     });
     const noteRes = await post('/commands/CreateNotaDeEntrega', {
