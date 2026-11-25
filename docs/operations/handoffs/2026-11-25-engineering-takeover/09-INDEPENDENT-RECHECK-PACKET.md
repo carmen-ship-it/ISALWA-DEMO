@@ -4,7 +4,8 @@
 **Builder:** Cursor writer `b6a344b1-1bdb-4b47-be28-1a0cab32bca6`  
 **Prior reviewed candidate:** `eb8c6428793c11cef094ffd76888ea86da343241`  
 **Changed candidate to recheck:** `556591d77e089b1ccb29773933d8c5949af5a4fe`  
-(includes build fix `697068ed`, finding fixes through A1 concurrency seed/lock path)
+(includes build fix `697068ed`, finding fixes through A1 concurrency seed/lock path)  
+**Docs tip after handoff:** `9106ffa66dbc867da1b232a71346f431dc41cc57` (docs only — same code tree as `556591d7` for implementation)
 
 ## Scope of change since `eb8c6428`
 
