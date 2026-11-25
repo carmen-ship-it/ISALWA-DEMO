@@ -91,6 +91,7 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
 
     const partyId = createId();
     const quoteId = createId();
+    const quoteLineId = createId();
     orderId = createId();
     orderLineId = createId();
     noteId = createId();
@@ -105,6 +106,18 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
         ownerMemberId: ops.member.id,
         quoteNumber: 'Q-A1C',
         status: 'accepted',
+      },
+    });
+    await prisma().osQuoteLine.create({
+      data: {
+        id: quoteLineId,
+        organizationId: orgId,
+        quoteId,
+        lineNumber: 1,
+        description: 'Pieza A1',
+        quantity: LINE_QTY,
+        unitPriceCentavos: 1000n,
+        lineTotalCentavos: 10000n,
       },
     });
     await prisma().osOrder.create({
@@ -124,6 +137,8 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
         id: orderLineId,
         organizationId: orgId,
         orderId,
+        quoteId,
+        quoteLineId,
         lineNumber: 1,
         descriptionSnapshot: 'Pieza A1',
         quantity: LINE_QTY,
@@ -192,17 +207,42 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
   it('linked Salida does not consume extra cumulative qty; unlinked retry past cap rolls back', async () => {
     // Fresh order for linked path
     const partyId = createId();
+    const quote2 = createId();
+    const quoteLine2 = createId();
     const order2 = createId();
     const line2 = createId();
     const note2 = createId();
     await prisma().osParty.create({
       data: { id: partyId, organizationId: orgId, partyKind: 'organization', displayName: 'Cliente A1b' },
     });
+    await prisma().osQuote.create({
+      data: {
+        id: quote2,
+        organizationId: orgId,
+        partyId,
+        ownerMemberId: ops.member.id,
+        quoteNumber: 'Q-A1B',
+        status: 'accepted',
+      },
+    });
+    await prisma().osQuoteLine.create({
+      data: {
+        id: quoteLine2,
+        organizationId: orgId,
+        quoteId: quote2,
+        lineNumber: 1,
+        description: 'Pieza',
+        quantity: 5,
+        unitPriceCentavos: 1000n,
+        lineTotalCentavos: 5000n,
+      },
+    });
     await prisma().osOrder.create({
       data: {
         id: order2,
         organizationId: orgId,
         partyId,
+        quoteId: quote2,
         ownerMemberId: ops.member.id,
         orderNumber: 'O-A1B',
         subtotalCentavos: 5000n,
@@ -214,6 +254,8 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
         id: line2,
         organizationId: orgId,
         orderId: order2,
+        quoteId: quote2,
+        quoteLineId: quoteLine2,
         lineNumber: 1,
         descriptionSnapshot: 'Pieza',
         quantity: 5,
