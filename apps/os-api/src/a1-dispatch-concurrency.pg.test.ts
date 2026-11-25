@@ -183,16 +183,18 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
   });
 
   it('lets exactly one of two concurrent unlinked Salida attempts through the real lock', async () => {
+    const t0 = new Date(Date.now() - 120_000).toISOString();
+    const t1 = new Date(Date.now() - 60_000).toISOString();
     const payload = {
       orderId,
-      exitedAt: '2026-11-25T13:00:00.000Z',
+      exitedAt: t0,
       recordedBy: ops.member.id,
       source: 'employee_recorded',
       quantities: [{ orderLineId, quantity: LINE_QTY }],
     };
     const [a, b] = await Promise.all([
       post('/commands/RecordWarehouseExit', payload),
-      post('/commands/RecordWarehouseExit', { ...payload, exitedAt: '2026-11-25T13:01:00.000Z' }),
+      post('/commands/RecordWarehouseExit', { ...payload, exitedAt: t1 }),
     ]);
     const statuses = [a.status, b.status].sort();
     assert.ok(statuses.includes(201) || statuses.includes(200), JSON.stringify([a, b]));
@@ -270,8 +272,8 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
       orderId: order2,
       recipient: 'Recepción',
       deliveredBy: 'Chofer',
-      bornAt: '2026-11-25T14:00:00.000Z',
       recordedBy: ops.member.id,
+      source: 'employee_recorded',
       quantities: [{ orderLineId: line2, quantity: 5 }],
     });
     let linkedNoteId = noteRes.body?.data?.deliveryNoteId ?? noteRes.body?.deliveryNoteId ?? null;
@@ -309,7 +311,7 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
     const linked = await post('/commands/RecordWarehouseExit', {
       orderId: order2,
       deliveryNoteId: linkedNoteId,
-      exitedAt: '2026-11-25T15:00:00.000Z',
+      exitedAt: new Date(Date.now() - 90_000).toISOString(),
       recordedBy: ops.member.id,
       source: 'employee_recorded',
       quantities: [{ orderLineId: line2, quantity: 5 }],
@@ -318,7 +320,7 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
 
     const over = await post('/commands/RecordWarehouseExit', {
       orderId: order2,
-      exitedAt: '2026-11-25T15:30:00.000Z',
+      exitedAt: new Date(Date.now() - 30_000).toISOString(),
       recordedBy: ops.member.id,
       source: 'employee_recorded',
       quantities: [{ orderLineId: line2, quantity: 1 }],
