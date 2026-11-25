@@ -824,6 +824,16 @@ export class DeliveryCommandService {
     return this.readById(ctx, 'delivery_note', noteId, (orgId, id) => this.store.getDeliveryNoteById(orgId, id));
   }
 
+  async getDeliveryNoteByIdAsPedidoViewer(
+    ctx: DeliveryContext,
+    noteId: string,
+  ): Promise<DeliveryNoteRecord> {
+    const organizationId = await this.authorizeTenantMember(ctx);
+    const note = visibleInSession(organizationId, await this.store.getDeliveryNoteById(organizationId, noteId));
+    if (!note) throw new Error('NOT_FOUND');
+    return note;
+  }
+
   async listDeliveryNoteLinesForNote(ctx: DeliveryContext, noteId: string): Promise<NoteLineRecord[]> {
     const note = await this.getDeliveryNoteById(ctx, noteId);
     return this.store.listDeliveryNoteLines(note.organizationId, note.id);

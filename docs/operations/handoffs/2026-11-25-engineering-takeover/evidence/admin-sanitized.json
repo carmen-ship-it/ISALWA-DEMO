@@ -1,0 +1,11 @@
+{
+  "organizationId": "01M88S8T5VDNCZZA7XX6YQC78P",
+  "adminMemberId": "01M88S8TAT1QXEHH63R64VE34F",
+  "salesMemberId": "01M88S8TB3R19DK4KGA70QPPF3",
+  "paths": [
+    "/administracion",
+    "/administracion/equipo",
+    "/administracion/accesos",
+    "/administracion/capacidades"
+  ]
+}

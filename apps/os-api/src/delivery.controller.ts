@@ -352,10 +352,18 @@ export class DeliveryNotesController {
       if (!order || order.status === 'cancelled') {
         throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
       }
+      const ownerIsDirectReportOfActor = await isDirectReport(
+        prisma,
+        session.organizationId,
+        order.ownerMemberId,
+        session.actorMemberId,
+        session.effectiveAt ?? new Date(),
+      );
       const pedidoViewer = canListPedidoDeliveryDocuments({
         grantedScopes: session.grantedScopes,
         actorMemberId: session.actorMemberId,
         orderOwnerMemberId: order.ownerMemberId,
+        ownerIsDirectReportOfActor,
       });
       // Writers keep delivery.record; Pedido commercial viewers use the read-only path.
       const notes = pedidoViewer
@@ -387,15 +395,49 @@ export class DeliveryNotesController {
         actorMemberId: session.actorMemberId,
         effectiveAt: session.effectiveAt ?? new Date(),
       };
-      const note = await this.deliveryCommands.getDeliveryNoteById(ctx, id);
-      const [lines, order] = await Promise.all([
-        this.deliveryCommands.listDeliveryNoteLinesForNote(ctx, id),
-        this.deliveryCommands.getOrderSnapshotForNote(ctx, id),
-      ]);
+      const prisma = getOsPrisma();
+      if (!prisma) {
+        throw new HttpException({ code: 'PROVIDER_NOT_CONFIGURED' }, HttpStatus.UNAUTHORIZED);
+      }
+      // Resolve note + order first so Pedido viewers (owner / org / report) can download
+      // without delivery.record, while strangers still see NOT_FOUND.
+      const noteRow = await prisma.osDeliveryNote.findFirst({
+        where: { id: id.trim(), organizationId: session.organizationId },
+        select: { id: true, orderId: true },
+      });
+      if (!noteRow) {
+        throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+      }
+      const order = await prisma.osOrder.findFirst({
+        where: { id: noteRow.orderId, organizationId: session.organizationId },
+        select: { id: true, ownerMemberId: true, status: true, orderNumber: true },
+      });
+      if (!order || order.status === 'cancelled') {
+        throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+      }
+      const ownerIsDirectReportOfActor = await isDirectReport(
+        prisma,
+        session.organizationId,
+        order.ownerMemberId,
+        session.actorMemberId,
+        session.effectiveAt ?? new Date(),
+      );
+      const pedidoViewer = canListPedidoDeliveryDocuments({
+        grantedScopes: session.grantedScopes,
+        actorMemberId: session.actorMemberId,
+        orderOwnerMemberId: order.ownerMemberId,
+        ownerIsDirectReportOfActor,
+      });
+      const note = pedidoViewer
+        ? await this.deliveryCommands.getDeliveryNoteByIdAsPedidoViewer(ctx, noteRow.id)
+        : await this.deliveryCommands.getDeliveryNoteById(ctx, noteRow.id);
+      const lines = pedidoViewer
+        ? await this.deliveryCommands.listDeliveryNoteLinesForNoteAsPedidoViewer(ctx, noteRow.id)
+        : await this.deliveryCommands.listDeliveryNoteLinesForNote(ctx, noteRow.id);
       const rendered = await this.deliveryNotePdf.renderAuthorizedNote({
         note,
         lines,
-        orderNumber: order?.orderNumber ?? null,
+        orderNumber: order.orderNumber ?? null,
       });
       return new StreamableFile(Buffer.from(rendered.bytes), {
         type: rendered.contentType,
@@ -405,4 +447,26 @@ export class DeliveryNotesController {
       throw toHttp(err);
     }
   }
+}
+
+async function isDirectReport(
+  prisma: NonNullable<ReturnType<typeof getOsPrisma>>,
+  organizationId: string,
+  ownerMemberId: string,
+  managerMemberId: string,
+  asOf: Date,
+): Promise<boolean> {
+  if (!ownerMemberId.trim() || !managerMemberId.trim()) return false;
+  if (ownerMemberId === managerMemberId) return false;
+  const row = await prisma.osManagerAssignment.findFirst({
+    where: {
+      organizationId,
+      memberId: ownerMemberId,
+      managerMemberId,
+      effectiveAt: { lte: asOf },
+      OR: [{ endedAt: null }, { endedAt: { gt: asOf } }],
+    },
+    select: { id: true },
+  });
+  return Boolean(row);
 }

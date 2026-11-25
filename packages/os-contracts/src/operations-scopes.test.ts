@@ -356,6 +356,24 @@ describe('operational access scopes', () => {
     );
     assert.equal(
       canListPedidoDeliveryDocuments({
+        grantedScopes: [COMMERCIAL_TEAM_READ_SCOPE],
+        actorMemberId: 'lead',
+        orderOwnerMemberId: 'owner-1',
+      }),
+      false,
+      'team.read without report relationship is denied',
+    );
+    assert.equal(
+      canListPedidoDeliveryDocuments({
+        grantedScopes: [COMMERCIAL_TEAM_READ_SCOPE],
+        actorMemberId: 'lead',
+        orderOwnerMemberId: 'owner-1',
+        ownerIsDirectReportOfActor: true,
+      }),
+      true,
+    );
+    assert.equal(
+      canListPedidoDeliveryDocuments({
         grantedScopes: ['sales_rep'],
         actorMemberId: 'stranger',
         orderOwnerMemberId: 'owner-1',

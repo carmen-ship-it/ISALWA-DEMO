@@ -1,0 +1,97 @@
+{
+  "desktop": {
+    "label": "1440",
+    "width": 1440,
+    "height": 900,
+    "pedido": {
+      "stripVisible": true,
+      "stripText": "✓ Cotización → ✓ Pedido → ○ Preparación → ✓ Nota de Entrega → ✓ Salida → ✓ Entrega Solo hechos registrados. Un paso vacío no inventa preparación, nota de entrega, salida ni entrega.",
+      "chips": [
+        "✓Cotización",
+        "✓",
+        "→",
+        "✓Pedido",
+        "✓",
+        "→",
+        "○Preparación",
+        "○",
+        "→",
+        "✓Nota de Entrega",
+        "✓",
+        "→",
+        "✓Salida",
+        "✓",
+        "→",
+        "✓Entrega",
+        "✓"
+      ],
+      "notaMarked": true,
+      "salidaMarked": true,
+      "entregaMarked": true,
+      "afterReload": {
+        "notaMarked": true,
+        "salidaMarked": true,
+        "entregaMarked": true
+      }
+    },
+    "campana": {
+      "welcomeDismissed": false,
+      "openedAttempt": true,
+      "enteradoVisible": true,
+      "drawerTitle": "Notificaciones",
+      "noticeVisible": true,
+      "acknowledgedClick": true,
+      "afterReloadEnteradoStill": 1,
+      "afterReloadNoticeStill": 3,
+      "afterAckLabel": 2
+    }
+  },
+  "mobile": {
+    "label": "390",
+    "width": 390,
+    "height": 844,
+    "pedido": {
+      "stripVisible": true,
+      "stripText": "✓ Cotización → ✓ Pedido → ○ Preparación → ✓ Nota de Entrega → ✓ Salida → ✓ Entrega Solo hechos registrados. Un paso vacío no inventa preparación, nota de entrega, salida ni entrega.",
+      "chips": [
+        "✓Cotización",
+        "✓",
+        "→",
+        "✓Pedido",
+        "✓",
+        "→",
+        "○Preparación",
+        "○",
+        "→",
+        "✓Nota de Entrega",
+        "✓",
+        "→",
+        "✓Salida",
+        "✓",
+        "→",
+        "✓Entrega",
+        "✓"
+      ],
+      "notaMarked": true,
+      "salidaMarked": true,
+      "entregaMarked": true,
+      "afterReload": {
+        "notaMarked": true,
+        "salidaMarked": true,
+        "entregaMarked": true
+      }
+    },
+    "campana": {
+      "welcomeDismissed": false,
+      "openedAttempt": true,
+      "enteradoVisible": true,
+      "drawerTitle": "Notificaciones",
+      "noticeVisible": true,
+      "acknowledgedClick": true,
+      "afterReloadEnteradoStill": 0,
+      "afterReloadNoticeStill": 3,
+      "afterAckLabel": 2
+    }
+  },
+  "generatedAt": "2026-11-25T07:20:00.925Z"
+}

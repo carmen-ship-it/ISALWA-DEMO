@@ -1,0 +1,111 @@
+{
+  "desktopAdmin": {
+    "seat": "admin",
+    "label": "1440",
+    "width": 1440,
+    "height": 900,
+    "pages": {
+      "/administracion": {
+        "shot": "browser-proof/evidence/admin/admin-administracion-1440.png",
+        "denied": false,
+        "hasAdminCue": true,
+        "statusOk": true,
+        "snippet": "ISALWA Sistema operativo de su empresa PRINCIPAL Inicio Conversaciones Contactos COMERCIAL Leads y oportunidades Cotizaciones Pedidos Seguimientos CATÁLOGO Y MAPA Catálogo Mapas MI"
+      },
+      "/administracion/equipo": {
+        "shot": "browser-proof/evidence/admin/admin-administracion_equipo-1440.png",
+        "denied": false,
+        "hasAdminCue": true,
+        "statusOk": true,
+        "snippet": "ISALWA Sistema operativo de su empresa PRINCIPAL Inicio Conversaciones Contactos COMERCIAL Leads y oportunidades Cotizaciones Pedidos Seguimientos CATÁLOGO Y MAPA Catálogo Mapas MI"
+      },
+      "/administracion/accesos": {
+        "shot": "browser-proof/evidence/admin/admin-administracion_accesos-1440.png",
+        "denied": false,
+        "hasAdminCue": true,
+        "statusOk": true,
+        "snippet": "ISALWA Sistema operativo de su empresa PRINCIPAL Inicio Conversaciones Contactos COMERCIAL Leads y oportunidades Cotizaciones Pedidos Seguimientos CATÁLOGO Y MAPA Catálogo Mapas MI"
+      },
+      "/administracion/capacidades": {
+        "shot": "browser-proof/evidence/admin/admin-administracion_capacidades-1440.png",
+        "denied": false,
+        "hasAdminCue": true,
+        "statusOk": true,
+        "snippet": "ISALWA Sistema operativo de su empresa PRINCIPAL Inicio Conversaciones Contactos COMERCIAL Leads y oportunidades Cotizaciones Pedidos Seguimientos CATÁLOGO Y MAPA Catálogo Mapas MI"
+      }
+    }
+  },
+  "mobileAdmin": {
+    "seat": "admin",
+    "label": "390",
+    "width": 390,
+    "height": 844,
+    "pages": {
+      "/administracion": {
+        "shot": "browser-proof/evidence/admin/admin-administracion-390.png",
+        "denied": false,
+        "hasAdminCue": true,
+        "statusOk": true,
+        "snippet": "Abrir menú ISALWA Ver recorrido completo Cuenta CONFIGURACIÓN Administración Equipo, accesos y lo que la empresa tiene habilitado. El trabajo del día permanece en Clientes y en Tra"
+      },
+      "/administracion/equipo": {
+        "shot": "browser-proof/evidence/admin/admin-administracion_equipo-390.png",
+        "denied": false,
+        "hasAdminCue": true,
+        "statusOk": true,
+        "snippet": "Abrir menú ISALWA Ver recorrido completo Cuenta Volver a administración Volver Administración / Equipo ADMINISTRACIÓN Equipo Personas de su empresa con rol, departamento y estado d"
+      },
+      "/administracion/accesos": {
+        "shot": "browser-proof/evidence/admin/admin-administracion_accesos-390.png",
+        "denied": false,
+        "hasAdminCue": true,
+        "statusOk": true,
+        "snippet": "Abrir menú ISALWA Ver recorrido completo Cuenta Volver a administración Volver Administración / Accesos ADMINISTRACIÓN Accesos Estado de acceso de cada empleado al sistema. Resumen"
+      },
+      "/administracion/capacidades": {
+        "shot": "browser-proof/evidence/admin/admin-administracion_capacidades-390.png",
+        "denied": false,
+        "hasAdminCue": true,
+        "statusOk": true,
+        "snippet": "Abrir menú ISALWA Ver recorrido completo Cuenta Volver a administración Volver Administración / Funciones ADMINISTRACIÓN Capacidades Qué partes del sistema están disponibles para s"
+      }
+    }
+  },
+  "desktopSalesBlocked": {
+    "seat": "sales",
+    "label": "1440",
+    "width": 1440,
+    "height": 900,
+    "pages": {
+      "/administracion": {
+        "shot": "browser-proof/evidence/admin/sales-administracion-1440.png",
+        "denied": true,
+        "hasAdminCue": false,
+        "statusOk": false,
+        "snippet": "ISALWA Sistema operativo de su empresa PRINCIPAL Inicio Conversaciones Contactos COMERCIAL Leads y oportunidades Cotizaciones Pedidos Seguimientos CATÁLOGO Y MAPA Catálogo Mapas MI"
+      },
+      "/administracion/equipo": {
+        "shot": "browser-proof/evidence/admin/sales-administracion_equipo-1440.png",
+        "denied": true,
+        "hasAdminCue": false,
+        "statusOk": false,
+        "snippet": "ISALWA Sistema operativo de su empresa PRINCIPAL Inicio Conversaciones Contactos COMERCIAL Leads y oportunidades Cotizaciones Pedidos Seguimientos CATÁLOGO Y MAPA Catálogo Mapas MI"
+      },
+      "/administracion/accesos": {
+        "shot": "browser-proof/evidence/admin/sales-administracion_accesos-1440.png",
+        "denied": true,
+        "hasAdminCue": false,
+        "statusOk": false,
+        "snippet": "ISALWA Sistema operativo de su empresa PRINCIPAL Inicio Conversaciones Contactos COMERCIAL Leads y oportunidades Cotizaciones Pedidos Seguimientos CATÁLOGO Y MAPA Catálogo Mapas MI"
+      },
+      "/administracion/capacidades": {
+        "shot": "browser-proof/evidence/admin/sales-administracion_capacidades-1440.png",
+        "denied": true,
+        "hasAdminCue": false,
+        "statusOk": false,
+        "snippet": "ISALWA Sistema operativo de su empresa PRINCIPAL Inicio Conversaciones Contactos COMERCIAL Leads y oportunidades Cotizaciones Pedidos Seguimientos CATÁLOGO Y MAPA Catálogo Mapas MI"
+      }
+    }
+  },
+  "generatedAt": "2026-11-25T07:22:15.946Z"
+}
