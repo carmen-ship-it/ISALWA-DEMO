@@ -403,6 +403,26 @@ export function canReadOperationalOrders(grantedScopes: readonly string[]): bool
   );
 }
 
+/**
+ * Read-only Pedido lifecycle / delivery-document list for an order the actor
+ * can already open. Does not grant CreateNota / RecordSalida / RecordEntrega.
+ * Cargo and job title never satisfy this — only explicit scopes or order owner.
+ */
+export function canListPedidoDeliveryDocuments(input: {
+  grantedScopes: readonly string[];
+  actorMemberId: string;
+  orderOwnerMemberId: string;
+}): boolean {
+  const actor = input.actorMemberId.trim();
+  const owner = input.orderOwnerMemberId.trim();
+  if (actor && owner && actor === owner) return true;
+  if (canReadOperationalOrders(input.grantedScopes)) return true;
+  if (hasExplicitScope(input.grantedScopes, COMMERCIAL_ORG_READ_SCOPE)) return true;
+  if (hasExplicitScope(input.grantedScopes, COMMERCIAL_TEAM_READ_SCOPE)) return true;
+  if (hasExplicitScope(input.grantedScopes, MANAGEMENT_ORG_READ_SCOPE)) return true;
+  return false;
+}
+
 export function canActAsSystemAdmin(grantedScopes: readonly string[]): boolean {
   return hasAssignedOperationsScope(grantedScopes, SYSTEM_ADMIN_SCOPE);
 }

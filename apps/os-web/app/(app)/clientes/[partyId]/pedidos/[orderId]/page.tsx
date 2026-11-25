@@ -334,7 +334,15 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       || pedidoTimeline.some((e) => e.eventType === 'warehouse_exit.recorded');
     const hasEntregaFact = deliveryEvents.some((e) => e.eventType === 'customer_delivery.recorded')
       || pedidoTimeline.some((e) => e.eventType === 'customer_delivery.recorded');
-    const hasDeliveryNote = deliveryNotes.some((note) => note.status === 'issued');
+    // Match salida/entrega: issued note row OR durable delivery_note.* timeline fact.
+    const hasDeliveryNote =
+      deliveryNotes.some((note) => note.status === 'issued')
+      || pedidoTimeline.some(
+        (e) => e.eventType === 'delivery_note.created' || e.eventType === 'delivery_note.corrected',
+      )
+      || deliveryEvents.some(
+        (e) => e.eventType === 'delivery_note.created' || e.eventType === 'delivery_note.corrected',
+      );
     const hasOpenPrep = Object.keys(openPrepReviews).length > 0;
 
     const lifecycle = buildPedidoLifecycle({

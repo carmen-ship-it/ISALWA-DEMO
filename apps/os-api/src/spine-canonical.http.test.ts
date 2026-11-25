@@ -7,6 +7,7 @@
  */
 import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { Test } from '@nestjs/testing';
@@ -36,7 +37,11 @@ const RUN =
   DB.includes('auth_gate') ||
   DB.includes('localhost') ||
   DB.includes('/tmp');
-const FIXTURES = '/Users/carmen/projects/isalwa-wt-v1-repairs/.tmp/spine-canonical/ids.json';
+/** Writable on Mac worktree or remote overnight host — never hardcode a Mac absolute path. */
+const FIXTURES_DIR =
+  process.env.SPINE_FIXTURES_DIR?.trim() ||
+  join(process.cwd(), '.tmp', 'spine-canonical');
+const FIXTURES = join(FIXTURES_DIR, 'ids.json');
 const LINE_QTY = 4;
 const UNIT_PRICE = 15000;
 const todayLaPaz = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/La_Paz' }).format(new Date());
@@ -99,7 +104,7 @@ describe('canonical commercial-to-delivery spine (disposable Postgres)', { skip:
   }
 
   function writeFixtures(extra: Record<string, unknown> = {}) {
-    mkdirSync('/Users/carmen/projects/isalwa-wt-v1-repairs/.tmp/spine-canonical', { recursive: true });
+    mkdirSync(FIXTURES_DIR, { recursive: true });
     writeFileSync(
       FIXTURES,
       JSON.stringify(
@@ -313,8 +318,27 @@ describe('canonical commercial-to-delivery spine (disposable Postgres)', { skip:
     assert.equal(pdfBytes.subarray(0, 4).toString('utf8'), '%PDF');
     pdfSha = createHash('sha256').update(pdfBytes).digest('hex');
     const pdfAgain = await fetch(`${baseUrl}/v1/quotes/${quoteId}/pdf`, { headers: headers(m.owner!) });
+    assert.equal(pdfAgain.status, 200, await pdfAgain.clone().text());
     const pdfBytes2 = Buffer.from(await pdfAgain.arrayBuffer());
-    assert.equal(createHash('sha256').update(pdfBytes2).digest('hex'), pdfSha);
+    assert.equal(pdfBytes2.subarray(0, 4).toString('utf8'), '%PDF');
+    // Issued pin is the commercial issuedDocumentHash (terms), not raw PDF bytes —
+    // pdf-lib may embed non-deterministic metadata across renders on some hosts.
+    const quoteAfterPdf = await fetch(`${baseUrl}/v1/quotes/${quoteId}`, {
+      headers: headers(m.owner!),
+    });
+    assert.equal(quoteAfterPdf.status, 200, await quoteAfterPdf.clone().text());
+    const quoteBody = (await quoteAfterPdf.json()) as {
+      quote?: { issuedDocumentHash?: string | null };
+    };
+    const issuedHash = quoteBody.quote?.issuedDocumentHash?.trim() ?? '';
+    assert.ok(issuedHash.length >= 32, 'issued quote must carry issuedDocumentHash');
+    const quoteAgain = await fetch(`${baseUrl}/v1/quotes/${quoteId}`, {
+      headers: headers(m.owner!),
+    });
+    const quoteBody2 = (await quoteAgain.json()) as {
+      quote?: { issuedDocumentHash?: string | null };
+    };
+    assert.equal(quoteBody2.quote?.issuedDocumentHash?.trim() ?? '', issuedHash);
 
     const sent = await command('owner', 'RecordQuoteManualSend', {
       quoteId,

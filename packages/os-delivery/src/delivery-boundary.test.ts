@@ -217,7 +217,14 @@ describe('delivery documents: Pedido → Nota → Salida → Entrega', () => {
       /VALIDATION_FAILED/,
     );
     assert.equal((await store.listDeliveries('org-a', 'order-1')).length, 0);
-    await service.recordSalida(ctx(), salidaPayload());
+    // Linked salida shares the nota goods (A1); do not post an unlinked full-qty exit.
+    await service.recordSalida(
+      ctx(),
+      salidaPayload({
+        deliveryNoteId: nota.deliveryNoteId,
+        quantities: [{ orderLineId: 'line-1', quantity: 8 }],
+      }),
+    );
     const entrega = await service.recordEntrega(
       ctx(),
       entregaPayload({ deliveryNoteId: nota.deliveryNoteId }),
@@ -328,7 +335,13 @@ describe('delivery documents: Pedido → Nota → Salida → Entrega', () => {
     );
     assert.equal(nota.lineCount, 1);
     await assert.rejects(() => service.recordEntrega(ctx(), entregaPayload()), /VALIDATION_FAILED/);
-    await service.recordSalida(ctx(), salidaPayload());
+    await service.recordSalida(
+      ctx(),
+      salidaPayload({
+        deliveryNoteId: nota.deliveryNoteId,
+        quantities: [{ orderLineId: 'line-1', quantity: 3 }],
+      }),
+    );
     const entrega = await service.recordEntrega(ctx(), entregaPayload());
     assert.equal(entrega.paymentRequired, false);
     assert.equal(entrega.confirmedLedgerPayment, false);

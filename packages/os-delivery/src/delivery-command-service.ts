@@ -788,6 +788,28 @@ export class DeliveryCommandService {
     return denyForeignRows(organizationId, await this.store.listDeliveryNotes(organizationId, orderId));
   }
 
+  /**
+   * Pedido read path after the HTTP layer has already authorized the viewer
+   * (order owner / commercial read / ops). Does not grant write scopes.
+   */
+  async listNotesForOrderAsPedidoViewer(
+    ctx: DeliveryContext,
+    orderId: string,
+  ): Promise<DeliveryNoteRecord[]> {
+    const organizationId = await this.authorizeTenantMember(ctx);
+    const order = await this.store.getOrderInOrg(organizationId, orderId);
+    if (!order) throw new Error('NOT_FOUND');
+    return denyForeignRows(organizationId, await this.store.listDeliveryNotes(organizationId, orderId));
+  }
+
+  async listTimelineForOrderAsPedidoViewer(
+    ctx: DeliveryContext,
+    orderId: string,
+  ): Promise<DeliveryDomainEventRecord[]> {
+    const organizationId = await this.authorizeTenantMember(ctx);
+    return this.listTimelineForOrderInOrg(organizationId, orderId);
+  }
+
   async getWarehouseExitById(ctx: DeliveryContext, warehouseExitId: string): Promise<WarehouseExitRecord> {
     return this.readById(ctx, 'warehouse_exit', warehouseExitId, (orgId, id) =>
       this.store.getWarehouseExit(orgId, id),
@@ -804,6 +826,16 @@ export class DeliveryCommandService {
 
   async listDeliveryNoteLinesForNote(ctx: DeliveryContext, noteId: string): Promise<NoteLineRecord[]> {
     const note = await this.getDeliveryNoteById(ctx, noteId);
+    return this.store.listDeliveryNoteLines(note.organizationId, note.id);
+  }
+
+  async listDeliveryNoteLinesForNoteAsPedidoViewer(
+    ctx: DeliveryContext,
+    noteId: string,
+  ): Promise<NoteLineRecord[]> {
+    const organizationId = await this.authorizeTenantMember(ctx);
+    const note = visibleInSession(organizationId, await this.store.getDeliveryNoteById(organizationId, noteId));
+    if (!note) throw new Error('NOT_FOUND');
     return this.store.listDeliveryNoteLines(note.organizationId, note.id);
   }
 
@@ -876,6 +908,13 @@ export class DeliveryCommandService {
    */
   async listTimelineForOrder(ctx: DeliveryContext, orderId: string): Promise<DeliveryDomainEventRecord[]> {
     const organizationId = await this.authorizeResource(ctx, 'delivery_note');
+    return this.listTimelineForOrderInOrg(organizationId, orderId);
+  }
+
+  private async listTimelineForOrderInOrg(
+    organizationId: string,
+    orderId: string,
+  ): Promise<DeliveryDomainEventRecord[]> {
     const order = await this.store.getOrderInOrg(organizationId, orderId);
     if (!order) throw new Error('NOT_FOUND');
     const recorded = await this.store.listDomainEvents(organizationId, orderId);
@@ -1072,6 +1111,17 @@ export class DeliveryCommandService {
     assertTenantMatch(organizationId, member.organizationId);
     assertMemberActive(member.accessStatus);
     assertDeliveryResourceRole(resource, member.grantedScopes);
+    return organizationId;
+  }
+
+  /** Tenant + active member only. Callers must have already authorized document visibility. */
+  private async authorizeTenantMember(ctx: DeliveryContext): Promise<string> {
+    const organizationId = requireSessionOrganization(ctx.organizationId);
+    if (!ctx.actorMemberId.trim()) throw new Error('PERMISSION_DENIED');
+    const member = await this.store.getMemberInOrg(organizationId, ctx.actorMemberId);
+    if (!member) throw new Error('TENANT_FORBIDDEN');
+    assertTenantMatch(organizationId, member.organizationId);
+    assertMemberActive(member.accessStatus);
     return organizationId;
   }
 

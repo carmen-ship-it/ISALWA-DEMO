@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { COMMERCIAL_ORDER_CONVERT_SCOPE, COMMERCIAL_TEAM_READ_SCOPE } from './scopes';
+import {
+  COMMERCIAL_ORDER_CONVERT_SCOPE,
+  COMMERCIAL_ORG_READ_SCOPE,
+  COMMERCIAL_TEAM_READ_SCOPE,
+} from './scopes';
 import { WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE } from './warehouse-task';
 import {
   COMMERCIAL_CUSTOMER_CREATE_SCOPE,
@@ -33,6 +37,7 @@ import {
   canPostFinanceLedger,
   canReadTeamCommercialWork,
   canReadOperationalOrders,
+  canListPedidoDeliveryDocuments,
   canReceiveFinishedGoods,
   canRecordWarehouseOutbound,
   canRecordPurchasing,
@@ -330,6 +335,33 @@ describe('operational access scopes', () => {
     assert.equal(canReadOperationalOrders([WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE]), true);
     assert.equal(canReadOperationalOrders([WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE]), true);
     assert.equal(canReadOperationalOrders([COMMERCIAL_TEAM_READ_SCOPE]), false);
+  });
+
+  it('canListPedidoDeliveryDocuments allows order owner and commercial/ops readers, not cargo', () => {
+    assert.equal(
+      canListPedidoDeliveryDocuments({
+        grantedScopes: [],
+        actorMemberId: 'owner-1',
+        orderOwnerMemberId: 'owner-1',
+      }),
+      true,
+    );
+    assert.equal(
+      canListPedidoDeliveryDocuments({
+        grantedScopes: [COMMERCIAL_ORG_READ_SCOPE],
+        actorMemberId: 'other',
+        orderOwnerMemberId: 'owner-1',
+      }),
+      true,
+    );
+    assert.equal(
+      canListPedidoDeliveryDocuments({
+        grantedScopes: ['sales_rep'],
+        actorMemberId: 'stranger',
+        orderOwnerMemberId: 'owner-1',
+      }),
+      false,
+    );
     assert.deepEqual(scopesGrantedByCargoOrTitle('encargado de almacén', 'Encargado de Almacén'), []);
   });
 

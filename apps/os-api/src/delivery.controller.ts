@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import {
+  canListPedidoDeliveryDocuments,
   canReadOperationalOrders,
   DeliveryQuantityExceedsOrderError,
 } from '@isalwa/os-contracts';
@@ -340,12 +341,35 @@ export class DeliveryNotesController {
         actorMemberId: session.actorMemberId,
         effectiveAt: session.effectiveAt ?? new Date(),
       };
-      const notes = await this.deliveryCommands.listNotesForOrder(ctx, orderId.trim());
-      const timeline = await this.deliveryCommands.listTimelineForOrder(ctx, orderId.trim());
+      const prisma = getOsPrisma();
+      if (!prisma) {
+        throw new HttpException({ code: 'PROVIDER_NOT_CONFIGURED' }, HttpStatus.UNAUTHORIZED);
+      }
+      const order = await prisma.osOrder.findFirst({
+        where: { id: orderId.trim(), organizationId: session.organizationId },
+        select: { id: true, ownerMemberId: true, status: true },
+      });
+      if (!order || order.status === 'cancelled') {
+        throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+      }
+      const pedidoViewer = canListPedidoDeliveryDocuments({
+        grantedScopes: session.grantedScopes,
+        actorMemberId: session.actorMemberId,
+        orderOwnerMemberId: order.ownerMemberId,
+      });
+      // Writers keep delivery.record; Pedido commercial viewers use the read-only path.
+      const notes = pedidoViewer
+        ? await this.deliveryCommands.listNotesForOrderAsPedidoViewer(ctx, order.id)
+        : await this.deliveryCommands.listNotesForOrder(ctx, order.id);
+      const timeline = pedidoViewer
+        ? await this.deliveryCommands.listTimelineForOrderAsPedidoViewer(ctx, order.id)
+        : await this.deliveryCommands.listTimelineForOrder(ctx, order.id);
       const withLines = await Promise.all(
         notes.map(async (note) => ({
           ...note,
-          lines: await this.deliveryCommands.listDeliveryNoteLinesForNote(ctx, note.id),
+          lines: pedidoViewer
+            ? await this.deliveryCommands.listDeliveryNoteLinesForNoteAsPedidoViewer(ctx, note.id)
+            : await this.deliveryCommands.listDeliveryNoteLinesForNote(ctx, note.id),
         })),
       );
       return { notes: withLines, timeline };
