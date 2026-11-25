@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, useTransition, type FormEvent } from 'react';
+import Link from 'next/link';
 import {
   ActionBar,
   Button,
@@ -361,9 +362,9 @@ export function ProductionPostSaleDesk({
               {feedback.listHint ? (
                 <span className="mt-1 block text-[var(--isalwa-slate)]">
                   {feedback.listHint}{' '}
-                  <a className="font-medium text-[var(--isalwa-glaze)] hover:underline" href="/trabajo">
+                  <Link className="font-medium text-[var(--isalwa-glaze)] hover:underline" href="/trabajo">
                     Ir a Trabajo
-                  </a>
+                  </Link>
                 </span>
               ) : null}
             </p>
