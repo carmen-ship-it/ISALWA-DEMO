@@ -33,7 +33,6 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
   let orgId = '';
   let ops: Seeded;
   let orderId = '';
-  let noteId = '';
   let orderLineId = '';
   const LINE_QTY = 10;
 
@@ -94,7 +93,6 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
     const quoteLineId = createId();
     orderId = createId();
     orderLineId = createId();
-    noteId = createId();
     await prisma().osParty.create({
       data: { id: partyId, organizationId: orgId, partyKind: 'organization', displayName: 'Cliente A1' },
     });
@@ -149,33 +147,8 @@ describe('A1 dispatch concurrency (two disposable Postgres connections)', { skip
         copiedAt: new Date(),
       },
     });
-    await prisma().osDeliveryNote.create({
-      data: {
-        id: noteId,
-        organizationId: orgId,
-        orderId,
-        partyId,
-        documentKind: 'nota_de_entrega',
-        numberingPolicy: 'provisional_internal',
-        internalDocumentRef: `NE-PILOT-${noteId}`,
-        status: 'issued',
-        recipient: 'Recepción',
-        deliveredBy: 'Chofer',
-        createdByMemberId: ops.member.id,
-        bornAt: new Date('2026-11-25T12:00:00Z'),
-      },
-    });
-    await prisma().osDeliveryNoteLine.create({
-      data: {
-        id: createId(),
-        organizationId: orgId,
-        deliveryNoteId: noteId,
-        orderLineId,
-        description: 'Pieza A1',
-        quantity: LINE_QTY,
-        productRef: 'SKU-A1',
-      },
-    });
+    // No Nota here: unlinked Salida concurrency must compete for the physical-goods
+    // cap without a prior issued note already consuming it (ADR 0003).
   });
 
   after(async () => {
