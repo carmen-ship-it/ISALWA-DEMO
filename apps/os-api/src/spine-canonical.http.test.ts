@@ -109,9 +109,13 @@ describe('canonical commercial-to-delivery spine (disposable Postgres)', { skip:
       FIXTURES,
       JSON.stringify(
         {
-          revision: 'local-uncommitted',
+          revision: process.env.SPINE_REVISION?.trim() || process.env.GIT_COMMIT?.trim() || 'unspecified',
           environment: 'disposable-postgres',
-          database: 'isalwa_v1_repairs_verify_20261124_disposable',
+          database: (() => {
+            const url = process.env.OS_DATABASE_URL ?? '';
+            const name = url.match(/\/([^/?]+)(?:\?|$)/)?.[1];
+            return name && !name.includes('@') ? name : 'disposable';
+          })(),
           organizationId: org.id,
           ownerMemberId: m.owner!.member.id,
           partyId,

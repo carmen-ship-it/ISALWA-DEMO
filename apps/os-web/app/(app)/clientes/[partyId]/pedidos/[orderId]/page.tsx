@@ -153,7 +153,9 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       order.status === 'open' && Boolean(actorMemberId) && canRecordWarehouseOutbound(deliveryScopes);
     const canRecordEntrega =
       order.status === 'open' && Boolean(actorMemberId) && canRecordDelivery(deliveryScopes);
-    const canDownloadNotePdf = canRecordDelivery(deliveryScopes);
+    // PDF/dossier read follows the API: order viewers may download without delivery.record.
+    // Mutating note creation still requires canRecordDelivery (unchanged above).
+    let canDownloadNotePdf = canRecordDelivery(deliveryScopes);
     const operating = buildPedidoOperatingView({
       order: {
         organizationId: order.organizationId,
@@ -231,6 +233,10 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       }>('/delivery-notes', { orderId: order.orderId });
       deliveryNotes = docs.notes ?? [];
       deliveryEvents = docs.timeline ?? [];
+      // Authorized commercial viewers receive notes/timeline without delivery.record.
+      if (deliveryNotes.length > 0 || deliveryEvents.length > 0) {
+        canDownloadNotePdf = true;
+      }
     } catch {
       deliveryNotes = [];
       deliveryEvents = [];
@@ -287,7 +293,8 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
     const dossierItems = composeDocumentDossier({
       partyId,
       quotes: sourceQuote ? [sourceQuote] : [],
-      deliveryNotes: canDownloadNotePdf ? deliveryNotes : [],
+      // Notes already passed API Pedido-viewer / delivery.record authorization.
+      deliveryNotes,
       timelineEntries: partyTimelineItems,
       quoteIdFilter: order.quoteId,
     });

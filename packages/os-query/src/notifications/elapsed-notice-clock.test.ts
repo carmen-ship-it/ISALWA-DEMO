@@ -4,11 +4,13 @@ import {
   ElapsedNoticeClock,
   noticeForWaitingConversation,
   noticesForOpenCommitment,
+  unclaimedRecipient,
   type ElapsedNoticeRow,
   type ElapsedNoticeStore,
   type OpenCommitmentRow,
   type WaitingConversationRow,
 } from './elapsed-notice-clock';
+import { CONVERSATION_UNCLAIMED_MS } from '@isalwa/os-contracts';
 
 const NOW = new Date('2026-11-25T16:00:00.000Z');
 
@@ -69,6 +71,24 @@ describe('elapsed notice rules', () => {
       ),
       null,
     );
+  });
+
+  it('fires 60-minute due-soon at the exact boundary and not one ms early', () => {
+    const dueAt = new Date(NOW.getTime() + 60 * 60 * 1000);
+    const atBoundary = noticesForOpenCommitment(commitment({ dueAt }), NOW);
+    assert.equal(atBoundary.some((row) => row.kind === 'commitment_due_soon'), true);
+    const early = noticesForOpenCommitment(
+      commitment({ dueAt: new Date(dueAt.getTime() + 1) }),
+      NOW,
+    );
+    assert.equal(early.some((row) => row.kind === 'commitment_due_soon'), false);
+  });
+
+  it('fires 15-minute unclaimed only after the exact elapsed boundary', () => {
+    assert.equal(CONVERSATION_UNCLAIMED_MS, 15 * 60 * 1000);
+    assert.equal(unclaimedRecipient(null), null);
+    assert.equal(unclaimedRecipient('  '), null);
+    assert.equal(unclaimedRecipient('mgr-1'), 'mgr-1');
   });
 });
 
