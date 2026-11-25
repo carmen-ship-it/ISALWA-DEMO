@@ -39,6 +39,10 @@ const KIND_LABELS: Record<NotificationKind, string> = {
   payment_to_verify: 'Pago por verificar',
   payment_outcome: 'Resultado de pago',
   commitment_assigned: 'Compromiso asignado',
+  conversation_assigned: 'Conversación asignada',
+  commitment_due_soon: 'Compromiso en 60 minutos',
+  follow_up_elapsed: '48 horas transcurridas',
+  conversation_unclaimed: 'Conversación sin tomar',
 };
 
 export function notificationKindLabel(kind: NotificationKind): string {

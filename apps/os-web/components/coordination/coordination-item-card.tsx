@@ -2,22 +2,17 @@
 
 import { StatusPill, Timeline } from '@isalwa/ui';
 import { CoordinationFieldList } from '@/components/coordination/coordination-fields';
+import { CoordinationDecisionForm } from '@/components/coordination/coordination-decision-form';
 import {
   COORDINATION_TRIGGER_LABELS,
   type CoordinationCommitteeItem,
   type CoordinationDecisionRecord,
-  type CoordinationLedger,
-  type CoordinationSession,
-  type RecordedCoordinationDecision,
 } from '@isalwa/os-contracts';
 
 type CoordinationItemCardProps = {
   item: CoordinationCommitteeItem;
-  session: CoordinationSession;
-  ledger: CoordinationLedger;
   decisions: readonly CoordinationDecisionRecord[];
   canRecord: boolean;
-  onRecorded: (result: RecordedCoordinationDecision) => void;
 };
 
 export function CoordinationItemCard({
@@ -52,9 +47,7 @@ export function CoordinationItemCard({
         />
       ) : null}
       {canRecord ? (
-        <p className="text-sm text-[var(--isalwa-slate)]">
-          Coordinación aún no registra decisiones operativas de forma persistente.
-        </p>
+        <CoordinationDecisionForm linkedCaseId={item.linkedCaseId} mode="record" />
       ) : (
         <p className="text-sm text-[var(--isalwa-slate)]">
           Registrar una decisión exige la capacidad asignada. El cargo no la otorga.

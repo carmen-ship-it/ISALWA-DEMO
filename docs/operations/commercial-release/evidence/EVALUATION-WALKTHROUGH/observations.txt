@@ -1,0 +1,8 @@
+desktop: has Correo/Contraseña or Entrar desarrollo=true
+desktop: forgot link present=false
+desktop: evaluacion ends on=http://localhost:3210/login?next=%2Fevaluacion
+desktop: clientes ends on=http://localhost:3210/login?next=%2Fclientes
+mobile390: has Correo/Contraseña or Entrar desarrollo=true
+mobile390: forgot link present=false
+mobile390: evaluacion ends on=http://localhost:3210/login?next=%2Fevaluacion
+mobile390: clientes ends on=http://localhost:3210/login?next=%2Fclientes

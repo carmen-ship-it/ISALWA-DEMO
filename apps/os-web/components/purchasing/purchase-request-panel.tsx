@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 import {
   ActionBar,
   Button,
@@ -20,6 +22,15 @@ import {
   type ComprasQueueState,
 } from '@/lib/purchasing/queue';
 import { PURCHASE_REQUEST_STATUS_LABELS, type PurchaseRequestStatus } from '@isalwa/os-contracts';
+
+export type PurchaseRequestTransitionHandler = (
+  id: string,
+  status: string,
+) => Promise<{ ok: boolean; error?: string }> | { ok: boolean; error?: string } | void;
+
+export type PurchaseRequestStopHandler = (
+  id: string,
+) => Promise<{ ok: boolean; error?: string }> | { ok: boolean; error?: string } | void;
 
 /**
  * Mounted on /compras. A purchase request is not inventory and does not prove there is no stock.
@@ -54,8 +65,8 @@ type PurchaseRequestPanelProps = {
   to?: number;
   prevHref?: string | null;
   nextHref?: string | null;
-  onAdvance?: (id: string, status: string) => void;
-  onStop?: (id: string) => void;
+  onAdvance?: PurchaseRequestTransitionHandler;
+  onStop?: PurchaseRequestStopHandler;
 };
 
 function statusTone(
@@ -152,8 +163,8 @@ function renderState(
   to: number,
   prevHref: string | null,
   nextHref: string | null,
-  onAdvance?: (id: string, status: string) => void,
-  onStop?: (id: string) => void,
+  onAdvance?: PurchaseRequestTransitionHandler,
+  onStop?: PurchaseRequestStopHandler,
 ) {
   if (state === 'loading') {
     return (
@@ -220,8 +231,8 @@ function QueueList({
   to: number;
   prevHref: string | null;
   nextHref: string | null;
-  onAdvance?: (id: string, status: string) => void;
-  onStop?: (id: string) => void;
+  onAdvance?: PurchaseRequestTransitionHandler;
+  onStop?: PurchaseRequestStopHandler;
 }) {
   const filterActive = Boolean(query?.trim() || statusFilter);
   const emptyWithPending = !filterActive && items.length === 0 && pendingReviewCount > 0;
@@ -346,9 +357,13 @@ function QueueRow({
   onStop,
 }: {
   item: ComprasQueueItem;
-  onAdvance?: (id: string, status: string) => void;
-  onStop?: (id: string) => void;
+  onAdvance?: PurchaseRequestTransitionHandler;
+  onStop?: PurchaseRequestStopHandler;
 }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
   const meta = [
     `${COMPRAS_COPY.age} ${item.ageLabel}`,
     `${COMPRAS_COPY.area} ${item.requestingArea}`,
@@ -361,6 +376,20 @@ function QueueRow({
     .filter((part): part is string => Boolean(part))
     .join(' · ');
 
+  function runMutation(
+    run: () => Promise<{ ok: boolean; error?: string }> | { ok: boolean; error?: string } | void,
+  ) {
+    setError(null);
+    startTransition(async () => {
+      const result = await run();
+      if (result && result.ok === false) {
+        setError(result.error ?? 'No se pudo actualizar el pedido de compra.');
+        return;
+      }
+      router.refresh();
+    });
+  }
+
   return (
     <article className="border-b border-[color-mix(in_srgb,var(--isalwa-mist)_80%,white)] last:border-b-0">
       <OperatingRow
@@ -369,8 +398,15 @@ function QueueRow({
         status={<StatusPill tone={statusTone(item.status)}>{item.statusLabel}</StatusPill>}
         actions={
           item.nextStatus && onAdvance ? (
-            <Button type="button" size="sm" onClick={() => onAdvance(item.id, item.nextStatus!)}>
-              {item.nextAction}
+            <Button
+              type="button"
+              size="sm"
+              disabled={pending}
+              onClick={() =>
+                runMutation(() => onAdvance(item.id, item.nextStatus!))
+              }
+            >
+              {pending ? 'Guardando…' : item.nextAction}
             </Button>
           ) : null
         }
@@ -387,10 +423,21 @@ function QueueRow({
           ))}
         </ul>
       ) : null}
+      {error ? (
+        <p className="px-3 pb-2 text-sm text-[var(--isalwa-danger)]" role="alert">
+          {error}
+        </p>
+      ) : null}
       {item.canStop && onStop ? (
         <div className="px-3 pb-3">
-          <Button type="button" variant="secondary" size="sm" onClick={() => onStop(item.id)}>
-            {COMPRAS_COPY.stop}
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={pending}
+            onClick={() => runMutation(() => onStop(item.id))}
+          >
+            {pending ? 'Guardando…' : COMPRAS_COPY.stop}
           </Button>
         </div>
       ) : null}

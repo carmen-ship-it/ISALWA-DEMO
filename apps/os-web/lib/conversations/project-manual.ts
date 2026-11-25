@@ -93,6 +93,13 @@ export function projectManualConversation(
     attentionState: record.attentionState,
     automationPaused: Boolean(record.automationPausedAt),
     aiState: record.aiState,
-    responsible: null,
+    responsible:
+      record.assignedMemberId && record.assignedLabel
+        ? {
+            memberId: record.assignedMemberId,
+            displayName: record.assignedLabel,
+            teamLabel: null,
+          }
+        : null,
   };
 }

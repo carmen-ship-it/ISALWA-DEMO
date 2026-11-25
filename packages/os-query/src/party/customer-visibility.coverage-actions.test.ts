@@ -8,7 +8,9 @@ import type { QueryContext } from '../query-context';
 import {
   canReadCustomer,
   COMMERCIAL_COVERAGE_READ_ACTIONS,
+  CONVERSATION_COVERAGE_READ_ACTIONS,
   coveredAccountOwner,
+  resolveCustomerReadScope,
   type CustomerVisibilityFacts,
   type CustomerVisibilityLookup,
 } from './customer-visibility';
@@ -142,9 +144,57 @@ describe('coverage action on customer-linked reads (NEW-R4-2)', () => {
     );
   });
 
+  it('lists a commercially covered customer and omits a data-only grant', async () => {
+    const c = ctx('m-cover');
+    const dataScope = await resolveCustomerReadScope({
+      ctx: c,
+      lookup: dataOnly,
+      directReports: null,
+      coverageActions: COMMERCIAL_COVERAGE_READ_ACTIONS,
+    });
+    assert.deepEqual(dataScope, { kind: 'parties', partyIds: [] });
+    const workScope = await resolveCustomerReadScope({
+      ctx: c,
+      lookup: commercial,
+      directReports: null,
+      coverageActions: COMMERCIAL_COVERAGE_READ_ACTIONS,
+    });
+    assert.deepEqual(workScope, { kind: 'parties', partyIds: ['customer'] });
+    const masterScope = await resolveCustomerReadScope({
+      ctx: c,
+      lookup: dataOnly,
+      directReports: null,
+    });
+    assert.deepEqual(masterScope, { kind: 'parties', partyIds: ['customer'] });
+  });
+
   it('keeps them under quote.convert coverage', async () => {
     const c = ctx('m-cover');
     assert.equal(await canReadWork({ ctx: c, work, lookup: null, customer: convertOnly }), true);
     assert.equal(await canReadApproval({ ctx: c, approval, sources: noSources, lookup: null, customer: convertOnly }), true);
+  });
+
+  it('does not treat quote.convert as conversation coverage', async () => {
+    const c = ctx('m-cover');
+    assert.equal(
+      await canReadCustomer({
+        ctx: c,
+        partyId: 'customer',
+        lookup: convertOnly,
+        directReports: null,
+        coverageActions: CONVERSATION_COVERAGE_READ_ACTIONS,
+      }),
+      false,
+    );
+    assert.equal(
+      await canReadCustomer({
+        ctx: c,
+        partyId: 'customer',
+        lookup: commercial,
+        directReports: null,
+        coverageActions: CONVERSATION_COVERAGE_READ_ACTIONS,
+      }),
+      true,
+    );
   });
 });

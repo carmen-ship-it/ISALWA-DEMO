@@ -29,22 +29,22 @@ describe('visual system — canvas + chrome', () => {
     assert.equal(/body\s*\{[^}]*background:\s*var\(--isalwa-white\)/.test(globals), false);
   });
 
-  it('keeps shell canvas porcelain, navy-led desktop rail, sticky header on glass-light', () => {
+  it('keeps the warm canvas and a deep-forest desktop rail', () => {
     const shell = readFileSync(resolve(root, 'components/shell/app-shell.tsx'), 'utf8');
     assert.match(shell, /bg-\[var\(--isalwa-surface-canvas\)\]/);
     assert.match(shell, /isalwa-glass-light/);
     assert.match(shell, /desktop-nav-rail/);
-    assert.match(shell, /--isalwa-kiln\)_12%,var\(--isalwa-sky-100\)/);
-    assert.match(shell, /--isalwa-kiln\)_28%,var\(--isalwa-glaze\)/);
+    assert.match(shell, /bg-\[var\(--isalwa-kiln\)\]/);
+    assert.match(shell, /lg:w-\[15\.5rem\]/);
+    assert.match(shell, /lg:w-\[4\.5rem\]/);
     assert.doesNotMatch(shell, /min-h-screen bg-\[var\(--isalwa-white\)\]/);
-    assert.doesNotMatch(shell, /id="desktop-nav-rail"[\s\S]{0,280}bg-\[var\(--isalwa-porcelain\)\]/);
   });
 
-  it('makes active nav obvious with teal edge + navy ink + sky/teal tint', () => {
+  it('makes active nav obvious on the forest rail and on the light drawer', () => {
     const nav = readFileSync(resolve(root, 'components/shell/app-nav.tsx'), 'utf8');
-    assert.match(nav, /border-l-\[var\(--isalwa-glaze-deep\)\]/);
-    assert.match(nav, /font-semibold text-\[var\(--isalwa-kiln\)\]/);
-    assert.match(nav, /--isalwa-teal-100/);
+    assert.match(nav, /border-l-\[var\(--isalwa-copper\)\]/);
+    assert.match(nav, /bg-\[var\(--isalwa-glaze\)\] text-white/);
+    assert.match(nav, /text-\[var\(--isalwa-kiln\)\]/);
     assert.match(nav, /navIconTone/);
   });
 
@@ -124,9 +124,9 @@ describe('visual system — button tokens', () => {
     assert.match(button, /tertiary:/);
   });
 
-  it('os-web remaps primary action to navy and keeps porcelain canvas', () => {
+  it('os-web remaps primary action to green and keeps the warm canvas', () => {
     const globals = readFileSync(resolve(root, 'app/globals.css'), 'utf8');
-    assert.match(globals, /--isalwa-action:\s*var\(--isalwa-kiln\)/);
+    assert.match(globals, /--isalwa-action:\s*var\(--isalwa-glaze\)/);
     assert.match(globals, /--isalwa-surface-canvas:\s*var\(--isalwa-porcelain\)/);
     assert.doesNotMatch(globals, /--isalwa-surface-hero:[\s\S]*--isalwa-copper/);
   });

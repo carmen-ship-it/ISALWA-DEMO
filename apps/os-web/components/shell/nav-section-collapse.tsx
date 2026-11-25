@@ -17,6 +17,7 @@ type NavSectionCollapseProps = {
   mobile?: boolean;
   /** Icon-rail mode — no section chrome. */
   collapsedRail?: boolean;
+  inverse?: boolean;
   children: ReactNode;
 };
 
@@ -49,6 +50,7 @@ export function NavSectionCollapse({
   containsActive,
   mobile = false,
   collapsedRail = false,
+  inverse = false,
   children,
 }: NavSectionCollapseProps) {
   const [manualCollapsed, setManualCollapsed] = useState(false);
@@ -90,7 +92,10 @@ export function NavSectionCollapse({
         type="button"
         className={cx(
           'flex w-full items-center justify-between gap-2 rounded-[var(--isalwa-radius-control)] px-3.5 py-1 text-left outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]',
-          'text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-white)] hover:text-[var(--isalwa-kiln)]',
+          'text-[11px] font-medium uppercase tracking-[0.14em]',
+          inverse
+            ? 'text-white/65 hover:bg-white/10 hover:text-white'
+            : 'text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-white)] hover:text-[var(--isalwa-kiln)]',
         )}
         aria-expanded={open}
         onClick={toggle}

@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { Button, EmptyPanel, OperatingRow, PageSection, SectionHeader } from '@isalwa/ui';
+import { presentBusinessEventLabel } from '@/lib/audit/present';
 import type { MemoryChangeItem } from '@/lib/audit/types';
+import { formatBoliviaDateTime } from '@/lib/audit/format-bolivia-datetime';
 
 const ROW_CAP = 8;
 
@@ -46,8 +48,8 @@ export function InicioWhatChanged({
             <li key={item.id} className="list-none">
               <OperatingRow
                 density="compact"
-                subject={item.eventLabel}
-                meta={[item.entityLabel, formatOccurredAt(item.occurredAt)].filter(Boolean).join(' · ')}
+                subject={presentBusinessEventLabel(item.eventType)}
+                meta={[item.entityLabel, formatBoliviaDateTime(item.occurredAt)].filter(Boolean).join(' · ')}
               />
             </li>
           ))}
@@ -55,15 +57,4 @@ export function InicioWhatChanged({
       )}
     </PageSection>
   );
-}
-
-function formatOccurredAt(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('es-BO', {
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
 }

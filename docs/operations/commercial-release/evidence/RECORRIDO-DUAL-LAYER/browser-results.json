@@ -1,0 +1,10 @@
+{
+  "observations": [
+    "desktop: no select",
+    "desktop: url=http://127.0.0.1:3200/login",
+    "desktop: login stuck",
+    "mobile390: no select",
+    "mobile390: url=http://127.0.0.1:3200/login",
+    "mobile390: login stuck"
+  ]
+}

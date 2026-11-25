@@ -8,6 +8,7 @@ import { mapCommandError } from '@/lib/commercial/command-errors';
 import { partyHref } from '@/lib/party/navigation';
 import { orderHref } from '@/lib/commercial/navigation';
 import {
+  AllocateFinishedGoodsPayloadSchema,
   CreateWorkItemPayloadSchema,
   ReceiveFinishedGoodsPayloadSchema,
 } from '@isalwa/os-contracts';
@@ -15,6 +16,7 @@ import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gat
 
 export type PostSaleExpectedWorkResult = { ok: true } | { ok: false; error: string };
 export type PostSaleReceiveResult = { ok: true } | { ok: false; error: string };
+export type PostSaleAllocateResult = { ok: true } | { ok: false; error: string };
 
 /**
  * Persist optional production expected date as Work with dueAt.
@@ -108,6 +110,45 @@ export async function receiveFinishedGoodsAction(input: {
         revalidatePath('/clientes/[partyId]/pedidos/[orderId]', 'page');
       }
     }
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+/**
+ * Explicit finished-goods assignment to an OrderLine.
+ * Not receive, delivery, FIFO, valuation or official stock.
+ */
+export async function allocateFinishedGoodsAction(input: {
+  productId: string;
+  quantity: string;
+  orderLineId: string;
+  finishedGoodsReceiptId?: string | null;
+  idempotencyKey?: string;
+}): Promise<PostSaleAllocateResult> {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return { ok: false, error: previewGate.error };
+
+  const parsed = AllocateFinishedGoodsPayloadSchema.safeParse({
+    productId: input.productId,
+    quantity: input.quantity,
+    orderLineId: input.orderLineId,
+    finishedGoodsReceiptId: input.finishedGoodsReceiptId?.trim() || null,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: 'Revise producto, cantidad y la línea del pedido.' };
+  }
+
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
+
+  const client = createOsApiClient(auth);
+  const idempotencyKey = input.idempotencyKey?.trim() || createId();
+  try {
+    await client.post('/commands/AllocateFinishedGoods', parsed.data, idempotencyKey);
+    revalidatePath('/almacen');
+    revalidatePath('/inicio');
     return { ok: true };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };

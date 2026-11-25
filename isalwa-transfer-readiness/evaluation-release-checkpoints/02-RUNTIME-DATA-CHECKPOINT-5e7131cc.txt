@@ -1,0 +1,40 @@
+ISALWA evaluation release — RUNTIME / DATA CHECKPOINT
+created_at_utc=2026-11-17T18:01:55Z
+policy=Render_is_reference_only_do_not_resume_delete_or_deploy_old_Render_code
+baseline_code_sha=5e7131ccb0221a9db026a1bc009f1bd2aec95f17
+
+PREVIOUS RENDER (reference only — suspended; not deployed)
+- workspace: carmen abu roda (tea-dajbts3m8hqs73fmlv30)
+- postgres: isalwa-os-staging id dpg-dajd3kh5efls738falcg-a (PG16, billing-suspended; live data inaccessible)
+- web os-api-staging: srv-dajd64gae00c739gpk20 (repo carmen-ship-it/ISALWA-DEMO main — OLD; do not use)
+- web os-web-staging: srv-dajddb67bikc73bl42q0 (same old repo/branch — do not use)
+- Render deploy commits historically older than commercial-release baseline (e.g. 52a9f9e9 / 93a9ca1f / GitHub main 1f767fa1)
+- env name inventory (no values): /Users/carmen/projects/isalwa-transfer-readiness/evaluation-release-checkpoints/render-env-names-inventory.txt
+- preserved config export path: ~/.isalwa-secrets/render-config-export/ (local only)
+
+AUTH MAPPING
+- Render-era Auth: Supabase isalwa-os-auth-staging ref qbpxuywtoycjpitxoblo (sa-east-1)
+- Evaluation Auth: SAME project qbpxuywtoycjpitxoblo (reuse; do not use Isalwa-Arquitect efolotcrdaqdixfiqbek)
+- public signup: disabled for evaluation host work
+- site URL / redirects: evaluation Vercel host configured; localhost + legacy Render staging hosts preserved in allow list
+
+DATABASE MAPPING
+- Render DB: NOT migrated into evaluation (contains real customer import; inaccessible without paying; owner exit forbids resume)
+- Evaluation DB (isolated, synthetic-only intent):
+  - local disposable: isalwa_eval_real_app @ 54329 user isalwa_disposable — applied_migrations=45
+  - remote Supabase Postgres project: isalwa-os-evaluation-db ref eimvhirmaezssnevefly (sa-east-1) — applied_migrations=45 latest=20261024000000_os_conversation_attention_state_notes_b5b org_rows=0
+- Schema path: prisma migrate deploy from baseline 5e7131ccb0221a9db026a1bc009f1bd2aec95f17 (EXPECTED 45); NOT migrate reset/dev; NOT copy Render data
+- migration_list: /Users/carmen/projects/isalwa-transfer-readiness/evaluation-release-checkpoints/migration-list-5e7131cc.txt
+- latest_committed_migration_dir: 20261024000000_os_conversation_attention_state_notes_b5b
+
+RUNTIME MAPPING (names only)
+Render os-web → Vercel project isalwa-os-web-evaluation (carmen-ship-its-projects) hosting apps/os-web from allowlisted full-app archive
+Render os-api → separate always-on Node host (NOT Vercel functions; NOT Render); status: HOST_UNDECIDED
+Workers → remain in-process with os-api (OS_OUTBOX_WORKER / OS_PROJECTION_WORKER / OS_ATTENTION_CLOCK)
+Walkthrough route /evaluacion → remains INSIDE the real app; OS_EVALUATION_WALKTHROUGH_ONLY must be 0 for product evaluation once API is live
+
+PROMOTION RULE
+ct3/v1-repairs may continue local work after this pin. It must NEVER automatically update the Isa/Álvaro evaluation URL.
+Each later batch requires its own tested, reviewed, intentional promotion to the evaluation release.
+
+UPDATE 2026-11-17: API+workers = Mac :4001 + Cloudflare tunnel (not Render/Fly/Railway). DB seeded synthetic org isalwa-eval-demo-v1. Auth unchanged qbpxuywtoycjpitxoblo.

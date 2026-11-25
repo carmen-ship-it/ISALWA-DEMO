@@ -1,0 +1,18 @@
+ISALWA evaluation release — CODE CHECKPOINT
+created_at_utc=2026-11-17T18:01:16Z
+baseline_policy=current_commercial_release_source_not_render_old_commit
+
+commit=5e7131ccb0221a9db026a1bc009f1bd2aec95f17
+tree=ee02c37f91bf390708cf2b03d8c9f7f2b0f0367a
+branch_at_pin=ct3/v1-repairs
+local_ref=refs/evaluation-release/full-app-5e7131ccb0221a9db026a1bc009f1bd2aec95f17
+local_candidate_ref=refs/evaluation-candidates/full-app-baseline-5e7131ccb0221a9db026a1bc009f1bd2aec95f17
+local_tag=evaluation-full-app-5e7131cc
+archive=/Users/carmen/projects/isalwa-transfer-readiness/export/isalwa-source-5e7131cc-full-app.tar.gz
+archive_sha256=0c201c36a5af6b0c7904dd1e2cdbd6d1e1c613bab2c7d64c7de61e7d2bcbc623
+archive_file_count=2185
+includes_security_followup=yes
+walkthrough_is_inside_app=yes
+walkthrough_is_not_the_product=yes
+deploy_target_when_authorized=Vercel project isalwa-os-web-evaluation (os-web) + separate Node host (os-api)
+auto_promote_from_ct3=FORBIDDEN

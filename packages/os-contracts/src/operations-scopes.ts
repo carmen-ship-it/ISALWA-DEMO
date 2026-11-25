@@ -386,6 +386,23 @@ export function canRecordDelivery(grantedScopes: readonly string[]): boolean {
   return hasAssignedOperationsScope(grantedScopes, DELIVERY_RECORD_SCOPE);
 }
 
+/**
+ * Pedido context for Entregas / Almacén / Producción / Compras desks.
+ * Reads `os_orders` (write table), not the commercial projection.
+ * Finished-goods receive and allocate need the same pedido lines as outbound.
+ * Commercial read scopes do not imply this.
+ */
+export function canReadOperationalOrders(grantedScopes: readonly string[]): boolean {
+  return (
+    canRecordDelivery(grantedScopes) ||
+    canRecordWarehouseOutbound(grantedScopes) ||
+    canRecordProduction(grantedScopes) ||
+    canRecordPurchasing(grantedScopes) ||
+    canReceiveFinishedGoods(grantedScopes) ||
+    hasAssignedOperationsScope(grantedScopes, WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE)
+  );
+}
+
 export function canActAsSystemAdmin(grantedScopes: readonly string[]): boolean {
   return hasAssignedOperationsScope(grantedScopes, SYSTEM_ADMIN_SCOPE);
 }

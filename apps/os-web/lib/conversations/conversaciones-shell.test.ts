@@ -10,11 +10,11 @@ import { CONVERSATIONS_COPY } from './copy';
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
 describe('conversaciones route shell', () => {
-  it('puts Conversaciones in Principal right after Hoy and keeps Mensajes locked/hidden', () => {
+  it('puts Conversaciones in Principal right after Inicio and keeps Mensajes locked/hidden', () => {
     const principalIds = PRIMARY_NAV.filter((item) => item.group === 'principal').map((item) => item.id);
     assert.deepEqual(principalIds, ['inicio', 'conversaciones', 'clientes']);
     const trabajoIds = PRIMARY_NAV.filter((item) => item.group === 'trabajo').map((item) => item.id);
-    assert.deepEqual(trabajoIds, ['trabajo', 'aprobaciones', 'incidencias', 'compromisos', 'excepciones']);
+    assert.deepEqual(trabajoIds, ['trabajo', 'aprobaciones', 'incidencias', 'excepciones']);
     assert.equal(t('nav.conversaciones'), 'Conversaciones');
     assert.equal(PRIMARY_NAV.some((item) => item.id === 'mensajes'), false);
     assert.deepEqual(

@@ -87,8 +87,12 @@ export function formatDueDate(iso: string | null): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return 'Sin fecha';
   return new Intl.DateTimeFormat('es-BO', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
     timeZone: 'America/La_Paz',
   }).format(date);
 }
@@ -98,8 +102,12 @@ export function formatTimestamp(iso: string | null): string | null {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return null;
   return new Intl.DateTimeFormat('es-BO', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
     timeZone: 'America/La_Paz',
   }).format(date);
 }

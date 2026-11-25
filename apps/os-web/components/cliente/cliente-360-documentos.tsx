@@ -11,11 +11,12 @@ type Cliente360DocumentosProps = {
 
 function formatTimestamp(iso: string): string {
   try {
-    return new Date(iso).toLocaleDateString('es', {
-      month: 'short',
-      day: 'numeric',
+    return new Intl.DateTimeFormat('es-BO', {
+      day: '2-digit',
+      month: '2-digit',
       year: 'numeric',
-    });
+      timeZone: 'America/La_Paz',
+    }).format(new Date(iso));
   } catch {
     return '—';
   }

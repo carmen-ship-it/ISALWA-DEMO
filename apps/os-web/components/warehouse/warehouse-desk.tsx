@@ -1,10 +1,11 @@
 'use client';
 
-import { useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useState, useTransition, type FormEvent } from 'react';
 import Link from 'next/link';
 import {
   Button,
   EmptyState,
+  FeedbackNote,
   ListRow,
   PageSection,
   SectionHeader,
@@ -38,7 +39,7 @@ type WarehouseDeskProps = {
   view?: WarehouseTaskView | null;
   canAllocate?: boolean;
   onRetry?: () => void;
-  onAllocate?: (draft: AllocateDraft) => void;
+  onAllocate?: (draft: AllocateDraft) => Promise<{ ok: boolean; error?: string }> | void;
   onCorrect?: (draft: { allocationId: string; quantity: string; reason: string }) => void;
 };
 
@@ -178,7 +179,7 @@ function AllocateSection({
   view: WarehouseTaskView;
   canAllocate: boolean;
   persistWriteMounted: boolean;
-  onAllocate?: (draft: AllocateDraft) => void;
+  onAllocate?: (draft: AllocateDraft) => Promise<{ ok: boolean; error?: string }> | void;
 }) {
   const choosable = view.allocatable.filter((row) => row.canChooseQuantity && row.availableQuantity);
   const firstProduct = choosable[0]?.productId ?? '';
@@ -186,11 +187,25 @@ function AllocateSection({
   const [productId, setProductId] = useState(firstProduct);
   const [orderLineId, setOrderLineId] = useState(firstLine);
   const [quantity, setQuantity] = useState('');
+  const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; title: string } | null>(null);
+  const [pending, startTransition] = useTransition();
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    if (!onAllocate || !canAllocate || !persistWriteMounted || !orderLineId || !productId || !quantity.trim()) return;
-    onAllocate({ orderLineId, productId, quantity: quantity.trim() });
+    setFeedback(null);
+    if (!onAllocate || !canAllocate || !persistWriteMounted || !orderLineId || !productId || !quantity.trim() || pending) {
+      return;
+    }
+    const draft = { orderLineId, productId, quantity: quantity.trim() };
+    startTransition(async () => {
+      const result = await onAllocate(draft);
+      if (result && !result.ok) {
+        setFeedback({ tone: 'error', title: result.error ?? 'No se pudo asignar.' });
+        return;
+      }
+      setFeedback({ tone: 'success', title: 'Asignación registrada.' });
+      setQuantity('');
+    });
   }
 
   const pedidos = view.pedidos.filter((pedido) => !productId || pedido.productId === productId);
@@ -324,8 +339,15 @@ function AllocateSection({
             {WAREHOUSE_TASK_COPY.partialAllowed}
           </p>
           <div className={`${OPS_STICKY_ACTION_CLASS} -mx-2 px-2 py-3`}>
-            <Button type="submit" disabled={!quantity.trim() || !orderLineId || !productId}>Asignar al pedido</Button>
+            <Button type="submit" disabled={pending || !quantity.trim() || !orderLineId || !productId}>
+              {pending ? 'Asignando…' : 'Asignar al pedido'}
+            </Button>
           </div>
+          {feedback ? (
+            <div className="mt-3">
+              <FeedbackNote tone={feedback.tone} title={feedback.title} />
+            </div>
+          ) : null}
         </form>
       ) : !canAllocate ? (
         <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]" data-owner-review-state="not-authorized">

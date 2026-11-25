@@ -1,0 +1,66 @@
+{
+  "sanitized": true,
+  "note": "Session cookies removed. Recreate synthetic seats on disposable DB only.",
+  "revision": "local-uncommitted",
+  "environment": "disposable-postgres",
+  "database": "isalwa_v1_repairs_verify_20261124_disposable",
+  "organizationId": "01M88GGQ6KGDGAK94P2BSRWT32",
+  "ownerMemberId": "01M88GGQ8EGVKYP9ZCRAKBPT91",
+  "partyId": "01M88GGQDBWNM9K6132NCBGYY6",
+  "opportunityId": "01M88GGQFDPCRZBM75CY4AC5XY",
+  "quoteId": "01M88GGQGRQNRE9GKQPHF8KGMC",
+  "quoteNumber": "Q-000001",
+  "quoteRevision": 2,
+  "pdfSha": "dc6159d3e02d810fe19dce7b20b020cf662f0a19acae6089a8d1919f1a2e199f",
+  "conversationId": "01M88GGR8CZGSKYS3Q9PF50D7P",
+  "commitmentId": "01M88GGRA1NFGP2720QJ02QMQX",
+  "orderId": "01M88GGRD0S9AA0TJWGE24DBED",
+  "orderNumber": "O-000001",
+  "orderLineId": "01M88GGRD2CR13Y181A6FD7F5B",
+  "productRef": "01M88GGQAB3FA1722WB37SHH2R",
+  "workItemId": "01M88GGRXFVEC0AGRDYFFE501Y",
+  "deliveryNoteId": "01M88GGRZ9TDS6BY2938PZVZK8",
+  "warehouseExitId": "01M88GGS2SGC99MKET7YT433D9",
+  "deliveryId": "01M88GGS511553WSDEYT3SN150",
+  "paymentReportId": "01M88GGS6Z03BPK9EHQ852ZH9N",
+  "allocationId": "01M88GGRVEQCP84JRW0TF4GKTX",
+  "cookieName": "os_dev_session",
+  "seats": {
+    "owner": {
+      "email": "owner-01M88GGQ8E8CK5NH53VMYAN53H@spine.invalid",
+      "memberId": "01M88GGQ8EGVKYP9ZCRAKBPT91",
+      "personId": "01M88GGQ8ENQ9HD9CVGGEBVWYX",
+      "givenName": "owner"
+    },
+    "warehouse": {
+      "email": "warehouse-01M88GGQ99TYFV9WFR8E9ERJQ7@spine.invalid",
+      "memberId": "01M88GGQ99W01SM9J4BDP59M3T",
+      "personId": "01M88GGQ99P0X42WYHKQKV2VHZ",
+      "givenName": "warehouse"
+    },
+    "delivery": {
+      "email": "delivery-01M88GGQ9GHYBK77Y3B32XZQFT@spine.invalid",
+      "memberId": "01M88GGQ9GPPE4R03TNF4EJPFX",
+      "personId": "01M88GGQ9GC9CNNWCDGVGFPNGQ",
+      "givenName": "delivery"
+    },
+    "production": {
+      "email": "production-01M88GGQ9NYRC9TEXDF0451JHP@spine.invalid",
+      "memberId": "01M88GGQ9NKNFCRSQCQPA5RVYK",
+      "personId": "01M88GGQ9N0KEKNQJ8G98HTM8M",
+      "givenName": "production"
+    },
+    "accounting": {
+      "email": "accounting-01M88GGQ9SMZM6NNQ33P5XSB6F@spine.invalid",
+      "memberId": "01M88GGQ9SYBVX7TK6H2SJWBF5",
+      "personId": "01M88GGQ9S9NPMNGMJD0JE12BR",
+      "givenName": "accounting"
+    },
+    "manager": {
+      "email": "manager-01M88GGQ93ZQEAE0RW8W9N092F@spine.invalid",
+      "memberId": "01M88GGQ94A3ET6XZPQF4CWC6C",
+      "personId": "01M88GGQ933311DMCZR9VYWXGV",
+      "givenName": "manager"
+    }
+  }
+}

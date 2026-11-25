@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { mapOrderDetailToWarehousePedidos } from './load-pedidos';
 
@@ -117,6 +119,18 @@ describe('mapOrderDetailToWarehousePedidos', () => {
         lines: [],
       }),
       [],
+    );
+  });
+
+  it('prefers delivery-ops pedido reads over the commercial order projection', () => {
+    const source = readFileSync(join(__dirname, 'load-pedidos.ts'), 'utf8');
+    const opsAt = source.indexOf('loadWarehouseFromDeliveryOps');
+    const commercialAt = source.indexOf('loadWarehouseFromCommercial');
+    const loader = source.slice(source.indexOf('export async function loadWarehousePedidosFromOrders'));
+    assert.ok(opsAt > 0);
+    assert.ok(commercialAt > 0);
+    assert.ok(
+      loader.indexOf('loadWarehouseFromDeliveryOps') < loader.indexOf('loadWarehouseFromCommercial'),
     );
   });
 });

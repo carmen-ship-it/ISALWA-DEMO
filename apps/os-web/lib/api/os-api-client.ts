@@ -532,6 +532,103 @@ export function createOsApiClient(auth: OsAuthContext) {
         `/customer-conversations/${encodeURIComponent(conversationId)}/notes`,
         { method: 'POST', body: input, retry: false },
       ),
+    getWarehouseFinishedGoodsDesk: () =>
+      request<{
+        organizationId: string;
+        officialStock: false;
+        postsStock: false;
+        receipts: Array<{
+          organizationId: string;
+          productId: string;
+          productLabel: string | null;
+          quantity: string;
+          receiptId: string;
+        }>;
+        allocations: import('@isalwa/os-contracts').OrderAllocation[];
+      }>('/warehouse/finished-goods-desk', { method: 'GET' }),
+    listCoordinationDecisions: () =>
+      request<{
+        organizationId: string;
+        liveWrite: 'PROVEN';
+        decisions: import('@isalwa/os-contracts').CoordinationDecisionRecord[];
+      }>('/coordination/decisions', { method: 'GET' }),
+    recordCoordinationDecision: (input: {
+      decision: string;
+      ownerLabel?: string | null;
+      dueAt?: string | null;
+      notes?: string | null;
+      linkedCaseId?: string | null;
+      actorLabel?: string | null;
+    }) =>
+      request<{
+        organizationId: string;
+        liveWrite: 'PROVEN';
+        decision: import('@isalwa/os-contracts').CoordinationDecisionRecord;
+        mutatedProduction: false;
+        mutatedPayment: false;
+      }>('/coordination/decisions', { method: 'POST', body: input, retry: false }),
+    resolveCoordinationDecision: (
+      decisionId: string,
+      input: {
+        decision: string;
+        ownerLabel?: string | null;
+        dueAt?: string | null;
+        notes?: string | null;
+        linkedCaseId?: string | null;
+        actorLabel?: string | null;
+      },
+    ) =>
+      request<{
+        organizationId: string;
+        liveWrite: 'PROVEN';
+        decision: import('@isalwa/os-contracts').CoordinationDecisionRecord;
+        mutatedProduction: false;
+        mutatedPayment: false;
+      }>(`/coordination/decisions/${encodeURIComponent(decisionId)}/resolve`, {
+        method: 'POST',
+        body: input,
+        retry: false,
+      }),
+    listPurchaseRequests: () =>
+      request<{
+        organizationId: string;
+        liveWrite: 'PROVEN';
+        requests: import('@isalwa/os-contracts').PurchaseRequest[];
+      }>('/purchasing/requests', { method: 'GET' }),
+    createPurchaseRequest: (input: {
+      requestingArea?: string;
+      requestedByLabel?: string;
+      description?: string;
+      reason?: string;
+      quantity?: string | null;
+      unit?: string | null;
+      orderId?: string | null;
+      productionContextId?: string | null;
+      actorLabel?: string | null;
+      idempotencyKey?: string | null;
+    }) =>
+      request<{
+        liveWrite: 'PROVEN';
+        request: import('@isalwa/os-contracts').PurchaseRequest;
+      }>('/purchasing/requests', { method: 'POST', body: input, retry: false }),
+    transitionPurchaseRequest: (
+      requestId: string,
+      input: {
+        status: string;
+        note?: string | null;
+        actorLabel?: string | null;
+        buyerLabel?: string | null;
+        statusEntryId?: string | null;
+      },
+    ) =>
+      request<{
+        liveWrite: 'PROVEN';
+        request: import('@isalwa/os-contracts').PurchaseRequest;
+      }>(`/purchasing/requests/${encodeURIComponent(requestId)}/transition`, {
+        method: 'POST',
+        body: input,
+        retry: false,
+      }),
     listWarehouseExits: (query?: Record<string, string | number | boolean>) =>
       request<{
         sourceState: string;

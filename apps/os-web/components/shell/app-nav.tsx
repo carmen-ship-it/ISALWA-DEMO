@@ -56,6 +56,8 @@ type AppNavProps = {
   mobile?: boolean;
   /** Desktop icon-rail mode — labels become tooltips. */
   collapsed?: boolean;
+  /** Forest sidebar: light labels. Mobile drawer stays on the canvas. */
+  inverse?: boolean;
   onNavigate?: () => void;
 };
 
@@ -69,6 +71,7 @@ function NavLink({
   label,
   emphasized,
   collapsed,
+  inverse,
   locked,
   href,
   onNavigate,
@@ -78,6 +81,7 @@ function NavLink({
   label: string;
   emphasized: boolean;
   collapsed?: boolean;
+  inverse?: boolean;
   locked?: boolean;
   href: string;
   onNavigate?: () => void;
@@ -91,13 +95,17 @@ function NavLink({
     locked ? 'cursor-not-allowed opacity-70' : '',
     active
       ? cx(
-          'border-l-[3px] border-l-[var(--isalwa-glaze-deep)] font-semibold text-[var(--isalwa-kiln)]',
-          'bg-[color-mix(in_srgb,var(--isalwa-teal-100)_82%,var(--isalwa-white))] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--isalwa-glaze)_12%,transparent)]',
+          'border-l-[3px] border-l-[var(--isalwa-copper)] font-semibold',
+          inverse
+            ? 'bg-[var(--isalwa-glaze)] text-white'
+            : 'text-[var(--isalwa-kiln)] bg-[color-mix(in_srgb,var(--isalwa-teal-100)_82%,var(--isalwa-white))] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--isalwa-glaze)_12%,transparent)]',
           collapsed ? 'pl-[calc(0.5rem-3px)]' : 'pl-[calc(0.875rem-3px)]',
         )
-      : emphasized
-        ? 'font-medium text-[var(--isalwa-kiln)] hover:bg-[var(--isalwa-white)]'
-        : 'font-normal text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-white)] hover:text-[var(--isalwa-kiln)]',
+      : inverse
+        ? 'font-normal text-white/80 hover:bg-white/10 hover:text-white'
+        : emphasized
+          ? 'font-medium text-[var(--isalwa-kiln)] hover:bg-[var(--isalwa-white)]'
+          : 'font-normal text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-white)] hover:text-[var(--isalwa-kiln)]',
   );
 
   if (locked) {
@@ -107,8 +115,8 @@ function NavLink({
           aria-hidden
           className={cx(
             'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)]',
-            tone.chip,
-            tone.ink,
+            inverse ? 'bg-white/10 text-white' : tone.chip,
+            inverse ? 'text-white' : tone.ink,
           )}
         >
           <Icon size={18} strokeWidth={1.5} />
@@ -131,8 +139,8 @@ function NavLink({
         aria-hidden
         className={cx(
           'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)]',
-          tone.chip,
-          tone.ink,
+          inverse ? 'bg-white/10 text-white' : tone.chip,
+          inverse ? 'text-white' : tone.ink,
         )}
       >
         <Icon size={18} strokeWidth={active ? 2 : 1.5} />
@@ -150,6 +158,7 @@ export function AppNav({
   capabilities = [],
   mobile,
   collapsed = false,
+  inverse = false,
   onNavigate,
 }: AppNavProps) {
   const pathname = usePathname();
@@ -205,6 +214,7 @@ export function AppNav({
             containsActive={containsActive}
             mobile={Boolean(mobile)}
             collapsedRail={collapsed && !mobile}
+            inverse={inverse && !mobile}
           >
             {section.items.map((item) => {
               const defaultLabel = navItemLabel(item, t);
@@ -219,6 +229,7 @@ export function AppNav({
                   emphasized={emphasized.has(item.id)}
                   locked={item.state === 'locked'}
                   collapsed={collapsed && !mobile}
+                  inverse={inverse && !mobile}
                   active={navHrefActive(pathname, search, href, item.id)}
                   onNavigate={onNavigate}
                 />

@@ -37,6 +37,7 @@ import type { OsOutboxStorePort } from '@isalwa/os-events';
 import { IssueStoreAdapter } from './issue-store-adapter';
 import { CommitmentStoreAdapter } from './commitment-store-adapter';
 import { OutboxWorkerHost, OutboxRecoveryService } from '@isalwa/os-events';
+import { createPrismaElapsedNoticeStore } from './elapsed-notice-clock.prisma';
 import {
   PartyProjectionConsumer,
   PartyQueryService,
@@ -50,6 +51,7 @@ import {
   ApprovalQueryService,
   AttentionQueryService,
   AttentionClock,
+  ElapsedNoticeClock,
   CommercialProjectionConsumer,
   CommercialQueryService,
   PartyTimelineProjectionConsumer,
@@ -113,6 +115,7 @@ export const OS_DELIVERY_NOTE_PDF_SERVICE = Symbol('OS_DELIVERY_NOTE_PDF_SERVICE
 export const OS_PROJECTION_RUNNER = Symbol('OS_PROJECTION_RUNNER');
 export const OS_OUTBOX_WORKER_HOST = Symbol('OS_OUTBOX_WORKER_HOST');
 export const OS_ATTENTION_CLOCK = Symbol('OS_ATTENTION_CLOCK');
+export const OS_ELAPSED_NOTICE_CLOCK = Symbol('OS_ELAPSED_NOTICE_CLOCK');
 export const OS_OUTBOX_RECOVERY_SERVICE = Symbol('OS_OUTBOX_RECOVERY_SERVICE');
 
 function createDeliveryStore(): DeliveryStore {
@@ -132,6 +135,10 @@ function outboxWorkerEnabled(): boolean {
 
 function attentionClockEnabled(): boolean {
   return process.env.OS_ATTENTION_CLOCK !== '0';
+}
+
+function elapsedNoticeClockEnabled(): boolean {
+  return process.env.OS_ELAPSED_NOTICE_CLOCK !== '0';
 }
 
 function createAuthProvider(): AuthProviderPort {
@@ -584,6 +591,13 @@ function createMemberQueryStore(): MemberQueryStorePort {
       inject: [OS_PROJECTION_STORE],
     },
     {
+      provide: OS_ELAPSED_NOTICE_CLOCK,
+      useFactory: () =>
+        new ElapsedNoticeClock(createPrismaElapsedNoticeStore(), {
+          pollIntervalMs: Number(process.env.OS_ELAPSED_NOTICE_CLOCK_MS ?? 60_000),
+        }),
+    },
+    {
       provide: OS_OUTBOX_WORKER_HOST,
       useFactory: (outboxStore: OsOutboxStorePort, projectionRunner: ProjectionRunner) => {
         const pollIntervalMs = Number(
@@ -641,6 +655,7 @@ function createMemberQueryStore(): MemberQueryStorePort {
     OS_PROJECTION_RUNNER,
     OS_OUTBOX_WORKER_HOST,
     OS_ATTENTION_CLOCK,
+    OS_ELAPSED_NOTICE_CLOCK,
     OS_OUTBOX_RECOVERY_SERVICE,
   ],
 })
@@ -648,6 +663,7 @@ export class OsStoreModule implements OnModuleInit, OnModuleDestroy {
   constructor(
     @Inject(OS_OUTBOX_WORKER_HOST) private readonly outboxHost: OutboxWorkerHost,
     @Inject(OS_ATTENTION_CLOCK) private readonly attentionClock: AttentionClock,
+    @Inject(OS_ELAPSED_NOTICE_CLOCK) private readonly elapsedNoticeClock: ElapsedNoticeClock,
   ) {}
 
   onModuleInit(): void {
@@ -658,9 +674,13 @@ export class OsStoreModule implements OnModuleInit, OnModuleDestroy {
     if (attentionClockEnabled()) {
       this.attentionClock.start();
     }
+    if (elapsedNoticeClockEnabled()) {
+      this.elapsedNoticeClock.start();
+    }
   }
 
   async onModuleDestroy(): Promise<void> {
+    await this.elapsedNoticeClock.stop();
     await this.attentionClock.stop();
     await this.outboxHost.stop();
   }

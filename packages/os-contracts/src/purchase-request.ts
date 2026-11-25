@@ -50,7 +50,7 @@ export const LEGACY_PURCHASE_REQUEST_STATUS_MAP = {
 export const PURCHASE_REQUEST_STATUS_LABELS: Record<PurchaseRequestStatus, string> = {
   solicitado: 'Solicitado',
   cotizandose: 'Cotizándose',
-  pedido_preparandose: 'Pedido y Preparándose',
+  pedido_preparandose: 'Pedido y preparándose',
   entregado: 'Entregado',
   cancelled: 'Cancelado',
 };
@@ -61,7 +61,7 @@ export const PURCHASE_REQUEST_NEXT_ACTION_LABELS: Record<
   string | null
 > = {
   solicitado: 'Cotizándose',
-  cotizandose: 'Pedido y Preparándose',
+  cotizandose: 'Pedido y preparándose',
   pedido_preparandose: 'Entregado',
   entregado: null,
   cancelled: null,

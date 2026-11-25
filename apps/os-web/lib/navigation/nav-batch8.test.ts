@@ -21,14 +21,15 @@ const byId = (id: string) => PRIMARY_NAV.find((item) => item.id === id)!;
 describe('Batch 8 navigation: the six everyday destinations', () => {
   it('Hoy, Conversaciones, Clientes, Comercial, Catálogo and Mapa keep their routes and labels', () => {
     const expected: Array<[string, string, string]> = [
-      ['inicio', '/inicio', 'Hoy'],
+      ['inicio', '/inicio', 'Inicio'],
       ['conversaciones', '/conversaciones', 'Conversaciones'],
-      ['clientes', '/clientes', 'Clientes'],
-      ['oportunidades', '/oportunidades', 'Oportunidades'],
+      ['clientes', '/clientes', 'Contactos'],
+      ['oportunidades', '/oportunidades', 'Leads y oportunidades'],
       ['cotizaciones', '/cotizaciones', 'Cotizaciones'],
       ['pedidos', '/pedidos', 'Pedidos'],
       ['productos', '/productos', 'Catálogo'],
-      ['mapa', '/mapa', 'Mapa'],
+      ['mapa', '/mapa', 'Mapas'],
+      ['compromisos', '/compromisos', 'Seguimientos'],
     ];
     for (const [id, href, label] of expected) {
       const item = byId(id);
@@ -44,7 +45,7 @@ describe('Batch 8 navigation: the six everyday destinations', () => {
     const idsOf = (g: string) => sections.find((s) => s.group === g)!.items.map((i) => i.id);
     assert.deepEqual(NAV_GROUP_ORDER.slice(0, 3), ['principal', 'comercial', 'consulta']);
     assert.deepEqual(idsOf('principal'), ['inicio', 'conversaciones', 'clientes']);
-    assert.deepEqual(idsOf('comercial'), ['oportunidades', 'cotizaciones', 'pedidos']);
+    assert.deepEqual(idsOf('comercial'), ['oportunidades', 'cotizaciones', 'pedidos', 'compromisos']);
     assert.deepEqual(idsOf('consulta'), ['productos', 'mapa']);
   });
 

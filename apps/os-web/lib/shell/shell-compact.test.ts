@@ -54,7 +54,7 @@ describe('Task 5 compact sticky header', () => {
     assert.match(shell, /UserMenu/);
     assert.match(userMenu, /signOut|Cerrar sesión|account\.signOut/);
     assert.match(evaluation, /data-shell-evaluation-banner/);
-    assert.match(evaluation, /Vista de evaluación/);
+    assert.match(evaluation, /Vista de demostración:/);
     assert.match(tour, /data-shell-tour-compact/);
     assert.match(tour, /Ver recorrido completo/);
   });

@@ -8,7 +8,7 @@ import { Cliente360StatusHeader } from '@/components/cliente/cliente-360-status-
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
 import { displayCliente360NextAction } from '@/lib/cliente/next-action-display';
 import type { Cliente360StatusHeaderModel } from '@/lib/cliente/status-header';
-import { clienteSectionHref, newOpportunityHref } from '@/lib/commercial/navigation';
+import { newOpportunityHref } from '@/lib/commercial/navigation';
 import type { Cliente360Composition } from '@/lib/party/next-action';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import { Cliente360ActionsMenu } from '@/components/cliente/cliente-360-actions-menu';
@@ -157,9 +157,17 @@ export function Cliente360Header({
                   {prepareQuote.label}
                 </Link>
               ) : null}
-              <Link href={clienteSectionHref(partyId, 'trabajo')} className={actionSecondaryClass}>
+              <button
+                type="button"
+                className={actionSecondaryClass}
+                onClick={() => {
+                  document.dispatchEvent(
+                    new CustomEvent('cliente360:open-drawer', { detail: { kind: 'follow_up' } }),
+                  );
+                }}
+              >
                 {FOLLOW_UP_COPY.action}
-              </Link>
+              </button>
             </>
           ) : null}
           <Cliente360ActionsMenu {...menuProps} />

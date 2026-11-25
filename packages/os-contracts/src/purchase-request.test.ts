@@ -91,7 +91,7 @@ describe('purchase request contract', () => {
   it('uses Isa’s labels and does not put Cancelado on the happy path', () => {
     assert.deepEqual(
       PURCHASE_REQUEST_HAPPY_PATH.map((status) => PURCHASE_REQUEST_STATUS_LABELS[status]),
-      ['Solicitado', 'Cotizándose', 'Pedido y Preparándose', 'Entregado'],
+      ['Solicitado', 'Cotizándose', 'Pedido y preparándose', 'Entregado'],
     );
     assert.equal(PURCHASE_REQUEST_STATUS_LABELS.cancelled, 'Cancelado');
     assert.equal(

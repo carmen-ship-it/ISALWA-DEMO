@@ -20,8 +20,13 @@ import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-wor
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { orderHref } from '@/lib/commercial/navigation';
+import { canRecordPurchasing } from '@isalwa/os-contracts';
 import { COMPRAS_COPY } from '@/lib/purchasing/queue';
 import { loadComprasQueue } from '@/lib/purchasing/load-queue';
+import {
+  advancePurchaseRequestAction,
+  stopPurchaseRequestAction,
+} from '@/lib/purchasing/actions';
 import {
   loadComprasLinkedOrders,
   type ComprasLinkedOrder,
@@ -31,6 +36,7 @@ import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
+import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { memberWithCargoLine, resolveMemberResponsibilityLabels } from '@/lib/work/member-resolver';
 import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import {
@@ -147,10 +153,13 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
   const listStates = parseComprasListStates(query);
   const q = listStates.queue.q ?? null;
   const estado = listStates.estado ?? null;
-  const [queue, linked] = await Promise.all([
+  const [queue, linked, capabilities] = await Promise.all([
     loadComprasQueue({ buyer: one(query.buyer), estado }),
     loadComprasLinkedWithSupply(),
+    loadMemberCapabilities(),
   ]);
+  const canMutateQueue =
+    Boolean(capabilities) && canRecordPurchasing(capabilities?.grantedScopes ?? []);
   const linkedOrders = linked.orders;
   const abastecimientoCount = linkedOrders.filter((row) => row.supplyReview).length;
   const queueWindow =
@@ -237,6 +246,8 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
             to={queueWindow?.to ?? 0}
             prevHref={queueLinks.prevHref}
             nextHref={queueLinks.nextHref}
+            onAdvance={canMutateQueue ? advancePurchaseRequestAction : undefined}
+            onStop={canMutateQueue ? stopPurchaseRequestAction : undefined}
           />
         </div>
       ) : (

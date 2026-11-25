@@ -14,8 +14,8 @@ export default async function CoordinacionPage() {
       <PageHeader
         kicker="Asuntos que necesitan una decisión"
         title="Coordinación"
-        description="Coordinación aún no registra decisiones operativas de forma persistente."
-        action={<StatusPill tone="neutral">Aún no disponible</StatusPill>}
+        description="Registre decisiones entre áreas cuando tenga la capacidad asignada. El historial se guarda en la base de la organización."
+        action={<StatusPill tone="neutral">Registro durable</StatusPill>}
       />
       <CoordinationPanel model={model} />
     </PageContainer>

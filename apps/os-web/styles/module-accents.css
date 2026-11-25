@@ -3,13 +3,13 @@
  */
 main[aria-label='Clientes'] h1,
 main[aria-label='Oportunidades'] h1 {
-  box-shadow: inset 4px 0 0 #287a78;
+  box-shadow: inset 4px 0 0 #315b50;
   padding-left: 0.75rem;
 }
 main[aria-label='Almacén'] h1,
 main[aria-label='Asignación a pedido'] h1,
 main[aria-label='Mi trabajo'] h1 {
-  box-shadow: inset 4px 0 0 #18324b;
+  box-shadow: inset 4px 0 0 #172f2b;
   padding-left: 0.75rem;
 }
 main[aria-label='Compras'] h1,
@@ -26,11 +26,11 @@ main[aria-label='Entregas'] h1 {
   padding-left: 0.75rem;
 }
 main[aria-label='Producción'] h1 {
-  box-shadow: inset 4px 0 0 #287a78;
+  box-shadow: inset 4px 0 0 #315b50;
   padding-left: 0.75rem;
 }
 main[aria-label='Registro financiero operativo'] h1 {
-  box-shadow: inset 4px 0 0 #18324b;
+  box-shadow: inset 4px 0 0 #172f2b;
   padding-left: 0.75rem;
 }
 main[aria-label='Incidencias'] h1 {
@@ -38,7 +38,7 @@ main[aria-label='Incidencias'] h1 {
   padding-left: 0.75rem;
 }
 main[aria-label='Coordinación'] h1 {
-  box-shadow: inset 4px 0 0 #18324b;
+  box-shadow: inset 4px 0 0 #172f2b;
   padding-left: 0.75rem;
 }
 

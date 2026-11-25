@@ -283,6 +283,206 @@ describeHttp('T02 customer visibility over HTTP (disposable Postgres)', () => {
     await prisma().osCustomerCoverageGrant.deleteMany({ where: { id: { in: [expired.id, future.id, active.id] } } });
   });
 
+  it('customer.edit coverage reads the customer and does not open the conversation', async () => {
+    const conversation = await prisma().osCustomerConversation.findFirst({
+      where: { organizationId: orgA.id, customerId: ids.customer },
+    });
+    assert.ok(conversation);
+    const grant = await prisma().osCustomerCoverageGrant.create({
+      data: {
+        id: createId(),
+        organizationId: orgA.id,
+        customerPartyId: ids.customer,
+        primaryOwnerMemberId: m.owner.member.id,
+        actingAdvisorMemberId: m.advisor.member.id,
+        coveredActions: ['customer.edit'],
+        startsAt: new Date('2026-01-01T00:00:00Z'),
+        recordedAt: new Date(),
+      },
+    });
+    const post = async (who: string, path: string, body: unknown, orgId = orgA.id) => {
+      const res = await fetch(`${baseUrl}/v1${path}`, {
+        method: 'POST',
+        headers: headers(orgId, m[who]!),
+        body: JSON.stringify(body),
+      });
+      const text = await res.text();
+      return { status: res.status, body: text ? JSON.parse(text) : null };
+    };
+    try {
+      const contacts = await get('advisor', `/parties/${ids.customer}/contacts`);
+      assert.equal(contacts.status, 200, contacts.text);
+      assert.equal(contacts.body.contacts[0].phone, PHONE);
+
+      const list = await get('advisor', '/customer-conversations');
+      assert.deepEqual(list.body, { items: [] });
+      const filtered = await get('advisor', `/customer-conversations?partyId=${ids.customer}`);
+      assert.deepEqual(filtered.body, { items: [] });
+
+      const notes = await get('advisor', `/customer-conversations/${conversation.id}/notes`);
+      assert.equal(notes.status, 404);
+      assert.equal(notes.body.code, 'NOT_FOUND');
+      const take = await post('advisor', `/customer-conversations/${conversation.id}/take`, {});
+      assert.equal(take.status, 404);
+      assert.equal(take.body.code, 'NOT_FOUND');
+      const state = await post('advisor', `/customer-conversations/${conversation.id}/state`, { to: 'waiting_on_customer' });
+      assert.equal(state.status, 404);
+      assert.equal(state.body.code, 'NOT_FOUND');
+      const created = await post('advisor', '/customer-conversations', {
+        customerId: ids.customer,
+        channel: 'call',
+        summary: 'no debe guardarse',
+        occurredAt: '2026-10-02T15:00:00.000Z',
+      });
+      assert.equal(created.status, 400);
+      const stillOne = await prisma().osCustomerConversation.count({
+        where: { organizationId: orgA.id, customerId: ids.customer },
+      });
+      assert.equal(stillOne, 1);
+
+      const foreign = await get('foreignOwner', `/customer-conversations/${conversation.id}/notes`, orgB.id);
+      assert.equal(foreign.status, 404);
+      assert.equal(foreign.body.code, 'NOT_FOUND');
+
+      await prisma().osCustomerCoverageGrant.update({
+        where: { id: grant.id },
+        data: { coveredActions: ['commercial.work'] },
+      });
+      const allowed = await get('advisor', '/customer-conversations');
+      assert.equal(allowed.body.items.length, 1);
+      assert.equal(allowed.body.items[0].id, conversation.id);
+      const noteRead = await get('advisor', `/customer-conversations/${conversation.id}/notes`);
+      assert.equal(noteRead.status, 200);
+      const takeOk = await post('advisor', `/customer-conversations/${conversation.id}/take`, {});
+      assert.equal(takeOk.status, 201, JSON.stringify(takeOk.body));
+      assert.equal(takeOk.body.item.assignedMemberId, m.advisor.member.id);
+    } finally {
+      await prisma().osCustomerConversation.update({
+        where: { id: conversation.id },
+        data: {
+          assignedMemberId: null,
+          assignedLabel: null,
+          assignedAt: null,
+          attentionState: 'new',
+          attentionStateChangedAt: null,
+          automationPausedAt: null,
+        },
+      });
+      await prisma().osCustomerCoverageGrant.delete({ where: { id: grant.id } });
+    }
+  });
+
+  it('quote.convert coverage does not open conversations', async () => {
+    const conversation = await prisma().osCustomerConversation.findFirst({
+      where: { organizationId: orgA.id, customerId: ids.customer },
+    });
+    assert.ok(conversation);
+    const grant = await prisma().osCustomerCoverageGrant.create({
+      data: {
+        id: createId(),
+        organizationId: orgA.id,
+        customerPartyId: ids.customer,
+        primaryOwnerMemberId: m.owner.member.id,
+        actingAdvisorMemberId: m.advisor.member.id,
+        coveredActions: ['quote.convert'],
+        startsAt: new Date('2026-01-01T00:00:00Z'),
+        recordedAt: new Date(),
+      },
+    });
+    try {
+      const contacts = await get('advisor', `/parties/${ids.customer}/contacts`);
+      assert.equal(contacts.status, 200, contacts.text);
+      const list = await get('advisor', '/customer-conversations');
+      assert.deepEqual(list.body, { items: [] });
+      const notes = await get('advisor', `/customer-conversations/${conversation.id}/notes`);
+      assert.equal(notes.status, 404);
+      assert.equal(notes.body.code, 'NOT_FOUND');
+    } finally {
+      await prisma().osCustomerCoverageGrant.delete({ where: { id: grant.id } });
+    }
+  });
+
+  it('reassignment moves the conversation notice to the current owner and keeps the earlier row', async () => {
+    const conversation = await prisma().osCustomerConversation.findFirst({
+      where: { organizationId: orgA.id, customerId: ids.customer },
+    });
+    assert.ok(conversation);
+    const noticeId = createId();
+    await prisma().osInternalNotification.create({
+      data: {
+        id: noticeId,
+        organizationId: orgA.id,
+        recipientMemberId: m.owner.member.id,
+        kind: 'customer_attention',
+        dedupKey: `customer_attention:conversation:${conversation.id}`,
+        title: 'Conversación sin asignar',
+        body: 'El aviso es interno.',
+        sourceRecordType: 'conversation',
+        sourceRecordId: conversation.id,
+        partyId: ids.customer,
+        channel: 'internal',
+      },
+    });
+    const account = await prisma().osCommercialAccount.findFirst({
+      where: { organizationId: orgA.id, partyId: ids.customer },
+    });
+    assert.ok(account);
+    await prisma().osCommercialAccount.update({
+      where: { id: account.id },
+      data: { ownerMemberId: m.newOwner.member.id },
+    });
+    try {
+      const previous = await get('owner', '/notifications');
+      assert.equal(previous.status, 200);
+      assert.equal(
+        previous.body.items.some((item: { id: string }) => item.id === noticeId),
+        false,
+      );
+      const ack = await fetch(`${baseUrl}/v1/notifications/${noticeId}/acknowledge`, {
+        method: 'POST',
+        headers: headers(orgA.id, m.owner),
+      });
+      assert.equal(ack.status, 404);
+      const stored = await prisma().osInternalNotification.findUnique({ where: { id: noticeId } });
+      assert.equal(stored?.recipientMemberId, m.owner.member.id);
+      assert.equal(stored?.acknowledgedAt, null);
+      assert.equal(stored?.resolvedAt, null);
+
+      const current = await get('newOwner', '/notifications');
+      assert.equal(current.status, 200, JSON.stringify(current.body));
+      const moved = current.body.items.filter(
+        (item: { source: { recordId: string }; kind: string }) =>
+          item.source.recordId === conversation.id && item.kind === 'customer_attention',
+      );
+      assert.equal(moved.length, 1);
+      assert.notEqual(moved[0].id, noticeId);
+      assert.equal(moved[0].title, 'Conversación sin asignar');
+
+      const again = await get('owner', '/notifications');
+      assert.equal(
+        again.body.items.some((item: { source: { recordId: string } }) => item.source.recordId === conversation.id),
+        false,
+      );
+      const foreign = await get('foreignOwner', '/notifications', orgB.id);
+      assert.equal(
+        foreign.body.items.some((item: { source: { recordId: string } }) => item.source.recordId === conversation.id),
+        false,
+      );
+      const history = await prisma().osInternalNotification.findMany({
+        where: { organizationId: orgA.id, sourceRecordId: conversation.id, kind: 'customer_attention' },
+      });
+      assert.equal(history.length, 2);
+    } finally {
+      await prisma().osCommercialAccount.update({
+        where: { id: account.id },
+        data: { ownerMemberId: m.owner.member.id },
+      });
+      await prisma().osInternalNotification.deleteMany({
+        where: { organizationId: orgA.id, sourceRecordId: conversation.id },
+      });
+    }
+  });
+
   it('reassignment: previous owner and stale coverage lose access, new owner gains it, author stays denied', async () => {
     const coverage = await prisma().osCustomerCoverageGrant.create({
       data: {

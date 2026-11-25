@@ -20,7 +20,9 @@ import { getOsPrisma, type PrismaOsCommitmentStore } from '@isalwa/os-database';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import {
   CommitmentReadAuthorizer,
+  CONVERSATION_COVERAGE_READ_ACTIONS,
   buildQueryContext,
+  canReadCustomer,
   type CustomerVisibilityLookup,
   type MemberQueryStorePort,
 } from '@isalwa/os-query';
@@ -161,6 +163,99 @@ export class NotificationsController {
     }
   }
 
+  /**
+   * A conversation notice stays with the person who is accountable now.
+   * Reassignment does not delete the earlier row. The current account owner receives
+   * the attention notice, and a recipient who can no longer read the conversation
+   * no longer sees it as open work.
+   */
+  private async syncConversationOwnerNotices(
+    prisma: OsPrisma,
+    organizationId: string,
+    memberId: string,
+  ): Promise<void> {
+    const accounts = await prisma.osCommercialAccount.findMany({
+      where: { organizationId, ownerMemberId: memberId, status: 'active' },
+      select: { partyId: true },
+    });
+    if (accounts.length === 0) return;
+    const partyIds = accounts.map((account) => account.partyId);
+    const conversations = await prisma.osCustomerConversation.findMany({
+      where: { organizationId, customerId: { in: partyIds } },
+      select: { id: true, customerId: true },
+    });
+    if (conversations.length === 0) return;
+    const conversationIds = conversations.map((conversation) => conversation.id);
+    const existing = await prisma.osInternalNotification.findMany({
+      where: {
+        organizationId,
+        sourceRecordType: 'conversation',
+        sourceRecordId: { in: conversationIds },
+        kind: 'customer_attention',
+      },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    });
+    const pending = conversations.flatMap((conversation) => {
+      const notices = existing.filter((notice) => notice.sourceRecordId === conversation.id);
+      if (notices.length === 0) return [];
+      const openForOwner = notices.some(
+        (notice) => notice.recipientMemberId === memberId && notice.resolvedAt === null,
+      );
+      const openForSomeoneElse = notices.find(
+        (notice) => notice.recipientMemberId !== memberId && notice.resolvedAt === null,
+      );
+      if (openForOwner || !openForSomeoneElse) return [];
+      return [
+        {
+          id: createId(),
+          organizationId,
+          recipientMemberId: memberId,
+          kind: 'customer_attention' as const,
+          dedupKey: `customer_attention:conversation:${conversation.id}`,
+          title: openForSomeoneElse.title,
+          body: openForSomeoneElse.body,
+          sourceRecordType: 'conversation' as const,
+          sourceRecordId: conversation.id,
+          partyId: conversation.customerId,
+          channel: 'internal' as const,
+        },
+      ];
+    });
+    if (pending.length > 0) {
+      await prisma.osInternalNotification.createMany({ data: pending, skipDuplicates: true });
+    }
+  }
+
+  private async readableConversationIds(
+    session: Awaited<ReturnType<typeof resolveSession>>,
+    prisma: OsPrisma,
+    conversationIds: readonly string[],
+  ): Promise<Set<string>> {
+    const readable = new Set<string>();
+    if (conversationIds.length === 0) return readable;
+    const conversations = await prisma.osCustomerConversation.findMany({
+      where: { organizationId: session.organizationId, id: { in: [...conversationIds] } },
+      select: { id: true, customerId: true },
+    });
+    const ctx = await buildQueryContext(session, this.workforceStore);
+    const partyReadable = new Map<string, boolean>();
+    for (const conversation of conversations) {
+      let allowed = partyReadable.get(conversation.customerId);
+      if (allowed === undefined) {
+        allowed = await canReadCustomer({
+          ctx,
+          partyId: conversation.customerId,
+          lookup: this.customerVisibility,
+          directReports: this.directReports,
+          coverageActions: CONVERSATION_COVERAGE_READ_ACTIONS,
+        });
+        partyReadable.set(conversation.customerId, allowed);
+      }
+      if (allowed) readable.add(conversation.id);
+    }
+    return readable;
+  }
+
   @Get()
   async list(@Query('limit') limit: string | undefined, @Req() req: Request): Promise<{ items: InternalNotification[] }> {
     try {
@@ -168,6 +263,7 @@ export class NotificationsController {
       const prisma = this.prisma();
       const asOf = new Date();
       await this.syncCommitmentNotices(prisma, session.organizationId, session.actorMemberId, asOf);
+      await this.syncConversationOwnerNotices(prisma, session.organizationId, session.actorMemberId);
 
       const take = Math.min(Math.max(limit ? parseInt(limit, 10) || LIST_LIMIT : LIST_LIMIT, 1), 100);
       const since = new Date(asOf.getTime() - RESOLVED_VISIBLE_DAYS * 86_400_000);
@@ -197,7 +293,15 @@ export class NotificationsController {
           if (await reader.canRead(commitment as never)) readable.add(commitment.id);
         }
       }
-      const visible = rows.filter((r) => r.sourceRecordType !== 'commitment' || readable.has(r.sourceRecordId));
+      const conversationIds = [
+        ...new Set(rows.filter((r) => r.sourceRecordType === 'conversation').map((r) => r.sourceRecordId)),
+      ];
+      const readableConversations = await this.readableConversationIds(session, prisma, conversationIds);
+      const visible = rows.filter((r) => {
+        if (r.sourceRecordType === 'commitment') return readable.has(r.sourceRecordId);
+        if (r.sourceRecordType === 'conversation') return readableConversations.has(r.sourceRecordId);
+        return true;
+      });
       return { items: visible.map(toNotice) };
     } catch (err) {
       throw paymentHttpError(err);
@@ -233,10 +337,16 @@ export class NotificationsController {
         recipientMemberId: session.actorMemberId,
       };
       // First stamp wins; a repeat keeps the original time.
-      await prisma.osInternalNotification.updateMany({ where: { ...where, [field]: null }, data: { [field]: new Date() } });
       const row = await prisma.osInternalNotification.findFirst({ where });
       if (!row) throw httpError(HttpStatus.NOT_FOUND, 'NOT_FOUND');
-      return { item: toNotice(row) };
+      if (row.sourceRecordType === 'conversation') {
+        const readableConversations = await this.readableConversationIds(session, prisma, [row.sourceRecordId]);
+        if (!readableConversations.has(row.sourceRecordId)) throw httpError(HttpStatus.NOT_FOUND, 'NOT_FOUND');
+      }
+      await prisma.osInternalNotification.updateMany({ where: { ...where, [field]: null }, data: { [field]: new Date() } });
+      const stamped = await prisma.osInternalNotification.findFirst({ where });
+      if (!stamped) throw httpError(HttpStatus.NOT_FOUND, 'NOT_FOUND');
+      return { item: toNotice(stamped) };
     } catch (err) {
       throw paymentHttpError(err);
     }

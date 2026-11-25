@@ -1,34 +1,18 @@
 'use client';
 
-import { useState } from 'react';
 import { EmptyState, Panel, SectionHeader, StatusPill, Timeline } from '@isalwa/ui';
 import { CoordinationItemCard } from '@/components/coordination/coordination-item-card';
+import { CoordinationDecisionForm } from '@/components/coordination/coordination-decision-form';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import type { CoordinationPageModel } from '@/lib/coordination/page-model';
-import {
-  COORDINATION_DECISION_CAPABILITY,
-  type CoordinationLedger,
-  type RecordedCoordinationDecision,
-} from '@isalwa/os-contracts';
 import { formatTimestamp } from '@/lib/commercial/labels';
 
 export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
-  const [ledger, setLedger] = useState<CoordinationLedger>(model.ledger);
-  const session = {
-    organizationId: model.organizationId,
-    actorMemberId: model.actorMemberId,
-    actorLabel: model.actorLabel,
-    grantedCapabilities: model.canRecord ? [COORDINATION_DECISION_CAPABILITY] : [],
-  };
-  const own = ledger.decisions.filter((row) => row.organizationId === model.organizationId);
+  const own = model.ledger.decisions.filter((row) => row.organizationId === model.organizationId);
   const resolvedIds = new Set(
     own.filter((row) => row.kind === 'resolved' && row.resolvesDecisionId).map((row) => row.resolvesDecisionId),
   );
   const openDecisions = own.filter((row) => row.kind === 'recorded' && !resolvedIds.has(row.id));
-
-  function onRecorded(result: RecordedCoordinationDecision) {
-    setLedger(result.ledger);
-  }
 
   return (
     <OpsDeskSurface className="space-y-6">
@@ -47,7 +31,8 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
           }
         />
         <p className="mb-6 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Coordinación aún no registra decisiones operativas de forma persistente.
+          Las decisiones se guardan en la organización. No se inventan asuntos de comité ni se
+          toca producción o pagos desde aquí.
         </p>
         {model.committee.items.length === 0 ? (
           <EmptyState
@@ -61,23 +46,27 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
               <CoordinationItemCard
                 key={item.id}
                 item={item}
-                session={session}
-                ledger={ledger}
                 decisions={own}
-                canRecord={false}
-                onRecorded={onRecorded}
+                canRecord={model.canRecord}
               />
             ))}
           </div>
+        )}
+        {model.canRecord ? (
+          <div className="mt-6">
+            <SectionHeader kicker="Registro" title="Registrar decisión" />
+            <CoordinationDecisionForm linkedCaseId={null} mode="record" />
+          </div>
+        ) : (
+          <p className="mt-6 text-sm text-[var(--isalwa-slate)]">
+            Registrar una decisión exige la capacidad asignada. El cargo no la otorga.
+          </p>
         )}
       </Panel>
 
       {own.length > 0 ? (
         <Panel padded>
           <SectionHeader kicker="Historial" title="Decisiones anteriores" />
-          <p className="mb-4 text-sm text-[var(--isalwa-slate)]">
-            Coordinación aún no registra decisiones operativas de forma persistente.
-          </p>
           <Timeline
             items={own.map((row) => ({
               id: row.id,
@@ -93,17 +82,18 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
               body: row.notes,
             }))}
           />
-          {model.canRecord ? (
-            <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
-              Coordinación aún no registra decisiones operativas de forma persistente.
-            </p>
+          {model.canRecord && openDecisions[0] ? (
+            <div className="mt-6">
+              <SectionHeader kicker="Cierre" title="Registrar resolución" />
+              <CoordinationDecisionForm
+                linkedCaseId={openDecisions[0].linkedCaseId}
+                mode="resolve"
+                resolvesDecisionId={openDecisions[0].id}
+              />
+            </div>
           ) : null}
         </Panel>
-      ) : (
-        <p className="text-sm text-[var(--isalwa-slate)]">
-          Coordinación aún no registra decisiones operativas de forma persistente.
-        </p>
-      )}
+      ) : null}
     </OpsDeskSurface>
   );
 }

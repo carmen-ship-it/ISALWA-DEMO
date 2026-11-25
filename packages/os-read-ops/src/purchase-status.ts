@@ -8,7 +8,7 @@
 export const PURCHASE_STATUS_LABELS = {
   solicitado: 'Solicitado',
   cotizandose: 'Cotizándose',
-  pedido_preparandose: 'Pedido y Preparándose',
+  pedido_preparandose: 'Pedido y preparándose',
   entregado: 'Entregado',
   cancelled: 'Cancelado',
 } as const;
@@ -16,7 +16,7 @@ export const PURCHASE_STATUS_LABELS = {
 export const PURCHASE_HAPPY_PATH_LABELS = [
   'Solicitado',
   'Cotizándose',
-  'Pedido y Preparándose',
+  'Pedido y preparándose',
   'Entregado',
 ] as const;
 

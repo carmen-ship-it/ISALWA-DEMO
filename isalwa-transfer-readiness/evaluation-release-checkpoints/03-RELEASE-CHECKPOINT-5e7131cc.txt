@@ -1,0 +1,33 @@
+ISALWA evaluation — Checkpoint 3 RELEASE (frozen live demo)
+Date: 2026-11-17
+Status: FROZEN_LIVE_REAL_APP_EVALUATION
+
+Web SHA:     5e7131ccb0221a9db026a1bc009f1bd2aec95f17
+Web tree:    ee02c37f91bf390708cf2b03d8c9f7f2b0f0367a
+API SHA:     5e7131ccb0221a9db026a1bc009f1bd2aec95f17 (same worktree; apps/os-api dist/main.js on Mac)
+API listen:  127.0.0.1:4001 (Nest + in-process workers)
+Tunnel:      Cloudflare quick tunnel → local :4001 (ephemeral; KEEP-AWAKE)
+DB:          isalwa-os-evaluation-db / eimvhirmaezssnevefly
+Migrations:  45 applied (latest includes conversation attention B5B, commitments T08/T09, payments T07)
+Auth:        isalwa-os-auth-staging / qbpxuywtoycjpitxoblo (NOT isalwa-architect)
+Vercel URL:  https://isalwa-os-web-evaluation.vercel.app
+Vercel project: isalwa-os-web-evaluation
+Mode:        real app (OS_EVALUATION_WALKTHROUGH_ONLY=0); Recorrido = in-app Journey
+Org:         isalwa-eval-demo-v1 (synthetic only)
+
+Shared evaluation login: authorized temporary seat (see access block in ops receipt).
+Prior individual Isa/Álvaro temporary seats: REVOKED (value-free receipt only).
+
+Hosted browser evidence (shared seat): PASS
+  login → /inicio → /clientes → Recorrido (no org/cookie/permission change) → logout
+  direct /clientes requires auth; desktop + 390px Recorrido
+
+PROMOTION POLICY (binding):
+- This Vercel URL is a FROZEN release checkpoint.
+- ct3/v1-repairs may advance locally; it must NEVER auto-update this URL.
+- Every later Vercel update needs: named RC, tests, independent review where required,
+  explicit promotion, and a release receipt.
+- Do not deploy Render-era code or GitHub main.
+- Keep Mac awake + os-api + cloudflared while this demo is needed.
+
+Mac KEEP-AWAKE: ~/.isalwa-secrets/evaluation-real-app-2026-11-17/KEEP-AWAKE-DEMO.txt

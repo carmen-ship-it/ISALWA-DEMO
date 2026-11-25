@@ -13,6 +13,7 @@
   "dependencies": {
     "@isalwa/os-contracts": "workspace:*",
     "@isalwa/os-domain": "workspace:*",
+    "@isalwa/os-purchasing": "workspace:*",
     "@isalwa/providers": "workspace:*",
     "@isalwa/ts-utils": "workspace:*",
     "@isalwa/ui": "workspace:*",

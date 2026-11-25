@@ -175,6 +175,8 @@ describe('Inicio management lens', () => {
     assert.doesNotMatch(lens, /quema.{0,80}pedido|pedido.{0,80}quema/i);
     assert.doesNotMatch(lens, /MetricCard|StatGroup/);
     assert.doesNotMatch(loader, /listOrders|listQuotes|listAttention|payment|centavos/);
+    assert.match(loader, /getAuthenticatedSession/);
+    assert.match(loader, /viewerOrganizationId/);
     assert.match(loader, /recordedExceptionQueryOnBranch\(\)/);
     assert.match(exceptions, /query\.organizationId !== tenant/);
     assert.match(exceptions, /row\.organizationId !== tenant/);

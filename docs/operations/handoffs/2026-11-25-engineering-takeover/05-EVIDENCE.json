@@ -1,0 +1,36 @@
+{
+  "revision": "09cfedfb4842274e521b7b569fd482d0fa3fa9e9",
+  "environment": "disposable-postgres + local os-web:3200 + live os-api 42680:4001",
+  "database": "isalwa_v1_repairs_verify_20261124_disposable",
+  "httpTest": {
+    "file": "apps/os-api/src/spine-canonical.http.test.ts",
+    "result": "9/9 PASS",
+    "createOrder": "canonical os_orders write, not a copied read model"
+  },
+  "ids": {
+    "organizationId": "01M88GGQ6KGDGAK94P2BSRWT32",
+    "ownerMemberId": "01M88GGQ8EGVKYP9ZCRAKBPT91",
+    "partyId": "01M88GGQDBWNM9K6132NCBGYY6",
+    "opportunityId": "01M88GGQFDPCRZBM75CY4AC5XY",
+    "quoteId": "01M88GGQGRQNRE9GKQPHF8KGMC",
+    "quoteNumber": "Q-000001",
+    "orderId": "01M88GGRD0S9AA0TJWGE24DBED",
+    "orderNumber": "O-000001",
+    "orderLineId": "01M88GGRD2CR13Y181A6FD7F5B",
+    "conversationId": "01M88GGR8CZGSKYS3Q9PF50D7P",
+    "commitmentId": "01M88GGRA1NFGP2720QJ02QMQX",
+    "workItemId": "01M88GGRXFVEC0AGRDYFFE501Y",
+    "deliveryNoteId": "01M88GGRZ9TDS6BY2938PZVZK8",
+    "warehouseExitId": "01M88GGS2SGC99MKET7YT433D9",
+    "deliveryId": "01M88GGS511553WSDEYT3SN150",
+    "paymentReportId": "01M88GGS6Z03BPK9EHQ852ZH9N",
+    "allocationId": "01M88GGRVEQCP84JRW0TF4GKTX"
+  },
+  "a1": {
+    "tests": "packages/os-delivery dispatch-ledger + delivery-quantity-cumulative 37/37"
+  },
+  "elapsedNotices": {
+    "status": "IMPLEMENTED + TESTED LOCALLY (unit)",
+    "liveApiReloaded": false
+  }
+}

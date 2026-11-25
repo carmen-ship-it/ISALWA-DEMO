@@ -7,16 +7,23 @@ import {
 } from '@/lib/management/exceptions';
 
 /**
- * Role gate only. Named exception queries are not on this branch,
- * so the lens stays empty rather than inventing a figure.
+ * Role gate + session organization for tenant card matching.
+ * Named exception query bodies are still not on this branch
+ * (`recordedExceptionQueryOnBranch` → null), so the lens stays empty
+ * rather than inventing a figure from commercial lists or finance reads.
  */
 export async function loadInicioManagement(
   client: Pick<OsApiClient, 'getAuthenticatedSession' | 'getMember'>,
 ): Promise<ManagementLensModel> {
-  const roleKeys = await loadActorRoleKeys(client as OsApiClient);
+  const [roleKeys, session] = await Promise.all([
+    loadActorRoleKeys(client as OsApiClient),
+    client.getAuthenticatedSession(),
+  ]);
+  const viewerOrganizationId =
+    typeof session?.organizationId === 'string' ? session.organizationId.trim() || null : null;
   return composeManagementLens({
     roleKeys,
-    viewerOrganizationId: null,
+    viewerOrganizationId,
     query: recordedExceptionQueryOnBranch(),
   });
 }

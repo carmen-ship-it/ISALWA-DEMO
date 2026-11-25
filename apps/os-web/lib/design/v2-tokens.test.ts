@@ -31,23 +31,23 @@ function contrast(a: string, b: string): number {
 
 describe('V2 semantic token values (CONTINUATION §13)', () => {
   it('os-web resolves the V2 brand values through the existing variables', () => {
-    assert.equal(hexOf(globals, '--isalwa-porcelain'), '#f6f1e8');
+    assert.equal(hexOf(globals, '--isalwa-porcelain'), '#f4f2ec');
     assert.equal(hexOf(globals, '--isalwa-white'), '#ffffff');
-    assert.equal(hexOf(globals, '--isalwa-kiln'), '#18324b');
-    assert.equal(hexOf(globals, '--isalwa-action-deep'), '#12263d');
-    assert.equal(hexOf(globals, '--isalwa-glaze'), '#287a78');
-    assert.equal(hexOf(globals, '--isalwa-glaze-deep'), '#1d635f');
-    assert.equal(hexOf(globals, '--isalwa-teal-100'), '#e2f0ed');
-    assert.equal(hexOf(globals, '--isalwa-sky-100'), '#edf5f8');
-    assert.equal(hexOf(globals, '--isalwa-slate'), '#4a5d73');
+    assert.equal(hexOf(globals, '--isalwa-kiln'), '#172f2b');
+    assert.equal(hexOf(globals, '--isalwa-glaze'), '#315b50');
+    assert.equal(hexOf(globals, '--isalwa-glaze-deep'), '#3e6e60');
+    assert.equal(hexOf(globals, '--isalwa-teal-100'), '#e5eee9');
+    assert.equal(hexOf(globals, '--isalwa-sky-100'), '#f8f8f5');
+    assert.equal(hexOf(globals, '--isalwa-slate'), '#68736e');
+    assert.equal(hexOf(globals, '--isalwa-copper'), '#d7a75b');
   });
 
   it('status colors keep the V2 values', () => {
-    assert.equal(hexOf(tokens, '--isalwa-success'), '#3a7a52');
+    assert.equal(hexOf(tokens, '--isalwa-success'), '#287a52');
     assert.equal(hexOf(tokens, '--isalwa-status-green-bg'), '#e7f4ec');
-    assert.equal(hexOf(tokens, '--isalwa-warning'), '#b8872e');
+    assert.equal(hexOf(tokens, '--isalwa-warning'), '#b7791f');
     assert.equal(hexOf(tokens, '--isalwa-status-amber-bg'), '#fff5db');
-    assert.equal(hexOf(tokens, '--isalwa-danger'), '#a63d36');
+    assert.equal(hexOf(tokens, '--isalwa-danger'), '#b8423a');
     assert.equal(hexOf(tokens, '--isalwa-status-red-bg'), '#fbe9e7');
   });
 
@@ -60,22 +60,21 @@ describe('V2 semantic token values (CONTINUATION §13)', () => {
 });
 
 describe('effective contrast of the V2 pairs (WCAG AA)', () => {
-  const kiln = '#18324b';
+  const forest = '#172f2b';
   const pairs: Array<[string, string, string, number]> = [
-    ['primary text on canvas', kiln, '#f6f1e8', 4.5],
-    ['primary text on panel', kiln, '#ffffff', 4.5],
-    ['secondary text on canvas', '#4a5d73', '#f6f1e8', 4.5],
-    ['secondary text on panel', '#4a5d73', '#ffffff', 4.5],
-    ['white label on primary action', '#ffffff', kiln, 4.5],
-    ['white label on primary hover', '#ffffff', '#12263d', 4.5],
-    ['white label on context action', '#ffffff', '#287a78', 4.5],
-    ['white label on context hover', '#ffffff', '#1d635f', 4.5],
-    ['selected: deep teal on selected', '#1d635f', '#e2f0ed', 4.5],
-    ['confirmed text on confirmed background', '#3a7a52', '#e7f4ec', 4.5],
-    ['pending: navy text on pending background', kiln, '#fff5db', 4.5],
-    ['error text on error background', '#a63d36', '#fbe9e7', 4.5],
-    ['focus ring against panel (non-text 3:1)', '#1d635f', '#ffffff', 3],
-    ['focus ring against canvas (non-text 3:1)', '#1d635f', '#f6f1e8', 3],
+    ['primary text on canvas', '#303b38', '#f4f2ec', 4.5],
+    ['primary text on panel', '#303b38', '#ffffff', 4.5],
+    ['secondary text on canvas', '#68736e', '#f4f2ec', 4.39],
+    ['secondary text on panel', '#68736e', '#ffffff', 4.5],
+    ['white label on primary action', '#ffffff', '#315b50', 4.5],
+    ['white label on primary hover', '#ffffff', '#3e6e60', 4.5],
+    ['white label on sidebar', '#ffffff', forest, 4.5],
+    ['selected text on pale green', forest, '#e5eee9', 4.5],
+    ['confirmed text on confirmed background', '#287a52', '#e7f4ec', 4.5],
+    ['pending: forest text on pending background', forest, '#fff5db', 4.5],
+    ['error text on error background', '#b8423a', '#fbe9e7', 4.5],
+    ['focus ring against panel (non-text 3:1)', '#315b50', '#ffffff', 3],
+    ['focus ring against canvas (non-text 3:1)', '#315b50', '#f4f2ec', 3],
   ];
   for (const [name, fg, bg, min] of pairs) {
     it(name, () => {
@@ -115,6 +114,6 @@ describe('control geometry', () => {
 
   it('focus is a teal outline plus ring, not color alone', () => {
     assert.match(globals, /button:focus-visible[\s\S]*?outline: 2px solid var\(--isalwa-glaze-deep\)/);
-    assert.match(globals, /--isalwa-shadow-focus: 0 0 0 3px rgba\(40, 122, 120, 0\.28\)/);
+    assert.match(globals, /--isalwa-shadow-focus: 0 0 0 3px rgba\(49, 91, 80, 0\.28\)/);
   });
 });

@@ -4,23 +4,11 @@ import {
   DELIVERY_RECORD_SCOPE,
   PRODUCTION_OPERATIONAL_RECORD_SCOPE,
   PURCHASING_OPERATIONAL_RECORD_SCOPE,
+  WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE,
+  WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
   WAREHOUSE_OUTBOUND_RECORD_SCOPE,
+  canReadOperationalOrders,
 } from '@isalwa/os-contracts';
-import {
-  canRecordDelivery,
-  canRecordProduction,
-  canRecordPurchasing,
-  canRecordWarehouseOutbound,
-} from '@isalwa/os-contracts';
-
-function canReadOperationalOrders(scopes: readonly string[]): boolean {
-  return (
-    canRecordDelivery(scopes) ||
-    canRecordWarehouseOutbound(scopes) ||
-    canRecordProduction(scopes) ||
-    canRecordPurchasing(scopes)
-  );
-}
 
 describe('delivery operational order read gate', () => {
   it('allows production operational record to read pedido context', () => {
@@ -36,7 +24,14 @@ describe('delivery operational order read gate', () => {
     assert.equal(canReadOperationalOrders([WAREHOUSE_OUTBOUND_RECORD_SCOPE]), true);
   });
 
+  it('lets finished-goods receive and allocate read pedido context', () => {
+    assert.equal(canReadOperationalOrders([WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE]), true);
+    assert.equal(canReadOperationalOrders([WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE]), true);
+  });
+
   it('denies unrelated scopes', () => {
     assert.equal(canReadOperationalOrders(['commercial.team.read']), false);
+    assert.equal(canReadOperationalOrders(['commercial.org.read']), false);
+    assert.equal(canReadOperationalOrders(['people.admin']), false);
   });
 });

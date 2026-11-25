@@ -25,10 +25,28 @@ export const NOTIFICATION_KINDS = [
   'payment_outcome',
   /** T08: a commitment was given to this member (created for them or handed over). */
   'commitment_assigned',
+  /** One accountable owner took an unassigned conversation. Internal only. */
+  'conversation_assigned',
+  /** V2: 60 elapsed minutes before a dated commitment. Not business hours. */
+  'commitment_due_soon',
+  /**
+   * V2: waiting_customer with no new inbound for 48 elapsed hours.
+   * Exact label: 48 horas transcurridas. Does not claim business days.
+   */
+  'follow_up_elapsed',
+  /**
+   * V2: a new human request unclaimed for 15 elapsed minutes.
+   * Notifies the assigned manager once. No invented SLA hours.
+   */
+  'conversation_unclaimed',
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
-export const COMMITMENT_NOTICE_KINDS = ['commitment_due', 'commitment_overdue'] as const;
+export const COMMITMENT_NOTICE_KINDS = [
+  'commitment_due',
+  'commitment_overdue',
+  'commitment_due_soon',
+] as const;
 export type CommitmentNoticeKind = (typeof COMMITMENT_NOTICE_KINDS)[number];
 
 export const NOTIFICATION_READ_STATES = ['unread', 'read'] as const;
@@ -51,6 +69,7 @@ export const NOTIFICATION_SOURCE_TYPES = [
   'opportunity',
   'organization_member',
   'payment_report',
+  'conversation',
 ] as const;
 export type NotificationSourceType = (typeof NOTIFICATION_SOURCE_TYPES)[number];
 
@@ -262,6 +281,22 @@ export function commitmentNoticeKind(state: CommitmentState): CommitmentNoticeKi
   if (state === 'due_today') return 'commitment_due';
   if (state === 'overdue') return 'commitment_overdue';
   return null;
+}
+
+/** Elapsed-time windows. No business calendar is approved; do not label these as días hábiles. */
+export const FOLLOW_UP_ELAPSED_MS = 48 * 60 * 60 * 1000;
+export const COMMITMENT_DUE_SOON_MS = 60 * 60 * 1000;
+export const CONVERSATION_UNCLAIMED_MS = 15 * 60 * 1000;
+export const FOLLOW_UP_ELAPSED_LABEL = '48 horas transcurridas';
+
+export function elapsedAtLeast(from: Date, asOf: Date, windowMs: number): boolean {
+  return asOf.getTime() - from.getTime() >= windowMs;
+}
+
+/** True when the due instant is still in the future and within the 60-minute elapsed window. */
+export function commitmentIsDueSoon(dueAt: Date, asOf: Date, windowMs = COMMITMENT_DUE_SOON_MS): boolean {
+  const remaining = dueAt.getTime() - asOf.getTime();
+  return remaining > 0 && remaining <= windowMs;
 }
 
 export function commitmentNoticeStillApplies(

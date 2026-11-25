@@ -192,7 +192,7 @@ export function governAdvisorQuote(input: {
 export const PENDING_APPROVAL_COPY =
   'El precio cotizado está por debajo del precio de referencia. Queda pendiente de aprobación.';
 export const NO_GOVERNED_PRICE_COPY =
-  'Sin precio de origen. La cotización no se bloquea.';
+  'Precio por confirmar. La cotización no se bloquea.';
 export const REFERENCE_PRICE_LABEL = 'Precio de referencia';
 
 export function formatDescriptionSnapshot(name: string, detail: string): string {

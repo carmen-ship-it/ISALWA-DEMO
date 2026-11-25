@@ -8,39 +8,37 @@ body {
 }
 
 /*
- * Isabela command-center brand — scoped to os-web only.
- * Porcelain = canvas; Navy = structure; Teal = active; Sky = context;
- * Amber/Red = semantic only. No brand font file in-repo.
+ * ISALWA commercial shell — scoped to os-web.
+ * Deep forest structure, primary green actions, warm canvas.
+ * Existing token names stay; values are the approved palette.
  */
 :root {
-  --isalwa-kiln: #18324b;
+  --isalwa-kiln: #172f2b;
   --isalwa-navy-950: var(--isalwa-kiln);
-  --isalwa-slate: #4a5d73;
-  --isalwa-glaze: #287a78;
-  --isalwa-glaze-deep: #1d635f;
-  --isalwa-porcelain: #f6f1e8;
+  --isalwa-slate: #68736e;
+  --isalwa-glaze: #315b50;
+  --isalwa-glaze-deep: #3e6e60;
+  --isalwa-porcelain: #f4f2ec;
   --isalwa-white: #ffffff;
-  --isalwa-sky-100: #edf5f8;
-  --isalwa-sky-200: #d9eaf2;
-  --isalwa-teal-100: #e2f0ed;
+  --isalwa-sky-100: #f8f8f5;
+  --isalwa-sky-200: #e3e6e1;
+  --isalwa-teal-100: #e5eee9;
   --isalwa-mist: var(--isalwa-sky-200);
-  --isalwa-info: #3a5f82;
-  --isalwa-action: var(--isalwa-kiln);
-  --isalwa-action-deep: #12263d;
-  /* Quiet porcelain canvas — navy/teal/sky wash only (no copper hero). */
+  --isalwa-info: #356a9a;
+  --isalwa-copper: #d7a75b;
+  --isalwa-success: #287a52;
+  --isalwa-warning: #b7791f;
+  --isalwa-danger: #b8423a;
+  --isalwa-action: var(--isalwa-glaze);
+  --isalwa-action-deep: var(--isalwa-glaze-deep);
   --isalwa-surface-canvas: var(--isalwa-porcelain);
-  --isalwa-surface-hero: linear-gradient(
-    165deg,
-    color-mix(in srgb, var(--isalwa-sky-100) 70%, var(--isalwa-porcelain)) 0%,
-    var(--isalwa-porcelain) 52%,
-    color-mix(in srgb, var(--isalwa-teal-100) 45%, var(--isalwa-porcelain)) 100%
-  );
+  --isalwa-surface-hero: var(--isalwa-porcelain);
   --isalwa-surface-app: var(--isalwa-surface-hero);
-  --isalwa-shadow-focus: 0 0 0 3px rgba(40, 122, 120, 0.28);
+  --isalwa-shadow-focus: 0 0 0 3px rgba(49, 91, 80, 0.28);
   /* Batch 8: 44px controls, 16px field text. */
   --isalwa-control-height: 44px;
   --isalwa-field-font-size: var(--isalwa-text-base);
-  /* Primary = filled navy; secondary = navy border; contextual = teal ops. */
+  /* Primary = filled green; secondary = forest border; contextual = hover green. */
   --isalwa-btn-primary-bg: var(--isalwa-action);
   --isalwa-btn-primary-bg-hover: var(--isalwa-action-deep);
   --isalwa-btn-primary-fg: var(--isalwa-white);
@@ -65,7 +63,7 @@ body {
   background-color: var(--isalwa-surface-canvas);
   background-image: var(--isalwa-surface-app);
   background-attachment: fixed;
-  color: var(--isalwa-kiln);
+  color: #303b38;
   font-family: var(--isalwa-font-sans);
   font-size: var(--isalwa-text-base);
   line-height: 1.5;

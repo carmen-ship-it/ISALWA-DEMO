@@ -579,6 +579,8 @@ describe('warehouse surface copy', () => {
     assert.equal(page.includes('resolveWarehousePageAccess'), true);
     assert.equal(page.includes('loadWarehousePedidosFromOrders'), true);
     assert.equal(page.includes('WarehousePostSaleDesk'), true);
+    assert.equal(page.includes('allocateFinishedGoodsAction'), true);
+    assert.equal(page.includes('getWarehouseFinishedGoodsDesk'), true);
     assert.equal(page.includes('loadPostSalePedidos'), true);
     assert.equal(page.includes('pedidos: []'), false);
     assert.equal(page.includes('schema.prisma'), false);

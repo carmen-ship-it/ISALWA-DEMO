@@ -43,16 +43,16 @@ function ShellBrandHomeLink({ collapsed }: { collapsed: boolean }) {
       {collapsed ? (
         <p
           aria-label={t('app.name')}
-          className="flex h-10 items-center justify-center font-[family-name:var(--isalwa-font-display)] text-2xl italic leading-none text-[var(--isalwa-kiln)]"
+          className="flex h-10 items-center justify-center font-[family-name:var(--isalwa-font-display)] text-2xl italic leading-none text-white"
         >
           I
         </p>
       ) : (
         <>
-          <p className="font-[family-name:var(--isalwa-font-display)] text-[1.65rem] italic leading-none text-[var(--isalwa-kiln)]">
+          <p className="font-[family-name:var(--isalwa-font-display)] text-[1.65rem] italic leading-none text-white">
             {t('app.name')}
           </p>
-          <p className="mt-3 max-w-[14rem] text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          <p className="mt-3 max-w-[14rem] text-sm leading-relaxed text-white/75">
             {t('app.tagline')}
           </p>
         </>
@@ -200,15 +200,15 @@ export function AppShell({
       <div
         className={cx(
           'h-svh overflow-hidden bg-[var(--isalwa-surface-canvas)] lg:grid',
-          railCollapsed ? 'lg:grid-cols-[4.5rem_1fr]' : 'lg:grid-cols-[17.5rem_1fr]',
+          railCollapsed ? 'lg:grid-cols-[4.5rem_1fr]' : 'lg:grid-cols-[15.5rem_1fr]',
         )}
       >
         {/* Desktop rail — navy/teal structure on porcelain canvas. Collapses to icon rail ≥ lg only. */}
         <aside
           id="desktop-nav-rail"
           className={cx(
-            'hidden border-r border-[color-mix(in_srgb,var(--isalwa-kiln)_28%,var(--isalwa-glaze))] bg-[color-mix(in_srgb,var(--isalwa-kiln)_12%,var(--isalwa-sky-100))] lg:flex lg:h-svh lg:flex-col lg:overflow-y-auto',
-            railCollapsed ? 'lg:w-[4.5rem]' : 'lg:w-[17.5rem]',
+            'hidden border-r border-white/10 bg-[var(--isalwa-kiln)] text-white lg:flex lg:h-svh lg:flex-col lg:overflow-y-auto',
+            railCollapsed ? 'lg:w-[4.5rem]' : 'lg:w-[15.5rem]',
           )}
           data-sidebar={railCollapsed ? 'collapsed' : 'expanded'}
         >
@@ -221,18 +221,19 @@ export function AppShell({
               grantedScopes={grantedScopes}
               capabilities={capabilities}
               collapsed={railCollapsed}
+              inverse
             />
           </div>
           <div
             className={cx(
-              'mt-auto border-t border-[var(--isalwa-mist)] pb-[max(0.75rem,env(safe-area-inset-bottom))]',
+              'mt-auto border-t border-white/10 pb-[max(0.75rem,env(safe-area-inset-bottom))]',
               railCollapsed ? 'px-1.5 py-3' : 'px-4 py-3',
             )}
           >
             <button
               type="button"
               className={cx(
-                'isalwa-t-fast inline-flex h-10 w-full items-center rounded-[var(--isalwa-radius-control)] text-[var(--isalwa-kiln)] outline-none hover:bg-[var(--isalwa-white)] focus-visible:shadow-[var(--isalwa-shadow-focus)]',
+                'isalwa-t-fast inline-flex h-10 w-full items-center rounded-[var(--isalwa-radius-control)] text-white outline-none hover:bg-white/10 focus-visible:shadow-[var(--isalwa-shadow-focus)]',
                 railCollapsed ? 'justify-center px-0' : 'justify-start gap-2 px-3.5 text-sm font-medium',
               )}
               aria-expanded={!railCollapsed}

@@ -128,20 +128,24 @@ export async function loadCliente360(
       ),
       fetchCommercialSection(() => client.listPartyTimeline(partyId, { limit: 20 })),
       fetchCommercialSection(async () => {
-        const partyWork = await client.listWorkItems({
-          subjectType: 'party',
-          subjectId: partyId,
-          status: 'open',
-          limit: 5,
-        });
+        const listRelatedWork = (
+          subjectType: 'party' | 'commercial_account',
+          subjectId: string,
+        ) => {
+          const base = { subjectType, subjectId, status: 'open' as const, limit: 5 };
+          return listPartyScoped(
+            () => client.listWorkItems({ ...base, visibility: 'org' }),
+            () =>
+              listPartyScoped(
+                () => client.listWorkItems({ ...base, visibility: 'team' }),
+                () => client.listWorkItems(base),
+              ),
+          );
+        };
+        const partyWork = await listRelatedWork('party', partyId);
         if (!commercialAccountId) return partyWork;
         try {
-          const accountWork = await client.listWorkItems({
-            subjectType: 'commercial_account',
-            subjectId: commercialAccountId,
-            status: 'open',
-            limit: 5,
-          });
+          const accountWork = await listRelatedWork('commercial_account', commercialAccountId);
           return mergeRelatedWork(partyWork, accountWork);
         } catch {
           return partyWork;

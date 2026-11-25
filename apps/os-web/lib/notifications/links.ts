@@ -10,6 +10,7 @@ const LINK_LABELS: Record<NotificationSourceType, string> = {
   opportunity: 'Ver oportunidad',
   commitment: 'Ver compromiso',
   payment_report: 'Ver pagos',
+  conversation: 'Ver conversación',
 };
 
 /** Only routes that already exist. A missing route is not a card. */
@@ -42,6 +43,8 @@ export function notificationRecordHref(source: NotificationSource): string | nul
       return `/compromisos/${encodeURIComponent(id)}`;
     case 'payment_report':
       return '/finanzas';
+    case 'conversation':
+      return `/conversaciones?c=${encodeURIComponent(id)}`;
     default:
       return null;
   }

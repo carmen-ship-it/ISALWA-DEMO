@@ -1,0 +1,17 @@
+Recorrido dual-layer local browser observations (disposable DB :54329 only)
+Date: 2026-11-17
+
+PASS (earlier session while API/web healthy):
+- desktop 1440: Entrar (desarrollo) available; after login reached /inicio
+- desktop: “Ver recorrido completo” control visible=true (data-shell-tour-full)
+- desktop: intro-welcome dialog intercepted first Recorrido click (pointer events)
+- Not LIVE JOURNEY VERIFIED
+
+BLOCKED (later attempts):
+- POST /v1/dev/bootstrap → 500 PrismaClientKnownRequestError on disposable DB
+- Login stuck on /login with honest error: session could not be created / is os-api running
+- Full step 1→20 / Escape / 390px Recorrido interaction not completed this pass
+- cursor-ide-browser / Playwright MCP could not reach 127.0.0.1 from their sandbox
+
+Residual dependency (not a Recorrido copy defect):
+- Disposable DB bootstrap/schema state must be repaired before Isa/Álvaro-like local seats can open Recorrido in browser again

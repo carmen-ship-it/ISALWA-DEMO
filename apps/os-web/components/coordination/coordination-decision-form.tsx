@@ -1,38 +1,31 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, useTransition, type FormEvent } from 'react';
 import { Button } from '@isalwa/ui';
 import { OPS_STICKY_ACTION_CLASS } from '@/components/production/ops-desk-surface';
 import { COORDINATION_RECORD_BUTTON } from '@/lib/coordination/page-model';
 import {
-  recordCoordinationDecision,
-  resolveCoordinationDecision,
-  type CoordinationLedger,
-  type CoordinationResult,
-  type CoordinationSession,
-  type RecordedCoordinationDecision,
-} from '@isalwa/os-contracts';
+  recordCoordinationDecisionAction,
+  resolveCoordinationDecisionAction,
+} from '@/lib/coordination/actions';
 
 const fieldClass =
   'mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 type CoordinationDecisionFormProps = {
-  session: CoordinationSession;
-  ledger: CoordinationLedger;
   linkedCaseId: string | null;
   mode: 'record' | 'resolve';
   resolvesDecisionId?: string;
-  onRecorded: (result: RecordedCoordinationDecision) => void;
 };
 
 export function CoordinationDecisionForm({
-  session,
-  ledger,
   linkedCaseId,
   mode,
   resolvesDecisionId,
-  onRecorded,
 }: CoordinationDecisionFormProps) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
   const [decision, setDecision] = useState('');
   const [ownerLabel, setOwnerLabel] = useState('');
   const [dueAt, setDueAt] = useState('');
@@ -41,33 +34,32 @@ export function CoordinationDecisionForm({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const occurredAt = new Date().toISOString();
-    const id = crypto.randomUUID();
-    const shared = {
-      session,
-      ledger,
-      id,
-      decision,
-      ownerLabel,
-      dueAt,
-      occurredAt,
-      linkedCaseId,
-      notes,
-    };
-    const result: CoordinationResult<RecordedCoordinationDecision> =
-      mode === 'resolve' && resolvesDecisionId
-        ? resolveCoordinationDecision({ ...shared, resolvesDecisionId })
-        : recordCoordinationDecision(shared);
-    if (!result.ok) {
-      setReason(denialCopy(result.reason));
-      return;
-    }
-    setDecision('');
-    setOwnerLabel('');
-    setDueAt('');
-    setNotes('');
     setReason(null);
-    onRecorded(result.value);
+    startTransition(async () => {
+      const payload = {
+        decision,
+        ownerLabel: ownerLabel.trim() || null,
+        dueAt: dueAt.trim() || null,
+        notes: notes.trim() || null,
+        linkedCaseId,
+      };
+      const result =
+        mode === 'resolve' && resolvesDecisionId
+          ? await resolveCoordinationDecisionAction({
+              ...payload,
+              resolvesDecisionId,
+            })
+          : await recordCoordinationDecisionAction(payload);
+      if (!result.ok) {
+        setReason(result.error);
+        return;
+      }
+      setDecision('');
+      setOwnerLabel('');
+      setDueAt('');
+      setNotes('');
+      router.refresh();
+    });
   }
 
   return (
@@ -82,6 +74,7 @@ export function CoordinationDecisionForm({
           value={decision}
           onChange={(event) => setDecision(event.target.value)}
           required
+          disabled={pending}
         />
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -94,6 +87,7 @@ export function CoordinationDecisionForm({
             className={fieldClass}
             value={ownerLabel}
             onChange={(event) => setOwnerLabel(event.target.value)}
+            disabled={pending}
           />
         </div>
         <div>
@@ -102,10 +96,11 @@ export function CoordinationDecisionForm({
           </label>
           <input
             id={`${mode}-due-${linkedCaseId ?? 'page'}`}
-            className={fieldClass}
             type="date"
+            className={fieldClass}
             value={dueAt}
             onChange={(event) => setDueAt(event.target.value)}
+            disabled={pending}
           />
         </div>
       </div>
@@ -119,24 +114,23 @@ export function CoordinationDecisionForm({
           rows={3}
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
+          disabled={pending}
         />
       </div>
-      {linkedCaseId ? (
-        <p className="text-xs text-[var(--isalwa-slate)]">Caso vinculado: {linkedCaseId}</p>
+      {reason ? (
+        <p className="text-sm text-[var(--isalwa-danger)]" role="alert">
+          {reason}
+        </p>
       ) : null}
-      {reason ? <p className="text-sm text-[var(--isalwa-danger)]">{reason}</p> : null}
-      <div className={`${OPS_STICKY_ACTION_CLASS} -mx-1 px-1 py-3`}>
-        <Button type="submit">{mode === 'resolve' ? 'Registrar resolución' : COORDINATION_RECORD_BUTTON}</Button>
+      <div className={OPS_STICKY_ACTION_CLASS}>
+        <Button type="submit" disabled={pending}>
+          {pending
+            ? 'Guardando…'
+            : mode === 'resolve'
+              ? 'Registrar resolución'
+              : COORDINATION_RECORD_BUTTON}
+        </Button>
       </div>
     </form>
   );
-}
-
-function denialCopy(reason: string): string {
-  if (reason === 'unauthorized_role') return 'El cargo no otorga este permiso.';
-  if (reason === 'missing_session_org') return 'Falta la organización de la sesión.';
-  if (reason === 'cross_tenant') return 'Esa decisión es de otra organización.';
-  if (reason === 'decision_required') return 'Escriba la decisión.';
-  if (reason === 'actor_required') return 'Falta quién registra.';
-  return 'No se pudo registrar.';
 }

@@ -173,6 +173,8 @@ describe('conversation model', () => {
     assert.equal(conversation.reason, 'Consulta por plazo');
     assert.equal(conversation.assignedMemberId, 'member-1');
     assert.equal(conversation.assignedLabel, 'Ana');
+    assert.equal(conversation.responsible?.memberId, 'member-1');
+    assert.equal(conversation.responsible?.displayName, 'Ana');
     assert.equal(conversation.nextStepCommitmentId, 'commitment-1');
   });
 

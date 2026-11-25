@@ -50,20 +50,25 @@ export function mapOrderDetailToWarehousePedidos(
 
 /**
  * Loads open tenant orders and their line snapshots for Almacén selection.
+ * Prefers GET /delivery-ops/orders, which reads `os_orders` (write table) for
+ * warehouse/ops seats. Commercial listOrders is a projection of owned/team/org
+ * commercial records and is not warehouse pedido context.
  * Failures that are auth/forbidden stay empty for the caller to gate separately.
  * A transport error rethrows so the page can surface error, not invent zeros.
- * Falls back to delivery-ops when commercial listOrders is empty/forbidden.
  */
 export async function loadWarehousePedidosFromOrders(
   client: OsApiClient,
   options: { organizationId?: string | null; listCaps?: ListCap[] } = {},
 ): Promise<WarehousePedidoFact[]> {
+  const organizationId = options.organizationId?.trim() ?? '';
+  if (organizationId) {
+    const fromOps = await loadWarehouseFromDeliveryOps(client, organizationId);
+    if (fromOps.length > 0) return fromOps;
+  }
+
   const fromCommercial = await loadWarehouseFromCommercial(client, options.listCaps);
   if (fromCommercial.length > 0) return fromCommercial;
-
-  const organizationId = options.organizationId?.trim() ?? '';
-  if (!organizationId) return [];
-  return loadWarehouseFromDeliveryOps(client, organizationId);
+  return [];
 }
 
 async function loadWarehouseFromCommercial(

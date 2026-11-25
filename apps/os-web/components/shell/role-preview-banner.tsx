@@ -17,7 +17,7 @@ export function RolePreviewBanner() {
     >
       <div className="mx-auto flex max-w-[90rem] flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-[var(--isalwa-kiln)]">
-          <span className="font-medium">Vista de evaluación · {label}</span>
+          <span className="font-medium">Vista de demostración: {label}</span>
           <span data-shell-evaluation-detail className="text-[var(--isalwa-slate)]">
             {' '}
             · Sigue siendo Carmen · Solo lectura
@@ -29,7 +29,7 @@ export function RolePreviewBanner() {
           className="isalwa-t-fast shrink-0 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] px-3 py-1.5 text-sm font-medium text-[var(--isalwa-kiln)] outline-none hover:bg-[var(--isalwa-porcelain)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
           onClick={resetToMyView}
         >
-          Volver a vista de evaluación
+          Salir de la vista de demostración
         </button>
       </div>
     </div>

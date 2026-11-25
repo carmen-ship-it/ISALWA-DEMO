@@ -1,0 +1,130 @@
+# File inventory — dirty tree captured into this WIP
+
+Generated at handoff. Cookies and raw `.tmp/` session dumps are **excluded**; sanitized spine lives under this packet.
+
+## Modified
+
+- `apps/os-api/package.json`
+- `apps/os-api/src/app.module.ts`
+- `apps/os-api/src/batch5b-conversation-state-notes.http.test.ts`
+- `apps/os-api/src/commands.controller.ts`
+- `apps/os-api/src/customer-conversations.controller.ts`
+- `apps/os-api/src/customer-visibility.http.test.ts`
+- `apps/os-api/src/delivery-operational-read.test.ts`
+- `apps/os-api/src/delivery.controller.ts`
+- `apps/os-api/src/memory.controller.ts`
+- `apps/os-api/src/notifications.controller.ts`
+- `apps/os-api/src/os-store.module.ts`
+- `apps/os-web/app/(app)/almacen/page.tsx`
+- `apps/os-web/app/(app)/compras/page.tsx`
+- `apps/os-web/app/(app)/coordinacion/page.tsx`
+- `apps/os-web/app/(app)/productos/page.tsx`
+- `apps/os-web/app/globals.css`
+- `apps/os-web/components/catalog/catalog-browser.tsx`
+- `apps/os-web/components/cliente/cliente-360-documentos.tsx`
+- `apps/os-web/components/cliente/cliente-360-header.tsx`
+- `apps/os-web/components/commitments/commitment-list.tsx`
+- `apps/os-web/components/conversations/conversation-list.tsx`
+- `apps/os-web/components/conversations/conversation-notes.tsx`
+- `apps/os-web/components/conversations/conversation-thread.tsx`
+- `apps/os-web/components/coordination/coordination-decision-form.tsx`
+- `apps/os-web/components/coordination/coordination-item-card.tsx`
+- `apps/os-web/components/coordination/coordination-panel.tsx`
+- `apps/os-web/components/inicio/inicio-what-changed.tsx`
+- `apps/os-web/components/party/contact-endpoint-panel.tsx`
+- `apps/os-web/components/party/customer-edit-forms.tsx`
+- `apps/os-web/components/purchasing/purchase-request-panel.tsx`
+- `apps/os-web/components/shell/app-nav.tsx`
+- `apps/os-web/components/shell/app-shell.tsx`
+- `apps/os-web/components/shell/nav-section-collapse.tsx`
+- `apps/os-web/components/shell/role-preview-banner.tsx`
+- `apps/os-web/components/warehouse/warehouse-desk.tsx`
+- `apps/os-web/components/warehouse/warehouse-postsale-desk.tsx`
+- `apps/os-web/lib/api/os-api-client.ts`
+- `apps/os-web/lib/audit/humanize.test.ts`
+- `apps/os-web/lib/audit/humanize.ts`
+- `apps/os-web/lib/cliente/load-cliente-360.ts`
+- `apps/os-web/lib/commercial/labels.ts`
+- `apps/os-web/lib/commercial/product-picker.ts`
+- `apps/os-web/lib/conversations/build-context-panel.ts`
+- `apps/os-web/lib/conversations/conversaciones-shell.test.ts`
+- `apps/os-web/lib/conversations/model.test.ts`
+- `apps/os-web/lib/conversations/project-manual.ts`
+- `apps/os-web/lib/coordination/load.ts`
+- `apps/os-web/lib/design/v2-tokens.test.ts`
+- `apps/os-web/lib/i18n/es.ts`
+- `apps/os-web/lib/management/inicio-management.test.ts`
+- `apps/os-web/lib/management/load-inicio-management.ts`
+- `apps/os-web/lib/navigation/nav-batch8.test.ts`
+- `apps/os-web/lib/navigation/nav-config.ts`
+- `apps/os-web/lib/notifications/copy.ts`
+- `apps/os-web/lib/notifications/links.ts`
+- `apps/os-web/lib/notifications/notifications.test.ts`
+- `apps/os-web/lib/postsale/actions.ts`
+- `apps/os-web/lib/purchasing/load-queue.ts`
+- `apps/os-web/lib/purchasing/ops-desk-polish.test.ts`
+- `apps/os-web/lib/role-preview/role-preview.test.ts`
+- `apps/os-web/lib/shell/shell-compact.test.ts`
+- `apps/os-web/lib/shell/visual-system.test.ts`
+- `apps/os-web/lib/warehouse/load-pedidos.test.ts`
+- `apps/os-web/lib/warehouse/load-pedidos.ts`
+- `apps/os-web/lib/warehouse/warehouse-allocation.test.ts`
+- `apps/os-web/lib/work/labels.ts`
+- `apps/os-web/package.json`
+- `apps/os-web/styles/module-accents.css`
+- `packages/os-contracts/src/delivery.ts`
+- `packages/os-contracts/src/finished-goods-commands.ts`
+- `packages/os-contracts/src/notifications.test.ts`
+- `packages/os-contracts/src/notifications.ts`
+- `packages/os-contracts/src/operations-scopes.test.ts`
+- `packages/os-contracts/src/operations-scopes.ts`
+- `packages/os-contracts/src/purchase-request.test.ts`
+- `packages/os-contracts/src/purchase-request.ts`
+- `packages/os-database/src/staging-wave2-role-fixtures-guards.ts`
+- `packages/os-database/src/staging-wave2-role-fixtures.test.ts`
+- `packages/os-delivery/src/delivery-command-service.ts`
+- `packages/os-delivery/src/delivery-quantity-cumulative.test.ts`
+- `packages/os-delivery/src/dispatch-ledger.test.ts`
+- `packages/os-query/src/index.ts`
+- `packages/os-query/src/party/customer-visibility.coverage-actions.test.ts`
+- `packages/os-query/src/party/customer-visibility.ts`
+- `packages/os-read-ops/src/purchase-status.ts`
+- `packages/ui/src/tokens/tokens.css`
+- `pnpm-lock.yaml`
+
+## Untracked (included unless listed under Excluded)
+
+- `.cursor/settings.json`
+- `.tmp/`
+- `apps/os-api/.tmp-stage-a/`
+- `apps/os-api/src/coordination.controller.ts`
+- `apps/os-api/src/coordination.http.test.ts`
+- `apps/os-api/src/elapsed-notice-clock.prisma.ts`
+- `apps/os-api/src/purchasing.controller.ts`
+- `apps/os-api/src/purchasing.http.test.ts`
+- `apps/os-api/src/spine-canonical.http.test.ts`
+- `apps/os-api/src/verify-workflows.seed.ts`
+- `apps/os-api/src/warehouse-allocate.http.test.ts`
+- `apps/os-api/src/warehouse-commercial-order.http.test.ts`
+- `apps/os-api/src/warehouse-desk.controller.ts`
+- `apps/os-web/lib/audit/format-bolivia-datetime.test.ts`
+- `apps/os-web/lib/audit/format-bolivia-datetime.ts`
+- `apps/os-web/lib/coordination/actions.ts`
+- `apps/os-web/lib/coordination/coordination-mount.test.ts`
+- `apps/os-web/lib/coordination/repository.ts`
+- `apps/os-web/lib/purchasing/actions.ts`
+- `apps/os-web/lib/purchasing/transition-service.test.ts`
+- `apps/os-web/lib/purchasing/transition-service.ts`
+- `docs/operations/commercial-release/evidence/EVALUATION-WALKTHROUGH/`
+- `docs/operations/commercial-release/evidence/RECORRIDO-DUAL-LAYER/`
+- `docs/operations/handoffs/`
+- `isalwa-transfer-readiness/`
+- `packages/os-database/prisma/migrations/20261124220000_conversation_assigned_notice/`
+- `packages/os-database/prisma/migrations/20261125050000_elapsed_notice_kinds/`
+- `packages/os-query/src/notifications/`
+
+## Excluded from GitHub commit
+
+- `.tmp/` (contains live `os_dev_session` cookies and HTML dumps)
+- `apps/os-api/.tmp-stage-a/`
+- `.cursor/settings.json` (editor local)

@@ -190,10 +190,10 @@ describe('role preview shell contract', () => {
       resolve(here, '../../components/shell/role-preview-banner.tsx'),
       'utf8',
     );
-    assert.match(banner, /Vista de evaluación/);
+    assert.match(banner, /Vista de demostración:/);
     assert.match(banner, /Sigue siendo Carmen/);
     assert.match(banner, /Solo lectura/);
-    assert.match(banner, /Volver a vista de evaluación/);
+    assert.match(banner, /Salir de la vista de demostración/);
   });
 
   it('commercial actions gate mutations via assertRolePreviewAllowsMutation', () => {

@@ -151,6 +151,14 @@ describeHttp('Batch 5B conversation state and internal notes over HTTP (disposab
     assert.equal(item.attentionState, 'new');
     assert.equal(item.automationPausedAt, null);
     assert.equal(item.aiState, null);
+    const notices = await prisma().osInternalNotification.findMany({
+      where: { organizationId: orgA.id, sourceRecordType: 'conversation', sourceRecordId: id },
+    });
+    assert.equal(notices.length, 1);
+    assert.equal(notices[0]!.kind, 'customer_attention');
+    assert.equal(notices[0]!.recipientMemberId, m.owner.member.id);
+    assert.equal(notices[0]!.title, 'Conversación sin asignar');
+    assert.match(notices[0]!.body ?? '', /interno/i);
   });
 
   it('Tomar conversación starts attention, pauses automation and records history; a waiting_customer one keeps its state', async () => {
@@ -168,6 +176,17 @@ describeHttp('Batch 5B conversation state and internal notes over HTTP (disposab
     // Repeating the take changes nothing and adds no history.
     await call('POST', 'owner', `/customer-conversations/${id}/take`);
     assert.equal((await changes(id)).length, 1);
+    const assigned = await prisma().osInternalNotification.findMany({
+      where: {
+        organizationId: orgA.id,
+        sourceRecordType: 'conversation',
+        sourceRecordId: id,
+        kind: 'conversation_assigned',
+      },
+    });
+    assert.equal(assigned.length, 1);
+    assert.equal(assigned[0]!.recipientMemberId, m.owner.member.id);
+    assert.equal(assigned[0]!.title, 'Conversación asignada');
 
     const waiting = await newConversation();
     assert.equal((await setState('owner', waiting, 'waiting_customer')).status, 201);

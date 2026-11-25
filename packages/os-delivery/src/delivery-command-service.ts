@@ -10,6 +10,7 @@ import {
   PAYMENT_REQUIRED_BEFORE_DELIVERY,
   WAREHOUSE_OUTBOUND_KIND,
   assertCumulativeDispatchWithinOrder,
+  assertPhysicalGoodsWithinOrder,
   assertDeliveryResourceRole,
   assertEventHasOccurred,
   computeDispatchBalance,
@@ -344,7 +345,7 @@ export class DeliveryCommandService {
       await this.store.lockOrderForUpdate(organizationId, parsed.orderId);
       const order = await this.requireOpenOrder(organizationId, parsed.orderId);
       const lines = storeDeliveredQuantities(order.lines, parsed.quantities);
-      await this.assertWithinCumulativeDispatch(organizationId, order, 'delivery_note', lines);
+      await this.assertWithinCumulativeDispatch(organizationId, order, 'delivery_note', lines, true);
       const now = ctx.effectiveAt.toISOString();
       const noteId = createId();
       const internalDocumentRef = provisionalInternalDocumentRef(noteId);
@@ -435,7 +436,13 @@ export class DeliveryCommandService {
           throw new Error('NOT_FOUND');
         }
       }
-      await this.assertWithinCumulativeDispatch(organizationId, order, 'warehouse_exit', lines);
+      await this.assertWithinCumulativeDispatch(
+        organizationId,
+        order,
+        'warehouse_exit',
+        lines,
+        !parsed.deliveryNoteId,
+      );
       const now = ctx.effectiveAt.toISOString();
       const exit: WarehouseExitRecord = {
         id: createId(),
@@ -951,10 +958,14 @@ export class DeliveryCommandService {
     order: OrderSnapshot,
     ledger: DispatchLedgerName,
     lines: readonly CopiedDeliveryLine[],
+    addsPhysicalGoods: boolean,
   ): Promise<void> {
     if (lines.length === 0) return;
     const committed = summarizeCommittedDispatch(await this.store.listDispatchLedgerRows(organizationId, order.id));
     assertCumulativeDispatchWithinOrder(order.lines, ledger, committed, lines);
+    if (addsPhysicalGoods) {
+      assertPhysicalGoodsWithinOrder(order.lines, committed, lines);
+    }
   }
 
   /** Read path: per-line ordered / committed / remaining for one order (ADR 0003). */

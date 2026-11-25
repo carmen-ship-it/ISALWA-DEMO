@@ -13,6 +13,7 @@ describe('audit humanize mapping', () => {
     assert.equal(humanizeBusinessEventType('party.created'), 'Cliente creado');
     assert.equal(humanizeBusinessEventType('approval.approved'), 'Aprobación concedida');
     assert.equal(humanizeBusinessEventType('member.suspended'), 'Acceso suspendido');
+    assert.equal(humanizeBusinessEventType('work.created'), 'Trabajo creado');
   });
 
   it('falls back to title case for unknown event types', () => {

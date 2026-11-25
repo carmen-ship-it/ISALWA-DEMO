@@ -11,10 +11,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import {
-  canRecordDelivery,
-  canRecordProduction,
-  canRecordPurchasing,
-  canRecordWarehouseOutbound,
+  canReadOperationalOrders,
   DeliveryQuantityExceedsOrderError,
 } from '@isalwa/os-contracts';
 import { getOsPrisma } from '@isalwa/os-database';
@@ -52,15 +49,6 @@ export function toHttp(err: unknown): HttpException {
               ? HttpStatus.INTERNAL_SERVER_ERROR
               : HttpStatus.INTERNAL_SERVER_ERROR;
   return new HttpException({ code }, status);
-}
-
-function canReadOperationalOrders(scopes: readonly string[]): boolean {
-  return (
-    canRecordDelivery(scopes) ||
-    canRecordWarehouseOutbound(scopes) ||
-    canRecordProduction(scopes) ||
-    canRecordPurchasing(scopes)
-  );
 }
 
 type OperationalOrderLine = {

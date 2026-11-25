@@ -37,6 +37,8 @@ import {
   type DeliveryCommandName,
   type FinishedGoodsCommandName,
   type ReceiveFinishedGoodsPayload,
+  type AllocateFinishedGoodsPayload,
+  ORDER_ALLOCATION_SOURCE,
 } from '@isalwa/os-contracts';
 import type { LocationCommandService, PartyCommandService } from '@isalwa/os-party';
 import type { ImportCommandService } from '@isalwa/os-import';
@@ -52,6 +54,10 @@ import {
   createPrismaFinishedGoodsWriteStore,
   receiveFinishedGoods,
 } from '@isalwa/os-finished-goods';
+import {
+  allocateFinishedGoodsForSession,
+  createPrismaOrderAllocationStore,
+} from '@isalwa/os-allocation';
 import { createId } from '@isalwa/ts-utils';
 import { REPLAY_REVIEW_REQUIRED, REPLAY_REVIEW_REQUIRED_MESSAGE } from '@isalwa/os-events';
 import { resolveSession } from './os-session';
@@ -160,6 +166,26 @@ function mapReceiveDenial(reason: string): HttpException {
     return new HttpException({ code: 'CONFLICT' }, HttpStatus.BAD_REQUEST);
   }
   return new HttpException({ code: 'VALIDATION_FAILED' }, HttpStatus.BAD_REQUEST);
+}
+
+function mapAllocateDenial(reason: string): HttpException {
+  if (
+    reason === 'unauthorized_role' ||
+    reason === 'permission_unconfirmed' ||
+    reason === 'cross_tenant'
+  ) {
+    return new HttpException({ code: 'PERMISSION_DENIED' }, HttpStatus.FORBIDDEN);
+  }
+  if (reason === 'no_session_org') {
+    return new HttpException({ code: 'AUTH_REQUIRED' }, HttpStatus.UNAUTHORIZED);
+  }
+  if (reason === 'not_found') {
+    return new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+  }
+  if (reason === 'conflict' || reason === 'exceeds_available' || reason === 'missing_availability') {
+    return new HttpException({ code: 'CONFLICT', reason }, HttpStatus.CONFLICT);
+  }
+  return new HttpException({ code: 'VALIDATION_FAILED', reason }, HttpStatus.BAD_REQUEST);
 }
 
 @Controller('commands')
@@ -360,6 +386,118 @@ export class CommandsController {
             postsStock: false,
             replayed: result.replayed,
             migrationApplied: result.migrationApplied,
+          },
+        };
+      }
+      if (isFinishedGoodsCommand(command) && command === 'AllocateFinishedGoods') {
+        // Explicit Pedido assignment — not receive, not delivery, not official stock.
+        const prisma = getOsPrisma();
+        if (!prisma) {
+          throw new HttpException({ code: 'PROVIDER_NOT_CONFIGURED' }, HttpStatus.UNAUTHORIZED);
+        }
+        const payload = parsed.data as AllocateFinishedGoodsPayload;
+        const member = await this.workforceStore.getMemberInOrg(
+          session.organizationId,
+          session.actorMemberId,
+        );
+        if (!member || member.organizationId !== session.organizationId) {
+          throw new HttpException({ code: 'PERMISSION_DENIED' }, HttpStatus.FORBIDDEN);
+        }
+        const person = await this.workforceStore.getPerson(member.personId);
+        const actorLabel =
+          [person?.givenName, person?.familyName].filter(Boolean).join(' ').trim() || 'Almacén';
+        const organizationId = session.organizationId;
+        const nowIso = session.effectiveAt.toISOString();
+        const receiptRows = await prisma.osFinishedGoodsReceipt.findMany({
+          where: { organizationId, productId: payload.productId },
+          orderBy: { receivedAt: 'asc' },
+          take: 500,
+        });
+        const receipts = receiptRows.map((row) => ({
+          organizationId: row.organizationId,
+          productId: row.productId,
+          quantity: row.quantity,
+          receiptId: row.id,
+        }));
+        const store = createPrismaOrderAllocationStore(
+          prisma as unknown as Parameters<typeof createPrismaOrderAllocationStore>[0],
+        );
+        const targets = {
+          orderLineInOrg: async (orgId: string, orderLineId: string) => {
+            const line = await prisma.osOrderLine.findFirst({
+              where: { id: orderLineId, organizationId: orgId },
+              select: { id: true, organizationId: true },
+            });
+            if (!line) return null;
+            return { organizationId: line.organizationId, id: line.id };
+          },
+          receiptInOrg: async (orgId: string, receiptId: string) => {
+            const receipt = await prisma.osFinishedGoodsReceipt.findFirst({
+              where: { organizationId: orgId, id: receiptId },
+              select: { id: true, organizationId: true },
+            });
+            if (!receipt) return null;
+            return { organizationId: receipt.organizationId, id: receipt.id };
+          },
+        };
+        let result;
+        try {
+          result = await allocateFinishedGoodsForSession(
+            store,
+            {
+              organizationId,
+              actorMemberId: session.actorMemberId,
+              actorLabel,
+              accessStatus: member.accessStatus,
+              grantedScopes: session.grantedScopes,
+            },
+            {
+              id: createId(),
+              organizationId,
+              productId: payload.productId,
+              quantity: payload.quantity,
+              orderLineId: payload.orderLineId,
+              orderLineOrganizationId: organizationId,
+              allocatedAt: nowIso,
+              recordedAt: nowIso,
+              actorMemberId: session.actorMemberId,
+              actorLabel,
+              source: ORDER_ALLOCATION_SOURCE,
+              finishedGoodsReceiptId: payload.finishedGoodsReceiptId,
+              finishedGoodsReceiptOrganizationId: payload.finishedGoodsReceiptId
+                ? organizationId
+                : null,
+              receipts,
+              idempotencyKey: idempotencyKey?.trim() || null,
+            },
+            targets,
+          );
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          console.error(
+            JSON.stringify({
+              level: 'error',
+              component: 'AllocateFinishedGoods',
+              organizationId,
+              message: message.slice(0, 500),
+            }),
+          );
+          throw mapError(err);
+        }
+        if (!result.ok) {
+          throw mapAllocateDenial(result.reason);
+        }
+        return {
+          commandId: result.allocation.id,
+          correlationId: session.correlationId,
+          data: {
+            allocationId: result.allocation.id,
+            orderLineId: result.allocation.orderLineId,
+            quantity: result.allocation.quantity,
+            officialStock: false,
+            postsStock: false,
+            liveWrite: result.liveWrite,
+            tenantProof: result.tenantProof,
           },
         };
       }

@@ -4,8 +4,9 @@
  *
  * Ledger decision under test (see delivery-command-service.ts): the customer delivery
  * note (nota) and the warehouse exit (salida) are two independent ledgers, each bounded
- * by the order line. They are never summed together, because a salida linked to a nota
- * describes the same physical goods. A salida linked to a reversed nota is excluded.
+ * by the order line. A salida linked to a nota describes the same physical goods and is
+ * not added on top of that nota. A1: an unlinked salida is extra physical goods and is
+ * summed with issued notes. A salida linked to a reversed nota is excluded.
  */
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -184,6 +185,20 @@ describe('ADR 0003 — authorized, audited reversal restores dispatchable quanti
     // Original (reversed) + reversal copy (reversed) must not make 24 dispatchable.
     await svc.createNotaDeEntrega(ctx(), nota(12));
     await assert.rejects(() => svc.createNotaDeEntrega(ctx(), nota(12)), rejectedValidation);
+  });
+
+  it('rejects an unlinked salida after a nota already used the line quantity (A1)', async () => {
+    const { svc } = setup(10);
+    await svc.createNotaDeEntrega(ctx(), nota(10));
+    await assert.rejects(() => svc.recordSalida(ctx(), salida(10)), rejectedValidation);
+  });
+
+  it('still allows a salida linked to the nota for the same goods', async () => {
+    const { svc } = setup(10);
+    const created = await svc.createNotaDeEntrega(ctx(), nota(10));
+    const exit = await svc.recordSalida(ctx(), salida(10, created.deliveryNoteId));
+    assert.equal(exit.deliveryNoteId, created.deliveryNoteId);
+    await assert.rejects(() => svc.recordSalida(ctx(), salida(1)), rejectedValidation);
   });
 
   it('excludes a salida linked to a reversed nota, but keeps an unlinked salida counted', async () => {

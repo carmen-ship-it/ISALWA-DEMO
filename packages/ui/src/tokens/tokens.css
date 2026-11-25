@@ -1,13 +1,13 @@
 :root {
   /* ISALWA design tokens — law. Do not invent colors outside this file. */
-  --isalwa-porcelain: #f6f1e8;
+  --isalwa-porcelain: #f4f2ec;
   --isalwa-white: #ffffff;
-  --isalwa-kiln: #18324b;
+  --isalwa-kiln: #172f2b;
   --isalwa-navy-950: var(--isalwa-kiln);
-  --isalwa-slate: #3d4a5c;
-  --isalwa-mist: #e6eaf0;
-  --isalwa-glaze: #287a78;
-  --isalwa-glaze-deep: #1d635f;
+  --isalwa-slate: #68736e;
+  --isalwa-mist: #e3e6e1;
+  --isalwa-glaze: #315b50;
+  --isalwa-glaze-deep: #3e6e60;
   --isalwa-sky: #ddeef6;
   --isalwa-sky-100: #edf5f8;
   --isalwa-sky-200: var(--isalwa-sky);
@@ -18,16 +18,16 @@
   --isalwa-status-amber-bg: #fff5db;
   --isalwa-status-amber-2: #f6e3a6;
   --isalwa-status-red-bg: #fbe9e7;
-  --isalwa-copper: #b08a5b;
+  --isalwa-copper: #d7a75b;
   /* Filled primary actions. Defaults to glaze so existing products stay unchanged.
      os-web remaps this to navy for Isabela’s command center. */
   --isalwa-action: var(--isalwa-glaze);
   --isalwa-action-deep: var(--isalwa-glaze-deep);
   /* Soft status — muted, never neon */
-  --isalwa-success: #3a7a52;
-  --isalwa-warning: #b8872e;
-  --isalwa-danger: #a63d36;
-  --isalwa-info: #3a5f82;
+  --isalwa-success: #287a52;
+  --isalwa-warning: #b7791f;
+  --isalwa-danger: #b8423a;
+  --isalwa-info: #356a9a;
 
   /* 8px rhythm (space-1 = half-step for hairlines / icons) */
   --isalwa-space-1: 4px;
@@ -111,7 +111,7 @@
 
   --isalwa-shadow-soft: 0 1px 0 rgba(28, 36, 48, 0.03), 0 10px 28px rgba(28, 36, 48, 0.05);
   --isalwa-shadow-lift: 0 2px 0 rgba(28, 36, 48, 0.02), 0 18px 44px rgba(28, 36, 48, 0.09);
-  --isalwa-shadow-focus: 0 0 0 3px rgba(40, 122, 120, 0.28);
+  --isalwa-shadow-focus: 0 0 0 3px rgba(49, 91, 80, 0.28);
   /* Card depth vocabulary (Mission 9) — three named elevations, same physics
      as soft/lift, so a reader can distinguish resting vs. hovered vs.
      floating (menus, popovers) chrome without a fourth bespoke shadow. */

@@ -16,6 +16,7 @@ export * from './work/approval-query-service';
 export * from './work/attention-query-service';
 export * from './work/attention-derivation';
 export * from './work/attention-clock';
+export * from './notifications/elapsed-notice-clock';
 export * from './work/work-auth';
 export * from './commercial/commercial-projection-consumer';
 export * from './commercial/commercial-query-service';

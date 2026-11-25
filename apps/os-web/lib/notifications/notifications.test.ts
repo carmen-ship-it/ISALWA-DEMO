@@ -46,6 +46,10 @@ describe('notification presentation', () => {
       '/clientes/p1/cotizaciones/q1',
     );
     assert.equal(notificationRecordHref({ recordType: 'commitment', recordId: 'c1', partyId: null }), '/compromisos/c1');
+    assert.equal(
+      notificationRecordHref({ recordType: 'conversation', recordId: 'cv 1', partyId: null }),
+      '/conversaciones?c=cv%201',
+    );
     assert.equal(notificationRecordHref({ recordType: 'commitment', recordId: 'c 1', partyId: 'p1' }), '/compromisos/c%201');
 
     const rows = presentNotificationRows([
@@ -75,6 +79,9 @@ describe('notification presentation', () => {
     assert.deepEqual([readRow?.acknowledged, readRow?.readState, readRow?.resolved], [false, 'read', false]);
     assert.equal(countUnreadOpen([acknowledged.notification]), 1);
     assert.equal(notificationKindLabel('commitment_assigned'), 'Compromiso asignado');
+    assert.equal(notificationKindLabel('follow_up_elapsed'), '48 horas transcurridas');
+    assert.equal(notificationKindLabel('commitment_due_soon'), 'Compromiso en 60 minutos');
+    assert.equal(notificationKindLabel('conversation_unclaimed'), 'Conversación sin tomar');
     assert.match(NOTIFICATION_COPY.acknowledgeHint, /No lo resuelve/);
   });
 

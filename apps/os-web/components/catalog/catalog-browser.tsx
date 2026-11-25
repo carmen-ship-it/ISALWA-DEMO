@@ -167,7 +167,7 @@ function ProductCardExceptions({
     <div className="flex shrink-0 flex-col items-end gap-1.5">
       <StatusPill tone="sky">Sin código comercial</StatusPill>
       {!sourced ? (
-        <StatusPill tone="muted">Precio no disponible</StatusPill>
+        <StatusPill tone="muted">Precio por confirmar</StatusPill>
       ) : (
         <StatusPill tone="manual">Precio con origen</StatusPill>
       )}
@@ -209,7 +209,7 @@ function ProductQuickView({
         ) : (
           <div className="mt-2 space-y-2">
             <p className="text-[var(--isalwa-text-sm)] leading-relaxed text-[var(--isalwa-slate)]">
-              Precio no disponible. Hay contextos, pero sin monto con origen.
+              Precio por confirmar. Hay contextos, pero sin monto con origen.
             </p>
             <ul className="m-0 list-none space-y-2 p-0">
               {contexts.map((item) => (

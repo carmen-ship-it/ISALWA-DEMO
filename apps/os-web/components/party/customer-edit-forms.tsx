@@ -182,8 +182,8 @@ function ContactFieldsForm({
           </div>
           {contact ? (
             <div className="sm:col-span-2 space-y-1 text-sm text-[var(--isalwa-slate)]">
-              <p>Teléfono: {contact.phoneDisplay || contact.phone || 'Sin número'}</p>
-              <p>WhatsApp: {contact.whatsappDisplay || contact.whatsapp || 'Sin número'}</p>
+              <p>Teléfono: {contact.phone || contact.phoneDisplay || 'Sin número'}</p>
+              <p>WhatsApp: {contact.whatsapp || contact.whatsappDisplay || 'Sin número'}</p>
               {contact.phoneStatus === 'identity_review' || contact.whatsappStatus === 'identity_review' ? (
                 <p>{IDENTITY_REVIEW_NOTICE}</p>
               ) : null}

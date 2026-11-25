@@ -27,6 +27,13 @@ import type { QueryContext } from '../query-context';
 /** Coverage actions that read the covered owner's commercial records, work and approvals. */
 export const COMMERCIAL_COVERAGE_READ_ACTIONS: readonly CustomerCoverageAction[] = ['commercial.work', 'quote.convert'];
 
+/**
+ * Inbox / conversation coverage. `quote.convert` lets a covering advisor see quotes
+ * and convert them (NEW-R4-2, REUSE_MAP §12.1). It does not grant conversation
+ * visibility. Conversations require explicit commercial work coverage (V2 §6).
+ */
+export const CONVERSATION_COVERAGE_READ_ACTIONS: readonly CustomerCoverageAction[] = ['commercial.work'];
+
 export type CustomerVisibilityFacts = {
   organizationId: string;
   partyId: string;
@@ -163,6 +170,11 @@ export async function resolveCustomerReadScope(input: {
   ctx: QueryContext;
   lookup: CustomerVisibilityLookup;
   directReports: DirectReportLookup | null;
+  /**
+   * When set, coverage must explicitly cover one of these actions.
+   * Unset keeps master-data reads, where any active grant is enough.
+   */
+  coverageActions?: readonly CustomerCoverageAction[];
 }): Promise<CustomerReadScope> {
   const { ctx, lookup } = input;
   if (ctx.auth.accessStatus !== 'active') return { kind: 'parties', partyIds: [] };
@@ -179,7 +191,7 @@ export async function resolveCustomerReadScope(input: {
   const grantedPartyIds = [...new Set(grants.map((grant) => grant.customerPartyId))];
   const covered = grantedPartyIds.length
     ? (await lookup.listCustomerFacts(ctx.organizationId, grantedPartyIds, asOfFor(ctx)))
-        .filter((facts) => coverageApplies(ctx, facts, grants))
+        .filter((facts) => coverageApplies(ctx, facts, grants, input.coverageActions))
         .map((facts) => facts.partyId)
     : [];
 

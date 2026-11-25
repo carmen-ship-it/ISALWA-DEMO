@@ -77,5 +77,22 @@ describe('Wave 2 operational polish', () => {
     assert.match(linked, /fromCommercial\.length > 0/);
   });
 
+  it('mounts Compras Avanzar/Detener through purchase-request transition actions', () => {
+    const page = read('app/(app)/compras/page.tsx');
+    const actions = read('lib/purchasing/actions.ts');
+    const service = read('lib/purchasing/transition-service.ts');
+    assert.match(page, /advancePurchaseRequestAction/);
+    assert.match(page, /stopPurchaseRequestAction/);
+    assert.match(page, /onAdvance=\{canMutateQueue \? advancePurchaseRequestAction/);
+    assert.match(page, /onStop=\{canMutateQueue \? stopPurchaseRequestAction/);
+    assert.match(page, /canRecordPurchasing/);
+    assert.match(actions, /transitionPurchaseRequest/);
+    assert.match(actions, /liveWrite: 'PROVEN'/);
+    assert.match(actions, /status: 'cancelled'/);
+    assert.match(service, /PURCHASE_REQUEST_LIVE_WRITE_PROOF/);
+    assert.doesNotMatch(actions, /poNumber|purchaseOrderNumber|CreatePurchaseOrder/);
+    assert.match(read('lib/purchasing/load-queue.ts'), /listPurchaseRequests/);
+  });
+
 
 });

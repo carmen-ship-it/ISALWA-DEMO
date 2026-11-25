@@ -54,6 +54,7 @@ import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import {
   buildQueryContext,
   canReadCustomer,
+  CONVERSATION_COVERAGE_READ_ACTIONS,
   resolveCustomerReadScope,
   type CustomerVisibilityLookup,
   type DirectReportLookup,
@@ -406,6 +407,7 @@ export class CustomerConversationsController {
       partyId: row.customerId,
       lookup: this.customerVisibility,
       directReports: this.directReports,
+      coverageActions: CONVERSATION_COVERAGE_READ_ACTIONS,
     });
     if (!readable) throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
     return { prisma, row };
@@ -490,6 +492,24 @@ export class CustomerConversationsController {
             },
           });
         }
+        await tx.osInternalNotification.createMany({
+          data: [
+            {
+              id: createId(),
+              organizationId: session.organizationId,
+              recipientMemberId: session.actorMemberId,
+              kind: 'conversation_assigned',
+              dedupKey: `conversation_assigned:${row.id}:${session.actorMemberId}`,
+              title: 'Conversación asignada',
+              body: 'Quedó a su cargo. El aviso es interno y no envía un mensaje al cliente.',
+              sourceRecordType: 'conversation',
+              sourceRecordId: row.id,
+              partyId: row.customerId,
+              channel: 'internal',
+            },
+          ],
+          skipDuplicates: true,
+        });
         return claim;
       });
       if (claimed.count === 1) return present();
@@ -767,6 +787,7 @@ export class CustomerConversationsController {
         ctx,
         lookup: this.customerVisibility,
         directReports: this.directReports,
+        coverageActions: CONVERSATION_COVERAGE_READ_ACTIONS,
       });
       const allowedCustomerIds =
         scope.kind === 'org'
@@ -830,6 +851,7 @@ export class CustomerConversationsController {
           partyId: requestedCustomerId,
           lookup: this.customerVisibility,
           directReports: this.directReports,
+          coverageActions: CONVERSATION_COVERAGE_READ_ACTIONS,
         }));
       if (!party || !readable) {
         throw new HttpException('Invalid conversation: unknown_customer', HttpStatus.BAD_REQUEST);
@@ -941,6 +963,36 @@ export class CustomerConversationsController {
       try {
         await prisma.$transaction(async (tx) => {
           await tx.osCustomerConversation.create({ data });
+          const account = await tx.osCommercialAccount.findFirst({
+            where: { organizationId: session.organizationId, partyId: requestedCustomerId },
+            select: { ownerMemberId: true },
+          });
+          const ownerId = account?.ownerMemberId?.trim() || null;
+          if (ownerId) {
+            const excerpt = (
+              admitted.record.pastedEvidence ||
+              admitted.record.customerQuestion ||
+              'Conversación nueva, sin asignar.'
+            ).slice(0, 180);
+            await tx.osInternalNotification.createMany({
+              data: [
+                {
+                  id: createId(),
+                  organizationId: session.organizationId,
+                  recipientMemberId: ownerId,
+                  kind: 'customer_attention',
+                  dedupKey: `customer_attention:conversation:${admitted.record.id}`,
+                  title: 'Conversación sin asignar',
+                  body: `${excerpt} El aviso es interno. No se envió un mensaje al cliente.`,
+                  sourceRecordType: 'conversation',
+                  sourceRecordId: admitted.record.id,
+                  partyId: requestedCustomerId,
+                  channel: 'internal',
+                },
+              ],
+              skipDuplicates: true,
+            });
+          }
           if (idempotencyKey) {
             await tx.osIdempotencyKey.create({
               data: {

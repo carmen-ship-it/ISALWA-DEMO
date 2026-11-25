@@ -28,6 +28,12 @@ type ReceiveDraft = {
   idempotencyKey: string;
 };
 
+type AllocateDraft = {
+  orderLineId: string;
+  productId: string;
+  quantity: string;
+};
+
 type WarehousePostSaleDeskProps = {
   status: 'loading' | 'error' | 'denied' | 'ready';
   denial?: WarehouseDenialReason | null;
@@ -37,11 +43,12 @@ type WarehousePostSaleDeskProps = {
   pedidos: readonly PostSalePedidoOption[];
   initialOrderId?: string | null;
   onReceive?: (draft: ReceiveDraft) => Promise<{ ok: boolean; error?: string }>;
+  onAllocate?: (draft: AllocateDraft) => Promise<{ ok: boolean; error?: string }>;
 };
 
 /**
- * Almacén desk with Pedido handoff + physical FG receive foundation.
- * Allocation remains a separate policy surface (V1 validate when not mounted).
+ * Almacén desk with Pedido handoff + physical FG receive + allocate when mounted.
+ * Correction remains unmounted until a durable CorrectAllocation command exists.
  */
 export function WarehousePostSaleDesk({
   status,
@@ -52,6 +59,7 @@ export function WarehousePostSaleDesk({
   pedidos,
   initialOrderId = null,
   onReceive,
+  onAllocate,
 }: WarehousePostSaleDeskProps) {
   const [orderId, setOrderId] = useState<string | null>(initialOrderId?.trim() || null);
   const [orderLineId, setOrderLineId] = useState<string | null>(null);
@@ -182,6 +190,7 @@ export function WarehousePostSaleDesk({
         denial={denial}
         view={view}
         canAllocate={canAllocate}
+        onAllocate={canAllocate && onAllocate ? onAllocate : undefined}
       />
     </div>
   );

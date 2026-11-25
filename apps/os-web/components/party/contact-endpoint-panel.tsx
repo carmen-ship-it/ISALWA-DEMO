@@ -152,11 +152,11 @@ export function ContactEndpointPanel({
   return (
     <div className="mt-2 space-y-3 text-sm" data-contact-endpoints={contact.id}>
       <p className="text-[var(--isalwa-slate)]">
-        Teléfono: {contact.phoneDisplay || contact.phone || 'Sin número'}
+        Teléfono: {contact.phone || contact.phoneDisplay || 'Sin número'}
         {statusLabel(contact.phoneStatus) ? ` · ${statusLabel(contact.phoneStatus)}` : ''}
       </p>
       <p className="text-[var(--isalwa-slate)]">
-        WhatsApp: {contact.whatsappDisplay || contact.whatsapp || 'Sin número'}
+        WhatsApp: {contact.whatsapp || contact.whatsappDisplay || 'Sin número'}
         {statusLabel(contact.whatsappStatus) ? ` · ${statusLabel(contact.whatsappStatus)}` : ''}
       </p>
       {phoneReview || whatsappReview ? <p className="text-[var(--isalwa-kiln)]">{IDENTITY_REVIEW_NOTICE}</p> : null}

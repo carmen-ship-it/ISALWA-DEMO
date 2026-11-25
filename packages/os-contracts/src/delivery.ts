@@ -568,6 +568,8 @@ export type DispatchLedgerRows = {
 export type CommittedDispatch = {
   deliveryNotes: Record<string, number>;
   warehouseExits: Record<string, number>;
+  /** Exits with no deliveryNoteId. Physical goods in addition to issued notes (A1). */
+  unlinkedWarehouseExits?: Record<string, number>;
 };
 
 export function summarizeCommittedDispatch(rows: DispatchLedgerRows): CommittedDispatch {
@@ -588,12 +590,17 @@ export function summarizeCommittedDispatch(rows: DispatchLedgerRows): CommittedD
       })
       .map((exit) => exit.id),
   );
+  const unlinkedExitIds = new Set(rows.exits.filter((exit) => !exit.deliveryNoteId).map((exit) => exit.id));
   const warehouseExits: Record<string, number> = {};
+  const unlinkedWarehouseExits: Record<string, number> = {};
   for (const line of rows.outboundLines) {
     if (!countedExits.has(line.warehouseExitId)) continue;
     warehouseExits[line.orderLineId] = (warehouseExits[line.orderLineId] ?? 0) + line.quantity;
+    if (!unlinkedExitIds.has(line.warehouseExitId)) continue;
+    unlinkedWarehouseExits[line.orderLineId] =
+      (unlinkedWarehouseExits[line.orderLineId] ?? 0) + line.quantity;
   }
-  return { deliveryNotes, warehouseExits };
+  return { deliveryNotes, warehouseExits, unlinkedWarehouseExits };
 }
 
 export type DispatchLedgerName = 'delivery_note' | 'warehouse_exit';
@@ -644,6 +651,36 @@ export function assertCumulativeDispatchWithinOrder(
     }
   }
   if (exceeded.length > 0) throw new DeliveryQuantityExceedsOrderError(ledger, exceeded);
+}
+
+/**
+ * A1: an unlinked salida is extra physical goods, not the same units as a nota.
+ * Linked salidas stay off this sum so nota-then-salida of the same note still works.
+ * ADR 0003 still requires the physical total not to exceed the confirmed line quantity.
+ */
+export function assertPhysicalGoodsWithinOrder(
+  orderLines: readonly unknown[] | null | undefined,
+  committed: CommittedDispatch,
+  requested: readonly CopiedDeliveryLine[],
+): void {
+  const known = new Map(copyKnownOrderQuantities(orderLines).map((line) => [line.orderLineId, line]));
+  const unlinked = committed.unlinkedWarehouseExits ?? {};
+  const exceeded: ExceededDispatchLine[] = [];
+  for (const item of requested) {
+    const line = known.get(item.orderLineId);
+    if (!line) throw new Error('VALIDATION_FAILED');
+    const committedQty =
+      (committed.deliveryNotes[item.orderLineId] ?? 0) + (unlinked[item.orderLineId] ?? 0);
+    if (committedQty + item.quantity > line.quantity) {
+      exceeded.push({
+        orderLineId: item.orderLineId,
+        ordered: line.quantity,
+        committed: committedQty,
+        requested: item.quantity,
+      });
+    }
+  }
+  if (exceeded.length > 0) throw new DeliveryQuantityExceedsOrderError('warehouse_exit', exceeded);
 }
 
 export type OrderLineDispatchBalance = {

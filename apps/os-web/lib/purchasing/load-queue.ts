@@ -1,13 +1,14 @@
+import { createOsApiClient } from '@/lib/api/os-api-client';
+import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { buildComprasQueue, type ComprasQueueModel } from '@/lib/purchasing/queue';
-import { comprasRepository } from '@/lib/purchasing/repository';
 
 /**
- * Loads the session tenant's purchasing queue.
+ * Loads the session tenant's purchasing queue from durable API.
  * Grants come only from GET /session/authorization via loadMemberCapabilities.
  * Cargo/title and identity-only /session/me are not grant sources.
- * CROSS_LANE: a hosted persistence adapter is not owned here. Do not invent rows.
+ * Does not invent rows when the API returns empty.
  */
 export async function loadComprasQueue(query?: {
   q?: string | null;
@@ -20,17 +21,27 @@ export async function loadComprasQueue(query?: {
     const context = await loadMemberCapabilities();
     if (!context) return { state: 'permission', reason: 'session_org_required' };
 
-    // Keep local process rows tenant-scoped; role map is optional when scopes grant queue.
-    const remembered = comprasRepository.sessionFor(context.organizationId);
+    const client = createOsApiClient(auth);
+    let requests: Awaited<ReturnType<typeof client.listPurchaseRequests>>['requests'] = [];
+    try {
+      const page = await client.listPurchaseRequests();
+      requests = page.requests ?? [];
+    } catch (err) {
+      if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {
+        return { state: 'permission' };
+      }
+      return { state: 'error', reason: 'load_failed' };
+    }
+
     return buildComprasQueue({
       session: {
         organizationId: context.organizationId,
-        role: remembered.role,
+        role: 'buyer',
         grantedScopes: context.grantedScopes,
         actorLabel: null,
       },
-      requests: comprasRepository.requests(),
-      candidates: comprasRepository.candidates(),
+      requests,
+      candidates: [],
       query: query?.q,
       buyerQuery: query?.buyer,
       statusFilter: query?.estado,

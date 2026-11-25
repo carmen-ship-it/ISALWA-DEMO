@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { COMMERCIAL_ORDER_CONVERT_SCOPE, COMMERCIAL_TEAM_READ_SCOPE } from './scopes';
+import { WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE } from './warehouse-task';
 import {
   COMMERCIAL_CUSTOMER_CREATE_SCOPE,
   COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE,
@@ -31,6 +32,7 @@ import {
   canImpersonateProduction,
   canPostFinanceLedger,
   canReadTeamCommercialWork,
+  canReadOperationalOrders,
   canReceiveFinishedGoods,
   canRecordWarehouseOutbound,
   canRecordPurchasing,
@@ -325,6 +327,9 @@ describe('operational access scopes', () => {
     assert.equal(canRecordWarehouseOutbound([WAREHOUSE_OUTBOUND_RECORD_SCOPE]), true);
     assert.equal(canReceiveFinishedGoods([WAREHOUSE_OUTBOUND_RECORD_SCOPE]), false);
     assert.equal(canRecordDelivery([WAREHOUSE_OUTBOUND_RECORD_SCOPE]), false);
+    assert.equal(canReadOperationalOrders([WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE]), true);
+    assert.equal(canReadOperationalOrders([WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE]), true);
+    assert.equal(canReadOperationalOrders([COMMERCIAL_TEAM_READ_SCOPE]), false);
     assert.deepEqual(scopesGrantedByCargoOrTitle('encargado de almacén', 'Encargado de Almacén'), []);
   });
 

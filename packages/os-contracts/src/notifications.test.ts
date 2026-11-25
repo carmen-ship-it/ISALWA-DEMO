@@ -8,6 +8,10 @@ import {
   markNotificationAcknowledged,
   markNotificationRead,
   NOTIFICATION_KINDS,
+  FOLLOW_UP_ELAPSED_MS,
+  FOLLOW_UP_ELAPSED_LABEL,
+  elapsedAtLeast,
+  commitmentIsDueSoon,
   notificationAcknowledgement,
   notificationDeliversExternally,
   notificationReadState,
@@ -186,5 +190,17 @@ describe('acknowledged is its own fact (T09)', () => {
 
   it('a commitment handed to someone is a notice kind of its own', () => {
     assert.ok(NOTIFICATION_KINDS.includes('commitment_assigned'));
+  });
+
+  it('uses elapsed windows, not business days, for 48h / 60min / 15min', () => {
+    assert.ok(NOTIFICATION_KINDS.includes('follow_up_elapsed'));
+    assert.ok(NOTIFICATION_KINDS.includes('commitment_due_soon'));
+    assert.ok(NOTIFICATION_KINDS.includes('conversation_unclaimed'));
+    const asOf = new Date('2026-11-25T12:00:00.000Z');
+    assert.equal(elapsedAtLeast(new Date('2026-11-23T12:00:00.000Z'), asOf, FOLLOW_UP_ELAPSED_MS), true);
+    assert.equal(elapsedAtLeast(new Date('2026-11-23T12:00:01.000Z'), asOf, FOLLOW_UP_ELAPSED_MS), false);
+    assert.equal(commitmentIsDueSoon(new Date('2026-11-25T12:45:00.000Z'), asOf), true);
+    assert.equal(commitmentIsDueSoon(new Date('2026-11-25T11:59:00.000Z'), asOf), false);
+    assert.equal(FOLLOW_UP_ELAPSED_LABEL, '48 horas transcurridas');
   });
 });

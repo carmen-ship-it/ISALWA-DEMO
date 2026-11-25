@@ -1,13 +1,15 @@
-import { getServerWebSession } from '@/lib/auth/actions';
+import { getServerWebSession, getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
+import { createOsApiClient } from '@/lib/api/os-api-client';
 import {
   buildCoordinationPageModel,
   coordinationFactsForSession,
   type CoordinationPageModel,
 } from '@/lib/coordination/page-model';
+import type { CoordinationDecisionRecord } from '@isalwa/os-contracts';
 
 /**
- * Hydrates Coordinación from the trusted member context.
+ * Hydrates Coordinación from the trusted member context + durable API ledger.
  *
  * Dev cookie and Supabase cookie both go through loadMemberCapabilities →
  * GET /session/authorization. getServerWebSession supplies display label only.
@@ -33,6 +35,21 @@ export async function loadCoordinationPage(): Promise<CoordinationPageModel> {
     });
   }
 
+  let decisions: readonly CoordinationDecisionRecord[] = [];
+  try {
+    const auth = await getServerOsAuthContext();
+    if (auth) {
+      const client = createOsApiClient(auth);
+      const payload = await client.listCoordinationDecisions();
+      if (payload.organizationId === context.organizationId) {
+        decisions = payload.decisions;
+      }
+    }
+  } catch {
+    // Permission or service failure → empty history, not another tenant's rows.
+    decisions = [];
+  }
+
   return buildCoordinationPageModel({
     session: {
       organizationId: context.organizationId,
@@ -41,6 +58,6 @@ export async function loadCoordinationPage(): Promise<CoordinationPageModel> {
       grantedCapabilities: context.grantedScopes,
     },
     matters: coordinationFactsForSession(context.organizationId),
-    decisions: [],
+    decisions,
   });
 }

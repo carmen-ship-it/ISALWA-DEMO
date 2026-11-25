@@ -12,11 +12,12 @@ import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
 import { orderHref } from '@/lib/commercial/navigation';
 import { actionPrimaryClass } from '@/lib/ui/action-hierarchy';
-import { receiveFinishedGoodsAction } from '@/lib/postsale/actions';
+import { allocateFinishedGoodsAction, receiveFinishedGoodsAction } from '@/lib/postsale/actions';
 import { loadPostSalePedidos } from '@/lib/postsale/load-pedidos';
 import type { PostSalePedidoOption } from '@/lib/postsale/pedido-context';
 import { loadWarehousePedidosFromOrders } from '@/lib/warehouse/load-pedidos';
 import { WAREHOUSE_TASK_COPY, resolveWarehousePageAccess } from '@/lib/warehouse';
+import type { OrderAllocation, WarehouseReceiptFact } from '@isalwa/os-contracts';
 import { workItemHref } from '@/lib/work/navigation';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
@@ -172,6 +173,9 @@ export default async function AlmacenPage({
         initialOrderId={selectedOrderId}
         onReceive={
           access.status === 'ready' && access.canReceive ? receiveFinishedGoodsAction : undefined
+        }
+        onAllocate={
+          access.status === 'ready' && access.canAllocate ? allocateFinishedGoodsAction : undefined
         }
       />
         </div>
@@ -333,6 +337,19 @@ async function loadAlmacenAccess() {
       });
     }
 
+    let deskReceipts: WarehouseReceiptFact[] | null = null;
+    let deskAllocations: OrderAllocation[] = [];
+    if (auth) {
+      try {
+        const desk = await createOsApiClient(auth).getWarehouseFinishedGoodsDesk();
+        deskReceipts = desk.receipts ?? [];
+        deskAllocations = desk.allocations ?? [];
+      } catch {
+        deskReceipts = null;
+        deskAllocations = [];
+      }
+    }
+
     const resolved = resolveWarehousePageAccess({
       session: {
         organizationId: context.organizationId,
@@ -342,7 +359,8 @@ async function loadAlmacenAccess() {
         grantedScopes: context.grantedScopes,
       },
       grantedScopes: context.grantedScopes,
-      facts: { receipts: null, pedidos: warehousePedidos },
+      facts: { receipts: deskReceipts, pedidos: warehousePedidos },
+      allocations: deskAllocations,
     });
 
     const ingresos = resolved.status === 'ready' ? resolved.view?.waiting.length ?? 0 : 0;

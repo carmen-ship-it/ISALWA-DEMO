@@ -7,6 +7,7 @@ import { describe, it } from 'node:test';
 import {
   DeliveryQuantityExceedsOrderError,
   assertCumulativeDispatchWithinOrder,
+  assertPhysicalGoodsWithinOrder,
   computeDispatchBalance,
   findOverDispatchedLines,
   storeDeliveredQuantities,
@@ -55,7 +56,11 @@ describe('ADR 0003 summarizeCommittedDispatch', () => {
         outboundLines: [{ warehouseExitId: 'x1', orderLineId: 'a', quantity: 10 }],
       }),
     );
-    assert.deepEqual(committed, { deliveryNotes: { a: 10 }, warehouseExits: { a: 10 } });
+    assert.deepEqual(committed, {
+      deliveryNotes: { a: 10 },
+      warehouseExits: { a: 10 },
+      unlinkedWarehouseExits: {},
+    });
   });
 
   it('excludes an exit linked to a reversed note and keeps an unlinked exit', () => {
@@ -73,6 +78,7 @@ describe('ADR 0003 summarizeCommittedDispatch', () => {
       }),
     );
     assert.deepEqual(committed.warehouseExits, { a: 2 });
+    assert.deepEqual(committed.unlinkedWarehouseExits, { a: 2 });
   });
 
   it('keeps counting an exit whose linked note is unknown (blocking is the safe direction)', () => {
@@ -118,6 +124,31 @@ describe('ADR 0003 assertCumulativeDispatchWithinOrder', () => {
         err.lines.length === 1 &&
         err.lines[0]?.orderLineId === 'a' &&
         err.lines[0]?.committed === 6,
+    );
+  });
+
+  it('rejects an unlinked salida that would double the physical goods of an issued nota (A1)', () => {
+    assert.throws(
+      () =>
+        assertPhysicalGoodsWithinOrder(
+          ORDER,
+          { deliveryNotes: { a: 10 }, warehouseExits: { a: 10 }, unlinkedWarehouseExits: {} },
+          requested('a', 10),
+        ),
+      (err: unknown) =>
+        err instanceof DeliveryQuantityExceedsOrderError &&
+        err.reason === 'DELIVERY_QUANTITY_EXCEEDS_ORDER' &&
+        err.lines[0]?.committed === 10,
+    );
+  });
+
+  it('lets a linked-style remaining check pass when unlinked exits are empty', () => {
+    assert.doesNotThrow(() =>
+      assertPhysicalGoodsWithinOrder(
+        ORDER,
+        { deliveryNotes: { a: 6 }, warehouseExits: { a: 6 }, unlinkedWarehouseExits: {} },
+        requested('a', 4),
+      ),
     );
   });
 
