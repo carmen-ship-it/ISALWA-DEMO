@@ -60,7 +60,7 @@ PNG evidence stays under AWS `durable-candidate/browser-proof/evidence/` (not Gi
 
 | Blocker | Owner | Decision needed |
 | --- | --- | --- |
-| Hosted preview (Q-DEPLOY-01) | Carmen | Paid **new** API host + **new** dedicated DB + Auth seat/redirect choice; then builder creates new Vercel project. Package + allowlisted export ready in operator vault. Independent review of `eb8c6428` still open. |
+| Hosted preview (Q-DEPLOY-01) | Carmen | **One decision:** approve new Railway overnight project (API+Postgres) under existing **$5** soft limit; Auth = reuse staging (prepared). Neon/no new Supabase. See `08-…`. Review of `eb8c6428` still open. |
 | Independent review | Reviewer | Verdict on `eb8c6428` (builder does not self-certify) |
 | WhatsApp real | Carmen | Meta/WABA credentials + authority (simulated remains) |
 | Evaluation URL | — | Remains **untouched** (locked); health rechecked |

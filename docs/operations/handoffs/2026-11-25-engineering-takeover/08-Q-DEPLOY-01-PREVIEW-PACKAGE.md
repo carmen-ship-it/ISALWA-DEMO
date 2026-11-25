@@ -1,6 +1,6 @@
 # Q-DEPLOY-01 — separate overnight preview package (sanitized)
 
-Prepared: 2026-11-25 · Builder only · **Independent review of code candidate still open**
+Prepared / price-checked: 2026-11-25 · Builder only · **Independent review of `eb8c6428` still open**
 
 ## Review candidate (preserve)
 
@@ -8,41 +8,68 @@ Prepared: 2026-11-25 · Builder only · **Independent review of code candidate s
 | --- | --- |
 | Commit | `eb8c6428793c11cef094ffd76888ea86da343241` |
 | Tree | `a97ed01722d4e5f25c6e420c36d2208798ff108f` |
-| Branch | `wip/overnight-handoff-20261125` |
-| Allowlisted export | Built **outside** GitHub under operator vault `overnight-preview-20261125/export/` (sha256 in vault receipts). Not uploaded here. |
+| Allowlisted export | Operator vault `overnight-preview-20261125/export/` (not GitHub) |
 
 ## Forbidden (evaluation untouched)
 
 | Resource | Status |
 | --- | --- |
-| `https://isalwa-os-web-evaluation.vercel.app` (`isalwa-os-web-evaluation`) | **UNTOUCHED** — listed on Vercel; last production update 2026-11-17 |
-| Railway `isalwa-os-api-evaluation` `/v1/health` | **UNTOUCHED** — liveness HTTP 200 rechecked |
-| Supabase `isalwa-os-evaluation-db` | **Do not reuse** for overnight preview |
-| AWS disposable overnight DB | Local proof only — never hosted |
-| `OS_AUTH_MODE=dev` on hosted | Forbidden |
+| `isalwa-os-web-evaluation` | **UNTOUCHED** |
+| Railway `isalwa-os-api-evaluation` | **UNTOUCHED** · Online · period usage ~$0.28 |
+| Supabase `isalwa-os-evaluation-db` | **Do not reuse** (evaluation API points here) |
+| AWS disposable overnight DB | Local only |
 
-## Destination / access / paid (confirm)
+## Live price / access check (existing accounts)
 
-| Layer | Separate destination | Access | Paid decision | Ready |
-| --- | --- | --- | --- | --- |
-| Web | **New** Vercel project `isalwa-os-web-overnight-preview` (team `carmen-ship-its-projects`, Hobby). CLI/archive deploy — **no** Git link to public repo. | CLI `carmen-ship-it` OK. Project **does not exist**. | Hobby project create is free; Terms risk is owner call. | Prepared; create after API+DB+auth |
-| API | **New** always-on Node host (Railway new service preferred; Docker recipe from prior evaluation transfer package). Not evaluation service. Not Vercel serverless. | Railway CLI **missing** on Mac; no new-service token evidenced. | **Paid** — needs Carmen authorization | **BLOCKED** — Carmen |
-| DB | **New** empty Postgres 16 + migrate (47 migrations at candidate) + synthetic seed | Evaluation DB healthy but **isolated** — must not point preview at it | **Paid** if always-on | **BLOCKED** — Carmen |
-| Auth | Synthetic Q-LOGIN-01 seats; staging Auth `isalwa-os-auth-staging` ACTIVE_HEALTHY **or** new Auth project; redirect = new origin only | Supabase CLI inventory OK | Existing staging may suffice | **PARTIAL** — Carmen chooses reuse vs new |
-| Workers | In-process on API (`OS_OUTBOX_WORKER`, `OS_PROJECTION_WORKER`, `OS_ATTENTION_CLOCK`, `OS_ELAPSED_NOTICE_CLOCK`) | — | With API | Blocked with API |
+### API — Railway (account logged in)
 
-## Env names only (no values)
+| Item | Value |
+| --- | --- |
+| Access | **Yes** — `railway init` / `railway add` available |
+| Plan / limits | Soft limit **$5**/mo · hard limit unset · Hobby subscription **$5**/mo published (includes $5 usage credit) |
+| Current period | Usage **~$0.28** · estimated bill **~$0.55** (evaluation only) |
+| Create overnight API | **Yes** as a **new** project/service (not evaluation) |
+| Expected overnight API+usage | About **$1–4**/mo incremental for a small always-on Nest service + workers |
 
-Web: `NEXT_PUBLIC_OS_API_URL`, `NEXT_PUBLIC_OS_AUTH_MODE`, `NEXT_PUBLIC_OS_WEB_ORIGIN`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_JWT_SECRET`, `OS_RUNTIME_PROFILE`, `NODE_ENV`.
+### Dedicated DB
 
-API: `OS_DATABASE_URL`, `OS_AUTH_MODE`, `OS_RUNTIME_PROFILE`, `OS_CORS_ORIGINS`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_JWT_SECRET`, `OS_API_HOST`, `PORT`/`OS_API_PORT`, worker/clock flags, `NODE_ENV`.
+| Option | Cost | Limits | Access now |
+| --- | --- | --- | --- |
+| **Railway Postgres** in new overnight project | Metered (~$0.15/GB-mo volume + compute); fits under same $5 soft cap with API if kept small | Soft $5 workspace | **Yes** (`railway add -d postgres`) |
+| Neon Free | **$0** · 100 CU-hrs · 1 GB · scale-to-zero ~5 min | Free quotas | **No** — Neon CLI not signed in |
+| New Supabase Postgres | Free slots **full** (2/2 active) · else Pro **~$25**/mo | Pause after 1 week on Free | **No** without Pro / pausing |
+
+### Auth — staging reuse (prepared)
+
+| Item | Value |
+| --- | --- |
+| Project | `isalwa-os-auth-staging` ACTIVE_HEALTHY |
+| Signup | `disable_signup=true` |
+| `site_url` | Evaluation — **keep** |
+| Redirects | Evaluation + localhost today; **append** new preview origin only after it exists |
+| Synthetic seats | New overnight-only Auth users (Q-LOGIN-01); memberships only in overnight DB |
+| New Auth project | **Not** available on Free (2/2); would need Pro **~$25**/mo |
+
+**Prepared: reuse staging Auth.** Difference vs new Auth: $0 + shared JWT issuer vs ~$25/mo + separate issuer.
+
+### Web — Vercel
+
+New project on Hobby: **$0** · CLI can create · **do not** Git-link public repo · evaluation untouched.
+
+## Expected monthly cost (overnight preview stack)
+
+| Component | Expected |
+| --- | --- |
+| Vercel web | $0 |
+| Auth (reuse) | $0 |
+| Railway API + Postgres (new project) | Incremental usage; workspace stays under soft **$5** if sized like evaluation |
+| Railway Hobby floor | **$5**/mo already on this workspace (covers $5 usage) |
+| **All-in for this preview** | **~$5/mo** workspace bill if soft cap held; **no new $25 Supabase Pro** if Auth reused and DB is Railway Postgres |
 
 ## Deploy gate
 
-Do **not** deploy until: (1) independent verdict on `eb8c6428`, (2) Carmen paid/API/DB/auth decisions above, (3) new Vercel project created without touching evaluation.
+Still waiting: independent verdict on `eb8c6428` + Carmen **yes** on the Railway soft-cap commitment below. Then create **new** Railway project + Vercel preview + Auth redirect append + synthetic hosted journey.
 
-If blocked at deploy time, owners are in the destination table (Carmen for paid API/DB/auth; reviewer for verdict; builder for Vercel create after those).
+## Operator vault (not GitHub)
 
-## Full operator package
-
-Private vault path (not GitHub): `~/.isalwa-secrets/overnight-preview-20261125/package/Q-DEPLOY-01-PREVIEW-PACKAGE.md` plus export + env-name templates.
+`~/.isalwa-secrets/overnight-preview-20261125/` — export, Auth reuse prep, cost receipt, Docker/railway recipe.
