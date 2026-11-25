@@ -41,7 +41,7 @@ A1 on AWS: **51/51** including linked-salida boundary (carried forward).
 | Role preview non-grant | **VERIFIED** (prior HTTP/unit; carried forward) |
 | people.admin HTTP mutations + non-admin deny | **VERIFIED** 12/12 (carried forward) |
 | people.admin browser seat | **BROWSER VERIFIED on AWS** admin Equipo/Accesos/Capacidades 1440+390 · sales_rep blocked on same paths |
-| Full hosted journey | **NOT STARTED** (Q-DEPLOY-01 separate stack) |
+| Full hosted journey | **PACKAGE PREPARED** — deploy **blocked** (see `08-Q-DEPLOY-01-PREVIEW-PACKAGE.md`); evaluation untouched |
 
 Sanitized browser JSON (no cookies):  
 `docs/operations/handoffs/2026-11-25-engineering-takeover/evidence/`  
@@ -60,9 +60,10 @@ PNG evidence stays under AWS `durable-candidate/browser-proof/evidence/` (not Gi
 
 | Blocker | Owner | Decision needed |
 | --- | --- | --- |
-| Hosted preview (Q-DEPLOY-01) | Carmen | Authorize **separate** Vercel + API + DB + Supabase identities once candidate + independent gate ready |
+| Hosted preview (Q-DEPLOY-01) | Carmen | Paid **new** API host + **new** dedicated DB + Auth seat/redirect choice; then builder creates new Vercel project. Package + allowlisted export ready in operator vault. Independent review of `eb8c6428` still open. |
+| Independent review | Reviewer | Verdict on `eb8c6428` (builder does not self-certify) |
 | WhatsApp real | Carmen | Meta/WABA credentials + authority (simulated remains) |
-| Evaluation URL | — | Remains **untouched** (locked) |
+| Evaluation URL | — | Remains **untouched** (locked); health rechecked |
 
 ## Rollback
 
@@ -72,6 +73,13 @@ PNG evidence stays under AWS `durable-candidate/browser-proof/evidence/` (not Gi
 
 ## Remaining queue
 
-1. Hosted preview only after Carmen Q-DEPLOY-01 + independent gate  
-2. Real WhatsApp only after separate provider setup  
-3. Optional: deeper invite/coverage mutation UI beyond seat page load (HTTP already 12/12)  
+1. Independent review verdict on `eb8c6428` → resolve findings → re-verify changed scope if candidate moves  
+2. Carmen: paid API + dedicated DB + Auth decision → then create/deploy separate preview (never evaluation)  
+3. Hosted synthetic journey after deploy  
+4. Real WhatsApp only after separate provider setup  
+
+## Q-DEPLOY-01 package pointer
+
+Sanitized: `08-Q-DEPLOY-01-PREVIEW-PACKAGE.md`  
+Operator vault (export + full package, not GitHub): `~/.isalwa-secrets/overnight-preview-20261125/`  
+
