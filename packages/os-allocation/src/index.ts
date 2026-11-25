@@ -13,7 +13,7 @@ export {
   projectFinishedGoodsAvailability,
   quantityAllocatedToOrderLine,
   receiptAllocatesToOrder,
-} from '../../os-contracts/src/order-allocation';
+} from '@isalwa/os-contracts';
 export type {
   AllocateFinishedGoodsInput,
   AllocateFinishedGoodsResult,
@@ -24,7 +24,7 @@ export type {
   FinishedGoodsReceiptQuantity,
   MissingAvailability,
   OrderAllocation,
-} from '../../os-contracts/src/order-allocation';
+} from '@isalwa/os-contracts';
 
 export {
   InMemoryOrderAllocationStore,

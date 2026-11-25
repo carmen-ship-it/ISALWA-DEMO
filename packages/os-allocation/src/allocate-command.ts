@@ -2,7 +2,7 @@ import {
   canAllocateFinishedGoods,
   sessionOrganizationId,
   type WarehouseDenialReason,
-} from '../../os-contracts/src/warehouse-task';
+} from '@isalwa/os-contracts';
 import type {
   AllocateFinishedGoodsResult,
   AllocationConflict,
@@ -10,7 +10,7 @@ import type {
   ExceedsAvailable,
   MissingAvailability,
   OrderAllocation,
-} from '../../os-contracts/src/order-allocation';
+} from '@isalwa/os-contracts';
 import { InMemoryOrderAllocationStore } from './store';
 import {
   ALLOCATION_PRISMA_LIVE_WRITE,

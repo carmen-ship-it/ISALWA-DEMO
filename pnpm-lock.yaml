@@ -191,6 +191,9 @@ importers:
       '@isalwa/os-party':
         specifier: workspace:*
         version: link:../../packages/os-party
+      '@isalwa/os-purchasing':
+        specifier: workspace:*
+        version: link:../../packages/os-purchasing
       '@isalwa/os-query':
         specifier: workspace:*
         version: link:../../packages/os-query
@@ -431,6 +434,10 @@ importers:
         version: 5.9.3
 
   packages/os-allocation:
+    dependencies:
+      '@isalwa/os-contracts':
+        specifier: workspace:*
+        version: link:../os-contracts
     devDependencies:
       tsx:
         specifier: ^4.19.3
@@ -750,6 +757,10 @@ importers:
         version: 5.9.3
 
   packages/os-purchasing:
+    dependencies:
+      '@isalwa/os-contracts':
+        specifier: workspace:*
+        version: link:../os-contracts
     devDependencies:
       tsx:
         specifier: ^4.19.3

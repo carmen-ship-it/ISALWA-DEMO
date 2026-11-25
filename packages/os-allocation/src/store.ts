@@ -7,7 +7,7 @@ import {
   type AvailabilityProjection,
   type FinishedGoodsReceiptQuantity,
   type OrderAllocation,
-} from '../../os-contracts/src/order-allocation';
+} from '@isalwa/os-contracts';
 
 /**
  * In-memory finished-goods allocation.

@@ -45,7 +45,7 @@ export {
   readPurchaseRequestQueue,
   searchPurchaseRequests,
   suggestPurchaseBuyers,
-} from '../../os-contracts/src/purchase-request';
+} from '@isalwa/os-contracts';
 
 export type {
   AddPurchaseRequestNoteInput,
@@ -65,4 +65,4 @@ export type {
   PurchaseRequestSession,
   PurchaseRequestStatus,
   PurchaseRequestStatusEntry,
-} from '../../os-contracts/src/purchase-request';
+} from '@isalwa/os-contracts';

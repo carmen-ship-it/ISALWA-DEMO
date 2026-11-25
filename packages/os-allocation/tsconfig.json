@@ -1,9 +1,11 @@
 {
   "extends": "../config-ts/base.json",
   "compilerOptions": {
-    "noEmit": true,
-    "declaration": false,
-    "declarationMap": false
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true,
+    "declarationMap": true
   },
-  "include": ["src", "../os-contracts/src/order-allocation.ts"]
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
 }

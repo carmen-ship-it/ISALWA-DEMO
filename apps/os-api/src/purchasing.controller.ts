@@ -28,7 +28,7 @@ import {
   type PurchaseRequestStatus,
   type PurchaseRequestStatusEntry,
 } from '@isalwa/os-contracts';
-import { transitionPurchaseRequest } from '../../../packages/os-purchasing/src/transition';
+import { transitionPurchaseRequest } from '@isalwa/os-purchasing';
 import { getOsPrisma } from '@isalwa/os-database';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { authenticatedSessionHttpError, resolveSession } from './os-session';

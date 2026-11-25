@@ -1,12 +1,13 @@
-import { canRecordPurchasing, PURCHASING_OPERATIONAL_RECORD_SCOPE } from '../../os-contracts/src/operations-scopes';
 import {
+  canRecordPurchasing,
   changePurchaseRequestStatus,
+  PURCHASING_OPERATIONAL_RECORD_SCOPE,
   type ChangePurchaseRequestStatusInput,
   type PurchaseRequest,
   type PurchaseRequestAccessFailure,
   type PurchaseRequestFailure,
   type PurchaseRequestSession,
-} from '../../os-contracts/src/purchase-request';
+} from '@isalwa/os-contracts';
 
 /**
  * Trusted-session purchase request transition.

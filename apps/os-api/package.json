@@ -23,6 +23,7 @@
     "@isalwa/os-work": "workspace:*",
     "@isalwa/os-commercial": "workspace:*",
     "@isalwa/os-delivery": "workspace:*",
+    "@isalwa/os-purchasing": "workspace:*",
     "@isalwa/os-import": "workspace:*",
     "@isalwa/os-commitment": "workspace:*",
     "@isalwa/os-issue": "workspace:*",

@@ -19,7 +19,7 @@ import {
   type PurchaseRequestResult,
   type PurchaseRequestSearchResult,
   type PurchaseRequestSession,
-} from '../../os-contracts/src/purchase-request';
+} from '@isalwa/os-contracts';
 import {
   authorizePurchaseRequestTransition,
   transitionPurchaseRequest,

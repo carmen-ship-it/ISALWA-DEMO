@@ -214,7 +214,7 @@ async function main() {
   });
 
   const desk = await fetch(`${baseUrl}/v1/warehouse/finished-goods-desk`, { headers: headers(warehouse) });
-  const deskBody = await desk.json();
+  const deskBody = (await desk.json()) as { allocations?: Array<{ id: string }> };
 
   const coord = await fetch(`${baseUrl}/v1/coordination/decisions`, {
     method: 'POST',
@@ -261,7 +261,11 @@ async function main() {
     const created = JSON.parse(partyCreateText);
     const c4PartyId = created.data?.partyId ?? created.partyId;
     const detail = await fetch(`${baseUrl}/v1/parties/${c4PartyId}`, { headers: headers(grantor) });
-    const detailBody = await detail.json();
+    const detailBody = (await detail.json()) as {
+      commercialAccountId?: string;
+      account?: { id?: string };
+      commercialAccount?: { id?: string };
+    };
     const commercialAccountId =
       detailBody.commercialAccountId ?? detailBody.account?.id ?? detailBody.commercialAccount?.id ?? null;
     coverage = { ...coverage, c4PartyId, commercialAccountId, detailStatus: detail.status };

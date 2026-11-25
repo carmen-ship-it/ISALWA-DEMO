@@ -14,8 +14,8 @@ import {
   type AvailabilityProjection,
   type FinishedGoodsReceiptQuantity,
   type OrderAllocation,
-} from '../../os-contracts/src/order-allocation';
-import { WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE } from '../../os-contracts/src/warehouse-task';
+} from '@isalwa/os-contracts';
+import { WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE } from '@isalwa/os-contracts';
 
 export const ALLOCATION_PRISMA_LIVE_WRITE = 'prisma_port' as const;
 export const ORDER_ALLOCATION_ALLOCATED_EVENT = 'finished_goods.allocated' as const;
