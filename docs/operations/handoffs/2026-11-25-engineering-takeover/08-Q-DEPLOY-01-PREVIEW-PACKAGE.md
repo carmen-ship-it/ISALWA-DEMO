@@ -1,14 +1,15 @@
 # Q-DEPLOY-01 — separate overnight preview package (sanitized)
 
-Prepared / price-checked: 2026-11-25 · Builder only · **Independent review of `eb8c6428` still open**
+Prepared / price-checked: 2026-11-25 · Builder only · **Independent recheck of tip `556591d7` open** (prior reviewed pin `eb8c6428`)
 
-## Review candidate (preserve)
+## Review / deploy candidate
 
 | Field | Value |
 | --- | --- |
-| Commit | `eb8c6428793c11cef094ffd76888ea86da343241` |
-| Tree | `a97ed01722d4e5f25c6e420c36d2208798ff108f` |
-| Allowlisted export | Operator vault `overnight-preview-20261125/export/` (not GitHub) |
+| Prior reviewed pin | `eb8c6428793c11cef094ffd76888ea86da343241` |
+| Current tip to recheck / deploy after PASS | `556591d77e089b1ccb29773933d8c5949af5a4fe` |
+| Tree | `bb616b74e7818f17104a3a29923ec1458e5419ba` |
+| Allowlisted export | Operator vault `overnight-preview-20261125/export/` (not GitHub) — refresh export to tip after recheck PASS |
 
 ## Forbidden (evaluation untouched)
 
@@ -68,7 +69,7 @@ New project on Hobby: **$0** · CLI can create · **do not** Git-link public rep
 
 ## Deploy gate
 
-Still waiting: independent verdict on `eb8c6428` + Carmen **yes** on the Railway soft-cap commitment below. Then create **new** Railway project + Vercel preview + Auth redirect append + synthetic hosted journey.
+Still waiting: independent verdict on `556591d7` (findings packet `09-…`) + Carmen **yes** on the Railway soft-cap commitment below. Then create **new** Railway project + Vercel preview + Auth redirect append + synthetic hosted journey.
 
 ## Operator vault (not GitHub)
 
