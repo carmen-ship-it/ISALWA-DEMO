@@ -1,43 +1,73 @@
-# Overnight checkpoint — 2026-11-25 (in progress)
+# Overnight checkpoint — 2026-11-25
 
-**Writer:** Cursor thread `b6a344b1-1bdb-4b47-be28-1a0cab32bca6`  
-**Model/effort (configured):** Composer / Auto (record separately if Terra high was requested)  
-**Handoff tip at start:** `5874fb51fe549a719d47dcc21063f1358f0bb998`  
-**Parent outcome:** PARTIAL
+**Writer:** Cursor thread `b6a344b1-1bdb-4b47-be28-1a0cab32bca6` (only active ISALWA writer this session)  
+**Configured model/effort:** Composer / Auto (prompt recommended Terra high; actual configured model recorded here)  
+**Branch:** `wip/overnight-handoff-20261125`  
+**GitHub tip:** `abf641e3c85fc308333b02ab92f65c469524065f`  
+**Prior tip:** `5874fb51…`  
+**Parent outcome:** **PARTIAL**
 
-## Remote environment — VERIFIED
+## 1. Is engineering running remotely? Can the Mac stay idle?
+
+**Yes — VERIFIED.** Active checkout and disposable DB are on `carmen-aws-dev` (`ip-172-31-19-214`). Mac remains available for light review only. GitHub is durable SoT.
 
 | Field | Value |
 | --- | --- |
-| Host | `carmen-aws-dev` (`ip-172-31-19-214`, Ubuntu 24.04) |
-| Checkout | `/home/ubuntu/projects/isalwa-wt-overnight-20261125` @ `5874fb51` + Pedido/A1 patches |
+| Host | `carmen-aws-dev` / Ubuntu 24.04 / 15Gi RAM / ~367G free |
+| Checkout | `/home/ubuntu/projects/isalwa-wt-overnight-20261125` @ `abf641e3` |
 | Writer lock | `/home/ubuntu/projects/.isalwa-overnight-writer.lock` |
-| Disposable DB | `isalwa_overnight_20261125_disposable` on `127.0.0.1:55439` |
-| Runtime dir | `/home/ubuntu/test-runtime/isalwa-overnight-20261125` |
-| GitHub SSH on host | `contractorcomplianceco-cmyk` (can fetch `carmen-ship-it/ISALWA-DEMO`) |
-| Mac | Available for light access; **not** the active build machine |
+| Disposable DB | `isalwa_overnight_20261125_disposable` @ `127.0.0.1:55439` |
+| Runtime | `/home/ubuntu/test-runtime/isalwa-overnight-20261125` |
+| Host GitHub SSH | `contractorcomplianceco-cmyk` (reads `carmen-ship-it/ISALWA-DEMO`) |
 
-## Results so far
+## 2. Customer-to-delivery spine (same synthetic records)
 
-| Claim | Status |
+**VERIFIED** on AWS disposable via `apps/os-api/src/spine-canonical.http.test.ts` → **9/9 PASS**.
+
+Fixtures (sanitized, no cookies in GitHub): runtime path  
+`/home/ubuntu/test-runtime/isalwa-overnight-20261125/spine-canonical/ids.json`  
+Includes org, party, quote `Q-000001`, order `O-000001`, nota/salida/entrega/payment/work/conversation.
+
+A1 on AWS: dispatch-ledger + cumulative **37/37**; with boundary (linked-salida aligned) **51/51**.
+
+## 3. Pedido indicators, notifications, admin
+
+| Item | Status |
 | --- | --- |
-| A1 dispatch-ledger + cumulative **37/37** on AWS | **VERIFIED** |
-| delivery-boundary aligned with A1 linked-salida **+14 → 51/51** with A1 suites | **VERIFIED** |
-| `canListPedidoDeliveryDocuments` unit | **VERIFIED** |
-| Pedido `/delivery-notes` readable by order owner without `delivery.record` | **IMPLEMENTED** (HTTP re-prove pending) |
-| `hasNotaFact` also from delivery_note timeline | **IMPLEMENTED** |
-| Spine HTTP 9/9 on AWS disposable | **VERIFIED** (after PDF pin + portable fixtures path) |
-| Campana drawer / ack | **NOT VERIFIED LIVE** |
-| Elapsed notices live catch-up | **NOT VERIFIED LIVE** (unit previously TESTED LOCALLY) |
-| people.admin seat journeys | **NOT VERIFIED LIVE** |
-| Hosted separate preview | **BLOCKED** (Q-DEPLOY-01 stack not provisioned) |
+| Pedido Nota/Salida/Entrega indicators | **IMPLEMENTED** + unit/scope tests; root cause was commercial owner denied `GET /delivery-notes`. **BROWSER VERIFIED LOCALLY** not re-run on AWS (no Playwright/Chrome installed on host). |
+| Elapsed 48h/60m/15m unit clock | **VERIFIED** 4/4 on AWS |
+| Elapsed live API catch-up | **NOT VERIFIED LIVE** |
+| Campana drawer + ack | **NOT VERIFIED LIVE** (browser tooling missing on AWS) |
+| Role preview non-grant | **VERIFIED** 15/15 |
+| people.admin HTTP mutations + non-admin deny | **VERIFIED** 12/12 (`workforce-admin-mutation-http.test.ts`) |
+| Full UI invite/team/coverage journeys | **NOT VERIFIED LIVE** |
 
-## Pedido indicator root cause
+## 4. What is on GitHub vs only on server/Mac
 
-Commercial Pedido viewers (e.g. spine owner: `sales_rep` + convert/create, **no** `delivery.record`) called `GET /delivery-notes`, which required `delivery.record`. The page swallowed the error → empty Nota/Salida/Entrega circles. Fix: `canListPedidoDeliveryDocuments` + read-only list path; also derive Nota from timeline facts like Salida/Entrega.
+| Location | Content |
+| --- | --- |
+| GitHub `wip/overnight-handoff-20261125` @ `abf641e3` | Handoff packet + Pedido/A1/spine-portable fixes |
+| AWS disposable DB + runtime fixtures | Live synthetic spine IDs/cookies — **not** uploaded |
+| Mac `.tmp/` | Local leftovers only; not SoT |
+
+## 5. Blocked / decisions for Carmen
+
+| Blocker | Owner | Decision needed |
+| --- | --- | --- |
+| Campana + Pedido browser proof | Eng | Install Playwright/Chromium on AWS **or** authorize short Mac browser pass |
+| Elapsed live catch-up | Eng | Start long-lived os-api on AWS with clock enabled |
+| Hosted preview (Q-DEPLOY-01) | Carmen | Authorize separate Vercel + API + DB + Supabase identities |
+| WhatsApp real | Carmen | Meta/WABA credentials |
+| Evaluation URL | — | Remains **untouched** (locked) |
 
 ## Rollback
 
-- Git: return to `5874fb51` on the WIP branch; drop later commits.  
-- AWS PG: `pg_ctl -D /home/ubuntu/test-runtime/isalwa-overnight-20261125/pgdata stop`  
-- Do not touch evaluation Vercel project.
+- Git: `git reset --hard 5874fb51` on WIP (or revert `abf641e3`)  
+- AWS PG: `pg_ctl -D …/pgdata -m fast stop`  
+- Never touch `https://isalwa-os-web-evaluation.vercel.app`
+
+## Remaining queue
+
+1. Browser: Pedido lifecycle strip + Campana ack (tooling gap)  
+2. Live elapsed catch-up after API reload  
+3. Hosted only after local completeness + Q-DEPLOY-01 stack  
